@@ -1,6 +1,6 @@
 defmodule Transport.DataFrame.RequirednessProcessing do
   @moduledoc """
-  Wraps value validation results with requiredness constraints.
+  Wrap value validation results with requiredness constraints.
 
   - `required: true` - value must be present AND pass validation
   - `required: false` - value must be empty OR pass validation
