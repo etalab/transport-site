@@ -26,6 +26,11 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   For example, `when map_size(constraints) == 1` ensures the constraints map
   contains exactly one key (e.g., only "minimum" or only "pattern"), preventing
   cases where additional unexpected constraints might be present.
+
+  ## Testing
+
+  There are no tests here, instead this logic is invoked & tested
+  through `Transport.IRVE.Validator.DataFrameValidation`.
   """
 
   alias Explorer.Series
