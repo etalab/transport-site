@@ -1,5 +1,7 @@
 defmodule Transport.Validators.GTFSRTTest do
-  use ExUnit.Case, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import Ecto.Query
   import DB.Factory

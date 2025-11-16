@@ -69,11 +69,6 @@ defmodule TransportWeb.API.StatsControllerTest do
           "type" => "Polygon"
         },
         "properties" => %{
-          geometry: %Geo.Polygon{
-            coordinates: [[{55.5832, -21.3723}, {55.551, -21.3743}, {55.5359, -21.3631}, {55.5832, -21.3723}]],
-            properties: %{},
-            srid: 4326
-          },
           names: [dataset2.custom_title, dataset1.custom_title],
           slugs: [dataset2.slug, dataset1.slug]
         },
@@ -84,6 +79,9 @@ defmodule TransportWeb.API.StatsControllerTest do
     assert TransportWeb.API.StatsController.vehicles_sharing_features_query()
            |> DB.Repo.all()
            |> TransportWeb.API.StatsController.vehicles_sharing_features() == expected
+
+    # result can be encoded
+    refute expected |> Jason.encode!() |> is_nil()
   end
 
   test "can load the /stats page", %{conn: conn} do

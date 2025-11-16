@@ -99,7 +99,7 @@ defmodule TransportWeb.API.StatsController do
       %{
         "geometry" => r.geometry |> JSON.encode!(),
         "type" => "Feature",
-        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> k != "geometry" end))
+        "properties" => Map.take(r, Enum.filter(Map.keys(r), fn k -> to_string(k) != "geometry" end))
       }
     end)
   end
