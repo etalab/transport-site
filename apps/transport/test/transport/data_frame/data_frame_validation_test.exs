@@ -213,28 +213,35 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     {"cable_t2_attache", "false", :valid}
   ]
 
+  def to_boolean(:valid), do: true
+  def to_boolean(:invalid), do: false
+
   @test_cases
   |> Enum.each(fn {field, value, validity} ->
-    expected_result =
-      case validity do
-        :valid -> [:row_valid, :column_valid]
-        :invalid -> [:row_invalid, :column_invalid]
-      end
-
-    @tag :focus
     test "field:#{field}(#{value |> inspect})" do
-      assert checks_for_row(unquote(field), unquote(value)) == [unquote(expected_result)]
+      validity = to_boolean(unquote(validity))
+      assert compute_validity(unquote(field), unquote(value)) == [
+        [row_valid: validity, column_valid: validity]
+      ]
     end
   end)
 
-  def checks_for_row(key, value) do
+  @doc """
+  Check how forcing a specific IRVE field to a given value affects validity.
+
+  A valid baseline row is generated, the `field` is overridden, and the
+  DataFrame validators run.
+
+  Returns: [%{row_valid: boolean(), column_valid: boolean()}]
+  """
+  def compute_validity(field, value) do
     row =
-      %{key => value}
+      %{field => value}
       |> DB.Factory.IRVE.generate_row()
       |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
 
     row_valid_name = "check_row_valid"
-    column_valid_name = "check_column_#{key}_valid"
+    column_valid_name = "check_column_#{field}_valid"
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
     [row]
@@ -243,11 +250,8 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     |> Transport.IRVE.Validator.DataFrameValidation.setup_row_check()
     |> Explorer.DataFrame.select([row_valid_name, column_valid_name])
     |> Explorer.DataFrame.to_rows()
-    |> Enum.map(fn result ->
-      [
-        if(result[row_valid_name] == true, do: :row_valid, else: :row_invalid),
-        if(result[column_valid_name] == true, do: :column_valid, else: :column_invalid)
-      ]
+    |> Enum.map(fn row ->
+      [row_valid: row[row_valid_name], column_valid: row[column_valid_name]]
     end)
   end
 end
