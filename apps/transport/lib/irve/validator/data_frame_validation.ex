@@ -10,25 +10,23 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
   - for each field in `Transport.IRVE.StaticIRVESchema`, setup a `check_column_name_of_the_field`
     boolean series, handling everything that is defined in the schema for that specific field. This
     includes "requiredness" of the field, field type, constraints, format, everything.
-  - for each row in the data frame, setup a `check_row_valid`
+  - for each row in the data frame, setup a `check_row_valid` indicating if the row itself is valid,
+    doing a logic `AND` between all the field-level checks described above
   """
 
-  @doc """
-  Given a specific schema (currently only the IRVE specificities are supported)
-
-  """
   def setup_field_validation_columns(%Explorer.DataFrame{} = df, schema) do
     schema
     |> Map.fetch!("fields")
     |> Enum.reduce(df, fn field_definition, df ->
       # mandatory
-      field_name = field_definition |> Map.fetch!("name")
-      field_type = field_definition |> Map.fetch!("type")
-      field_constraints = field_definition |> Map.fetch!("constraints")
+      {field_name, field_definition} = Map.pop!(field_definition, "name")
+      {field_type, field_definition} = Map.pop!(field_definition, "type")
+      {field_constraints, field_definition} = Map.pop!(field_definition, "constraints")
       # optional
-      field_format = field_definition["format"]
+      {field_format, field_definition} = Map.pop(field_definition, "format")
 
-      # TODO: assert that nothing is left in the def
+      # warn us (hard fail) if something has been added to the schema
+      0 = map_size(field_definition |> Map.delete("description") |> Map.delete("example"))
 
       # Process all fields - no filtering
       setup_field_validation_column(df, field_name, field_type, field_format, field_constraints)
