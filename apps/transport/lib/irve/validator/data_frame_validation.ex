@@ -44,7 +44,7 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
 
     Explorer.DataFrame.mutate_with(df, fn df ->
       validation_series =
-        Transport.IRVE.Validator.FieldValidation.is_column_valid(df, field_name, type, format, validation_constraints)
+        Transport.IRVE.Validator.FieldValidation.column_valid?(df, field_name, type, format, validation_constraints)
 
       final_validation =
         Transport.DataFrame.RequirednessProcessing.wrap_with_requiredness(df[field_name], validation_series,

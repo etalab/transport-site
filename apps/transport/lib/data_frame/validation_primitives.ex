@@ -77,13 +77,13 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_email(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
+      iex> email?(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
       [true, false]
 
-      iex> is_email(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
+      iex> email?(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
       [true, false]
   """
-  def is_email(series) do
+  def email?(series) do
     Series.re_contains(series, @simple_email_pattern)
   end
 
@@ -111,13 +111,13 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_boolean_value(build_series(["true", "false", "TRUE"])) |> Series.to_list()
+      iex> boolean_value?(build_series(["true", "false", "TRUE"])) |> Series.to_list()
       [true, true, false]
 
-      iex> is_boolean_value(build_series(["1", "0", "VRAI", "FAUX"])) |> Series.to_list()
+      iex> boolean_value?(build_series(["1", "0", "VRAI", "FAUX"])) |> Series.to_list()
       [false, false, false, false]
   """
-  def is_boolean_value(series) do
+  def boolean_value?(series) do
     Series.in(series, @supported_boolean_values)
   end
 
@@ -129,13 +129,13 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_integer_value(build_series(["8", "-4", "05"])) |> Series.to_list()
+      iex> integer_value?(build_series(["8", "-4", "05"])) |> Series.to_list()
       [true, true, true]
 
-      iex> is_integer_value(build_series(["9999999999999999999999", "INF", "NaN"])) |> Series.to_list()
+      iex> integer_value?(build_series(["9999999999999999999999", "INF", "NaN"])) |> Series.to_list()
       [false, false, false]
   """
-  def is_integer_value(series) do
+  def integer_value?(series) do
     series
     |> Series.cast(:integer)
     |> Series.is_not_nil()
@@ -148,16 +148,16 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_numeric(build_series(["8", "-4.5", "05", "+5.47", "-9.789"])) |> Series.to_list()
+      iex> numeric?(build_series(["8", "-4.5", "05", "+5.47", "-9.789"])) |> Series.to_list()
       [true, true, true, true, true]
 
-      iex> is_numeric(build_series(["INF", "-INF", "NaN", "foobar"])) |> Series.to_list()
+      iex> numeric?(build_series(["INF", "-INF", "NaN", "foobar"])) |> Series.to_list()
       [false, false, false, false]
 
-      iex> is_numeric(build_series(["9999999999999999999999"])) |> Series.to_list()
+      iex> numeric?(build_series(["9999999999999999999999"])) |> Series.to_list()
       [true]
   """
-  def is_numeric(series) do
+  def numeric?(series) do
     casted = Series.cast(series, {:f, 64})
 
     Series.and(
@@ -197,13 +197,13 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_date(build_series(["2024-10-07"]), "%Y-%m-%d") |> Series.to_list()
+      iex> date?(build_series(["2024-10-07"]), "%Y-%m-%d") |> Series.to_list()
       [true]
 
-      iex> is_date(build_series(["2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
+      iex> date?(build_series(["2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
       [false, false, false, false]
   """
-  def is_date(series, "%Y-%m-%d" = _format) do
+  def date?(series, "%Y-%m-%d" = _format) do
     Series.re_contains(series, @iso_date_pattern)
   end
 
@@ -219,13 +219,13 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> is_geopoint(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]), "array") |> Series.to_list()
+      iex> geopoint?(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]), "array") |> Series.to_list()
       [true, true, true, true, true]
 
-      iex> is_geopoint(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
+      iex> geopoint?(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
       [false, false, false, false, false, false]
   """
-  def is_geopoint(series, "array" = _format) do
+  def geopoint?(series, "array" = _format) do
     Series.re_contains(series, @geopoint_array_pattern)
   end
 end

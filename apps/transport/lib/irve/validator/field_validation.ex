@@ -11,13 +11,13 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   ## Separation of Concerns
 
   The `required` constraint is handled separately by the RequirednessProcessing module.
-  This module's `is_column_valid/5` receives constraints with "required" already removed,
+  This module's `column_valid?/5` receives constraints with "required" already removed,
   allowing it to focus purely on value validation logic (type checking, patterns, ranges, etc.)
   without mixing in presence/absence logic.
 
   ## Pattern Matching and map_size Guards
 
-  Each `is_column_valid/5` clause uses `map_size/1` guards to ensure
+  Each `column_valid?/5` clause uses `map_size/1` guards to ensure
   the constraints map contains exactly the expected keys. This provides automatic
   detection of schema changes - if a new constraint key is added to the schema,
   the validation will fail with a clear error rather than silently accepting
@@ -36,53 +36,53 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   alias Explorer.Series
   alias Transport.DataFrame.Validation.Primitives
 
-  def is_column_valid(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
-    Primitives.is_boolean_value(df[field_name])
+  def column_valid?(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
+    Primitives.boolean_value?(df[field_name])
   end
 
-  def is_column_valid(df, field_name, "integer", nil, %{"minimum" => min} = constraints)
+  def column_valid?(df, field_name, "integer", nil, %{"minimum" => min} = constraints)
       when map_size(constraints) == 1 do
     Series.and(
-      Primitives.is_integer_value(df[field_name]),
+      Primitives.integer_value?(df[field_name]),
       Primitives.is_greater_or_equal(df[field_name], min)
     )
   end
 
-  def is_column_valid(df, field_name, "number", nil, %{"minimum" => min} = constraints)
+  def column_valid?(df, field_name, "number", nil, %{"minimum" => min} = constraints)
       when map_size(constraints) == 1 do
     Series.and(
-      Primitives.is_numeric(df[field_name]),
+      Primitives.numeric?(df[field_name]),
       Primitives.is_greater_or_equal(df[field_name], min)
     )
   end
 
-  def is_column_valid(df, field_name, "string", "email", constraints) when map_size(constraints) == 0 do
-    Primitives.is_email(df[field_name])
+  def column_valid?(df, field_name, "string", "email", constraints) when map_size(constraints) == 0 do
+    Primitives.email?(df[field_name])
   end
 
-  def is_column_valid(df, field_name, "date", fmt, constraints) when map_size(constraints) == 0 do
-    Primitives.is_date(df[field_name], fmt)
+  def column_valid?(df, field_name, "date", fmt, constraints) when map_size(constraints) == 0 do
+    Primitives.date?(df[field_name], fmt)
   end
 
-  def is_column_valid(df, field_name, "geopoint", "array", constraints) when map_size(constraints) == 0 do
-    Primitives.is_geopoint(df[field_name], "array")
+  def column_valid?(df, field_name, "geopoint", "array", constraints) when map_size(constraints) == 0 do
+    Primitives.geopoint?(df[field_name], "array")
   end
 
-  def is_column_valid(df, field_name, "string", nil, %{"pattern" => pattern_value} = constraints)
+  def column_valid?(df, field_name, "string", nil, %{"pattern" => pattern_value} = constraints)
       when map_size(constraints) == 1 do
     Primitives.is_matching_the_pattern(df[field_name], pattern_value)
   end
 
-  def is_column_valid(df, field_name, "string", nil, %{"enum" => values} = constraints)
+  def column_valid?(df, field_name, "string", nil, %{"enum" => values} = constraints)
       when map_size(constraints) == 1 do
     Primitives.is_in_enum(df[field_name], values)
   end
 
-  def is_column_valid(df, field_name, "string", nil, constraints) when map_size(constraints) == 0 do
+  def column_valid?(df, field_name, "string", nil, constraints) when map_size(constraints) == 0 do
     df[field_name] |> Series.equal(df[field_name])
   end
 
-  def is_column_valid(_df, field_name, type, format, constraints) do
+  def column_valid?(_df, field_name, type, format, constraints) do
     raise """
     Unhandled validation case for field: #{field_name}
     type: #{inspect(type)}
