@@ -191,20 +191,27 @@ defmodule Transport.DataFrame.Validation.Primitives do
   @iso_date_pattern ~S/\A\d{4}\-\d{2}\-\d{2}\z/
 
   @doc """
-  Check if values match ISO date format (YYYY-MM-DD).
+  Check if values match ISO date format (YYYY-MM-DD) and represent real dates.
 
-  Only validates format, not whether the date is actually valid.
+  The validation first ensures the pattern matches, then relies on the Explorer
+  date casting to reject impossible dates (e.g., 2024-02-30).
 
   ## Examples
 
       iex> date?(build_series(["2024-10-07"]), "%Y-%m-%d") |> Series.to_list()
       [true]
 
-      iex> date?(build_series(["2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
-      [false, false, false, false]
+      iex> date?(build_series(["2024-02-30", "2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
+      [false, false, false, false, false]
   """
   def date?(series, "%Y-%m-%d" = _format) do
-    Series.re_contains(series, @iso_date_pattern)
+    matches_pattern = Series.re_contains(series, @iso_date_pattern)
+    casted = Series.cast(series, :date)
+
+    Series.and(
+      matches_pattern,
+      Series.is_not_nil(casted)
+    )
   end
 
   @geopoint_array_pattern ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/

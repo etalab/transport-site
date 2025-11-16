@@ -194,7 +194,8 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     # date_mise_en_service
     {"date_mise_en_service", "", :valid},
     {"date_mise_en_service", "2021-12-30", :valid},
-    # TODO: implement support for invalid date verification, & add test-case
+    {"date_mise_en_service", "2020-02-29", :valid},
+    {"date_mise_en_service", "2024-02-30", :invalid},
     {"date_mise_en_service", "30/12/2021", :invalid},
 
     # observations
@@ -203,8 +204,8 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
 
     # date_maj
     {"date_maj", "2021-12-30", :valid},
+    {"date_maj", "2024-02-30", :invalid},
     {"date_maj", "30/12/2021", :invalid},
-    # TODO: implement support for invalid date verification, & add test-case
     {"date_maj", "", :invalid},
 
     # cable_t2_attache
