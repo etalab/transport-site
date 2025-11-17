@@ -41,7 +41,6 @@ defmodule TransportWeb.Endpoint do
   plug(Plug.RequestId)
   plug(Plug.Telemetry, event_prefix: [:phoenix, :endpoint])
   plug(RemoteIp, headers: ["x-forwarded-for"])
-  plug(Plug.Logger)
 
   plug(Plug.Parsers,
     parsers: [
