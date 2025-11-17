@@ -1,5 +1,5 @@
 defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Ecto.Query
