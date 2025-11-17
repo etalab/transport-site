@@ -360,19 +360,6 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     Logger.info("#{new_aoms |> Enum.count()} new AOMs. SIRENs: #{Enum.join(new_aoms, ", ")}")
     Logger.info("#{removed_aoms |> Enum.count()} removed AOMs. SIRENs: #{Enum.join(removed_aoms, ", ")}")
 
-    # Some Ecto fun: two ways of joining through assoc, see https://hexdocs.pm/ecto/associations.html
-    deleted_aom_datasets =
-      DB.Dataset
-      |> join(:left, [d], aom in assoc(d, :aom))
-      |> where([d, aom], aom.siren in ^(removed_aoms |> MapSet.to_list()))
-      |> select([d, aom], [aom.id, aom.siren, d.id])
-      |> DB.Repo.all()
-      |> Enum.group_by(&hd(&1))
-
-    Logger.info(
-      "Datasets still associated with deleted AOM as territory (aom.id => [aom.id, aom.siren, dataset.id]) : #{inspect(deleted_aom_datasets)}"
-    )
-
     deleted_legal_owners_query =
       from(d in DB.Dataset,
         # This magically works with the many_to_many
