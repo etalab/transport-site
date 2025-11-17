@@ -569,6 +569,7 @@ defmodule TransportWeb.DatasetController do
       )
 
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
+    # We use the home tiles to associate the URL params to a title, see doc of the function
     TransportWeb.PageController.home_tiles(conn)
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider

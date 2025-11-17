@@ -261,18 +261,28 @@ defmodule TransportWeb.PageController do
     defstruct [:link, :icon, :title, :count, :type, :documentation_url]
   end
 
+  @doc """
+  Build the tiles displayed on the home page.
+  The home tile structs are also used on every dataset listing page to find the title of the page:
+  the URL params are matched againgt home page tiles "link"s,
+  and when there is a match the "title" of the tile is used to set the dataset listing page title.
+  """
+
   def home_tiles(conn) do
+    # Fetch stats once here to avoid multiple cache fetch that puts noise in logs
+    stats = home_index_stats()
+
     [
-      type_tile(conn, "public-transit"),
-      type_tile(conn, "vehicles-sharing"),
-      type_tile(conn, "bike-data"),
-      type_tile(conn, "road-data"),
-      type_tile(conn, "carpooling-areas"),
-      type_tile(conn, "carpooling-lines"),
-      type_tile(conn, "carpooling-offers"),
-      type_tile(conn, "charging-stations"),
-      type_tile(conn, "informations"),
-      type_tile(conn, "pedestrian-path")
+      type_tile(conn, stats, "public-transit"),
+      type_tile(conn, stats, "vehicles-sharing"),
+      type_tile(conn, stats, "bike-data"),
+      type_tile(conn, stats, "road-data"),
+      type_tile(conn, stats, "carpooling-areas"),
+      type_tile(conn, stats, "carpooling-lines"),
+      type_tile(conn, stats, "carpooling-offers"),
+      type_tile(conn, stats, "charging-stations"),
+      type_tile(conn, stats, "informations"),
+      type_tile(conn, stats, "pedestrian-path")
     ]
   end
 
@@ -282,13 +292,13 @@ defmodule TransportWeb.PageController do
 
   defp patch_vls_tiles(tile), do: tile
 
-  defp type_tile(conn, type, options \\ []) do
+  defp type_tile(conn, stats, type, options \\ []) do
     %Tile{
       type: type,
       link: dataset_path(conn, :index, type: type),
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
-      count: Keyword.fetch!(home_index_stats(), :count_by_type)[type],
+      count: Keyword.fetch!(stats, :count_by_type)[type],
       documentation_url: Keyword.get(options, :documentation_url)
     }
   end
