@@ -4,7 +4,7 @@ defmodule Transport.ImportData do
   """
 
   alias Datagouvfr.Client.CommunityResources
-  alias DB.{Commune, Dataset, LogsImport, Repo, Resource}
+  alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
   alias Opendatasoft.UrlExtractor
   alias Transport.Shared.ResourceSchema
@@ -148,7 +148,6 @@ defmodule Transport.ImportData do
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
       |> Map.put("licence", licence(data_gouv_resp))
       |> Map.put("archived_at", parse_datetime(data_gouv_resp["archived"]))
-      |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
       |> Map.put("is_active", true)
 
     case Map.get(data_gouv_resp, "resources") do
@@ -207,74 +206,6 @@ defmodule Transport.ImportData do
   @spec get_nb_reuses(map()) :: number()
   def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
   def get_nb_reuses(_), do: 0
-
-  @spec get_associated_zones_insee(map()) :: [binary()]
-  defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
-    zones
-    |> Enum.flat_map(&fetch_data_gouv_zone_insee/1)
-  end
-
-  defp get_associated_zones_insee(_), do: []
-
-  @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
-  defp fetch_data_gouv_zone_insee(zone) do
-    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/spatial/zones/#{zone}/"
-    Logger.info("getting zone (url = #{url})")
-
-    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Jason.decode(response.body),
-         insee <- read_datagouv_zone(json) do
-      insee
-    else
-      {:error, error} ->
-        Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
-        []
-    end
-  end
-
-  @spec read_datagouv_zone(map()) :: [binary()]
-  def read_datagouv_zone(%{
-        "features" => [
-          %{
-            "properties" => %{
-              "level" => "fr:commune",
-              "code" => insee
-            }
-          }
-          | _
-        ]
-      }) do
-    [insee]
-  end
-
-  def read_datagouv_zone(%{
-        "features" => [
-          %{
-            "properties" => %{
-              "level" => "fr:epci",
-              "code" => code
-            }
-          }
-          | _
-        ]
-      }) do
-    # For the EPCI we get the list of cities contained by the EPCI
-    Commune
-    |> where([c], c.epci_insee == ^code)
-    |> select([c], c.insee)
-    |> Repo.all()
-  end
-
-  def read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
-    Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
-    []
-  end
-
-  def read_datagouv_zone(z) do
-    Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
-    []
-  end
 
   @spec get_resources(map(), binary()) :: [map()]
   def get_resources(dataset, type) do

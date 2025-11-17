@@ -15,7 +15,6 @@ defmodule TransportWeb.API.DatasetController do
   @by_id_cache_ttl :timer.seconds(30)
   @dataset_preload [
     :resources,
-    :communes,
     :legal_owners_aom,
     :legal_owners_region,
     :declarative_spatial_areas,

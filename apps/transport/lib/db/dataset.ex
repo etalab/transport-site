@@ -6,7 +6,7 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, LogsImport, NotificationSubscription, Region, Repo, Resource}
+  alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   use Gettext, backend: TransportWeb.Gettext
@@ -62,9 +62,6 @@ defmodule DB.Dataset do
 
     timestamps(type: :utc_datetime_usec)
 
-    # When the dataset is linked to some cities
-    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
-
     many_to_many(:legal_owners_aom, AOM,
       join_through: "dataset_aom_legal_owner",
       on_replace: :delete
@@ -87,22 +84,13 @@ defmodule DB.Dataset do
     )
 
     field(:legal_owner_company_siren, :string)
+    field(:search_payload, :map)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
     has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
     has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
-
-    # Deprecation notice: datasets won't be linked to region and aom like that in the future
-    # ⬇️⬇️⬇️
-
-    # A Dataset can be linked to *either*:
-    # - a Region (and there is a special Region 'national' that represents the national datasets);
-    # - an AOM;
-    # - or a list of cities.
     belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
-
-    field(:search_payload, :map)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end
 
@@ -607,7 +595,6 @@ defmodule DB.Dataset do
     dataset
     |> Repo.preload([
       :resources,
-      :communes,
       :organization_object
     ])
     |> cast(params, [
