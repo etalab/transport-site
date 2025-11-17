@@ -506,46 +506,4 @@ defmodule Transport.ImportDataTest do
                ImportData.get_resources(dataset, "road-data")
     end
   end
-
-  describe "read_datagouv_zone" do
-    test "for a commune" do
-      # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:commune:38185/
-      assert ["38185"] ==
-               ImportData.read_datagouv_zone(%{
-                 "features" => [
-                   %{
-                     "id" => "fr:commune:38185",
-                     "properties" => %{
-                       "code" => "38185",
-                       "level" => "fr:commune",
-                       "name" => "Grenoble",
-                       "slug" => "Grenoble",
-                       "uri" => "http://id.insee.fr/geo/commune/f71595ba-1957-416a-83c2-c7f677a91ca4"
-                     }
-                   }
-                 ]
-               })
-    end
-
-    test "for an EPCI" do
-      epci = insert(:epci, insee: "242320109", nom: "Le Pays Dunois")
-      commune = insert(:commune, epci_insee: "242320109")
-      # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:epci:242320109/
-      assert [commune.insee] ==
-               ImportData.read_datagouv_zone(%{
-                 "features" => [
-                   %{
-                     "id" => "fr:epci:#{epci.insee}",
-                     "properties" => %{
-                       "code" => epci.insee,
-                       "level" => "fr:epci",
-                       "name" => epci.nom,
-                       "slug" => "Le-Pays-Dunois",
-                       "uri" => "http://id.insee.fr/geo/intercommunalite/882b7908-51cf-401d-b0db-ae6ad708b670"
-                     }
-                   }
-                 ]
-               })
-    end
-  end
 end
