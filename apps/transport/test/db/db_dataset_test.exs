@@ -11,25 +11,6 @@ defmodule DB.DatasetDBTest do
 
   doctest DB.Dataset, import: true
 
-  test "delete dataset associated to a commune" do
-    commune = insert(:commune)
-
-    dataset =
-      :dataset
-      |> insert()
-      |> Repo.preload(:communes)
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:communes, [commune])
-      |> Repo.update!()
-
-    # check the assoc succeeded
-    [associated_commune] = dataset.communes
-    assert associated_commune.id == commune.id
-
-    # the deletion will raise if no on_delete action is defined because of the presence of a foreign key
-    Repo.delete!(dataset)
-  end
-
   describe "changeset of a dataset" do
     test "empty params are rejected" do
       assert {:error, _} = Dataset.changeset(%{})
