@@ -7,7 +7,7 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
   This is what this module does, leveraging `Transport.IRVE.Validator.FieldValidation`.
 
   Logic:
-  - for each field in `Transport.IRVE.StaticIRVESchema`, setup a `check_column_name_of_the_field`
+  - for each field in `Transport.IRVE.StaticIRVESchema`, setup a `check_$column_name$_valid`
     boolean series, handling everything that is defined in the schema for that specific field. This
     includes "requiredness" of the field, field type, constraints, format, everything.
   - for each row in the data frame, setup a `check_row_valid` indicating if the row itself is valid,
