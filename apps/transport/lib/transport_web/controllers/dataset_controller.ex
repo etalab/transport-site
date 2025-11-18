@@ -42,28 +42,29 @@ defmodule TransportWeb.DatasetController do
 
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id) do
-      conn
-      |> assign(:dataset, dataset)
-      |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
-      |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-      |> assign(:resources_infos, resources_infos(dataset))
-      |> assign(
-        :history_resources,
-        Transport.History.Fetcher.history_resources(dataset,
-          max_records: max_nb_history_resources(),
-          preload_validations: true,
-          only_metadata: true
+    case DB.Dataset.get_by_slug(slug_or_id) do
+      {:ok, %DB.Dataset{} = dataset} ->
+        conn
+        |> assign(:dataset, dataset)
+        |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
+        |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+        |> assign(:resources_infos, resources_infos(dataset))
+        |> assign(
+          :history_resources,
+          Transport.History.Fetcher.history_resources(dataset,
+            max_records: max_nb_history_resources(),
+            preload_validations: true,
+            only_metadata: true
+          )
         )
-      )
-      |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
-      |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign_scores(dataset)
-      |> assign_is_producer(dataset)
-      |> assign_follows_dataset(dataset)
-      |> put_status(if dataset.is_active, do: :ok, else: :not_found)
-      |> render("details.html")
-    else
+        |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
+        |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
+        |> assign_scores(dataset)
+        |> assign_is_producer(dataset)
+        |> assign_follows_dataset(dataset)
+        |> put_status(if dataset.is_active, do: :ok, else: :not_found)
+        |> render("details.html")
+
       {:error, msg} ->
         Logger.error("Could not fetch dataset details: #{msg}")
         redirect_to_slug_or_404(conn, slug_or_id)
