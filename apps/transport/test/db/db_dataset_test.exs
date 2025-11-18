@@ -333,25 +333,6 @@ defmodule DB.DatasetDBTest do
     end
   end
 
-  test "get_other_datasets" do
-    departement_1 = insert(:administrative_division, type: :departement, type_insee: "departement_123", insee: "123")
-    departement_2 = insert(:administrative_division, type: :departement, type_insee: "departement_456", insee: "456")
-    epci = insert(:administrative_division, type: :epci, type_insee: "epci_789", insee: "789")
-
-    %DB.Dataset{id: d1_id} =
-      d1 =
-      insert(:dataset, declarative_spatial_areas: [departement_1, epci]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    d2 = insert(:dataset, declarative_spatial_areas: [departement_2]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    %DB.Dataset{id: d3_id} =
-      d3 = insert(:dataset, declarative_spatial_areas: [departement_1]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    assert [%DB.Dataset{id: ^d3_id}] = Dataset.get_other_datasets(d1)
-    assert [] = Dataset.get_other_datasets(d2)
-    assert [%DB.Dataset{id: ^d1_id}] = Dataset.get_other_datasets(d3)
-  end
-
   test "formats" do
     dataset = insert(:dataset)
     insert(:resource, format: "GTFS", dataset: dataset)

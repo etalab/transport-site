@@ -802,19 +802,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
-  def get_other_datasets(%__MODULE__{declarative_spatial_areas: []}), do: []
-
-  def get_other_datasets(%__MODULE__{id: id, declarative_spatial_areas: declarative_spatial_areas}) do
-    %DB.AdministrativeDivision{id: target_id} = declarative_spatial_areas |> DB.AdministrativeDivision.sorted() |> hd()
-
-    __MODULE__.base_query()
-    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
-    |> where([dataset: d], d.id != ^id)
-    |> where([administrative_divison: ad], ad.id == ^target_id)
-    |> DB.Repo.all()
-  end
-
   @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
   def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
     {:ok, declarative_spatial_areas |> DB.AdministrativeDivision.names()}
