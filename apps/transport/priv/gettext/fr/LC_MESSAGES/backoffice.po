@@ -291,3 +291,7 @@ msgstr "Territoire couvert déclaré (nouvelle version)"
 #, elixir-autogen, elixir-format
 msgid "spatial areas label"
 msgstr "Choisissez un ou plusieurs communes, EPCI, départements, régions ou pays. Ceci n’est pas affiché publiquement (site, API) pour l’instant."
+
+#, elixir-autogen, elixir-format
+msgid "Offers"
+msgstr "Offres"

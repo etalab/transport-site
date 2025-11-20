@@ -88,6 +88,13 @@
 
   <div class="panel mt-48">
     <div class="panel-explanation">
+      <%= dgettext("backoffice", "Offers") %>
+    </div>
+    <.live_component module={TransportWeb.OfferSelectLive} id="offers_selection" form={f} offers={@offers} />
+  </div>
+
+  <div class="panel mt-48">
+    <div class="panel-explanation">
       <%= dgettext("backoffice", "Legal owners") %>
     </div>
     <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
