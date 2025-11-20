@@ -45,7 +45,7 @@ defmodule TransportWeb.OfferSelectLive do
   end
 
   def handle_event("add_offer", %{"key" => "Enter", "value" => value}, socket) do
-    new_offer = Enum.find(socket.assigns.offers_list, & &1.id == String.to_integer(value))
+    new_offer = Enum.find(socket.assigns.offers_list, &(&1.id == String.to_integer(value)))
     offers = (socket.assigns.offers ++ [new_offer]) |> Enum.uniq()
 
     if is_nil(new_offer) do
@@ -63,7 +63,7 @@ defmodule TransportWeb.OfferSelectLive do
   end
 
   def handle_event("remove_offer", %{"offer-id" => offer_id}, socket) do
-    offers = Enum.reject(socket.assigns.offers, & &1.id == String.to_integer(offer_id))
+    offers = Enum.reject(socket.assigns.offers, &(&1.id == String.to_integer(offer_id)))
 
     send(self(), {:updated_offers, offers})
 
