@@ -97,7 +97,13 @@
     <div class="panel-explanation">
       <%= dgettext("backoffice", "Legal owners") %>
     </div>
-    <.live_component module={TransportWeb.LegalOwnerSelectLive} id="owners_selection" form={f} owners={@legal_owners} />
+    <.live_component
+      module={TransportWeb.LegalOwnerSelectLive}
+      id="owners_selection"
+      form={f}
+      owners={@legal_owners}
+      offers={@offers}
+    />
     <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
     <div class="pt-12">
       <label>
