@@ -380,6 +380,21 @@ defmodule DB.Factory do
     }
   end
 
+  def offer_factory do
+    %DB.Offer{
+      nom_commercial: sequence(:nom_commercial, &"nom_commercial-#{&1}"),
+      identifiant_offre: sequence(:identifiant_offre, & &1),
+      type_transport: "Transport urbain",
+      modes: ["Bus"],
+      nom_aom: sequence(:nom_aom, &"nom_aom-#{&1}"),
+      aom_siren: sequence(:aom_siren, &"aom_siren-#{&1}"),
+      niveau: "Local",
+      exploitant: "Keolis",
+      type_contrat: "",
+      territoire: sequence(:territoire, &"territoire-#{&1}")
+    }
+  end
+
   def insert_token(%{} = args \\ %{}) do
     args =
       %{

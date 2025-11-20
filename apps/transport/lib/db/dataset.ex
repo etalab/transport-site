@@ -72,6 +72,8 @@ defmodule DB.Dataset do
       on_replace: :delete
     )
 
+    many_to_many(:offers, DB.Offer, join_through: "dataset_offer", on_replace: :delete)
+
     # This links the dataset to one or more `DB.AdministrativeDivision`. The x/y data
     # contained within the dataset's resources should more or less be consistent with
     # the polygons defining the territories of associated administrative divisions.
@@ -582,21 +584,21 @@ defmodule DB.Dataset do
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     dataset =
       dataset
-      |> Repo.preload([
+      |> DB.Repo.preload([
         :legal_owners_aom,
         :legal_owners_region,
-        :declarative_spatial_areas
+        :declarative_spatial_areas,
+        :offers,
+        :resources,
+        :organization_object
       ])
 
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
     declarative_spatial_areas = get_administrative_divisions(dataset, params)
+    offers = get_offers(dataset, params)
 
     dataset
-    |> Repo.preload([
-      :resources,
-      :organization_object
-    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -636,6 +638,7 @@ defmodule DB.Dataset do
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
+    |> put_assoc(:offers, offers)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -723,6 +726,20 @@ defmodule DB.Dataset do
 
       ids ->
         Repo.all(from(ad in DB.AdministrativeDivision, where: ad.id in ^ids))
+    end
+  end
+
+  defp get_offers(dataset, params) do
+    case params["offers"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.offers) do
+          dataset.offers
+        else
+          []
+        end
+
+      ids ->
+        Repo.all(from(o in DB.Offer, where: o.id in ^ids))
     end
   end
 

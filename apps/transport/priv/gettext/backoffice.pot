@@ -291,3 +291,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "spatial areas label"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Offers"
+msgstr ""
