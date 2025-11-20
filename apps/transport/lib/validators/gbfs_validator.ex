@@ -17,6 +17,7 @@ defmodule Transport.Validators.GBFSValidator do
       validated_data_name: url,
       validator: validator_name(),
       result: Map.from_struct(validation_result),
+      digest: Map.from_struct(validation_result) |> digest(),
       metadata: %DB.ResourceMetadata{
         metadata: Map.reject(result, fn {key, _val} -> key == :validation end),
         resource_id: resource_id
@@ -33,4 +34,15 @@ defmodule Transport.Validators.GBFSValidator do
   def validator_name, do: @github_repository
 
   defp validator_command, do: Application.fetch_env!(:transport, :gbfs_validator_url)
+
+  @doc """
+  iex> digest(%{"warnings_count" => 2, "errors_count" => 3, "issues" => []})
+  %{"errors_count" => 3, "warnings_count" => 2}
+  iex> digest(%{"issues" => []})
+  %{}
+  """
+  @spec digest(map) :: map
+  def digest(%{} = validation_result) do
+    Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
+  end
 end

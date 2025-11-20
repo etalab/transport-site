@@ -20,6 +20,8 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
       "MissingCoordinates" => [%{"severity" => "Warning"}]
     }
 
+    digest = Transport.Validators.GTFSTransport.digest(validation_content)
+
     # Add a fake GeoJSON point to each issue
     validation_content_with_geojson =
       Enum.into(validation_content, %{}, fn {issue_type, issues} ->
@@ -64,6 +66,7 @@ defmodule Transport.Validators.GtfsTransportValidatorTest do
     assert %{
              id: validation_id,
              result: ^validation_content,
+             digest: ^digest,
              data_vis: ^data_vis_content,
              resource_history_id: ^resource_history_id,
              validator_version: ^validator_version,

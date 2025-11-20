@@ -235,10 +235,6 @@ msgid "dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Other datasets"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Resources"
 msgstr ""
 
@@ -416,10 +412,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "See full payload"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Other datasets of %{name}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
