@@ -291,3 +291,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "spatial areas label"
 msgstr "Choose one or many municipalities, EPCIs, departments, regions or country. This is not displayed to users (website, API) for now."
+
+#, elixir-autogen, elixir-format
+msgid "Offers"
+msgstr ""

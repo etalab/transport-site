@@ -634,6 +634,19 @@ defmodule DB.DatasetDBTest do
     assert [%DB.Region{id: ^region_id}] = dataset.legal_owners_region
   end
 
+  test "changeset with offers" do
+    %DB.Offer{id: offer_id} = offer = insert(:offer)
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), offers: [offer])
+    assert [offer] == dataset.offers
+
+    # this time we test the changeset function with the datagouv_id
+    {:ok, changeset} = DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "custom_title" => "Nouveau titre"})
+    DB.Repo.update!(changeset)
+
+    dataset = DB.Dataset |> preload(:offers) |> DB.Repo.get!(dataset.id)
+    assert [%DB.Offer{id: ^offer_id}] = dataset.offers
+  end
+
   test "cannot insert a dataset with a nil organization_id" do
     message = ~r|null value in column "organization_id" of relation "dataset" violates not-null constraint|
 

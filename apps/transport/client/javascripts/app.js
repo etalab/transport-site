@@ -47,6 +47,10 @@ window.addEventListener('phx:backoffice-form-spatial-areas-reset', () => {
     document.getElementById('spatial_areas_search_input').value = ''
 })
 
+window.addEventListener('phx:backoffice-form-offer-reset', () => {
+    document.getElementById('js-offer-input').value = ''
+})
+
 window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {
     document.getElementById('gtfs-diff-steps').parentElement.scrollIntoView({ behavior: 'smooth' })
 })
