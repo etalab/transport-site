@@ -45,12 +45,12 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     aoms = DB.AOM |> select([aom], %{label: aom.nom, type: "aom", id: aom.id})
     regions = DB.Region |> select([r], %{label: r.nom, type: "region", id: r.id})
 
-    owners_list =
-      aoms
-      |> union_all(^regions)
-      |> DB.Repo.all()
+    owners_list = aoms |> union_all(^regions) |> DB.Repo.all()
 
-    {:ok, socket |> assign(assigns) |> assign(:owners_list, owners_list)}
+    aom_ids = Enum.map(assigns.offers, & &1.aom_id)
+    owners = (assigns.owners ++ Enum.filter(owners_list, &(&1.id in aom_ids and &1.type == "aom"))) |> Enum.uniq()
+
+    {:ok, socket |> assign(assigns) |> assign(%{owners_list: owners_list, owners: owners})}
   end
 
   def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do

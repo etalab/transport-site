@@ -87,7 +87,7 @@ defmodule TransportWeb.EditDatasetLive do
   def get_custom_tags(_), do: []
 
   def get_offers(%DB.Dataset{} = dataset) do
-    Enum.map(dataset.offers, &%{id: &1.id, label: &1.nom_commercial})
+    Enum.map(dataset.offers, &TransportWeb.OfferSelectLive.serialize/1)
   end
 
   def get_offers(_), do: []
