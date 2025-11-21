@@ -2,8 +2,7 @@
   <div class="pb-24">
     <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
     <% results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(@validation.validator_version) %>
-    <% %{"max_level" => severity, "worst_occurrences" => count} =
-      results_adapter.count_max_severity(@validation.result) %>
+    <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <a href={link}>
       <span class={summary_class(%{severity: String.capitalize(severity), count_errors: count})}>
         <%= if results_adapter.no_error?(severity) do %>
