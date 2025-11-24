@@ -41,6 +41,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
       |> assign(:custom_tags, get_custom_tags(dataset))
+      |> assign(:offers, get_offers(dataset))
       |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
       |> assign(:matches, [])
 
@@ -84,6 +85,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_custom_tags(_), do: []
+
+  def get_offers(%DB.Dataset{} = dataset) do
+    Enum.map(dataset.offers, &%{id: &1.id, label: &1.nom_commercial})
+  end
+
+  def get_offers(_), do: []
 
   def get_declarative_spatial_areas(%Dataset{} = dataset) do
     dataset.declarative_spatial_areas || []
@@ -152,6 +159,10 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_info({:updated_custom_tags, custom_tags}, socket) do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
+  end
+
+  def handle_info({:updated_offers, offers}, socket) do
+    {:noreply, socket |> assign(:offers, offers)}
   end
 
   def handle_info({:updated_spatial_areas, updated_spatial_areas}, socket) do
