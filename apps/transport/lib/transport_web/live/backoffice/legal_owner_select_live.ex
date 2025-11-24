@@ -53,7 +53,9 @@ defmodule TransportWeb.LegalOwnerSelectLive do
       |> Enum.map(&String.to_integer(&1["owner-id"]))
 
     aoms_from_offers = assigns.offers |> Enum.map(& &1.aom_id) |> Enum.reject(&(&1 in removed_aoms))
-    owners = (assigns.owners ++ Enum.filter(owners_list, &(&1.id in aoms_from_offers and &1.type == "aom"))) |> Enum.uniq()
+
+    owners =
+      (assigns.owners ++ Enum.filter(owners_list, &(&1.id in aoms_from_offers and &1.type == "aom"))) |> Enum.uniq()
 
     {:ok, socket |> assign(assigns) |> assign(%{owners_list: owners_list, owners: owners})}
   end
