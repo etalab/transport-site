@@ -1,9 +1,10 @@
 defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
-  use ExUnit.Case, async: true
-
   # all the test-cases, assuming the data has been trimmed from
   # leading & trailing whitespaces.
   @test_cases [
+    # first, verify that full row validation with a special tuple.
+    {:full_default_factory_row, :valid},
+
     # nom_amenageur
     {"nom_amenageur", "", :valid},
     {"nom_amenageur", "Société X", :valid},
@@ -214,67 +215,45 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     {"cable_t2_attache", "false", :valid}
   ]
 
-  def to_boolean(:valid), do: true
-  def to_boolean(:invalid), do: false
+  use ExUnit.Case,
+    async: true,
+    parameterize: Enum.map(@test_cases, &%{test_data: &1})
 
-  @test_cases
-  |> Enum.each(fn {field, value, validity} ->
-    test "field:#{field}(#{value |> inspect})" do
-      validity = to_boolean(unquote(validity))
-
-      assert compute_validity(unquote(field), unquote(value)) == [
-               [row_valid: validity, column_valid: validity]
-             ]
-    end
-  end)
-
-  def stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
-
-  test "default factory IRVE row is considered valid" do
-    row =
-      DB.Factory.IRVE.generate_row()
-      |> stringify_row()
-
-    [result] =
-      [row]
-      |> compute_validity()
-      |> Explorer.DataFrame.select(~r/\Acheck/)
-      |> Explorer.DataFrame.to_rows()
-
-    expected_result =
-      Transport.IRVE.StaticIRVESchema.field_names_list()
-      |> Enum.map(fn f -> {"check_column_#{f}_valid", true} end)
-      |> Enum.into(%{"check_row_valid" => true})
-
-    assert result == expected_result
+  test "validation", %{test_data: test_data} do
+    test_the_validation(test_data)
   end
 
-  @doc """
-  Check how forcing a specific IRVE field to a given value affects validity.
+  # full row version - test the validation on the default factory row
+  defp test_the_validation({:full_default_factory_row, :valid}) do
+    row = DB.Factory.IRVE.generate_row() |> stringify_row()
+    result = run_dataframe_validators([row])
+    assert result["check_row_valid"] |> Explorer.Series.to_list() == [true]
+  end
 
-  A valid baseline row is generated, the `field` is overridden, and the
-  DataFrame validators run.
-
-  Returns: [%{row_valid: boolean(), column_valid: boolean()}]
-  """
-  def compute_validity(field, value) do
-    row =
-      %{field => value}
-      |> DB.Factory.IRVE.generate_row()
-      |> stringify_row()
+  # "single field changed from the default factory row" version
+  defp test_the_validation({field, value, validity}) do
+    row = %{field => value} |> DB.Factory.IRVE.generate_row() |> stringify_row()
 
     row_valid_name = "check_row_valid"
     column_valid_name = "check_column_#{field}_valid"
 
-    compute_validity([row])
-    |> Explorer.DataFrame.select([row_valid_name, column_valid_name])
-    |> Explorer.DataFrame.to_rows()
-    |> Enum.map(fn row ->
-      [row_valid: row[row_valid_name], column_valid: row[column_valid_name]]
-    end)
+    result =
+      [row]
+      |> run_dataframe_validators()
+      |> Explorer.DataFrame.select([row_valid_name, column_valid_name])
+      |> Explorer.DataFrame.to_rows()
+
+    validity = to_boolean(validity)
+
+    assert result == [%{row_valid_name => validity, column_valid_name => validity}]
   end
 
-  def compute_validity(rows) do
+  defp to_boolean(:valid), do: true
+  defp to_boolean(:invalid), do: false
+
+  defp stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
+
+  defp run_dataframe_validators(rows) do
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
     rows
