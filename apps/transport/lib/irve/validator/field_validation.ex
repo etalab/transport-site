@@ -17,6 +17,9 @@ defmodule Transport.IRVE.Validator.FieldValidation do
 
   ## Pattern Matching and map_size Guards
 
+  ⚠️ If you modify this code: the order & definitions of the pattern-matched clauses is
+  important and a bit delicate (like a processing pipeline) to ensure it will behave as expected.
+
   Each `column_valid?/5` clause uses `map_size/1` guards to ensure
   the constraints map contains exactly the expected keys. This provides automatic
   detection of schema changes - if a new constraint key is added to the schema,
