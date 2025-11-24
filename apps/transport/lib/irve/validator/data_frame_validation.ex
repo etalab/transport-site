@@ -18,19 +18,29 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
     schema
     |> Map.fetch!("fields")
     |> Enum.reduce(df, fn field_definition, df ->
-      # mandatory
-      {field_name, field_definition} = Map.pop!(field_definition, "name")
-      {field_type, field_definition} = Map.pop!(field_definition, "type")
-      {field_constraints, field_definition} = Map.pop!(field_definition, "constraints")
-      # optional
-      {field_format, field_definition} = Map.pop(field_definition, "format")
-
-      # warn us (hard fail) if something has been added to the schema
-      0 = map_size(field_definition |> Map.delete("description") |> Map.delete("example"))
-
-      # Process all fields - no filtering
+      {field_name, field_type, field_format, field_constraints} = extract_field_definition_data!(field_definition)
       setup_computed_field_validation_column(df, field_name, field_type, field_format, field_constraints)
     end)
+  end
+
+  @doc """
+  Process ("explode") a TableSchema field definition.
+  Raise an error if an unexpected part is present, for safety.
+  """
+  def extract_field_definition_data!(field_def) do
+    # mandatory parts
+    {name, field_def} = Map.pop!(field_def, "name")
+    {type, field_def} = Map.pop!(field_def, "type")
+    {constraints, field_def} = Map.pop!(field_def, "constraints")
+
+    # optional part
+    {format, field_def} = Map.pop(field_def, "format")
+
+    # warn us (hard fail) if something has been added to the schema
+    0 = map_size(field_def |> Map.delete("description") |> Map.delete("example"))
+
+    # we can now safely return, everything that existed has been processed
+    {name, type, format, constraints}
   end
 
   def setup_computed_field_validation_column(
