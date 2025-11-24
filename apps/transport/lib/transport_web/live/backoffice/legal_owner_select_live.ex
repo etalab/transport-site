@@ -47,8 +47,13 @@ defmodule TransportWeb.LegalOwnerSelectLive do
 
     owners_list = aoms |> union_all(^regions) |> DB.Repo.all()
 
-    aom_ids = Enum.map(assigns.offers, & &1.aom_id)
-    owners = (assigns.owners ++ Enum.filter(owners_list, &(&1.id in aom_ids and &1.type == "aom"))) |> Enum.uniq()
+    removed_aoms =
+      Map.get(socket.assigns, :removed, [])
+      |> Enum.filter(&(&1["owner-type"] == "aom"))
+      |> Enum.map(&String.to_integer(&1["owner-id"]))
+
+    aoms_from_offers = assigns.offers |> Enum.map(& &1.aom_id) |> Enum.reject(&(&1 in removed_aoms))
+    owners = (assigns.owners ++ Enum.filter(owners_list, &(&1.id in aoms_from_offers and &1.type == "aom"))) |> Enum.uniq()
 
     {:ok, socket |> assign(assigns) |> assign(%{owners_list: owners_list, owners: owners})}
   end
@@ -71,14 +76,16 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     {:noreply, socket}
   end
 
-  def handle_event("remove_tag", %{"owner-id" => owner_id, "owner-type" => owner_type}, socket) do
+  def handle_event("remove_tag", %{"owner-id" => owner_id, "owner-type" => owner_type} = value, socket) do
     owners =
       socket.assigns.owners
       |> Enum.reject(fn owner -> owner.id == String.to_integer(owner_id) and owner.type == owner_type end)
 
     send(self(), {:updated_legal_owner, owners})
 
-    {:noreply, socket}
+    removed = Map.get(socket.assigns, :removed, []) ++ [value]
+
+    {:noreply, socket |> assign(%{removed: removed, owners: owners})}
   end
 
   # clear the input using a js hook
