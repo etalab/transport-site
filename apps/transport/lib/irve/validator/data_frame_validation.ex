@@ -14,7 +14,7 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
     doing a logic `AND` between all the field-level checks described above
   """
 
-  def setup_field_validation_columns(%Explorer.DataFrame{} = df, schema) do
+  def setup_computed_field_validation_columns(%Explorer.DataFrame{} = df, schema) do
     schema
     |> Map.fetch!("fields")
     |> Enum.reduce(df, fn field_definition, df ->
@@ -29,11 +29,11 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
       0 = map_size(field_definition |> Map.delete("description") |> Map.delete("example"))
 
       # Process all fields - no filtering
-      setup_field_validation_column(df, field_name, field_type, field_format, field_constraints)
+      setup_computed_field_validation_column(df, field_name, field_type, field_format, field_constraints)
     end)
   end
 
-  def setup_field_validation_column(
+  def setup_computed_field_validation_column(
         %Explorer.DataFrame{} = df,
         field_name,
         type,
@@ -58,7 +58,7 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
   @doc """
   Grab all the `check_column_xyz` fields, and build a `and` operation between all of them.
   """
-  def setup_row_check(%Explorer.DataFrame{} = df) do
+  def setup_computed_row_validation_column(%Explorer.DataFrame{} = df) do
     df
     |> Explorer.DataFrame.mutate_with(fn df ->
       row_valid =
