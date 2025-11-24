@@ -339,6 +339,7 @@ defmodule TransportWeb.Backoffice.PageController do
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       re.nom nom_region,
+      o.offre_mobilite,
       administrative_division.noms couverture_spatiale,
       coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
@@ -362,6 +363,15 @@ defmodule TransportWeb.Backoffice.PageController do
     join dataset d on d.id = r.dataset_id
     left join dataset_geographic_view dgv on dgv.dataset_id = d.id
     left join region re on re.id = dgv.region_id
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(o.nom_commercial, ',' order by o.nom_commercial) offre_mobilite
+      from dataset d
+      left join dataset_offer dao on dao.dataset_id = d.id
+      left join offer o on o.id = dao.offer_id
+      group by 1
+    ) o on o.dataset_id = d.id
     left join (
       select
         rh.*,

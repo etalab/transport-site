@@ -145,7 +145,7 @@ defmodule TransportWeb.DatasetController do
     %{
       unavailabilities: unavailabilities(dataset),
       resources_updated_at: DB.Dataset.resources_content_updated_at(dataset),
-      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use(), include_result: true),
+      validations: DB.MultiValidation.dataset_latest_validation(dataset.id, validators_to_use()),
       gtfs_rt_entities: gtfs_rt_entities(dataset)
     }
   end

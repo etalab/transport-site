@@ -307,10 +307,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
     resource_history = insert(:resource_history, resource: resource)
 
+    result = %{"Slow" => [%{"severity" => "Information"}]}
+    digest = Transport.Validators.GTFSTransport.digest(result)
+
     insert(:multi_validation,
       resource_history_id: resource_history.id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
-      result: %{"Slow" => [%{"severity" => "Information"}]},
+      result: result,
+      digest: digest,
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
     )
 
@@ -329,10 +333,14 @@ defmodule TransportWeb.DatasetControllerTest do
 
     %{id: resource_history_id} = insert(:resource_history, resource_id: resource.id)
 
+    result = %{"errors_count" => 1}
+    digest = Transport.Validators.GBFSValidator.digest(result)
+
     insert(:multi_validation,
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GBFSValidator.validator_name(),
-      result: %{"errors_count" => 1},
+      result: result,
+      digest: digest,
       metadata: %{metadata: %{}}
     )
 
@@ -376,11 +384,16 @@ defmodule TransportWeb.DatasetControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
+      digest = results_adapter.digest(result)
+
       insert(:multi_validation,
         resource_history: resource_history,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
         result: result,
+        digest: digest,
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},
           modes: [],

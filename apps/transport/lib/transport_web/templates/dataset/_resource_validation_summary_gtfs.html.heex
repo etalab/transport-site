@@ -1,8 +1,7 @@
 <%= if GTFSTransport.mine?(@validation) do %>
   <div class="pb-24">
     <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
-    <% %{"max_level" => severity, "worst_occurrences" => count} =
-      GTFSTransport.count_max_severity(@validation.result) %>
+    <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <a href={link}>
       <span class={summary_class(%{severity: severity, count_errors: count})}>
         <%= if GTFSTransport.no_error?(severity) do %>
