@@ -42,10 +42,7 @@ test_resources
         |> Enum.into(%{})
       end)
 
-    df =
-      df
-      |> Transport.IRVE.Validator.DataFrameValidation.setup_field_validation_columns(schema)
-      |> Transport.IRVE.Validator.DataFrameValidation.setup_row_check()
+    df = Transport.IRVE.Validator.compute_validation(df)
 
     df["check_row_valid"]
     |> Explorer.Series.frequencies()

@@ -254,11 +254,6 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
   defp stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
 
   defp run_dataframe_validators(rows) do
-    schema = Transport.IRVE.StaticIRVESchema.schema_content()
-
-    rows
-    |> Explorer.DataFrame.new()
-    |> Transport.IRVE.Validator.DataFrameValidation.setup_field_validation_columns(schema)
-    |> Transport.IRVE.Validator.DataFrameValidation.setup_row_check()
+    Transport.IRVE.Validator.compute_validation(rows |> Explorer.DataFrame.new())
   end
 end
