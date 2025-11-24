@@ -39,6 +39,23 @@ defmodule Transport.IRVE.Validator.FieldValidation do
   alias Explorer.Series
   alias Transport.DataFrame.Validation.Primitives
 
+  @doc """
+  Check if a dataframe column is valid according to schema specifications.
+
+  ## Parameters
+
+    * `df` - `Explorer.DataFrame` containing the data to validate
+    * `field_name` - Column name from schema (string)
+    * `field_type` - Field type: "integer", "string", "boolean", "date", "number", or "geopoint"
+    * `format` - Optional format: "email", "array", or date format string
+    * `constraints` - Validation constraints: `%{"minimum" => n}`, `%{"pattern" => "regex"}`, or `%{"enum" => ["val1", "val2"]}`
+
+  Note: The `"required"` constraint must be removed before calling this function.
+
+  ## Returns
+
+  `Explorer.Series` of booleans where `true` means valid, `false` means invalid.
+  """
   def column_valid?(df, field_name, "boolean", nil, constraints) when map_size(constraints) == 0 do
     Primitives.boolean_value?(df[field_name])
   end
