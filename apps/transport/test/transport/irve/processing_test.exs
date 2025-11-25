@@ -26,7 +26,7 @@ defmodule Transport.IRVE.ProcessingTest do
                "id_station_itinerance" => "FRPAN99P12345678",
                "id_station_local" => "station_001",
                "nom_station" => "Ma Station",
-               "implantation_station" => "Lieu de ma station",
+               "implantation_station" => "Voirie",
                "adresse_station" => "26 rue des écluses, 17430 Champdolent",
                "code_insee_commune" => "17085",
                "nbre_pdc" => 1,
