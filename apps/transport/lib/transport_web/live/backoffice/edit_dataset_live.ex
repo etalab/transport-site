@@ -162,7 +162,11 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def handle_info({:updated_offers, offers}, socket) do
-    {:noreply, socket |> assign(:offers, offers)}
+    legal_owners =
+      (socket.assigns.legal_owners ++ Enum.map(offers, &%{id: &1.aom_id, type: "aom", label: &1.nom_aom}))
+      |> Enum.uniq()
+
+    {:noreply, socket |> assign(:offers, offers) |> assign(:legal_owners, legal_owners)}
   end
 
   def handle_info({:updated_spatial_areas, updated_spatial_areas}, socket) do
