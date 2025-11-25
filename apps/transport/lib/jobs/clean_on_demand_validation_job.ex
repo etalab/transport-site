@@ -10,6 +10,8 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
 
   @days_before_archiving 30
 
+  def retention_days, do: @days_before_archiving
+
   # General case: enqueue days to archive
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) when is_nil(args) or args == %{} do
