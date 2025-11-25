@@ -1,8 +1,8 @@
 defmodule Transport.Jobs.CleanOnDemandValidationJob do
   @moduledoc """
-  This job is in charge of archiving `DB.MultiValidation` after a given period.
+  This job is in charge of archiving on-demand-related `DB.MultiValidation` records after a given period.
 
-  For rows older than `@days_before_archiving` days, we remove the validation
+  For on-demand rows older than `@days_before_archiving` days, we remove the validation
   result and its visualization.
   """
   use Oban.Worker, max_attempts: 3
