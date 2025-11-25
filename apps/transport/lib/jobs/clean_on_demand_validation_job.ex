@@ -32,7 +32,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
       {:cancel, "Cannot archive rows if they are not older than #{@days_before_archiving} days"}
     else
       DB.MultiValidation.base_query()
-      |> where([mv], not is_nil(mv.oban_args))
+      |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
       |> where([mv], fragment("?::date = ?", mv.inserted_at, ^date))
       |> update([mv], set: [result: nil, data_vis: nil])
       |> DB.Repo.update_all([])
@@ -45,9 +45,11 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
     limit_date = DateTime.utc_now() |> DateTime.add(-@days_before_archiving, :day)
 
     DB.MultiValidation.base_query()
-    |> where([mv], not is_nil(mv.oban_args) and mv.inserted_at <= ^limit_date)
+    |> where([mv], mv.inserted_at <= ^limit_date)
+    |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
     |> select([mv], fragment("?::date", mv.inserted_at))
     |> distinct(true)
     |> DB.Repo.all()
+    |> Enum.sort()
   end
 end
