@@ -1,9 +1,8 @@
 defmodule Mix.Tasks.Transport.ImportEPCI do
   @moduledoc """
-  Import the EPCI file to get the relation between the cities and the EPCI
-  Run: mix transport.importEPCI
+  Import the EPCI file to get the relation between the cities and the EPCI.
+  Run with `mix transport.ImportEPCI`.
   """
-
   use Mix.Task
   alias DB.{Commune, EPCI, Repo}
   alias Ecto.Changeset
@@ -31,8 +30,12 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
 
     nb_epci = Repo.aggregate(EPCI, :count, :id)
     Logger.info("#{nb_epci} are now in database")
+
     Logger.info("Ensure valid geometries and rectify if needed.")
     ensure_valid_geometries()
+    Logger.info("Updating administrative_division.")
+    update_administrative_division()
+
     :ok
   end
 
@@ -127,4 +130,31 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
   @spec normalize_mode_financement(binary()) :: binary()
   defp normalize_mode_financement("FPU"), do: "Fiscalité professionnelle unique"
   defp normalize_mode_financement("FA"), do: "Fiscalité additionnelle"
+
+  def update_administrative_division do
+    DB.Repo.query!("""
+      DELETE
+      FROM administrative_division
+      WHERE type = 'epci' AND insee NOT IN (SELECT insee FROM epci);
+    """)
+
+    DB.Repo.query!("""
+      INSERT INTO administrative_division (type_insee, insee, type, nom, geom, population)
+      SELECT
+        CONCAT('epci_', epci.insee) AS type_insee,
+        epci.insee,
+        'epci' AS type,
+        nom,
+        geom,
+        t.population
+      FROM epci
+      JOIN (
+        SELECT epci_insee insee, sum(population) population
+        FROM commune
+        WHERE epci_insee is not null
+        group by 1
+      ) t on t.insee = epci.insee
+      WHERE epci.insee NOT IN (select insee from administrative_division where type = 'epci')
+    """)
+  end
 end
