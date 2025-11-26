@@ -15,12 +15,16 @@ defmodule Transport.Test.Transport.Jobs.CleanOnDemandValidationJobTest do
     today = DateTime.utc_now()
     last_week = today |> DateTime.add(-7, :day)
     last_month = today |> DateTime.add(-30, :day)
+    two_month_ago = today |> DateTime.add(-30, :day)
     three_months_ago = today |> DateTime.add(-90, :day)
 
-    insert(:multi_validation, oban_args: %{"foo" => "bar"}, inserted_at: last_week)
-    insert(:multi_validation, oban_args: %{"foo" => "bar"}, inserted_at: last_month)
-    insert(:multi_validation, oban_args: %{"foo" => "bar"}, inserted_at: last_month)
-    insert(:multi_validation, oban_args: %{"foo" => "bar"}, inserted_at: three_months_ago)
+    insert(:multi_validation, result: %{"valid" => true}, oban_args: %{"foo" => "bar"}, inserted_at: last_week)
+    insert(:multi_validation, result: %{"valid" => true}, oban_args: %{"foo" => "bar"}, inserted_at: last_month)
+    insert(:multi_validation, result: %{"valid" => true}, oban_args: %{"foo" => "bar"}, inserted_at: last_month)
+    insert(:multi_validation, result: %{"valid" => true}, oban_args: %{"foo" => "bar"}, inserted_at: three_months_ago)
+
+    # inserted more than 30 days ago, but already cleaned => should not be included
+    insert(:multi_validation, result: nil, oban_args: %{"foo" => "bar"}, inserted_at: two_month_ago)
 
     assert :ok == perform_job(CleanOnDemandValidationJob, %{})
 

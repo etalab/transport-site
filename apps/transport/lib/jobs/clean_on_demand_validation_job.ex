@@ -5,7 +5,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
   For on-demand rows older than `@days_before_archiving` days, we remove the validation
   result and its visualization.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, unique: [period: :infinity], max_attempts: 3
   import Ecto.Query
 
   @days_before_archiving 30
@@ -46,7 +46,10 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
 
     DB.MultiValidation.base_query()
     |> where([mv], mv.inserted_at <= ^limit_date)
+    # is an on-demand validation
     |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
+    # has not been cleaned yet
+    |> where([mv], not is_nil(mv.result))
     |> select([mv], fragment("?::date", mv.inserted_at))
     |> distinct(true)
     |> DB.Repo.all()
