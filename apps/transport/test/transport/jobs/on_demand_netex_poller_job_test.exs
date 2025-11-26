@@ -53,7 +53,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
                       result: nil,
                       validation_timestamp: date,
                       validator: "enroute-chouette-netex-validator",
-                      validator_version: "0.2.0"
+                      validator_version: "0.2.1"
                     } = validation |> reload_validation()
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
@@ -75,7 +75,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              result: %{},
              validation_timestamp: date,
              validator: "enroute-chouette-netex-validator",
-             validator_version: "0.2.0"
+             validator_version: "0.2.1"
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
