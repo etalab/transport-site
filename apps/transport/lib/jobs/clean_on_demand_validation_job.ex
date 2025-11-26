@@ -5,7 +5,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
   For on-demand rows older than `@days_before_archiving` days, we remove the validation
   result and its visualization.
   """
-  use Oban.Worker, max_attempts: 3
+  use Oban.Worker, unique: [period: :infinity], max_attempts: 3
   import Ecto.Query
 
   @days_before_archiving 30
@@ -31,8 +31,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
     if Date.compare(date, Date.utc_today() |> Date.add(-@days_before_archiving)) == :gt do
       {:cancel, "Cannot archive rows if they are not older than #{@days_before_archiving} days"}
     else
-      DB.MultiValidation.base_query()
-      |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
+      multi_validation_in_scope()
       |> where([mv], fragment("?::date = ?", mv.inserted_at, ^date))
       |> update([mv], set: [result: nil, data_vis: nil])
       |> DB.Repo.update_all([])
@@ -44,12 +43,19 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
   def days_to_archive do
     limit_date = DateTime.utc_now() |> DateTime.add(-@days_before_archiving, :day)
 
-    DB.MultiValidation.base_query()
+    multi_validation_in_scope()
     |> where([mv], mv.inserted_at <= ^limit_date)
-    |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
     |> select([mv], fragment("?::date", mv.inserted_at))
     |> distinct(true)
     |> DB.Repo.all()
     |> Enum.sort()
+  end
+
+  defp multi_validation_in_scope do
+    DB.MultiValidation.base_query()
+    # is an on-demand validation
+    |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
+    # has not been cleaned yet
+    |> where([mv], not is_nil(mv.result))
   end
 end
