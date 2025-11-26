@@ -419,6 +419,15 @@ defmodule TransportWeb.ValidationControllerTest do
       conn |> get(validation_path(conn, :show, 42)) |> html_response(404)
     end
 
+    test "with an expired validation", %{conn: conn} do
+      validation = insert(:multi_validation, oban_args: %{"state" => "completed"}, result: nil)
+
+      assert conn
+             |> get(validation_path(conn, :show, validation.id))
+             |> html_response(200) =~
+               "Ce rapport de validation est maintenant expiré. Les résultats ne sont plus accessibles."
+    end
+
     test "with an error", %{conn: conn} do
       {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => "etalab/foo"})
       {:ok, view, _html} = live(conn)

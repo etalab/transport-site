@@ -403,3 +403,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "during %{retention_days} days"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This validation is now expired. Results cannot be accessed anymore."
+msgstr ""

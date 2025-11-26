@@ -405,3 +405,7 @@ msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure 
 #, elixir-autogen, elixir-format
 msgid "during %{retention_days} days"
 msgstr "pendant %{retention_days} jours"
+
+#, elixir-autogen, elixir-format
+msgid "This validation is now expired. Results cannot be accessed anymore."
+msgstr "Ce rapport de validation est maintenant expiré. Les résultats ne sont plus accessibles."
