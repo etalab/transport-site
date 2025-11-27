@@ -29,6 +29,8 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
     insert(:multi_validation, result: %{"value" => 2}, resource: r2, inserted_at: month_ago)
     insert(:multi_validation, result: %{"value" => 1}, resource: r2, inserted_at: now)
 
+    on_demand = insert(:multi_validation, result: %{"value" => 1}, oban_args: %{"state" => "completed"})
+
     assert :ok == perform_job(CleanMultiValidationJob, %{"real_time" => true})
 
     # oldest record has been nullified
@@ -45,6 +47,8 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
              %{"value" => 2},
              %{"value" => 1}
            ] == results_for_resource_id(r2_id)
+
+    assert %DB.MultiValidation{result: %{"value" => 1}} = reload(on_demand)
 
     assert [
              %Oban.Job{
@@ -68,6 +72,8 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
     insert(:multi_validation, result: %{"value" => 2}, resource_history: insert(:resource_history, resource: r2))
     insert(:multi_validation, result: %{"value" => 1}, resource_history: insert(:resource_history, resource: r2))
 
+    on_demand = insert(:multi_validation, result: %{"value" => 1}, oban_args: %{"state" => "completed"})
+
     assert :ok == perform_job(CleanMultiValidationJob, %{"static" => true})
 
     # oldest record has been nullified
@@ -84,6 +90,8 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
              %{"value" => 2},
              %{"value" => 1}
            ] == results_for_resource_history(r2_id)
+
+    assert %DB.MultiValidation{result: %{"value" => 1}} = reload(on_demand)
 
     assert [
              %Oban.Job{
@@ -126,5 +134,9 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
     |> order_by([mv], {:asc, mv.id})
     |> DB.Repo.all()
     |> Enum.map(& &1.result)
+  end
+
+  def reload(%DB.MultiValidation{id: id}) do
+    DB.MultiValidation.with_result() |> where([mv], mv.id == ^id) |> DB.Repo.one!()
   end
 end
