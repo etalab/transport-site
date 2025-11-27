@@ -19,7 +19,7 @@ defmodule TransportWeb.ConversionControllerTest do
 
     test "when the conversion format does not exist", %{conn: conn} do
       assert conn |> get(conversion_path(conn, :get, 42, "foo")) |> text_response(404) ==
-               "Conversion not found. `convert_to` is not a possible value."
+               "Conversion not found. `foo` is not a possible value."
     end
 
     test "when the resource exists but there are no conversions", %{conn: conn} do
