@@ -158,6 +158,7 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
     """)
 
     DB.Repo.query!("""
+      update administrative_division set nom = t.nom, geom = t.geom
       from (
         select insee, nom, geom
         from epci
