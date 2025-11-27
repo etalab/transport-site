@@ -77,6 +77,7 @@ defmodule DB.NotificationSubscription do
       [notification_subscription: ns],
       ns.reason == ^reason and ns.dataset_id == ^dataset_id and ns.role == ^role
     )
+    |> order_by([ns], {:asc, ns.id})
     |> DB.Repo.all()
   end
 
