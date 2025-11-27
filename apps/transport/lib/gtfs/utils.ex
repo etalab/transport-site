@@ -34,12 +34,10 @@ defmodule Transport.GTFS.Utils do
   nil
   """
   def convert_text_to_float(input) do
-    try do
-      input |> String.trim() |> Decimal.new() |> Decimal.to_float()
-    rescue
-      Decimal.Error ->
-        nil
-    end
+    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
+  rescue
+    Decimal.Error ->
+      nil
   end
 
   @doc """
