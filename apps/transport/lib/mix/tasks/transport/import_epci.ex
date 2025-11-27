@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Transport.ImportEPCI do
   @moduledoc """
   Import the EPCI file to get the relation between the cities and the EPCI.
-  Run with `mix transport.ImportEPCI`.
+  Run with `WORKER=0 mix transport.ImportEPCI`.
   """
   use Mix.Task
   alias DB.{Commune, EPCI, Repo}
@@ -155,6 +155,29 @@ defmodule Mix.Tasks.Transport.ImportEPCI do
         group by 1
       ) t on t.insee = epci.insee
       WHERE epci.insee NOT IN (select insee from administrative_division where type = 'epci')
+    """)
+
+    DB.Repo.query!("""
+      from (
+        select insee, nom, geom
+        from epci
+      ) t where t.insee = administrative_division.insee and type = 'epci'
+       and (
+          administrative_division.nom != t.nom
+          or not st_equals(administrative_division.geom, t.geom)
+       )
+    """)
+
+    DB.Repo.query!("""
+      update administrative_division set population = t.population
+      from (
+        SELECT epci_insee insee, sum(population) population
+        FROM commune
+        WHERE epci_insee is not null
+        group by 1
+      ) t
+      where t.insee = administrative_division.insee and type = 'epci'
+        and administrative_division.population != t.population
     """)
   end
 end

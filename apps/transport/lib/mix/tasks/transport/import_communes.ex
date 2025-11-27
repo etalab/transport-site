@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
   @moduledoc """
   Import or updates commune data (list, geometry) from official sources.
-  Run with `mix Transport.ImportCommunes`.
+  Run with `WORKER=0 mix Transport.ImportCommunes`.
   """
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
@@ -206,6 +206,19 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
         population
       FROM commune
       WHERE insee NOT IN (select insee from administrative_division where type = 'commune')
+    """)
+
+    DB.Repo.query!("""
+      update administrative_division set nom = t.nom, geom = t.geom, population = t.population
+      from (
+        select insee, nom, geom, population
+        from commune
+      ) t where t.insee = administrative_division.insee and type = 'commune'
+       and (
+          administrative_division.nom != t.nom
+          or administrative_division.population != t.population
+          or not st_equals(administrative_division.geom, t.geom)
+       )
     """)
   end
 end
