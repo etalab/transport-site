@@ -171,7 +171,8 @@ oban_prod_crontab = [
   {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob},
   {"30 2 * * *", Transport.Jobs.IRVEConsolidationJob},
   {"10 * * * *", Transport.Jobs.DefaultTokensJob},
-  {"0 2 * * *", Transport.Jobs.CleanOnDemandValidationJob}
+  {"0 2 * * *", Transport.Jobs.CleanOnDemandValidationJob},
+  {"10 2 * * *", Transport.Jobs.CleanMultiValidationJob}
 ]
 
 # Make sure that all modules exist
