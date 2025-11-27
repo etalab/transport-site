@@ -43,6 +43,7 @@ defmodule Transport.Jobs.ExpirationAdminProducerNotificationJob do
     |> DB.Repo.all()
     |> Enum.group_by(fn {%DB.Dataset{} = d, _} -> d end, fn {_, %DB.Resource{} = r} -> r end)
     |> Enum.to_list()
+    |> Enum.sort_by(&elem(&1, 0).id)
   end
 
   def possible_delays do
