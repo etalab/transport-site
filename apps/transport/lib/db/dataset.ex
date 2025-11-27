@@ -917,7 +917,7 @@ defmodule DB.Dataset do
     target_formats = target_conversion_formats(dataset)
     # The filler's purpose is to make sure we have a {conversion_format, nil} value
     # for every resource, even if we don't have a conversion
-    filler = Enum.into(available_conversion_formats(), %{}, &{&1, nil})
+    filler = Enum.into(DB.DataConversion.available_conversion_formats(), %{}, &{&1, nil})
     resource_ids = Enum.map(resources, & &1.id)
 
     results =
@@ -962,10 +962,8 @@ defmodule DB.Dataset do
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{}) do
-    available_conversion_formats()
+    DB.DataConversion.available_conversion_formats()
   end
-
-  defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do
