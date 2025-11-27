@@ -8,6 +8,8 @@ defmodule Transport.GTFS.Utils do
   nil
   iex> get_position(%{"stop_lat" => "42.1337"}, "stop_lat")
   42.1337
+  iex> get_position(%{"stop_lat" => "abcdef"}, "stop_lat")
+  nil
   """
   def get_position(record, field) do
     Map.get(record, field, "") |> convert_text_to_float()
@@ -28,12 +30,15 @@ defmodule Transport.GTFS.Utils do
   -12.7
   iex> convert_text_to_float("   -48.7    ")
   -48.7
+  iex> convert_text_to_float("abc")
+  nil
   """
   def convert_text_to_float(input) do
-    if input |> String.trim() != "" do
+    try do
       input |> String.trim() |> Decimal.new() |> Decimal.to_float()
-    else
-      nil
+    rescue
+      Decimal.Error ->
+        nil
     end
   end
 
