@@ -703,7 +703,12 @@ defmodule TransportWeb.API.Schemas do
           items: CommunityResource
         },
         covered_area: CoveredArea.schema(),
-        legal_owners: LegalOwners.schema()
+        legal_owners: LegalOwners.schema(),
+        tags: %Schema{
+          type: :array,
+          description: "Tags associated to the dataset, as set by the NAP team",
+          items: %Schema{type: :string}
+        }
       }
 
       if details do

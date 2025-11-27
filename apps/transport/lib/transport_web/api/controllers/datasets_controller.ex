@@ -193,7 +193,8 @@ defmodule TransportWeb.API.DatasetController do
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
       "licence" => dataset.licence,
-      "publisher" => get_publisher(dataset)
+      "publisher" => get_publisher(dataset),
+      "tags" => dataset.custom_tags
     }
 
   @spec get_publisher(Dataset.t()) :: map()
