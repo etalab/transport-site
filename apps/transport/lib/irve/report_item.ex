@@ -4,6 +4,6 @@ defmodule Transport.IRVE.ReportItem do
   let data reusers know whether a resource has been included or not, and if not,
   why, along with some useful stats.
   """
-  @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension]
-  defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension]
+  @enforce_keys [:dataset_id, :resource_id, :resource_url, :estimated_pdc_count, :extension, :local_file_path]
+  defstruct [:dataset_id, :resource_id, :resource_url, :error, :estimated_pdc_count, :extension, :local_file_path]
 end
