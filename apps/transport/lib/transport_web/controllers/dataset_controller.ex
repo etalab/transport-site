@@ -258,7 +258,7 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
-  # ?before_optim=1 loads the full :geom which can be several MB
+  # ?before_optim=1 loads the full group of ":geom"s which can be several MB total
   defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
     query |> preload([:declarative_spatial_areas])
   end
