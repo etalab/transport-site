@@ -31,7 +31,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClient do
       |> Jason.encode!()
 
     %HTTPoison.Response{status_code: 200, body: body} =
-      http_client().post!(url, data, [{"content-type", "application/json"}])
+      http_client().post!(url, data, [{"content-type", "application/json"}], recv_timeout: :timer.seconds(10))
 
     body |> Jason.decode!() |> Map.fetch!("jobId")
   end

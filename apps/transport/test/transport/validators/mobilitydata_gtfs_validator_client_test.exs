@@ -10,7 +10,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
     gtfs_url = "https://example.com/#{Ecto.UUID.generate()}"
 
     Transport.HTTPoison.Mock
-    |> expect(:post!, fn url, args, [{"content-type", "application/json"}] ->
+    |> expect(:post!, fn url, args, [{"content-type", "application/json"}], [recv_timeout: 10_000] ->
       assert url == "https://gtfs-validator-web-mbzoxaljzq-ue.a.run.app/create-job"
 
       assert args ==
