@@ -489,6 +489,27 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                }
              } == current_dataset_compliance(dataset.id)
     end
+
+    test "handles validation result = nil, uses the digest" do
+      dataset = insert(:dataset)
+      geojson_resource = insert(:resource, dataset: dataset, format: "geojson")
+
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: geojson_resource),
+        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        result: nil,
+        digest: %{"errors_count" => 0}
+      })
+
+      assert %{
+               score: 1.0,
+               details: %{
+                 resources: [
+                   %{compliance: 1.0, raw_measure: %{"errors_count" => 0}, resource_id: geojson_resource.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
   end
 
   describe "last_dataset_score" do

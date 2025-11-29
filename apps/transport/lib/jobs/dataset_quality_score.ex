@@ -265,6 +265,13 @@ defmodule Transport.Jobs.DatasetComplianceScore do
       when validator in @validator_names do
     %{compliance: nil, resource_id: resource_id, raw_measure: result}
   end
+
+  # Fallback on the validation digest.
+  # This can happen if the validation result has been nullified.
+  def resource_compliance({resource_id, [%DB.MultiValidation{digest: %{"errors_count" => errors_count} = digest}]}) do
+    compliance = if errors_count == 0, do: 1.0, else: 0.0
+    %{compliance: compliance, resource_id: resource_id, raw_measure: digest}
+  end
 end
 
 defmodule Transport.Jobs.DatasetAvailabilityScore do
