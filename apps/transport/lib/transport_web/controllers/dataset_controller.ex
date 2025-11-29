@@ -258,15 +258,15 @@ defmodule TransportWeb.DatasetController do
     |> Repo.paginate(page: config.page_number)
   end
 
-  # ?optimise=1 excludes :geom which can be several MB
-  defp preload_spatial_areas(query, %{"optimise" => "1"}) do
-    DB.AdministrativeDivision
-    |> select([a], struct(a, [:type, :nom]))
-    |> then(&preload(query, declarative_spatial_areas: ^&1))
+  # ?before_optim=1 loads the full :geom which can be several MB
+  defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
+    query |> preload([:declarative_spatial_areas])
   end
 
   defp preload_spatial_areas(query, _params) do
-    query |> preload([:declarative_spatial_areas])
+    DB.AdministrativeDivision
+    |> select([a], struct(a, [:type, :nom]))
+    |> then(&preload(query, declarative_spatial_areas: ^&1))
   end
 
   @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
