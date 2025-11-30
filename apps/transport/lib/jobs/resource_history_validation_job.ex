@@ -88,8 +88,10 @@ defmodule Transport.Jobs.ResourceHistoryValidationJob do
   end
 
   defp validate(%DB.ResourceHistory{} = resource_history, validator, force_validation) do
+    # GTFS-Flex are validated using the MobilityData validator
     if DB.ResourceHistory.gtfs_flex?(resource_history) do
-      {:discard, "ResourceHistory##{resource_history.id} is a GTFS-Flex, we do not validate it"}
+      validator = Transport.Validators.MobilityDataGTFSValidator
+      run_validation(resource_history, validator, force_validation)
     else
       run_validation(resource_history, validator, force_validation)
     end
