@@ -142,6 +142,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
     |> preload([:resource, resource: [:dataset]])
     |> DB.Repo.all()
     |> Enum.group_by(& &1.resource.dataset)
+    |> Enum.sort_by(&elem(&1, 0).id)
   end
 
   defp subscriptions(%DB.Dataset{} = dataset, role) do
