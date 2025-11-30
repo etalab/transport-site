@@ -35,12 +35,12 @@ defmodule Transport.Test.Transport.Jobs.CleanOnDemandValidationJobTest do
              %Oban.Job{
                state: "scheduled",
                worker: "Transport.Jobs.CleanOnDemandValidationJob",
-               args: %{"date" => ^three_months_ago_date}
+               args: %{"date" => ^last_month_date}
              },
              %Oban.Job{
                state: "scheduled",
                worker: "Transport.Jobs.CleanOnDemandValidationJob",
-               args: %{"date" => ^last_month_date}
+               args: %{"date" => ^three_months_ago_date}
              }
            ] = all_enqueued()
   end

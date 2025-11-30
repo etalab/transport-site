@@ -1,0 +1,67 @@
+name: Test suite
+on:
+  - push
+  - workflow_dispatch
+
+env:
+  # https://github.com/erlef/setup-beam#self-hosted-runners
+  ImageOS: ubuntu24
+
+jobs:
+  lint:
+    name: 💅 Run lint tests
+    runs-on: ubuntu-latest
+    container: ghcr.io/etalab/transport-ops:elixir-1.18.4-erlang-27.3.4.1-ubuntu-noble-20250529-transport-tools-2.0.0
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Checkout and compile
+        uses: ./.github/actions/checkout-compile
+
+      - name: Run gettext check
+        run: mix gettext.extract --check-up-to-date
+
+      - name: Run credo
+        run: mix credo --strict
+
+      - name: Run javascript linter
+        run: mix npm "run linter:ecma"
+
+      - name: Run stylesheets linter
+        run: mix npm "run linter:sass"
+
+      - name: Run formatter
+        run: mix format --check-formatted --dry-run
+
+  test:
+    name: ⚙️ Run the test suite
+    runs-on: ubuntu-latest
+    container: ghcr.io/etalab/transport-ops:elixir-1.18.4-erlang-27.3.4.1-ubuntu-noble-20250529-transport-tools-2.0.0
+    env:
+      PG_URL_TEST: "ecto://postgres:postgres@postgres/transport_test"
+
+    services:
+      postgres:
+        image: timescale/timescaledb-ha:pg14.3-ts2.7.0-latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: transport_test
+          POSTGRES_PASSWORD: postgres
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Checkout and compile
+        uses: ./.github/actions/checkout-compile
+
+      - name: Run tests
+        run: mix test --warnings-as-errors

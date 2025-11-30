@@ -48,7 +48,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
     |> select([mv], fragment("?::date", mv.inserted_at))
     |> distinct(true)
     |> DB.Repo.all()
-    |> Enum.sort()
+    |> Enum.sort(Date)
   end
 
   defp multi_validation_in_scope do
