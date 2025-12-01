@@ -31,14 +31,17 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClient do
       |> Jason.encode!()
 
     %HTTPoison.Response{status_code: 200, body: body} =
-      http_client().post!(url, data, [{"content-type", "application/json"}], recv_timeout: :timer.seconds(10))
+      http_client().post!(url, data, [{"content-type", "application/json"}] ++ http_headers(),
+        recv_timeout: :timer.seconds(10)
+      )
 
     body |> Jason.decode!() |> Map.fetch!("jobId")
   end
 
   @impl Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper
   def get_a_validation(job_id) do
-    %HTTPoison.Response{status_code: status, body: body} = http_client().get!(execution_result_url(job_id))
+    %HTTPoison.Response{status_code: status, body: body} =
+      http_client().get!(execution_result_url(job_id), http_headers())
 
     cond do
       status == 404 ->
@@ -49,13 +52,16 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClient do
 
         case Map.get(json, "status") do
           "success" ->
-            %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(report_url(job_id))
+            %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(report_url(job_id), http_headers())
             {:successful, body |> Jason.decode!()}
 
           "error" ->
-            %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(report_url(job_id))
+            %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(report_url(job_id), http_headers())
             report_json = body |> Jason.decode!()
-            %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(system_errors_url(job_id))
+
+            %HTTPoison.Response{status_code: 200, body: body} =
+              http_client().get!(system_errors_url(job_id), http_headers())
+
             system_errors = body |> Jason.decode!()
             {:error, Map.put(report_json, "system_errors", system_errors)}
 
@@ -76,4 +82,9 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClient do
   defp system_errors_url(job_id), do: @results_base_url <> "/#{job_id}/system_errors.json"
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
+  defp http_headers do
+    email = Application.fetch_env!(:transport, :contact_email)
+    [{"user-agent", "French NAP; #{email}"}]
+  end
 end

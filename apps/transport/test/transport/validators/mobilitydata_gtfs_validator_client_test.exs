@@ -3,6 +3,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
   import Mox
   alias Transport.Validators.MobilityDataGTFSValidatorClient
 
+  @default_http_headers [{"user-agent", "French NAP; contact@transport.data.gouv.fr"}]
+
   setup :verify_on_exit!
 
   test "create_a_validation" do
@@ -10,7 +12,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
     gtfs_url = "https://example.com/#{Ecto.UUID.generate()}"
 
     Transport.HTTPoison.Mock
-    |> expect(:post!, fn url, args, [{"content-type", "application/json"}], [recv_timeout: 10_000] ->
+    |> expect(:post!, fn url, args, headers, [recv_timeout: 10_000] ->
+      assert headers == [
+               {"content-type", "application/json"},
+               {"user-agent", "French NAP; contact@transport.data.gouv.fr"}
+             ]
+
       assert url == "https://gtfs-validator-web-mbzoxaljzq-ue.a.run.app/create-job"
 
       assert args ==
@@ -33,17 +40,17 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
       execution_result_url = "https://gtfs-validator-results.mobilitydata.org/#{job_id}/execution_result.json"
       report_url = "https://gtfs-validator-results.mobilitydata.org/#{job_id}/report.json"
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 404}
       end)
 
       assert :pending == MobilityDataGTFSValidatorClient.get_a_validation(job_id)
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 200, body: %{"status" => "success"} |> Jason.encode!()}
       end)
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^report_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^report_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 200, body: %{"data" => 42} |> Jason.encode!()}
       end)
 
@@ -56,15 +63,15 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
       report_url = "https://gtfs-validator-results.mobilitydata.org/#{job_id}/report.json"
       system_errors_url = "https://gtfs-validator-results.mobilitydata.org/#{job_id}/system_errors.json"
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 200, body: %{"status" => "error"} |> Jason.encode!()}
       end)
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^report_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^report_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 200, body: %{"data" => 42} |> Jason.encode!()}
       end)
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^system_errors_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^system_errors_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 200, body: %{"error_details" => 1337} |> Jason.encode!()}
       end)
 
@@ -76,7 +83,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorClientTest do
       job_id = Ecto.UUID.generate()
       execution_result_url = "https://gtfs-validator-results.mobilitydata.org/#{job_id}/execution_result.json"
 
-      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url ->
+      expect(Transport.HTTPoison.Mock, :get!, fn ^execution_result_url, @default_http_headers ->
         %HTTPoison.Response{status_code: 500}
       end)
 
