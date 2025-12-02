@@ -13,7 +13,6 @@ defmodule DB.Region do
   typed_schema "region" do
     field(:nom, :string)
     field(:insee, :string)
-    field(:is_completed, :boolean)
     field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
 
     has_many(:aoms, AOM)

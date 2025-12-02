@@ -45,7 +45,7 @@ defmodule TransportWeb.PageController do
       count_regions: count_regions(),
       count_aoms: Repo.aggregate(AOM, :count, :id),
       count_aoms_with_dataset: count_aoms_with_dataset(),
-      count_regions_completed: count_regions_completed(),
+      count_transport_offers: count_transport_offers(),
       percent_population: percent_population(),
       facilitators: CachedFiles.facilitators()
     ]
@@ -252,10 +252,6 @@ defmodule TransportWeb.PageController do
     Region |> where([r], r.nom != "National") |> select([r], count(r.id)) |> Repo.one!()
   end
 
-  defp count_regions_completed do
-    Region |> where([r], r.is_completed == true) |> Repo.aggregate(:count, :id)
-  end
-
   defmodule Tile do
     @enforce_keys [:link, :icon, :title, :count]
     defstruct [:link, :icon, :title, :count, :type, :documentation_url]
@@ -301,5 +297,12 @@ defmodule TransportWeb.PageController do
       count: Keyword.fetch!(stats, :count_by_type)[type],
       documentation_url: Keyword.get(options, :documentation_url)
     }
+  end
+
+  defp count_transport_offers do
+    DB.Dataset.base_query()
+    |> join(:inner, [dataset: d], o in assoc(d, :offers), as: :offer)
+    |> select([offer: o], count(o.id, :distinct))
+    |> DB.Repo.one!()
   end
 end

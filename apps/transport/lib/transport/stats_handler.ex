@@ -60,7 +60,6 @@ defmodule Transport.StatsHandler do
       nb_aoms: Enum.count(aoms),
       nb_aoms_with_data: Enum.count(aoms_with_datasets),
       nb_regions: Enum.count(regions),
-      nb_regions_completed: regions |> Enum.count(fn r -> r.is_completed end),
       population_totale: get_population(aoms),
       population_couverte: get_population(aoms_with_datasets),
       ratio_aom_with_at_most_warnings:
