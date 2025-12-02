@@ -1025,7 +1025,7 @@ defmodule DB.Dataset do
     |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
     |> where([r], r.dataset_id == ^dataset_id)
     |> group_by([r, rh], [r.id, rh.resource_id])
-    |> select([r, rh], {r.id, count(rh.id), max(fragment("payload ->>'download_datetime'"))})
+    |> select([r, rh], {r.id, count(rh.id), max(rh.inserted_at)})
     |> DB.Repo.all()
     |> Enum.map(fn {id, count, updated_at} ->
       case count do
@@ -1033,8 +1033,7 @@ defmodule DB.Dataset do
           {id, nil}
 
         _ ->
-          {:ok, datetime_updated_at, 0} = updated_at |> DateTime.from_iso8601()
-          {id, datetime_updated_at}
+          {id, updated_at}
       end
     end)
     |> Enum.into(%{})

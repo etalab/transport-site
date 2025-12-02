@@ -255,12 +255,12 @@ defmodule DB.DatasetDBTest do
       # resource 1
       insert(:resource_history, %{
         resource_id: resource_id_1,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       insert(:resource_history, %{
         resource_id: resource_id_1,
-        payload: %{download_datetime: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+        inserted_at: resource_1_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
       # resource 2
@@ -284,12 +284,12 @@ defmodule DB.DatasetDBTest do
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+        inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
       assert %{resource_id => expected_last_update_time} == Dataset.resources_content_updated_at(dataset)
@@ -300,13 +300,13 @@ defmodule DB.DatasetDBTest do
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, download_datetime not in payload" do
+    test "last content update time, single record" do
       {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{resource_id: resource_id, payload: %{}})
@@ -314,19 +314,17 @@ defmodule DB.DatasetDBTest do
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
-    test "last content update time, some download_datetime not in payload" do
+    test "last content update time, multiple datetimes" do
       {dataset, resource_id} = insert_dataset_resource()
-
-      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+        inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
       assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
