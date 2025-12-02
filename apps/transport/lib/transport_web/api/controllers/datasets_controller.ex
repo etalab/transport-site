@@ -18,6 +18,7 @@ defmodule TransportWeb.API.DatasetController do
     :legal_owners_aom,
     :legal_owners_region,
     :declarative_spatial_areas,
+    offers: from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]),
     resources: [:dataset]
   ]
 
@@ -194,7 +195,8 @@ defmodule TransportWeb.API.DatasetController do
       "type" => dataset.type,
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset),
-      "tags" => dataset.custom_tags
+      "tags" => dataset.custom_tags,
+      "offers" => offers(dataset)
     }
 
   @spec get_publisher(Dataset.t()) :: map()
@@ -346,6 +348,10 @@ defmodule TransportWeb.API.DatasetController do
   defp legal_owners_region(regions) do
     regions
     |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
+  end
+
+  def offers(%DB.Dataset{} = dataset) do
+    Enum.map(dataset.offers, &Map.take(&1, [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]))
   end
 
   def prepare_datasets_index_data do

@@ -273,6 +273,24 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule Offer do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Offer",
+      description: "A transport offer",
+      type: :object,
+      properties: %{
+        nom_commercial: %Schema{type: :string, nullable: false},
+        identifiant_offre: %Schema{type: :integer, nullable: false},
+        type_transport: %Schema{type: :string, nullable: false},
+        nom_aom: %Schema{type: :string, nullable: false}
+      },
+      additionalProperties: false
+    })
+  end
+
   defmodule AOM do
     @moduledoc false
     require OpenApiSpex
@@ -708,6 +726,11 @@ defmodule TransportWeb.API.Schemas do
           type: :array,
           description: "Tags associated to the dataset, as set by the NAP team",
           items: %Schema{type: :string}
+        },
+        offers: %Schema{
+          type: :array,
+          description: "Transport offers associated to the dataset",
+          items: Offer
         }
       }
 
