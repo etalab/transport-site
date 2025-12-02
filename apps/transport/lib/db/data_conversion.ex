@@ -11,7 +11,7 @@ defmodule DB.DataConversion do
     field(:converter, :string)
     field(:converter_version, :string)
     field(:convert_from, Ecto.Enum, values: [:GTFS])
-    field(:convert_to, Ecto.Enum, values: [:GeoJSON])
+    field(:convert_to, Ecto.Enum, values: [:GeoJSON, :NeTEx])
     field(:resource_history_uuid, Ecto.UUID)
     field(:payload, :map)
 
@@ -21,11 +21,19 @@ defmodule DB.DataConversion do
   def base_query, do: from(dc in DB.DataConversion, as: :data_conversion)
 
   @doc """
+  NeTEx is no longer supported as a target format but it's kept in the schema to support legacy data and the cleanup job.
+  """
+  def available_conversion_formats,
+    do:
+      Ecto.Enum.values(DB.DataConversion, :convert_to)
+      |> Enum.reject(&(&1 == :NeTEx))
+
+  @doc """
   Finds the default converter to use for a target format.
 
   iex> converter_to_use(:GeoJSON)
   "rust-transit/gtfs-to-geojson"
-  iex> Enum.each(Ecto.Enum.values(DB.DataConversion, :convert_to), & converter_to_use/1)
+  iex> available_conversion_formats() |> Enum.each(& converter_to_use/1)
   :ok
   """
   @spec converter_to_use(binary() | atom()) :: binary()

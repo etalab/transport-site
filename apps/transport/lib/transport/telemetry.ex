@@ -6,7 +6,7 @@ defmodule Transport.Telemetry do
   defdelegate proxy_request_event_name(request), to: Unlock.Telemetry
 
   def conversions_get_event_names do
-    DB.DataConversion |> Ecto.Enum.values(:convert_to) |> Enum.map(&[:conversions, :get, &1])
+    DB.DataConversion.available_conversion_formats() |> Enum.map(&[:conversions, :get, &1])
   end
 
   @moduledoc """

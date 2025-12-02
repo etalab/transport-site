@@ -22,7 +22,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     other_dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
     geojson_resource = insert(:resource, dataset: other_dataset, format: "geojson")
 
-    assert %{} == ResourceUnavailableNotificationJob.relevant_unavailabilities(DateTime.utc_now())
+    assert [] == ResourceUnavailableNotificationJob.relevant_unavailabilities(DateTime.utc_now())
 
     insert(:resource_unavailability,
       start: DateTime.add(DateTime.utc_now(), -6 * 60 - 15, :minute),
@@ -40,8 +40,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
     assert [dataset.id] ==
              DateTime.utc_now()
              |> ResourceUnavailableNotificationJob.relevant_unavailabilities()
-             |> Map.keys()
-             |> Enum.map(& &1.id)
+             |> Enum.map(&elem(&1, 0).id)
   end
 
   test "perform" do

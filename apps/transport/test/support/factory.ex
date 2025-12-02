@@ -55,7 +55,6 @@ defmodule DB.Factory do
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
       organization_id: sequence(:organization_id, fn i -> "dataset_organization_id_#{i}" end),
       licence: "lov2",
-      # NOTE: need to figure out how to pass aom/region together with changeset checks here
       tags: [],
       type: "public-transit",
       logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
@@ -381,6 +380,21 @@ defmodule DB.Factory do
     }
   end
 
+  def offer_factory do
+    %DB.Offer{
+      nom_commercial: sequence(:nom_commercial, &"nom_commercial-#{&1}"),
+      identifiant_offre: sequence(:identifiant_offre, & &1),
+      type_transport: "Transport urbain",
+      modes: ["Bus"],
+      nom_aom: sequence(:nom_aom, &"nom_aom-#{&1}"),
+      aom_siren: sequence(:aom_siren, &"aom_siren-#{&1}"),
+      niveau: "Local",
+      exploitant: "Keolis",
+      type_contrat: "",
+      territoire: sequence(:territoire, &"territoire-#{&1}")
+    }
+  end
+
   def insert_token(%{} = args \\ %{}) do
     args =
       %{
@@ -546,7 +560,7 @@ defmodule DB.Factory do
         "id_station_itinerance" => "FRPAN99P12345678",
         "id_station_local" => "station_001",
         "nom_station" => "Ma Station",
-        "implantation_station" => "Lieu de ma station",
+        "implantation_station" => "Voirie",
         "adresse_station" => "26 rue des écluses, 17430 Champdolent",
         "code_insee_commune" => "17085",
         "coordonneesXY" => "[-0.799141,45.91914]",

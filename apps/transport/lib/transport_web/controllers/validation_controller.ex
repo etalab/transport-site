@@ -99,6 +99,9 @@ defmodule TransportWeb.ValidationController do
       when expected_token != token ->
         unauthorized(conn)
 
+      %MultiValidation{oban_args: %{"state" => "completed"}, result: nil} = validation ->
+        conn |> assign(:validation, validation) |> render("expired.html")
+
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
         validator = Transport.Validators.GTFSTransport
         current_issues = validator.get_issues(validation.result, params)

@@ -401,3 +401,11 @@ msgstr "Ensemble de règles spécifiques au <a href=\"https://normes.transport.d
 #, elixir-autogen, elixir-format, fuzzy
 msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
 msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\" target=\"_blank\">validateur GTFS canonique de MobilityData</a>."
+
+#, elixir-autogen, elixir-format
+msgid "during %{retention_days} days"
+msgstr "pendant %{retention_days} jours"
+
+#, elixir-autogen, elixir-format
+msgid "This validation is now expired. Results cannot be accessed anymore."
+msgstr "Ce rapport de validation est maintenant expiré. Les résultats ne sont plus accessibles."
