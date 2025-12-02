@@ -72,6 +72,8 @@ defmodule DB.Dataset do
       on_replace: :delete
     )
 
+    many_to_many(:offers, DB.Offer, join_through: "dataset_offer", on_replace: :delete)
+
     # This links the dataset to one or more `DB.AdministrativeDivision`. The x/y data
     # contained within the dataset's resources should more or less be consistent with
     # the polygons defining the territories of associated administrative divisions.
@@ -582,21 +584,21 @@ defmodule DB.Dataset do
   defp apply_changeset(%__MODULE__{} = dataset, params) do
     dataset =
       dataset
-      |> Repo.preload([
+      |> DB.Repo.preload([
         :legal_owners_aom,
         :legal_owners_region,
-        :declarative_spatial_areas
+        :declarative_spatial_areas,
+        :offers,
+        :resources,
+        :organization_object
       ])
 
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
     declarative_spatial_areas = get_administrative_divisions(dataset, params)
+    offers = get_offers(dataset, params)
 
     dataset
-    |> Repo.preload([
-      :resources,
-      :organization_object
-    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -636,6 +638,7 @@ defmodule DB.Dataset do
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
+    |> put_assoc(:offers, offers)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -726,6 +729,20 @@ defmodule DB.Dataset do
     end
   end
 
+  defp get_offers(dataset, params) do
+    case params["offers"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.offers) do
+          dataset.offers
+        else
+          []
+        end
+
+      ids ->
+        Repo.all(from(o in DB.Offer, where: o.id in ^ids))
+    end
+  end
+
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
@@ -800,19 +817,6 @@ defmodule DB.Dataset do
       nil -> {:error, "Dataset with slug #{slug} not found"}
       dataset -> {:ok, dataset}
     end
-  end
-
-  @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
-  def get_other_datasets(%__MODULE__{declarative_spatial_areas: []}), do: []
-
-  def get_other_datasets(%__MODULE__{id: id, declarative_spatial_areas: declarative_spatial_areas}) do
-    %DB.AdministrativeDivision{id: target_id} = declarative_spatial_areas |> DB.AdministrativeDivision.sorted() |> hd()
-
-    __MODULE__.base_query()
-    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
-    |> where([dataset: d], d.id != ^id)
-    |> where([administrative_divison: ad], ad.id == ^target_id)
-    |> DB.Repo.all()
   end
 
   @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
@@ -913,7 +917,7 @@ defmodule DB.Dataset do
     target_formats = target_conversion_formats(dataset)
     # The filler's purpose is to make sure we have a {conversion_format, nil} value
     # for every resource, even if we don't have a conversion
-    filler = Enum.into(available_conversion_formats(), %{}, &{&1, nil})
+    filler = Enum.into(DB.DataConversion.available_conversion_formats(), %{}, &{&1, nil})
     resource_ids = Enum.map(resources, & &1.id)
 
     results =
@@ -958,10 +962,8 @@ defmodule DB.Dataset do
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{}) do
-    available_conversion_formats()
+    DB.DataConversion.available_conversion_formats()
   end
-
-  defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do

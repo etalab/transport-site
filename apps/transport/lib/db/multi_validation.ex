@@ -29,6 +29,8 @@ defmodule DB.MultiValidation do
 
     has_one(:metadata, DB.ResourceMetadata)
     timestamps(type: :utc_datetime_usec)
+
+    field(:digest, :map)
   end
 
   def base_query(opts \\ []) do

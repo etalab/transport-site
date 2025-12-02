@@ -333,25 +333,6 @@ defmodule DB.DatasetDBTest do
     end
   end
 
-  test "get_other_datasets" do
-    departement_1 = insert(:administrative_division, type: :departement, type_insee: "departement_123", insee: "123")
-    departement_2 = insert(:administrative_division, type: :departement, type_insee: "departement_456", insee: "456")
-    epci = insert(:administrative_division, type: :epci, type_insee: "epci_789", insee: "789")
-
-    %DB.Dataset{id: d1_id} =
-      d1 =
-      insert(:dataset, declarative_spatial_areas: [departement_1, epci]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    d2 = insert(:dataset, declarative_spatial_areas: [departement_2]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    %DB.Dataset{id: d3_id} =
-      d3 = insert(:dataset, declarative_spatial_areas: [departement_1]) |> DB.Repo.preload(:declarative_spatial_areas)
-
-    assert [%DB.Dataset{id: ^d3_id}] = Dataset.get_other_datasets(d1)
-    assert [] = Dataset.get_other_datasets(d2)
-    assert [%DB.Dataset{id: ^d1_id}] = Dataset.get_other_datasets(d3)
-  end
-
   test "formats" do
     dataset = insert(:dataset)
     insert(:resource, format: "GTFS", dataset: dataset)
@@ -651,6 +632,19 @@ defmodule DB.DatasetDBTest do
 
     dataset = DB.Dataset |> preload(:legal_owners_region) |> DB.Repo.get!(dataset.id)
     assert [%DB.Region{id: ^region_id}] = dataset.legal_owners_region
+  end
+
+  test "changeset with offers" do
+    %DB.Offer{id: offer_id} = offer = insert(:offer)
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), offers: [offer])
+    assert [offer] == dataset.offers
+
+    # this time we test the changeset function with the datagouv_id
+    {:ok, changeset} = DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "custom_title" => "Nouveau titre"})
+    DB.Repo.update!(changeset)
+
+    dataset = DB.Dataset |> preload(:offers) |> DB.Repo.get!(dataset.id)
+    assert [%DB.Offer{id: ^offer_id}] = dataset.offers
   end
 
   test "cannot insert a dataset with a nil organization_id" do

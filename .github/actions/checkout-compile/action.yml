@@ -1,0 +1,78 @@
+name: "Checkout & compile"
+description: "Checkout and compile the code"
+runs:
+  using: "composite"
+  steps:
+    - uses: erlef/setup-beam@v1
+      with:
+        version-file: .tool-versions
+        version-type: strict
+
+    - name: Set safe directory
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      shell: bash
+
+    - name: Cache deps
+      id: cache-deps
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-elixir-deps
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+    - name: Cache compiled build
+      id: cache-build
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-compiled-build
+      with:
+        path: _build
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+
+    - name: Cache JS assets
+      id: cache-js-assets
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-js-assets
+      with:
+        path: |
+          apps/transport/client/node_modules
+          apps/transport/priv/static
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('apps/transport/client/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-
+          ${{ runner.os }}-mix-
+
+    - name: Move transport-tools folder
+      run: mv /transport-tools ./transport-tools
+      shell: bash
+
+    - name: Install hex
+      run: mix local.hex --force
+      shell: bash
+
+    - name: Install rebar
+      run: mix local.rebar --force
+      shell: bash
+
+    - name: Install mix dependencies
+      run: mix deps.get
+      shell: bash
+
+    - name: Compile code
+      run: mix compile
+      shell: bash
+
+    - name: Install yarn dependencies
+      run: cd apps/transport/client && yarn install
+      shell: bash
+
+    - name: Compile assets
+      run: cd apps/transport/client && npm run build
+      shell: bash

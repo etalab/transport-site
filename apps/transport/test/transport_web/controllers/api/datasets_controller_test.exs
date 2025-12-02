@@ -137,7 +137,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
         organization_id: "org_id",
         declarative_spatial_areas: [
           build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
-        ]
+        ],
+        custom_tags: ["foo", "bar"]
       )
 
     resource_1 =
@@ -261,7 +262,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
         [resource_1, gbfs_resource, resource_2]
         |> Enum.map(& &1.last_update)
         |> Enum.max(DateTime)
-        |> DateTime.to_iso8601()
+        |> DateTime.to_iso8601(),
+      "tags" => ["foo", "bar"]
     }
 
     assert json = conn |> get(path) |> json_response(200)
@@ -338,7 +340,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "slug" => "slug-1",
                "title" => "title",
                "type" => "public-transit",
-               "updated" => resource.last_update |> DateTime.to_iso8601()
+               "updated" => resource.last_update |> DateTime.to_iso8601(),
+               "tags" => []
              }
            ] == json
 
@@ -491,7 +494,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "title" => "title",
              "type" => "public-transit",
              "licence" => "lov2",
-             "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601()
+             "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601(),
+             "tags" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
@@ -619,7 +623,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "title" => "title",
              "type" => "public-transit",
              "updated" =>
-               [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601()
+               [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601(),
+             "tags" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
