@@ -1,6 +1,8 @@
 <% show_schema_validation = not is_nil(@resource.schema_name) and multi_validation_performed?(@validation) %>
 <% show_gtfs_rt_validation = DB.Resource.gtfs_rt?(@resource) and multi_validation_performed?(@validation) %>
 <% show_gbfs_validation = DB.Resource.gbfs?(@resource) and multi_validation_performed?(@validation) %>
+<% show_mobilitydata_gtfs_validation =
+  Transport.Validators.MobilityDataGTFSValidator.mine?(@validation) and multi_validation_performed?(@validation) %>
 
 <h2 id="validation-report"><%= dgettext("validations", "Validation details") %></h2>
 
@@ -21,7 +23,11 @@
   <%= render("_validation_report_gbfs.html", resource: @resource, conn: @conn, validation: @validation) %>
 <% end %>
 
-<%= if not Enum.any?([show_schema_validation, show_gtfs_rt_validation, show_gbfs_validation]) do %>
+<%= if show_mobilitydata_gtfs_validation do %>
+  <%= render("_validation_report_mobilitydata_gtfs.html", resource: @resource, conn: @conn, validation: @validation) %>
+<% end %>
+
+<%= if not Enum.any?([show_schema_validation, show_gtfs_rt_validation, show_gbfs_validation, show_mobilitydata_gtfs_validation]) do %>
   <div class="panel">
     <div>
       <%= dgettext("validations", "No validation available") %>

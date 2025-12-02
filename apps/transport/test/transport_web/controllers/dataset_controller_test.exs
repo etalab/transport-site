@@ -351,6 +351,52 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
   end
 
+  test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
+    )
+
+    result = %{"Slow" => [%{"severity" => "Information"}]}
+    digest = Transport.Validators.GTFSTransport.digest(result)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: result,
+      digest: digest,
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+  end
+
+  test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+
+    insert(:multi_validation,
+      resource_history: insert(:resource_history, resource_id: resource.id),
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+  end
+
   test "GBFS with a nil validation", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset_id: dataset.id, format: "gbfs", url: "url")

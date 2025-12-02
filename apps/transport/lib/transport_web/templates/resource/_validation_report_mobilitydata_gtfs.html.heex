@@ -1,0 +1,72 @@
+<div class="panel">
+  <%= render("_errors_warnings_count.html",
+    nb_errors: get_in(@validation.digest, ["stats", "ERROR"]) || 0,
+    nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0
+  ) %>
+
+  <%= for {severity, notices} <- @validation.result["notices"] |> Enum.group_by(& &1["severity"]) |> Enum.sort_by(& elem(&1, 0) |> Transport.Validators.MobilityDataGTFSValidator.severity_level(), :asc) do %>
+    <h4><%= error_label(severity) %></h4>
+    <%= for notice <- notices do %>
+      <% rule = notice["code"] |> Transport.Validators.MobilityDataGTFSValidator.rule_for_code() %>
+      <div class="panel">
+        <p class="mt-0 mb-0">
+          <% nb_errors = notice["totalNotices"] %>
+          <b lang="en"><%= notice["code"] %></b>
+          <span class="label">
+            <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+          </span>
+        </p>
+        <p lang="en">
+          <%= rule["shortSummary"] |> markdown() %>
+        </p>
+
+        <blockquote lang="en">
+          <%= Regex.replace(~r/([^\n])\n([^\n])/, rule["description"] || "", "\\1 \\2") |> markdown() %>
+        </blockquote>
+
+        <%= unless Enum.empty?(get_in(rule, ["references", "fileReferences"]) || []) do %>
+          <p>
+            <%= dgettext("validations", "Relevant files") %>
+          </p>
+          <ul>
+            <%= for file <- get_in(rule, ["references", "fileReferences"]) do %>
+              <li><code><%= file %></code></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <%= unless Enum.empty?(get_in(rule, ["references", "urlReferences"]) || []) do %>
+          <p>
+            <%= dgettext("validations", "Relevant links") %>
+          </p>
+          <ul lang="en">
+            <%= for link <- get_in(rule, ["references", "urlReferences"]) do %>
+              <li>
+                <%= link(link["label"], to: link["url"]) %>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <details>
+          <summary><%= dgettext("validations", "Sample errors") %></summary>
+          <table class="table" lang="en">
+            <% headers = notice["sampleNotices"] |> hd() |> Map.keys() %>
+            <tr>
+              <%= for header <- headers do %>
+                <th><%= header %></th>
+              <% end %>
+            </tr>
+            <%= for notice <- notice["sampleNotices"] do %>
+              <tr>
+                <%= for header <- headers do %>
+                  <td><%= Map.get(notice, header) %></td>
+                <% end %>
+              </tr>
+            <% end %>
+          </table>
+        </details>
+      </div>
+    <% end %>
+  <% end %>
+</div>

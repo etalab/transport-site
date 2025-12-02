@@ -1,13 +1,20 @@
-<%= if GTFSTransport.mine?(@validation) do %>
+<% validator =
+  cond do
+    GTFSTransport.mine?(@validation) -> GTFSTransport
+    MobilityDataGTFSValidator.mine?(@validation) -> MobilityDataGTFSValidator
+    # `nil` would be more appropriate but the compiler isn't happy
+    true -> GTFSTransport
+  end %>
+<%= if validator.mine?(@validation) do %>
   <div class="pb-24">
     <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
     <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <a href={link}>
       <span class={summary_class(%{severity: severity, count_errors: count})}>
-        <%= if GTFSTransport.no_error?(severity) do %>
+        <%= if validator.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>
-          <%= GTFSTransport.format_severity(severity, count) %>
+          <%= validator.format_severity(severity, count) %>
         <% end %>
       </span>
     </a>

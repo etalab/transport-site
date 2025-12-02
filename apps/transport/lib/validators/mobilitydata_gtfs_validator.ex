@@ -2,6 +2,18 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   @moduledoc """
   Validate a GTFS using the Canonical GTFS Transport validator.
   """
+  @no_error "NoError"
+
+  use Gettext, backend: TransportWeb.Gettext
+
+  # The `rules.json` file comes from the release of the validator.
+  # https://github.com/MobilityData/gtfs-validator/releases
+  @rules :transport
+         |> Application.app_dir("priv")
+         |> Kernel.<>("/mobilitydata_gtfs_rules.json")
+         |> File.read!()
+         |> Jason.decode!()
+
   @behaviour Transport.Validators.Validator
 
   @impl Transport.Validators.Validator
@@ -58,6 +70,9 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     end
   end
 
+  def mine?(%{validator: validator}), do: validator == validator_name()
+  def mine?(_), do: false
+
   @doc """
   iex> digest([%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "samplesNotices" => ["foo", "bar"]}])
   %{
@@ -88,13 +103,17 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     Enum.map(validation_result, &Map.take(&1, ["code", "severity", "totalNotices"]))
   end
 
+  @doc """
+  iex> Enum.map(["ERROR", "WARNING", "INFO"], &severity_level/1)
+  [0, 1, 2]
+  iex> assert_raise CaseClauseError, fn -> severity_level("NOPE") end
+  """
   @spec severity_level(binary()) :: non_neg_integer()
   def severity_level(key) do
     case key do
       "ERROR" -> 0
       "WARNING" -> 1
       "INFO" -> 2
-      _ -> 3
     end
   end
 
@@ -114,8 +133,14 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   %{"max_level" => "WARNING", "worst_occurrences" => 2}
   iex> count_max_severity([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
   %{"max_level" => "ERROR", "worst_occurrences" => 1}
+  iex> count_max_severity([])
+  %{"max_level" => "NoError", "worst_occurrences" => 0}
   """
   @spec count_max_severity([map()]) :: map()
+  def count_max_severity(validation_result) when validation_result == [] do
+    %{"max_level" => @no_error, "worst_occurrences" => 0}
+  end
+
   def count_max_severity(validation_result) do
     {max_level, worst_occurrences} =
       validation_result
@@ -132,12 +157,52 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   "ERROR"
   iex> get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}, %{"severity" => "INFO"}])
   "ERROR"
+  iex> get_max_severity_error([])
+  "NoError"
   """
   @spec get_max_severity_error([map()]) :: binary()
   def get_max_severity_error(validation_result) do
     %{"max_level" => max_level} = validation_result |> count_max_severity()
     max_level
   end
+
+  @doc """
+  iex> no_error?("ERROR")
+  false
+  iex> no_error?("NoError")
+  true
+  """
+  def no_error?(%{severity: severity}), do: no_error?(severity)
+  def no_error?(severity), do: severity == @no_error
+
+  @doc """
+  iex> Gettext.put_locale("en")
+  iex> format_severity("ERROR", 1)
+  "1 error"
+  iex> format_severity("ERROR", 2)
+  "2 errors"
+  iex> Gettext.put_locale("fr")
+  iex> format_severity("ERROR", 1)
+  "1 erreur"
+  iex> format_severity("ERROR", 2)
+  "2 erreurs"
+  iex> assert_raise CaseClauseError, fn -> format_severity("NOPE", 42) end
+  """
+  @spec format_severity(binary(), non_neg_integer()) :: binary()
+  def format_severity(key, count) do
+    case key do
+      "ERROR" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
+      "WARNING" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
+      "INFO" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
+    end
+  end
+
+  @doc """
+  iex> rule_for_code("attribution_without_role") |> Map.keys()
+  ["code", "deprecated", "description", "properties", "references", "severityLevel", "shortSummary", "type"]
+  """
+  @spec rule_for_code(binary()) :: map()
+  def rule_for_code(code), do: Map.fetch!(@rules, code)
 
   defp validator_client, do: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper.impl()
 end
