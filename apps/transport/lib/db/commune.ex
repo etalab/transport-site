@@ -11,7 +11,7 @@ defmodule DB.Commune do
     field(:insee, :string)
     field(:nom, :string)
     field(:surf_ha, :float)
-    field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: MultiPolygon.t()
     field(:population, :integer)
     field(:siren, :string)
     field(:arrondissement_insee, :string)
