@@ -18,7 +18,7 @@ defmodule DB.AOM do
     field(:nombre_communes, :integer)
     field(:population, :integer)
     field(:surface, :string)
-    field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: MultiPolygon.t()
 
     belongs_to(:region, Region)
     belongs_to(:departement_object, Departement, foreign_key: :departement, references: :insee, type: :string)

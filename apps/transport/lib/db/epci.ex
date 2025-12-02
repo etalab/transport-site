@@ -15,7 +15,7 @@ defmodule DB.EPCI do
     field(:nom, :string)
     field(:type, :string)
     field(:mode_financement, :string)
-    field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: Geo.MultiPolygon.t()
     has_many(:communes, DB.Commune, foreign_key: :epci_insee)
   end
 
