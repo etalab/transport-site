@@ -3,7 +3,7 @@ defmodule DB.Repo.Migrations.RegionRemoveIsCompleted do
 
   def change do
     alter table(:region) do
-      drop(:is_completed)
+      remove(:is_completed)
     end
   end
 end
