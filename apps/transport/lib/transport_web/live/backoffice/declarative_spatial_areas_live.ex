@@ -16,7 +16,8 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         placeholder: "Recherchez votre territoire…",
         phx_keydown: "search_division",
         phx_target: @myself,
-        id: "spatial_areas_search_input"
+        id: "spatial_areas_search_input",
+        required: @required
       ) %>
       <div
         :if={@administrative_division_search_matches != []}
@@ -111,6 +112,10 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       |> assign(:administrative_division_search_matches, [])
 
     {:ok, socket}
+  end
+
+  def update(assigns, socket) do
+    {:ok, socket |> assign(assigns) |> assign(:required, assigns.declarative_spatial_areas |> Enum.empty?())}
   end
 
   def handle_event("search_division", %{"key" => "Escape"}, socket) do
