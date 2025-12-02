@@ -11,6 +11,6 @@ defmodule DB.DatasetGeographicView do
   typed_schema "dataset_geographic_view" do
     belongs_to(:dataset, Dataset)
     belongs_to(:region, Region)
-    field(:geom, Geo.PostGIS.Geometry) :: MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: MultiPolygon.t()
   end
 end
