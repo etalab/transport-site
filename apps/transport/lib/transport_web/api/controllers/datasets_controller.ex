@@ -127,7 +127,7 @@ defmodule TransportWeb.API.DatasetController do
     Dataset
     |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:declarative_spatial_areas])
+    |> Repo.preload(declarative_spatial_areas: from(p in DB.AdministrativeDivision, select: [:nom, :type, :geom]))
     |> case do
       %Dataset{} = dataset ->
         data =

@@ -38,7 +38,7 @@ defmodule DB.AdministrativeDivision do
     )
 
     field(:nom, :string)
-    field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: Geo.MultiPolygon.t()
     field(:population, :integer)
   end
 
