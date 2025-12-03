@@ -46,7 +46,8 @@ defmodule Unlock.CachedFetch do
     response = Transport.S3.get_object!(bucket, path)
 
     # create the same type of structure as `fetch_data(%Generic.HTTP{})` calls. See `http_client.ex`.
-    response = %Unlock.HTTP.Response{body: response.body, status: response.status_code, headers: []}
+    response = %Unlock.HTTP.Response{body: response.body, status: response.status_code, headers: response.headers}
+
     size = byte_size(response.body)
 
     if size > @max_allowed_s3_cached_byte_size do

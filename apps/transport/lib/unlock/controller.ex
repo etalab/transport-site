@@ -182,7 +182,9 @@ defmodule Unlock.Controller do
 
     displayed_filename = Path.basename(item.path)
 
-    conn
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
     |> send_resp(response.status, response.body)
   end
