@@ -28,7 +28,17 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
         %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
       ]
 
-      report = %{"summary" => %{"validatorVersion" => version}, "notices" => notices}
+      report = %{
+        "summary" => %{
+          "validatorVersion" => version,
+          "counts" => %{"Stops" => 1337},
+          "agencies" => [%{"url" => "https://example.com/agency", "name" => "Agency"}],
+          "feedInfo" => %{"feedServiceWindowStart" => "2025-01-01", "feedServiceWindowEnd" => "2025-02-01"},
+          "gtfsFeatures" => ["Continuous Stops", "Bike Allowed"]
+        },
+        "notices" => notices
+      }
+
       {:successful, report}
     end)
 
@@ -40,6 +50,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
 
     assert [
              %DB.MultiValidation{
+               id: mv_id,
                resource_history_id: ^rh_id,
                validator: "MobilityData GTFS Validator",
                validator_version: ^version,
@@ -63,6 +74,24 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                max_error: "WARNING"
              }
            ] = DB.MultiValidation.with_result() |> DB.Repo.all()
+
+    assert [
+             %DB.ResourceMetadata{
+               resource_id: nil,
+               resource_history_id: ^rh_id,
+               multi_validation_id: ^mv_id,
+               metadata: %{
+                 "agencies" => [%{"name" => "Agency", "url" => "https://example.com/agency"}],
+                 "counts" => %{"Stops" => 1337},
+                 "feedInfo" => %{"feedServiceWindowEnd" => "2025-02-01", "feedServiceWindowStart" => "2025-01-01"},
+                 "start_date" => "2025-01-01",
+                 "end_date" => "2025-02-01"
+               },
+               modes: [],
+               features: ["Continuous Stops", "Bike Allowed"]
+             }
+           ] =
+             DB.ResourceMetadata |> DB.Repo.all()
   end
 
   test "uses the GitHub validator version if the version is missing from the summary" do

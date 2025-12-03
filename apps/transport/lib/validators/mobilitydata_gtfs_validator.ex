@@ -27,6 +27,20 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     # https://github.com/MobilityData/gtfs-validator/issues/2021
     validator_version = get_in(result, ["summary", "validatorVersion"]) || github_validator_version()
 
+    metadata = %{
+      "start_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowStart"]),
+      "end_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowEnd"]),
+      "counts" => get_in(result, ["summary", "counts"]),
+      "agencies" => get_in(result, ["summary", "agencies"]),
+      "feedInfo" => get_in(result, ["summary", "feedInfo"])
+    }
+
+    resource_metadata = %DB.ResourceMetadata{
+      resource_history_id: resource_history_id,
+      metadata: metadata,
+      features: get_in(result, ["summary", "gtfsFeatures"])
+    }
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
@@ -35,7 +49,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
       digest: digest(Map.get(result, "notices", [])),
       command: command(job_id),
       resource_history_id: resource_history_id,
-      max_error: get_max_severity_error(Map.get(result, "notices", []))
+      max_error: get_max_severity_error(Map.get(result, "notices", [])),
+      metadata: resource_metadata
     }
     |> DB.Repo.insert!()
 
