@@ -157,6 +157,11 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    Transport.ValidatorsSelection.Mock
+    |> expect(:validators, 1, fn ^rh ->
+      [Transport.Validators.MobilityDataGTFSValidator]
+    end)
+
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :create_a_validation, fn ^permanent_url ->
       job_id
     end)
@@ -176,10 +181,7 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
 
     assert :ok ==
              Transport.Jobs.ResourceHistoryValidationJob
-             |> perform_job(%{
-               "resource_history_id" => rh.id,
-               "validator" => Transport.Validators.Dummy |> to_string()
-             })
+             |> perform_job(%{"resource_history_id" => rh.id})
   end
 
   test "all validations for one resource history" do

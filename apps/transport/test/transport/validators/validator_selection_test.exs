@@ -61,5 +61,20 @@ defmodule Transport.ValidatorsSelectionTest do
 
       assert [Transport.Validators.EXJSONSchema] == ValidatorsSelection.validators(resource)
     end
+
+    test "for a GTFS-Flex" do
+      rh =
+        insert(:resource_history,
+          payload: %{
+            "format" => "GTFS",
+            "filenames" => ["locations.geojson", "stops.txt"],
+            "permanent_url" => "https://example.com/file"
+          }
+        )
+
+      assert DB.ResourceHistory.gtfs_flex?(rh)
+
+      assert [Transport.Validators.MobilityDataGTFSValidator] == ValidatorsSelection.validators(rh)
+    end
   end
 end
