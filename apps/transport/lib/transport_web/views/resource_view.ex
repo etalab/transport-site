@@ -144,6 +144,8 @@ defmodule TransportWeb.ResourceView do
     "https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
 
+  def mobilitydata_gtfs_validator_url, do: "https://gtfs-validator.mobilitydata.org"
+
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do
     type =
       cond do

@@ -48,6 +48,7 @@
 
         <details>
           <summary><%= dgettext("validations", "Sample errors") %></summary>
+          <% nb_sample_notices = Enum.count(notice["sampleNotices"]) %>
           <% sample_notices = Enum.take(notice["sampleNotices"], max_display_errors()) %>
           <table class="table" lang="en">
             <% headers = sample_notices |> hd() |> Map.keys() %>
@@ -58,8 +59,28 @@
               <td :for={header <- headers}><%= Map.get(notice, header) %></td>
             </tr>
           </table>
+          <p :if={nb_sample_notices > max_display_errors()} class="notification">
+            <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
+          </p>
         </details>
       </div>
     <% end %>
   <% end %>
+  <p>
+    <%= raw(
+      dgettext(
+        "validations",
+        ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
+        link: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
+        format: "GTFS",
+        date:
+          DateTimeDisplay.format_datetime_to_paris(
+            @validation.validation_timestamp,
+            get_session(@conn, :locale)
+          ),
+        validator_url: mobilitydata_gtfs_validator_url(),
+        validator_name: dgettext("validations", "Canonical GTFS Schedule Validator")
+      )
+    ) %>
+  </p>
 </div>
