@@ -528,6 +528,8 @@ defmodule Transport.ImportData do
   true
   iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
+  iex> siri?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring", "format" => "siri"})
+  true
   """
   @spec siri?(binary() | map() | nil) :: boolean()
   def siri?(%{} = params) do
@@ -557,10 +559,13 @@ defmodule Transport.ImportData do
   true
   iex> siri_lite?("SIRI")
   false
+  iex> siri_lite?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring"})
+  false
   """
   @spec siri_lite?(binary() | map() | nil) :: boolean()
   def siri_lite?(%{} = params) do
     cond do
+      isolated_siri_lite?(params) -> false
       ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
       siri_lite?(params["title"]) -> true
@@ -571,6 +576,19 @@ defmodule Transport.ImportData do
   end
 
   def siri_lite?(format), do: format?(format, "SIRI Lite")
+
+  @doc """
+  Identify cases when the occurence of `SIRI Lite` appears
+  way less often than SIRI.
+  """
+  def isolated_siri_lite?(%{"description" => description}) do
+    description = String.downcase(description || "")
+    count_siri_lite = Regex.scan(~r/siri( |-)lite/, description) |> length()
+    count_siri = Regex.scan(~r/siri/, description) |> length()
+    count_siri_lite < count_siri
+  end
+
+  def isolated_siri_lite?(_), do: false
 
   @doc """
   iex> ssim?("ssim")
