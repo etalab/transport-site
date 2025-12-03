@@ -23,11 +23,14 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
     job_id = validator_client().create_a_validation(url)
     result = job_id |> poll_validation_results()
+    # the validator version may be missing
+    # https://github.com/MobilityData/gtfs-validator/issues/2021
+    validator_version = get_in(result, ["summary", "validatorVersion"]) || github_validator_version()
 
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      validator_version: get_in(result, ["summary", "validatorVersion"]),
+      validator_version: validator_version,
       result: result,
       digest: digest(Map.get(result, "notices", [])),
       command: command(job_id),
@@ -41,6 +44,19 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
 
   def validate_and_save(gtfs_url) do
     validator_client().create_a_validation(gtfs_url) |> poll_validation_results()
+  end
+
+  def github_validator_version do
+    Transport.Cache.fetch(
+      "#{__MODULE__}::validator_version",
+      fn ->
+        %HTTPoison.Response{status_code: 200, body: body} =
+          http_client().get!("https://api.github.com/repos/MobilityData/gtfs-validator/releases/latest")
+
+        body |> Jason.decode!() |> Map.fetch!("tag_name") |> String.trim_leading("v")
+      end,
+      :timer.hours(1)
+    )
   end
 
   def command(job_id) do
@@ -205,4 +221,6 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def rule_for_code(code), do: Map.fetch!(@rules, code)
 
   defp validator_client, do: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper.impl()
+
+  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 end
