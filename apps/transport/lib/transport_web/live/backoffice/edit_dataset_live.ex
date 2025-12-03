@@ -104,8 +104,7 @@ defmodule TransportWeb.EditDatasetLive do
       "Réseau",
       "Opérateur de transport",
       "Partenariat régional",
-      "Fournisseur de système",
-      "Autre"
+      "Fournisseur de système"
     ]
 
   def handle_event(
