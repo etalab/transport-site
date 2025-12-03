@@ -1,9 +1,8 @@
 <% validator =
-  cond do
-    GTFSTransport.mine?(@validation) -> GTFSTransport
-    MobilityDataGTFSValidator.mine?(@validation) -> MobilityDataGTFSValidator
-    # `nil` would be more appropriate but the compiler isn't happy
-    true -> GTFSTransport
+  if MobilityDataGTFSValidator.mine?(@validation) do
+    MobilityDataGTFSValidator
+  else
+    GTFSTransport
   end %>
 <%= if validator.mine?(@validation) do %>
   <div class="pb-24">

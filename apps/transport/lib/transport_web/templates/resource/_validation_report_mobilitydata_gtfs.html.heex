@@ -29,9 +29,9 @@
             <%= dgettext("validations", "Relevant files") %>
           </p>
           <ul>
-            <%= for file <- get_in(rule, ["references", "fileReferences"]) do %>
-              <li><code><%= file %></code></li>
-            <% end %>
+            <li :for={file <- get_in(rule, ["references", "fileReferences"])}>
+              <code><%= file %></code>
+            </li>
           </ul>
         <% end %>
 
@@ -40,11 +40,9 @@
             <%= dgettext("validations", "Relevant links") %>
           </p>
           <ul lang="en">
-            <%= for link <- get_in(rule, ["references", "urlReferences"]) do %>
-              <li>
-                <%= link(link["label"], to: link["url"]) %>
-              </li>
-            <% end %>
+            <li :for={link <- get_in(rule, ["references", "urlReferences"])}>
+              <%= link(link["label"], to: link["url"]) %>
+            </li>
           </ul>
         <% end %>
 
@@ -53,15 +51,11 @@
           <table class="table" lang="en">
             <% headers = notice["sampleNotices"] |> hd() |> Map.keys() %>
             <tr>
-              <%= for header <- headers do %>
-                <th><%= header %></th>
-              <% end %>
+              <th :for={header <- headers}><%= header %></th>
             </tr>
             <%= for notice <- notice["sampleNotices"] do %>
               <tr>
-                <%= for header <- headers do %>
-                  <td><%= Map.get(notice, header) %></td>
-                <% end %>
+                <td :for={header <- headers}><%= Map.get(notice, header) %></td>
               </tr>
             <% end %>
           </table>
