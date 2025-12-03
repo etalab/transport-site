@@ -22,8 +22,12 @@ defmodule Transport.ValidatorsSelection.Impl do
   """
   @impl Transport.ValidatorsSelection
   @spec validators(DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
-  def validators(%DB.ResourceHistory{payload: payload}) do
-    validators(%{format: Map.get(payload, "format"), schema_name: Map.get(payload, "schema_name")})
+  def validators(%DB.ResourceHistory{payload: payload} = resource_history) do
+    if DB.ResourceHistory.gtfs_flex?(resource_history) do
+      [Transport.Validators.MobilityDataGTFSValidator]
+    else
+      validators(%{format: Map.get(payload, "format"), schema_name: Map.get(payload, "schema_name")})
+    end
   end
 
   def validators(%DB.Resource{format: format, schema_name: schema_name}) do

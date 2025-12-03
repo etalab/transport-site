@@ -138,7 +138,15 @@ defmodule TransportWeb.API.DatasetControllerTest do
         declarative_spatial_areas: [
           build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
         ],
-        custom_tags: ["foo", "bar"]
+        custom_tags: ["foo", "bar"],
+        offers: [
+          insert(:offer,
+            identifiant_offre: 1,
+            nom_commercial: "Superbus",
+            nom_aom: "Super AOM",
+            type_transport: "Transport urbain"
+          )
+        ]
       )
 
     resource_1 =
@@ -263,7 +271,15 @@ defmodule TransportWeb.API.DatasetControllerTest do
         |> Enum.map(& &1.last_update)
         |> Enum.max(DateTime)
         |> DateTime.to_iso8601(),
-      "tags" => ["foo", "bar"]
+      "tags" => ["foo", "bar"],
+      "offers" => [
+        %{
+          "identifiant_offre" => 1,
+          "nom_aom" => "Super AOM",
+          "nom_commercial" => "Superbus",
+          "type_transport" => "Transport urbain"
+        }
+      ]
     }
 
     assert json = conn |> get(path) |> json_response(200)
@@ -341,7 +357,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "title" => "title",
                "type" => "public-transit",
                "updated" => resource.last_update |> DateTime.to_iso8601(),
-               "tags" => []
+               "tags" => [],
+               "offers" => []
              }
            ] == json
 
@@ -495,7 +512,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "type" => "public-transit",
              "licence" => "lov2",
              "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601(),
-             "tags" => []
+             "tags" => [],
+             "offers" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
@@ -624,7 +642,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "type" => "public-transit",
              "updated" =>
                [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601(),
-             "tags" => []
+             "tags" => [],
+             "offers" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())

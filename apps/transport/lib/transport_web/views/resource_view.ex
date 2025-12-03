@@ -85,6 +85,8 @@ defmodule TransportWeb.ResourceView do
     Enum.take(errors, max_display_errors())
   end
 
+  def errors_sample(_), do: []
+
   def max_display_errors, do: 50
 
   def hours_ago(utcdatetime, locale) do
@@ -437,4 +439,14 @@ defmodule TransportWeb.ResourceView do
   defp drop_empty_query_params(query_params) do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)
   end
+
+  def error_label(severity) do
+    case severity do
+      "ERROR" -> "❌ " <> dgettext("validations", "Errors")
+      "WARNING" -> "⚠️ " <> dgettext("validations", "Warnings")
+      "INFO" -> "ℹ️ " <> dgettext("validations", "Information")
+    end
+  end
+
+  def markdown(text), do: TransportWeb.MarkdownHandler.markdown_to_safe_html!(text)
 end
