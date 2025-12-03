@@ -81,7 +81,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp poll_validation_results(job_id, attempt \\ 1)
 
   defp poll_validation_results(job_id, 60 = _attempt) do
-    %{"status" => "error", "reason" => "timeout", "job_id" => job_id}
+    %{"status" => "error", "reason" => "timeout", "job_id" => job_id, "validation_performed" => false}
   end
 
   defp poll_validation_results(job_id, attempt) do
@@ -94,10 +94,10 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
         data
 
       {:error, data} ->
-        data
+        Map.put(data, "validation_performed", false)
 
       :unexpected_validation_status ->
-        %{}
+        %{"validation_performed" => false, "reason" => "unexpected_validation_status"}
     end
   end
 
