@@ -13,12 +13,13 @@ defmodule TransportWeb.API.DatasetController do
   # that it will still protect a lot against excessive querying.
   @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
   @by_id_cache_ttl :timer.seconds(30)
+  @offers_columns [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]
   @dataset_preload [
     :resources,
     :legal_owners_aom,
     :legal_owners_region,
     :declarative_spatial_areas,
-    offers: from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]),
+    offers: from(o in DB.Offer, select: ^@offers_columns),
     resources: [:dataset]
   ]
 
@@ -351,7 +352,7 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   def offers(%DB.Dataset{} = dataset) do
-    Enum.map(dataset.offers, &Map.take(&1, [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]))
+    Enum.map(dataset.offers, &Map.take(&1, @offers_columns))
   end
 
   def prepare_datasets_index_data do
