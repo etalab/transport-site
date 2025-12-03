@@ -48,16 +48,15 @@
 
         <details>
           <summary><%= dgettext("validations", "Sample errors") %></summary>
+          <% sample_notices = Enum.take(notice["sampleNotices"], max_display_errors()) %>
           <table class="table" lang="en">
-            <% headers = notice["sampleNotices"] |> hd() |> Map.keys() %>
+            <% headers = sample_notices |> hd() |> Map.keys() %>
             <tr>
               <th :for={header <- headers}><%= header %></th>
             </tr>
-            <%= for notice <- notice["sampleNotices"] do %>
-              <tr>
-                <td :for={header <- headers}><%= Map.get(notice, header) %></td>
-              </tr>
-            <% end %>
+            <tr :for={notice <- sample_notices}>
+              <td :for={header <- headers}><%= Map.get(notice, header) %></td>
+            </tr>
           </table>
         </details>
       </div>
