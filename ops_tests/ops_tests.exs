@@ -3,7 +3,7 @@
 ExUnit.start()
 
 Mix.install([
-  {:req, "~> 0.5.4"},
+  {:req, "~> 0.5.16"},
   {:dns, "~> 2.4.0"}
 ])
 
@@ -75,7 +75,8 @@ defmodule Transport.OpsTests do
       # Satellite websites
       assert {:ok, [~c"transport-blog.netlify.app"]} == DNS.resolve("blog.#{@domain_name}", :cname)
       assert {:ok, [~c"hosting.gitbook.com"]} == DNS.resolve("doc.#{@domain_name}", :cname)
-      assert {:ok, [~c"stats.uptimerobot.com"]} == DNS.resolve("status.#{@domain_name}", :cname)
+      assert {:ok, [~c"page.updown.io"]} == DNS.resolve("status.#{@domain_name}", :cname)
+      assert {:ok, [[~c"updown-page=p/m5pzb"]]} = DNS.resolve("_updown.status.#{@domain_name}", :txt)
     end
 
     test "MX records" do

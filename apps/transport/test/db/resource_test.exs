@@ -85,12 +85,12 @@ defmodule DB.ResourceTest do
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+        inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
       assert expected_last_update_time == resource_id |> Resource.content_updated_at()
@@ -101,31 +101,31 @@ defmodule DB.ResourceTest do
 
       insert(:resource_history, %{
         datagouv_id: datagouv_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       assert Resource.content_updated_at(resource_id) == nil
     end
 
-    test "last content update time, download_datime not in payload" do
+    test "last content update time, single datetime" do
       %{id: resource_id} = insert(:resource, %{datagouv_id: datagouv_id = "datagouv_id"})
-      insert(:resource_history, %{datagouv_id: datagouv_id, payload: %{}})
+
+      insert(:resource_history, %{datagouv_id: datagouv_id})
 
       assert Resource.content_updated_at(resource_id) == nil
     end
 
-    test "last content update time, some download_datetime not in payload" do
+    test "last content update time, multiple datetimes" do
       %{id: resource_id} = insert(:resource)
-      insert(:resource_history, %{payload: %{}})
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: DateTime.utc_now() |> DateTime.add(-7200)}
+        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        payload: %{download_datetime: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)}
+        inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
       assert expected_last_update_time == resource_id |> Resource.content_updated_at()

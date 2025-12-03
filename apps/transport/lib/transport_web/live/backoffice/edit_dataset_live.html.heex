@@ -79,9 +79,8 @@
       selected:
         if not is_nil(@dataset) do
           @dataset.organization_type
-        else
-          ""
         end,
+      required: true,
       prompt: dgettext("backoffice", "Publisher type")
     ) %>
   </div>
@@ -119,7 +118,7 @@
   <div class="panel mt-48">
     <div class="panel__header">
       <h4>
-        <%= dgettext("backoffice", "Spatial area (new)") %>
+        <%= dgettext("backoffice", "Spatial area") %>
       </h4>
     </div>
     <.live_component
