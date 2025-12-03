@@ -1,7 +1,7 @@
 <% locale = get_session(@conn, :locale) %>
 <% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
-<% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% validation = latest_validation(@resource, @resources_infos) %>
 <% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
 

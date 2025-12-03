@@ -220,3 +220,9 @@ table.netex_generic_issue tr.debug td code {
     font-weight: 600;
   }
 }
+
+blockquote {
+  margin: 0;
+  padding-left: .5em;
+  border-left: 2px solid var(--grey);
+}

@@ -141,17 +141,47 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
     assert_received :validate!
   end
 
-  test "do not validate a GTFS-Flex" do
-    rh = insert(:resource_history, payload: %{"format" => "GTFS", "filenames" => ["locations.geojson", "stops.txt"]})
+  test "GTFS-Flex is validated with the MobilityData one" do
+    permanent_url = "https://example.com/gtfs"
+    job_id = Ecto.UUID.generate()
+    report_html_url = "https://example.com/#{job_id}/report.html"
+
+    rh =
+      insert(:resource_history,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => permanent_url
+        }
+      )
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
-    assert {:discard, "ResourceHistory##{rh.id} is a GTFS-Flex, we do not validate it"} ==
+    Transport.ValidatorsSelection.Mock
+    |> expect(:validators, 1, fn ^rh ->
+      [Transport.Validators.MobilityDataGTFSValidator]
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :create_a_validation, fn ^permanent_url ->
+      job_id
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
+      notices = [
+        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+      ]
+
+      report = %{"summary" => %{"validatorVersion" => "4.2.0"}, "notices" => notices}
+      {:successful, report}
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :report_html_url, fn ^job_id ->
+      report_html_url
+    end)
+
+    assert :ok ==
              Transport.Jobs.ResourceHistoryValidationJob
-             |> perform_job(%{
-               "resource_history_id" => rh.id,
-               "validator" => Transport.Validators.Dummy |> to_string()
-             })
+             |> perform_job(%{"resource_history_id" => rh.id})
   end
 
   test "all validations for one resource history" do
