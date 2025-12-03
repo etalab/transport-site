@@ -265,9 +265,12 @@ defmodule TransportWeb.ResourceController do
   they are referenced on an HTTPS page.
   """
   def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         forward_head_response(conn, resource)
 
@@ -283,9 +286,12 @@ defmodule TransportWeb.ResourceController do
   end
 
   def download(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         log_and_redirect(conn, resource)
 
@@ -315,6 +321,12 @@ defmodule TransportWeb.ResourceController do
             |> render("404.html")
         end
     end
+  end
+
+  defp get_with_dataset(resource_id) do
+    DB.Resource
+    |> DB.Repo.get(resource_id)
+    |> DB.Repo.preload(:dataset)
   end
 
   defp forward_head_response(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
