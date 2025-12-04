@@ -20,7 +20,33 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def validator_name, do: "MobilityData GTFS Validator"
 
   @impl Transport.Validators.Validator
+  @spec validate_and_save(DB.ResourceHistory.t() | binary()) :: :ok | map()
   def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
+    results = run_validation(url)
+
+    %DB.MultiValidation{
+      validation_timestamp: DateTime.utc_now(),
+      validator: validator_name(),
+      validator_version: results.validator_version,
+      result: results.result,
+      digest: results.digest,
+      command: results.command,
+      resource_history_id: resource_history_id,
+      max_error: results.max_error,
+      metadata: %DB.ResourceMetadata{
+        resource_history_id: resource_history_id,
+        metadata: results.metadata,
+        features: results.features
+      }
+    }
+    |> DB.Repo.insert!()
+
+    :ok
+  end
+
+  def validate_and_save(gtfs_url), do: run_validation(gtfs_url)
+
+  defp run_validation(url) do
     job_id = validator_client().create_a_validation(url)
     result = job_id |> poll_validation_results()
     # the validator version may be missing
@@ -35,30 +61,15 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
       "feedInfo" => get_in(result, ["summary", "feedInfo"])
     }
 
-    resource_metadata = %DB.ResourceMetadata{
-      resource_history_id: resource_history_id,
+    %{
+      result: result,
+      validator_version: validator_version,
       metadata: metadata,
+      command: command(job_id),
+      digest: digest(Map.get(result, "notices", [])),
+      max_error: get_max_severity_error(Map.get(result, "notices", [])),
       features: get_in(result, ["summary", "gtfsFeatures"])
     }
-
-    %DB.MultiValidation{
-      validation_timestamp: DateTime.utc_now(),
-      validator: validator_name(),
-      validator_version: validator_version,
-      result: result,
-      digest: digest(Map.get(result, "notices", [])),
-      command: command(job_id),
-      resource_history_id: resource_history_id,
-      max_error: get_max_severity_error(Map.get(result, "notices", [])),
-      metadata: resource_metadata
-    }
-    |> DB.Repo.insert!()
-
-    :ok
-  end
-
-  def validate_and_save(gtfs_url) do
-    validator_client().create_a_validation(gtfs_url) |> poll_validation_results()
   end
 
   def github_validator_version do

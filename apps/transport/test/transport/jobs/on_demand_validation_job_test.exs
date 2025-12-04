@@ -79,6 +79,99 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
              } = reload(validation)
     end
 
+    test "with a GTFS-Flex" do
+      validation = create_validation(%{"type" => "gtfs-flex"})
+
+      job_id = Ecto.UUID.generate()
+      report_html_url = "https://example.com/#{job_id}/report.html"
+      version = "4.2.0"
+
+      expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :create_a_validation, fn url ->
+        assert url == @url
+        job_id
+      end)
+
+      expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
+        notices = [
+          %{
+            "code" => "unusable_trip",
+            "severity" => "WARNING",
+            "totalNotices" => 2,
+            "sampleNotices" => [%{"foo" => "bar"}]
+          }
+        ]
+
+        report = %{
+          "summary" => %{
+            "validatorVersion" => version,
+            "counts" => %{"Stops" => 1337},
+            "agencies" => [%{"url" => "https://example.com/agency", "name" => "Agency"}],
+            "feedInfo" => %{"feedServiceWindowStart" => "2025-01-01", "feedServiceWindowEnd" => "2025-02-01"},
+            "gtfsFeatures" => ["Continuous Stops", "Bike Allowed"]
+          },
+          "notices" => notices
+        }
+
+        {:successful, report}
+      end)
+
+      expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :report_html_url, fn ^job_id ->
+        report_html_url
+      end)
+
+      s3_mocks_delete_object(Transport.S3.bucket_name(:on_demand_validation), @filename)
+
+      assert :ok == run_job(validation)
+
+      assert %{
+               validated_data_name: "https://example.com/file.zip",
+               validator: "MobilityData GTFS Validator",
+               validator_version: "4.2.0",
+               validation_timestamp: date,
+               digest: %{
+                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
+                 "stats" => %{"WARNING" => 1},
+                 "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
+               },
+               result: %{
+                 "notices" => [
+                   %{
+                     "code" => "unusable_trip",
+                     "sampleNotices" => [%{"foo" => "bar"}],
+                     "severity" => "WARNING",
+                     "totalNotices" => 2
+                   }
+                 ],
+                 "summary" => %{
+                   "agencies" => [%{"name" => "Agency", "url" => "https://example.com/agency"}],
+                   "counts" => %{"Stops" => 1337},
+                   "feedInfo" => %{"feedServiceWindowEnd" => "2025-02-01", "feedServiceWindowStart" => "2025-01-01"},
+                   "gtfsFeatures" => ["Continuous Stops", "Bike Allowed"],
+                   "validatorVersion" => "4.2.0"
+                 }
+               },
+               oban_args: %{
+                 "state" => "completed",
+                 "type" => "gtfs-flex",
+                 "filename" => "file.zip",
+                 "permanent_url" => "https://example.com/file.zip"
+               },
+               max_error: "WARNING",
+               metadata: %DB.ResourceMetadata{
+                 features: ["Continuous Stops", "Bike Allowed"],
+                 metadata: %{
+                   "agencies" => [%{"name" => "Agency", "url" => "https://example.com/agency"}],
+                   "counts" => %{"Stops" => 1337},
+                   "end_date" => "2025-02-01",
+                   "feedInfo" => %{"feedServiceWindowEnd" => "2025-02-01", "feedServiceWindowStart" => "2025-01-01"},
+                   "start_date" => "2025-01-01"
+                 }
+               }
+             } = validation |> reload() |> DB.Repo.preload(:metadata)
+
+      assert DateTime.diff(date, DateTime.utc_now()) <= 1
+    end
+
     test "with a tableschema" do
       schema_name = "etalab/foo"
       validation_result = %{"errors_count" => 0, "has_errors" => false, "errors" => []}

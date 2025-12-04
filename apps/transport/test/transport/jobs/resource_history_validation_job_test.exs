@@ -168,7 +168,12 @@ defmodule Transport.Jobs.ResourceHistoryValidationJobTest do
 
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
       notices = [
-        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+        %{
+          "code" => "unusable_trip",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [%{"foo" => "bar"}]
+        }
       ]
 
       report = %{"summary" => %{"validatorVersion" => "4.2.0"}, "notices" => notices}

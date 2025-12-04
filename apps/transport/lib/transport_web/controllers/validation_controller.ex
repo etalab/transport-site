@@ -214,7 +214,7 @@ defmodule TransportWeb.ValidationController do
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    ["GTFS", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
+    ["GTFS", "GTFS-Flex", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
   def valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
@@ -242,8 +242,7 @@ defmodule TransportWeb.ValidationController do
   defp build_oban_args(type) do
     args =
       case type do
-        "gtfs" -> %{"type" => "gtfs"}
-        "netex" -> %{"type" => "netex"}
+        type when type in ["gtfs", "gtfs-flex", "netex"] -> %{"type" => type}
         schema_name -> %{"schema_name" => schema_name, "type" => schema_type(schema_name)}
       end
 

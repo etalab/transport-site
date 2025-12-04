@@ -4,7 +4,6 @@ defmodule Transport.Jobs.OnDemandValidationHelpers do
   """
   import Ecto.Changeset
   import Ecto.Query
-  alias DB.{MultiValidation, Repo}
 
   def terminal_state(result), do: {:terminal, result}
   def delegated_state, do: :delegated
@@ -23,18 +22,19 @@ defmodule Transport.Jobs.OnDemandValidationHelpers do
   end
 
   defp update_multivalidation(multivalidation_id, changes) do
-    validation = %{oban_args: oban_args} = MultiValidation |> preload(:metadata) |> Repo.get!(multivalidation_id)
+    validation = %{oban_args: oban_args} = DB.MultiValidation |> preload(:metadata) |> DB.Repo.get!(multivalidation_id)
 
     # update oban_args with validator output
     oban_args = Map.merge(oban_args, Map.get(changes, :oban_args, %{}))
     changes = changes |> Map.put(:oban_args, oban_args)
 
     {metadata, changes} = Map.pop(changes, :metadata)
+    {features, changes} = Map.pop(changes, :features)
 
     validation
     |> change(changes)
-    |> put_assoc(:metadata, %{metadata: metadata})
-    |> Repo.update!()
+    |> put_assoc(:metadata, %{metadata: metadata, features: features})
+    |> DB.Repo.update!()
 
     :ok
   end

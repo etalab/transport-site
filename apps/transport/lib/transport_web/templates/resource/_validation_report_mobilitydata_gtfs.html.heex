@@ -1,4 +1,4 @@
-<div class="panel">
+<div class={assigns[:div_class] || "panel"}>
   <%= render("_errors_warnings_count.html",
     nb_errors: get_in(@validation.digest, ["stats", "ERROR"]) || 0,
     nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0
