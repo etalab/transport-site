@@ -206,11 +206,13 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   ]
   @gtfs_validator Transport.Validators.GTFSTransport
   @netex_validator Transport.Validators.NeTEx.Validator
-  @validators [@gtfs_validator, @netex_validator] ++ @validators_with_has_errors
+  @mobilitydata_gtfs_validator Transport.Validators.MobilityDataGTFSValidator
+  @validators [@gtfs_validator, @netex_validator, @mobilitydata_gtfs_validator] ++ @validators_with_has_errors
   @validator_names Enum.map(@validators, & &1.validator_name())
   @validators_with_has_errors_names Enum.map(@validators_with_has_errors, & &1.validator_name())
   @gtfs_validator_name @gtfs_validator.validator_name()
   @netex_validator_name @netex_validator.validator_name()
+  @mobilitydata_gtfs_validator_name @mobilitydata_gtfs_validator.validator_name()
 
   @spec current_dataset_compliance(integer()) :: %{score: float | nil, details: map()}
   def current_dataset_compliance(dataset_id) do
@@ -247,6 +249,13 @@ defmodule Transport.Jobs.DatasetComplianceScore do
   # For GTFS resources
   def resource_compliance({resource_id, [%DB.MultiValidation{validator: @gtfs_validator_name, max_error: max_error}]}) do
     compliance = if max_error in ["Fatal", "Error"], do: 0.0, else: 1.0
+    %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
+  end
+
+  def resource_compliance(
+        {resource_id, [%DB.MultiValidation{validator: @mobilitydata_gtfs_validator_name, max_error: max_error}]}
+      ) do
+    compliance = if max_error == "ERROR", do: 0.0, else: 1.0
     %{compliance: compliance, resource_id: resource_id, raw_measure: %{"max_error" => max_error}}
   end
 
@@ -412,49 +421,38 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
             :metadata_inserted_at => binary | nil
           }
   def resource_freshness(%DB.Resource{format: "GTFS" = format, id: resource_id}) do
-    resource_history = resource_id |> DB.ResourceHistory.latest_resource_history()
-
-    if !is_nil(resource_history) and DB.ResourceHistory.gtfs_flex?(resource_history) do
-      %{
-        freshness: 1.0,
-        raw_measure: %{source: "gtfs_flex"},
-        metadata_id: nil,
-        metadata_inserted_at: nil
-      }
-    else
-      resource_id
-      |> DB.MultiValidation.resource_latest_validation(Transport.Validators.GTFSTransport)
-      |> case do
-        %{
-          metadata: %{
-            metadata: %{"start_date" => start_date, "end_date" => end_date},
-            id: metadata_id,
-            inserted_at: inserted_at
-          }
+    (DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport) ||
+       DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.MobilityDataGTFSValidator))
+    |> case do
+      %DB.MultiValidation{
+        metadata: %{
+          metadata: %{"start_date" => start_date, "end_date" => end_date},
+          id: metadata_id,
+          inserted_at: inserted_at
         }
-        when not is_nil(start_date) and not is_nil(end_date) ->
-          start_date = Date.from_iso8601!(start_date)
-          end_date = Date.from_iso8601!(end_date)
+      }
+      when not is_nil(start_date) and not is_nil(end_date) ->
+        start_date = Date.from_iso8601!(start_date)
+        end_date = Date.from_iso8601!(end_date)
 
-          freshness = gtfs_freshness(start_date, end_date)
+        freshness = gtfs_freshness(start_date, end_date)
 
-          %{
-            freshness: freshness,
-            raw_measure: %{start_date: start_date, end_date: end_date},
-            metadata_id: metadata_id,
-            metadata_inserted_at: inserted_at
-          }
+        %{
+          freshness: freshness,
+          raw_measure: %{start_date: start_date, end_date: end_date},
+          metadata_id: metadata_id,
+          metadata_inserted_at: inserted_at
+        }
 
-        _ ->
-          %{
-            freshness: nil,
-            raw_measure: nil,
-            metadata_id: nil,
-            metadata_inserted_at: nil
-          }
-      end
-      |> Map.merge(%{resource_id: resource_id, format: format})
+      _ ->
+        %{
+          freshness: nil,
+          raw_measure: nil,
+          metadata_id: nil,
+          metadata_inserted_at: nil
+        }
     end
+    |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
   def resource_freshness(%DB.Resource{format: "gbfs" = format, id: resource_id}) do
