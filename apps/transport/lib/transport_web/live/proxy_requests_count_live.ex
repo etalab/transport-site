@@ -36,12 +36,25 @@ defmodule TransportWeb.ProxyRequestsCountLive do
   def handle_info(:update_data, socket) do
     query =
       from(m in DB.Metrics,
-        group_by: [fragment("case when ? like '%internal' then 'internal' else 'external' end", m.event)],
+        group_by: fragment("event_type"),
         where: fragment("? >= (now() - interval '30 day')", m.period),
-        where: fragment("? ~ ':(internal|external)$'", m.event),
         select: %{
           sum: sum(m.count),
-          event: fragment("case when ? like '%internal' then 'internal' else 'external' end", m.event)
+          event_type:
+            fragment(
+              "case when ? like '%internal' then 'internal' when ? like '%external' then 'external' else 'other' end",
+              m.event,
+              m.event
+            )
+        }
+      )
+
+    query =
+      from(metrics in subquery(query),
+        where: metrics.event_type != "other",
+        select: %{
+          sum: metrics.sum,
+          event: metrics.event_type
         }
       )
 
