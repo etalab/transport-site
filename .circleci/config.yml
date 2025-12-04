@@ -32,8 +32,8 @@ defaults_with_postgres: &defaults_with_postgres
   <<: *defaults
   docker:
     - *default_docker
-    # See https://hub.docker.com/r/timescale/timescaledb-ha/tags?name=pg14.3
-    - image: timescale/timescaledb-ha:pg14.3-ts2.7.0-latest
+    # See https://hub.docker.com/r/timescale/timescaledb-ha/tags
+    - image: timescale/timescaledb-ha:pg18.1-ts2.24.0
       environment:
         POSTGRES_USER: root
         POSTGRES_DB: transport_test
