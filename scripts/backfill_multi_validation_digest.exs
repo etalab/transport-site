@@ -55,6 +55,9 @@ defmodule Script do
       "ExJsonSchema" ->
         Transport.Validators.EXJSONSchema.digest(mv.result)
 
+      "MobilityData GTFS Validator" ->
+        Transport.Validators.MobilityDataGTFSValidator.digest(mv.result)
+
       unsupported ->
         Logger.warning("multi_validation ##{mv.id}: unsupported validator #{unsupported}")
         nil

@@ -118,8 +118,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   @doc """
   iex> digest([%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "samplesNotices" => ["foo", "bar"]}])
   %{
-    "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-    "stats" => %{"WARNING" => 1},
+    "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+    "stats" => %{"WARNING" => 2},
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
   """
@@ -160,20 +160,27 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   end
 
   @doc """
-  iex> count_by_severity([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
-  %{"WARNING" => 2}
-  iex> count_by_severity([%{"severity" => "WARNING"}, %{"severity" => "ERROR"}])
-  %{"WARNING" => 1, "ERROR" => 1}
+  iex> count_by_severity([%{"severity" => "WARNING", "totalNotices" => 2}, %{"severity" => "WARNING", "totalNotices" => 3}])
+  %{"WARNING" => 5}
+  iex> count_by_severity([%{"severity" => "WARNING", "totalNotices" => 2}, %{"severity" => "ERROR", "totalNotices" => 3}])
+  %{"WARNING" => 2, "ERROR" => 3}
   """
   @spec count_by_severity([map()]) :: map()
   def count_by_severity(validation_result) do
-    validation_result |> Enum.map(& &1["severity"]) |> Enum.frequencies()
+    Enum.reduce(validation_result, %{}, fn notice, acc ->
+      severity = notice["severity"]
+      count = notice["totalNotices"]
+
+      Map.update(acc, severity, count, fn existing_count ->
+        existing_count + count
+      end)
+    end)
   end
 
   @doc """
-  iex> count_max_severity([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
-  %{"max_level" => "WARNING", "worst_occurrences" => 2}
-  iex> count_max_severity([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
+  iex> count_max_severity([%{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 2}])
+  %{"max_level" => "WARNING", "worst_occurrences" => 3}
+  iex> count_max_severity([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 2}])
   %{"max_level" => "ERROR", "worst_occurrences" => 1}
   iex> count_max_severity([])
   %{"max_level" => "NoError", "worst_occurrences" => 0}
@@ -193,11 +200,11 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   end
 
   @doc """
-  iex> get_max_severity_error([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
+  iex> get_max_severity_error([%{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}])
   "WARNING"
-  iex> get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
+  iex> get_max_severity_error([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}])
   "ERROR"
-  iex> get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}, %{"severity" => "INFO"}])
+  iex> get_max_severity_error([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "INFO", "totalNotices" => 1}])
   "ERROR"
   iex> get_max_severity_error([])
   "NoError"
