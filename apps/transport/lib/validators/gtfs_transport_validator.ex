@@ -90,14 +90,25 @@ defmodule Transport.Validators.GTFSTransport do
   "1 échec irrécupérable"
   iex> format_severity("Fatal", 2)
   "2 échecs irrécupérables"
+  iex> format_severity("Fatal", 2_000)
+  "2 000 échecs irrécupérables"
   """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do
-      "Fatal" -> dngettext("gtfs-transport-validator", "Fatal failure", "Fatal failures", count)
-      "Error" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
-      "Warning" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
-      "Information" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
+      "Fatal" ->
+        dngettext("gtfs-transport-validator", "Fatal failure", "Fatal failures", count,
+          value: Helpers.format_number(count)
+        )
+
+      "Error" ->
+        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+
+      "Warning" ->
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+
+      "Information" ->
+        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
     end
   end
 
