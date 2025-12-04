@@ -311,10 +311,6 @@ msgid "Shapes present in the GTFS have been ignored, some rules are not enforced
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
 #, elixir-autogen, elixir-format
-msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-msgstr "Veuillez noter que notre validateur GTFS n'est pas en mesure de valider les extensions Flex et Fares v2 pour le moment."
-
-#, elixir-autogen, elixir-format
 msgid "calendar span by network:"
 msgstr "couverture calendaire par réseau :"
 
