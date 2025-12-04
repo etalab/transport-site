@@ -226,3 +226,19 @@ blockquote {
   padding-left: .5em;
   border-left: 2px solid var(--grey);
 }
+
+.loader_container {
+    display: flex;
+    justify-content: center;
+}
+
+.loader {
+  margin: 2em 0;
+  height: 15px;
+  aspect-ratio: 5;
+  background: radial-gradient(closest-side at 37.5% 50%,#000 94%,#0000) 0/calc(80%/3) 100%;
+  animation: loader_animation .75s infinite;
+}
+@keyframes loader_animation {
+  100% {background-position: 36.36%}
+}
