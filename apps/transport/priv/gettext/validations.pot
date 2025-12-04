@@ -415,3 +415,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Relevant links"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Canonical GTFS Schedule Validator"
+msgstr ""

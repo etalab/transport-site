@@ -894,7 +894,8 @@ defmodule TransportWeb.ResourceControllerTest do
         resource: resource,
         payload: %{
           "format" => "GTFS",
-          "filenames" => ["locations.geojson", "stops.txt"]
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
         }
       )
 
@@ -939,7 +940,8 @@ defmodule TransportWeb.ResourceControllerTest do
         resource: resource,
         payload: %{
           "format" => "GTFS",
-          "filenames" => ["locations.geojson", "stops.txt"]
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
         }
       )
 
