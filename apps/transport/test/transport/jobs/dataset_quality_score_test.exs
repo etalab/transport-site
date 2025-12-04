@@ -470,6 +470,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_compliance(dataset.id)
     end
 
+    test "with a GTFS-Flex" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+        max_error: "ERROR"
+      })
+
+      assert %{
+               score: 0.0,
+               details: %{
+                 resources: [
+                   %{compliance: 0.0, raw_measure: %{"max_error" => "ERROR"}, resource_id: gtfs.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
     test "handles validation_performed = false with 2 resources" do
       dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
       schema_name = "etalab/#{Ecto.UUID.generate()}"
