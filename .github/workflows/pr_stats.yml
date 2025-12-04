@@ -1,6 +1,7 @@
 name: Pull Request Stats
 
 on:
+  push:
   pull_request:
     types: [opened]
 
