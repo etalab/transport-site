@@ -233,16 +233,21 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   iex> Gettext.put_locale("fr")
   iex> format_severity("ERROR", 1)
   "1 erreur"
-  iex> format_severity("ERROR", 2)
-  "2 erreurs"
+  iex> format_severity("ERROR", 2_000)
+  "2 000 erreurs"
   iex> assert_raise CaseClauseError, fn -> format_severity("NOPE", 42) end
   """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do
-      "ERROR" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
-      "WARNING" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
-      "INFO" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
+      "ERROR" ->
+        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+
+      "WARNING" ->
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+
+      "INFO" ->
+        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
     end
   end
 
