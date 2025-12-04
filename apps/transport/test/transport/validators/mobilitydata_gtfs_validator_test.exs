@@ -25,7 +25,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
 
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
       notices = [
-        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+        %{
+          "code" => "unusable_trip",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [%{"foo" => "bar"}]
+        }
       ]
 
       report = %{
@@ -59,7 +64,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                  "notices" => [
                    %{
                      "code" => "unusable_trip",
-                     "sampleNotices" => ["foo", "bar"],
+                     "sampleNotices" => [%{"foo" => "bar"}],
                      "severity" => "WARNING",
                      "totalNotices" => 2
                    }
@@ -107,7 +112,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
 
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
       notices = [
-        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+        %{
+          "code" => "unusable_trip",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [%{"foo" => "bar"}]
+        }
       ]
 
       {:successful, %{"summary" => %{}, "notices" => notices}}

@@ -14,6 +14,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.MobilityDataGTFSValidator
   alias Transport.Validators.NeTEx.Validator, as: NeTEx
 
   @download_timeout_ms 10_000
@@ -55,6 +56,25 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         }
         |> Helpers.terminal_state()
     end
+  end
+
+  defp perform_validation(%{"type" => "gtfs-flex", "permanent_url" => url}) do
+    validator = MobilityDataGTFSValidator
+    results = validator.validate_and_save(url)
+
+    %{
+      result: results.result,
+      validator_version: results.validator_version,
+      metadata: results.metadata,
+      features: results.features,
+      command: results.command,
+      digest: results.digest,
+      max_error: results.max_error,
+      validator: validator.validator_name(),
+      validated_data_name: url,
+      oban_args: Helpers.completed()
+    }
+    |> Helpers.terminal_state()
   end
 
   defp perform_validation(%{"type" => "netex", "id" => multivalidation_id, "permanent_url" => url}) do

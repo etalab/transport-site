@@ -36,6 +36,15 @@
         <% end %>
 
         <%= if oban_args["state"] == "completed" do %>
+          <%= if oban_args["type"] == "gtfs-flex" do %>
+            <%= TransportWeb.ResourceView.render("_validation_report_mobilitydata_gtfs.html",
+              validation: @validation,
+              div_class: "",
+              file_url: @validation.validated_data_name,
+              locale: @locale
+            ) %>
+          <% end %>
+
           <%= if oban_args["type"] == "gtfs-rt" do %>
             <% errors = Map.fetch!(details, "errors") %>
             <% errors_error_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR")) %>
