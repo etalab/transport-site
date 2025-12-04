@@ -67,8 +67,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                  "summary" => %{"validatorVersion" => "4.2.0"}
                },
                digest: %{
-                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-                 "stats" => %{"WARNING" => 1},
+                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+                 "stats" => %{"WARNING" => 2},
                  "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
                },
                max_error: "WARNING"
