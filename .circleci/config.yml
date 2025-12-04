@@ -46,7 +46,7 @@ jobs:
       - checkout
 
       - run:
-          name: Check TimescaleDB version
+          name: Display TimescaleDB version
           command: |
             apt-get update && apt-get install -y postgresql-client
             PGPASSWORD=$POSTGRES_PASSWORD psql --pset pager=off -U root -h 127.0.0.1 transport_test -c "SELECT extname,extversion,version() FROM pg_extension WHERE extname='timescaledb';"
