@@ -420,4 +420,4 @@ msgstr "Liens pertinents"
 
 #, elixir-autogen, elixir-format
 msgid "Canonical GTFS Schedule Validator"
-msgstr "validateur GTFS canonique"
+msgstr "le validateur GTFS canonique"
