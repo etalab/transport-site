@@ -39,7 +39,9 @@
           <%= if oban_args["type"] == "gtfs-flex" do %>
             <%= TransportWeb.ResourceView.render("_validation_report_mobilitydata_gtfs.html",
               validation: @validation,
-              div_class: ""
+              div_class: "",
+              file_url: @validation.validated_data_name,
+              locale: @locale
             ) %>
           <% end %>
 

@@ -129,8 +129,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                validator_version: "4.2.0",
                validation_timestamp: date,
                digest: %{
-                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-                 "stats" => %{"WARNING" => 1},
+                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+                 "stats" => %{"WARNING" => 2},
                  "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
                },
                result: %{
