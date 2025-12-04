@@ -172,9 +172,20 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.ResourceHistory.gtfs_flex?(resource_history)
 
+      validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+          resource_history_id: resource_history.id
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: validation.id,
+        metadata: metadata = %{start_date: Date.utc_today() |> Date.add(-5), end_date: Date.utc_today() |> Date.add(5)}
+      )
+
       assert %{
                freshness: 1.0,
-               raw_measure: %{source: "gtfs_flex"}
+               raw_measure: ^metadata
              } = resource_freshness(resource)
     end
   end
