@@ -43,7 +43,7 @@ jobs:
 
     services:
       postgres:
-        image: timescale/timescaledb-ha:pg14.3-ts2.7.0-latest
+        image: timescale/timescaledb-ha:pg18.1-ts2.24.0
         env:
           POSTGRES_USER: postgres
           POSTGRES_DB: transport_test
