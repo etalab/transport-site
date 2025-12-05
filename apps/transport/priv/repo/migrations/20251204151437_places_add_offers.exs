@@ -28,7 +28,17 @@ defmodule DB.Repo.Migrations.PlacesAddOffers do
           'feature' AS type,
           unaccent(replace(features, ' ', '-')) AS indexed_name
           FROM (
-          SELECT DISTINCT(UNNEST(features)) as features FROM resource_metadata
+            -- GTFS Transport validator
+            select distinct unnest(features) features
+            from resource_metadata rm
+            inner join multi_validation mv on mv.id = rm.multi_validation_id
+            where mv.validator in ('GTFS transport-validator')
+
+            union
+            -- GTFS-RT validation
+            select distinct unnest(features) features
+            from resource_metadata rm
+            join resource r on r.id = rm.resource_id and r.format = 'gtfs-rt'
           ) as features
         )
         UNION
