@@ -147,10 +147,6 @@ msgstr "Choisissez votre fichier"
 msgid "Last updated at %{date}."
 msgstr "Dernière mise à jour %{date}."
 
-#, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
-msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validation results"
 msgstr "Rapport de validation"

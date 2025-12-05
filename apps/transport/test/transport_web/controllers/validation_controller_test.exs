@@ -661,9 +661,9 @@ defmodule TransportWeb.ValidationControllerTest do
       conn
       |> get(validation_path(conn, :show, validation.id, token: Map.fetch!(validation.oban_args, "secret_url_token")))
 
-    # Displays the waiting message
+    # The loader is displayed
     response = html_response(conn, 200)
-    assert response =~ "Validation en cours."
+    assert response =~ ~s|<div class="loader">|
 
     {conn, validation}
   end
