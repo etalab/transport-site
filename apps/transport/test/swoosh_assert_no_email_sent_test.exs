@@ -1,6 +1,6 @@
 defmodule SwooshAssertNoEmailSent do
   @moduledoc """
-  Check that we did not forget to verify on exit when using Mox.
+  Check that we didn't send more emails when using Swoosh.
   """
   use ExUnit.Case, async: true
 
