@@ -2,28 +2,31 @@ defmodule DB.DatasetDBTest do
   @moduledoc """
   Tests on the Dataset schema
   """
-  use DB.DatabaseCase, cleanup: [:datasets]
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
-  alias DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
   import Ecto.Query
 
   doctest DB.Dataset, import: true
 
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
+
   describe "changeset of a dataset" do
     test "empty params are rejected" do
-      assert {:error, _} = Dataset.changeset(%{})
+      assert {:error, _} = DB.Dataset.changeset(%{})
     end
 
     test "slug is required" do
-      {{:error, _}, logs} = with_log(fn -> Dataset.changeset(%{"datagouv_id" => "1"}) end)
+      {{:error, _}, logs} = with_log(fn -> DB.Dataset.changeset(%{"datagouv_id" => "1"}) end)
       assert logs =~ "error while importing dataset"
     end
 
     test "has_real_time=true" do
       changeset =
-        Dataset.changeset(%{
+        DB.Dataset.changeset(%{
           "datagouv_id" => "1",
           "custom_title" => "custom title",
           "datagouv_title" => "title",
@@ -44,7 +47,7 @@ defmodule DB.DatasetDBTest do
 
     test "has_real_time=false" do
       changeset =
-        Dataset.changeset(%{
+        DB.Dataset.changeset(%{
           "datagouv_id" => "1",
           "custom_title" => "custom title",
           "datagouv_title" => "title",
@@ -62,7 +65,7 @@ defmodule DB.DatasetDBTest do
 
     test "is_hidden=true" do
       assert {:ok, %Ecto.Changeset{changes: %{is_hidden: true}}} =
-               Dataset.changeset(%{
+               DB.Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "custom_title" => "custom title",
                  "datagouv_title" => "title",
@@ -78,7 +81,7 @@ defmodule DB.DatasetDBTest do
 
     test "is_hidden=false" do
       assert {:ok, %Ecto.Changeset{changes: %{is_hidden: false}}} =
-               Dataset.changeset(%{
+               DB.Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "custom_title" => "custom title",
                  "datagouv_title" => "title",
@@ -95,7 +98,7 @@ defmodule DB.DatasetDBTest do
     test "siren is validated" do
       {{:error, _}, logs} =
         with_log(fn ->
-          Dataset.changeset(%{
+          DB.Dataset.changeset(%{
             "datagouv_id" => "1",
             "datagouv_title" => "title",
             "custom_title" => "custom title",
@@ -108,7 +111,7 @@ defmodule DB.DatasetDBTest do
       assert logs =~ ~r/error while importing dataset(.*)legal_owner_company_siren/
 
       assert {:ok, %Ecto.Changeset{}} =
-               Dataset.changeset(%{
+               DB.Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "custom_title" => "custom title",
                  "datagouv_title" => "title",
@@ -124,7 +127,7 @@ defmodule DB.DatasetDBTest do
 
     test "custom_title is trimmed" do
       assert {:ok, %Ecto.Changeset{changes: %{custom_title: "Foo"}}} =
-               Dataset.changeset(%{
+               DB.Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "datagouv_title" => "title",
                  "type" => "public-transit",
@@ -177,7 +180,7 @@ defmodule DB.DatasetDBTest do
   describe "custom_logo_changed_at is set when updating custom_logo" do
     test "does not set custom_logo_changed_at when changing unrelated things" do
       {:ok, %Ecto.Changeset{changes: changes}} =
-        Dataset.changeset(%{
+        DB.Dataset.changeset(%{
           "datagouv_id" => "1",
           "datagouv_title" => "title",
           "type" => "public-transit",
@@ -194,7 +197,7 @@ defmodule DB.DatasetDBTest do
 
     test "sets custom_logo_changed_at when changing custom_logo" do
       assert {:ok, %Ecto.Changeset{changes: %{custom_logo_changed_at: custom_logo_changed_at}}} =
-               Dataset.changeset(%{
+               DB.Dataset.changeset(%{
                  "datagouv_id" => "1",
                  "datagouv_title" => "title",
                  "type" => "public-transit",
@@ -214,7 +217,7 @@ defmodule DB.DatasetDBTest do
       dataset =
         insert(:dataset, custom_logo: "https://example.com/pic.jpg", custom_logo_changed_at: DateTime.utc_now())
 
-      {:ok, %Ecto.Changeset{changes: changes}} = Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
+      {:ok, %Ecto.Changeset{changes: changes}} = DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
       assert changes == %{population: 0}
     end
   end
@@ -224,24 +227,24 @@ defmodule DB.DatasetDBTest do
       insert(:dataset, licence: "lov2", datagouv_id: datagouv_id = Ecto.UUID.generate(), custom_tags: nil)
 
       assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
-               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+               DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
     end
 
     test "if the magic tag is set, change the licence" do
       insert(:dataset, custom_tags: ["licence-mobilités"], datagouv_id: datagouv_id = Ecto.UUID.generate())
 
       assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
-               Dataset.changeset(%{"datagouv_id" => datagouv_id})
+               DB.Dataset.changeset(%{"datagouv_id" => datagouv_id})
 
       assert {:ok, %Ecto.Changeset{changes: %{licence: "mobility-licence"}}} =
-               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+               DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
     end
 
     test "ignores other tags in custom_tags" do
       insert(:dataset, custom_tags: ["foo"], datagouv_id: datagouv_id = Ecto.UUID.generate())
 
       assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
-               Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+               DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
     end
   end
 
@@ -269,7 +272,7 @@ defmodule DB.DatasetDBTest do
       dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
       assert %{resource_id_1 => resource_1_last_update_time, resource_id_2 => nil} ==
-               Dataset.resources_content_updated_at(dataset)
+               DB.Dataset.resources_content_updated_at(dataset)
     end
 
     defp insert_dataset_resource do
@@ -292,7 +295,7 @@ defmodule DB.DatasetDBTest do
         inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
-      assert %{resource_id => expected_last_update_time} == Dataset.resources_content_updated_at(dataset)
+      assert %{resource_id => expected_last_update_time} == DB.Dataset.resources_content_updated_at(dataset)
     end
 
     test "only one resource history, we don't know the resource last content update time" do
@@ -303,7 +306,7 @@ defmodule DB.DatasetDBTest do
         inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
       })
 
-      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
+      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
     test "last content update time, single record" do
@@ -311,7 +314,7 @@ defmodule DB.DatasetDBTest do
 
       insert(:resource_history, %{resource_id: resource_id, payload: %{}})
 
-      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
+      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
     end
 
     test "last content update time, multiple datetimes" do
@@ -327,7 +330,7 @@ defmodule DB.DatasetDBTest do
         inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-3600)
       })
 
-      assert Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
+      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
     end
   end
 
@@ -338,7 +341,7 @@ defmodule DB.DatasetDBTest do
     insert(:resource, format: "csv", dataset: dataset)
     insert(:resource, format: nil, dataset: dataset)
 
-    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> Dataset.formats()
+    assert ["GTFS", "csv"] == dataset |> DB.Repo.preload(:resources) |> DB.Dataset.formats()
   end
 
   test "validate" do
@@ -348,7 +351,7 @@ defmodule DB.DatasetDBTest do
     # Ignored because it's a community resource
     insert(:resource, format: "GTFS", dataset: dataset, is_community_resource: true)
 
-    Dataset.validate(dataset)
+    DB.Dataset.validate(dataset)
 
     assert [
              %Oban.Job{
@@ -370,7 +373,7 @@ defmodule DB.DatasetDBTest do
            ] = all_enqueued()
 
     # Executing again does not create a conflict, even if the job has `unique` params
-    Dataset.validate(dataset)
+    DB.Dataset.validate(dataset)
 
     assert [
              %Oban.Job{
@@ -565,7 +568,7 @@ defmodule DB.DatasetDBTest do
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
 
     assert {:ok, %Ecto.Changeset{changes: %{organization_type: "AOM"}}} =
-             Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "AOM"})
+             DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "AOM"})
   end
 
   test "empty organization type" do
@@ -573,7 +576,7 @@ defmodule DB.DatasetDBTest do
 
     # we test a random change to check if the changeset is valid without an organization type specified
     assert {:ok, %Ecto.Changeset{changes: %{licence: "fr-lo"}}} =
-             Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
+             DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "licence" => "fr-lo"})
   end
 
   test "incorrect organization type" do
@@ -581,7 +584,7 @@ defmodule DB.DatasetDBTest do
 
     {res, logs} =
       with_log(fn ->
-        Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "US Gvt"})
+        DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "organization_type" => "US Gvt"})
       end)
 
     assert logs =~ "Le type d'organisation (publicateur) est invalide"
