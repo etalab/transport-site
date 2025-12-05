@@ -62,6 +62,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
       assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
     end
+
+    test "finds the MobilityData validator" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      gtfs = insert(:resource, format: "GTFS", dataset: dataset)
+
+      %DB.MultiValidation{id: mv_id} =
+        insert(:multi_validation, %{
+          resource_history: insert(:resource_history, resource: gtfs),
+          validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+          max_error: "ERROR",
+          inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+        })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
+      assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
+    end
   end
 
   test "perform for multiple static data cases" do
