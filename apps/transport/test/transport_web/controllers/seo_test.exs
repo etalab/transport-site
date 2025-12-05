@@ -83,6 +83,12 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "Jeux de données ouverts de la commune de Châteauroux"
   end
 
+  test "GET /datasets/offer/:id", %{conn: conn} do
+    offer = insert(:offer)
+    title = conn |> get(~p"/datasets/offer/#{offer.identifiant_offre}") |> html_response(200) |> title
+    assert title =~ "Jeux de données ouverts de l&#39;offre de transport #{offer.nom_commercial}"
+  end
+
   test "GET /landing-vls", %{conn: conn} do
     title = conn |> get(~p"/landing-vls") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"

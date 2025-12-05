@@ -211,6 +211,10 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, DB.Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
+  def by_offer(%Plug.Conn{} = conn, params) do
+    conn |> list_datasets(params, _count_by_region = false)
+  end
+
   defp unavailabilities(%Dataset{id: id, resources: resources}) do
     Transport.Cache.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
@@ -492,6 +496,13 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
+  defp get_name(DB.Offer, identifiant_offre) do
+    DB.Offer
+    |> where([o], o.identifiant_offre == ^identifiant_offre)
+    |> select([o], o.nom_commercial)
+    |> DB.Repo.one!()
+  end
+
   defp get_name(territory, insee) do
     territory
     |> Repo.get_by(insee: insee)
@@ -577,6 +588,17 @@ defmodule TransportWeb.DatasetController do
         conn,
         :page_title,
         %{type: "EPCI", name: get_name(DB.EPCI, insee)}
+      )
+
+  defp put_page_title(conn, %{"identifiant_offre" => identifiant_offre}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "transport offer"),
+          name: get_name(DB.Offer, identifiant_offre)
+        }
       )
 
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do

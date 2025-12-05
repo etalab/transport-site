@@ -155,6 +155,7 @@ defmodule TransportWeb.Router do
       get("/departement/:departement", DatasetController, :by_departement_insee)
       get("/epci/:epci", DatasetController, :by_epci)
       get("/commune/:commune", DatasetController, :by_commune_insee)
+      get("/offer/:identifiant_offre", DatasetController, :by_offer)
 
       scope "/:dataset_datagouv_id" do
         pipe_through([:authenticated])

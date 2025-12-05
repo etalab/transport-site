@@ -1189,6 +1189,19 @@ defmodule TransportWeb.DatasetControllerTest do
     |> html_response(200) =~ "Test Département, Test Commune"
   end
 
+  test "dataset#by_offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
+    other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+
+    content = conn |> get(dataset_path(conn, :by_offer, offer.identifiant_offre)) |> html_response(200)
+
+    assert offer.nom_commercial == dataset_page_title(content)
+    assert content =~ "offre de transport"
+    assert content =~ dataset.custom_title
+    refute content =~ other_dataset.custom_title
+  end
+
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
     conn
     |> get(dataset_path(conn, :details, dataset.slug))
