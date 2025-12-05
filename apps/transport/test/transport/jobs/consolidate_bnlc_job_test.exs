@@ -19,6 +19,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     Mox.stub_with(Datagouvfr.Client.Resources.Mock, Datagouvfr.Client.Resources.External)
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   test "datagouv_dataset_slugs" do

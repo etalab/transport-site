@@ -13,6 +13,10 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
   use Oban.Testing, repo: DB.Repo
   import Swoosh.TestAssertions
 
+  setup do
+    on_exit(fn -> assert_no_email_sent() end)
+  end
+
   test "sends an email on failure if the appropriate tag is set" do
     assert {:error, "failed"} ==
              perform_job(Transport.Test.Transport.Jobs.ObanLoggerJobTag, %{}, tags: [])

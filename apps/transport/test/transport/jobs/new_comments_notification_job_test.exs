@@ -12,6 +12,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   describe "relevant_datasets" do
