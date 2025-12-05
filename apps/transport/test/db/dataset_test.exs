@@ -2,7 +2,7 @@ defmodule DB.DatasetDBTest do
   @moduledoc """
   Tests on the Dataset schema
   """
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import ExUnit.CaptureLog
