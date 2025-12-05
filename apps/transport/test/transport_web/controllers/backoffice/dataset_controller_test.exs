@@ -190,4 +190,22 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
 
     assert DB.Repo.reload(dataset) |> is_nil()
   end
+
+  test "resource_format_override", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+
+    conn =
+      conn
+      |> setup_admin_in_session()
+      |> post(Routes.backoffice_dataset_path(conn, :resource_format_override, dataset.id), %{
+        "resource_id" => resource.id,
+        "format_override" => "gbfs"
+      })
+
+    assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Le format de la ressource a été changé"
+
+    assert %DB.Resource{format: "gbfs", format_override: "gbfs"} = DB.Repo.reload(resource)
+  end
 end

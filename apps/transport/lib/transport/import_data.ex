@@ -221,7 +221,7 @@ defmodule Transport.ImportData do
         resource
         |> Map.put("url", cleaned_url(resource["url"]))
 
-      format = formated_format(resource, type, is_community_resource)
+      format = Map.get(existing_resource, :format_override) || formated_format(resource, type, is_community_resource)
 
       {%{
          "url" => resource["url"],
@@ -883,7 +883,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 
@@ -891,7 +891,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 

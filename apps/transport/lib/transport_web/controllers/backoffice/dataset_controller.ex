@@ -169,6 +169,22 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  def resource_format_override(%Plug.Conn{} = conn, params) do
+    resource = DB.Repo.get!(DB.Resource, params["resource_id"])
+    dataset = DB.Repo.get!(DB.Dataset, params["id"])
+
+    resource
+    |> Ecto.Changeset.change(%{
+      format: params["format_override"],
+      format_override: params["format_override"]
+    })
+    |> DB.Repo.update!()
+
+    conn
+    |> put_flash(:info, "Le format de la ressource a été changé")
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset.id))
+  end
+
   ## Private functions
 
   @spec flash(:ok | {:ok, any} | {:error, any}, Plug.Conn.t(), iodata(), iodata()) :: Plug.Conn.t()
