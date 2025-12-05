@@ -13,6 +13,7 @@ defmodule DB.Resource do
     # The resource's real URL
     field(:url, :string)
     field(:format, :string)
+    field(:format_override, :string)
     field(:last_import, :utc_datetime_usec)
     field(:title, :string)
     field(:last_update, :utc_datetime_usec)

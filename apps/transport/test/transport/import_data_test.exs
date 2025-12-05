@@ -505,5 +505,27 @@ defmodule Transport.ImportDataTest do
              ] =
                ImportData.get_resources(dataset, "road-data")
     end
+
+    test "can override the format" do
+      insert(:resource,
+        format_override: override = "SIRI Lite",
+        datagouv_id: datagouv_id = Ecto.UUID.generate(),
+        dataset: insert(:dataset, datagouv_id: dataset_datagouv_id = Ecto.UUID.generate())
+      )
+
+      dataset = %{
+        "id" => dataset_datagouv_id,
+        "resources" => [
+          generate_resource_payload(id: datagouv_id, format: "gtfs")
+        ]
+      }
+
+      Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+
+      assert [
+               %{"format" => ^override, "type" => "main", "datagouv_id" => ^datagouv_id}
+             ] =
+               ImportData.get_resources(dataset, "public-transit")
+    end
   end
 end
