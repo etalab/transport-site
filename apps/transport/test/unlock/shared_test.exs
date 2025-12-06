@@ -10,7 +10,7 @@ defmodule Unlock.SharedTest do
   defp cache_put(key, ttl \\ nil), do: Cachex.put!(cache_name(), key, 42, expire: ttl)
 
   test "cache_key" do
-    assert "resource:foo" == cache_key("foo")
+    assert "resource@foo" == cache_key("foo")
   end
 
   test "cache_entry" do
@@ -36,6 +36,6 @@ defmodule Unlock.SharedTest do
     cache_put(cache_key("no_ttl"))
     cache_put("no_prefix")
 
-    assert ["resource:no_ttl", "resource:with_ttl"] == cache_keys() |> Enum.sort()
+    assert ["resource@no_ttl", "resource@with_ttl"] == cache_keys() |> Enum.sort()
   end
 end

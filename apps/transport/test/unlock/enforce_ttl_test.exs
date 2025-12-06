@@ -45,16 +45,16 @@ defmodule Unlock.EnforceTTLTest do
     cache_put("no_prefix")
 
     # initially, the list of proxy cache keys should include only 2 entries
-    assert ["resource:no_ttl", "resource:with_ttl"] == cache_keys() |> Enum.sort()
+    assert ["resource@no_ttl", "resource@with_ttl"] == cache_keys() |> Enum.sort()
 
     # this is expected to remove bogus entries (the ones without a TTL),
     # which would otherwise remain "available but stale" forever
     Unlock.EnforceTTL.handle_info(:work, %{})
 
     # explicitely written, the bogus key should not be there anymore
-    refute "resource:no_ttl" in cache_keys()
+    refute "resource@no_ttl" in cache_keys()
     # a bit redundant, but exactly the non-bogus keys should be there
-    assert ["resource:with_ttl"] == cache_keys()
+    assert ["resource@with_ttl"] == cache_keys()
 
     # non-proxy keys should still be there too
     assert "no_prefix" in Cachex.keys!(cache_name())
@@ -87,17 +87,17 @@ defmodule Unlock.EnforceTTLTest do
 
     # create a cache entry without cachex TTL to reproduce the bug
     # this case uses composite keys (for aggregate support)
-    cache_put(cache_key("aggregate:first-remote"), nil)
+    cache_put(cache_key("aggregate@first-remote"), nil)
     # create a non-bogus entry with proper Cachex TTL
-    cache_put(cache_key("aggregate:second-remote"), :timer.seconds(5))
+    cache_put(cache_key("aggregate@second-remote"), :timer.seconds(5))
 
-    assert ["resource:aggregate:first-remote", "resource:aggregate:second-remote"] == cache_keys()
+    assert ["resource@aggregate@first-remote", "resource@aggregate@second-remote"] == cache_keys()
     Unlock.EnforceTTL.handle_info(:work, %{})
 
     # bogus cache key should have been removed
-    refute "resource:aggregate:first-remote" in cache_keys()
+    refute "resource@aggregate@first-remote" in cache_keys()
     # the other one should remain
-    assert ["resource:aggregate:second-remote"] == cache_keys()
+    assert ["resource@aggregate@second-remote"] == cache_keys()
   end
 
   def setup_proxy_config(config) do
