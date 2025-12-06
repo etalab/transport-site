@@ -46,7 +46,8 @@ defmodule Transport.Application do
            name: Unlock.Cachex,
            expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
-        )
+        ),
+        Unlock.BatchMetrics
       ]
       |> add_scheduler()
       |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)

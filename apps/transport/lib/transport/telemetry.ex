@@ -36,7 +36,9 @@ defmodule Transport.Telemetry do
     # won't notice if a tracing of event fails
     Task.start(fn ->
       Logger.debug("Telemetry event: processing #{type} proxy request for #{target}")
-      count_event(target, event)
+      # Increment an event in memory.
+      # `Unlock.BatchMetrics` is in charge of inserting records in the database regularly.
+      incr_event(target, database_event_name(event))
     end)
   end
 
@@ -73,6 +75,14 @@ defmodule Transport.Telemetry do
   """
   def truncate_datetime_to_day(datetime) do
     %{DateTime.truncate(datetime, :second) | second: 0, minute: 0, hour: 0}
+  end
+
+  def incr_event(target, event) do
+    Cachex.incr(
+      Unlock.Shared.cache_name(),
+      Unlock.Shared.metric_cache_key(%{target: target, event: event}),
+      1
+    )
   end
 
   @doc """
