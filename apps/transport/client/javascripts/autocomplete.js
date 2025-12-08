@@ -9,7 +9,8 @@ const labels = {
     epci: 'EPCI',
     commune: 'commune',
     feature: 'données contenant…',
-    mode: 'mode de transport'
+    mode: 'mode de transport',
+    offer: 'offre de transport'
 }
 
 document.onkeydown = function (evt) {
