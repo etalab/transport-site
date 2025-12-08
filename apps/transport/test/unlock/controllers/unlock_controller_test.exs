@@ -290,7 +290,7 @@ defmodule Unlock.ControllerTest do
       Unlock.HTTP.Client.Mock
       |> expect(:get!, 0, fn _url, _headers, _options -> nil end)
 
-      {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource@an-existing-identifier")
+      {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
       assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
 
       resp =
