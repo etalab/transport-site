@@ -25,7 +25,7 @@ const autoCompletejs = new AutoComplete({
     data: {
         src: async () => {
             const query = document.querySelector('#autoComplete').value
-            const source = await fetch(`/api/places?q=${query}`)
+            const source = await fetch(`/api/autocomplete?q=${query}`)
             let data = await source.json()
             data = [
                 {

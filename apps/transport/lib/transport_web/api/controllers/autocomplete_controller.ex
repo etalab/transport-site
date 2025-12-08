@@ -1,6 +1,5 @@
-defmodule TransportWeb.API.PlacesController do
+defmodule TransportWeb.API.AutocompleteController do
   use TransportWeb, :controller
-  alias DB.{Place, Repo}
   alias Helpers
   alias OpenApiSpex.Operation
   import Ecto.{Query}
@@ -8,28 +7,32 @@ defmodule TransportWeb.API.PlacesController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  @spec get_result_url(Plug.Conn.t(), Place.t()) :: binary()
-  defp get_result_url(conn, %Place{:place_id => id, :type => "region"}), do: dataset_path(conn, :by_region, id)
+  @spec get_result_url(Plug.Conn.t(), DB.Autocomplete.t()) :: binary()
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "region"}),
+    do: dataset_path(conn, :by_region, id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "departement"}),
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "departement"}),
     do: dataset_path(conn, :by_departement_insee, id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "epci"}), do: dataset_path(conn, :by_epci, id)
-  defp get_result_url(conn, %Place{:place_id => id, :type => "commune"}), do: dataset_path(conn, :by_commune_insee, id)
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "epci"}), do: dataset_path(conn, :by_epci, id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "feature"}),
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "commune"}),
+    do: dataset_path(conn, :by_commune_insee, id)
+
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "feature"}),
     do: dataset_path(conn, :index, "features[]": id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "mode"}), do: dataset_path(conn, :index, "modes[]": id)
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "mode"}),
+    do: dataset_path(conn, :index, "modes[]": id)
 
-  defp get_result_url(conn, %Place{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
 
   defp approx_search_query(query) do
-    Place
+    DB.Autocomplete
     |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
     |> where([p], fragment("indexed_name % unaccent(?)", ^query))
     |> limit(10)
-    |> Repo.all()
+    |> DB.Repo.all()
   end
 
   @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -45,8 +48,8 @@ defmodule TransportWeb.API.PlacesController do
 
     query = "%#{query}%"
 
-    places =
-      Place
+    records =
+      DB.Autocomplete
       |> where([p], fragment("indexed_name ilike unaccent(?)", ^query))
       |> order_by(asc: fragment("CASE type
           when 'feature' then 1
@@ -58,15 +61,14 @@ defmodule TransportWeb.API.PlacesController do
           else 7 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
-      |> Repo.all()
+      |> DB.Repo.all()
       |> case do
         [] -> approx_search_query(query)
         r -> r
       end
 
     results =
-      places
-      |> Enum.map(fn res ->
+      Enum.map(records, fn res ->
         name =
           case res.type do
             "commune" -> "#{res.nom} (#{res.place_id})"
