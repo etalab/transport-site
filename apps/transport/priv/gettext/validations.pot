@@ -146,10 +146,6 @@ msgid "Last updated at %{date}."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Validation results"
 msgstr ""
 
