@@ -5,6 +5,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   use Gettext, backend: TransportWeb.Gettext
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
 
   @behaviour Transport.Validators.NeTEx.ResultsAdapter
@@ -152,15 +153,30 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
-    summary = summary(validation_result)
-    stats = count_by_severity(validation_result)
+    %{
+      "summary" => summary(validation_result),
+      "stats" => count_by_severity(validation_result),
+      "max_severity" => count_max_severity(validation_result)
+    }
+  end
 
-    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
-    # Limit to the first page to limit payload size
-    issues = validation_result |> get_issues(%{}) |> Enum.take(page_size)
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def to_dataframe(errors) do
+    Commons.to_dataframe(errors, &build_synthetic_attributes/1)
+  end
 
-    max_severity = count_max_severity(validation_result)
+  defp build_synthetic_attributes(mandatory_attributes) do
+    %{
+      "category" => categorize(mandatory_attributes["code"])
+    }
+  end
 
-    %{"summary" => summary, "stats" => stats, "issues" => issues, "max_severity" => max_severity}
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def to_binary_result(result) do
+    result
+    |> Map.values()
+    |> List.flatten()
+    |> to_dataframe()
+    |> Commons.to_binary()
   end
 end
