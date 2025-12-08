@@ -13,6 +13,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatagouvDatasetsJobTest do
   setup do
     Sentry.Test.start_collecting_sentry_reports()
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   test "dataset_is_relevant?" do

@@ -111,7 +111,8 @@ defmodule DB.MultiValidation do
     |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
     |> preload([:metadata, :resource_history])
     |> limit(1)
-    |> DB.Repo.one()
+    # NOTE: do not use named prepared statement here, since it is big & not unallocated, apparently
+    |> DB.Repo.one(prepare: :unnamed)
   end
 
   @spec resource_latest_validations(integer(), atom, DateTime.t(), keyword()) :: [__MODULE__.t()]
