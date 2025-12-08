@@ -6,6 +6,9 @@
       </h2>
       <div class="panel">
         <%= render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history) %>
+        <%= if Transport.Validators.MobilityDataGTFSValidator.mine?(@validation) do %>
+          <%= render("_mobilitydata_metadata.html", conn: @conn, validation: @validation) %>
+        <% end %>
       </div>
 
       <%= unless Enum.empty?(@resource.resources_related) do %>
