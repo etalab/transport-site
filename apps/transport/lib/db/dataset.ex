@@ -479,6 +479,14 @@ defmodule DB.Dataset do
 
   defp filter_by_commune(query, _), do: query
 
+  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
+    |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
+  end
+
+  defp filter_by_offer(query, _), do: query
+
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
     do: where(query, [d], d.licence in @licences_ouvertes)
@@ -518,6 +526,7 @@ defmodule DB.Dataset do
       |> filter_by_organization(params)
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
+      |> filter_by_offer(params)
       |> select([dataset: d], d.id)
       |> where([dataset: d], is_nil(d.archived_at))
 
@@ -809,6 +818,7 @@ defmodule DB.Dataset do
     |> where(slug: ^slug)
     |> preload([
       :declarative_spatial_areas,
+      offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()

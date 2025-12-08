@@ -26,7 +26,9 @@
     <div class="container">
       <div class="panel">
         <%= if oban_args["state"] == "waiting" do %>
-          <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.") %></p>
+          <div class="loader_container">
+            <div class="loader"></div>
+          </div>
         <% end %>
 
         <%= if oban_args["state"] == "error" do %>

@@ -9,6 +9,7 @@ defmodule Transport.Test.Transport.Jobs.PeriodicReminderProducersNotificationJob
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   describe "enqueues jobs" do
