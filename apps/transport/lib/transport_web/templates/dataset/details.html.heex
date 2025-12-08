@@ -239,6 +239,16 @@
           </div>
         </div>
       <% end %>
+      <div :if={not Enum.empty?(@dataset.offers)} class="pt-12">
+        <span class="dataset-metas-info-title">
+          <%= dgettext("page-dataset-details", "Transport offers") %>
+        </span>
+        <div>
+          <%= for offer <- @dataset.offers |> Enum.sort_by(& &1.nom_commercial) do %>
+            <%= link(offer.nom_commercial, to: dataset_path(@conn, :by_offer, offer.identifiant_offre)) %>
+          <% end %>
+        </div>
+      </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type") %></span>
         <%= render("_dataset_type.html",
