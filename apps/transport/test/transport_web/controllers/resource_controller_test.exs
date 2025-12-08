@@ -723,11 +723,14 @@ defmodule TransportWeb.ResourceControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
-        result: result,
+        digest: results_adapter.digest(result),
+        binary_result: results_adapter.to_binary_result(result),
         max_error: "error",
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},

@@ -5,6 +5,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   use Gettext, backend: TransportWeb.Gettext
 
+  require Explorer.DataFrame, as: DF
+  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
 
   @behaviour Transport.Validators.NeTEx.ResultsAdapter
@@ -122,19 +124,50 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   []
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  # DEPRECATED
   def get_issues(%{} = validation_result, %{"issues_category" => issues_category}) do
     validation_result
     |> Map.get(issues_category, [])
     |> order_issues_by_location()
   end
 
+  # DEPRECATED
   def get_issues(%{} = validation_result, _) do
     validation_result
     |> pick_preferred_category()
     |> order_issues_by_location()
   end
 
+  # DEPRECATED
   def get_issues(_, _), do: []
+
+  def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
+    binary
+    |> Commons.from_binary()
+    |> get_issues(filter, pagination_config)
+  end
+
+  def get_issues(
+        %Explorer.DataFrame{} = df,
+        %{"issues_category" => issues_category} = filter,
+        %Scrivener.Config{} = pagination_config
+      ) do
+    {filter,
+     df
+     |> DF.filter(category == ^issues_category)
+     |> order_issues_by_location()
+     |> Commons.count_and_slice(pagination_config)}
+  end
+
+  def get_issues(%Explorer.DataFrame{} = df, %{}, %Scrivener.Config{} = pagination_config) do
+    default_category = pick_default_category(df)
+
+    get_issues(df, %{"issues_category" => default_category}, pagination_config)
+  end
+
+  def get_issues(_, _, _), do: {%{"issues_category" => @xsd_schema_category}, {0, []}}
+
+  defdelegate get_categories(df), to: V0_2_0
 
   defp pick_preferred_category(%{} = validation_result) do
     category =
@@ -145,6 +178,12 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
     |> Map.get(category || @xsd_schema_category, [])
   end
 
+  def pick_default_category(%Explorer.DataFrame{} = df) do
+    pick_default_category(df, @categories_preferred_order)
+  end
+
+  defdelegate pick_default_category(df, categories_preferred_order), to: V0_2_0
+
   defdelegate order_issues_by_location(issues), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -152,15 +191,30 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
-    summary = summary(validation_result)
-    stats = count_by_severity(validation_result)
+    %{
+      "summary" => summary(validation_result),
+      "stats" => count_by_severity(validation_result),
+      "max_severity" => count_max_severity(validation_result)
+    }
+  end
 
-    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
-    # Limit to the first page to limit payload size
-    issues = validation_result |> get_issues(%{}) |> Enum.take(page_size)
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def to_dataframe(errors) do
+    Commons.to_dataframe(errors, &build_synthetic_attributes/1)
+  end
 
-    max_severity = count_max_severity(validation_result)
+  defp build_synthetic_attributes(mandatory_attributes) do
+    %{
+      "category" => categorize(mandatory_attributes["code"])
+    }
+  end
 
-    %{"summary" => summary, "stats" => stats, "issues" => issues, "max_severity" => max_severity}
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def to_binary_result(result) do
+    result
+    |> Map.values()
+    |> List.flatten()
+    |> to_dataframe()
+    |> Commons.to_binary()
   end
 end

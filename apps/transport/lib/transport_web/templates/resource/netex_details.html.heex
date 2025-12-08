@@ -29,7 +29,8 @@
             severities_count: @severities_count,
             validation_summary: @validation_summary,
             results_adapter: @results_adapter,
-            max_severity: @max_severity
+            max_severity: @max_severity,
+            filter: @filter
           ) %>
           <%= unless is_nil(@metadata) or @metadata == %{} do %>
             <%= render("_resources_details_netex.html", conn: @conn, metadata: @metadata) %>
