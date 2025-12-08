@@ -717,3 +717,7 @@ msgstr "Supports tarifaires"
 #, elixir-autogen, elixir-format
 msgid "Fare products"
 msgstr "Produits tarifaires"
+
+#, elixir-autogen, elixir-format
+msgid "Transport offers"
+msgstr "Offres de transport"

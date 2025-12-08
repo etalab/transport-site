@@ -818,6 +818,7 @@ defmodule DB.Dataset do
     |> where(slug: ^slug)
     |> preload([
       :declarative_spatial_areas,
+      offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()

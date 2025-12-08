@@ -1184,9 +1184,20 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn
-    |> get(dataset_path(conn, :details, dataset.slug))
-    |> html_response(200) =~ "Test Département, Test Commune"
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200) =~ "Test Département, Test Commune"
+  end
+
+  test "dataset#details, transport offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
+
+    mock_empty_history_resources()
+
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200) =~ offer.nom_commercial
   end
 
   test "dataset#by_offer", %{conn: conn} do
