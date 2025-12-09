@@ -1,4 +1,4 @@
-defmodule TransportWeb.API.PlacesControllerTest do
+defmodule TransportWeb.API.AutocompleteControllerTest do
   use TransportWeb.ConnCase, async: true
   alias TransportWeb.API.Router.Helpers
   import OpenApiSpex.TestAssertions
@@ -24,7 +24,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
     do: Enum.map(res, &Map.update!(&1, "url", fn v -> cleanup(v) end))
 
   test "Search a place", %{conn: conn} do
-    path = Helpers.places_path(conn, :autocomplete, q: "chat")
+    path = Helpers.autocomplete_path(conn, :autocomplete, q: "chat")
     conn = conn |> get(path)
     r = conn |> json_response(200)
 
@@ -56,7 +56,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search a place with accent", %{conn: conn} do
     json =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "cha"))
+      |> get(Helpers.autocomplete_path(conn, :autocomplete, q: "cha"))
       |> json_response(200)
 
     assert clean_urls(json) ==
@@ -84,7 +84,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search a place with multiple words", %{conn: conn} do
     json =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "ile de fr"))
+      |> get(Helpers.autocomplete_path(conn, :autocomplete, q: "ile de fr"))
       |> json_response(200)
 
     assert clean_urls(json) ==
@@ -107,7 +107,7 @@ defmodule TransportWeb.API.PlacesControllerTest do
   test "Search an unknown place", %{conn: conn} do
     json =
       conn
-      |> get(Helpers.places_path(conn, :autocomplete, q: "pouet"))
+      |> get(Helpers.autocomplete_path(conn, :autocomplete, q: "pouet"))
       |> json_response(200)
 
     assert clean_urls(json) == []

@@ -45,10 +45,10 @@ defmodule Transport.ImportData do
     # validation is now gone, replaced by DB.MultiValidation
   end
 
-  def refresh_places do
+  def refresh_autocomplete do
     Logger.info("Refreshing places...")
-    # NOTE: I could not find a way to call "refresh_places()" directly
-    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+    # NOTE: I could not find a way to call "refresh_autocomplete()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW autocomplete;")
   end
 
   def generate_import_logs!(
@@ -105,7 +105,7 @@ defmodule Transport.ImportData do
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
-    refresh_places()
+    refresh_autocomplete()
     result
   end
 

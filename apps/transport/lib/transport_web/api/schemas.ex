@@ -792,9 +792,21 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties %{
-      url: %Schema{type: :string, description: "URL of the Resource"},
-      type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
-      name: %Schema{type: :string, description: "name of the resource"}
+      url: %Schema{type: :string, description: "URL of the resource"},
+      type: %Schema{
+        type: :string,
+        description: "Type of the resource",
+        enum: [
+          "region",
+          "departement",
+          "epci",
+          "commune",
+          "feature",
+          "mode",
+          "offer"
+        ]
+      },
+      name: %Schema{type: :string, description: "Name of the resource"}
     }
 
     OpenApiSpex.schema(%{

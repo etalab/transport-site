@@ -1,4 +1,4 @@
-defmodule TransportWeb.API.PlacesView do
+defmodule TransportWeb.API.AutocompleteView do
   alias TransportWeb.API.JSONView
 
   def render(conn, data) do
