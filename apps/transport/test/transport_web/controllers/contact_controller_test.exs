@@ -2,6 +2,10 @@ defmodule TransportWeb.ContactControllerTest do
   use TransportWeb.ConnCase, async: true
   import Swoosh.TestAssertions
 
+  setup do
+    on_exit(fn -> assert_no_email_sent() end)
+  end
+
   test "Post contact form with honey pot filled", %{conn: conn} do
     conn = post(conn, contact_path(conn, :send_mail, %{email: "spammer@internet.com", name: "John Doe"}))
     # only spammers get a fox emoji in their flash message

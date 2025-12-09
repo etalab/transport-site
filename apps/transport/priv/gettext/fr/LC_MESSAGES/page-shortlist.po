@@ -239,3 +239,7 @@ msgstr "département"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "EPCI %{name} has not yet published any datasets"
 msgstr "L'EPCI %{name} n'a pas encore publié de données"
+
+#, elixir-autogen, elixir-format
+msgid "transport offer"
+msgstr "offre de transport"

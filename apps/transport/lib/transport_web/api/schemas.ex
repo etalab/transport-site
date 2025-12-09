@@ -299,10 +299,11 @@ defmodule TransportWeb.API.Schemas do
       title: "AOM",
       description: "AOM object, as used in covered area and legal owners",
       type: :object,
-      required: [:name, :siren],
+      required: [:name, :siren, :type],
       properties: %{
         name: %Schema{type: :string},
-        siren: %Schema{type: :string}
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["aom"]}
       },
       additionalProperties: false
     })
@@ -316,10 +317,28 @@ defmodule TransportWeb.API.Schemas do
       title: "Region",
       description: "Region object",
       type: :object,
-      required: [:name, :insee],
+      required: [:name, :insee, :type],
       properties: %{
         name: %Schema{type: :string},
-        insee: %Schema{type: :string}
+        insee: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["region"]}
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule Company do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Company",
+      description: "Company object",
+      type: :object,
+      required: [:siren, :type],
+      properties: %{
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["company"]}
       },
       additionalProperties: false
     })
@@ -385,17 +404,13 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "LegalOwners",
-      type: :object,
-      properties: %{
-        aoms: %Schema{
-          type: :array,
-          items: AOM.schema()
-        },
-        regions: %Schema{
-          type: :array,
-          items: Region.schema()
-        },
-        company: %Schema{type: :string, nullable: true}
+      type: :array,
+      items: %Schema{
+        anyOf: [
+          AOM.schema(),
+          Region.schema(),
+          Company.schema()
+        ]
       },
       additionalProperties: false
     })
@@ -792,9 +807,21 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties %{
-      url: %Schema{type: :string, description: "URL of the Resource"},
-      type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
-      name: %Schema{type: :string, description: "name of the resource"}
+      url: %Schema{type: :string, description: "URL of the resource"},
+      type: %Schema{
+        type: :string,
+        description: "Type of the resource",
+        enum: [
+          "region",
+          "departement",
+          "epci",
+          "commune",
+          "feature",
+          "mode",
+          "offer"
+        ]
+      },
+      name: %Schema{type: :string, description: "Name of the resource"}
     }
 
     OpenApiSpex.schema(%{
