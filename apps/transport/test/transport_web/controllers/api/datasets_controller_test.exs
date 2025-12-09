@@ -210,7 +210,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     dataset_res = %{
       "community_resources" => [],
       "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-      "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+      "legal_owners" => [],
       "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
       "id" => "datagouv",
@@ -332,7 +332,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              %{
                "community_resources" => [],
                "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-               "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+               "legal_owners" => [],
                "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
                "id" => "datagouv",
@@ -464,13 +464,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-             "legal_owners" => %{
-               "aoms" => [
-                 %{"name" => "Angers Métropole", "siren" => "siren"}
-               ],
-               "company" => nil,
-               "regions" => [%{"name" => "Pays de la Loire", "insee" => "52"}]
-             },
+             "legal_owners" => [
+               %{"name" => "Angers Métropole", "siren" => "siren", "type" => "aom"},
+               %{"insee" => "52", "name" => "Pays de la Loire", "type" => "region"}
+             ],
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
@@ -591,7 +588,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-             "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+             "legal_owners" => [],
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
