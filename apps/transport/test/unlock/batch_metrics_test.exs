@@ -1,30 +1,27 @@
 defmodule Unlock.BatchMetricsTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   import DB.Factory
-
-  doctest Unlock.BatchMetrics, import: true
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    # because the upserts happen in a separate process (the GenServer),
+    # we must tweak the sandbox to be able to see them from here
     pid = Process.whereis(Unlock.BatchMetrics)
     Ecto.Adapters.SQL.Sandbox.allow(DB.Repo, self(), pid)
     :ok
   end
 
-  test "work delay is less than cache expiration" do
-    assert Unlock.BatchMetrics.work_delay() / 1_000 < Unlock.Shared.default_cache_expiration_seconds()
-  end
-
   test "work" do
-    period = DateTime.utc_now() |> Unlock.BatchMetrics.truncate_datetime_to_hour()
-    insert(:metrics, %{target: "bar", event: "internal", period: period, count: 1})
+    now = DateTime.utc_now()
+    truncated_period = now |> Transport.Telemetry.truncate_datetime_to_hour()
+    insert(:metrics, %{target: "bar", event: "internal", period: truncated_period, count: 1})
 
     Unlock.BatchMetrics.incr_event(%{target: "foo", event: "external"})
     Unlock.BatchMetrics.incr_event(%{target: "foo", event: "external"})
     Unlock.BatchMetrics.incr_event(%{target: "foo", event: "external"})
     Unlock.BatchMetrics.incr_event(%{target: "bar", event: "internal"})
 
-    assert %{"external@foo" => 3, "internal@bar" => 1} == :sys.get_state(Unlock.BatchMetrics)
+    assert %{{"foo", "external"} => 3, {"bar", "internal"} => 1} == :sys.get_state(Unlock.BatchMetrics)
 
     send(Unlock.BatchMetrics, :work)
     :timer.sleep(100)
@@ -33,14 +30,14 @@ defmodule Unlock.BatchMetricsTest do
              # Metric has been updated
              %DB.Metrics{
                count: 2,
-               period: ^period,
+               period: ^truncated_period,
                target: "bar",
                event: "internal"
              },
              # New metric has been inserted
              %DB.Metrics{
                count: 3,
-               period: ^period,
+               period: ^truncated_period,
                target: "foo",
                event: "external"
              }

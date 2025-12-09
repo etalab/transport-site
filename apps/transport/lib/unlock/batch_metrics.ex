@@ -14,7 +14,7 @@ defmodule Unlock.BatchMetrics do
   use GenServer
   @behaviour Unlock.EventIncrementer
 
-  @work_delay :timer.seconds(30)
+  @work_delay :timer.seconds(5)
 
   def work_delay, do: @work_delay
 
@@ -35,27 +35,22 @@ defmodule Unlock.BatchMetrics do
 
   @impl true
   def handle_cast({:incr_event, %{target: _target, event: _event} = payload}, state) do
-    {_, new_state} =
-      Map.get_and_update(state, metric_key(payload), fn current_value ->
-        {current_value, (current_value || 0) + 1}
-      end)
-
+    new_state = Map.update(state, metric_key(payload), 1, &(&1 + 1))
     {:noreply, new_state}
   end
 
   @impl true
   def handle_info(:work, state) do
-    period = DateTime.utc_now() |> truncate_datetime_to_hour()
+    period = DateTime.utc_now() |> Transport.Telemetry.truncate_datetime_to_hour()
 
-    Enum.each(state, fn {key, count} ->
-      [event, target] = key |> String.split(metric_separator())
-
-      DB.Repo.insert!(
-        %DB.Metrics{target: target, event: event, period: period, count: count},
-        returning: [:count],
-        conflict_target: [:target, :event, :period],
-        on_conflict: [inc: [count: count]]
-      )
+    Enum.each(state, fn {{target, event}, count} ->
+      Task.start(fn ->
+        DB.Repo.insert!(
+          %DB.Metrics{target: target, event: event, period: period, count: count},
+          conflict_target: [:target, :event, :period],
+          on_conflict: [inc: [count: count]]
+        )
+      end)
     end)
 
     schedule_work()
@@ -63,19 +58,7 @@ defmodule Unlock.BatchMetrics do
     {:noreply, %{}}
   end
 
-  def metric_key(%{target: target, event: event}) do
-    Enum.join([event, target], metric_separator())
-  end
-
-  def metric_separator, do: "@"
-
-  @doc """
-  iex> truncate_datetime_to_hour(~U[2021-11-22 14:28:06.098765Z])
-  ~U[2021-11-22 14:00:00Z]
-  """
-  def truncate_datetime_to_hour(datetime) do
-    %{DateTime.truncate(datetime, :second) | second: 0, minute: 0}
-  end
+  def metric_key(%{target: target, event: event}), do: {target, event}
 
   defp schedule_work do
     Process.send_after(self(), :work, @work_delay)

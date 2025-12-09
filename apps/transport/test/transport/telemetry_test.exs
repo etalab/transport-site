@@ -13,7 +13,7 @@ defmodule Transport.TelemetryTest do
 
   def stored_events, do: DB.Repo.all(DB.Metrics)
 
-  test "telemetry for incr_event" do
+  test "telemetry forwards proxy events to batch metrics system (incr_event)" do
     assert DB.Repo.all(DB.Metrics) |> Enum.empty?()
     assert %{} == :sys.get_state(Unlock.BatchMetrics)
 
@@ -22,13 +22,25 @@ defmodule Transport.TelemetryTest do
       :ok
     end)
 
-    # Dispatch the Telemetry event
+    Unlock.BatchMetrics.Mock
+    |> expect(:incr_event, fn %{target: "bar", event: "proxy:request:internal"} ->
+      :ok
+    end)
+
+    # Dispatch Telemetry events
     :telemetry.execute(
       [:proxy, :request, :external],
       %{},
       %{target: "foo"}
     )
 
+    :telemetry.execute(
+      [:proxy, :request, :internal],
+      %{},
+      %{target: "bar"}
+    )
+
+    # Metrics have not been inserted directly
     assert DB.Repo.all(DB.Metrics) |> Enum.empty?()
   end
 
