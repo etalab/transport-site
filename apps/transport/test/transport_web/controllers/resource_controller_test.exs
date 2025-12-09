@@ -904,6 +904,10 @@ defmodule TransportWeb.ResourceControllerTest do
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
+        features: ["Bike Allowed"]
+      },
       result: %{
         "notices" => [
           %{
@@ -925,6 +929,12 @@ defmodule TransportWeb.ResourceControllerTest do
 
     response = conn |> get(resource_path(conn, :details, resource.id))
 
+    # Resource metadata
+    assert response |> html_response(200) =~ "01/12/2025"
+    assert response |> html_response(200) =~ "31/12/2025"
+    assert response |> html_response(200) =~ "Bike Allowed"
+
+    # Validation
     assert response |> html_response(200) =~ "Rapport de validation"
     assert response |> html_response(200) =~ "1 avertissement"
     assert response |> html_response(200) =~ "unusable_trip"
