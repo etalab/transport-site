@@ -97,7 +97,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 2
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2 * 2
-    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 2 * 1
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 2
 
     # make one dataset inactive
     DB.Dataset
