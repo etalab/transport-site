@@ -1,4 +1,5 @@
 /* eslint no-unused-vars: [2, {"args": "after-used", "varsIgnorePattern": "autoCompletejs"}] */
+/* global contactId */
 // https://github.com/babel/babel/issues/9849
 require('regenerator-runtime')
 const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
@@ -30,6 +31,8 @@ const autoCompletejs = new AutoComplete({
             data = [
                 {
                     name: `Rechercher ${query} dans les descriptions des jeux de données`,
+                    value: query,
+                    type: 'description',
                     url: `/datasets?q=${query}`
                 },
                 ...data
@@ -86,6 +89,34 @@ const autoCompletejs = new AutoComplete({
     },
     onSelection: feedback => {
         feedback.event.preventDefault()
-        window.location = feedback.selection.value.url
+
+        const selection = feedback.selection.value
+
+        let payload = {}
+        if (selection.type === 'description') {
+            payload = {
+                name: selection.value,
+                type: selection.type,
+                contact_id: contactId
+            }
+        } else {
+            payload = {
+                name: selection.name,
+                type: selection.type,
+                contact_id: contactId
+            }
+        }
+
+        // Log the selected value
+        fetch('/api/features/autocomplete', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+
+        // Redirect to the target URL
+        window.location = selection.url
     }
 })
