@@ -10,6 +10,7 @@ defmodule Transport.DataCheckerTest do
     # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   describe "inactive_data job" do

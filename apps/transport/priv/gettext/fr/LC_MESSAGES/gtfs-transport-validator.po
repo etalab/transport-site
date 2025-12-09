@@ -166,26 +166,26 @@ msgstr "Trajet non utilisable"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Error"
 msgid_plural "Errors"
-msgstr[0] "%{count} erreur"
-msgstr[1] "%{count} erreurs"
+msgstr[0] "%{value} erreur"
+msgstr[1] "%{value} erreurs"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Fatal failure"
 msgid_plural "Fatal failures"
-msgstr[0] "%{count} échec irrécupérable"
-msgstr[1] "%{count} échecs irrécupérables"
+msgstr[0] "%{value} échec irrécupérable"
+msgstr[1] "%{value} échecs irrécupérables"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Information"
 msgid_plural "Informations"
-msgstr[0] "%{count} information"
-msgstr[1] "%{count} informations"
+msgstr[0] "%{value} information"
+msgstr[1] "%{value} informations"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Warning"
 msgid_plural "Warnings"
-msgstr[0] "%{count} avertissement"
-msgstr[1] "%{count} avertissements"
+msgstr[0] "%{value} avertissement"
+msgstr[1] "%{value} avertissements"
 
 #, elixir-autogen, elixir-format
 msgid "Calendar files are empty. The service is never running."

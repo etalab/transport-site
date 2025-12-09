@@ -1,4 +1,4 @@
-<div class="panel">
+<div class={assigns[:div_class] || "panel"}>
   <%= render("_errors_warnings_count.html",
     nb_errors: get_in(@validation.digest, ["stats", "ERROR"]) || 0,
     nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0
@@ -48,19 +48,39 @@
 
         <details>
           <summary><%= dgettext("validations", "Sample errors") %></summary>
+          <% nb_sample_notices = Enum.count(notice["sampleNotices"]) %>
+          <% sample_notices = Enum.take(notice["sampleNotices"], max_display_errors()) %>
           <table class="table" lang="en">
-            <% headers = notice["sampleNotices"] |> hd() |> Map.keys() %>
+            <% headers = sample_notices |> hd() |> Map.keys() %>
             <tr>
               <th :for={header <- headers}><%= header %></th>
             </tr>
-            <%= for notice <- notice["sampleNotices"] do %>
-              <tr>
-                <td :for={header <- headers}><%= Map.get(notice, header) %></td>
-              </tr>
-            <% end %>
+            <tr :for={notice <- sample_notices}>
+              <td :for={header <- headers}><%= Map.get(notice, header) %></td>
+            </tr>
           </table>
+          <p :if={nb_sample_notices > max_display_errors()} class="notification">
+            <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
+          </p>
         </details>
       </div>
     <% end %>
   <% end %>
+  <p>
+    <%= raw(
+      dgettext(
+        "validations",
+        ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
+        link: @file_url,
+        format: "GTFS",
+        date:
+          DateTimeDisplay.format_datetime_to_paris(
+            @validation.validation_timestamp,
+            @locale
+          ),
+        validator_url: mobilitydata_gtfs_validator_url(),
+        validator_name: dgettext("validations", "Canonical GTFS Schedule Validator")
+      )
+    ) %>
+  </p>
 </div>

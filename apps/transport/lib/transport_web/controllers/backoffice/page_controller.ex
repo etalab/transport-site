@@ -165,6 +165,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:subscriptions_by_producer, subscriptions_by_producer(conn.assigns[:dataset]))
     |> assign(:reusers_count, reusers_count)
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
+    |> assign(:resource_formats, resource_formats())
     |> assign(
       :import_logs,
       LogsImport
@@ -184,9 +185,18 @@ defmodule TransportWeb.Backoffice.PageController do
       :legal_owners_aom,
       :legal_owners_region,
       :declarative_spatial_areas,
-      :offers
+      :offers,
+      :resources
     ])
     |> Repo.get(dataset_id)
+  end
+
+  defp resource_formats do
+    DB.Resource.base_query()
+    |> select([r], r.format)
+    |> group_by([r], r.format)
+    |> order_by([r], {:desc, count(r.format)})
+    |> DB.Repo.all()
   end
 
   def subscriptions_by_producer(%DB.Dataset{} = dataset) do

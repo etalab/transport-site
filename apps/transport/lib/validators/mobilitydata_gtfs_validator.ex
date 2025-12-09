@@ -20,7 +20,33 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def validator_name, do: "MobilityData GTFS Validator"
 
   @impl Transport.Validators.Validator
+  @spec validate_and_save(DB.ResourceHistory.t() | binary()) :: :ok | map()
   def validate_and_save(%DB.ResourceHistory{id: resource_history_id, payload: %{"permanent_url" => url}}) do
+    results = run_validation(url)
+
+    %DB.MultiValidation{
+      validation_timestamp: DateTime.utc_now(),
+      validator: validator_name(),
+      validator_version: results.validator_version,
+      result: results.result,
+      digest: results.digest,
+      command: results.command,
+      resource_history_id: resource_history_id,
+      max_error: results.max_error,
+      metadata: %DB.ResourceMetadata{
+        resource_history_id: resource_history_id,
+        metadata: results.metadata,
+        features: results.features
+      }
+    }
+    |> DB.Repo.insert!()
+
+    :ok
+  end
+
+  def validate_and_save(gtfs_url), do: run_validation(gtfs_url)
+
+  defp run_validation(url) do
     job_id = validator_client().create_a_validation(url)
     result = job_id |> poll_validation_results()
     # the validator version may be missing
@@ -35,30 +61,15 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
       "feedInfo" => get_in(result, ["summary", "feedInfo"])
     }
 
-    resource_metadata = %DB.ResourceMetadata{
-      resource_history_id: resource_history_id,
+    %{
+      result: result,
+      validator_version: validator_version,
       metadata: metadata,
+      command: command(job_id),
+      digest: digest(Map.get(result, "notices", [])),
+      max_error: get_max_severity_error(Map.get(result, "notices", [])),
       features: get_in(result, ["summary", "gtfsFeatures"])
     }
-
-    %DB.MultiValidation{
-      validation_timestamp: DateTime.utc_now(),
-      validator: validator_name(),
-      validator_version: validator_version,
-      result: result,
-      digest: digest(Map.get(result, "notices", [])),
-      command: command(job_id),
-      resource_history_id: resource_history_id,
-      max_error: get_max_severity_error(Map.get(result, "notices", [])),
-      metadata: resource_metadata
-    }
-    |> DB.Repo.insert!()
-
-    :ok
-  end
-
-  def validate_and_save(gtfs_url) do
-    validator_client().create_a_validation(gtfs_url) |> poll_validation_results()
   end
 
   def github_validator_version do
@@ -81,7 +92,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp poll_validation_results(job_id, attempt \\ 1)
 
   defp poll_validation_results(job_id, 60 = _attempt) do
-    %{"status" => "error", "reason" => "timeout", "job_id" => job_id}
+    %{"status" => "error", "reason" => "timeout", "job_id" => job_id, "validation_performed" => false}
   end
 
   defp poll_validation_results(job_id, attempt) do
@@ -94,10 +105,10 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
         data
 
       {:error, data} ->
-        data
+        Map.put(data, "validation_performed", false)
 
       :unexpected_validation_status ->
-        %{}
+        %{"validation_performed" => false, "reason" => "unexpected_validation_status"}
     end
   end
 
@@ -107,8 +118,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   @doc """
   iex> digest([%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "samplesNotices" => ["foo", "bar"]}])
   %{
-    "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-    "stats" => %{"WARNING" => 1},
+    "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+    "stats" => %{"WARNING" => 2},
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
   """
@@ -149,20 +160,27 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   end
 
   @doc """
-  iex> count_by_severity([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
-  %{"WARNING" => 2}
-  iex> count_by_severity([%{"severity" => "WARNING"}, %{"severity" => "ERROR"}])
-  %{"WARNING" => 1, "ERROR" => 1}
+  iex> count_by_severity([%{"severity" => "WARNING", "totalNotices" => 2}, %{"severity" => "WARNING", "totalNotices" => 3}])
+  %{"WARNING" => 5}
+  iex> count_by_severity([%{"severity" => "WARNING", "totalNotices" => 2}, %{"severity" => "ERROR", "totalNotices" => 3}])
+  %{"WARNING" => 2, "ERROR" => 3}
   """
   @spec count_by_severity([map()]) :: map()
   def count_by_severity(validation_result) do
-    validation_result |> Enum.map(& &1["severity"]) |> Enum.frequencies()
+    Enum.reduce(validation_result, %{}, fn notice, acc ->
+      severity = notice["severity"]
+      count = notice["totalNotices"]
+
+      Map.update(acc, severity, count, fn existing_count ->
+        existing_count + count
+      end)
+    end)
   end
 
   @doc """
-  iex> count_max_severity([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
-  %{"max_level" => "WARNING", "worst_occurrences" => 2}
-  iex> count_max_severity([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
+  iex> count_max_severity([%{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 2}])
+  %{"max_level" => "WARNING", "worst_occurrences" => 3}
+  iex> count_max_severity([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 2}])
   %{"max_level" => "ERROR", "worst_occurrences" => 1}
   iex> count_max_severity([])
   %{"max_level" => "NoError", "worst_occurrences" => 0}
@@ -182,11 +200,11 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   end
 
   @doc """
-  iex> get_max_severity_error([%{"severity" => "WARNING"}, %{"severity" => "WARNING"}])
+  iex> get_max_severity_error([%{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}])
   "WARNING"
-  iex> get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}])
+  iex> get_max_severity_error([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}])
   "ERROR"
-  iex> get_max_severity_error([%{"severity" => "ERROR"}, %{"severity" => "WARNING"}, %{"severity" => "INFO"}])
+  iex> get_max_severity_error([%{"severity" => "ERROR", "totalNotices" => 1}, %{"severity" => "WARNING", "totalNotices" => 1}, %{"severity" => "INFO", "totalNotices" => 1}])
   "ERROR"
   iex> get_max_severity_error([])
   "NoError"
@@ -215,16 +233,21 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   iex> Gettext.put_locale("fr")
   iex> format_severity("ERROR", 1)
   "1 erreur"
-  iex> format_severity("ERROR", 2)
-  "2 erreurs"
+  iex> format_severity("ERROR", 2_000)
+  "2 000 erreurs"
   iex> assert_raise CaseClauseError, fn -> format_severity("NOPE", 42) end
   """
   @spec format_severity(binary(), non_neg_integer()) :: binary()
   def format_severity(key, count) do
     case key do
-      "ERROR" -> dngettext("gtfs-transport-validator", "Error", "Errors", count)
-      "WARNING" -> dngettext("gtfs-transport-validator", "Warning", "Warnings", count)
-      "INFO" -> dngettext("gtfs-transport-validator", "Information", "Informations", count)
+      "ERROR" ->
+        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+
+      "WARNING" ->
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+
+      "INFO" ->
+        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
     end
   end
 

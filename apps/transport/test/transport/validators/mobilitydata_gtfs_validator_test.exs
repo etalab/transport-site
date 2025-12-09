@@ -25,7 +25,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
 
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
       notices = [
-        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+        %{
+          "code" => "unusable_trip",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [%{"foo" => "bar"}]
+        }
       ]
 
       report = %{
@@ -59,7 +64,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                  "notices" => [
                    %{
                      "code" => "unusable_trip",
-                     "sampleNotices" => ["foo", "bar"],
+                     "sampleNotices" => [%{"foo" => "bar"}],
                      "severity" => "WARNING",
                      "totalNotices" => 2
                    }
@@ -67,8 +72,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                  "summary" => %{"validatorVersion" => "4.2.0"}
                },
                digest: %{
-                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-                 "stats" => %{"WARNING" => 1},
+                 "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+                 "stats" => %{"WARNING" => 2},
                  "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
                },
                max_error: "WARNING"
@@ -107,7 +112,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
 
     expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
       notices = [
-        %{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2, "sampleNotices" => ["foo", "bar"]}
+        %{
+          "code" => "unusable_trip",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [%{"foo" => "bar"}]
+        }
       ]
 
       {:successful, %{"summary" => %{}, "notices" => notices}}
@@ -133,5 +143,75 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
                command: ^report_html_url
              }
            ] = DB.MultiValidation.with_result() |> DB.Repo.all()
+  end
+
+  test "validate_and_save when error" do
+    gtfs_url = "https://example.com/gtfs"
+    job_id = Ecto.UUID.generate()
+    %{id: rh_id} = rh = insert(:resource_history, payload: %{"permanent_url" => gtfs_url})
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :create_a_validation, fn ^gtfs_url ->
+      job_id
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
+      {:error, %{"reason" => "nope"}}
+    end)
+
+    expect(Transport.HTTPoison.Mock, :get!, fn url ->
+      assert url == "https://api.github.com/repos/MobilityData/gtfs-validator/releases/latest"
+      %HTTPoison.Response{status_code: 200, body: %{tag_name: "4.2.0"} |> Jason.encode!()}
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :report_html_url, fn ^job_id ->
+      "https://example.com/report"
+    end)
+
+    assert :ok == MobilityDataGTFSValidator.validate_and_save(rh)
+
+    assert [
+             mv = %DB.MultiValidation{
+               resource_history_id: ^rh_id,
+               validator: "MobilityData GTFS Validator",
+               result: %{"reason" => "nope", "validation_performed" => false}
+             }
+           ] = DB.MultiValidation.with_result() |> DB.Repo.all()
+
+    refute TransportWeb.DatasetView.multi_validation_performed?(mv)
+  end
+
+  test "validate_and_save when unexpected_validation_status" do
+    gtfs_url = "https://example.com/gtfs"
+    job_id = Ecto.UUID.generate()
+    %{id: rh_id} = rh = insert(:resource_history, payload: %{"permanent_url" => gtfs_url})
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :create_a_validation, fn ^gtfs_url ->
+      job_id
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :get_a_validation, fn ^job_id ->
+      :unexpected_validation_status
+    end)
+
+    expect(Transport.HTTPoison.Mock, :get!, fn url ->
+      assert url == "https://api.github.com/repos/MobilityData/gtfs-validator/releases/latest"
+      %HTTPoison.Response{status_code: 200, body: %{tag_name: "4.2.0"} |> Jason.encode!()}
+    end)
+
+    expect(Transport.Validators.MobilityDataGTFSValidatorClient.Mock, :report_html_url, fn ^job_id ->
+      "https://example.com/report"
+    end)
+
+    assert :ok == MobilityDataGTFSValidator.validate_and_save(rh)
+
+    assert [
+             mv = %DB.MultiValidation{
+               resource_history_id: ^rh_id,
+               validator: "MobilityData GTFS Validator",
+               result: %{"reason" => "unexpected_validation_status", "validation_performed" => false}
+             }
+           ] = DB.MultiValidation.with_result() |> DB.Repo.all()
+
+    refute TransportWeb.DatasetView.multi_validation_performed?(mv)
   end
 end

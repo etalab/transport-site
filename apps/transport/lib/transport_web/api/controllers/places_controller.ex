@@ -22,6 +22,8 @@ defmodule TransportWeb.API.PlacesController do
 
   defp get_result_url(conn, %Place{:place_id => id, :type => "mode"}), do: dataset_path(conn, :index, "modes[]": id)
 
+  defp get_result_url(conn, %Place{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
+
   defp approx_search_query(query) do
     Place
     |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
@@ -49,10 +51,11 @@ defmodule TransportWeb.API.PlacesController do
       |> order_by(asc: fragment("CASE type
           when 'feature' then 1
           when 'mode' then 2
-          when 'region' then 3
-          when 'departement' then 4
-          when 'epci' then 5
-          else 6 END"))
+          when 'offer' then 3
+          when 'region' then 4
+          when 'departement' then 5
+          when 'epci' then 6
+          else 7 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> Repo.all()
