@@ -6,14 +6,14 @@ defmodule Transport.GTFSImportStops do
   import Ecto.Query
 
   @doc """
-  For the given `resource_history_id`, imports stops in a new `DB.DataImport`, then delete all related
+  For the given `resource_history_id`, imports stops and agencies in a new `DB.DataImport`, then delete all related
   pre-existing `DB.DataImport` (either with the same `resource_history_id`, or for the same resource).
   """
   def import_stops_and_remove_previous(resource_history_id) do
     # Transaction timeout is at 15s currently, we may need to customize this here later
     {:ok, data_import_id} =
       DB.Repo.transaction(fn ->
-        data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops)
+        data_import_id = Transport.Jobs.GtfsToDB.import_gtfs_from_resource_history(resource_history_id, :stops_and_agencies)
 
         resource_id = DB.Repo.get_by(DB.ResourceHistory, id: resource_history_id).resource_id
 
