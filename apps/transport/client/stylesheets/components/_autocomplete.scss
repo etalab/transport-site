@@ -9,6 +9,10 @@
   position: absolute;
   text-align: left;
   z-index: 1;
+
+  &.hidden {
+    display: none;
+  }
 }
 
 #magnifier {
