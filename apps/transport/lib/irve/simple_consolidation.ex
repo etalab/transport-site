@@ -98,9 +98,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     path = storage_path(resource.resource_id)
 
     with_maybe_cached_download_on_disk(resource, path, use_permanent_disk_cache, fn path ->
-      df = load_file_as_dataframe(path)
-
-      validation_result = df |> Transport.IRVE.Validator.compute_validation()
+      validation_result = path |> Transport.IRVE.Validator.validate()
       file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
       if file_valid? do
@@ -160,14 +158,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     unless status == 200 do
       raise "Error processing resource (#{resource_id}) (http_status=#{status})"
-    end
-  end
-
-  def load_file_as_dataframe(path) do
-    # NOTE: `infer_schema_length: 0` enforces strings everywhere
-    case Explorer.DataFrame.from_csv(path, infer_schema_length: 0) do
-      {:ok, df} -> df
-      {:error, error} -> raise error
     end
   end
 end
