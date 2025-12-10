@@ -15,6 +15,23 @@ defmodule Transport.IRVE.DatabaseImporter do
   # too many times in parallel, since it would exhaust the Ecto connection pool.
   @import_timeout 60_000
 
+  # return:
+  # - `:import_successful` if the import went fine
+  # - `:already_in_db` if the same content (based on file checksum) is in db for
+  #     the provided combination of ids
+  # (else raise an error)
+  def try_write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
+    write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id)
+    :import_successful
+  rescue
+    e in [Ecto.ConstraintError] ->
+      if e.type == :unique && e.constraint == "irve_valid_file_resource_datagouv_id_checksum_index" do
+        :already_in_db
+      else
+        reraise(e, __STACKTRACE__)
+      end
+  end
+
   def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
     content = File.read!(file_path)
 
