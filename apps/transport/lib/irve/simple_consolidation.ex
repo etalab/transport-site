@@ -5,8 +5,51 @@ defmodule Transport.IRVE.SimpleConsolidation do
   A module that consolidates simple IRVE data for faster access.
   """
 
+  defmodule ReportRow do
+    @moduledoc """
+    Quick & dirty structure to massage the outcome into a report with all the same keys
+    (as expected by the `DataFrame` that we use to create the CSV file).
+
+    It's all quiet tied to the other module here.
+    """
+    @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status]
+    defstruct [:dataset_id, :resource_id, :url, :dataset_title, :status, :error_message, :error_type]
+
+    def from_result({:error_occurred, error, resource}) do
+      new(resource, :error_occurred, error)
+    end
+
+    def from_result({status, resource}) do
+      new(resource, status, nil)
+    end
+
+    def to_map(%__MODULE__{} = report_row) do
+      report_row
+      |> Map.from_struct()
+      |> Map.update!(:status, &to_string/1)
+    end
+
+    defp new(resource, status, error) do
+      %__MODULE__{
+        dataset_id: resource.dataset_id,
+        resource_id: resource.resource_id,
+        url: resource.url,
+        dataset_title: resource.dataset_title,
+        status: status,
+        error_message: maybe_error_message(error),
+        error_type: maybe_error_type(error)
+      }
+    end
+
+    defp maybe_error_message(nil), do: nil
+    defp maybe_error_message(error), do: Exception.message(error)
+
+    defp maybe_error_type(nil), do: nil
+    defp maybe_error_type(error), do: error.__struct__ |> inspect()
+  end
+
   def process do
-    df =
+    report_rows =
       resource_list()
       |> Task.async_stream(
         &process_or_rescue/1,
@@ -16,41 +59,22 @@ defmodule Transport.IRVE.SimpleConsolidation do
         max_concurrency: 10
       )
       |> Stream.map(fn {:ok, result} -> result end)
-      |> Stream.map(&prepare_report_item/1)
+      |> Stream.map(&ReportRow.from_result/1)
       |> Enum.into([])
+
+    report_df =
+      report_rows
+      |> Enum.map(&ReportRow.to_map/1)
       |> Explorer.DataFrame.new()
 
     report_file = "irve-processed-resources.csv"
     Logger.info("Saving report to #{report_file}...")
-    Explorer.DataFrame.to_csv!(df, report_file)
+    Explorer.DataFrame.to_csv!(report_df, report_file)
 
     # NOTE: to be removed ; but nicely displays what happened
-    df["status"]
+    report_df["status"]
     |> Explorer.Series.frequencies()
     |> IO.inspect(IEx.inspect_opts())
-  end
-
-  def base_report_item(resource) do
-    resource
-    |> Map.take([:dataset_id, :resource_id, :url, :dataset_title])
-    |> Map.put_new(:error_message, nil)
-    |> Map.put_new(:error_type, nil)
-  end
-
-  def prepare_report_item({:error_occurred, error, resource}) do
-    base_report_item(resource)
-    |> Map.put(:status, :error_occurred)
-    |> Map.merge(%{
-      error_message: Exception.message(error),
-      error_type: error.__struct__ |> inspect()
-    })
-    |> Map.update!(:status, &to_string/1)
-  end
-
-  def prepare_report_item({status, resource}) do
-    base_report_item(resource)
-    |> Map.merge(%{status: status})
-    |> Map.update!(:status, &to_string/1)
   end
 
   def resource_list do
