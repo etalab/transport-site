@@ -70,13 +70,6 @@
           <a href="#backed-up-resources"><%= dgettext("page-dataset-details", "Backed up resources") %></a>
         </div>
       <% end %>
-      <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-        <div class="menu-item">
-          <a href="#dataset-other-datasets">
-            <%= dgettext("page-dataset-details", "Other datasets") %> (<%= Enum.count(@other_datasets) %>)
-          </a>
-        </div>
-      <% end %>
     </div>
   </div>
   <div class="dataset-infos">
@@ -219,23 +212,6 @@
       conn: @conn,
       dataset_id: @dataset.id
     ) %>
-    <%= unless is_nil(@other_datasets) or @other_datasets == [] do %>
-      <section class="pt-48" id="dataset-other-datasets">
-        <h2><%= dgettext("page-dataset-details", "Other datasets of %{name}", name: @covered_area) %></h2>
-        <div class="panel">
-          <ul>
-            <%= for dataset <- @other_datasets do %>
-              <li>
-                <%= link(
-                  dataset.custom_title,
-                  to: dataset_path(@conn, :details, dataset.slug)
-                ) %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      </section>
-    <% end %>
   </div>
   <div class="dataset-metas">
     <div class="panel">
@@ -263,6 +239,16 @@
           </div>
         </div>
       <% end %>
+      <div :if={not Enum.empty?(@dataset.offers)} class="pt-12">
+        <span class="dataset-metas-info-title">
+          <%= dgettext("page-dataset-details", "Transport offers") %>
+        </span>
+        <div>
+          <%= for offer <- @dataset.offers |> Enum.sort_by(& &1.nom_commercial) do %>
+            <%= link(offer.nom_commercial, to: dataset_path(@conn, :by_offer, offer.identifiant_offre)) %>
+          <% end %>
+        </div>
+      </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title"><%= dgettext("page-dataset-details", "Data type") %></span>
         <%= render("_dataset_type.html",

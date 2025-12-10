@@ -42,8 +42,8 @@ defmodule Transport.Jobs.GtfsToDB do
           data_import_id: data_import_id,
           stop_id: r |> Map.fetch!("stop_id"),
           stop_name: r |> Map.fetch!("stop_name"),
-          stop_lat: r |> Utils.fetch_position("stop_lat"),
-          stop_lon: r |> Utils.fetch_position("stop_lon"),
+          stop_lat: r |> Utils.get_position("stop_lat"),
+          stop_lon: r |> Utils.get_position("stop_lon"),
           location_type: r |> Utils.csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)

@@ -4,8 +4,8 @@ defmodule Mix.Tasks.Transport.ImportDepartements do
 
   use Mix.Task
   import Ecto.Query
-  alias Ecto.Changeset
   alias DB.{Departement, Repo}
+  alias Ecto.Changeset
   require Logger
 
   @departements_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2024/geojson/departements-100m.geojson"

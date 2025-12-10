@@ -57,8 +57,7 @@ defmodule TransportWeb.ResourceControllerTest do
           datagouv_id: "5",
           format: "gtfs-rt"
         }
-      ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle"}
+      ]
     )
 
     :ok
@@ -884,6 +883,114 @@ defmodule TransportWeb.ResourceControllerTest do
     assert response |> html_response(200) =~ "1 erreur"
     assert response |> html_response(200) =~ "oops"
     refute response |> html_response(200) =~ "Pas de validation disponible"
+  end
+
+  test "GTFS-Flex validation is shown", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
+        features: ["Bike Allowed"]
+      },
+      result: %{
+        "notices" => [
+          %{
+            "code" => "unusable_trip",
+            "sampleNotices" => [%{"foo" => "bar"}],
+            "severity" => "WARNING",
+            "totalNotices" => 2
+          }
+        ],
+        "summary" => %{"validatorVersion" => "4.2.0"}
+      },
+      digest: %{
+        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
+        "stats" => %{"WARNING" => 1},
+        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
+      },
+      max_error: "WARNING"
+    })
+
+    response = conn |> get(resource_path(conn, :details, resource.id))
+
+    # Resource metadata
+    assert response |> html_response(200) =~ "01/12/2025"
+    assert response |> html_response(200) =~ "31/12/2025"
+    assert response |> html_response(200) =~ "Bike Allowed"
+
+    # Validation
+    assert response |> html_response(200) =~ "Rapport de validation"
+    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "unusable_trip"
+    refute response |> html_response(200) =~ "Pas de validation disponible"
+  end
+
+  test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: %{
+        "notices" => [
+          %{
+            "code" => "unusable_trip",
+            "sampleNotices" => [%{"foo" => "bar"}],
+            "severity" => "WARNING",
+            "totalNotices" => 2
+          }
+        ],
+        "summary" => %{"validatorVersion" => "4.2.0"}
+      },
+      digest: %{
+        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
+        "stats" => %{"WARNING" => 1},
+        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
+      },
+      max_error: "WARNING"
+    })
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: nil,
+      max_error: "Warning"
+    })
+
+    response = conn |> get(resource_path(conn, :details, resource.id))
+
+    assert response |> html_response(200) =~ "Rapport de validation"
+    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "unusable_trip"
   end
 
   test "does not crash when validation_performed is false", %{conn: conn} do

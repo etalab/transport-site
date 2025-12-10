@@ -1,10 +1,14 @@
 defmodule Transport.Validators.GTFSRTTest do
-  use ExUnit.Case, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import Ecto.Query
   import DB.Factory
   alias Transport.Validators.GTFSRT
   import Mox
+
+  doctest Transport.Validators.GTFSRT, import: true
 
   @gtfs_rt_report_path "#{__DIR__}/../../fixture/files/gtfs-rt-validator-errors.json"
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
@@ -189,14 +193,14 @@ defmodule Transport.Validators.GTFSRTTest do
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
         |> DB.Repo.one!()
 
       gtfs_rt_no_errors_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt_no_errors.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -333,7 +337,7 @@ defmodule Transport.Validators.GTFSRTTest do
       expected_errors = Map.fetch!(report, "errors")
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -356,6 +360,10 @@ defmodule Transport.Validators.GTFSRTTest do
                  "has_errors" => true,
                  "uuid" => _uuid
                },
+               digest: %{
+                 "warnings_count" => 26,
+                 "errors_count" => 4
+               },
                resource_id: ^gtfs_rt_id,
                secondary_resource_id: ^gtfs_id,
                secondary_resource_history_id: ^resource_history_id,
@@ -364,7 +372,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       assert gtfs_rt_permanent_url == Transport.S3.permanent_url(:history, gtfs_rt_filename)
 
-      refute DB.MultiValidation
+      refute DB.MultiValidation.with_result()
              |> where([mv], mv.resource_id == ^gtfs_rt_no_errors.id and mv.validator == ^GTFSRT.validator_name())
              |> DB.Repo.exists?()
 
@@ -436,7 +444,7 @@ defmodule Transport.Validators.GTFSRTTest do
       assert :ok == GTFSRT.validate_and_save(dataset)
 
       gtfs_rt_validation =
-        DB.MultiValidation
+        DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
         |> order_by([mv], desc: mv.inserted_at)
         |> limit(1)
@@ -528,7 +536,7 @@ defmodule Transport.Validators.GTFSRTTest do
 
       assert :ok == GTFSRT.validate_and_save(dataset)
 
-      assert DB.MultiValidation
+      assert DB.MultiValidation.with_result()
              |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
              |> DB.Repo.exists?()
 

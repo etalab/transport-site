@@ -7,7 +7,10 @@
       </p>
       <p>
         <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>.
+        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
+        <%= dgettext("validations", "during %{retention_days} days",
+          retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
+        ) %>.
       </p>
     </div>
 
@@ -18,7 +21,7 @@
 
   <div class="validation-content">
     <div id="issues" class="container">
-      <% {_, worst_occurrences} = @max_severity %>
+      <% %{"worst_occurrences" => worst_occurrences} = @max_severity %>
       <% current_category = @conn.params["issues_category"] || "" %>
       <div id="issues" class="validation-navigation">
         <nav class="issues-list validation" role="navigation">

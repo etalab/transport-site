@@ -5,6 +5,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -55,6 +56,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "0.2.0"
       assert multi_validation.result == %{}
+      assert multi_validation.digest == ResultsAdapter.digest(%{})
       assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 12}
     end
 
@@ -123,10 +125,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                  }
                ]
              }
+
+      assert multi_validation.digest == ResultsAdapter.digest(multi_validation.result)
     end
 
     defp load_multi_validation(resource_history_id) do
-      DB.MultiValidation
+      DB.MultiValidation.with_result()
       |> DB.Repo.get_by(resource_history_id: resource_history_id)
       |> DB.Repo.preload(:metadata)
     end

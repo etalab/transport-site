@@ -7,7 +7,10 @@
       </p>
       <p>
         <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>.
+        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
+        <%= dgettext("validations", "during %{retention_days} days",
+          retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
+        ) %>.
       </p>
     </div>
 

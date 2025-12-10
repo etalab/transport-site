@@ -41,9 +41,7 @@ defmodule DB.Factory do
       nom: "Grenoble",
       siren: "253800825",
       region: build(:region),
-      population: 1_000,
-      # The value must be unique, ExFactory helps us with a named sequence
-      composition_res_id: 1000 + sequence("composition_res_id", & &1)
+      population: 1_000
     }
   end
 
@@ -57,8 +55,6 @@ defmodule DB.Factory do
       datagouv_id: sequence(:datagouv_id, fn i -> "dataset_datagouv_id_#{i}" end),
       organization_id: sequence(:organization_id, fn i -> "dataset_organization_id_#{i}" end),
       licence: "lov2",
-      # NOTE: need to figure out how to pass aom/region together with changeset checks here
-      aom: build(:aom),
       tags: [],
       type: "public-transit",
       logo: "https://example.com/#{Ecto.UUID.generate()}_small.png",
@@ -246,21 +242,13 @@ defmodule DB.Factory do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
 
-    dataset_opts = [
-      is_active: Keyword.get(opts, :is_active),
-      region_id: Keyword.get(opts, :region_id),
-      has_realtime: Keyword.get(opts, :has_realtime),
-      type: Keyword.get(opts, :type),
-      aom: aom = Keyword.get(opts, :aom),
-      custom_title: Keyword.get(opts, :custom_title)
-    ]
-
     dataset_opts =
-      aom
-      |> case do
-        nil -> dataset_opts
-        aom -> dataset_opts |> Keyword.merge(aom: aom)
-      end
+      [
+        is_active: Keyword.get(opts, :is_active),
+        has_realtime: Keyword.get(opts, :has_realtime),
+        type: Keyword.get(opts, :type),
+        custom_title: Keyword.get(opts, :custom_title)
+      ]
       |> Enum.reject(fn {_, v} -> is_nil(v) end)
 
     dataset = Keyword.get(opts, :dataset, insert(:dataset, dataset_opts))
@@ -392,6 +380,21 @@ defmodule DB.Factory do
     }
   end
 
+  def offer_factory do
+    %DB.Offer{
+      nom_commercial: sequence(:nom_commercial, &"nom_commercial-#{&1}"),
+      identifiant_offre: sequence(:identifiant_offre, & &1),
+      type_transport: "Transport urbain",
+      modes: ["Bus"],
+      nom_aom: sequence(:nom_aom, &"nom_aom-#{&1}"),
+      aom_siren: sequence(:aom_siren, &"aom_siren-#{&1}"),
+      niveau: "Local",
+      exploitant: "Keolis",
+      type_contrat: "",
+      territoire: sequence(:territoire, &"territoire-#{&1}")
+    }
+  end
+
   def insert_token(%{} = args \\ %{}) do
     args =
       %{
@@ -431,8 +434,7 @@ defmodule DB.Factory do
       type: "charging-stations",
       custom_title: "Infrastructures de Recharge pour Véhicules Électriques - IRVE",
       organization: "data.gouv.fr",
-      organization_id: "646b7187b50b2a93b1ae3d45",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "646b7187b50b2a93b1ae3d45"
     })
   end
 
@@ -440,8 +442,7 @@ defmodule DB.Factory do
     insert(:dataset, %{
       type: "carpooling-areas",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -450,8 +451,7 @@ defmodule DB.Factory do
       type: "road-data",
       custom_title: "Base nationale des parcs relais",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
-      organization_id: "5abca8d588ee386ee6ece479",
-      aom: build(:aom, population: 1_000_000)
+      organization_id: "5abca8d588ee386ee6ece479"
     })
   end
 
@@ -461,8 +461,7 @@ defmodule DB.Factory do
       custom_title: "Base Nationale des Zones à Faibles Émissions (BNZFE)",
       organization: Application.fetch_env!(:transport, :datagouvfr_transport_publisher_label),
       organization_id: "5abca8d588ee386ee6ece479",
-      datagouv_id: "zfe_fake_dataset_id",
-      aom: build(:aom, population: 1_000_000)
+      datagouv_id: "zfe_fake_dataset_id"
     })
   end
 
@@ -561,7 +560,7 @@ defmodule DB.Factory do
         "id_station_itinerance" => "FRPAN99P12345678",
         "id_station_local" => "station_001",
         "nom_station" => "Ma Station",
-        "implantation_station" => "Lieu de ma station",
+        "implantation_station" => "Voirie",
         "adresse_station" => "26 rue des écluses, 17430 Champdolent",
         "code_insee_commune" => "17085",
         "coordonneesXY" => "[-0.799141,45.91914]",

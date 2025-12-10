@@ -12,6 +12,7 @@ defmodule TransportWeb.DatasetView do
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.MobilityDataGTFSValidator
 
   @gtfs_rt_validator_name Transport.Validators.GTFSRT.validator_name()
 
@@ -235,8 +236,24 @@ defmodule TransportWeb.DatasetView do
   end
 
   # For GTFS resources
+  @doc """
+  iex> summary_class(%{severity: "Error"})
+  "resource__summary--Error"
+  iex> summary_class(%{severity: "ERROR"})
+  "resource__summary--Error"
+  """
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
-  def summary_class(%{severity: severity}), do: "resource__summary--#{severity}"
+  def summary_class(%{severity: severity}), do: "resource__summary--#{String.capitalize(severity)}"
+
+  def summary_class(%DB.MultiValidation{digest: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count > 0 do
+    "resource__summary--Error"
+  end
+
+  def summary_class(%DB.MultiValidation{digest: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count > 0 do
+    "resource__summary--Warning"
+  end
 
   def summary_class(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count > 0 do
@@ -250,12 +267,20 @@ defmodule TransportWeb.DatasetView do
 
   def summary_class(%DB.MultiValidation{}), do: "resource__summary--Success"
 
+  def warnings_count(%DB.MultiValidation{digest: %{"warnings_count" => warnings_count}})
+      when is_integer(warnings_count) and warnings_count >= 0,
+      do: warnings_count
+
   def warnings_count(%DB.MultiValidation{result: %{"warnings_count" => warnings_count}})
       when is_integer(warnings_count) and warnings_count >= 0,
       do: warnings_count
 
   def warnings_count(%DB.MultiValidation{validator: @gtfs_rt_validator_name}), do: 0
   def warnings_count(%DB.MultiValidation{}), do: nil
+
+  def errors_count(%DB.MultiValidation{digest: %{"errors_count" => errors_count}})
+      when is_integer(errors_count) and errors_count >= 0,
+      do: errors_count
 
   def errors_count(%DB.MultiValidation{result: %{"errors_count" => errors_count}})
       when is_integer(errors_count) and errors_count >= 0,
@@ -568,6 +593,20 @@ defmodule TransportWeb.DatasetView do
   def heart_class(dataset_heart_values, %DB.Dataset{id: dataset_id}) do
     value = dataset_heart_values |> Map.fetch!(dataset_id) |> to_string()
     "fa fa-heart #{value}" |> String.trim()
+  end
+
+  def latest_validation(%DB.Resource{id: resource_id} = resource, %{validations: validations} = _resources_infos) do
+    validations = validations |> Map.get(resource_id)
+
+    cond do
+      Enum.count(validations) == 1 ->
+        validations |> hd()
+
+      # If the resource is GTFS and has multiple validations, give priority to the
+      # MobilityData validator.
+      DB.Resource.gtfs?(resource) and Enum.count(validations) == 2 ->
+        validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
+    end
   end
 end
 

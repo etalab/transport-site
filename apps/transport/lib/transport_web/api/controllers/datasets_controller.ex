@@ -1,10 +1,10 @@
 defmodule TransportWeb.API.DatasetController do
   use TransportWeb, :controller
   import Ecto.Query
+  alias DB.{Dataset, Repo, Resource}
+  alias Geo.{JSON, MultiPolygon}
   alias Helpers
   alias OpenApiSpex.Operation
-  alias DB.{AOM, Dataset, Repo, Resource}
-  alias Geo.{JSON, MultiPolygon}
 
   plug(:log_request when action in [:datasets, :by_id])
 
@@ -13,14 +13,13 @@ defmodule TransportWeb.API.DatasetController do
   # that it will still protect a lot against excessive querying.
   @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
   @by_id_cache_ttl :timer.seconds(30)
+  @offers_columns [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]
   @dataset_preload [
     :resources,
-    :aom,
-    :region,
-    :communes,
     :legal_owners_aom,
     :legal_owners_region,
     :declarative_spatial_areas,
+    offers: from(o in DB.Offer, select: ^@offers_columns),
     resources: [:dataset]
   ]
 
@@ -130,7 +129,7 @@ defmodule TransportWeb.API.DatasetController do
     Dataset
     |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:declarative_spatial_areas])
+    |> Repo.preload(declarative_spatial_areas: from(p in DB.AdministrativeDivision, select: [:nom, :type, :geom]))
     |> case do
       %Dataset{} = dataset ->
         data =
@@ -192,13 +191,13 @@ defmodule TransportWeb.API.DatasetController do
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
       "community_resources" => Enum.map(Dataset.community_resources(dataset), &transform_resource/1),
-      # DEPRECATED, only there for retrocompatibility, use covered_area and legal owners instead
-      "aom" => transform_aom(dataset.aom),
       "covered_area" => covered_area(dataset),
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
       "licence" => dataset.licence,
-      "publisher" => get_publisher(dataset)
+      "publisher" => get_publisher(dataset),
+      "tags" => dataset.custom_tags,
+      "offers" => offers(dataset)
     }
 
   @spec get_publisher(Dataset.t()) :: map()
@@ -327,10 +326,6 @@ defmodule TransportWeb.API.DatasetController do
          not DB.Resource.real_time?(resource))
   end
 
-  @spec transform_aom(AOM.t() | nil) :: map()
-  defp transform_aom(nil), do: %{"name" => nil}
-  defp transform_aom(aom), do: %{"name" => aom.nom, "siren" => aom.siren}
-
   @spec covered_area(DB.Dataset.t()) :: [map()]
   def covered_area(%DB.Dataset{declarative_spatial_areas: declarative_spatial_areas}) do
     declarative_spatial_areas
@@ -339,21 +334,28 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp legal_owners(dataset) do
-    %{
-      "aoms" => legal_owners_aom(dataset.legal_owners_aom),
-      "regions" => legal_owners_region(dataset.legal_owners_region),
-      "company" => dataset.legal_owner_company_siren
-    }
+    legal_owners_aom(dataset.legal_owners_aom) ++
+      legal_owners_region(dataset.legal_owners_region) ++ legal_owners_company(dataset)
   end
 
   defp legal_owners_aom(aoms) do
-    aoms
-    |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
+    Enum.map(aoms, fn aom -> %{"name" => aom.nom, "siren" => aom.siren, "type" => "aom"} end)
   end
 
   defp legal_owners_region(regions) do
-    regions
-    |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
+    Enum.map(regions, fn region -> %{"name" => region.nom, "insee" => region.insee, "type" => "region"} end)
+  end
+
+  def legal_owners_company(%{legal_owner_company_siren: nil}), do: []
+
+  def legal_owners_company(%{legal_owner_company_siren: legal_owner_company_siren}) do
+    [
+      %{"id" => nil, "siren" => legal_owner_company_siren, "type" => "company"}
+    ]
+  end
+
+  def offers(%DB.Dataset{} = dataset) do
+    Enum.map(dataset.offers, &Map.take(&1, @offers_columns))
   end
 
   def prepare_datasets_index_data do
@@ -364,12 +366,9 @@ defmodule TransportWeb.API.DatasetController do
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
-      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d], [
-        :aom,
-        :region,
-        :communes,
+      |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d],
         resources: {r, dataset: d, resource_history: {rh, validations: {mv, metadata: m}}}
-      ])
+      )
       |> Repo.all(timeout: 40_000)
 
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()

@@ -7,7 +7,7 @@ defmodule Unlock.SharedTest do
     on_exit(fn -> Cachex.clear(cache_name()) end)
   end
 
-  defp cache_put(key, ttl \\ nil), do: Cachex.put!(cache_name(), key, 42, ttl: ttl)
+  defp cache_put(key, ttl \\ nil), do: Cachex.put!(cache_name(), key, 42, expire: ttl)
 
   test "cache_key" do
     assert "resource:foo" == cache_key("foo")

@@ -41,13 +41,18 @@ defmodule TransportWeb.Live.NotificationsLive do
   @impl true
   def mount(
         _params,
-        %{"current_user" => current_user, "locale" => locale, "token" => token, "role" => :producer = role},
+        %{
+          "current_user" => current_user,
+          "locale" => locale,
+          "datagouv_token" => datagouv_token,
+          "role" => :producer = role
+        },
         socket
       ) do
     Gettext.put_locale(locale)
 
     {socket, datasets, current_contact, subscriptions} =
-      case DB.Dataset.datasets_for_user(token) do
+      case DB.Dataset.datasets_for_user(datagouv_token) do
         datasets when is_list(datasets) ->
           current_contact = DB.Repo.get_by!(DB.Contact, datagouv_user_id: current_user["id"])
           subscriptions = notification_subscriptions_for_datasets(datasets, current_contact, :producer)

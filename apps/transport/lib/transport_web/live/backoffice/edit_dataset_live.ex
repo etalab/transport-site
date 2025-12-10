@@ -41,6 +41,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:trigger_submit, false)
       |> assign(:form_params, form_params(dataset))
       |> assign(:custom_tags, get_custom_tags(dataset))
+      |> assign(:offers, get_offers(dataset))
       |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
       |> assign(:matches, [])
 
@@ -48,15 +49,10 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def form_params(%DB.Dataset{} = dataset) do
-    insee = if is_nil(dataset.aom), do: "", else: dataset.aom.insee_commune_principale
-
     %{
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
-      "legal_owner_company_siren" => dataset.legal_owner_company_siren,
-      "national_dataset" => dataset.region_id == 14,
-      "insee" => insee,
-      "associated_territory_name" => dataset.associated_territory_name
+      "legal_owner_company_siren" => dataset.legal_owner_company_siren
     }
     |> to_form()
   end
@@ -65,10 +61,7 @@ defmodule TransportWeb.EditDatasetLive do
     %{
       "url" => "",
       "custom_title" => "",
-      "legal_owner_company_siren" => "",
-      "national_dataset" => "",
-      "insee" => "",
-      "associated_territory_name" => ""
+      "legal_owner_company_siren" => ""
     }
     |> to_form()
   end
@@ -93,6 +86,12 @@ defmodule TransportWeb.EditDatasetLive do
 
   def get_custom_tags(_), do: []
 
+  def get_offers(%DB.Dataset{} = dataset) do
+    Enum.map(dataset.offers, &TransportWeb.OfferSelectLive.serialize/1)
+  end
+
+  def get_offers(_), do: []
+
   def get_declarative_spatial_areas(%Dataset{} = dataset) do
     dataset.declarative_spatial_areas || []
   end
@@ -105,8 +104,7 @@ defmodule TransportWeb.EditDatasetLive do
       "Réseau",
       "Opérateur de transport",
       "Partenariat régional",
-      "Fournisseur de système",
-      "Autre"
+      "Fournisseur de système"
     ]
 
   def handle_event(
@@ -160,6 +158,17 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_info({:updated_custom_tags, custom_tags}, socket) do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
+  end
+
+  def handle_info({:updated_offers, offers}, socket) do
+    new_aoms =
+      offers
+      |> Enum.reject(&is_nil(&1.aom_id))
+      |> Enum.map(&%{id: &1.aom_id, type: "aom", label: &1.nom_aom})
+
+    legal_owners = (socket.assigns.legal_owners ++ new_aoms) |> Enum.uniq()
+
+    {:noreply, socket |> assign(:offers, offers) |> assign(:legal_owners, legal_owners)}
   end
 
   def handle_info({:updated_spatial_areas, updated_spatial_areas}, socket) do

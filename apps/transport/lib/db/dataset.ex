@@ -6,7 +6,7 @@ defmodule DB.Dataset do
   There are also trigger on update on aom and region that will force an update on this model
   so the search vector is up-to-date.
   """
-  alias DB.{AOM, Commune, LogsImport, NotificationSubscription, Region, Repo, Resource}
+  alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
   use Gettext, backend: TransportWeb.Gettext
@@ -62,9 +62,6 @@ defmodule DB.Dataset do
 
     timestamps(type: :utc_datetime_usec)
 
-    # When the dataset is linked to some cities
-    many_to_many(:communes, Commune, join_through: "dataset_communes", on_replace: :delete)
-
     many_to_many(:legal_owners_aom, AOM,
       join_through: "dataset_aom_legal_owner",
       on_replace: :delete
@@ -74,6 +71,8 @@ defmodule DB.Dataset do
       join_through: "dataset_region_legal_owner",
       on_replace: :delete
     )
+
+    many_to_many(:offers, DB.Offer, join_through: "dataset_offer", on_replace: :delete)
 
     # This links the dataset to one or more `DB.AdministrativeDivision`. The x/y data
     # contained within the dataset's resources should more or less be consistent with
@@ -87,28 +86,13 @@ defmodule DB.Dataset do
     )
 
     field(:legal_owner_company_siren, :string)
+    field(:search_payload, :map)
 
     has_many(:resources, Resource, on_replace: :delete, on_delete: :delete_all)
     has_many(:logs_import, LogsImport, on_replace: :delete, on_delete: :delete_all)
     has_many(:notification_subscriptions, NotificationSubscription, on_delete: :delete_all)
     has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
-
-    # Deprecation notice: datasets won't be linked to region and aom like that in the future
-    # ⬇️⬇️⬇️
-
-    # A Dataset can be linked to *either*:
-    # - a Region (and there is a special Region 'national' that represents the national datasets);
-    # - an AOM;
-    # - or a list of cities.
-    belongs_to(:region, Region)
-    belongs_to(:aom, AOM)
     belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
-
-    # we ask in the backoffice for a name to display
-    # (used in the long title of a dataset and to find the associated datasets)
-    field(:associated_territory_name, :string)
-
-    field(:search_payload, :map)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
   end
 
@@ -314,7 +298,6 @@ defmodule DB.Dataset do
   defp filter_by_category(query, %{"filter" => filter_key}) do
     case filter_key do
       "has_realtime" -> where(query, [d], d.has_realtime == true)
-      "urban_public_transport" -> where(query, [d], not is_nil(d.aom_id) and d.type == "public-transit")
       _ -> query
     end
   end
@@ -496,6 +479,14 @@ defmodule DB.Dataset do
 
   defp filter_by_commune(query, _), do: query
 
+  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
+    |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
+  end
+
+  defp filter_by_offer(query, _), do: query
+
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
     do: where(query, [d], d.licence in @licences_ouvertes)
@@ -535,6 +526,7 @@ defmodule DB.Dataset do
       |> filter_by_organization(params)
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
+      |> filter_by_offer(params)
       |> select([dataset: d], d.id)
       |> where([dataset: d], is_nil(d.archived_at))
 
@@ -599,27 +591,23 @@ defmodule DB.Dataset do
   end
 
   defp apply_changeset(%__MODULE__{} = dataset, params) do
-    territory_name = Map.get(params, "associated_territory_name") || dataset.associated_territory_name
-
     dataset =
       dataset
-      |> Repo.preload([
+      |> DB.Repo.preload([
         :legal_owners_aom,
         :legal_owners_region,
-        :declarative_spatial_areas
+        :declarative_spatial_areas,
+        :offers,
+        :resources,
+        :organization_object
       ])
 
     legal_owners_aom = get_legal_owners_aom(dataset, params)
     legal_owners_region = get_legal_owners_region(dataset, params)
     declarative_spatial_areas = get_administrative_divisions(dataset, params)
+    offers = get_offers(dataset, params)
 
     dataset
-    |> Repo.preload([
-      :resources,
-      :communes,
-      :region,
-      :organization_object
-    ])
     |> cast(params, [
       :datagouv_id,
       :custom_title,
@@ -635,10 +623,8 @@ defmodule DB.Dataset do
       :tags,
       :datagouv_title,
       :type,
-      :region_id,
       :nb_reuses,
       :is_active,
-      :associated_territory_name,
       :latest_data_gouv_comment_timestamp,
       :archived_at,
       :custom_tags,
@@ -649,12 +635,8 @@ defmodule DB.Dataset do
       :organization_id
     ])
     |> update_change(:custom_title, &String.trim/1)
-    |> cast_aom(params)
-    |> cast_datagouv_zone(params, territory_name)
-    |> cast_nation_dataset(params)
     |> cast_assoc(:resources)
     |> validate_siren()
-    |> validate_territory_mutual_exclusion()
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
@@ -665,6 +647,7 @@ defmodule DB.Dataset do
     |> put_assoc(:legal_owners_aom, legal_owners_aom)
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
+    |> put_assoc(:offers, offers)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -755,6 +738,20 @@ defmodule DB.Dataset do
     end
   end
 
+  defp get_offers(dataset, params) do
+    case params["offers"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.offers) do
+          dataset.offers
+        else
+          []
+        end
+
+      ids ->
+        Repo.all(from(o in DB.Offer, where: o.id in ^ids))
+    end
+  end
+
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
@@ -782,8 +779,8 @@ defmodule DB.Dataset do
   @spec count_coach() :: number()
   def count_coach do
     count_by_mode_query("bus")
-    # 14 is the national "region". It means that it is not bound to a region or local territory
-    |> where([dataset: d], d.region_id == 14)
+    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
+    |> where([administrative_divison: ad], ad.type == :pays and ad.insee == "FR")
     |> DB.Repo.aggregate(:count, :id)
   end
 
@@ -821,6 +818,7 @@ defmodule DB.Dataset do
     |> where(slug: ^slug)
     |> preload([
       :declarative_spatial_areas,
+      offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()
@@ -829,19 +827,6 @@ defmodule DB.Dataset do
       nil -> {:error, "Dataset with slug #{slug} not found"}
       dataset -> {:ok, dataset}
     end
-  end
-
-  @spec get_other_datasets(__MODULE__.t()) :: [__MODULE__.t()]
-  def get_other_datasets(%__MODULE__{declarative_spatial_areas: []}), do: []
-
-  def get_other_datasets(%__MODULE__{id: id, declarative_spatial_areas: declarative_spatial_areas}) do
-    %DB.AdministrativeDivision{id: target_id} = declarative_spatial_areas |> DB.AdministrativeDivision.sorted() |> hd()
-
-    __MODULE__.base_query()
-    |> join(:inner, [dataset: d], r in assoc(d, :declarative_spatial_areas), as: :administrative_divison)
-    |> where([dataset: d], d.id != ^id)
-    |> where([administrative_divison: ad], ad.id == ^target_id)
-    |> DB.Repo.all()
   end
 
   @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
@@ -942,7 +927,7 @@ defmodule DB.Dataset do
     target_formats = target_conversion_formats(dataset)
     # The filler's purpose is to make sure we have a {conversion_format, nil} value
     # for every resource, even if we don't have a conversion
-    filler = Enum.into(available_conversion_formats(), %{}, &{&1, nil})
+    filler = Enum.into(DB.DataConversion.available_conversion_formats(), %{}, &{&1, nil})
     resource_ids = Enum.map(resources, & &1.id)
 
     results =
@@ -987,10 +972,8 @@ defmodule DB.Dataset do
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{}) do
-    available_conversion_formats()
+    DB.DataConversion.available_conversion_formats()
   end
-
-  defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do
@@ -1006,34 +989,6 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec validate_territory_mutual_exclusion(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp validate_territory_mutual_exclusion(changeset) do
-    has_cities =
-      changeset
-      |> get_field(:communes)
-      |> length
-      |> Kernel.min(1)
-
-    other_fields =
-      [:region_id, :aom_id]
-      |> Enum.map(fn f -> get_field(changeset, f) end)
-      |> Enum.count(fn f -> f not in ["", nil] end)
-
-    fields = other_fields + has_cities
-
-    case fields do
-      1 ->
-        changeset
-
-      _ ->
-        add_error(
-          changeset,
-          :region,
-          dgettext("db-dataset", "You need to fill either aom, region or use datagouv's zone")
-        )
-    end
-  end
-
   @spec validate_organization_type(Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_organization_type(changeset) do
     changeset
@@ -1044,72 +999,6 @@ defmodule DB.Dataset do
       true -> changeset
       false -> changeset |> add_error(:organization_type, dgettext("db-dataset", "Organization type is invalid"))
     end
-  end
-
-  @spec cast_aom(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_aom(changeset, %{"insee" => insee}) when insee in [nil, ""], do: change(changeset, aom_id: nil)
-
-  defp cast_aom(changeset, %{"insee" => insee}) do
-    Commune
-    |> preload([:aom_res])
-    |> Repo.get_by(insee: insee)
-    |> case do
-      nil ->
-        add_error(changeset, :aom_id, dgettext("db-dataset", "Unable to find INSEE code '%{insee}'", insee: insee))
-
-      commune ->
-        case commune.aom_res do
-          nil ->
-            add_error(
-              changeset,
-              :aom_id,
-              dgettext("db-dataset", "INSEE code '%{insee}' not associated with an AOM", insee: insee)
-            )
-
-          aom_res ->
-            change(changeset, aom_id: aom_res.id)
-        end
-    end
-  end
-
-  defp cast_aom(changeset, _), do: changeset
-
-  @spec cast_nation_dataset(Ecto.Changeset.t(), map()) :: Ecto.Changeset.t()
-  defp cast_nation_dataset(changeset, %{"national_dataset" => "true"}) do
-    if is_nil(get_field(changeset, :region_id)) do
-      national =
-        Region
-        |> where([r], r.nom == "National")
-        |> Repo.one!()
-
-      put_change(changeset, :region_id, national.id)
-    else
-      add_error(changeset, :region, dgettext("db-dataset", "A dataset cannot be national and regional"))
-    end
-  end
-
-  defp cast_nation_dataset(changeset, _), do: changeset
-
-  @spec cast_datagouv_zone(Ecto.Changeset.t(), map(), binary()) :: Ecto.Changeset.t()
-  defp cast_datagouv_zone(changeset, _, nil) do
-    changeset
-    |> put_assoc(:communes, [])
-  end
-
-  defp cast_datagouv_zone(changeset, _, "") do
-    changeset
-    |> put_assoc(:communes, [])
-  end
-
-  # We’ll only cast datagouv zone if there is something written in the associated territory name in the backoffice
-  defp cast_datagouv_zone(changeset, %{"zones" => zones_insee}, _associated_territory_name) do
-    communes =
-      Commune
-      |> where([c], c.insee in ^zones_insee)
-      |> Repo.all()
-
-    changeset
-    |> put_assoc(:communes, communes)
   end
 
   defp maybe_overwrite_licence(%Ecto.Changeset{} = changeset) do
@@ -1146,7 +1035,7 @@ defmodule DB.Dataset do
     |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
     |> where([r], r.dataset_id == ^dataset_id)
     |> group_by([r, rh], [r.id, rh.resource_id])
-    |> select([r, rh], {r.id, count(rh.id), max(fragment("payload ->>'download_datetime'"))})
+    |> select([r, rh], {r.id, count(rh.id), max(rh.inserted_at)})
     |> DB.Repo.all()
     |> Enum.map(fn {id, count, updated_at} ->
       case count do
@@ -1154,8 +1043,7 @@ defmodule DB.Dataset do
           {id, nil}
 
         _ ->
-          {:ok, datetime_updated_at, 0} = updated_at |> DateTime.from_iso8601()
-          {id, datetime_updated_at}
+          {id, updated_at}
       end
     end)
     |> Enum.into(%{})

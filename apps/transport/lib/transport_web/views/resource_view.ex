@@ -85,6 +85,8 @@ defmodule TransportWeb.ResourceView do
     Enum.take(errors, max_display_errors())
   end
 
+  def errors_sample(_), do: []
+
   def max_display_errors, do: 50
 
   def hours_ago(utcdatetime, locale) do
@@ -141,6 +143,8 @@ defmodule TransportWeb.ResourceView do
   def gtfs_rt_validator_rule_url(%{"error_id" => error_id}) do
     "https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md##{error_id}"
   end
+
+  def mobilitydata_gtfs_validator_url, do: "https://gtfs-validator.mobilitydata.org"
 
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do
     type =
@@ -321,7 +325,7 @@ defmodule TransportWeb.ResourceView do
     ~H"""
     <ul class="summary">
       <.netex_errors_category
-        :for={{category, stats} <- @validation_summary}
+        :for={%{"category" => category, "stats" => stats} <- @validation_summary}
         conn={@conn}
         results_adapter={@results_adapter}
         category={category}
@@ -357,15 +361,15 @@ defmodule TransportWeb.ResourceView do
   defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
     ~H"""
     <li>
-      <.validity_icon errors={@stats[:count]} />
+      <.validity_icon errors={@stats["count"]} />
       <div class="selector">
-        <%= compatibility_filter(@conn, @category, @token, @stats[:count]) %>
-        <.stats :if={@stats[:count] > 0} stats={@stats} results_adapter={@results_adapter} />
+        <%= compatibility_filter(@conn, @category, @token, @stats["count"]) %>
+        <.stats :if={@stats["count"] > 0} stats={@stats} results_adapter={@results_adapter} />
       </div>
       <p :if={netex_category_description(@category)}>
         <%= netex_category_description(@category) %>
       </p>
-      <.category_hints :if={netex_category_hints(@category) && @stats[:count] > 0} category={@category} />
+      <.category_hints :if={netex_category_hints(@category) && @stats["count"] > 0} category={@category} />
     </li>
     """
   end
@@ -379,7 +383,7 @@ defmodule TransportWeb.ResourceView do
 
   defp stats(%{stats: _, results_adapter: _} = assigns) do
     ~H"""
-    (<%= @results_adapter.format_severity(@stats[:criticity], @stats[:count]) %>)
+    (<%= @results_adapter.format_severity(@stats["criticity"], @stats["count"]) %>)
     """
   end
 
@@ -437,4 +441,14 @@ defmodule TransportWeb.ResourceView do
   defp drop_empty_query_params(query_params) do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)
   end
+
+  def error_label(severity) do
+    case severity do
+      "ERROR" -> "❌ " <> dgettext("validations", "Errors")
+      "WARNING" -> "⚠️ " <> dgettext("validations", "Warnings")
+      "INFO" -> "ℹ️ " <> dgettext("validations", "Information")
+    end
+  end
+
+  def markdown(text), do: TransportWeb.MarkdownHandler.markdown_to_safe_html!(text)
 end

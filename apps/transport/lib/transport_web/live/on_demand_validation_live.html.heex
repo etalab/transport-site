@@ -7,7 +7,10 @@
       <h2><%= dgettext("validations", "Validation results") %></h2>
       <p>
         <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: @current_url) %>.
+        <%= link(dgettext("validations", "this permanent link"), to: @current_url) %>
+        <%= dgettext("validations", "during %{retention_days} days",
+          retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
+        ) %>.
       </p>
       <%= if is_final_state do %>
         <p class="small">
@@ -23,7 +26,9 @@
     <div class="container">
       <div class="panel">
         <%= if oban_args["state"] == "waiting" do %>
-          <p><%= dgettext("validations", "Validation in progress. This page will be updated automatically.") %></p>
+          <div class="loader_container">
+            <div class="loader"></div>
+          </div>
         <% end %>
 
         <%= if oban_args["state"] == "error" do %>
@@ -33,6 +38,15 @@
         <% end %>
 
         <%= if oban_args["state"] == "completed" do %>
+          <%= if oban_args["type"] == "gtfs-flex" do %>
+            <%= TransportWeb.ResourceView.render("_validation_report_mobilitydata_gtfs.html",
+              validation: @validation,
+              div_class: "",
+              file_url: @validation.validated_data_name,
+              locale: @locale
+            ) %>
+          <% end %>
+
           <%= if oban_args["type"] == "gtfs-rt" do %>
             <% errors = Map.fetch!(details, "errors") %>
             <% errors_error_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR")) %>

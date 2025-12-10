@@ -1,5 +1,7 @@
 defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
-  use ExUnit.Case, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Swoosh.TestAssertions
@@ -7,6 +9,7 @@ defmodule Transport.Test.Transport.Jobs.NewDatasetNotificationsJobTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   test "relevant_datasets" do

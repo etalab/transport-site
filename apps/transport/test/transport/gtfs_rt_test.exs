@@ -1,6 +1,6 @@
 defmodule Transport.GTFSRTTest do
-  alias Transport.GTFSRT
   alias TransitRealtime.{TimeRange, TranslatedString}
+  alias Transport.GTFSRT
   use ExUnit.Case, async: true
   import Mox
   import ExUnit.CaptureLog

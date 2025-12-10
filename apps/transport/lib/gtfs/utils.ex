@@ -3,8 +3,16 @@ defmodule Transport.GTFS.Utils do
   Some helpers for handling GTFS archives.
   """
 
-  def fetch_position(record, field) do
-    Map.fetch!(record, field) |> convert_text_to_float()
+  @doc """
+  iex> get_position(%{"stop_id" => ""}, "stop_lat")
+  nil
+  iex> get_position(%{"stop_lat" => "42.1337"}, "stop_lat")
+  42.1337
+  iex> get_position(%{"stop_lat" => "abcdef"}, "stop_lat")
+  nil
+  """
+  def get_position(record, field) do
+    Map.get(record, field, "") |> convert_text_to_float()
   end
 
   @doc """
@@ -22,13 +30,14 @@ defmodule Transport.GTFS.Utils do
   -12.7
   iex> convert_text_to_float("   -48.7    ")
   -48.7
+  iex> convert_text_to_float("abc")
+  nil
   """
   def convert_text_to_float(input) do
-    if input |> String.trim() != "" do
-      input |> String.trim() |> Decimal.new() |> Decimal.to_float()
-    else
+    input |> String.trim() |> Decimal.new() |> Decimal.to_float()
+  rescue
+    Decimal.Error ->
       nil
-    end
   end
 
   @doc """

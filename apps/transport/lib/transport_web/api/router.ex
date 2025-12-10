@@ -40,17 +40,16 @@ defmodule TransportWeb.API.Router do
 
     scope "/stats" do
       get("/", TransportWeb.API.StatsController, :index)
-      get("/regions", TransportWeb.API.StatsController, :regions)
       get("/vehicles-sharing", TransportWeb.API.StatsController, :vehicles_sharing)
       get("/quality", TransportWeb.API.StatsController, :quality)
     end
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
 
-    scope "/places" do
+    scope "/autocomplete" do
       pipe_through(:public_cache)
 
-      get("/", TransportWeb.API.PlacesController, :autocomplete)
+      get("/", TransportWeb.API.AutocompleteController, :autocomplete)
     end
 
     scope "/datasets" do

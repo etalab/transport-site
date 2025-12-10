@@ -42,31 +42,29 @@ defmodule TransportWeb.DatasetController do
 
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
-    with {:ok, dataset} <- Dataset.get_by_slug(slug_or_id),
-         {:ok, covered_area} <- Dataset.get_covered_area(dataset) do
-      conn
-      |> assign(:dataset, dataset)
-      |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
-      |> assign(:covered_area, covered_area)
-      |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
-      |> assign(:other_datasets, DB.Dataset.get_other_datasets(dataset))
-      |> assign(:resources_infos, resources_infos(dataset))
-      |> assign(
-        :history_resources,
-        Transport.History.Fetcher.history_resources(dataset,
-          max_records: max_nb_history_resources(),
-          preload_validations: true,
-          only_metadata: true
+    case DB.Dataset.get_by_slug(slug_or_id) do
+      {:ok, %DB.Dataset{} = dataset} ->
+        conn
+        |> assign(:dataset, dataset)
+        |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
+        |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
+        |> assign(:resources_infos, resources_infos(dataset))
+        |> assign(
+          :history_resources,
+          Transport.History.Fetcher.history_resources(dataset,
+            max_records: max_nb_history_resources(),
+            preload_validations: true,
+            only_metadata: true
+          )
         )
-      )
-      |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
-      |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
-      |> assign_scores(dataset)
-      |> assign_is_producer(dataset)
-      |> assign_follows_dataset(dataset)
-      |> put_status(if dataset.is_active, do: :ok, else: :not_found)
-      |> render("details.html")
-    else
+        |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
+        |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
+        |> assign_scores(dataset)
+        |> assign_is_producer(dataset)
+        |> assign_follows_dataset(dataset)
+        |> put_status(if dataset.is_active, do: :ok, else: :not_found)
+        |> render("details.html")
+
       {:error, msg} ->
         Logger.error("Could not fetch dataset details: #{msg}")
         redirect_to_slug_or_404(conn, slug_or_id)
@@ -140,7 +138,8 @@ defmodule TransportWeb.DatasetController do
       Transport.Validators.TableSchema,
       Transport.Validators.EXJSONSchema,
       Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
     ]
 
   def resources_infos(dataset) do
@@ -212,6 +211,10 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, DB.Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
+  def by_offer(%Plug.Conn{} = conn, params) do
+    conn |> list_datasets(params, _count_by_region = false)
+  end
+
   defp unavailabilities(%Dataset{id: id, resources: resources}) do
     Transport.Cache.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
@@ -256,8 +259,20 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload([:aom, :region, :declarative_spatial_areas])
+    |> preload_spatial_areas(params)
     |> Repo.paginate(page: config.page_number)
+  end
+
+  # pre-optimisation version kept, in order to allow side-by-side prod benchmark
+  defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
+    query |> preload([:declarative_spatial_areas])
+  end
+
+  defp preload_spatial_areas(query, _params) do
+    DB.AdministrativeDivision
+    # avoid loading `:geom` (total for `/datasets` can be several MB)
+    |> select([a], struct(a, [:type, :nom]))
+    |> then(&preload(query, declarative_spatial_areas: ^&1))
   end
 
   @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
@@ -481,6 +496,13 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
+  defp get_name(DB.Offer, identifiant_offre) do
+    DB.Offer
+    |> where([o], o.identifiant_offre == ^identifiant_offre)
+    |> select([o], o.nom_commercial)
+    |> DB.Repo.one!()
+  end
+
   defp get_name(territory, insee) do
     territory
     |> Repo.get_by(insee: insee)
@@ -568,7 +590,19 @@ defmodule TransportWeb.DatasetController do
         %{type: "EPCI", name: get_name(DB.EPCI, insee)}
       )
 
+  defp put_page_title(conn, %{"identifiant_offre" => identifiant_offre}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "transport offer"),
+          name: get_name(DB.Offer, identifiant_offre)
+        }
+      )
+
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
+    # We use the home tiles to associate the URL params to a title, see doc of the function
     TransportWeb.PageController.home_tiles(conn)
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider

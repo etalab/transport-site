@@ -13,7 +13,8 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.GBFSValidator,
                         Transport.Validators.TableSchema,
                         Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx.Validator
+                        Transport.Validators.NeTEx.Validator,
+                        Transport.Validators.MobilityDataGTFSValidator
                       ])
   plug(:assign_current_contact when action in [:details])
 
@@ -23,7 +24,8 @@ defmodule TransportWeb.ResourceController do
         not_found(conn)
 
       resource ->
-        validation = latest_validation(resource)
+        resource_history = DB.ResourceHistory.latest_resource_history(id)
+        validation = latest_validation(resource, resource_history)
 
         conn =
           conn
@@ -31,7 +33,7 @@ defmodule TransportWeb.ResourceController do
             :uptime_per_day,
             DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
           )
-          |> assign(:resource_history, DB.ResourceHistory.latest_resource_history(id))
+          |> assign(:resource_history, resource_history)
           |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
           |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
           |> assign(:latest_validations_details, latest_validations_details(resource))
@@ -39,9 +41,14 @@ defmodule TransportWeb.ResourceController do
           |> put_resource_flash(resource.dataset.is_active)
 
         cond do
-          Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource, validation)
-          Resource.netex?(resource) -> render_netex_details(conn, params, resource, validation)
-          true -> render_details(conn, resource)
+          Resource.gtfs?(resource) and Transport.Validators.GTFSTransport.mine?(validation) ->
+            render_gtfs_details(conn, params, resource, validation)
+
+          Resource.netex?(resource) ->
+            render_netex_details(conn, params, resource, validation)
+
+          true ->
+            render_details(conn, resource)
         end
     end
   end
@@ -76,7 +83,8 @@ defmodule TransportWeb.ResourceController do
       DB.MultiValidation.resource_latest_validations(
         id,
         Transport.Validators.GTFSRT,
-        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day)
+        DateTime.utc_now() |> DateTime.add(-latest_validations_nb_days(), :day),
+        include_result: true
       )
 
     nb_validations = Enum.count(validations)
@@ -135,8 +143,14 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%Resource{id: resource_id} = resource) do
-    validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+  defp latest_validation(%Resource{id: resource_id} = resource, latest_resource_history) do
+    # Swap-out the validator for GTFS-Flex
+    validators =
+      if not is_nil(latest_resource_history) and DB.ResourceHistory.gtfs_flex?(latest_resource_history) do
+        [Transport.Validators.MobilityDataGTFSValidator]
+      else
+        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+      end
 
     validator =
       cond do
@@ -144,7 +158,7 @@ defmodule TransportWeb.ResourceController do
         Enum.empty?(validators) -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator)
+    DB.MultiValidation.resource_latest_validation(resource_id, validator, include_result: true)
   end
 
   def render_details(conn, resource) do
@@ -251,9 +265,12 @@ defmodule TransportWeb.ResourceController do
   they are referenced on an HTTPS page.
   """
   def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         forward_head_response(conn, resource)
 
@@ -269,9 +286,12 @@ defmodule TransportWeb.ResourceController do
   end
 
   def download(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         log_and_redirect(conn, resource)
 
@@ -301,6 +321,12 @@ defmodule TransportWeb.ResourceController do
             |> render("404.html")
         end
     end
+  end
+
+  defp get_with_dataset(resource_id) do
+    DB.Resource
+    |> DB.Repo.get(resource_id)
+    |> DB.Repo.preload(:dataset)
   end
 
   defp forward_head_response(%Plug.Conn{} = conn, %DB.Resource{} = resource) do

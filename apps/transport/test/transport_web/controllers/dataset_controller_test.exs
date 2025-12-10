@@ -28,7 +28,7 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "dataset details with a documentation resource", %{conn: conn} do
-    dataset = insert(:dataset, aom: insert(:aom, composition_res_id: 157))
+    dataset = insert(:dataset)
     resource = insert(:resource, type: "documentation", url: "https://example.com", dataset: dataset)
 
     dataset = dataset |> DB.Repo.preload(:resources)
@@ -301,58 +301,113 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show GTFS number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    dataset = insert(:dataset)
 
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "GTFS", url: "url"})
+    resource = insert(:resource, dataset: dataset, format: "GTFS", url: "url")
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+    resource_history = insert(:resource_history, resource: resource)
 
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
+    result = %{"Slow" => [%{"severity" => "Information"}]}
+    digest = Transport.Validators.GTFSTransport.digest(result)
+
+    insert(:multi_validation,
+      resource_history_id: resource_history.id,
       validator: Transport.Validators.GTFSTransport.validator_name(),
-      result: %{"Slow" => [%{"severity" => "Information"}]},
+      result: result,
+      digest: digest,
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
-    })
-
-    mock_empty_history_resources()
-
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "1 information"
-    # Dataset modes are not displayed
-    refute conn |> html_response(200) =~ "ferry"
-  end
-
-  test "show number of errors for a GBFS", %{conn: conn} do
-    dataset = insert(:dataset, %{slug: "dataset-slug"})
-
-    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
-
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
-
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
-      validator: Transport.Validators.GBFSValidator.validator_name(),
-      result: %{"errors_count" => 1},
-      metadata: %{metadata: %{}}
-    })
+    )
 
     mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-    assert conn |> html_response(200) =~ "1 erreur"
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 information"
+    # Dataset modes are not displayed
+    refute conn |> html_response(200) |> extract_resource_details() =~ "ferry"
+  end
+
+  test "show number of errors for a GBFS", %{conn: conn} do
+    dataset = insert(:dataset, slug: "dataset-slug")
+
+    resource = insert(:resource, dataset_id: dataset.id, format: "gbfs", url: "url")
+
+    %{id: resource_history_id} = insert(:resource_history, resource_id: resource.id)
+
+    result = %{"errors_count" => 1}
+    digest = Transport.Validators.GBFSValidator.digest(result)
+
+    insert(:multi_validation,
+      resource_history_id: resource_history_id,
+      validator: Transport.Validators.GBFSValidator.validator_name(),
+      result: result,
+      digest: digest,
+      metadata: %{metadata: %{}}
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+  end
+
+  test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
+    )
+
+    result = %{"Slow" => [%{"severity" => "Information"}]}
+    digest = Transport.Validators.GTFSTransport.digest(result)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: result,
+      digest: digest,
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+  end
+
+  test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+
+    insert(:multi_validation,
+      resource_history: insert(:resource_history, resource_id: resource.id),
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
   end
 
   test "GBFS with a nil validation", %{conn: conn} do
     dataset = insert(:dataset)
-    resource = insert(:resource, %{dataset_id: dataset.id, format: "gbfs", url: "url"})
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource.id})
+    resource = insert(:resource, dataset_id: dataset.id, format: "gbfs", url: "url")
+    %{id: resource_history_id} = insert(:resource_history, resource_id: resource.id)
 
-    insert(:multi_validation, %{
+    insert(:multi_validation,
       resource_history_id: resource_history_id,
       validator: Transport.Validators.GBFSValidator.validator_name(),
       result: nil,
       metadata: nil
-    })
+    )
 
     mock_empty_history_resources()
 
@@ -360,45 +415,61 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show NeTEx number of errors", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    issues = [%{"criticity" => "error"}]
 
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
+    for version <- ["0.1.0", "0.2.0", "0.2.1"] do
+      dataset = insert(:dataset)
 
-    %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+      resource = insert(:resource, dataset: dataset, format: "NeTEx", url: "url")
 
-    insert(:multi_validation, %{
-      resource_history_id: resource_history_id,
-      validator: Transport.Validators.NeTEx.Validator.validator_name(),
-      result: %{"xsd-1871" => [%{"criticity" => "error"}]},
-      metadata: %DB.ResourceMetadata{
-        metadata: %{"elapsed_seconds" => 42},
-        modes: [],
-        features: []
-      }
-    })
+      resource_history = insert(:resource_history, resource: resource)
 
-    mock_empty_history_resources()
+      result =
+        case version do
+          "0.1.0" -> %{"xsd-1871" => issues}
+          _ -> %{"xsd-schema" => issues}
+        end
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    assert conn |> html_response(200) =~ "1 erreur"
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
+      digest = results_adapter.digest(result)
+
+      insert(:multi_validation,
+        resource_history: resource_history,
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        validator_version: version,
+        result: result,
+        digest: digest,
+        metadata: %DB.ResourceMetadata{
+          metadata: %{"elapsed_seconds" => 42},
+          modes: [],
+          features: []
+        }
+      )
+
+      mock_empty_history_resources()
+
+      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+      assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+    end
   end
 
   test "don't show NeTEx number of errors if no validation", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug", aom: build(:aom)})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
 
-    %{id: resource_id} = insert(:resource, %{dataset_id: dataset_id, format: "NeTEx", url: "url"})
+    %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "NeTEx", url: "url")
 
-    insert(:resource_history, %{resource_id: resource_id})
+    insert(:resource_history, resource_id: resource_id)
 
     mock_empty_history_resources()
 
     conn = conn |> get(dataset_path(conn, :details, slug))
-    refute conn |> html_response(200) =~ "1 erreur"
+    refute conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
   end
 
   test "GTFS-RT without validation", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
-    insert(:resource, %{dataset_id: dataset_id, format: "gtfs-rt", url: "url"})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
+    insert(:resource, dataset_id: dataset_id, format: "gtfs-rt", url: "url")
 
     mock_empty_history_resources()
 
@@ -408,7 +479,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   describe "licence description" do
     test "ODbL licence with specific conditions", %{conn: conn} do
-      insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl"})
+      insert(:dataset, slug: slug = "dataset-slug", licence: "odc-odbl")
 
       mock_empty_history_resources()
 
@@ -417,7 +488,7 @@ defmodule TransportWeb.DatasetControllerTest do
     end
 
     test "ODbL licence with openstreetmap tag", %{conn: conn} do
-      insert(:dataset, %{slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"]})
+      insert(:dataset, slug: slug = "dataset-slug", licence: "odc-odbl", tags: ["openstreetmap"])
 
       mock_empty_history_resources()
 
@@ -427,7 +498,7 @@ defmodule TransportWeb.DatasetControllerTest do
     end
 
     test "licence ouverte licence", %{conn: conn} do
-      insert(:dataset, %{slug: slug = "dataset-slug", licence: "lov2"})
+      insert(:dataset, slug: slug = "dataset-slug", licence: "lov2")
 
       mock_empty_history_resources()
 
@@ -438,21 +509,21 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "does not crash when validation_performed is false", %{conn: conn} do
-    %{id: dataset_id} = insert(:dataset, %{slug: slug = "dataset-slug"})
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
 
     %{id: resource_id} =
-      insert(:resource, %{
+      insert(:resource,
         dataset_id: dataset_id,
         format: "geojson",
         schema_name: schema_name = "etalab/zfe",
         url: "https://example.com/file"
-      })
+      )
 
     Transport.Shared.Schemas.Mock
     |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     insert(:multi_validation, %{
-      resource_history: insert(:resource_history, %{resource_id: resource_id}),
+      resource_history: insert(:resource_history, resource_id: resource_id),
       validator: Transport.Validators.EXJSONSchema.validator_name(),
       result: %{"validation_performed" => false}
     })
@@ -1113,31 +1184,33 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn
-    |> get(dataset_path(conn, :details, dataset.slug))
-    |> html_response(200) =~ "Test Département, Test Commune"
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200) =~ "Test Département, Test Commune"
   end
 
-  test "dataset#details, other datasets", %{conn: conn} do
-    departement =
-      insert(:administrative_division,
-        type: :departement,
-        type_insee: "departement_76",
-        insee: "76",
-        nom: "Seine-Maritime"
-      )
-
-    dataset = insert(:dataset, declarative_spatial_areas: [departement]) |> DB.Repo.preload(:declarative_spatial_areas)
-    other_dataset = insert(:dataset, custom_title: "Foo", declarative_spatial_areas: [departement])
+  test "dataset#details, transport offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
 
     mock_empty_history_resources()
 
     assert conn
            |> get(dataset_path(conn, :details, dataset.slug))
-           |> html_response(200)
-           |> Floki.parse_document!()
-           |> Floki.find("#dataset-other-datasets")
-           |> Floki.text() == "Autres jeux de données de #{departement.nom}#{other_dataset.custom_title}"
+           |> html_response(200) =~ offer.nom_commercial
+  end
+
+  test "dataset#by_offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
+    other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+
+    content = conn |> get(dataset_path(conn, :by_offer, offer.identifiant_offre)) |> html_response(200)
+
+    assert offer.nom_commercial == dataset_page_title(content)
+    assert content =~ "offre de transport"
+    assert content =~ dataset.custom_title
+    refute content =~ other_dataset.custom_title
   end
 
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
@@ -1189,5 +1262,12 @@ defmodule TransportWeb.DatasetControllerTest do
       |> Floki.text()
 
     assert content =~ text
+  end
+
+  defp extract_resource_details(html) do
+    html
+    |> Floki.parse_document!()
+    |> Floki.find("section#dataset-resources div.ressources-list div.resource")
+    |> Floki.text()
   end
 end

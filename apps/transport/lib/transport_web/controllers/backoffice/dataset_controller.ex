@@ -35,6 +35,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
       |> transform_legal_owners_aom_to_list()
       |> transform_legal_owners_region_to_list()
       |> transform_declarative_spatial_areas_to_list()
+      |> transform_offers_to_list()
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
@@ -91,6 +92,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
       for {"declarative_spatial_area" <> _, division_id} <- form_params, do: division_id |> String.to_integer()
 
     Map.put(form_params, "declarative_spatial_areas", declarative_spatial_areas)
+  end
+
+  defp transform_offers_to_list(form_params) do
+    offers = for {"offers" <> _, offer_id} <- form_params, do: offer_id |> String.to_integer()
+    Map.put(form_params, "offers", offers)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}
@@ -161,6 +167,22 @@ defmodule TransportWeb.Backoffice.DatasetController do
       )
     )
     |> redirect_to_index()
+  end
+
+  def resource_format_override(%Plug.Conn{} = conn, params) do
+    resource = DB.Repo.get!(DB.Resource, params["resource_id"])
+    dataset = DB.Repo.get!(DB.Dataset, params["id"])
+
+    resource
+    |> Ecto.Changeset.change(%{
+      format: params["format_override"],
+      format_override: params["format_override"]
+    })
+    |> DB.Repo.update!()
+
+    conn
+    |> put_flash(:info, "Le format de la ressource a été changé")
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset.id))
   end
 
   ## Private functions

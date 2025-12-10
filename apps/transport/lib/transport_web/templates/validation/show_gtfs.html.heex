@@ -7,7 +7,10 @@
       </p>
       <p>
         <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>.
+        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
+        <%= dgettext("validations", "during %{retention_days} days",
+          retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
+        ) %>.
       </p>
     </div>
   </div>
@@ -53,12 +56,6 @@
           <% else %>
             <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>
           <% end %>
-          <p class="notification">
-            <%= dgettext(
-              "validations",
-              "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-            ) %>
-          </p>
         </div>
       </div>
     </div>

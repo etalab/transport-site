@@ -42,8 +42,7 @@ defmodule TransportWeb.SeoMetadataTest do
           nom: "Angers Métropôle",
           population: 10
         }
-      ],
-      aom: %DB.AOM{id: 4242, nom: "Angers Métropôle AOM"}
+      ]
     )
 
     Mox.stub_with(Transport.HTTPoison.Mock, HTTPoison)
@@ -82,6 +81,12 @@ defmodule TransportWeb.SeoMetadataTest do
   test "GET /datasets/commune/36044 ", %{conn: conn} do
     title = conn |> get(~p"/datasets/commune/36044") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la commune de Châteauroux"
+  end
+
+  test "GET /datasets/offer/:id", %{conn: conn} do
+    offer = insert(:offer)
+    title = conn |> get(~p"/datasets/offer/#{offer.identifiant_offre}") |> html_response(200) |> title
+    assert title =~ "Jeux de données ouverts de l&#39;offre de transport #{offer.nom_commercial}"
   end
 
   test "GET /landing-vls", %{conn: conn} do

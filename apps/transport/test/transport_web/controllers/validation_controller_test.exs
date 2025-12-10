@@ -158,6 +158,98 @@ defmodule TransportWeb.ValidationControllerTest do
              ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
+    test "with a GTFS-Flex", %{conn: conn} do
+      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
+      assert 0 == count_validations()
+
+      conn =
+        conn
+        |> post(validation_path(conn, :validate), %{
+          "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "gtfs-flex"}
+        })
+
+      assert 1 == count_validations()
+
+      assert %{
+               oban_args: %{
+                 "filename" => filename,
+                 "permanent_url" => permanent_url,
+                 "state" => "waiting",
+                 "type" => "gtfs-flex",
+                 "secret_url_token" => token
+               },
+               id: validation_id
+             } = multi_validation = DB.MultiValidation |> DB.Repo.one!() |> DB.Repo.preload(:metadata)
+
+      assert [
+               %Oban.Job{
+                 args: %{
+                   "id" => ^validation_id,
+                   "state" => "waiting",
+                   "filename" => ^filename,
+                   "permanent_url" => ^permanent_url,
+                   "type" => "gtfs-flex"
+                 }
+               }
+             ] = all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
+
+      assert permanent_url == Transport.S3.permanent_url(:on_demand_validation, filename)
+      assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
+
+      # Validation is completed, ensure that the validation's result page can be displayed
+      multi_validation
+      |> Ecto.Changeset.change(%{
+        oban_args: %{multi_validation.oban_args | "state" => "completed"},
+        digest: %{
+          "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
+          "stats" => %{"WARNING" => 1},
+          "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
+        },
+        result: %{
+          "notices" => [
+            %{
+              "code" => "unusable_trip",
+              "sampleNotices" => [%{"foo" => "bar"}],
+              "severity" => "WARNING",
+              "totalNotices" => 2
+            }
+          ],
+          "summary" => %{
+            "agencies" => [%{"name" => "Agency", "url" => "https://example.com/agency"}],
+            "counts" => %{"Stops" => 1337},
+            "feedInfo" => %{"feedServiceWindowEnd" => "2025-02-01", "feedServiceWindowStart" => "2025-01-01"},
+            "gtfsFeatures" => ["Continuous Stops", "Bike Allowed"],
+            "validatorVersion" => "4.2.0"
+          }
+        },
+        max_error: "WARNING",
+        metadata: %DB.ResourceMetadata{
+          features: ["Continuous Stops", "Bike Allowed"],
+          metadata: %{
+            "agencies" => [%{"name" => "Agency", "url" => "https://example.com/agency"}],
+            "counts" => %{"Stops" => 1337},
+            "end_date" => "2025-02-01",
+            "feedInfo" => %{"feedServiceWindowEnd" => "2025-02-01", "feedServiceWindowStart" => "2025-01-01"},
+            "start_date" => "2025-01-01"
+          }
+        }
+      })
+      |> DB.Repo.update!()
+
+      conn = conn |> get(validation_path(conn, :show, validation_id, token: token))
+      assert conn |> html_response(200) =~ "unusable_trip"
+      assert conn |> html_response(200) =~ "1 avertissement"
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :on_demand_validation,
+                 contact_id: nil,
+                 metadata: %{"type" => "gtfs-flex"}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
+    end
+
     test "with a NeTEx - 0.1.0", %{conn: conn} do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
@@ -419,6 +511,15 @@ defmodule TransportWeb.ValidationControllerTest do
       conn |> get(validation_path(conn, :show, 42)) |> html_response(404)
     end
 
+    test "with an expired validation", %{conn: conn} do
+      validation = insert(:multi_validation, oban_args: %{"state" => "completed"}, result: nil)
+
+      assert conn
+             |> get(validation_path(conn, :show, validation.id))
+             |> html_response(200) =~
+               "Ce rapport de validation est maintenant expiré. Les résultats ne sont plus accessibles."
+    end
+
     test "with an error", %{conn: conn} do
       {conn, validation} = ensure_waiting_message_is_displayed(conn, %{"state" => "waiting", "type" => "etalab/foo"})
       {:ok, view, _html} = live(conn)
@@ -560,9 +661,9 @@ defmodule TransportWeb.ValidationControllerTest do
       conn
       |> get(validation_path(conn, :show, validation.id, token: Map.fetch!(validation.oban_args, "secret_url_token")))
 
-    # Displays the waiting message
+    # The loader is displayed
     response = html_response(conn, 200)
-    assert response =~ "Validation en cours."
+    assert response =~ ~s|<div class="loader">|
 
     {conn, validation}
   end

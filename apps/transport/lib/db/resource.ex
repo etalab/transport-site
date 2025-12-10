@@ -13,6 +13,7 @@ defmodule DB.Resource do
     # The resource's real URL
     field(:url, :string)
     field(:format, :string)
+    field(:format_override, :string)
     field(:last_import, :utc_datetime_usec)
     field(:title, :string)
     field(:last_update, :utc_datetime_usec)
@@ -293,9 +294,8 @@ defmodule DB.Resource do
     resource_history_list =
       DB.ResourceHistory
       |> where([rh], rh.resource_id == ^resource_id)
-      |> where([rh], fragment("payload \\? 'download_datetime'"))
-      |> select([rh], fragment("payload ->>'download_datetime'"))
-      |> order_by([rh], desc: fragment("payload ->>'download_datetime'"))
+      |> select([rh], rh.inserted_at)
+      |> order_by([rh], desc: rh.inserted_at)
       |> limit(2)
       |> DB.Repo.all()
 
@@ -304,8 +304,7 @@ defmodule DB.Resource do
         nil
 
       _ ->
-        {:ok, updated_at, 0} = resource_history_list |> Enum.at(0) |> DateTime.from_iso8601()
-        updated_at
+        resource_history_list |> Enum.at(0)
     end
   end
 

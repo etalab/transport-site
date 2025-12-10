@@ -122,7 +122,7 @@ oban_prod_crontab = [
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
   {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
-  {"15 1 * * 0", Transport.Jobs.DatabaseVacuumJob},
+  {"15 1 * * *", Transport.Jobs.DatabaseVacuumJob},
   {"15 10 * * *", Transport.Jobs.DatabaseBackupReplicationJob},
   {"0 7 * * *", Transport.Jobs.GTFSRTMultiValidationDispatcherJob},
   {"30 7 * * *", Transport.Jobs.GBFSMultiValidationDispatcherJob},
@@ -170,7 +170,10 @@ oban_prod_crontab = [
   {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
   {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob},
   {"30 2 * * *", Transport.Jobs.IRVEConsolidationJob},
-  {"10 * * * *", Transport.Jobs.DefaultTokensJob}
+  {"10 * * * *", Transport.Jobs.DefaultTokensJob},
+  {"0 2 * * *", Transport.Jobs.CleanOnDemandValidationJob},
+  {"10 2 * * *", Transport.Jobs.CleanMultiValidationJob},
+  {"20 2 * * *", Transport.Jobs.TableSizeHistoryJob}
 ]
 
 # Make sure that all modules exist

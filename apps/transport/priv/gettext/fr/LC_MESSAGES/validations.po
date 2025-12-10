@@ -147,10 +147,6 @@ msgstr "Choisissez votre fichier"
 msgid "Last updated at %{date}."
 msgstr "Dernière mise à jour %{date}."
 
-#, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
-msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validation results"
 msgstr "Rapport de validation"
@@ -311,10 +307,6 @@ msgid "Shapes present in the GTFS have been ignored, some rules are not enforced
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
 #, elixir-autogen, elixir-format
-msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-msgstr "Veuillez noter que notre validateur GTFS n'est pas en mesure de valider les extensions Flex et Fares v2 pour le moment."
-
-#, elixir-autogen, elixir-format
 msgid "calendar span by network:"
 msgstr "couverture calendaire par réseau :"
 
@@ -391,13 +383,33 @@ msgid "netex-french-profile-partial-compliance"
 msgstr "Nous ne vérifions que partiellement la conformité à la structure et aux spécificités du <a href=\"https://normes.transport.data.gouv.fr/\">profil France</a>."
 
 #, elixir-autogen, elixir-format
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\">Canonical GTFS Schedule Validator from MobilityData</a>."
-msgstr "Ce fichier contient l'extension GTFS-Flex. Nous ne sommes pas en mesure de le valider pour le moment. Vous pouvez le valider avec le <a href=\"%{url}\" target=\"_blank\">validateur GTFS canonique de MobilityData</a>."
-
-#, elixir-autogen, elixir-format
 msgid "French profile"
 msgstr "Profil France"
 
 #, elixir-autogen, elixir-format
 msgid "french-profile-description"
 msgstr "Ensemble de règles spécifiques au <a href=\"https://normes.transport.data.gouv.fr\" target=\"_blank\">profil France</a>."
+
+#, elixir-autogen, elixir-format
+msgid "during %{retention_days} days"
+msgstr "pendant %{retention_days} jours"
+
+#, elixir-autogen, elixir-format
+msgid "This validation is now expired. Results cannot be accessed anymore."
+msgstr "Ce rapport de validation est maintenant expiré. Les résultats ne sont plus accessibles."
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgstr "Information"
+
+#, elixir-autogen, elixir-format
+msgid "Relevant files"
+msgstr "Fichiers pertinents"
+
+#, elixir-autogen, elixir-format
+msgid "Relevant links"
+msgstr "Liens pertinents"
+
+#, elixir-autogen, elixir-format
+msgid "Canonical GTFS Schedule Validator"
+msgstr "le validateur GTFS canonique"

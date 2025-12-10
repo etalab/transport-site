@@ -79,30 +79,6 @@ msgid "Edit a dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Choose one"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Dataset linked to a list of cities in data.gouv.fr"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Dataset linked to a region"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Dataset linked to an AOM"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Name of the associtated territory (used in the title of the dataset)"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "National dataset"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "GTFS with fatal failure"
 msgstr ""
 
@@ -309,13 +285,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, elixir-autogen, elixir-format
-msgid "Spatial area (legacy)"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Spatial area (new)"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "spatial areas label"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Offers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area"
 msgstr ""

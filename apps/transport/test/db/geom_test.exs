@@ -2,9 +2,17 @@ defmodule DB.GeomTest do
   @moduledoc """
   Tests on geom fields
   """
-  use DB.DatabaseCase, cleanup: [:datasets]
-
+  use ExUnit.Case, async: true
   import Ecto.Query
+  import DB.Factory
+
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    insert(:region)
+    insert(:aom)
+    insert(:commune)
+    :ok
+  end
 
   # NOTE: we could add DB.DatasetGeographicView here, but we lack an example record
   @modules [DB.Region, DB.AOM, DB.Commune]
@@ -33,12 +41,12 @@ defmodule DB.GeomTest do
              ]
 
       # update the record (geo_postgis should serialize as needed)
-      instance
-      |> Ecto.Changeset.change(%{geom: geom})
-      |> DB.Repo.update!()
+      instance =
+        instance
+        |> Ecto.Changeset.change(%{geom: geom})
+        |> DB.Repo.update!(returning: true)
 
       # reload after save, just unserialize as needed, and leave unchanged
-      instance = DB.Repo.get!(unquote(tested_module), instance.id)
       assert instance.geom == geom
     end
   end)

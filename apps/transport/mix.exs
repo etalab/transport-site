@@ -77,7 +77,7 @@ defmodule Transport.Mixfile do
       {:scrivener, "~> 2.5"},
       {:finch, "~> 0.8"},
       {:yaml_elixir, "~> 2.7"},
-      {:cachex, "~> 3.5"},
+      {:cachex, "~> 4.1"},
       {:saxy, "~> 1.5"},
       # `scrivener_html` seems to be unmaintained!
       # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499

@@ -1,7 +1,7 @@
 defmodule Transport.CommentsCheckerTest do
   use ExUnit.Case, async: false
-  alias Transport.CommentsChecker
   alias DB.{Dataset, Repo}
+  alias Transport.CommentsChecker
   import DB.Factory
   import Mock
   import Mox
@@ -10,6 +10,7 @@ defmodule Transport.CommentsCheckerTest do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   def assert_dataset_ts(id, timestamp) do

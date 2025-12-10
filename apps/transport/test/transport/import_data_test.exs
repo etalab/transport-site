@@ -24,10 +24,6 @@ defmodule Transport.ImportDataTest do
     :ok
   end
 
-  def insert_national_dataset(datagouv_id) do
-    insert(:dataset, datagouv_id: datagouv_id, aom: nil, region_id: DB.Repo.get_by!(DB.Region, nom: "National").id)
-  end
-
   def http_get_mock_200(datagouv_id, payload \\ nil) do
     fn url, [], hackney: [follow_redirect: true] ->
       base_url = Application.fetch_env!(:transport, :datagouvfr_site)
@@ -88,7 +84,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "hello world des imports" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -115,7 +111,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "import fails when datagouv responds a 404" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -135,7 +131,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "what happens with resources when a dataset is reimported multiple times" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -223,7 +219,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "handle resource deletion" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -264,7 +260,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "handle resource recycling" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
 
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
@@ -379,7 +375,7 @@ defmodule Transport.ImportDataTest do
   end
 
   test "import dataset with a community resource" do
-    insert_national_dataset(datagouv_id = "dataset1_id")
+    insert(:dataset, datagouv_id: datagouv_id = "dataset1_id")
     assert db_count(DB.Dataset) == 1
     assert db_count(DB.Resource) == 0
 
@@ -509,47 +505,27 @@ defmodule Transport.ImportDataTest do
              ] =
                ImportData.get_resources(dataset, "road-data")
     end
-  end
 
-  describe "read_datagouv_zone" do
-    test "for a commune" do
-      # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:commune:38185/
-      assert ["38185"] ==
-               ImportData.read_datagouv_zone(%{
-                 "features" => [
-                   %{
-                     "id" => "fr:commune:38185",
-                     "properties" => %{
-                       "code" => "38185",
-                       "level" => "fr:commune",
-                       "name" => "Grenoble",
-                       "slug" => "Grenoble",
-                       "uri" => "http://id.insee.fr/geo/commune/f71595ba-1957-416a-83c2-c7f677a91ca4"
-                     }
-                   }
-                 ]
-               })
-    end
+    test "can override the format" do
+      insert(:resource,
+        format_override: override = "SIRI Lite",
+        datagouv_id: datagouv_id = Ecto.UUID.generate(),
+        dataset: insert(:dataset, datagouv_id: dataset_datagouv_id = Ecto.UUID.generate())
+      )
 
-    test "for an EPCI" do
-      epci = insert(:epci, insee: "242320109", nom: "Le Pays Dunois")
-      commune = insert(:commune, epci_insee: "242320109")
-      # Example: https://www.data.gouv.fr/api/1/spatial/zones/fr:epci:242320109/
-      assert [commune.insee] ==
-               ImportData.read_datagouv_zone(%{
-                 "features" => [
-                   %{
-                     "id" => "fr:epci:#{epci.insee}",
-                     "properties" => %{
-                       "code" => epci.insee,
-                       "level" => "fr:epci",
-                       "name" => epci.nom,
-                       "slug" => "Le-Pays-Dunois",
-                       "uri" => "http://id.insee.fr/geo/intercommunalite/882b7908-51cf-401d-b0db-ae6ad708b670"
-                     }
-                   }
-                 ]
-               })
+      dataset = %{
+        "id" => dataset_datagouv_id,
+        "resources" => [
+          generate_resource_payload(id: datagouv_id, format: "gtfs")
+        ]
+      }
+
+      Datagouvfr.Client.CommunityResources.Mock |> expect(:get, fn _ -> {:ok, []} end)
+
+      assert [
+               %{"format" => ^override, "type" => "main", "datagouv_id" => ^datagouv_id}
+             ] =
+               ImportData.get_resources(dataset, "public-transit")
     end
   end
 end

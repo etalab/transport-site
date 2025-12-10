@@ -45,10 +45,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     aoms = DB.AOM |> select([aom], %{label: aom.nom, type: "aom", id: aom.id})
     regions = DB.Region |> select([r], %{label: r.nom, type: "region", id: r.id})
 
-    owners_list =
-      aoms
-      |> union_all(^regions)
-      |> DB.Repo.all()
+    owners_list = aoms |> union_all(^regions) |> DB.Repo.all()
 
     {:ok, socket |> assign(assigns) |> assign(:owners_list, owners_list)}
   end

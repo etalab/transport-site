@@ -273,21 +273,19 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
-  defmodule AOMShortRef do
+  defmodule Offer do
     @moduledoc false
     require OpenApiSpex
 
     OpenApiSpex.schema(%{
-      title: "AOMShortRef",
-      description:
-        "AOM object, as embedded in datasets (short version - DEPRECATED, only there for retrocompatibility, use covered_area instead)",
+      title: "Offer",
+      description: "A transport offer",
       type: :object,
-      required: [:name],
       properties: %{
-        # nullable because we saw it null in actual production data
-        # probably exactly what's described in https://github.com/etalab/transport-site/issues/3422
-        siren: %Schema{type: :string, nullable: true},
-        name: %Schema{type: :string, nullable: true}
+        nom_commercial: %Schema{type: :string, nullable: false},
+        identifiant_offre: %Schema{type: :integer, nullable: false},
+        type_transport: %Schema{type: :string, nullable: false},
+        nom_aom: %Schema{type: :string, nullable: false}
       },
       additionalProperties: false
     })
@@ -301,10 +299,11 @@ defmodule TransportWeb.API.Schemas do
       title: "AOM",
       description: "AOM object, as used in covered area and legal owners",
       type: :object,
-      required: [:name, :siren],
+      required: [:name, :siren, :type],
       properties: %{
         name: %Schema{type: :string},
-        siren: %Schema{type: :string}
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["aom"]}
       },
       additionalProperties: false
     })
@@ -318,10 +317,28 @@ defmodule TransportWeb.API.Schemas do
       title: "Region",
       description: "Region object",
       type: :object,
-      required: [:name, :insee],
+      required: [:name, :insee, :type],
       properties: %{
         name: %Schema{type: :string},
-        insee: %Schema{type: :string}
+        insee: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["region"]}
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule Company do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Company",
+      description: "Company object",
+      type: :object,
+      required: [:siren, :type],
+      properties: %{
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["company"]}
       },
       additionalProperties: false
     })
@@ -387,17 +404,13 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "LegalOwners",
-      type: :object,
-      properties: %{
-        aoms: %Schema{
-          type: :array,
-          items: AOM.schema()
-        },
-        regions: %Schema{
-          type: :array,
-          items: Region.schema()
-        },
-        company: %Schema{type: :string, nullable: true}
+      type: :array,
+      items: %Schema{
+        anyOf: [
+          AOM.schema(),
+          Region.schema(),
+          Company.schema()
+        ]
       },
       additionalProperties: false
     })
@@ -710,8 +723,6 @@ defmodule TransportWeb.API.Schemas do
           format: :date,
           description: "Date of creation of the dataset"
         },
-        # Obsolete, to be removed (see https://github.com/etalab/transport-site/issues/3422)
-        aom: AOMShortRef.schema(),
         resources: %Schema{
           type: :array,
           description: "All the resources associated with the dataset",
@@ -725,7 +736,17 @@ defmodule TransportWeb.API.Schemas do
           items: CommunityResource
         },
         covered_area: CoveredArea.schema(),
-        legal_owners: LegalOwners.schema()
+        legal_owners: LegalOwners.schema(),
+        tags: %Schema{
+          type: :array,
+          description: "Tags associated to the dataset, as set by the NAP team",
+          items: %Schema{type: :string}
+        },
+        offers: %Schema{
+          type: :array,
+          description: "Transport offers associated to the dataset",
+          items: Offer
+        }
       }
 
       if details do
@@ -786,9 +807,21 @@ defmodule TransportWeb.API.Schemas do
     require OpenApiSpex
 
     @properties %{
-      url: %Schema{type: :string, description: "URL of the Resource"},
-      type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
-      name: %Schema{type: :string, description: "name of the resource"}
+      url: %Schema{type: :string, description: "URL of the resource"},
+      type: %Schema{
+        type: :string,
+        description: "Type of the resource",
+        enum: [
+          "region",
+          "departement",
+          "epci",
+          "commune",
+          "feature",
+          "mode",
+          "offer"
+        ]
+      },
+      name: %Schema{type: :string, description: "Name of the resource"}
     }
 
     OpenApiSpex.schema(%{

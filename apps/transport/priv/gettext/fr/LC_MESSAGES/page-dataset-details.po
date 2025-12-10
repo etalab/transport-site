@@ -235,10 +235,6 @@ msgid "dataset"
 msgstr "jeu de données"
 
 #, elixir-autogen, elixir-format
-msgid "Other datasets"
-msgstr "Autres jeux de données"
-
-#, elixir-autogen, elixir-format
 msgid "Resources"
 msgstr "Ressources"
 
@@ -417,10 +413,6 @@ msgstr "Voici un aperçu des informations de trafic présentes dans ce flux le %
 #, elixir-autogen, elixir-format
 msgid "See full payload"
 msgstr "Voir le contenu du flux"
-
-#, elixir-autogen, elixir-format
-msgid "Other datasets of %{name}"
-msgstr "Autres jeux de données de %{name}"
 
 #, elixir-autogen, elixir-format
 msgid "Could not decode the GTFS-RT feed."
@@ -725,3 +717,7 @@ msgstr "Supports tarifaires"
 #, elixir-autogen, elixir-format
 msgid "Fare products"
 msgstr "Produits tarifaires"
+
+#, elixir-autogen, elixir-format
+msgid "Transport offers"
+msgstr "Offres de transport"

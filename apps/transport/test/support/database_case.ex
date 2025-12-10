@@ -8,8 +8,8 @@ defmodule TransportWeb.DatabaseCase do
 
   using(options) do
     quote do
-      alias Ecto.Adapters.SQL.Sandbox
       alias DB.{AOM, Commune, Dataset, Region, Repo}
+      alias Ecto.Adapters.SQL.Sandbox
 
       import Ecto
       import Ecto.Query
@@ -39,60 +39,52 @@ defmodule TransportWeb.DatabaseCase do
           insee_commune_principale: "53130",
           nom: "Laval",
           region: Repo.get_by(Region, nom: "Pays de la Loire"),
-          population: 42,
-          composition_res_id: 1
+          population: 42
         })
 
         Repo.insert(%AOM{
           insee_commune_principale: "38185",
           nom: "Grenoble",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          population: 43,
-          composition_res_id: 2
+          population: 43
         })
 
         Repo.insert(%AOM{
           insee_commune_principale: "36044",
           nom: "Châteauroux",
           region: Repo.get_by(Region, nom: "Auvergne-Rhône-Alpes"),
-          population: 44,
-          composition_res_id: 3
+          population: 44
         })
 
         Repo.insert(%Commune{
           insee: "38185",
           nom: "Grenoble",
-          surf_ha: 200_554.0,
-          aom_res_id: 2
+          surf_ha: 200_554.0
         })
 
         Repo.insert(%Commune{
           insee: "36044",
           nom: "Châteauroux",
-          surf_ha: 2554.0,
-          aom_res_id: 3
+          surf_ha: 2554.0
         })
 
         Repo.insert(%Commune{
           insee: "63096",
           nom: "Chas",
-          surf_ha: 254.0,
-          aom_res_id: 3
+          surf_ha: 254.0
         })
 
         Repo.insert(%AOM{
           insee_commune_principale: "75056",
           nom: "Île-de-France Mobilités",
           region: Repo.get_by(Region, nom: "Île-de-France"),
-          population: 45,
-          composition_res_id: 4
+          population: 45
         })
 
         Repo.insert(%Commune{
           insee: "36063",
           nom: "Déols",
-          surf_ha: 3177.0,
-          aom_res_id: 3
+          surf_ha: 3177.0
         })
 
         cleanup()

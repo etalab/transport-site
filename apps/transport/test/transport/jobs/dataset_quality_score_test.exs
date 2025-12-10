@@ -172,9 +172,20 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.ResourceHistory.gtfs_flex?(resource_history)
 
+      validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+          resource_history_id: resource_history.id
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: validation.id,
+        metadata: metadata = %{start_date: Date.utc_today() |> Date.add(-5), end_date: Date.utc_today() |> Date.add(5)}
+      )
+
       assert %{
                freshness: 1.0,
-               raw_measure: %{source: "gtfs_flex"}
+               raw_measure: ^metadata
              } = resource_freshness(resource)
     end
   end
@@ -459,6 +470,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_compliance(dataset.id)
     end
 
+    test "with a GTFS-Flex" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+        max_error: "ERROR"
+      })
+
+      assert %{
+               score: 0.0,
+               details: %{
+                 resources: [
+                   %{compliance: 0.0, raw_measure: %{"max_error" => "ERROR"}, resource_id: gtfs.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
     test "handles validation_performed = false with 2 resources" do
       dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
       schema_name = "etalab/#{Ecto.UUID.generate()}"
@@ -485,6 +516,27 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                  resources: [
                    %{compliance: nil, raw_measure: %{"validation_performed" => false}, resource_id: zip_resource.id},
                    %{compliance: 1.0, raw_measure: %{"has_errors" => false}, resource_id: geojson_resource.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
+    test "handles validation result = nil, uses the digest" do
+      dataset = insert(:dataset)
+      geojson_resource = insert(:resource, dataset: dataset, format: "geojson")
+
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: geojson_resource),
+        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        result: nil,
+        digest: %{"errors_count" => 0}
+      })
+
+      assert %{
+               score: 1.0,
+               details: %{
+                 resources: [
+                   %{compliance: 1.0, raw_measure: %{"errors_count" => 0}, resource_id: geojson_resource.id}
                  ]
                }
              } == current_dataset_compliance(dataset.id)

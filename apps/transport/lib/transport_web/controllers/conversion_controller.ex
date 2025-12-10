@@ -2,7 +2,9 @@ defmodule TransportWeb.ConversionController do
   use TransportWeb, :controller
 
   def get(%Plug.Conn{} = conn, %{"resource_id" => resource_id, "convert_to" => convert_to}) do
-    if convert_to in Ecto.Enum.dump_values(DB.DataConversion, :convert_to) do
+    acceptable_formats = DB.DataConversion.available_conversion_formats() |> Enum.map(&to_string/1)
+
+    if convert_to in acceptable_formats do
       case DB.Resource.get_related_conversion_info(resource_id, String.to_existing_atom(convert_to)) do
         nil ->
           conn |> conversion_not_found()
@@ -19,7 +21,7 @@ defmodule TransportWeb.ConversionController do
           |> redirect(external: url)
       end
     else
-      conn |> conversion_not_found("`convert_to` is not a possible value.")
+      conn |> conversion_not_found("`#{convert_to}` is not a possible value.")
     end
   end
 

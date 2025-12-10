@@ -8,7 +8,7 @@ defmodule DB.Departement do
   typed_schema "departement" do
     field(:insee, :string)
     field(:nom, :string)
-    field(:geom, Geo.PostGIS.Geometry) :: Geo.MultiPolygon.t()
+    field(:geom, Geo.PostGIS.Geometry, load_in_query: false) :: Geo.MultiPolygon.t()
     field(:zone, :string)
 
     belongs_to(:region, DB.Region, foreign_key: :region_insee, references: :insee, type: :string)

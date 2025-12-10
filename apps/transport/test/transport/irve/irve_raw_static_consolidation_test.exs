@@ -47,7 +47,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
                    "FRPAN99P12345678",
                    "station_001",
                    "Ma Station",
-                   "Lieu de ma station",
+                   "Voirie",
                    "26 rue des écluses, 17430 Champdolent",
                    "17085",
                    "1",

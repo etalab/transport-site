@@ -15,7 +15,8 @@ defmodule TransportWeb.AOMsControllerTest do
              published: false,
              in_aggregate: false,
              up_to_date: false,
-             has_realtime: false
+             has_realtime: false,
+             nb_gtfs: 0
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -25,14 +26,13 @@ defmodule TransportWeb.AOMsControllerTest do
 
     dataset =
       insert(:dataset,
-        aom: nil,
         legal_owners_aom: [aom, aom2],
         is_active: true,
         type: "public-transit",
         has_realtime: true
       )
 
-    assert is_nil(dataset.aom_id)
+    insert(:resource, format: "NeTEx", dataset: dataset)
 
     DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset)
 
@@ -41,7 +41,9 @@ defmodule TransportWeb.AOMsControllerTest do
              published: true,
              in_aggregate: true,
              up_to_date: true,
-             has_realtime: true
+             has_realtime: true,
+             nb_gtfs: 1,
+             nb_netex: 1
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -51,16 +53,14 @@ defmodule TransportWeb.AOMsControllerTest do
 
     dataset =
       insert(:dataset,
-        aom: nil,
         legal_owners_aom: [aom, aom2],
         is_active: true,
         type: "public-transit",
         has_realtime: true
       )
 
-    assert is_nil(dataset.aom_id)
-
     insert(:resource, title: "GTFS-flex TAD", dataset: dataset, format: "GTFS")
+    insert(:resource, dataset: dataset, format: "gtfs-rt")
 
     assert %{
              nom: ^nom_aom,
@@ -69,7 +69,9 @@ defmodule TransportWeb.AOMsControllerTest do
              # The controller only gets up to date information for GTFS datasets
              up_to_date: false,
              # This is a quirk that could be corrected with some effort
-             has_realtime: false
+             has_realtime: false,
+             nb_gtfs: 1,
+             nb_gtfs_rt: 1
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -85,7 +87,8 @@ defmodule TransportWeb.AOMsControllerTest do
              published: true,
              in_aggregate: false,
              up_to_date: true,
-             has_realtime: true
+             has_realtime: true,
+             nb_gtfs: 2
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -103,7 +106,8 @@ defmodule TransportWeb.AOMsControllerTest do
              published: true,
              in_aggregate: true,
              up_to_date: true,
-             has_realtime: true
+             has_realtime: true,
+             nb_gtfs: 1
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -115,7 +119,8 @@ defmodule TransportWeb.AOMsControllerTest do
              published: false,
              in_aggregate: false,
              up_to_date: false,
-             has_realtime: false
+             has_realtime: false,
+             nb_gtfs: 0
            } = TransportWeb.AOMSController.aoms() |> Enum.find(fn r -> r.nom == aom.nom end)
   end
 
@@ -128,5 +133,44 @@ defmodule TransportWeb.AOMsControllerTest do
     )
 
     assert conn |> get(aoms_path(conn, :index)) |> html_response(200) =~ aom.nom
+  end
+
+  test "can download the CSV", %{conn: conn} do
+    departement = insert(:departement, insee: "76")
+    commune = insert(:commune, nom: "Rouen", insee: "76540", departement_insee: departement.insee)
+
+    aom =
+      insert(:aom,
+        nom: "Seine-Maritime",
+        region: region = insert(:region, nom: "Normandie"),
+        insee_commune_principale: commune.insee,
+        departement_object: departement,
+        nombre_communes: 1
+      )
+
+    dataset = insert(:dataset, legal_owners_aom: [aom], is_active: true, type: "public-transit", has_realtime: true)
+
+    DB.Factory.insert_resource_and_friends(Date.utc_today() |> Date.add(10), dataset: dataset)
+
+    assert [
+             %{
+               "departement" => departement.insee,
+               "has_realtime" => "true",
+               "in_aggregate" => "false",
+               "insee_commune_principale" => aom.insee_commune_principale,
+               "nb_gtfs" => "1",
+               "nb_gtfs_rt" => "0",
+               "nb_netex" => "0",
+               "nb_siri" => "0",
+               "nb_siri_lite" => "0",
+               "nom" => aom.nom,
+               "nom_commune" => commune.nom,
+               "nombre_communes" => aom.nombre_communes |> to_string(),
+               "population" => aom.population |> to_string(),
+               "published" => "true",
+               "region" => region.nom,
+               "up_to_date" => "true"
+             }
+           ] == [conn |> get(aoms_path(conn, :csv)) |> response(200)] |> CSV.decode!(headers: true) |> Enum.to_list()
   end
 end

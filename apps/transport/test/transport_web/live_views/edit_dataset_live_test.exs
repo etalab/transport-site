@@ -1,5 +1,7 @@
 defmodule TransportWeb.EditDatasetLiveTest do
-  use TransportWeb.ConnCase, async: true
+  # The trigger refresh_dataset_geographic_view_trigger makes this test
+  # unreliable in a concurrent setup.
+  use TransportWeb.ConnCase, async: false
   import Phoenix.LiveViewTest
   import Mox
   import DB.Factory
@@ -140,7 +142,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
             type_insee: "epci_123456789",
             nom: "Mon EPCI"
           )
-        ]
+        ],
+        offers: []
       )
 
     {:ok, view, _html} =
@@ -170,7 +173,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
         legal_owners_aom: [],
         legal_owners_region: [],
         # needs to be preloaded
-        declarative_spatial_areas: []
+        declarative_spatial_areas: [],
+        offers: []
       )
 
     {:ok, view, _html} =
@@ -186,6 +190,34 @@ defmodule TransportWeb.EditDatasetLiveTest do
 
     assert render(view) =~ "Représentants légaux"
     assert render(view) =~ siren
+  end
+
+  test "dataset form, show offers saved in the database", %{conn: conn} do
+    conn = conn |> setup_admin_in_session()
+
+    dataset =
+      insert(:dataset,
+        datagouv_id: "1234",
+        offers: [insert(:offer, nom_commercial: nom_commercial = "Astuce")],
+        # needs to be preloaded
+        legal_owners_aom: [],
+        legal_owners_region: [],
+        declarative_spatial_areas: []
+      )
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.EditDatasetLive,
+        session: %{
+          "dataset" => dataset,
+          "dataset_types" => [],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
+        }
+      )
+
+    assert render(view) =~ "Offres"
+    assert render(view) =~ nom_commercial
   end
 
   test "form inputs are persisted", %{conn: conn} do

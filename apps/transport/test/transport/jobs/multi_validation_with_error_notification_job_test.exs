@@ -1,5 +1,5 @@
 defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import DB.Factory
   import Ecto.Query
@@ -10,6 +10,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   describe "relevant_validations" do
@@ -54,6 +55,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
           resource_id: gbfs.id,
           validator: Transport.Validators.GBFSValidator.validator_name(),
           result: %{"has_errors" => true},
+          inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+        })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
+      assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
+    end
+
+    test "finds the MobilityData validator" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      gtfs = insert(:resource, format: "GTFS", dataset: dataset)
+
+      %DB.MultiValidation{id: mv_id} =
+        insert(:multi_validation, %{
+          resource_history: insert(:resource_history, resource: gtfs),
+          validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+          max_error: "ERROR",
           inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
         })
 

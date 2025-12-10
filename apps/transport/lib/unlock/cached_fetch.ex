@@ -1,7 +1,7 @@
 defmodule Unlock.CachedFetch do
   @moduledoc """
   `Cachex` is used for caching. It expects caching callbacks to
-  return tuples such as `{:ignore, resp}`, `{:commit, resp, ttl: xyz}` etc
+  return tuples such as `{:ignore, resp}`, `{:commit, resp, expire: xyz}` etc
   to understand what we want it to do for us.
 
   This module `CachedFetch` groups the fetching logic for two types of items where
@@ -32,7 +32,7 @@ defmodule Unlock.CachedFetch do
       Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
       {:ignore, response}
     else
-      {:commit, response, ttl: :timer.seconds(item.ttl)}
+      {:commit, response, expire: :timer.seconds(item.ttl)}
     end
   end
 
@@ -53,7 +53,7 @@ defmodule Unlock.CachedFetch do
       Logger.warning("S3 Payload is too large (#{size} bytes > #{@max_allowed_s3_cached_byte_size}). Skipping cache.")
       {:ignore, response}
     else
-      {:commit, response, ttl: :timer.seconds(item.ttl)}
+      {:commit, response, expire: :timer.seconds(item.ttl)}
     end
   end
 end

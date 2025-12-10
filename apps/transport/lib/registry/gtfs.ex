@@ -42,8 +42,8 @@ defmodule Transport.Registry.GTFS do
   end
 
   defp handle_stop(data_source_id, record) do
-    latitude = Utils.fetch_position(record, "stop_lat")
-    longitude = Utils.fetch_position(record, "stop_lon")
+    latitude = Utils.get_position(record, "stop_lat")
+    longitude = Utils.get_position(record, "stop_lon")
 
     if latitude != nil && longitude != nil do
       [

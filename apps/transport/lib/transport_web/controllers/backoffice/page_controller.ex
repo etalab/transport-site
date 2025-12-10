@@ -165,6 +165,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:subscriptions_by_producer, subscriptions_by_producer(conn.assigns[:dataset]))
     |> assign(:reusers_count, reusers_count)
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
+    |> assign(:resource_formats, resource_formats())
     |> assign(
       :import_logs,
       LogsImport
@@ -178,15 +179,24 @@ defmodule TransportWeb.Backoffice.PageController do
   def load_dataset(dataset_id) do
     DB.Dataset
     |> preload([
-      :aom,
       :notification_subscriptions,
       [notification_subscriptions: :contact],
       [organization_object: :contacts],
       :legal_owners_aom,
       :legal_owners_region,
-      :declarative_spatial_areas
+      :declarative_spatial_areas,
+      :offers,
+      :resources
     ])
     |> Repo.get(dataset_id)
+  end
+
+  defp resource_formats do
+    DB.Resource.base_query()
+    |> select([r], r.format)
+    |> group_by([r], r.format)
+    |> order_by([r], {:desc, count(r.format)})
+    |> DB.Repo.all()
   end
 
   def subscriptions_by_producer(%DB.Dataset{} = dataset) do
@@ -253,7 +263,7 @@ defmodule TransportWeb.Backoffice.PageController do
 
     paginated_result =
       datasets
-      |> preload([:region, :aom, :resources])
+      |> preload([:resources])
       |> select([dataset: d, end_dates: ed], {d, {ed.dataset_id, ed.end_date}})
       |> Repo.paginate(page: config.page_number)
 
@@ -338,8 +348,9 @@ defmodule TransportWeb.Backoffice.PageController do
       d.type dataset_type,
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
-      coalesce(a.nom, re.nom) nom_territoire,
-      administrative_division.noms nom_territoire_new,
+      re.nom nom_region,
+      o.offre_mobilite,
+      administrative_division.noms couverture_spatiale,
       coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
@@ -360,8 +371,17 @@ defmodule TransportWeb.Backoffice.PageController do
       compliance_score.score score_conformite
     from resource r
     join dataset d on d.id = r.dataset_id
-    left join aom a on a.id = d.aom_id
-    left join region re on re.id = d.region_id
+    left join dataset_geographic_view dgv on dgv.dataset_id = d.id
+    left join region re on re.id = dgv.region_id
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(o.nom_commercial, ',' order by o.nom_commercial) offre_mobilite
+      from dataset d
+      left join dataset_offer dao on dao.dataset_id = d.id
+      left join offer o on o.id = dao.offer_id
+      group by 1
+    ) o on o.dataset_id = d.id
     left join (
       select
         rh.*,

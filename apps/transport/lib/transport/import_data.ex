@@ -4,9 +4,9 @@ defmodule Transport.ImportData do
   """
 
   alias Datagouvfr.Client.CommunityResources
+  alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
   alias Opendatasoft.UrlExtractor
-  alias DB.{Commune, Dataset, LogsImport, Repo, Resource}
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -45,10 +45,10 @@ defmodule Transport.ImportData do
     # validation is now gone, replaced by DB.MultiValidation
   end
 
-  def refresh_places do
+  def refresh_autocomplete do
     Logger.info("Refreshing places...")
-    # NOTE: I could not find a way to call "refresh_places()" directly
-    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+    # NOTE: I could not find a way to call "refresh_autocomplete()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW autocomplete;")
   end
 
   def generate_import_logs!(
@@ -105,7 +105,7 @@ defmodule Transport.ImportData do
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
-    refresh_places()
+    refresh_autocomplete()
     result
   end
 
@@ -148,7 +148,6 @@ defmodule Transport.ImportData do
       |> Map.put("nb_reuses", get_nb_reuses(data_gouv_resp))
       |> Map.put("licence", licence(data_gouv_resp))
       |> Map.put("archived_at", parse_datetime(data_gouv_resp["archived"]))
-      |> Map.put("zones", get_associated_zones_insee(data_gouv_resp))
       |> Map.put("is_active", true)
 
     case Map.get(data_gouv_resp, "resources") do
@@ -208,74 +207,6 @@ defmodule Transport.ImportData do
   def get_nb_reuses(%{"metrics" => %{"reuses" => reuses}}), do: reuses
   def get_nb_reuses(_), do: 0
 
-  @spec get_associated_zones_insee(map()) :: [binary()]
-  defp get_associated_zones_insee(%{"spatial" => %{"zones" => zones}}) do
-    zones
-    |> Enum.flat_map(&fetch_data_gouv_zone_insee/1)
-  end
-
-  defp get_associated_zones_insee(_), do: []
-
-  @spec fetch_data_gouv_zone_insee(binary()) :: [binary()]
-  defp fetch_data_gouv_zone_insee(zone) do
-    base_url = Application.fetch_env!(:transport, :datagouvfr_site)
-    url = "#{base_url}/api/1/spatial/zones/#{zone}/"
-    Logger.info("getting zone (url = #{url})")
-
-    with {:ok, response} <- HTTPoison.get(url, [], hackney: [follow_redirect: true]),
-         {:ok, json} <- Jason.decode(response.body),
-         insee <- read_datagouv_zone(json) do
-      insee
-    else
-      {:error, error} ->
-        Logger.error("Error while reading zone #{zone} (url = #{url}) : #{inspect(error)}")
-        []
-    end
-  end
-
-  @spec read_datagouv_zone(map()) :: [binary()]
-  def read_datagouv_zone(%{
-        "features" => [
-          %{
-            "properties" => %{
-              "level" => "fr:commune",
-              "code" => insee
-            }
-          }
-          | _
-        ]
-      }) do
-    [insee]
-  end
-
-  def read_datagouv_zone(%{
-        "features" => [
-          %{
-            "properties" => %{
-              "level" => "fr:epci",
-              "code" => code
-            }
-          }
-          | _
-        ]
-      }) do
-    # For the EPCI we get the list of cities contained by the EPCI
-    Commune
-    |> where([c], c.epci_insee == ^code)
-    |> select([c], c.insee)
-    |> Repo.all()
-  end
-
-  def read_datagouv_zone(%{"features" => [%{"id" => id} | _]}) do
-    Logger.info("For the moment we can only handle cities, we cannot handle the zone #{id}")
-    []
-  end
-
-  def read_datagouv_zone(z) do
-    Logger.info("invalid format we cannot handle the zone #{inspect(z)}")
-    []
-  end
-
   @spec get_resources(map(), binary()) :: [map()]
   def get_resources(dataset, type) do
     dataset
@@ -290,7 +221,7 @@ defmodule Transport.ImportData do
         resource
         |> Map.put("url", cleaned_url(resource["url"]))
 
-      format = formated_format(resource, type, is_community_resource)
+      format = Map.get(existing_resource, :format_override) || formated_format(resource, type, is_community_resource)
 
       {%{
          "url" => resource["url"],
@@ -597,6 +528,8 @@ defmodule Transport.ImportData do
   true
   iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
+  iex> siri?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring", "format" => "siri"})
+  true
   """
   @spec siri?(binary() | map() | nil) :: boolean()
   def siri?(%{} = params) do
@@ -626,10 +559,13 @@ defmodule Transport.ImportData do
   true
   iex> siri_lite?("SIRI")
   false
+  iex> siri_lite?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring"})
+  false
   """
   @spec siri_lite?(binary() | map() | nil) :: boolean()
   def siri_lite?(%{} = params) do
     cond do
+      isolated_siri_lite?(params) -> false
       ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
       siri_lite?(params["title"]) -> true
@@ -640,6 +576,19 @@ defmodule Transport.ImportData do
   end
 
   def siri_lite?(format), do: format?(format, "SIRI Lite")
+
+  @doc """
+  Identify cases when the occurence of `SIRI Lite` appears
+  way less often than SIRI.
+  """
+  def isolated_siri_lite?(%{"description" => description}) do
+    description = String.downcase(description || "")
+    count_siri_lite = Regex.scan(~r/siri( |-)lite/, description) |> length()
+    count_siri = Regex.scan(~r/siri/, description) |> length()
+    count_siri_lite < count_siri
+  end
+
+  def isolated_siri_lite?(_), do: false
 
   @doc """
   iex> ssim?("ssim")
@@ -934,7 +883,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 
@@ -942,7 +891,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 

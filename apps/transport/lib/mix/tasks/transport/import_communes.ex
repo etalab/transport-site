@@ -1,20 +1,20 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
   @moduledoc """
-  Import or updates commune data (list, geometry) from official sources. Run with `mix Transport.ImportCommunes`.
-
+  Import or updates commune data (list, geometry) from official sources.
+  Run with `WORKER=0 mix Transport.ImportCommunes`.
   """
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
   import Ecto.Query
-  alias Ecto.Changeset
   alias DB.{Commune, Region, Repo}
+  alias Ecto.Changeset
   require Logger
 
   # List of communes with their geometry, but lacking additional information
-  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2024/geojson/communes-100m.geojson"
+  @communes_geojson_url "http://etalab-datasets.geo.data.gouv.fr/contours-administratifs/2025/geojson/communes-100m.geojson"
   # List of official communes with additional information (population, arrondissement, etc.)
   # See https://github.com/etalab/decoupage-administratif
-  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@4.0.0/data/communes.json"
+  @communes_url "https://unpkg.com/@etalab/decoupage-administratif@5.0.2/data/communes.json"
 
   @doc "Loads regions from the database and returns a list of tuples with INSEE code and id"
   def regions_by_insee do
@@ -97,6 +97,30 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
   def insert_or_update_commune(%{"code" => "85212", "nom" => "Sainte-Florence"} = params, regions, geojsons),
     do: insert_or_update_commune(params |> Map.put("population", 1333), regions, geojsons)
 
+  def insert_or_update_commune(%{"code" => "12218", "nom" => "Conques-en-Rouergue"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 1_555), regions, geojsons)
+
+  def insert_or_update_commune(%{"code" => "14581", "nom" => "Aurseulles"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 1_908), regions, geojsons)
+
+  def insert_or_update_commune(%{"code" => "15031", "nom" => "Celles"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 25), regions, geojsons)
+
+  def insert_or_update_commune(%{"code" => "15035", "nom" => "Chalinargues"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 311), regions, geojsons)
+
+  def insert_or_update_commune(%{"nom" => "Chavagnac"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 91), regions, geojsons)
+
+  def insert_or_update_commune(%{"nom" => "Sainte-Anastasie"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 124), regions, geojsons)
+
+  def insert_or_update_commune(%{"nom" => "Orée d'Anjou"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 16_975), regions, geojsons)
+
+  def insert_or_update_commune(%{"nom" => "Porte des Pierres Dorées"} = params, regions, geojsons),
+    do: insert_or_update_commune(params |> Map.put("population", 4_079), regions, geojsons)
+
   defp get_or_create_commune(insee) do
     Commune
     |> Repo.get_by(insee: insee)
@@ -150,24 +174,51 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
     Commune |> where([c], c.insee in ^removed_communes) |> Repo.delete_all()
 
     Logger.info("Updating communes (including potentially incorrect geometry)…")
-    disable_trigger()
     # Inserts new communes, updates existing ones (mainly geometry, but also names…)
     changelist = etalab_communes |> Enum.map(&insert_or_update_commune(&1, regions, geojsons))
     Logger.info("Finished. Count of changes: #{inspect(changelist |> List.flatten() |> Enum.frequencies())}")
 
     Logger.info("Ensure valid geometries and rectify if needed.")
     ensure_valid_geometries()
-    Logger.info("Enabling trigger and refreshing views.")
-    enable_trigger()
+
+    Logger.info("Updating administrative_division.")
+    update_administrative_division()
   end
 
   defp ensure_valid_geometries,
     do: Repo.query!("UPDATE commune SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
 
-  defp disable_trigger, do: Repo.query!("ALTER TABLE commune DISABLE TRIGGER refresh_places_commune_trigger;")
+  def update_administrative_division do
+    DB.Repo.query!("""
+      DELETE
+      FROM administrative_division
+      WHERE type = 'commune' AND insee NOT IN (SELECT insee FROM commune);
+    """)
 
-  defp enable_trigger do
-    Repo.query!("ALTER TABLE commune ENABLE TRIGGER refresh_places_commune_trigger;")
-    Repo.query!("REFRESH MATERIALIZED VIEW places;")
+    DB.Repo.query!("""
+      INSERT INTO administrative_division (type_insee, insee, type, nom, geom, population)
+      SELECT
+        CONCAT('commune_', insee) AS type_insee,
+        insee,
+        'commune' AS type,
+        nom,
+        geom,
+        population
+      FROM commune
+      WHERE insee NOT IN (select insee from administrative_division where type = 'commune')
+    """)
+
+    DB.Repo.query!("""
+      update administrative_division set nom = t.nom, geom = t.geom, population = t.population
+      from (
+        select insee, nom, geom, population
+        from commune
+      ) t where t.insee = administrative_division.insee and type = 'commune'
+       and (
+          administrative_division.nom != t.nom
+          or administrative_division.population != t.population
+          or not st_equals(administrative_division.geom, t.geom)
+       )
+    """)
   end
 end

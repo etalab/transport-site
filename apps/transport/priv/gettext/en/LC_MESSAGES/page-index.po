@@ -59,10 +59,6 @@ msgid "Learn more"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Regions covered"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Scheduled public transit"
 msgstr ""
 
@@ -104,7 +100,7 @@ msgstr "Territories, transport operators… : you have to publish data about tra
 
 #, elixir-autogen, elixir-format
 msgid "reusers list description"
-msgstr "Reusers listed here are the ones who declared one reuse on the platform."
+msgstr "A significant number of diverse and varied re-users use the data referenced on the NAP, much to our delight! Some of them showcase their services, applications, projects, studies… on our <a href=\"%{url}\">Declared reuses</a> page. Be the next!"
 
 #, elixir-autogen, elixir-format
 msgid "Ask for help"
@@ -184,4 +180,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Validate your data"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Transport offers available"
 msgstr ""
