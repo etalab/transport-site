@@ -313,6 +313,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
     espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
@@ -325,11 +326,11 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     refute conn
-           |> init_test_session(current_user: %{"is_producer" => false})
+           |> init_test_session(current_user: %{"is_producer" => false, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
 
     assert conn
-           |> init_test_session(current_user: %{"is_producer" => true})
+           |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
   end
 end
