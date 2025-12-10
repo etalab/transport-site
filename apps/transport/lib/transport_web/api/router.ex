@@ -64,6 +64,10 @@ defmodule TransportWeb.API.Router do
       get("/", TransportWeb.API.GeoQueryController, :index)
     end
 
+    scope "/features" do
+      post("/autocomplete", TransportWeb.API.FeaturesController, :autocomplete)
+    end
+
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)
   end
 

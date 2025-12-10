@@ -38,6 +38,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
       })
 
     setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
 
     {:ok, result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
 
@@ -58,10 +59,13 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
 
     setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
 
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 2
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 4
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 2
 
     # then delete one of the resource
     query = from(r in DB.Resource, where: r.id == ^resource_id)
@@ -71,11 +75,13 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     assert DB.Repo.aggregate(DB.ResourceHistory, :count, :id) == 2
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 2
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 4
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 2
 
     # deleting the resource and re-importing must result into data import removal
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 1
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 1
   end
 
   test "import must remove data imports for inactive datasets" do
@@ -85,10 +91,13 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
 
     setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
 
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 2
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2 * 2
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 2
 
     # make one dataset inactive
     DB.Dataset
@@ -100,5 +109,6 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     {:ok, _result} = perform_job(Transport.Jobs.GTFSImportStopsJob, %{})
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 1
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2
+    assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 1
   end
 end
