@@ -69,14 +69,13 @@ defmodule Transport.IRVE.SimpleConsolidation do
         "Processing resource #{resource.resource_id} (url=#{resource.url}, dataset_id=#{resource.dataset_id})"
       )
 
-      # TODO: the next line uses local dev cache but doesn’t store on disk.
-      %{body: body, status: status} = Transport.IRVE.RawStaticConsolidation.download_resource_content!(resource.url)
+      %{status: status} =
+        Transport.HTTPClient.get!(resource.url, compressed: false, decode_body: false, into: File.stream!(tmp_file))
 
       unless status == 200 do
+        File.rm!(tmp_file)
         raise "Error processing resource (#{resource.resource_id}) (http_status=#{status})"
       end
-
-      File.write!(tmp_file, body)
     end
 
     tmp_file
