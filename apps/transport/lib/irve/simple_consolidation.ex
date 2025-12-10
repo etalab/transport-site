@@ -42,54 +42,56 @@ defmodule Transport.IRVE.SimpleConsolidation do
   end
 
   def process_resource(resource) do
-    tmp_file = download_resource_on_disk(resource)
+    # optionnally, for dev especially, we can keep files around until we manually delete them
+    use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
+    path = storage_path(resource.resource_id)
 
-    try do
-      df = load_file_as_dataframe(tmp_file)
+    with_maybe_cached_download_on_disk(resource, path, use_permanent_disk_cache, fn path ->
+      df = load_file_as_dataframe(path)
 
       validation_result = df |> Transport.IRVE.Validator.compute_validation()
       file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
       Transport.IRVE.DatabaseImporter.write_to_db(
-        tmp_file,
+        path,
         resource.dataset_id,
         resource.resource_id
       )
 
       {:ok, file_valid?}
-    after
-      File.rm!(tmp_file)
-    end
+    end)
   end
 
-  def download_resource_on_disk(resource) do
-    # TODO: improve local storage contract (we want a clear place for production)
-    tmp_file = Path.join(System.tmp_dir(), "irve-resource-#{resource.resource_id}.dat")
+  def storage_path(resource_id) do
+    # NOTE: to be finetuned for production, in particular
+    Path.join(System.tmp_dir(), "irve-resource-#{resource_id}.dat")
+  end
 
-    # NOTE: this will be improved:
-    # - dev cache must allow permanent local storage, to allow iterating while offline
-    # - production cache must be smarter (use etag if they are provided, & reliable, on the source servers)
-    if File.exists?(tmp_file) do
-      Logger.info("File for resource #{resource.resource_id} already exists ; skipping download (#{tmp_file})")
-    else
-      Logger.info(
-        "Processing resource #{resource.resource_id} (url=#{resource.url}, dataset_id=#{resource.dataset_id})"
-      )
+  # TODO: 🚨 replace the 2 pattern-matching variants below by a more intelligible "Req steps" use.
+  # This works for now though, to allow me local-only work.
 
-      # TODO: find how to forbid storage on the disk if status is not 200 (via a Req step)
-      %{status: status} =
-        Transport.HTTPClient.get!(resource.url, compressed: false, decode_body: false, into: File.stream!(tmp_file))
+  # regular workflow: process the file then delete it afterwards, no matter what, to ensure
+  # the files do not stack up on the production disk.
+  def with_maybe_cached_download_on_disk(resource, file_path, false = _use_permanent_disk_cache, work_fn) do
+    download!(resource.resource_id, resource.url, file_path)
+    work_fn.(file_path)
+  after
+    File.rm!(file_path)
+  end
 
-      unless status == 200 do
-        # No need to remove the file as Req says about the into: option:
-        # https://hexdocs.pm/req/Req.html#new/1
-        # "Note that the collectable is only used, if the response status is 200.
-        # In other cases, the body is accumulated and processed as usual."
-        raise "Error processing resource (#{resource.resource_id}) (http_status=#{status})"
-      end
+  # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)
+  def with_maybe_cached_download_on_disk(resource, file_path, true = _use_permanent_disk_cache, work_fn) do
+    if !File.exists?(file_path), do: download!(resource.resource_id, resource.url, file_path)
+    work_fn.(file_path)
+  end
+
+  def download!(resource_id, url, file) do
+    Logger.info("Processing resource #{resource_id} (url=#{url})")
+    %{status: status} = Transport.HTTPClient.get!(url, compressed: false, decode_body: false, into: File.stream!(file))
+
+    unless status == 200 do
+      raise "Error processing resource (#{resource_id}) (http_status=#{status})"
     end
-
-    tmp_file
   end
 
   def load_file_as_dataframe(path) do
