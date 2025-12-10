@@ -1,4 +1,6 @@
 defmodule Transport.IRVE.SimpleConsolidation do
+  require Logger
+
   @moduledoc """
   A module that consolidates simple IRVE data for faster access.
   """
@@ -16,8 +18,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       max_concurrency: 10
     )
     |> Stream.map(fn {:ok, result} -> result end)
-
-    :ok
+    |> Enum.into([])
   end
 
   def resource_list do
@@ -28,9 +29,38 @@ defmodule Transport.IRVE.SimpleConsolidation do
   end
 
   def process_resource(resource) do
-    # if resource.resource_id == "7a5acb37-32c9-48bf-a14f-cac23bb9aff0" do
-    #  :timer.sleep(10_000)
-    # end
-    # resource.resource_id
+    # TODO: improve local storage contract (we want a clear place for production)
+    tmp_file = Path.join(System.tmp_dir(), "irve-resource-#{resource.resource_id}.dat")
+
+    if File.exists?(tmp_file) do
+      Logger.info("File for resource #{resource.resource_id} already exists ; skipping download (#{tmp_file})")
+    else
+      # download resource
+      Logger.info(
+        "Processing resource #{resource.resource_id} (url=#{resource.url}, dataset_id=#{resource.dataset_id})"
+      )
+
+      # TODO: the next line uses local dev cache but doesn’t store on disk.
+      %{body: body, status: status} = Transport.IRVE.RawStaticConsolidation.download_resource_content!(resource.url)
+
+      unless status == 200 do
+        raise "Error processing resource (#{resource.resource_id}) (http_status=#{status})"
+      end
+
+      File.write!(tmp_file, body)
+    end
+
+    # |> IO.inspect(IEx.inspect_opts())
+    df = load_file_as_dataframe(tmp_file)
+
+    # send to validation
+    # validation_result = Transport.IRVE.Validator.compute_validation(dataframe)
+
+    # write in database
+  end
+
+  def load_file_as_dataframe(path) do
+    # NOTE: `infer_schema_length: nil` enforces strings everywhere
+    Explorer.DataFrame.from_csv!(path, infer_schema_length: nil)
   end
 end
