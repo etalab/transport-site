@@ -100,3 +100,12 @@
   font-weight: bold;
   color: var(--theme-primary);
 }
+
+#autoComplete_list.no_legend {
+  li {
+    &:nth-of-type(2)::before {
+      content: '';
+      display: block;
+    }
+  }
+}

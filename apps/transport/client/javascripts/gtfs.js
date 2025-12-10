@@ -5,6 +5,8 @@ import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 import { MapView } from '@deck.gl/core'
 import { IGN } from './map-config'
 
+const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
+
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
 const map = Leaflet.map('map', { renderer: Leaflet.canvas() })
 
@@ -112,3 +114,43 @@ map.on('moveend', function (event) {
 })
 
 map.fitBounds(metropolitanFranceBounds)
+
+// eslint-disable-next-line no-new
+new AutoComplete({
+    data: {
+        src: async () => {
+            const query = document.querySelector('#autoComplete').value
+            // See https://geoservices.ign.fr/documentation/services/services-geoplateforme/autocompletion
+            const source = await fetch(`https://data.geopf.fr/geocodage/completion/?text=${query}&poiType=administratif&type=StreetAddress&maximumResponses=5`)
+            const data = await source.json()
+            return data.results
+        },
+        key: ['fulltext'],
+        cache: false
+    },
+    selector: '#autoComplete',
+    threshold: 3,
+    debounce: 200,
+    highlight: true,
+    maxResults: 5,
+    resultsList: {
+        render: true,
+        container: source => {
+            source.setAttribute('id', 'autoComplete_list')
+            source.setAttribute('class', 'no_legend')
+        },
+        destination: document.querySelector('#autoCompleteResults'),
+        position: 'beforeend',
+        element: 'ul'
+    },
+    resultItem: {
+        content: (data, source) => {
+            source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">adresse</span></div>`
+        },
+        element: 'li'
+    },
+    onSelection: feedback => {
+        feedback.event.preventDefault()
+        map.flyTo([feedback.selection.value.y, feedback.selection.value.x], 12)
+    }
+})
