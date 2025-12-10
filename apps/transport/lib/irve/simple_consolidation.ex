@@ -84,16 +84,16 @@ defmodule Transport.IRVE.SimpleConsolidation do
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
+  # safety wrapper that we can use inside `Task.async_stream`
   def process_or_rescue(resource) do
     process_resource(resource)
   rescue
     error ->
-      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
       {:error_occurred, error, resource}
   end
 
   def process_resource(resource) do
-    # optionnally, for dev especially, we can keep files around until we manually delete them
+    # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
     path = storage_path(resource.resource_id)
 
