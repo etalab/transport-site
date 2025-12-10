@@ -12,30 +12,9 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  def import_some_data do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
-
-    %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
-
-    %{id: resource_history_id} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        payload: %{"filename" => "some-file.zip"}
-      })
-
-    {dataset_id, resource_id, resource_history_id}
-  end
-
   test "import without error" do
-    %{id: dataset_id} = insert(:dataset, %{datagouv_id: Ecto.UUID.generate(), datagouv_title: "coucou"})
-
-    %{id: resource_id} = insert(:resource, dataset_id: dataset_id, format: "GTFS")
-
-    %{id: resource_history_id} =
-      insert(:resource_history, %{
-        resource_id: resource_id,
-        payload: %{"filename" => "some-file.zip"}
-      })
+    %{resource_history: %{id: resource_history_id}} =
+      insert_up_to_date_resource_and_friends(resource_history_payload: %{"filename" => "some-file.zip"})
 
     setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
@@ -53,9 +32,11 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   # NOTE: ultimately, a better approach would be to reimport stops & everything in temporary tables
   # then drop previous tables, instead of manually removing items, but for now that will do.
   test "import must remove data imports for removed resource" do
-    {_dataset_id, resource_id, _resource_history_id} = import_some_data()
+    %{resource: %{id: resource_id}} =
+      insert_up_to_date_resource_and_friends(resource_history_payload: %{"filename" => "some-file.zip"})
+
     # import another one to make sure we can still create the materialized views
-    import_some_data()
+    insert_up_to_date_resource_and_friends(resource_history_payload: %{"filename" => "some-file.zip"})
 
     setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
@@ -85,9 +66,11 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
   end
 
   test "import must remove data imports for inactive datasets" do
-    {dataset_id, _resource_id, _resource_history_id} = import_some_data()
+    %{dataset: %{id: dataset_id}} =
+      insert_up_to_date_resource_and_friends(resource_history_payload: %{"filename" => "some-file.zip"})
+
     # import another one to make sure we can still create the materialized views
-    import_some_data()
+    insert_up_to_date_resource_and_friends(resource_history_payload: %{"filename" => "some-file.zip"})
 
     setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
@@ -110,5 +93,16 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportJobTest do
     assert DB.Repo.aggregate(DB.DataImport, :count, :id) == 1
     assert DB.Repo.aggregate(DB.GTFS.Stops, :count, :id) == 2
     assert DB.Repo.aggregate(DB.GTFS.Agency, :count, :id) == 1
+  end
+
+  test "active_up_to_date_datasets_resource_history_items selects up-to-date GTFS" do
+    insert_outdated_resource_and_friends()
+
+    assert [] == Transport.Jobs.GTFSImportStopsJob.active_up_to_date_datasets_resource_history_items()
+
+    %{resource_history: %{id: resource_history_id}} = insert_up_to_date_resource_and_friends()
+
+    assert [%DB.ResourceHistory{id: ^resource_history_id}] =
+             Transport.Jobs.GTFSImportStopsJob.active_up_to_date_datasets_resource_history_items()
   end
 end
