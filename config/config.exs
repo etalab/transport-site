@@ -21,7 +21,8 @@ config :transport,
   unlock_http_client: Unlock.HTTP.FinchImpl,
   unlock_github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
-  unlock_siri_public_requestor_ref: "transport-data-gouv-fr"
+  unlock_siri_public_requestor_ref: "transport-data-gouv-fr",
+  unlock_event_incrementer: Unlock.BatchMetrics
 
 config :transport, Unlock.Endpoint, []
 

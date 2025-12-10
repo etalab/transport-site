@@ -16,5 +16,7 @@ Mox.defmock(Transport.Validators.MobilityDataGTFSValidatorClient.Mock,
   for: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper
 )
 
+Mox.defmock(Unlock.BatchMetrics.Mock, for: Unlock.EventIncrementer)
+
 Mox.defmock(Unlock.Config.Fetcher.Mock, for: Unlock.Config.Fetcher)
 Mox.defmock(Unlock.HTTP.Client.Mock, for: Unlock.HTTP.Client)
