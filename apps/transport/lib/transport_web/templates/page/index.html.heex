@@ -206,5 +206,8 @@
 <section class="section mailing-list" id="mailing-list">
   <%= render("join_the_community.html", conn: @conn) %>
 </section>
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const contactId = <%= get_in(@conn.assigns.current_contact.id) |> Jason.encode!() %>;
+</script>
 <script src={static_path(@conn, "/js/autocomplete.js")}>
 </script>
