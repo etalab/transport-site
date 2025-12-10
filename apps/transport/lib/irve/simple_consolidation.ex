@@ -9,7 +9,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
     # Get list of datagouv resources
     resource_list()
     # Then for each resource, launch a kind of job that will dl the resource, etc.
-    |> Enum.take(2)
+    # |> Enum.drop(2)
+    # |> Enum.take(10)
     |> Task.async_stream(
       fn resource ->
         process_resource(resource)
@@ -19,6 +20,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
     )
     |> Stream.map(fn {:ok, result} -> result end)
     |> Enum.into([])
+
+    # |> Enum.frequencies()
+    # |> IO.inspect()
   end
 
   def resource_list do
@@ -54,13 +58,20 @@ defmodule Transport.IRVE.SimpleConsolidation do
     df = load_file_as_dataframe(tmp_file)
 
     # send to validation
-    # validation_result = Transport.IRVE.Validator.compute_validation(dataframe)
+    # |> IO.inspect(IEx.inspect_opts())
+    validation_result = df |> Transport.IRVE.Validator.compute_validation()
+    file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
     # write in database
+    {:ok, file_valid?}
+  rescue
+    error ->
+      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
+      {:error, error}
   end
 
   def load_file_as_dataframe(path) do
     # NOTE: `infer_schema_length: nil` enforces strings everywhere
-    Explorer.DataFrame.from_csv!(path, infer_schema_length: nil)
+    Explorer.DataFrame.from_csv!(path, infer_schema_length: 0)
   end
 end
