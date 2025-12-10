@@ -110,23 +110,21 @@ defmodule Transport.IRVE.SimpleConsolidation do
   end
 
   def try_import_into_db(resource, path) do
-    try do
-      Transport.IRVE.DatabaseImporter.write_to_db(
-        path,
-        resource.dataset_id,
-        resource.resource_id
-      )
+    Transport.IRVE.DatabaseImporter.write_to_db(
+      path,
+      resource.dataset_id,
+      resource.resource_id
+    )
 
-      {:import_successful, resource}
-    rescue
-      x in [Ecto.ConstraintError] ->
-        # TODO: encapsulate that logic inside `write_to_db`, returning just an atom there
-        if x.type == :unique && x.constraint == "irve_valid_file_resource_datagouv_id_checksum_index" do
-          {:already_in_db, resource}
-        else
-          reraise(x, __STACKTRACE__)
-        end
-    end
+    {:import_successful, resource}
+  rescue
+    x in [Ecto.ConstraintError] ->
+      # TODO: encapsulate that logic inside `write_to_db`, returning just an atom there
+      if x.type == :unique && x.constraint == "irve_valid_file_resource_datagouv_id_checksum_index" do
+        {:already_in_db, resource}
+      else
+        reraise(x, __STACKTRACE__)
+      end
   end
 
   def storage_path(resource_id) do
