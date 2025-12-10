@@ -95,7 +95,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   end
 
   def load_file_as_dataframe(path) do
-    # NOTE: `infer_schema_length: nil` enforces strings everywhere
+    # NOTE: `infer_schema_length: 0` enforces strings everywhere
     Explorer.DataFrame.from_csv!(path, infer_schema_length: 0)
   end
 end
