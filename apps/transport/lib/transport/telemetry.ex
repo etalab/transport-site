@@ -34,10 +34,10 @@ defmodule Transport.Telemetry do
       when type in @proxy_request_types do
     # make it non-blocking, to ensure the traffic will be served quickly. this also means, though, we
     # won't notice if a tracing of event fails
-    Task.start(fn ->
-      Logger.debug("Telemetry event: processing #{type} proxy request for #{target}")
-      count_event(target, event)
-    end)
+    Logger.debug("Telemetry event: processing #{type} proxy request for #{target}")
+    # Increment an event in memory.
+    # `Unlock.BatchMetrics` is in charge of inserting records in the database regularly.
+    Unlock.EventIncrementer.impl().incr_event(%{target: target, event: database_event_name(event)})
   end
 
   def handle_event(

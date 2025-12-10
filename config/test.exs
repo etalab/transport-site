@@ -57,7 +57,8 @@ config :transport,
   enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
   enroute_rulesets_client: Transport.EnRoute.ChouetteValidRulesetsClient.Mock,
   netex_validator: Transport.Validators.NeTEx.Validator.Mock,
-  mobilitydata_gtfs_validator_client: Transport.Validators.MobilityDataGTFSValidatorClient.Mock
+  mobilitydata_gtfs_validator_client: Transport.Validators.MobilityDataGTFSValidatorClient.Mock,
+  unlock_event_incrementer: Unlock.BatchMetrics.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
