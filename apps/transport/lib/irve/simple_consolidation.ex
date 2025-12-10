@@ -96,6 +96,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def load_file_as_dataframe(path) do
     # NOTE: `infer_schema_length: 0` enforces strings everywhere
-    Explorer.DataFrame.from_csv!(path, infer_schema_length: 0)
+    case Explorer.DataFrame.from_csv(path, infer_schema_length: 0) do
+      {:ok, df} -> df
+      {:error, error} -> raise error
+    end
   end
 end
