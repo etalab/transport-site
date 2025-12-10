@@ -16,7 +16,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
         process_resource(resource)
       end,
       on_timeout: :kill_task,
-      max_concurrency: 10
+      timeout: :timer.seconds(60),
+      max_concurrency: 5
     )
     |> Stream.map(fn {:ok, result} -> result end)
     |> Enum.into([])
@@ -43,6 +44,12 @@ defmodule Transport.IRVE.SimpleConsolidation do
     file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
     # write in database
+    Transport.IRVE.DatabaseImporter.write_to_db(
+      tmp_file,
+      resource.dataset_id,
+      resource.resource_id
+    )
+
     {:ok, file_valid?}
   rescue
     error ->
