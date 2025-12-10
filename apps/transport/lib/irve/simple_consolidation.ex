@@ -35,26 +35,26 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def process_resource(resource) do
     tmp_file = download_resource_on_disk(resource)
-    # |> IO.inspect(IEx.inspect_opts())
-    df = load_file_as_dataframe(tmp_file)
+    try do
+      df = load_file_as_dataframe(tmp_file)
 
-    # send to validation
-    # |> IO.inspect(IEx.inspect_opts())
-    validation_result = df |> Transport.IRVE.Validator.compute_validation()
-    file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+      validation_result = df |> Transport.IRVE.Validator.compute_validation()
+      file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
-    # write in database
-    Transport.IRVE.DatabaseImporter.write_to_db(
-      tmp_file,
-      resource.dataset_id,
-      resource.resource_id
-    )
+      Transport.IRVE.DatabaseImporter.write_to_db(
+        tmp_file,
+        resource.dataset_id,
+        resource.resource_id
+      )
 
-    {:ok, file_valid?}
-  rescue
-    error ->
-      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
-      {:error, error}
+      {:ok, file_valid?}
+    after
+      File.rm!(tmp_file)
+    rescue
+      error ->
+        # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
+        {:error, error}
+    end
   end
 
   def download_resource_on_disk(resource) do
