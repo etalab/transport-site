@@ -33,6 +33,24 @@ defmodule Transport.IRVE.SimpleConsolidation do
   end
 
   def process_resource(resource) do
+    tmp_file = download_resource_on_disk(resource)
+    # |> IO.inspect(IEx.inspect_opts())
+    df = load_file_as_dataframe(tmp_file)
+
+    # send to validation
+    # |> IO.inspect(IEx.inspect_opts())
+    validation_result = df |> Transport.IRVE.Validator.compute_validation()
+    file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+
+    # write in database
+    {:ok, file_valid?}
+  rescue
+    error ->
+      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
+      {:error, error}
+  end
+
+  def download_resource_on_disk(resource) do
     # TODO: improve local storage contract (we want a clear place for production)
     tmp_file = Path.join(System.tmp_dir(), "irve-resource-#{resource.resource_id}.dat")
 
@@ -54,20 +72,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       File.write!(tmp_file, body)
     end
 
-    # |> IO.inspect(IEx.inspect_opts())
-    df = load_file_as_dataframe(tmp_file)
-
-    # send to validation
-    # |> IO.inspect(IEx.inspect_opts())
-    validation_result = df |> Transport.IRVE.Validator.compute_validation()
-    file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
-
-    # write in database
-    {:ok, file_valid?}
-  rescue
-    error ->
-      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
-      {:error, error}
+    tmp_file
   end
 
   def load_file_as_dataframe(path) do
