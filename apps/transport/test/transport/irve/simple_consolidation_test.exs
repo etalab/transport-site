@@ -16,7 +16,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       # Mock HTTP requests for resource content
 
-      mock_resource_downloads()
+      [resource_file_path_1, resource_file_path_2] = mock_resource_downloads()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
@@ -37,8 +37,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 2
 
-      # Clean up temporary files created during processing
-      cleanup_temporary_files()
+      refute File.exists?(resource_file_path_1)
+      refute File.exists?(resource_file_path_2)
     end
   end
 
@@ -79,15 +79,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         body: File.stream!(resource_file_path_1)
       }
     end)
-  end
 
-  defp cleanup_temporary_files do
-    tmp_dir = System.tmp_dir()
-
-    File.ls!(tmp_dir)
-    |> Enum.filter(&String.starts_with?(&1, "irve-resource-"))
-    |> Enum.each(fn file ->
-      File.rm(Path.join(tmp_dir, file))
-    end)
+    [resource_file_path_1, resource_file_path_2]
   end
 end

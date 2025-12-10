@@ -35,6 +35,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def process_resource(resource) do
     tmp_file = download_resource_on_disk(resource)
+
     try do
       df = load_file_as_dataframe(tmp_file)
 
