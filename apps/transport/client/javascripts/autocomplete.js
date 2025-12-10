@@ -33,9 +33,16 @@ const autoCompletejs = new AutoComplete({
                     name: `Rechercher ${query} dans les descriptions des jeux de données`,
                     value: query,
                     type: 'description',
+                    position: 1,
                     url: `/datasets?q=${query}`
                 },
-                ...data
+                ...data.map((el, index) => {
+                    return {
+                        ...el,
+                        value: el.name,
+                        position: index + 2
+                    }
+                })
             ]
             return data
         },
@@ -92,28 +99,16 @@ const autoCompletejs = new AutoComplete({
 
         const selection = feedback.selection.value
 
-        let payload = {}
-        if (selection.type === 'description') {
-            payload = {
-                name: selection.value,
-                type: selection.type,
-                contact_id: contactId
-            }
-        } else {
-            payload = {
-                name: selection.name,
-                type: selection.type,
-                contact_id: contactId
-            }
-        }
-
         // Log the selected value
         fetch('/api/features/autocomplete', {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                ...selection,
+                contact_id: contactId
+            })
         })
 
         // Redirect to the target URL
