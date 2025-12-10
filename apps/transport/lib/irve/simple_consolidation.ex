@@ -61,18 +61,22 @@ defmodule Transport.IRVE.SimpleConsolidation do
     # TODO: improve local storage contract (we want a clear place for production)
     tmp_file = Path.join(System.tmp_dir(), "irve-resource-#{resource.resource_id}.dat")
 
+    # NOTE: this will be improved:
+    # - dev cache must allow permanent local storage, to allow iterating while offline
+    # - production cache must be smarter (use etag if they are provided, & reliable, on the source servers)
     if File.exists?(tmp_file) do
       Logger.info("File for resource #{resource.resource_id} already exists ; skipping download (#{tmp_file})")
     else
-      # download resource
       Logger.info(
         "Processing resource #{resource.resource_id} (url=#{resource.url}, dataset_id=#{resource.dataset_id})"
       )
 
+      # TODO: find how to forbid storage on the disk if status is not 200 (via a Req step)
       %{status: status} =
         Transport.HTTPClient.get!(resource.url, compressed: false, decode_body: false, into: File.stream!(tmp_file))
 
       unless status == 200 do
+        # for idempotency between local runs, we do not want a non-200 file to remain around
         File.rm!(tmp_file)
         raise "Error processing resource (#{resource.resource_id}) (http_status=#{status})"
       end
