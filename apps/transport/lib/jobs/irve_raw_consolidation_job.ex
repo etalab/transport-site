@@ -1,9 +1,8 @@
-defmodule Transport.Jobs.IRVEConsolidationJob do
+defmodule Transport.Jobs.IRVERawConsolidationJob do
   @moduledoc """
-  Nightly production of IRVE consolidation.
+  Nightly production of IRVE raw consolidation.
   """
   use Oban.Worker, unique: [period: {1, :days}], tags: ["irve"], max_attempts: 3
-  require Logger
   import Transport.S3.AggregatesUploader
 
   @impl Oban.Worker
