@@ -13,7 +13,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     # |> Enum.take(10)
     |> Task.async_stream(
       fn resource ->
-        process_resource(resource)
+        process_or_rescue(resource)
       end,
       on_timeout: :kill_task,
       timeout: :timer.seconds(60),
@@ -31,6 +31,14 @@ defmodule Transport.IRVE.SimpleConsolidation do
     |> Transport.IRVE.RawStaticConsolidation.exclude_irrelevant_resources()
     # |> maybe_filter(options[:filter])
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
+  end
+
+  def process_or_rescue(resource) do
+    process_resource(resource)
+  rescue
+    error ->
+      # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
+      {:error, error}
   end
 
   def process_resource(resource) do
@@ -51,10 +59,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
       {:ok, file_valid?}
     after
       File.rm!(tmp_file)
-    rescue
-      error ->
-        # Logger.error("Error processing resource #{resource.resource_id} : #{inspect(error)}")
-        {:error, error}
     end
   end
 
@@ -77,8 +81,10 @@ defmodule Transport.IRVE.SimpleConsolidation do
         Transport.HTTPClient.get!(resource.url, compressed: false, decode_body: false, into: File.stream!(tmp_file))
 
       unless status == 200 do
-        # for idempotency between local runs, we do not want a non-200 file to remain around
-        File.rm!(tmp_file)
+        # No need to remove the file as Req says about the into: option:
+        # https://hexdocs.pm/req/Req.html#new/1
+        # "Note that the collectable is only used, if the response status is 200.
+        # In other cases, the body is accumulated and processed as usual."
         raise "Error processing resource (#{resource.resource_id}) (http_status=#{status})"
       end
     end
