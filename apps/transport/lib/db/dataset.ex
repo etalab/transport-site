@@ -9,6 +9,7 @@ defmodule DB.Dataset do
   alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
+  import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
@@ -640,6 +641,7 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
+    |> validate_spatial_area_overlap(declarative_spatial_areas)
     |> set_population(declarative_spatial_areas)
     |> validate_organization_type()
     |> add_organization(params)
@@ -668,6 +670,22 @@ defmodule DB.Dataset do
       %{valid?: false} = errors ->
         Logger.warning("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
+    end
+  end
+
+  defp validate_spatial_area_overlap(%Ecto.Changeset{} = changeset, administrative_divisions) do
+    ids = Enum.map(administrative_divisions, & &1.id)
+
+    overlaps =
+      DB.AdministrativeDivision
+      |> join(:inner, [ad], ad2 in DB.AdministrativeDivision, on: ad2.id < ad.id and ad2.id in ^ids)
+      |> where([ad, ad2], ad.id in ^ids and st_overlaps(ad.geom, ad2.geom))
+      |> DB.Repo.exists?()
+
+    if overlaps do
+      add_error(changeset, :declarative_spatial_areas, "Spatial areas overlap")
+    else
+      changeset
     end
   end
 
