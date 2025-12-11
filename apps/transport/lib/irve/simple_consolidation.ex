@@ -72,9 +72,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
     Explorer.DataFrame.to_csv!(report_df, report_file)
 
     # NOTE: to be removed ; but nicely displays what happened
-    report_df["status"]
-    |> Explorer.Series.frequencies()
-    |> IO.inspect(IEx.inspect_opts())
+    # report_df["status"]
+    # |> Explorer.Series.frequencies()
+    # |> IO.inspect(IEx.inspect_opts())
   end
 
   def resource_list do

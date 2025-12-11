@@ -1,3 +1,5 @@
+# mix run scripts/irve/process-raw-static-consolidation.exs
+
 Logger.configure(level: :info)
 
 import Ecto.Query
