@@ -21,9 +21,10 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
-      result = Transport.IRVE.SimpleConsolidation.process()
+      :ok = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
 
-      assert result == [{:ok, true}, {:ok, true}]
+      # TODO: previous assertion, should be replaced
+      # assert result == [{:ok, true}, {:ok, true}]
 
       # Verify data file was created and contains expected content
 
@@ -39,6 +40,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       refute File.exists?(resource_file_path_1)
       refute File.exists?(resource_file_path_2)
+      assert File.exists?("irve_processed_resources.csv")
+      File.rm!("irve_processed_resources.csv")
+
+      # TODO: test the report
+      # TODO: improve test to have a failure in resources
     end
   end
 

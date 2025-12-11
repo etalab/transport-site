@@ -1,5 +1,6 @@
 defmodule Transport.IRVE.SimpleConsolidation do
   require Logger
+  import Transport.S3.AggregatesUploader
 
   @moduledoc """
   A module that consolidates simple IRVE data for faster access.
@@ -48,7 +49,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
     defp maybe_error_type(error), do: error.__struct__ |> inspect()
   end
 
-  def process do
+  def process(opts \\ []) do
+    destination = Keyword.get(opts, :destination, :send_to_s3)
+
     report_rows =
       resource_list()
       |> Task.async_stream(
@@ -62,19 +65,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Stream.map(&ReportRow.from_result/1)
       |> Enum.into([])
 
-    report_df =
-      report_rows
-      |> Enum.map(&ReportRow.to_map/1)
-      |> Explorer.DataFrame.new()
-
-    report_file = "irve-processed-resources.csv"
-    Logger.info("Saving report to #{report_file}...")
-    Explorer.DataFrame.to_csv!(report_df, report_file)
-
-    # NOTE: to be removed ; but nicely displays what happened
-    # report_df["status"]
-    # |> Explorer.Series.frequencies()
-    # |> IO.inspect(IEx.inspect_opts())
+    generate_report(report_rows, destination: destination)
   end
 
   def resource_list do
@@ -107,6 +98,36 @@ defmodule Transport.IRVE.SimpleConsolidation do
         {:not_compliant_with_schema, resource}
       end
     end)
+  end
+
+  def generate_report(report_rows, destination: destination) do
+    report_df =
+      report_rows
+      |> Enum.map(&ReportRow.to_map/1)
+      |> Explorer.DataFrame.new()
+
+    case destination do
+      :send_to_s3 ->
+        with_tmp_file(fn report_file ->
+          Explorer.DataFrame.to_csv!(report_df, report_file)
+
+          upload_aggregate!(
+            report_file,
+            "irve_processed_resources#{timestamp()}.csv",
+            "irve_processed_resources.csv"
+          )
+        end)
+
+      :local_disk ->
+        report_file = "irve_processed_resources.csv"
+        Logger.info("Saving report to #{report_file}...")
+        Explorer.DataFrame.to_csv!(report_df, report_file)
+    end
+
+    # NOTE: to be removed ; but nicely displays what happened
+    # report_df["status"]
+    # |> Explorer.Series.frequencies()
+    # |> IO.inspect(IEx.inspect_opts())
   end
 
   def storage_path(resource_id) do
