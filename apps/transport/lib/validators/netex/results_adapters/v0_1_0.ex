@@ -193,6 +193,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   # DEPRECATED
   def get_issues(_, _), do: []
 
+  @doc """
+  Get issues from validation results. For a specific issue type if specified, or the most severe.
+  """
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
     binary
     |> Commons.from_binary()
