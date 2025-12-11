@@ -18,10 +18,11 @@ defmodule TransportWeb.CustomTagsLive do
         placeholder: "Ajouter un tag",
         list: "suggestions",
         phx_keydown: "add_tag",
+        phx_change: "change",
         id: "custom_tag",
         phx_target: @myself
       ) %>
-      <datalist id="suggestions" phx-keydown="add_tag">
+      <datalist id="suggestions">
         <%= for suggestion <- @tag_suggestions do %>
           <option value={suggestion}><%= suggestion %></option>
         <% end %>
@@ -93,18 +94,16 @@ defmodule TransportWeb.CustomTagsLive do
      )}
   end
 
-  def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
-    # Do not lowercase a tag for a SIRI requestor_ref
-    clean_tag =
-      if String.starts_with?(tag, "requestor_ref:") do
-        tag |> String.trim()
-      else
-        tag |> String.downcase() |> String.trim()
-      end
+  def handle_event("change", %{"form" => %{"tag_input" => tag}}, socket) do
+    if tag in socket.assigns.tag_suggestions do
+      add_tag(tag, socket)
+    else
+      {:noreply, socket}
+    end
+  end
 
-    custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
-    send(self(), {:updated_custom_tags, custom_tags})
-    {:noreply, socket |> clear_input()}
+  def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
+    add_tag(tag, socket)
   end
 
   def handle_event("add_tag", _, socket) do
@@ -116,6 +115,21 @@ defmodule TransportWeb.CustomTagsLive do
     send(self(), {:updated_custom_tags, custom_tags})
 
     {:noreply, socket}
+  end
+
+  defp add_tag(tag, socket) do
+    # Do not lowercase a tag for a SIRI requestor_ref
+    clean_tag =
+      if String.starts_with?(tag, "requestor_ref:") do
+        tag |> String.trim()
+      else
+        tag |> String.downcase() |> String.trim()
+      end
+
+    custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
+    send(self(), {:updated_custom_tags, custom_tags})
+
+    {:noreply, socket |> clear_input()}
   end
 
   def clear_input(socket) do

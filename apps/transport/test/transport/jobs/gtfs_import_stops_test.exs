@@ -24,11 +24,13 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-file.zip"}})
 
     setup_get_file_stream_mox("some-file.zip")
+    setup_get_file_stream_mox("some-file.zip")
     assert data_import_ids() == []
     first_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(resource_history_id)
     assert data_import_ids() == [first_data_import_id]
 
     # subsequent import must remove the previous import for same resource_history_id
+    setup_get_file_stream_mox("some-file.zip")
     setup_get_file_stream_mox("some-file.zip")
     second_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(resource_history_id)
     assert data_import_ids() == [second_data_import_id]
@@ -38,10 +40,12 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
     setup_get_file_stream_mox("some-new-file.zip")
+    setup_get_file_stream_mox("some-new-file.zip")
     third_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(new_resource_history_id)
     assert data_import_ids() == [third_data_import_id]
 
     # other resources should not be impacted by import
+    setup_get_file_stream_mox("some-other-file.zip")
     setup_get_file_stream_mox("some-other-file.zip")
     %{id: other_dataset_id} = insert(:dataset, %{datagouv_id: "yyy"})
     %{id: other_resource_id} = insert(:resource, dataset_id: other_dataset_id)
@@ -56,6 +60,7 @@ defmodule Transport.Test.Transport.Jobs.GTFSImportStopsTest do
     %{id: new_resource_history_id} =
       insert(:resource_history, %{resource_id: resource_id, payload: %{"filename" => "some-new-file.zip"}})
 
+    setup_get_file_stream_mox("some-new-file.zip")
     setup_get_file_stream_mox("some-new-file.zip")
     fourth_data_import_id = Transport.GTFSImportStops.import_stops_and_remove_previous(new_resource_history_id)
     assert data_import_ids() == [other_data_import_id, fourth_data_import_id]

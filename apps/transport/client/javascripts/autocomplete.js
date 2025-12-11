@@ -1,7 +1,8 @@
 /* eslint no-unused-vars: [2, {"args": "after-used", "varsIgnorePattern": "autoCompletejs"}] */
+/* global contactId */
 // https://github.com/babel/babel/issues/9849
 require('regenerator-runtime')
-const AutoComplete = require('@tarekraafat/autocomplete.js/dist/js/autoComplete')
+const AutoComplete = require('@tarekraafat/autocomplete.js/dist/autoComplete')
 
 const labels = {
     region: 'région',
@@ -30,9 +31,18 @@ const autoCompletejs = new AutoComplete({
             data = [
                 {
                     name: `Rechercher ${query} dans les descriptions des jeux de données`,
+                    value: query,
+                    type: 'description',
+                    position: 1,
                     url: `/datasets?q=${query}`
                 },
-                ...data
+                ...data.map((el, index) => {
+                    return {
+                        ...el,
+                        value: el.name,
+                        position: index + 2
+                    }
+                })
             ]
             return data
         },
@@ -44,6 +54,7 @@ const autoCompletejs = new AutoComplete({
     debounce: 200,
     highlight: true,
     searchEngine: (query, record) => {
+        record = record.name
         // inspired by the 'loose' searchEngine, but that always matches
         query = query.replace(/ /g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         const recordLowerCase = record.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -68,24 +79,38 @@ const autoCompletejs = new AutoComplete({
             return match.join('')
         }
     },
-    maxResults: 7,
     resultsList: {
-        render: true,
-        container: source => {
-            source.setAttribute('id', 'autoComplete_list')
-        },
-        destination: document.querySelector('#autoCompleteResults'),
+        maxResults: 7,
+        id: 'autoComplete_list',
+        destination: '#autoCompleteResults',
         position: 'beforeend',
-        element: 'ul'
+        tag: 'ul'
     },
     resultItem: {
-        content: (data, source) => {
+        element: (source, data) => {
             source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">${labels[data.value.type] || ''}</span></div>`
         },
-        element: 'li'
-    },
-    onSelection: feedback => {
-        feedback.event.preventDefault()
-        window.location = feedback.selection.value.url
+        tag: 'li',
+        highlight: 'autoComplete_highlight',
+        selected: 'autoComplete_selected'
     }
+})
+
+document.querySelector('#autoComplete').addEventListener('selection', function (event) {
+    const selection = event.detail.selection.value
+
+    // Log the selected value
+    fetch('/api/features/autocomplete', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            ...selection,
+            contact_id: contactId
+        })
+    })
+
+    // Redirect to the target URL
+    window.location = selection.url
 })
