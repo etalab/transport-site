@@ -31,16 +31,26 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
 
     field(:digest, :map)
+    field(:binary_result, :binary, load_in_query: false)
   end
 
   def base_query(opts \\ []) do
     include_result = Keyword.get(opts, :include_result, false)
+    include_binary_result = Keyword.get(opts, :include_binary_result, false)
 
-    if include_result do
-      from(mv in DB.MultiValidation, as: :multi_validation)
-      |> select_merge([mv], %{result: mv.result})
+    query = from(mv in DB.MultiValidation, as: :multi_validation)
+
+    query =
+      if include_result do
+        from(mv in query, select_merge: %{result: mv.result})
+      else
+        query
+      end
+
+    if include_binary_result do
+      from(mv in query, select_merge: %{binary_result: mv.binary_result})
     else
-      from(mv in DB.MultiValidation, as: :multi_validation)
+      query
     end
   end
 

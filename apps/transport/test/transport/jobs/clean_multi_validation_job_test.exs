@@ -20,14 +20,14 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
     %DB.Resource{id: r1_id} = r1 = insert(:resource)
     %DB.Resource{id: r2_id} = r2 = insert(:resource)
 
-    insert(:multi_validation, result: %{"value" => 4}, resource: r1, inserted_at: two_month_ago)
-    insert(:multi_validation, result: %{"value" => 3}, resource: r1, inserted_at: month_ago)
-    insert(:multi_validation, result: %{"value" => 2}, resource: r1, inserted_at: month_ago)
-    insert(:multi_validation, result: %{"value" => 1}, resource: r1, inserted_at: now)
+    insert(:multi_validation, result: %{"value" => 4}, binary_result: <<4>>, resource: r1, inserted_at: two_month_ago)
+    insert(:multi_validation, result: %{"value" => 3}, binary_result: <<3>>, resource: r1, inserted_at: month_ago)
+    insert(:multi_validation, result: %{"value" => 2}, binary_result: <<2>>, resource: r1, inserted_at: month_ago)
+    insert(:multi_validation, result: %{"value" => 1}, binary_result: <<1>>, resource: r1, inserted_at: now)
 
-    insert(:multi_validation, result: %{"value" => 3}, resource: r2, inserted_at: month_ago)
-    insert(:multi_validation, result: %{"value" => 2}, resource: r2, inserted_at: month_ago)
-    insert(:multi_validation, result: %{"value" => 1}, resource: r2, inserted_at: now)
+    insert(:multi_validation, result: %{"value" => 3}, binary_result: <<3>>, resource: r2, inserted_at: month_ago)
+    insert(:multi_validation, result: %{"value" => 2}, binary_result: <<2>>, resource: r2, inserted_at: month_ago)
+    insert(:multi_validation, result: %{"value" => 1}, binary_result: <<1>>, resource: r2, inserted_at: now)
 
     on_demand = insert(:multi_validation, result: %{"value" => 1}, oban_args: %{"state" => "completed"})
 
@@ -39,14 +39,27 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
              %{"value" => 3},
              %{"value" => 2},
              %{"value" => 1}
-           ] == results_for_resource_id(r1_id)
+           ] == results_for_resource(r1_id)
+
+    assert [
+             nil,
+             <<3>>,
+             <<2>>,
+             <<1>>
+           ] == binary_results_for_resource(r1_id)
 
     # records have not been touched
     assert [
              %{"value" => 3},
              %{"value" => 2},
              %{"value" => 1}
-           ] == results_for_resource_id(r2_id)
+           ] == results_for_resource(r2_id)
+
+    assert [
+             <<3>>,
+             <<2>>,
+             <<1>>
+           ] == binary_results_for_resource(r2_id)
 
     assert %DB.MultiValidation{result: %{"value" => 1}} = reload(on_demand)
 
@@ -63,14 +76,47 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
     %DB.Resource{id: r1_id} = r1 = insert(:resource)
     %DB.Resource{id: r2_id} = r2 = insert(:resource)
 
-    insert(:multi_validation, result: %{"value" => 4}, resource_history: insert(:resource_history, resource: r1))
-    insert(:multi_validation, result: %{"value" => 3}, resource_history: insert(:resource_history, resource: r1))
-    insert(:multi_validation, result: %{"value" => 2}, resource_history: insert(:resource_history, resource: r1))
-    insert(:multi_validation, result: %{"value" => 1}, resource_history: insert(:resource_history, resource: r1))
+    insert(:multi_validation,
+      result: %{"value" => 4},
+      binary_result: <<4>>,
+      resource_history: insert(:resource_history, resource: r1)
+    )
 
-    insert(:multi_validation, result: %{"value" => 3}, resource_history: insert(:resource_history, resource: r2))
-    insert(:multi_validation, result: %{"value" => 2}, resource_history: insert(:resource_history, resource: r2))
-    insert(:multi_validation, result: %{"value" => 1}, resource_history: insert(:resource_history, resource: r2))
+    insert(:multi_validation,
+      result: %{"value" => 3},
+      binary_result: <<3>>,
+      resource_history: insert(:resource_history, resource: r1)
+    )
+
+    insert(:multi_validation,
+      result: %{"value" => 2},
+      binary_result: <<2>>,
+      resource_history: insert(:resource_history, resource: r1)
+    )
+
+    insert(:multi_validation,
+      result: %{"value" => 1},
+      binary_result: <<1>>,
+      resource_history: insert(:resource_history, resource: r1)
+    )
+
+    insert(:multi_validation,
+      result: %{"value" => 3},
+      binary_result: <<3>>,
+      resource_history: insert(:resource_history, resource: r2)
+    )
+
+    insert(:multi_validation,
+      result: %{"value" => 2},
+      binary_result: <<2>>,
+      resource_history: insert(:resource_history, resource: r2)
+    )
+
+    insert(:multi_validation,
+      result: %{"value" => 1},
+      binary_result: <<1>>,
+      resource_history: insert(:resource_history, resource: r2)
+    )
 
     on_demand = insert(:multi_validation, result: %{"value" => 1}, oban_args: %{"state" => "completed"})
 
@@ -84,12 +130,25 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
              %{"value" => 1}
            ] == results_for_resource_history(r1_id)
 
+    assert [
+             nil,
+             <<3>>,
+             <<2>>,
+             <<1>>
+           ] == binary_results_for_resource_history(r1_id)
+
     # records have not been touched
     assert [
              %{"value" => 3},
              %{"value" => 2},
              %{"value" => 1}
            ] == results_for_resource_history(r2_id)
+
+    assert [
+             <<3>>,
+             <<2>>,
+             <<1>>
+           ] == binary_results_for_resource_history(r2_id)
 
     assert %DB.MultiValidation{result: %{"value" => 1}} = reload(on_demand)
 
@@ -119,24 +178,42 @@ defmodule Transport.Test.Transport.Jobs.CleanMultiValidationJobTest do
            ] = all_enqueued()
   end
 
-  defp results_for_resource_id(r_id) do
-    DB.MultiValidation.with_result()
-    |> where([mv], mv.resource_id == ^r_id)
-    |> order_by([mv], {:asc, mv.id})
-    |> DB.Repo.all()
+  defp results_for_resource(r_id) do
+    for_resource(r_id)
     |> Enum.map(& &1.result)
   end
 
-  def results_for_resource_history(r_id) do
-    DB.MultiValidation.with_result()
+  defp results_for_resource_history(r_id) do
+    for_resource_history(r_id)
+    |> Enum.map(& &1.result)
+  end
+
+  defp binary_results_for_resource(r_id) do
+    for_resource(r_id)
+    |> Enum.map(& &1.binary_result)
+  end
+
+  defp binary_results_for_resource_history(r_id) do
+    for_resource_history(r_id)
+    |> Enum.map(& &1.binary_result)
+  end
+
+  defp for_resource(r_id) do
+    DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
+    |> where([mv], mv.resource_id == ^r_id)
+    |> order_by([mv], {:asc, mv.id})
+    |> DB.Repo.all()
+  end
+
+  defp for_resource_history(r_id) do
+    DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
     |> join(:inner, [mv], rh in DB.ResourceHistory, on: rh.id == mv.resource_history_id)
     |> where([_mv, rh], rh.resource_id == ^r_id)
     |> order_by([mv], {:asc, mv.id})
     |> DB.Repo.all()
-    |> Enum.map(& &1.result)
   end
 
-  def reload(%DB.MultiValidation{id: id}) do
+  defp reload(%DB.MultiValidation{id: id}) do
     DB.MultiValidation.with_result() |> where([mv], mv.id == ^id) |> DB.Repo.one!()
   end
 end

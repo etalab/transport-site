@@ -57,6 +57,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.validator_version == "0.2.0"
       assert multi_validation.result == %{}
       assert multi_validation.digest == ResultsAdapter.digest(%{})
+      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
       assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 12}
     end
 
@@ -127,10 +128,11 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
              }
 
       assert multi_validation.digest == ResultsAdapter.digest(multi_validation.result)
+      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(multi_validation.result)
     end
 
     defp load_multi_validation(resource_history_id) do
-      DB.MultiValidation.with_result()
+      DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
       |> DB.Repo.get_by(resource_history_id: resource_history_id)
       |> DB.Repo.preload(:metadata)
     end

@@ -89,7 +89,11 @@ defmodule TransportWeb.ValidationController do
 
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
-    validation = MultiValidation.with_result() |> preload(:metadata) |> Repo.get(params["id"])
+
+    validation =
+      MultiValidation.base_query(include_result: true, include_binary_result: true)
+      |> preload(:metadata)
+      |> Repo.get(params["id"])
 
     case validation do
       nil ->
@@ -99,7 +103,7 @@ defmodule TransportWeb.ValidationController do
       when expected_token != token ->
         unauthorized(conn)
 
-      %MultiValidation{oban_args: %{"state" => "completed"}, result: nil} = validation ->
+      %MultiValidation{oban_args: %{"state" => "completed"}, binary_result: nil, result: nil} = validation ->
         conn |> assign(:validation, validation) |> render("expired.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
@@ -113,25 +117,35 @@ defmodule TransportWeb.ValidationController do
           end
 
         conn
-        |> assign_base_validation_details(validator, validation, params, current_issues)
+        |> assign_base_validation_details(params)
+        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
         |> assign(:validator, validator)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
         |> assign(:data_vis, data_vis(validation, issue_type))
+        |> assign(:validation_summary, validator.summary(validation.result))
+        |> assign(:severities_count, validator.count_by_severity(validation.result))
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
+        config = make_pagination_config(params)
+
         results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
 
         template = pick_netex_template(validation.validator_version)
 
-        current_issues = results_adapter.get_issues(validation.result, params)
+        pagination_config = make_pagination_config(params)
+        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
 
         conn
-        |> assign_base_validation_details(results_adapter, validation, params, current_issues)
+        |> assign_base_validation_details(params)
+        |> assign(:filter, filter)
+        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
         |> assign(:results_adapter, results_adapter)
         |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:max_severity, results_adapter.count_max_severity(validation.result))
+        |> assign(:max_severity, validation.digest["max_severity"])
+        |> assign(:validation_summary, validation.digest["summary"])
+        |> assign(:severities_count, validation.digest["stats"])
         |> render(template)
 
       # Handles waiting for validation to complete, errors and
@@ -151,13 +165,10 @@ defmodule TransportWeb.ValidationController do
   defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
-  defp assign_base_validation_details(conn, results_adapter, validation, params, current_issues) do
+  defp assign_base_validation_details(conn, params) do
     conn
     |> assign(:validation_id, params["id"])
     |> assign(:other_resources, [])
-    |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-    |> assign(:validation_summary, results_adapter.summary(validation.result))
-    |> assign(:severities_count, results_adapter.count_by_severity(validation.result))
     |> assign(:token, params["token"])
   end
 

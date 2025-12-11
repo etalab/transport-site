@@ -6,6 +6,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -58,6 +59,8 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.validator == "enroute-chouette-netex-validator"
     assert multi_validation.validator_version == "0.2.0"
     assert multi_validation.result == %{}
+    assert multi_validation.digest == ResultsAdapter.digest(%{})
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
     assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
   end
 
@@ -111,6 +114,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
                }
              ]
            }
+
+    assert multi_validation.digest == ResultsAdapter.digest(multi_validation.result)
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(multi_validation.result)
   end
 
   test "pending validation" do
@@ -140,7 +146,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   end
 
   defp load_multi_validation(resource_history_id) do
-    DB.MultiValidation.with_result()
+    DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
     |> DB.Repo.get_by(resource_history_id: resource_history_id)
     |> DB.Repo.preload(:metadata)
   end

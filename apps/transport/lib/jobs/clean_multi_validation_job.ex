@@ -71,7 +71,8 @@ defmodule Transport.Jobs.CleanMultiValidationJob do
         on:
           mv2.resource_id == mv.resource_id and
             mv2.inserted_at <= datetime_add(mv.inserted_at, -@days_to_keep_realtime_rows, "day"),
-        where: not is_nil(mv2.result) and not is_nil(mv2.resource_id),
+        where: not is_nil(mv2.result) or not is_nil(mv2.binary_result),
+        where: not is_nil(mv2.resource_id),
         order_by: {:asc, mv2.id},
         select: mv2.id,
         distinct: true,
@@ -100,7 +101,7 @@ defmodule Transport.Jobs.CleanMultiValidationJob do
   defp archive_records(ids) do
     DB.MultiValidation.base_query()
     |> where([mv], mv.id in ^ids)
-    |> update([mv], set: [result: nil, data_vis: nil])
+    |> update([mv], set: [binary_result: nil, result: nil, data_vis: nil])
     |> DB.Repo.update_all([])
   end
 end
