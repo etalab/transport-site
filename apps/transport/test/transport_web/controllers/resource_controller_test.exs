@@ -4,6 +4,8 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
+  import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
   setup :verify_on_exit!
 
@@ -1163,6 +1165,20 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert TransportWeb.ResourceView.eligible_for_explore?(resource)
     assert html_response =~ "https://explore.data.gouv.fr"
+  end
+
+  test "NeTEx pagination" do
+    config = make_pagination_config(%{})
+
+    total_pages_for_items = fn items ->
+      paginate_netex_results({items, repeated([{}], items)}, config).total_pages
+    end
+
+    assert 0 == total_pages_for_items.(0)
+    assert 1 == total_pages_for_items.(20)
+    assert 2 == total_pages_for_items.(22)
+    assert 2 == total_pages_for_items.(30)
+    assert 3 == total_pages_for_items.(41)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do
