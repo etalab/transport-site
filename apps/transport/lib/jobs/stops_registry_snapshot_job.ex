@@ -18,9 +18,4 @@ defmodule Transport.Jobs.StopsRegistrySnapshotJob do
       )
     end)
   end
-
-  defp timestamp do
-    DateTime.utc_now()
-    |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
-  end
 end

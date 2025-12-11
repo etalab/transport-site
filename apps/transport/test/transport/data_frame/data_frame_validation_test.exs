@@ -228,6 +228,7 @@ defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
     row = DB.Factory.IRVE.generate_row() |> stringify_row()
     result = run_dataframe_validators([row])
     assert result["check_row_valid"] |> Explorer.Series.to_list() == [true]
+    assert result |> Transport.IRVE.Validator.full_file_valid?()
   end
 
   # "single field changed from the default factory row" version
