@@ -7,7 +7,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback count_by_severity(map()) :: map()
   # DEPRECATED
   @callback get_issues(map(), map()) :: list()
-  @callback get_issues(binary(), map(), Scrivener.Config.t()) :: {pos_integer(), list()}
+  @callback get_issues(binary(), map(), Scrivener.Config.t()) :: {map(), {pos_integer(), list()}}
   @callback digest(map()) :: map()
   @callback issue_type(list()) :: nil | binary()
   @callback format_severity(binary(), non_neg_integer()) :: binary()
