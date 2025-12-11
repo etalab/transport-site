@@ -107,41 +107,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate issue_type(list), to: V0_2_0
 
   @doc """
-  Get issues from validation results. For a specific issue type if specified, or the most severe.
-
-  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "base-rules" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
-  iex> get_issues(validation_result, %{"issues_category" => "xsd-schema"})
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(validation_result, %{"issues_category" => "broken-file"})
-  []
-  iex> get_issues(validation_result, nil)
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(validation_result, %{})
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(%{}, nil)
-  []
-  iex> get_issues([], nil)
-  []
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  # DEPRECATED
-  def get_issues(%{} = validation_result, %{"issues_category" => issues_category}) do
-    validation_result
-    |> Map.get(issues_category, [])
-    |> order_issues_by_location()
-  end
-
-  # DEPRECATED
-  def get_issues(%{} = validation_result, _) do
-    validation_result
-    |> pick_preferred_category()
-    |> order_issues_by_location()
-  end
-
-  # DEPRECATED
-  def get_issues(_, _), do: []
-
-  @doc """
   Get issues from validation results, filtered on category, and paginated.
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -172,15 +137,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   def get_issues(_, _, _), do: {%{"issues_category" => @xsd_schema_category}, {0, []}}
 
   defdelegate get_categories(df), to: V0_2_0
-
-  defp pick_preferred_category(%{} = validation_result) do
-    category =
-      @categories_preferred_order
-      |> Enum.find(fn category -> not is_nil(validation_result[category]) end)
-
-    validation_result
-    |> Map.get(category || @xsd_schema_category, [])
-  end
 
   def pick_default_category(%Explorer.DataFrame{} = df) do
     pick_default_category(df, @categories_preferred_order)

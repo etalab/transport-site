@@ -160,41 +160,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
-
-  iex> validation_result = %{"uic-operating-period" => [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "valid-day-bits" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}], "frame-arret-resources" => [%{"code" => "frame-arret-resources", "message" => "Tag frame_id doesn't match ''", "criticity" => "warning"}]}
-  iex> get_issues(validation_result, %{"issue_type" => "uic-operating-period"})
-  [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(validation_result, %{"issue_type" => "broken-file"})
-  []
-  iex> get_issues(validation_result, nil)
-  [%{"code" => "uic-operating-period", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(%{}, nil)
-  []
-  iex> get_issues([], nil)
-  []
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  # DEPRECATED
-  def get_issues(%{} = validation_result, %{"issue_type" => issue_type}) do
-    validation_result
-    |> Map.get(issue_type, [])
-    |> order_issues_by_location()
-  end
-
-  # DEPRECATED
-  def get_issues(%{} = validation_result, _) do
-    validation_result
-    |> Map.values()
-    |> Enum.sort_by(fn [%{"criticity" => severity} | _] -> severity_level(severity) end)
-    |> List.first([])
-    |> order_issues_by_location()
-  end
-
-  # DEPRECATED
-  def get_issues(_, _), do: []
-
-  @doc """
-  Get issues from validation results. For a specific issue type if specified, or the most severe.
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
@@ -232,18 +197,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   def order_issues_by_location(%Explorer.DataFrame{} = df) do
     df
     |> DF.sort_by(&[&1["resource.filename"], &1["resource.line"], &1["message"]])
-  end
-
-  # DEPRECATED
-  def order_issues_by_location(issues) do
-    issues
-    |> Enum.sort_by(fn issue ->
-      message = Map.get(issue, "message", "")
-      resource = Map.get(issue, "resource", %{})
-      filename = Map.get(resource, "filename", "")
-      line = Map.get(resource, "line", "")
-      {filename, line, message}
-    end)
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
