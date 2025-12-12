@@ -1,7 +1,7 @@
 <div :if={not is_nil(@validation.metadata)} %>
   <% %DB.ResourceMetadata{metadata: metadata, features: features} = @validation.metadata
   locale = get_session(@conn, :locale) %>
-  <%= if metadata["start_date"] != nil and metadata["end_date"] != nil do %>
+  <%= if metadata["start_date"] not in ["", nil] and metadata["end_date"] not in ["", nil] do %>
     <p>
       <%= dgettext("validations", "It is valid from") %>
       <strong><%= DateTimeDisplay.format_date(metadata["start_date"], locale) %></strong> <%= dgettext(
