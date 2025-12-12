@@ -831,4 +831,44 @@ defmodule DB.DatasetDBTest do
     expected = commune.population + departement.population
     {:ok, %DB.Dataset{population: ^expected}} = changeset |> DB.Repo.insert_or_update()
   end
+
+  test "spatial area overlap" do
+    region =
+      insert(:administrative_division,
+        geom: %Geo.Polygon{
+          coordinates: [
+            [
+              {55.0, 3.0},
+              {60.0, 3.0},
+              {60.0, 5.0},
+              {55.0, 5.0},
+              {55.0, 3.0}
+            ]
+          ],
+          srid: 4326
+        }
+      )
+
+    commune =
+      insert(:administrative_division,
+        type_insee: "commune",
+        geom: %Geo.Polygon{
+          coordinates: [
+            [
+              {58.0, 4.0},
+              {62.0, 4.0},
+              {62.0, 6.0},
+              {58.0, 6.0},
+              {58.0, 4.0}
+            ]
+          ],
+          srid: 4326
+        }
+      )
+
+    dataset = insert(:dataset, declarative_spatial_areas: [region, commune])
+
+    assert {:error, ~s|%{declarative_spatial_areas: ["Spatial areas overlap"]}|} =
+             DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
+  end
 end
