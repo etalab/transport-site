@@ -80,6 +80,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     process_resource(resource)
   rescue
     error ->
+      dbg(error)
       {:error_occurred, error, resource}
   end
 
@@ -89,7 +90,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
     path = storage_path(resource.resource_id)
 
     with_maybe_cached_download_on_disk(resource, path, use_permanent_disk_cache, fn path ->
+      dbg(path)
       validation_result = path |> Transport.IRVE.Validator.validate()
+      dbg(validation_result)
       file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
       if file_valid? do
@@ -144,6 +147,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     download!(resource.resource_id, resource.url, file_path)
     work_fn.(file_path)
   after
+    IO.puts("Deleting temporary file #{file_path}...")
     File.rm!(file_path)
   end
 
@@ -155,7 +159,10 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def download!(resource_id, url, file) do
     Logger.info("Processing resource #{resource_id} (url=#{url})")
+    IO.puts("Downloading resource #{resource_id} from #{url}...")
     %{status: status} = Transport.HTTPClient.get!(url, compressed: false, decode_body: false, into: File.stream!(file))
+    IO.puts("there should be now a status…")
+    dbg(status)
 
     unless status == 200 do
       raise "Error processing resource (#{resource_id}) (http_status=#{status})"

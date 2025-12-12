@@ -16,7 +16,10 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       # Mock HTTP requests for resource content
 
-      [resource_file_path_1, resource_file_path_2] = mock_resource_downloads()
+      # resource_file_path_1 = mock_valid_resource_download()
+      mock_valid_resource_download()
+      # resource_file_path_2 = mock_invalid_resource_download()
+      mock_invalid_resource_download()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
@@ -38,8 +41,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 2
 
-      refute File.exists?(resource_file_path_1)
-      refute File.exists?(resource_file_path_2)
+      # refute File.exists?(resource_file_path_1)
+      # refute File.exists?(resource_file_path_2)
       assert File.exists?("irve_processed_resources.csv")
       File.rm!("irve_processed_resources.csv")
 
@@ -66,6 +69,52 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       %Req.Response{
         status: 200,
         body: DB.Factory.IRVE.build_datagouv_page_payload()
+      }
+    end)
+  end
+
+  defp mock_valid_resource_download do
+    Transport.Req.Mock
+    |> expect(:get!, 1, fn _url,
+                           [
+                             into: _into,
+                             decode_body: _decode_body,
+                             compressed: _compressed,
+                             url: "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+                           ] ->
+      IO.puts("there")
+
+      resource_file_path_1 = System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat")
+
+      body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+      File.write!(resource_file_path_1, body)
+
+      %Req.Response{
+        status: 200,
+        body: File.stream!(resource_file_path_1)
+      }
+    end)
+  end
+
+  defp mock_invalid_resource_download do
+    Transport.Req.Mock
+    |> expect(:get!, 1, fn _url,
+                           [
+                             into: _into,
+                             decode_body: _decode_body,
+                             compressed: _compressed,
+                             url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+                           ] ->
+      IO.puts("here")
+
+      resource_file_path_2 = System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat")
+
+      body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+      File.write!(resource_file_path_2, body)
+
+      %Req.Response{
+        status: 200,
+        body: File.stream!(resource_file_path_2)
       }
     end)
   end

@@ -52,6 +52,8 @@ defmodule Transport.HTTPClient do
   def get!(url, options) do
     {req, options} = setup_cache(options)
 
+    IO.puts("HTTPClient.get! called with url: #{url}")
+
     Transport.Req.impl().get!(req, options |> Keyword.merge(url: url))
   end
 
