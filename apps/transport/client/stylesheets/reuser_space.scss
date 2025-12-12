@@ -64,3 +64,7 @@ form.inline {
 a.button.reuser-space {
   background-color: var(--primary-color-reuser);
 }
+
+a.no-bg:hover {
+  background: none;
+}

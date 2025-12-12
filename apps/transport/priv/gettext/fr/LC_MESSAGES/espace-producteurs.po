@@ -16,16 +16,8 @@ msgid "Adding a dataset guidelines"
 msgstr "Consultez le guide de publication"
 
 #, elixir-autogen, elixir-format
-msgid "Contact us"
-msgstr "Contacter l'équipe"
-
-#, elixir-autogen, elixir-format
 msgid "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
 msgstr "Afin que nous puissions référencer vos données de mobilité sur le Point d'Accès National, vous devez les ajouter sur data.gouv.fr en publiant un nouveau jeu de données."
-
-#, elixir-autogen, elixir-format
-msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
-msgstr "Une question sur la meilleure manière de publier de données ou de les mettre à jour ? Si vous ne trouvez pas de réponses sur le site, contactez-nous à l'adresse :"
 
 #, elixir-autogen, elixir-format
 msgid "Publish a dataset"
@@ -38,10 +30,6 @@ msgstr "Publier un nouveau jeu de données"
 #, elixir-autogen, elixir-format
 msgid "Publishing best practices"
 msgstr "Les bonnes pratiques de publication"
-
-#, elixir-autogen, elixir-format
-msgid "Update a dataset"
-msgstr "Mettre à jour un jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "Update a resource"
@@ -58,14 +46,6 @@ msgstr "Tester vos jeux de données"
 #, elixir-autogen, elixir-format
 msgid "Your producer space"
 msgstr "Votre espace producteur"
-
-#, elixir-autogen, elixir-format
-msgid "What would you like to do?"
-msgstr "Que souhaitez-vous faire ?"
-
-#, elixir-autogen, elixir-format
-msgid "You have no resource to update for the moment"
-msgstr "Vous n'avez pas de ressource à mettre à jour pour le moment"
 
 #, elixir-autogen, elixir-format
 msgid "New resource"
@@ -114,20 +94,6 @@ msgstr "Vos statistiques proxy"
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
 msgstr "Supprimer une ressource"
-
-#, elixir-autogen, elixir-format
-msgid "1 resource"
-msgid_plural "%{count} resources"
-msgstr[0] "1 ressource"
-msgstr[1] "%{count} ressources"
-
-#, elixir-autogen, elixir-format
-msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
-msgstr "%{nb_downloads} <div class=\"tooltip\">téléchargements en %{year}<span class=\"tooltiptext\">Nombre de téléchargements pour tous les fichiers hébergés sur data.gouv.fr</span></div>"
-
-#, elixir-autogen, elixir-format
-msgid "Edit"
-msgstr "Éditer"
 
 #, elixir-autogen, elixir-format
 msgid "Update your logo"
@@ -332,3 +298,15 @@ msgstr "Repartage des données améliorées"
 #, elixir-autogen, elixir-format
 msgid "Compare with my GTFS"
 msgstr "Comparer avec mon GTFS"
+
+#, elixir-autogen, elixir-format
+msgid "Datasets of your organisation"
+msgstr "Jeux de données de votre organisation"
+
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr "Gérer"
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr "Espace producteur"

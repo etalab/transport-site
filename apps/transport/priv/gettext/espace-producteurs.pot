@@ -15,15 +15,7 @@ msgid "Adding a dataset guidelines"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Contact us"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -36,10 +28,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Publishing best practices"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Update a dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -56,14 +44,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Your producer space"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "What would you like to do?"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "You have no resource to update for the moment"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -112,20 +92,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "1 resource"
-msgid_plural "%{count} resources"
-msgstr[0] ""
-msgstr[1] ""
-
-#, elixir-autogen, elixir-format
-msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Edit"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -330,4 +296,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Compare with my GTFS"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Datasets of your organisation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
 msgstr ""

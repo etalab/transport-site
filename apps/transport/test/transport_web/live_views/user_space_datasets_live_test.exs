@@ -1,10 +1,10 @@
-defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
+defmodule TransportWeb.Live.UserSpaceDatasetsLiveTest do
   use TransportWeb.ConnCase, async: true
   use Oban.Testing, repo: DB.Repo
   import Phoenix.LiveViewTest
   import DB.Factory
 
-  doctest TransportWeb.Live.FollowedDatasetsLive, import: true
+  doctest TransportWeb.Live.UserSpaceDatasetsLive, import: true
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -15,11 +15,12 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
     dijon_vls = insert(:dataset, type: "vehicles-sharing", custom_title: "DiviaVélo")
 
     {:ok, view, _html} =
-      live_isolated(conn, TransportWeb.Live.FollowedDatasetsLive,
+      live_isolated(conn, TransportWeb.Live.UserSpaceDatasetsLive,
         session: %{
           "dataset_ids" => [dijon_pt.id, dijon_vls.id],
           "locale" => "fr",
-          "csp_nonce_value" => Ecto.UUID.generate()
+          "csp_nonce_value" => Ecto.UUID.generate(),
+          "mode" => :reuser
         }
       )
 
@@ -54,11 +55,12 @@ defmodule TransportWeb.Live.FollowedDatasetsLiveTest do
     dijon_pt = insert(:dataset, type: "public-transit", custom_title: "Divia")
 
     {:ok, view, _html} =
-      live_isolated(conn, TransportWeb.Live.FollowedDatasetsLive,
+      live_isolated(conn, TransportWeb.Live.UserSpaceDatasetsLive,
         session: %{
           "dataset_ids" => [dijon_pt.id],
           "locale" => "fr",
-          "csp_nonce_value" => Ecto.UUID.generate()
+          "csp_nonce_value" => Ecto.UUID.generate(),
+          "mode" => :reuser
         }
       )
 
