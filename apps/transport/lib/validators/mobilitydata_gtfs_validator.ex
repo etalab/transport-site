@@ -54,8 +54,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     validator_version = get_in(result, ["summary", "validatorVersion"]) || github_validator_version()
 
     metadata = %{
-      "start_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowStart"]),
-      "end_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowEnd"]),
+      "start_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowStart"]) |> empty_to_nil(),
+      "end_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowEnd"]) |> empty_to_nil(),
       "counts" => get_in(result, ["summary", "counts"]),
       "agencies" => get_in(result, ["summary", "agencies"]),
       "feedInfo" => get_in(result, ["summary", "feedInfo"])
@@ -71,6 +71,9 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
       features: get_in(result, ["summary", "gtfsFeatures"])
     }
   end
+
+  defp empty_to_nil(""), do: nil
+  defp empty_to_nil(value), do: value
 
   def github_validator_version do
     Transport.Cache.fetch(
