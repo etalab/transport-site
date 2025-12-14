@@ -77,14 +77,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     DF.load_parquet!(binary)
   end
 
-  def search(df, page, category) do
-    df
-    |> DF.filter(category == ^category)
-    |> DF.slice(page(page))
-    |> DF.select(["code", "message", "resource.filename", "resource.line"])
-    |> DF.to_rows()
-  end
-
   def slice(df, %Scrivener.Config{} = config) do
     df
     |> DF.slice(page(config))
@@ -95,13 +87,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   defp page(%Scrivener.Config{} = config) do
     first = (config.page_number - 1) * config.page_size
     last = config.page_number * config.page_size - 1
-    Range.new(first, last)
-  end
-
-  defp page(page_number) do
-    %Scrivener.Config{page_size: page_size} = TransportWeb.PaginationHelpers.make_pagination_config(%{})
-    first = (page_number - 1) * page_size
-    last = page_number * page_size - 1
     Range.new(first, last)
   end
 
