@@ -946,6 +946,59 @@ defmodule TransportWeb.ResourceControllerTest do
     refute response |> html_response(200) =~ "Pas de validation disponible"
   end
 
+  test "GTFS-Flex with empty dates", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"start_date" => "", "end_date" => ""},
+        features: ["Bike Allowed"]
+      },
+      result: %{
+        "notices" => [
+          %{
+            "code" => "unusable_trip",
+            "sampleNotices" => [%{"foo" => "bar"}],
+            "severity" => "WARNING",
+            "totalNotices" => 2
+          }
+        ],
+        "summary" => %{"validatorVersion" => "4.2.0"}
+      },
+      digest: %{
+        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
+        "stats" => %{"WARNING" => 1},
+        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
+      },
+      max_error: "WARNING"
+    })
+
+    response = conn |> get(resource_path(conn, :details, resource.id))
+
+    # Resource metadata
+    assert response |> html_response(200) =~ "Bike Allowed"
+
+    # Validation
+    assert response |> html_response(200) =~ "Rapport de validation"
+    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "unusable_trip"
+  end
+
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, format: "GTFS", dataset: dataset)

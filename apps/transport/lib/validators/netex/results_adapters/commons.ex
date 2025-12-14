@@ -1,9 +1,6 @@
 defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   @moduledoc """
-  Code in this module is meant to be moved to Transport.Validators.NeTEx.ResultsAdapters.v***,
-  maybe as an helper module to be shared among versions.
-
-  We will also need it for backfilling purposes.
+  Collection of helpers to be used by all results adapters.
   """
   require Explorer.DataFrame, as: DF
   alias Explorer.Series, as: S
@@ -72,6 +69,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     Map.merge(defaults, Map.intersect(defaults, attributes))
   end
 
+  def to_binary(%Explorer.DataFrame{} = df) do
+    DF.dump_parquet!(df, compression: :brotli)
+  end
+
+  def from_binary(binary) when is_binary(binary) do
+    DF.load_parquet!(binary)
+  end
+
   def search(df, page, category) do
     df
     |> DF.filter(category == ^category)
@@ -98,14 +103,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     first = (page_number - 1) * page_size
     last = page_number * page_size - 1
     Range.new(first, last)
-  end
-
-  def to_binary(%Explorer.DataFrame{} = df) do
-    DF.dump_parquet!(df, compression: :brotli)
-  end
-
-  def from_binary(binary) when is_binary(binary) do
-    DF.load_parquet!(binary)
   end
 
   def to_issues(entries), do: Enum.map(entries, &to_issue/1)

@@ -212,9 +212,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_dataframe(errors) do
-    Commons.to_dataframe(errors, fn _ -> %{} end)
-  end
+  def to_dataframe(errors), do: Commons.to_dataframe(errors, fn _ -> %{} end)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def to_binary_result(result) do

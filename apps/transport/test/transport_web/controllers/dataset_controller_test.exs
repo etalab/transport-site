@@ -383,9 +383,20 @@ defmodule TransportWeb.DatasetControllerTest do
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    result = %{"Slow" => [%{"severity" => "Information"}]}
 
     insert(:multi_validation,
-      resource_history: insert(:resource_history, resource_id: resource.id),
+      resource_history: resource_history,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: result,
+      digest: Transport.Validators.GTFSTransport.digest(result),
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
+    )
+
+    insert(:multi_validation,
+      resource_history: resource_history,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
       digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
     )

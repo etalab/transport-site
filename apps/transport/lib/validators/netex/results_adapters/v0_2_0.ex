@@ -197,6 +197,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     categories |> Enum.sort_by(&ordered_categories[&1]) |> List.first()
   end
 
+  def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")
+
   defdelegate order_issues_by_location(issues), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -221,8 +223,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
       "category" => categorize(mandatory_attributes["code"])
     }
   end
-
-  def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def to_binary_result(result) do
