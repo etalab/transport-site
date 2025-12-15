@@ -46,4 +46,24 @@ defmodule TransportWeb.PageView do
       :transport
       |> Application.fetch_env!(:datagouvfr_site)
       |> Path.join("/fr/admin/dataset/new/")
+
+  @doc """
+  iex> types = TransportWeb.API.Schemas.AutocompleteItem.types()
+  iex> Enum.each(types, fn type -> Map.fetch!(autocomplete_translations(), type) end)
+  :ok
+  """
+  def autocomplete_translations do
+    %{
+      "region" => dgettext("autocomplete", "region"),
+      "departement" => dgettext("autocomplete", "departement"),
+      "epci" => dgettext("autocomplete", "epci"),
+      "commune" => dgettext("autocomplete", "commune"),
+      "feature" => dgettext("autocomplete", "feature"),
+      "mode" => dgettext("autocomplete", "mode"),
+      "offer" => dgettext("autocomplete", "offer"),
+      "format" => dgettext("autocomplete", "format"),
+      "search-description" => dgettext("autocomplete", "search-description"),
+      "results-description" => dgettext("autocomplete", "results-description")
+    }
+  end
 end

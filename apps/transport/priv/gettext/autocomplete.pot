@@ -1,0 +1,52 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "commune"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "departement"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "epci"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "feature"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "mode"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "offer"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "region"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "search-description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "results-description"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "format"
+msgstr ""
