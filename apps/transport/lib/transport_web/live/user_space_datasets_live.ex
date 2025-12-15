@@ -1,6 +1,6 @@
-defmodule TransportWeb.Live.FollowedDatasetsLive do
+defmodule TransportWeb.Live.UserSpaceDatasetsLive do
   @moduledoc """
-  Display followed datasets on the reuser space.
+  Display datasets on the producer and reuser space.
   """
   use Phoenix.LiveView
   use TransportWeb.InputHelpers
@@ -66,8 +66,14 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
             </div>
           </div>
           <div class="panel__extra">
-            <a href={reuser_space_path(@socket, :datasets_edit, dataset.id)} class="no-bg">
-              <button class="button primary small"><%= dgettext("reuser-space", "Preferences") %></button>
+            <% {link, text} =
+              if @mode == :producer do
+                {espace_producteur_path(@socket, :edit_dataset, dataset.id), dgettext("espace-producteurs", "Manage")}
+              else
+                {reuser_space_path(@socket, :datasets_edit, dataset.id), dgettext("reuser-space", "Preferences")}
+              end %>
+            <a href={link} class="no-bg">
+              <button class="button primary small"><%= text %></button>
             </a>
           </div>
         </div>
@@ -86,7 +92,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
   @impl true
   def mount(
         _params,
-        %{"dataset_ids" => dataset_ids, "locale" => locale, "csp_nonce_value" => nonce},
+        %{"dataset_ids" => dataset_ids, "locale" => locale, "csp_nonce_value" => nonce, "mode" => mode},
         %Phoenix.LiveView.Socket{} = socket
       ) do
     Gettext.put_locale(locale)
@@ -100,6 +106,7 @@ defmodule TransportWeb.Live.FollowedDatasetsLive do
     socket =
       assign(socket, %{
         nonce: nonce,
+        mode: mode,
         datasets: datasets,
         filtered_datasets: datasets,
         select_options: select_options(datasets),

@@ -304,4 +304,10 @@ function createPointsLayer (geojson, id) {
     })
 }
 
+// Autocomplete
+document.querySelector('#autoComplete').addEventListener('selection', function (event) {
+    event.preventDefault()
+    map.flyTo([event.detail.selection.value.y, event.detail.selection.value.x], 12)
+})
+
 export default socket
