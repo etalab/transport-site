@@ -19,12 +19,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   def to_dataframe(errors, extra_attributes_fun) do
     errors
-    |> Enum.with_index()
     |> Enum.map(&project_error(&1, extra_attributes_fun))
     |> DF.new(dtypes: @dtypes)
   end
 
-  defp project_error({entry, _index}, extra_attributes_fun) do
+  defp project_error(entry, extra_attributes_fun) do
     mandatory_attributes = build_mandatory_attributes(entry)
 
     resource = Map.get(entry, "resource", %{})
