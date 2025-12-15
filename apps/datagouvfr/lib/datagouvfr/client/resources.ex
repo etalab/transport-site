@@ -178,7 +178,11 @@ defmodule Datagouvfr.Client.Resources.External do
     # (the underlying lib is the same: hackney)
     {:multipart,
      [
-       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, filename}]}, []}
+       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, remove_accents(filename)}]}, []}
      ]}
+  end
+
+  defp remove_accents(value) do
+    value |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "")
   end
 end
