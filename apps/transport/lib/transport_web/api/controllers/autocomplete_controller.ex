@@ -57,11 +57,12 @@ defmodule TransportWeb.API.AutocompleteController do
       |> order_by(asc: fragment("CASE type
           when 'feature' then 1
           when 'mode' then 2
-          when 'offer' then 3
-          when 'region' then 4
-          when 'departement' then 5
-          when 'epci' then 6
-          else 7 END"))
+          when 'format' then 3
+          when 'offer' then 4
+          when 'region' then 5
+          when 'departement' then 6
+          when 'epci' then 7
+          else 8 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> DB.Repo.all()
