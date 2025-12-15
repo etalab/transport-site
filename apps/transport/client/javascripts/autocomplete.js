@@ -11,7 +11,8 @@ const labels = {
     commune: 'commune',
     feature: 'données contenant…',
     mode: 'mode de transport',
-    offer: 'offre de transport'
+    offer: 'offre de transport',
+    format: 'format de données'
 }
 
 document.onkeydown = function (evt) {

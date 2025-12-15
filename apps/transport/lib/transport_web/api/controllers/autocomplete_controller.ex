@@ -27,6 +27,9 @@ defmodule TransportWeb.API.AutocompleteController do
 
   defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
 
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => format, :type => "format"}),
+    do: dataset_path(conn, :index, format: format)
+
   defp approx_search_query(query) do
     DB.Autocomplete
     |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))

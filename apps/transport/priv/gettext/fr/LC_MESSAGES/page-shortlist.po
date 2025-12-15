@@ -243,3 +243,7 @@ msgstr "L'EPCI %{name} n'a pas encore publié de données"
 #, elixir-autogen, elixir-format
 msgid "transport offer"
 msgstr "offre de transport"
+
+#, elixir-autogen, elixir-format
+msgid "data format"
+msgstr "format de données"
