@@ -66,3 +66,7 @@ msgstr "Département %{name} : Jeux de données ouverts"
 #, elixir-autogen, elixir-format
 msgid "Transport open datasets for transport offer %{name}"
 msgstr "Jeux de données ouverts de l'offre de transport %{name}"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Transport open datasets for data format %{name}"
+msgstr "Jeux de données ouverts du format de données %{name}"
