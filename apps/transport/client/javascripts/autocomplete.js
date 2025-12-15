@@ -20,7 +20,7 @@ const autoCompletejs = new AutoComplete({
             let data = await source.json()
             data = [
                 {
-                    name: labels['search-description'].replace("$query", query),
+                    name: labels['search-description'].replace('$query', query),
                     value: query,
                     type: 'description',
                     position: 1,
