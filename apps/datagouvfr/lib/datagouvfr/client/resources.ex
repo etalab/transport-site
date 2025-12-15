@@ -182,7 +182,7 @@ defmodule Datagouvfr.Client.Resources.External do
      ]}
   end
 
-  defp remove_accents(value) do
+  def remove_accents(value) do
     value |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "")
   end
 end
