@@ -313,24 +313,12 @@ defmodule Transport.ImportData do
 
   @spec get_valid_netex_resources([map()]) :: [map()]
   def get_valid_netex_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
+    resources |> Enum.filter(&netex?/1) |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
+    resources |> Enum.filter(&gtfs_rt?/1) |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
   end
 
   @doc """
