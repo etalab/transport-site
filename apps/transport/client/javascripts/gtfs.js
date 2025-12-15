@@ -145,7 +145,15 @@ new AutoComplete({
         class: 'no_legend',
         destination: '#autoCompleteResults',
         position: 'beforeend',
-        tag: 'ul'
+        tag: 'ul',
+        noResults: true,
+        element: (list, data) => {
+            if (!data.results.length) {
+                const message = document.createElement('li')
+                message.innerHTML = `Pas de résultats pour "<span class="autoComplete_highlighted">${data.query}</span>"`
+                list.prepend(message)
+            }
+        }
     },
     resultItem: {
         element: (source, data) => {
