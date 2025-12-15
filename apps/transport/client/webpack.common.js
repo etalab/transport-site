@@ -20,6 +20,7 @@ module.exports = {
         validationmap: './javascripts/validation-map.js',
         utils: './javascripts/utils.js',
         autocomplete: './javascripts/autocomplete.js',
+        autocomplete_city: './javascripts/autocomplete_city.js',
         scss: './stylesheets/app.scss'
     },
     output: {
