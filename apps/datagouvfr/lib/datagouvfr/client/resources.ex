@@ -182,6 +182,12 @@ defmodule Datagouvfr.Client.Resources.External do
      ]}
   end
 
+  @doc """
+  iex> remove_accents("cédille")
+  "cedille"
+  iex> remove_accents("Hello")
+  "Hello"
+  """
   def remove_accents(value) do
     value |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "")
   end
