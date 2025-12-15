@@ -251,7 +251,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   defp notify_success, do: Appsignal.increment_counter("enroute_chouette_valid.success", 1)
 
-  defp notify_invalid_api_call(), do: Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1)
+  defp notify_invalid_api_call, do: Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1)
 
   defp notify_invalid_api_call(resource_history_id),
     do:
@@ -259,7 +259,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         resource_history_id: resource_history_id
       })
 
-  defp notify_timeout(), do: Appsignal.increment_counter("enroute_chouette_valid.timeout", 1)
+  defp notify_timeout, do: Appsignal.increment_counter("enroute_chouette_valid.timeout", 1)
 
   defp notify_timeout(resource_history_id),
     do:
