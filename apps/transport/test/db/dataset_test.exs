@@ -868,7 +868,9 @@ defmodule DB.DatasetDBTest do
 
     dataset = insert(:dataset, declarative_spatial_areas: [region, commune])
 
-    assert {:error, ~s|%{declarative_spatial_areas: ["Spatial areas overlap"]}|} =
-             DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id})
+    assert {{:error, ~s|%{declarative_spatial_areas: ["Spatial areas overlap"]}|}, logs} =
+             with_log(fn -> DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id}) end)
+
+    assert logs =~ "error while importing dataset: %{declarative_spatial_areas"
   end
 end
