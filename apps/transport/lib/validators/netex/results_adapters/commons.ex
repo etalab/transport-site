@@ -76,7 +76,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     DF.load_parquet!(binary)
   end
 
-  def slice(df, %Scrivener.Config{} = config) do
+  defp slice(df, %Scrivener.Config{} = config) do
     df
     |> DF.slice(page(config))
     |> DF.select(["code", "criticity", "message", "resource.filename", "resource.line"])
@@ -89,7 +89,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     Range.new(first, last)
   end
 
-  def to_issues(entries), do: Enum.map(entries, &to_issue/1)
+  defp to_issues(entries), do: Enum.map(entries, &to_issue/1)
 
   defp to_issue(%{} = entry) do
     %{
@@ -106,7 +106,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     |> drop_empty_values()
   end
 
-  def drop_empty_values(map), do: Map.filter(map, fn {_key, value} -> value != %{} and not is_nil(value) end)
+  defp drop_empty_values(map), do: Map.filter(map, fn {_key, value} -> value != %{} and not is_nil(value) end)
 
   def get_values(%Explorer.DataFrame{} = df, column) do
     df

@@ -243,3 +243,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "transport offer"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data format"
+msgstr ""
