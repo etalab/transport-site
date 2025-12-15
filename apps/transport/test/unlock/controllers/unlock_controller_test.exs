@@ -882,11 +882,7 @@ defmodule Unlock.ControllerTest do
                {"x-request-id", _},
                {"access-control-allow-origin", "*"},
                {"access-control-expose-headers", "*"},
-               {"content-length", "154685"},
                {"last-modified", "Mon, 08 Apr 2024 12:14:12 GMT"},
-               {"etag", "\"576b7c0ca6ddb298909bd4a4d756a0c9-1\""},
-               {"content-type", "application/octet-stream"},
-               {"date", "Wed, 03 Dec 2025 07:48:54 GMT"},
                # Uses the path
                {"content-disposition", "attachment; filename=irve_static_consolidation.csv"}
              ] = resp.resp_headers

@@ -183,7 +183,7 @@ defmodule Unlock.Controller do
     displayed_filename = Path.basename(item.path)
 
     response.headers
-    |> prepare_response_headers()
+    |> prepare_response_headers(item)
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
     |> send_resp(response.status, response.body)
@@ -196,7 +196,7 @@ defmodule Unlock.Controller do
     response = fetch_remote(item)
 
     response.headers
-    |> prepare_response_headers()
+    |> prepare_response_headers(item)
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # For now, we enforce the download. This will result in incorrect filenames
     # if the content-type is incorrect, but is better than nothing.
@@ -265,7 +265,7 @@ defmodule Unlock.Controller do
     body = maybe_gunzip(response.body, headers)
 
     headers
-    |> filter_response_headers()
+    |> prepare_response_headers(item)
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     # No content-disposition as attachment for now
     |> send_resp(response.status, body)
@@ -328,17 +328,35 @@ defmodule Unlock.Controller do
     %Unlock.HTTP.Response{status: 502, body: "Bad Gateway", headers: [{"content-type", "text/plain"}]}
   end
 
-  # Inspiration (MIT) here https://github.com/tallarium/reverse_proxy_plug
-  defp filter_response_headers(headers) do
-    Enum.filter(headers, fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
-  end
-
   # This prepare response headers : we do not forward all response headers
   # from the remote, only an allowed list of them, to avoid leaking sensitive data
   # unknowingly.
-  defp prepare_response_headers(headers) do
+  defp prepare_response_headers(headers, item) do
     headers
     |> lowercase_headers()
-    |> filter_response_headers()
+    |> filter_response_headers(item)
+  end
+
+  defp filter_response_headers(headers, item) do
+    Enum.filter(headers, fn {h, _v} -> Enum.member?(forwarded_headers_allowlist(item), h) end)
+  end
+
+  @doc """
+  A list of HTTP headers that will be forwarded by our proxy.
+
+  For now we use an allowlist we can gradually expand.
+  Make sure to avoid including "hop-by-hop" headers here.
+  https://book.hacktricks.xyz/pentesting-web/abusing-hop-by-hop-headers
+  """
+  def forwarded_headers_allowlist(%Unlock.Config.Item.S3{}), do: ["last-modified"]
+
+  def forwarded_headers_allowlist(_item) do
+    [
+      "content-type",
+      "content-length",
+      "date",
+      "last-modified",
+      "etag"
+    ]
   end
 end

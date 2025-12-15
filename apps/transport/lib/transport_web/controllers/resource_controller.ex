@@ -379,7 +379,7 @@ defmodule TransportWeb.ResourceController do
     resp_headers =
       headers
       |> Enum.map(&downcase_header/1)
-      |> Enum.filter(fn {h, _v} -> Enum.member?(Shared.Proxy.forwarded_headers_allowlist(), h) end)
+      |> Enum.filter(fn {h, _v} -> Enum.member?(forwarded_headers_allowlist(), h) end)
 
     conn |> Plug.Conn.merge_resp_headers(resp_headers) |> Plug.Conn.send_resp(status_code, "")
   end
@@ -398,4 +398,12 @@ defmodule TransportWeb.ResourceController do
 
     assign(conn, :current_contact, current_contact)
   end
+
+  defp forwarded_headers_allowlist, do: [
+      "content-type",
+      "content-length",
+      "date",
+      "last-modified",
+      "etag"
+    ]
 end
