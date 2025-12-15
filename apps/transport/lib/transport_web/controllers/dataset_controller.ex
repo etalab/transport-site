@@ -601,6 +601,17 @@ defmodule TransportWeb.DatasetController do
         }
       )
 
+  defp put_page_title(conn, %{"format" => format}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "data format"),
+          name: format
+        }
+      )
+
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     # We use the home tiles to associate the URL params to a title, see doc of the function
     TransportWeb.PageController.home_tiles(conn)

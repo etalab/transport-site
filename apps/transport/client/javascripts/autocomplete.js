@@ -1,18 +1,8 @@
 /* eslint no-unused-vars: [2, {"args": "after-used", "varsIgnorePattern": "autoCompletejs"}] */
-/* global contactId */
+/* global contactId, labels */
 // https://github.com/babel/babel/issues/9849
 require('regenerator-runtime')
 const AutoComplete = require('@tarekraafat/autocomplete.js/dist/autoComplete')
-
-const labels = {
-    region: 'région',
-    departement: 'département',
-    epci: 'EPCI',
-    commune: 'commune',
-    feature: 'données contenant…',
-    mode: 'mode de transport',
-    offer: 'offre de transport'
-}
 
 document.onkeydown = function (evt) {
     evt = evt || window.event
@@ -30,7 +20,7 @@ const autoCompletejs = new AutoComplete({
             let data = await source.json()
             data = [
                 {
-                    name: `Rechercher ${query} dans les descriptions des jeux de données`,
+                    name: labels['search-description'].replace('$query', query),
                     value: query,
                     type: 'description',
                     position: 1,

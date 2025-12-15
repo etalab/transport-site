@@ -1,171 +1,98 @@
-<div class="producer-space">
-  <div class="pt-48">
-    <div class="container pb-24">
-      <%= breadcrumbs([@conn, :espace_producteur]) %>
-    </div>
-  </div>
-  <section class="section producer-actions">
-    <div class="container">
-      <h2><%= dgettext("espace-producteurs", "What would you like to do?") %></h2>
-      <div class="producer-actions-flex">
-        <div class="panel">
-          <div class="update-header pb-24">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-maj.svg")} alt="" />
-            <div>
-              <h4 class="with-link"><%= dgettext("espace-producteurs", "Update a dataset") %></h4>
-            </div>
+<div class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :espace_producteur]) %>
+</div>
+<section class="section section-grey reuser-space producer-space">
+  <div class="container">
+    <h1><%= dgettext("espace-producteurs", "Producer space") %></h1>
+    <h2><%= dgettext("espace-producteurs", "Actions") %></h2>
+    <div class="row">
+      <div class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
           </div>
-          <div class="resource-list">
-            <%= if @datasets == [] do %>
-              <%= dgettext("espace-producteurs", "You have no resource to update for the moment") %>
-            <% end %>
-            <%= for dataset <- Enum.sort_by(@datasets, & &1.datagouv_title) do %>
-              <% dataset_path = dataset_path(@conn, :details, dataset.id)
-              nb_resources = dataset |> DB.Dataset.official_resources() |> Enum.count()
-              has_downloads_stats = Map.has_key?(@downloads_last_year, dataset.datagouv_id) %>
-              <div class="pt-24 panel dataset-item">
-                <h5>
-                  <a href={dataset_path} target="_blank"><i class="icon fa fa-external-link" aria-hidden="true"></i></a>
-                  <%= dataset.datagouv_title %>
-                </h5>
-                <%= link(dgettext("espace-producteurs", "Edit"),
-                  to: espace_producteur_path(@conn, :edit_dataset, dataset.id),
-                  class: "button primary",
-                  "data-tracking-category": "espace_producteur",
-                  "data-tracking-action": "edit_dataset"
-                ) %>
-                <hr class="mb-0 mt-24" />
-                <div class="pt-6">
-                  <%= dngettext("espace-producteurs", "1 resource", "%{count} resources", nb_resources) %>
-                </div>
-                <div :if={has_downloads_stats and show_downloads_stats?(dataset)}>
-                  <% nb_downloads =
-                    nb_downloads_for_humans(
-                      Map.fetch!(@downloads_last_year, dataset.datagouv_id),
-                      get_session(@conn, :locale)
-                    ) %>
-                  <div class="pt-6">
-                    <i class="icon fa fa-download" aria-hidden="true"></i> <%= raw(
-                      dgettext(
-                        "espace-producteurs",
-                        ~s(%{nb_downloads} <div class="tooltip">downloads in %{year}<span class="tooltiptext">Number of downloads for all the files hosted on data.gouv.fr</span></div>),
-                        nb_downloads: nb_downloads,
-                        year: @downloads_reference_year
-                      )
-                    ) %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "Before publishing, you can test your data online and check its validity."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
+              <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
+            </a>
           </div>
         </div>
+      </div>
+      <div class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.svg")} alt="" />
         <div>
-          <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
-            <div>
-              <div class="publish-header">
-                <h4 class="with-link"><%= dgettext("espace-producteurs", "Validate your datasets") %></h4>
-              </div>
-              <div>
-                <%= dgettext(
-                  "espace-producteurs",
-                  "Before publishing, you can test your data online and check its validity."
-                ) %>
-              </div>
-              <div class="pt-12">
-                <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
-                  <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
-                </a>
-              </div>
-            </div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
           </div>
-          <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.svg")} alt="" />
-            <div>
-              <div class="publish-header">
-                <h4 class="with-link"><%= dgettext("espace-producteurs", "Publish a dataset") %></h4>
-              </div>
-              <div>
-                <a href="https://doc.transport.data.gouv.fr/administration-des-donnees">
-                  <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
-                </a>
-              </div>
-              <div class="pt-12">
-                <%= dgettext(
-                  "espace-producteurs",
-                  "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
-                ) %>
-              </div>
-              <div class="pt-12">
-                <a href={dataset_creation_url()} class="button primary">
-                  <%= dgettext("espace-producteurs", "Publish a new dataset") %>
-                </a>
-              </div>
-            </div>
+          <div>
+            <a href="https://doc.transport.data.gouv.fr/administration-des-donnees">
+              <%= dgettext("espace-producteurs", "Adding a dataset guidelines") %>
+            </a>
           </div>
-          <div class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-bell.svg")} alt="" />
-            <div>
-              <div class="publish-header">
-                <h4><%= dgettext("espace-producteurs", "Receive notifications") %></h4>
-              </div>
-              <div class="pt-12">
-                <%= dgettext(
-                  "espace-producteurs",
-                  "Receive helpful notifications about the data you publish."
-                ) %>
-              </div>
-              <div class="pt-12">
-                <a href={espace_producteur_path(@conn, :notifications)} class="button primary">
-                  <%= dgettext("espace-producteurs", "Manage notifications") %>
-                </a>
-              </div>
-            </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
+            ) %>
           </div>
-          <div :if={show_proxy_stats_block?(@datasets)} class="panel espace-producer-panel">
-            <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
-            <div>
-              <div class="publish-header">
-                <h4><%= dgettext("espace-producteurs", "Your proxy statistics") %></h4>
-              </div>
-              <div class="pt-12">
-                <%= dgettext(
-                  "espace-producteurs",
-                  "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
-                ) %>
-              </div>
-              <div class="pt-12">
-                <a href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
-                  <%= dgettext("espace-producteurs", "See statistics") %>
-                </a>
-              </div>
-            </div>
+          <div class="pt-12">
+            <a href={dataset_creation_url()} class="button primary">
+              <%= dgettext("espace-producteurs", "Publish a new dataset") %>
+            </a>
           </div>
-          <div class="contact-us is-centered pt-24">
-            <div>
-              <img
-                height="70"
-                src={
-                  static_path(
-                    @conn,
-                    "/images/producteurs/streamline-icon-headphones-customer-support-human@140x140.png"
-                  )
-                }
-                alt="contact"
-              />
-            </div>
-            <h3><%= dgettext("espace-producteurs", "Contact us") %></h3>
-            <div>
-              <%= dgettext(
-                "espace-producteurs",
-                "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
-              ) %>
-            </div>
+        </div>
+      </div>
+      <div class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-bell.svg")} alt="" />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Receive notifications") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "Receive helpful notifications about the data you publish."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={espace_producteur_path(@conn, :notifications)} class="button primary">
+              <%= dgettext("espace-producteurs", "Manage notifications") %>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div :if={show_proxy_stats_block?(@datasets)} class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Your proxy statistics") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
+              <%= dgettext("espace-producteurs", "See statistics") %>
+            </a>
           </div>
         </div>
       </div>
     </div>
-  </section>
+    <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
+    <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
+      session: %{"dataset_ids" => Enum.map(@datasets, & &1.id), "mode" => :producer}
+    ) %>
+  </div>
   <div class="tramway">
     <img src={static_path(@conn, "/images/producteurs/tramway.svg")} alt="" />
   </div>
@@ -197,6 +124,6 @@
       </div>
     </div>
   </section>
-</div>
+</section>
 
 <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />

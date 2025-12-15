@@ -107,6 +107,7 @@ defmodule DB.Dataset do
   def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
   def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
   def base_with_hidden_datasets, do: base_query() |> include_hidden_datasets()
+  def reject_archived_datasets(%Ecto.Query{} = query), do: where(query, [dataset: d], is_nil(d.archived_at))
 
   @spec archived?(__MODULE__.t()) :: boolean()
   def archived?(%__MODULE__{archived_at: nil}), do: false
@@ -528,8 +529,8 @@ defmodule DB.Dataset do
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
       |> filter_by_offer(params)
+      |> reject_archived_datasets()
       |> select([dataset: d], d.id)
-      |> where([dataset: d], is_nil(d.archived_at))
 
     base_query()
     |> where([dataset: d], d.id in subquery(q))
@@ -804,6 +805,7 @@ defmodule DB.Dataset do
 
   defp count_by_mode_query(mode) do
     base_query()
+    |> reject_archived_datasets()
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
     |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^mode))
   end
@@ -811,6 +813,7 @@ defmodule DB.Dataset do
   @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.type == ^type)
     |> Repo.aggregate(:count, :id)
   end
@@ -821,13 +824,14 @@ defmodule DB.Dataset do
   @spec count_public_transport_has_realtime :: number()
   def count_public_transport_has_realtime do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.has_realtime and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_by_custom_tag(binary()) :: non_neg_integer()
   def count_by_custom_tag(custom_tag) do
-    base_query() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
+    base_query() |> reject_archived_datasets() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
   end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
@@ -1127,7 +1131,6 @@ defmodule DB.Dataset do
   def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
 
   def reject_experimental_datasets(queryable) do
-    queryable
-    |> where([d], @experimental_tag not in d.tags)
+    queryable |> where([d], @experimental_tag not in d.custom_tags)
   end
 end

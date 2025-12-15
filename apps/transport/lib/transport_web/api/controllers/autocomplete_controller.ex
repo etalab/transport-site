@@ -27,6 +27,9 @@ defmodule TransportWeb.API.AutocompleteController do
 
   defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
 
+  defp get_result_url(conn, %DB.Autocomplete{:place_id => format, :type => "format"}),
+    do: dataset_path(conn, :index, format: format)
+
   defp approx_search_query(query) do
     DB.Autocomplete
     |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
@@ -54,11 +57,12 @@ defmodule TransportWeb.API.AutocompleteController do
       |> order_by(asc: fragment("CASE type
           when 'feature' then 1
           when 'mode' then 2
-          when 'offer' then 3
-          when 'region' then 4
-          when 'departement' then 5
-          when 'epci' then 6
-          else 7 END"))
+          when 'format' then 3
+          when 'offer' then 4
+          when 'region' then 5
+          when 'departement' then 6
+          when 'epci' then 7
+          else 8 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
       |> DB.Repo.all()

@@ -88,9 +88,27 @@
       </details>
     </div>
   </div>
+  <div class="form__group">
+    <%= form_for @conn, explore_path(@conn, :index), [method: "get"], fn f -> %>
+      <div class="searchBar">
+        <%= search_input(f, :q,
+          id: "autoComplete",
+          class: "no_legend",
+          autocomplete: "off",
+          placeholder: dgettext("explore", "Search a city"),
+          "aria-label": dgettext("explore", "Search a city")
+        ) %>
+        <div class="autoCompleteResultsField">
+          <div id="autoCompleteResults"></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 </div>
 
 <div id="map" class="explore_map"></div>
 
+<script src={static_path(@conn, "/js/autocomplete_address.js")}>
+</script>
 <script src={static_path(@conn, "/js/explore.js")}>
 </script>
