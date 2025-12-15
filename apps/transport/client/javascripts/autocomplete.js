@@ -4,6 +4,17 @@
 require('regenerator-runtime')
 const AutoComplete = require('@tarekraafat/autocomplete.js/dist/autoComplete')
 
+const labels = {
+    region: 'région',
+    departement: 'département',
+    epci: 'EPCI',
+    commune: 'commune',
+    feature: 'données contenant…',
+    mode: 'mode de transport',
+    offer: 'offre de transport',
+    format: 'format de données'
+}
+
 document.onkeydown = function (evt) {
     evt = evt || window.event
     if (evt.key === 'Escape' || evt.key === 'Esc') {

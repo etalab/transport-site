@@ -33,7 +33,7 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
     else
       multi_validation_in_scope()
       |> where([mv], fragment("?::date = ?", mv.inserted_at, ^date))
-      |> update([mv], set: [result: nil, data_vis: nil])
+      |> update([mv], set: [result: nil, binary_result: nil, data_vis: nil])
       |> DB.Repo.update_all([])
 
       :ok

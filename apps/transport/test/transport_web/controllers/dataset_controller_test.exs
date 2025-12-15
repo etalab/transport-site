@@ -1224,6 +1224,21 @@ defmodule TransportWeb.DatasetControllerTest do
     refute content =~ other_dataset.custom_title
   end
 
+  test "dataset by format", %{conn: conn} do
+    dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+    insert(:resource, format: "GTFS", dataset: dataset)
+
+    other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+    insert(:resource, format: "NeTEx", dataset: other_dataset)
+
+    content = conn |> get(dataset_path(conn, :index, format: "GTFS")) |> html_response(200)
+
+    assert "GTFS" == dataset_page_title(content)
+    assert content =~ "format de données"
+    assert content =~ dataset.custom_title
+    refute content =~ other_dataset.custom_title
+  end
+
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
     conn
     |> get(dataset_path(conn, :details, dataset.slug))
