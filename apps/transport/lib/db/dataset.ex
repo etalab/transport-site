@@ -1131,7 +1131,6 @@ defmodule DB.Dataset do
   def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
 
   def reject_experimental_datasets(queryable) do
-    queryable
-    |> where([d], @experimental_tag not in d.tags)
+    queryable |> where([d], @experimental_tag not in d.custom_tags)
   end
 end
