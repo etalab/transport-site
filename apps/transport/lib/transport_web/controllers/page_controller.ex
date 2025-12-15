@@ -219,12 +219,8 @@ defmodule TransportWeb.PageController do
           {conn, []}
       end
 
-    last_year = Date.utc_today().year - 1
-
     conn
     |> assign(:datasets, datasets)
-    |> assign(:downloads_reference_year, last_year)
-    |> assign(:downloads_last_year, DB.DatasetMonthlyMetric.downloads_for_year(datasets, last_year))
     |> TransportWeb.Session.set_is_producer(datasets)
     |> render("espace_producteur.html")
   end
