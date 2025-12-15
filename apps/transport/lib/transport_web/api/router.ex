@@ -46,10 +46,10 @@ defmodule TransportWeb.API.Router do
 
     get("/openapi", OpenApiSpex.Plug.RenderSpec, :show)
 
-    scope "/places" do
+    scope "/autocomplete" do
       pipe_through(:public_cache)
 
-      get("/", TransportWeb.API.PlacesController, :autocomplete)
+      get("/", TransportWeb.API.AutocompleteController, :autocomplete)
     end
 
     scope "/datasets" do
@@ -62,6 +62,10 @@ defmodule TransportWeb.API.Router do
 
     scope "/geo-query" do
       get("/", TransportWeb.API.GeoQueryController, :index)
+    end
+
+    scope "/features" do
+      post("/autocomplete", TransportWeb.API.FeaturesController, :autocomplete)
     end
 
     get("/gtfs-stops", TransportWeb.API.GTFSStopsController, :index)

@@ -5,6 +5,8 @@ import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 import { MapView } from '@deck.gl/core'
 import { IGN } from './map-config'
 
+const AutoComplete = require('@tarekraafat/autocomplete.js/dist/autoComplete')
+
 const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
 const map = Leaflet.map('map', { renderer: Leaflet.canvas() })
 
@@ -15,6 +17,13 @@ const deckGLLayer = new LeafletLayer({
     layers: []
 })
 map.addLayer(deckGLLayer)
+
+map.on('movestart', function (event) {
+    deckGLLayer.setProps({
+        // eslint-disable-next-line no-return-assign
+        layers: deckGLLayer.props.layers.map(l => l.visible = false)
+    })
+})
 
 // triggered both by "zoomend" and the end of move
 map.on('moveend', function (event) {
@@ -112,3 +121,51 @@ map.on('moveend', function (event) {
 })
 
 map.fitBounds(metropolitanFranceBounds)
+
+// eslint-disable-next-line no-new
+new AutoComplete({
+    data: {
+        src: async () => {
+            const query = document.querySelector('#autoComplete').value
+            // See https://geoservices.ign.fr/documentation/services/services-geoplateforme/autocompletion
+            const source = await fetch(`https://data.geopf.fr/geocodage/completion/?text=${query}&poiType=administratif&type=StreetAddress&maximumResponses=5`)
+            const data = await source.json()
+            return data.results
+        },
+        keys: ['fulltext'],
+        cache: false
+    },
+    selector: '#autoComplete',
+    threshold: 3,
+    debounce: 200,
+    highlight: true,
+    resultsList: {
+        maxResults: 5,
+        id: 'autoComplete_list',
+        class: 'no_legend',
+        destination: '#autoCompleteResults',
+        position: 'beforeend',
+        tag: 'ul',
+        noResults: true,
+        element: (list, data) => {
+            if (!data.results.length) {
+                const message = document.createElement('li')
+                message.innerHTML = `Pas de résultats pour "<span class="autoComplete_highlighted">${data.query}</span>"`
+                list.prepend(message)
+            }
+        }
+    },
+    resultItem: {
+        element: (source, data) => {
+            source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">adresse</span></div>`
+        },
+        tag: 'li',
+        highlight: 'autoComplete_highlighted',
+        selected: 'autoComplete_selected'
+    }
+})
+
+document.querySelector('#autoComplete').addEventListener('selection', function (event) {
+    event.preventDefault()
+    map.flyTo([event.detail.selection.value.y, event.detail.selection.value.x], 12)
+})

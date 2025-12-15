@@ -9,6 +9,10 @@
   position: absolute;
   text-align: left;
   z-index: 1;
+
+  &.hidden {
+    display: none;
+  }
 }
 
 #magnifier {
@@ -95,4 +99,19 @@
 .autoComplete_highlighted {
   font-weight: bold;
   color: var(--theme-primary);
+  background: transparent;
+}
+
+#autoComplete_list.no_legend {
+  li {
+    &:nth-of-type(1) {
+      border-bottom: 0;
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
+    &:nth-of-type(2)::before {
+      content: '';
+      display: block;
+    }
+  }
 }

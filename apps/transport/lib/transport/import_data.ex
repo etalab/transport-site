@@ -6,7 +6,6 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
-  alias Opendatasoft.UrlExtractor
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -45,10 +44,10 @@ defmodule Transport.ImportData do
     # validation is now gone, replaced by DB.MultiValidation
   end
 
-  def refresh_places do
+  def refresh_autocomplete do
     Logger.info("Refreshing places...")
-    # NOTE: I could not find a way to call "refresh_places()" directly
-    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+    # NOTE: I could not find a way to call "refresh_autocomplete()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW autocomplete;")
   end
 
   def generate_import_logs!(
@@ -105,7 +104,7 @@ defmodule Transport.ImportData do
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
-    refresh_places()
+    refresh_autocomplete()
     result
   end
 
@@ -308,33 +307,18 @@ defmodule Transport.ImportData do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
-      !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
   end
 
   @spec get_valid_netex_resources([map()]) :: [map()]
   def get_valid_netex_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
+    resources |> Enum.filter(&netex?/1) |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
+    resources |> Enum.filter(&gtfs_rt?/1) |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
   end
 
   @doc """

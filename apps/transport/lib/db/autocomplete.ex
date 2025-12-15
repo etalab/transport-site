@@ -1,12 +1,12 @@
-defmodule DB.Place do
+defmodule DB.Autocomplete do
   @moduledoc """
-  Commune schema
+  Autocomplete schema
   """
   use Ecto.Schema
   use TypedEctoSchema
 
   @primary_key false
-  typed_schema "places" do
+  typed_schema "autocomplete" do
     field(:nom, :string)
     field(:type, :string)
     field(:place_id, :string)

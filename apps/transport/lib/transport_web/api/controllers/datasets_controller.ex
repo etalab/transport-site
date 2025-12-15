@@ -334,21 +334,24 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp legal_owners(dataset) do
-    %{
-      "aoms" => legal_owners_aom(dataset.legal_owners_aom),
-      "regions" => legal_owners_region(dataset.legal_owners_region),
-      "company" => dataset.legal_owner_company_siren
-    }
+    legal_owners_aom(dataset.legal_owners_aom) ++
+      legal_owners_region(dataset.legal_owners_region) ++ legal_owners_company(dataset)
   end
 
   defp legal_owners_aom(aoms) do
-    aoms
-    |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
+    Enum.map(aoms, fn aom -> %{"name" => aom.nom, "siren" => aom.siren, "type" => "aom"} end)
   end
 
   defp legal_owners_region(regions) do
-    regions
-    |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
+    Enum.map(regions, fn region -> %{"name" => region.nom, "insee" => region.insee, "type" => "region"} end)
+  end
+
+  def legal_owners_company(%{legal_owner_company_siren: nil}), do: []
+
+  def legal_owners_company(%{legal_owner_company_siren: legal_owner_company_siren}) do
+    [
+      %{"id" => nil, "siren" => legal_owner_company_siren, "type" => "company"}
+    ]
   end
 
   def offers(%DB.Dataset{} = dataset) do

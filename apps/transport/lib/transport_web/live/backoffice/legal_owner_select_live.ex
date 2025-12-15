@@ -11,6 +11,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
           placeholder: "CC du Val de Morteau",
           list: "owner_suggestions",
           phx_keydown: "add_tag",
+          phx_change: "change",
           phx_target: @myself,
           id: "js-owner-input"
         ) %>
@@ -50,18 +51,16 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     {:ok, socket |> assign(assigns) |> assign(:owners_list, owners_list)}
   end
 
-  def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
-    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end)
-    legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
-
-    if is_nil(new_owner) do
+  def handle_event("change", %{"form" => %{"legal_owner_input" => value}}, socket) do
+    if Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end) |> is_nil() do
       {:noreply, socket}
     else
-      # new owners list is sent to the parent liveview form
-      # because this is a LiveComponent, the process of the parent is the same.
-      send(self(), {:updated_legal_owner, legal_owners})
-      {:noreply, socket |> clear_input()}
+      add_owner(value, socket)
     end
+  end
+
+  def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
+    add_owner(value, socket)
   end
 
   def handle_event("add_tag", _, socket) do
@@ -76,6 +75,20 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     send(self(), {:updated_legal_owner, owners})
 
     {:noreply, socket}
+  end
+
+  def add_owner(value, socket) do
+    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end)
+    legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
+
+    if is_nil(new_owner) do
+      {:noreply, socket}
+    else
+      # new owners list is sent to the parent liveview form
+      # because this is a LiveComponent, the process of the parent is the same.
+      send(self(), {:updated_legal_owner, legal_owners})
+      {:noreply, socket |> clear_input()}
+    end
   end
 
   # clear the input using a js hook
