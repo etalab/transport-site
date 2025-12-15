@@ -6,7 +6,6 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
-  alias Opendatasoft.UrlExtractor
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -308,7 +307,6 @@ defmodule Transport.ImportData do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
-      !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
   end
@@ -318,7 +316,6 @@ defmodule Transport.ImportData do
     resources =
       cond do
         !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
         true -> []
       end
 
@@ -330,7 +327,6 @@ defmodule Transport.ImportData do
     resources =
       cond do
         !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
         true -> []
       end
 
