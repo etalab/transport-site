@@ -806,23 +806,28 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @types [
+      "region",
+      "departement",
+      "epci",
+      "commune",
+      "feature",
+      "mode",
+      "offer",
+      "format"
+    ]
+
     @properties %{
       url: %Schema{type: :string, description: "URL of the resource"},
       type: %Schema{
         type: :string,
         description: "Type of the resource",
-        enum: [
-          "region",
-          "departement",
-          "epci",
-          "commune",
-          "feature",
-          "mode",
-          "offer"
-        ]
+        enum: @types
       },
       name: %Schema{type: :string, description: "Name of the resource"}
     }
+
+    def types, do: @types
 
     OpenApiSpex.schema(%{
       title: "Autocomplete result",
