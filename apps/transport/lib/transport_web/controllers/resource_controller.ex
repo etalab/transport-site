@@ -399,7 +399,8 @@ defmodule TransportWeb.ResourceController do
     assign(conn, :current_contact, current_contact)
   end
 
-  defp forwarded_headers_allowlist, do: [
+  defp forwarded_headers_allowlist,
+    do: [
       "content-type",
       "content-length",
       "date",
