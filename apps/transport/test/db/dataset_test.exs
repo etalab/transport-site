@@ -544,6 +544,7 @@ defmodule DB.DatasetDBTest do
     france = insert(:administrative_division, type: :pays, insee: "FR", nom: "France")
     dataset = insert(:dataset)
     dataset_2 = insert(:dataset, declarative_spatial_areas: [france])
+    archived_dataset = insert(:dataset, archived_at: DateTime.utc_now())
 
     # As filled by `Transport.CounterCache`
     insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: dataset)
@@ -552,6 +553,8 @@ defmodule DB.DatasetDBTest do
     insert(:resource, counter_cache: %{gtfs_modes: ["bus"]}, dataset: dataset_2)
     insert(:resource, counter_cache: %{gtfs_modes: ["ski"]}, dataset: dataset_2)
 
+    insert(:resource, counter_cache: %{gtfs_modes: ["ski"]}, dataset: archived_dataset)
+
     assert DB.Dataset.count_by_mode("bus") == 2
     assert DB.Dataset.count_by_mode("ski") == 2
     # this counts datasets covering France with bus resources
@@ -559,9 +562,44 @@ defmodule DB.DatasetDBTest do
   end
 
   test "count_by_custom_tag" do
+    insert(:dataset, archived_at: DateTime.utc_now(), custom_tags: ["foo"])
+
     assert 0 == DB.Dataset.count_by_custom_tag("foo")
+
     insert(:dataset, type: "public-transit", is_active: true, custom_tags: ["bar", "foo"])
+
     assert 1 == DB.Dataset.count_by_custom_tag("foo")
+  end
+
+  test "count_by_type" do
+    insert(:dataset, type: "public-transit")
+    insert(:dataset, type: "public-transit")
+
+    insert(:dataset, type: "road-data")
+    insert(:dataset, type: "road-data", archived_at: DateTime.utc_now())
+
+    assert %{
+             "bike-data" => 0,
+             "carpooling-areas" => 0,
+             "carpooling-lines" => 0,
+             "carpooling-offers" => 0,
+             "charging-stations" => 0,
+             "informations" => 0,
+             "pedestrian-path" => 0,
+             "public-transit" => 2,
+             "road-data" => 1,
+             "vehicles-sharing" => 0
+           } == DB.Dataset.count_by_type()
+  end
+
+  test "count_public_transport_has_realtime" do
+    assert 0 == DB.Dataset.count_public_transport_has_realtime()
+
+    insert(:dataset, type: "public-transit", has_realtime: true)
+    insert(:dataset, type: "public-transit", has_realtime: false)
+    insert(:dataset, type: "public-transit", has_realtime: true, archived_at: DateTime.utc_now())
+
+    assert 1 == DB.Dataset.count_public_transport_has_realtime()
   end
 
   test "correct organization type" do
@@ -830,5 +868,47 @@ defmodule DB.DatasetDBTest do
 
     expected = commune.population + departement.population
     {:ok, %DB.Dataset{population: ^expected}} = changeset |> DB.Repo.insert_or_update()
+  end
+
+  test "spatial area overlap" do
+    region =
+      insert(:administrative_division,
+        geom: %Geo.Polygon{
+          coordinates: [
+            [
+              {55.0, 3.0},
+              {60.0, 3.0},
+              {60.0, 5.0},
+              {55.0, 5.0},
+              {55.0, 3.0}
+            ]
+          ],
+          srid: 4326
+        }
+      )
+
+    commune =
+      insert(:administrative_division,
+        type_insee: "commune",
+        geom: %Geo.Polygon{
+          coordinates: [
+            [
+              {58.0, 4.0},
+              {62.0, 4.0},
+              {62.0, 6.0},
+              {58.0, 6.0},
+              {58.0, 4.0}
+            ]
+          ],
+          srid: 4326
+        }
+      )
+
+    dataset = insert(:dataset, declarative_spatial_areas: [region, commune])
+
+    assert {{:error, ~s|%{declarative_spatial_areas: ["Spatial areas overlap"]}|}, logs} =
+             with_log(fn -> DB.Dataset.changeset(%{"datagouv_id" => dataset.datagouv_id}) end)
+
+    assert logs =~ "error while importing dataset: %{declarative_spatial_areas"
   end
 end

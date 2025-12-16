@@ -14,13 +14,15 @@
   }
 }
 
+.producer-actions {
+  background-color: var(--theme-background-grey);
+  padding-top: 24px;
+  padding-bottom: 48px;
+}
+
 .producer-space {
   background-color: var(--theme-background-grey);
   min-height: 80vh;
-
-  table td.align-right {
-    text-align: right;
-  }
 
   .button.primary {
     background-color: var(--primary-color-producer);
@@ -39,68 +41,5 @@
   display: flex;
   img {
     padding-right: 12px;
-  }
-}
-
-.resources-update-list {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -24px;
-  .panel {
-    margin: 0 24px 12px;
-    display: flex;
-    align-items: center;
-    img {
-      padding-right: 12px;
-    }
-  }
-  a {
-    text-decoration: none;
-    color: initial;
-  }
-}
-
-.producer-actions {
-  background-color: var(--theme-background-grey);
-  padding-top: 24px;
-  padding-bottom: 48px;
-  .producer-actions-flex {
-    display: flex;
-    align-items: stretch;
-    flex-wrap: wrap;
-    margin: 0 -24px;
-    > div {
-      margin: 0 24px;
-      flex-basis: 350px;
-      flex-grow: 1;
-      margin-bottom: 24px;
-    }
-    h3.with-link {
-      margin-bottom: 0;
-    }
-    .update-header,
-    .publish-header {
-      display: flex;
-      img {
-        padding-right: 12px;
-        height: 40px;
-        margin-top: -5px;
-      }
-    }
-  }
-  .dataset-item {
-    .button-outline {
-      margin-right: 5px;
-    }
-  }
-  form.full-width {
-    max-width: 100%;
-  }
-}
-
-a.filler {
-  margin-right: .3em;
-  &:first-child {
-    margin-left: .5em;
   }
 }

@@ -57,6 +57,8 @@ defmodule Transport.Validators.NeTEx.Validator do
   def handle_validation_results(validation_results, resource_history_id, on_pending) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         insert_validation_results(
           resource_history_id,
           result_url,
@@ -66,6 +68,8 @@ defmodule Transport.Validators.NeTEx.Validator do
         :ok
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         insert_validation_results(
           resource_history_id,
           result_url,
@@ -76,11 +80,15 @@ defmodule Transport.Validators.NeTEx.Validator do
         :ok
 
       {:error, :unexpected_validation_status} ->
+        notify_invalid_api_call(resource_history_id)
+
         Logger.error("Invalid API call to enRoute Chouette Valid (resource_history_id: #{resource_history_id})")
 
         :ok
 
       {:error, %{message: :timeout, retries: _retries}} ->
+        notify_timeout(resource_history_id)
+
         Logger.error(
           "Timeout while fetching results on enRoute Chouette Valid (resource_history_id: #{resource_history_id})"
         )
@@ -123,6 +131,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   defp handle_validation_results_on_demand(validation_results) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
         # result_url in metadata?
         Logger.info("Result URL: #{result_url}")
 
@@ -133,6 +142,8 @@ defmodule Transport.Validators.NeTEx.Validator do
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         Logger.info("Result URL: #{result_url}")
         # result_url in metadata?
         {:ok,
@@ -142,11 +153,17 @@ defmodule Transport.Validators.NeTEx.Validator do
          }}
 
       {:error, :unexpected_validation_status} ->
+        notify_invalid_api_call()
+
         Logger.error("Invalid API call to enRoute Chouette Valid")
+
         {:error, %{message: "enRoute Chouette Valid: Unexpected validation status"}}
 
       {:error, %{message: :timeout, retries: retries}} ->
+        notify_timeout()
+
         Logger.error("Timeout while fetching results on enRoute Chouette Valid")
+
         {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
 
       {:pending, validation_id} ->
@@ -192,6 +209,7 @@ defmodule Transport.Validators.NeTEx.Validator do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: result,
+      binary_result: ResultsAdapter.to_binary_result(result),
       digest: ResultsAdapter.digest(result),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
@@ -230,4 +248,22 @@ defmodule Transport.Validators.NeTEx.Validator do
   defp client do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()
   end
+
+  defp notify_success, do: Appsignal.increment_counter("enroute_chouette_valid.success", 1)
+
+  defp notify_invalid_api_call, do: Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1)
+
+  defp notify_invalid_api_call(resource_history_id),
+    do:
+      Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1, %{
+        resource_history_id: resource_history_id
+      })
+
+  defp notify_timeout, do: Appsignal.increment_counter("enroute_chouette_valid.timeout", 1)
+
+  defp notify_timeout(resource_history_id),
+    do:
+      Appsignal.increment_counter("enroute_chouette_valid.timeout", 1, %{
+        resource_history_id: resource_history_id
+      })
 end

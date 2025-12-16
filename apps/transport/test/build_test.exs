@@ -78,8 +78,8 @@ defmodule TransportWeb.BuildTest do
     content = File.read!("../../Dockerfile.dev")
     [[_, docker_compose_version]] = Regex.scan(~r/FROM (ghcr.*)/, content)
 
-    content = File.read!("../../.circleci/config.yml")
-    [[_, ci_version]] = Regex.scan(~r/(ghcr.*)/, content)
+    content = File.read!("../../.github/workflows/test.yml")
+    [[_, ci_version]] = Regex.scan(~r/(ghcr.*)/, content) |> Enum.uniq()
 
     assert ci_version == production_version
     assert ci_version == docker_compose_version

@@ -1,0 +1,11 @@
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const contactId = <%= get_in(@conn.assigns.current_contact.id) |> Jason.encode!() %>;
+  const labels = <%= TransportWeb.PageView.autocomplete_translations() |> Jason.encode!() |> raw() %>;
+</script>
+<style nonce={@conn.assigns[:csp_nonce_value]}>
+  #autoComplete_list li:nth-of-type(2)::before {
+    content: '<%= autocomplete_translations() |> Map.fetch!("results-description") %>';
+  }
+</style>
+<script src={static_path(@conn, "/js/autocomplete.js")}>
+</script>

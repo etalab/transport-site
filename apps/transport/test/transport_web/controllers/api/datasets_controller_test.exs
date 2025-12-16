@@ -394,7 +394,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
           slug: "slug-2",
           is_active: true,
           created_at: ~U[2021-12-23 13:30:40.000000Z],
-          tags: ["netex", "experimental"]
+          custom_tags: ["netex", "experimental"]
         ),
       url: "https://link.to/gbfs.json",
       datagouv_id: "2",
@@ -673,7 +673,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         datagouv_id: "datagouv-2",
         is_active: true,
         created_at: ~U[2021-12-23 13:30:40.000000Z],
-        tags: ["netex", "experimental"]
+        custom_tags: ["netex", "experimental"]
       )
 
     assert %{"datagouv_id" => ^visible_dataset_datagouv_id} =

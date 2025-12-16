@@ -236,7 +236,4 @@
     </div>
   </section>
 <% end %>
-<script nonce={@conn.assigns[:csp_nonce_value]}>
-  const contactId = <%= get_in(@conn.assigns.current_contact.id) |> Jason.encode!() %>;
-</script>
-<script src={static_path(@conn, "/js/autocomplete.js")} />
+<%= render(TransportWeb.PageView, "_home_autocomplete.html", conn: @conn) %>

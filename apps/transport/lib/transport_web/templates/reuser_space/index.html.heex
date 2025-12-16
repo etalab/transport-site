@@ -80,7 +80,9 @@
       </div>
     </div>
     <h2 class="pt-48"><%= dgettext("reuser-space", "Favorite datasets") %></h2>
-    <%= live_render(@conn, TransportWeb.Live.FollowedDatasetsLive, session: %{"dataset_ids" => @followed_datasets_ids}) %>
+    <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
+      session: %{"dataset_ids" => @followed_datasets_ids, "mode" => :reuser}
+    ) %>
   </div>
 </section>
 <div class="tramway">
