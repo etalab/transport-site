@@ -231,9 +231,7 @@ defmodule Transport.GTFSDiff do
     }
   end
 
-  def file_diff(unzip_1, unzip_2) do
-    %{added_files: added_files, deleted_files: deleted_files} = compare_files(unzip_1, unzip_2)
-
+  def file_diff(%{added_files: added_files, deleted_files: deleted_files}) do
     added_files_diff =
       added_files
       |> Enum.map(fn file ->
@@ -249,9 +247,7 @@ defmodule Transport.GTFSDiff do
     added_files_diff ++ deleted_files_diff
   end
 
-  def column_diff(unzip_1, unzip_2) do
-    %{same_files: same_files, added_files: added_files} = compare_files(unzip_1, unzip_2)
-
+  def column_diff(unzip_1, unzip_2, %{same_files: same_files, added_files: added_files}) do
     (same_files ++ added_files)
     |> Enum.flat_map(fn file_name ->
       column_name_1 = get_headers(unzip_1, file_name)
@@ -310,8 +306,10 @@ defmodule Transport.GTFSDiff do
   end
 
   def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
-    file_diff = file_diff(unzip_1, unzip_2)
-    column_diff = column_diff(unzip_1, unzip_2)
+    files_comparison = compare_files(unzip_1, unzip_2)
+
+    file_diff = file_diff(files_comparison)
+    column_diff = column_diff(unzip_1, unzip_2, files_comparison)
     row_diff = row_diff(unzip_1, unzip_2, notify_func, locale, profile)
 
     diff = file_diff ++ column_diff ++ row_diff
