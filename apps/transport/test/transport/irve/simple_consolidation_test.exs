@@ -16,7 +16,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       # Mock HTTP requests for resource content
 
-      [resource_file_path_1, resource_file_path_2] = mock_resource_downloads()
+      mock_resource_downloads()
+      # [resource_file_path_1, resource_file_path_2] = mock_resource_downloads()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
@@ -28,23 +29,44 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       # Verify data file was created and contains expected content
 
-      [first_import_file, _second_import_file] =
+      [first_import_file] =
         DB.IRVEValidFile
         |> order_by([f], asc: f.dataset_datagouv_id)
         |> DB.Repo.all()
 
-      assert first_import_file.dataset_datagouv_id == "another-dataset-id"
-      assert first_import_file.resource_datagouv_id == "another-resource-id"
+      assert first_import_file.dataset_datagouv_id == "the-dataset-id"
+      assert first_import_file.resource_datagouv_id == "the-resource-id"
 
-      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 2
+      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
 
-      refute File.exists?(resource_file_path_1)
-      refute File.exists?(resource_file_path_2)
+      refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
+      refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
       assert File.exists?("irve_processed_resources.csv")
-      File.rm!("irve_processed_resources.csv")
+      report_content = "irve_processed_resources.csv" |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
-      # TODO: test the report
-      # TODO: improve test to have a failure in resources
+      [
+        %{
+          "dataset_id" => "another-dataset-id",
+          "dataset_title" => "another-dataset-title",
+          "error_message" => error_message,
+          "error_type" => "ArgumentError",
+          "resource_id" => "another-resource-id",
+          "status" => "error_occurred",
+          "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+        },
+        %{
+          "dataset_id" => "the-dataset-id",
+          "dataset_title" => "the-dataset-title",
+          "error_message" => "",
+          "error_type" => "",
+          "resource_id" => "the-resource-id",
+          "status" => "import_successful",
+          "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+        }
+      ] = ^report_content
+
+      assert error_message =~ "could not find column name \"nom_station\"."
+      File.rm!("irve_processed_resources.csv")
     end
   end
 
@@ -71,21 +93,47 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
   end
 
   defp mock_resource_downloads do
-    resource_file_path_1 = System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat")
-    resource_file_path_2 = System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat")
-
-    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
-    File.write!(resource_file_path_1, body)
-    File.write!(resource_file_path_2, body)
-
     Transport.Req.Mock
-    |> expect(:get!, 2, fn _url, _options ->
-      %Req.Response{
-        status: 200,
-        body: File.stream!(resource_file_path_1)
-      }
+    # We need to have a single call with single expect to work properly
+    # because Mox matches in order of definition
+    #  and task process order is not deterministic
+    |> expect(:get!, 2, fn _url, options ->
+      # We deal with different cases with a pattern match inside the function
+      resource_mock(options)
     end)
+  end
 
-    [resource_file_path_1, resource_file_path_2]
+  # A correct resource!
+  def resource_mock(
+        into: into,
+        decode_body: false,
+        compressed: false,
+        url: "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+      ) do
+    path = into.path
+    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+    File.write!(path, body)
+
+    %Req.Response{
+      status: 200,
+      body: File.stream!(path)
+    }
+  end
+
+  # This one won’t be valid, we remove a required column
+  def resource_mock(
+        into: into,
+        decode_body: false,
+        compressed: false,
+        url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+      ) do
+    path = into.path
+    body = [DB.Factory.IRVE.generate_row() |> Map.pop!("nom_station") |> elem(1)] |> DB.Factory.IRVE.to_csv_body()
+    File.write!(path, body)
+
+    %Req.Response{
+      status: 200,
+      body: File.stream!(path)
+    }
   end
 end
