@@ -154,6 +154,20 @@ defmodule Transport.GTFSDiffTest do
 
     test "simple diff" do
       diff = [%{action: "delete", file: "stops.txt", id: 1, identifier: %{"stop_id" => "near1"}, target: "row"}]
+
+      diff_from_csv = [
+        %{
+          "action" => "delete",
+          "file" => "stops.txt",
+          "id" => "1",
+          "identifier" => %{"stop_id" => "near1"} |> Jason.encode!(),
+          "target" => "row",
+          "initial_value" => "",
+          "new_value" => "",
+          "note" => ""
+        }
+      ]
+
       tmp_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
       refute File.exists?(tmp_path)
       Transport.GTFSDiff.dump_diff(diff, tmp_path)
@@ -163,6 +177,9 @@ defmodule Transport.GTFSDiffTest do
                ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"],
                ["1", "stops.txt", "delete", "row", ~s({"stop_id":"near1"}), "", "", ""]
              ] == read_csv(tmp_path)
+
+      assert diff_from_csv ==
+               File.read!(tmp_path) |> Transport.GTFSDiff.parse_diff_output()
 
       File.rm(tmp_path)
     end
