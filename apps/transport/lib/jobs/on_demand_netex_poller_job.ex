@@ -74,6 +74,8 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   defp build_successful_validation_result(%{"validations" => validation, "metadata" => metadata}, url) do
     %{
       result: validation,
+      binary_result: ResultsAdapter.to_binary_result(validation),
+      digest: ResultsAdapter.digest(validation),
       metadata: metadata,
       data_vis: nil,
       validator: Validator.validator_name(),
