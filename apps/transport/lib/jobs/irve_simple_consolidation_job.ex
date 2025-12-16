@@ -6,6 +6,6 @@ defmodule Transport.Jobs.IRVESimpleConsolidationJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
-    Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+    Transport.IRVE.SimpleConsolidation.process()
   end
 end
