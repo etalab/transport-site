@@ -15,8 +15,33 @@ channel.join()
 
 let gtfsChannelRef
 
-const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
-const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).fitBounds(metropolitanFranceBounds)
+// Default location is Paris
+const DEFAULT_LAT = 48.8575
+const DEFAULT_LNG = 2.3514
+const DEFAULT_ZOOM = 6
+
+function getMapParamsFromUrlPath () {
+    // Example Path: /explore?@34.0522,-118.2437,10
+    const path = decodeURIComponent(window.location.search)
+    const parts = path.split('@')
+
+    // If there is no '@' segment, return defaults
+    if (parts.length < 2) {
+        return { lat: DEFAULT_LAT, lng: DEFAULT_LNG, zoom: DEFAULT_ZOOM }
+    }
+
+    const coordsStr = parts[1]
+    const [latStr, lngStr, zoomStr] = coordsStr.split(',')
+
+    const lat = parseFloat(latStr) || DEFAULT_LAT
+    const lng = parseFloat(lngStr) || DEFAULT_LNG
+
+    const zoom = parseInt(zoomStr, 10) || DEFAULT_ZOOM
+    return { lat, lng, zoom }
+}
+
+const { lat, lng, zoom } = getMapParamsFromUrlPath()
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([lat, lng], zoom)
 
 Leaflet.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
@@ -105,6 +130,10 @@ function withQueryParams (alter) {
 
 function setQueryFlag (key) {
     withQueryParams(params => params.set(key, 'yes'))
+}
+
+function setQueryParam (key, value) {
+    withQueryParams(params => params.set(key, value))
 }
 
 function unsetQueryFlag (key) {
@@ -303,6 +332,20 @@ function createPointsLayer (geojson, id) {
         visible: geojson !== null
     })
 }
+
+function updateUrl () {
+    const center = map.getCenter()
+    const zoom = map.getZoom()
+
+    const lat = center.lat.toFixed(5)
+    const lng = center.lng.toFixed(5)
+    const z = zoom
+
+    const params = `${lat},${lng},${z}`
+    setQueryParam('@', params)
+}
+
+map.on('moveend', updateUrl)
 
 // Autocomplete
 document.querySelector('#autoComplete').addEventListener('selection', function (event) {
