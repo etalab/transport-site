@@ -5,8 +5,33 @@ import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 import { MapView } from '@deck.gl/core'
 import { IGN } from './map-config'
 
-const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
-const map = Leaflet.map('map', { renderer: Leaflet.canvas() })
+// Default location is Paris
+const DEFAULT_LAT = 48.8575
+const DEFAULT_LNG = 2.3514
+const DEFAULT_ZOOM = 6
+
+function getMapParamsFromUrlPath () {
+    // Example Path: /gtfs-stops?@34.0522,-118.2437,10
+    const path = window.location.search
+    const parts = path.split('?@')
+
+    // If there is no '?@' segment, return defaults
+    if (parts.length < 2) {
+        return { lat: DEFAULT_LAT, lng: DEFAULT_LNG, zoom: DEFAULT_ZOOM }
+    }
+
+    const coordsStr = parts[1]
+    const [latStr, lngStr, zoomStr] = coordsStr.split(',')
+
+    const lat = parseFloat(latStr) || DEFAULT_LAT
+    const lng = parseFloat(lngStr) || DEFAULT_LNG
+
+    const zoom = parseInt(zoomStr, 10) || DEFAULT_ZOOM
+    return { lat, lng, zoom }
+}
+
+const { lat, lng, zoom } = getMapParamsFromUrlPath()
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([lat, lng], zoom)
 
 Leaflet.tileLayer(IGN.url, IGN.config).addTo(map)
 
@@ -118,7 +143,27 @@ map.on('moveend', function (event) {
         .catch(e => console.log(e))
 })
 
-map.fitBounds(metropolitanFranceBounds)
+function updateUrl () {
+    const center = map.getCenter()
+    const zoom = map.getZoom()
+
+    const lat = center.lat.toFixed(5)
+    const lng = center.lng.toFixed(5)
+    const z = zoom
+
+    const newPath = `?@${lat},${lng},${z}`
+    const currentPath = window.location.pathname.split('?@')[0]
+
+    window.history.pushState(
+        { lat, lng, z },
+        '',
+        currentPath + newPath
+    )
+}
+
+map.on('moveend', updateUrl)
+
+map.fire('moveend', { source: 'load' })
 
 document.querySelector('#autoComplete').addEventListener('selection', function (event) {
     event.preventDefault()
