@@ -906,6 +906,18 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
@@ -913,22 +925,8 @@ defmodule TransportWeb.ResourceControllerTest do
         metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
         features: ["Bike Allowed"]
       },
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
@@ -962,6 +960,18 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 2
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
@@ -969,22 +979,8 @@ defmodule TransportWeb.ResourceControllerTest do
         metadata: %{"start_date" => "", "end_date" => ""},
         features: ["Bike Allowed"]
       },
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
@@ -995,7 +991,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # Validation
     assert response |> html_response(200) =~ "Rapport de validation"
-    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "2 avertissements"
     assert response |> html_response(200) =~ "unusable_trip"
   end
 
@@ -1015,25 +1011,23 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 

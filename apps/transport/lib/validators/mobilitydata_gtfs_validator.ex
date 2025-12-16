@@ -132,7 +132,10 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   iex> digest([])
   %{"max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0}, "stats" => %{}, "summary" => []}
   """
-  @spec digest([map()]) :: map()
+
+  @spec digest([map()] | map()) :: map()
+  def digest(%{"notices" => notices}), do: digest(notices)
+
   def digest(validation_result) do
     %{
       "stats" => count_by_severity(validation_result),
