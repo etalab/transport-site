@@ -61,6 +61,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
         timeout: :timer.seconds(60),
         max_concurrency: 10
       )
+      # If a task times out, we get {:exit, :timeout} instead of {:ok, result} and the following line will crash.
+      # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&ReportRow.from_result/1)
       |> Enum.into([])
@@ -71,7 +73,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
     |> Transport.IRVE.RawStaticConsolidation.exclude_irrelevant_resources()
-    # |> maybe_filter(options[:filter])
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
@@ -123,11 +124,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
         Logger.info("Saving report to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
-
-    # NOTE: to be removed ; but nicely displays what happened
-    # report_df["status"]
-    # |> Explorer.Series.frequencies()
-    # |> IO.inspect(IEx.inspect_opts())
   end
 
   def storage_path(resource_id) do
