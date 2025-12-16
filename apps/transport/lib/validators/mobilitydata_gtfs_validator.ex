@@ -126,7 +126,9 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
   """
-  @spec digest([map()]) :: map()
+  @spec digest([map()] | map()) :: map()
+  def digest(%{"notices" => notices}), do: digest(notices)
+
   def digest([]) do
     %{"stats" => nil, "max_severity" => nil, "summary" => nil}
   end

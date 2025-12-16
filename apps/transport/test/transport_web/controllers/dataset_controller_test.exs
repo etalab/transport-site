@@ -356,10 +356,23 @@ defmodule TransportWeb.DatasetControllerTest do
     resource = insert(:resource, dataset: dataset, format: "GTFS")
     resource_history = insert(:resource_history, resource_id: resource.id)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "ERROR",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation,
       resource_history: resource_history,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
-      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}},
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       metadata: %DB.ResourceMetadata{
         metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
         features: ["Bike Allowed"]
@@ -390,10 +403,23 @@ defmodule TransportWeb.DatasetControllerTest do
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
     )
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "ERROR",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation,
       resource_history: resource_history,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
-      digest: %{"stats" => %{"ERROR" => 1}, "max_severity" => %{"max_level" => "ERROR", "worst_occurrences" => 1}}
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result)
     )
 
     mock_empty_history_resources()
@@ -419,6 +445,18 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 2
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
@@ -426,22 +464,8 @@ defmodule TransportWeb.DatasetControllerTest do
         metadata: %{"start_date" => "", "end_date" => ""},
         features: ["Bike Allowed"]
       },
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
-        "stats" => %{"WARNING" => 2},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
