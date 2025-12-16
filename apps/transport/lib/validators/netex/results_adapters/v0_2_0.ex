@@ -172,11 +172,17 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
         %{"issues_category" => issues_category} = filter,
         %Scrivener.Config{} = pagination_config
       ) do
-    {filter,
-     df
-     |> DF.filter(category == ^issues_category)
-     |> order_issues_by_location()
-     |> Commons.count_and_slice(pagination_config)}
+    results =
+      if Commons.has_column?(df, "category") do
+        df
+        |> DF.filter(category == ^issues_category)
+        |> order_issues_by_location()
+        |> Commons.count_and_slice(pagination_config)
+      else
+        {0, []}
+      end
+
+    {filter, results}
   end
 
   def get_issues(%Explorer.DataFrame{} = df, %{}, %Scrivener.Config{} = pagination_config) do
@@ -194,7 +200,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
     ordered_categories = categories_preferred_order |> Enum.with_index() |> Map.new()
 
-    categories |> Enum.sort_by(&ordered_categories[&1]) |> List.first()
+    default_category = categories |> Enum.sort_by(&ordered_categories[&1]) |> List.first()
+
+    default_category || @xsd_schema_category
   end
 
   def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")

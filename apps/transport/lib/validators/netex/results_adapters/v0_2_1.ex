@@ -121,11 +121,17 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
         %{"issues_category" => issues_category} = filter,
         %Scrivener.Config{} = pagination_config
       ) do
-    {filter,
-     df
-     |> DF.filter(category == ^issues_category)
-     |> order_issues_by_location()
-     |> Commons.count_and_slice(pagination_config)}
+    results =
+      if Commons.has_column?(df, "category") do
+        df
+        |> DF.filter(category == ^issues_category)
+        |> order_issues_by_location()
+        |> Commons.count_and_slice(pagination_config)
+      else
+        {0, []}
+      end
+
+    {filter, results}
   end
 
   def get_issues(%Explorer.DataFrame{} = df, %{}, %Scrivener.Config{} = pagination_config) do

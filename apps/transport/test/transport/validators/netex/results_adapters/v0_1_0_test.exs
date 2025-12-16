@@ -15,7 +15,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
     "criticity" => "error"
   }
 
-  test "get_issues from binary" do
+  test "get_issues from binary, with errors" do
     pagination_config = make_pagination_config(%{})
 
     binary_result =
@@ -40,6 +40,34 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
              V0_1_0.get_issues(binary_result, %{"issue_type" => "xsd-123"}, pagination_config)
 
     assert {%{"issue_type" => "valid-day-bits"}, {41, repeated(@rule, 1)}} ==
+             V0_1_0.get_issues(binary_result, %{"issue_type" => "valid-day-bits"}, pagination_config)
+  end
+
+  test "get_issues from binary, no error" do
+    pagination_config = make_pagination_config(%{})
+
+    binary_result =
+      result_factory("xsd-123": 0, "valid-day-bits": 0)
+      |> V0_1_0.to_binary_result()
+
+    assert {%{"issue_type" => ""}, {0, repeated(@rule, 0)}} ==
+             V0_1_0.get_issues(binary_result, %{}, pagination_config)
+
+    assert {%{"issue_type" => "xsd-123"}, {0, repeated(@xsd, 0)}} ==
+             V0_1_0.get_issues(binary_result, %{"issue_type" => "xsd-123"}, pagination_config)
+
+    assert {%{"issue_type" => "valid-day-bits"}, {0, repeated(@rule, 0)}} ==
+             V0_1_0.get_issues(binary_result, %{"issue_type" => "valid-day-bits"}, pagination_config)
+
+    pagination_config = make_pagination_config(%{"page" => "3"})
+
+    assert {%{"issue_type" => ""}, {0, repeated(@rule, 0)}} ==
+             V0_1_0.get_issues(binary_result, %{}, pagination_config)
+
+    assert {%{"issue_type" => "xsd-123"}, {0, repeated(@xsd, 0)}} ==
+             V0_1_0.get_issues(binary_result, %{"issue_type" => "xsd-123"}, pagination_config)
+
+    assert {%{"issue_type" => "valid-day-bits"}, {0, repeated(@rule, 0)}} ==
              V0_1_0.get_issues(binary_result, %{"issue_type" => "valid-day-bits"}, pagination_config)
   end
 
