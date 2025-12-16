@@ -6,6 +6,9 @@ defmodule Transport.GTFSDiff do
   require Logger
   use Gettext, backend: TransportWeb.Gettext
 
+  # Currently one of "core" | "full"
+  @type profile :: String.t()
+
   @primary_keys %{
     "agency.txt" => ["agency_id"],
     "attributions.txt" => ["organization_name"],
@@ -66,6 +69,9 @@ defmodule Transport.GTFSDiff do
     res
   end
 
+  # Read a diff from a CSV file following the MobilityData standard
+  # (https://github.com/MobilityData/gtfs_diff/blob/main/specification.md).
+  @spec parse_diff_output(binary()) :: list(map())
   def parse_diff_output(binary) do
     {l, _headers} =
       binary
@@ -280,6 +286,10 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
+  # Compute diff of the gtfs zip archives.
+  @spec diff(Unzip.t(), Unzip.t(), profile()) :: list(map())
+  @spec diff(Unzip.t(), Unzip.t(), profile(), (String.t() -> :ok) | nil) :: list(map())
+  @spec diff(Unzip.t(), Unzip.t(), profile(), (String.t() -> :ok) | nil, String.t()) :: list(map())
   def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
     files_comparison = compare_files(unzip_1, unzip_2)
 
@@ -292,6 +302,9 @@ defmodule Transport.GTFSDiff do
     diff |> Enum.with_index(&Map.merge(&1, %{id: &2}))
   end
 
+  # Write a diff to a CSV file following the MobilityData standard
+  # (https://github.com/MobilityData/gtfs_diff/blob/main/specification.md).
+  @spec dump_diff(list(map()), Path.t()) :: :ok
   def dump_diff(diff, filepath) do
     headers = ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"]
 
@@ -327,6 +340,8 @@ defmodule Transport.GTFSDiff do
     unzip |> Unzip.list_entries() |> Enum.map(&Map.get(&1, :file_name)) |> Enum.filter(fn elm -> elm in files end)
   end
 
+  # Static list of files expected in a GTFS diff output for a given profile.
+  @spec files_to_analyze(profile()) :: list(String.t())
   def files_to_analyze(profile) do
     case profile do
       "core" ->
