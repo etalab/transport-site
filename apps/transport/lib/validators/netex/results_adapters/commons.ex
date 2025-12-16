@@ -109,10 +109,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   defp drop_empty_values(map), do: Map.filter(map, fn {_key, value} -> value != %{} and not is_nil(value) end)
 
   def get_values(%Explorer.DataFrame{} = df, column) do
-    df
-    |> DF.distinct([column])
-    |> DF.to_rows()
-    |> Enum.map(& &1[column])
+    if has_column?(df, column) do
+      df
+      |> DF.distinct([column])
+      |> DF.to_rows()
+      |> Enum.map(& &1[column])
+    else
+      []
+    end
   end
 
   def count_and_slice(%Explorer.DataFrame{} = df, pagination_config) do
@@ -124,5 +128,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
       |> to_issues()
 
     {total_count, issues}
+  end
+
+  def has_column?(df, column_name) do
+    df
+    |> DF.names()
+    |> Enum.member?(column_name)
   end
 end

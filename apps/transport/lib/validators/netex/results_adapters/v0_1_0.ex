@@ -173,11 +173,17 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
         %{"issue_type" => issue_type} = filter,
         %Scrivener.Config{} = pagination_config
       ) do
-    {filter,
-     df
-     |> DF.filter(code == ^issue_type)
-     |> order_issues_by_location()
-     |> Commons.count_and_slice(pagination_config)}
+    results =
+      if Commons.has_column?(df, "code") do
+        df
+        |> DF.filter(code == ^issue_type)
+        |> order_issues_by_location()
+        |> Commons.count_and_slice(pagination_config)
+      else
+        {0, []}
+      end
+
+    {filter, results}
   end
 
   def get_issues(%Explorer.DataFrame{} = df, %{}, %Scrivener.Config{} = pagination_config) do
@@ -189,7 +195,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   def get_issues(_, _, _), do: {%{"issue_type" => ""}, {0, []}}
 
   def pick_default_issue_type(%Explorer.DataFrame{} = df) do
-    get_codes(df) |> List.first()
+    get_codes(df) |> List.first() || ""
   end
 
   def get_codes(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "code")
