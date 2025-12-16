@@ -125,13 +125,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     "stats" => %{"WARNING" => 2},
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
+  iex> digest([])
+  %{"max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0}, "stats" => %{}, "summary" => []}
   """
+
   @spec digest([map()] | map()) :: map()
   def digest(%{"notices" => notices}), do: digest(notices)
-
-  def digest([]) do
-    %{"stats" => nil, "max_severity" => nil, "summary" => nil}
-  end
 
   def digest(validation_result) do
     %{

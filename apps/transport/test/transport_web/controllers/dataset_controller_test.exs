@@ -388,6 +388,27 @@ defmodule TransportWeb.DatasetControllerTest do
     assert content =~ "31/12/2025"
   end
 
+  test "displays no error when validated with the MobilityData validator", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    result = %{"notices" => []}
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result["notices"])
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "Pas d'erreur"
+  end
+
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, format: "GTFS")
