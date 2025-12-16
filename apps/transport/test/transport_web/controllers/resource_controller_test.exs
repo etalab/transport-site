@@ -976,8 +976,8 @@ defmodule TransportWeb.ResourceControllerTest do
         "summary" => %{"validatorVersion" => "4.2.0"}
       },
       digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
+        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 2},
+        "stats" => %{"WARNING" => 2},
         "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
       },
       max_error: "WARNING"
@@ -990,7 +990,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # Validation
     assert response |> html_response(200) =~ "Rapport de validation"
-    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "2 avertissements"
     assert response |> html_response(200) =~ "unusable_trip"
   end
 
