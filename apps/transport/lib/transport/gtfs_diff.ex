@@ -14,17 +14,6 @@ defmodule Transport.GTFSDiff do
   @spec diff(
           unzip_1 :: Unzip.t(),
           unzip_2 :: Unzip.t(),
-          profile :: profile()
-        ) :: gtfs_diff()
-  @spec diff(
-          unzip_1 :: Unzip.t(),
-          unzip_2 :: Unzip.t(),
-          profile :: profile(),
-          notify_func :: (String.t() -> :ok) | nil
-        ) :: gtfs_diff()
-  @spec diff(
-          unzip_1 :: Unzip.t(),
-          unzip_2 :: Unzip.t(),
           profile :: profile(),
           notify_func :: (String.t() -> :ok) | nil,
           locale :: String.t()
@@ -326,7 +315,7 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
-  def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
+  def diff(unzip_1, unzip_2, profile, notify_func, locale) do
     files_comparison = compare_files(unzip_1, unzip_2)
 
     file_diff = file_diff(files_comparison)
