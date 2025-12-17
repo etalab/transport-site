@@ -187,10 +187,10 @@ defmodule Datagouvfr.Client.Resources.External do
   "cedille"
   iex> remove_accents_and_spaces("Hello")
   "Hello"
-  iex> remove_accents_and_spaces("Hello world")
+  iex> remove_accents_and_spaces("Hello world\t")
   "Helloworld"
   """
   def remove_accents_and_spaces(value) do
-    value |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "") |> String.replace(" ", "")
+    value |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "") |> String.replace(~r/\s/, "")
   end
 end
