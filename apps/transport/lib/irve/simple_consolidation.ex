@@ -1,10 +1,19 @@
 defmodule Transport.IRVE.SimpleConsolidation do
+  @moduledoc """
+  This module:
+  - takes the list of relevant IRVE resources from data.gouv.fr,
+  - downloads each resource file,
+  - validates it,
+  - and if valid writes the PDCs and file to the database.
+  If there is a previous version of the same resource already in the database,
+  it’s PDCs are replaced by the newly imported ones.
+
+  The module then reports on the outcome of each resource processing in a CSV file
+  (defaulting to upload it to S3, but can also be saved on local disk for dev/testing).
+  """
+
   require Logger
   import Transport.S3.AggregatesUploader
-
-  @moduledoc """
-  A module that consolidates simple IRVE data for faster access.
-  """
 
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
