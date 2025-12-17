@@ -7,9 +7,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs.zip")
 
       for profile <- ["core", "full"] do
-        diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile)
-
-        assert diff == []
+        assert [] == diff(unzip_1, unzip_2, profile)
       end
     end
 
@@ -18,9 +16,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_change_order.zip")
 
       for profile <- ["core", "full"] do
-        diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile)
-
-        assert diff == []
+        assert [] == diff(unzip_1, unzip_2, profile)
       end
     end
 
@@ -29,7 +25,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_files.zip")
 
       for profile <- ["core", "full"] do
-        diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile)
+        diff = diff(unzip_1, unzip_2, profile)
 
         # calendar.txt is deleted
         # calendar_dates.txt is created with its content (one line)
@@ -72,7 +68,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_columns.zip")
 
       for profile <- ["core", "full"] do
-        diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile)
+        diff = diff(unzip_1, unzip_2, profile)
 
         # a column in calendar.txt is deleted
         # a column in agency.txt is added and 1 row has a value for the new column
@@ -103,7 +99,7 @@ defmodule Transport.GTFSDiffTest do
       unzip_2 = unzip("test/fixture/files/gtfs_diff/gtfs_modified_rows.zip")
 
       for profile <- ["core", "full"] do
-        diff = Transport.GTFSDiff.diff(unzip_1, unzip_2, profile)
+        diff = diff(unzip_1, unzip_2, profile)
 
         assert diff == [
                  %{
@@ -154,6 +150,20 @@ defmodule Transport.GTFSDiffTest do
 
     test "simple diff" do
       diff = [%{action: "delete", file: "stops.txt", id: 1, identifier: %{"stop_id" => "near1"}, target: "row"}]
+
+      diff_from_csv = [
+        %{
+          "action" => "delete",
+          "file" => "stops.txt",
+          "id" => "1",
+          "identifier" => %{"stop_id" => "near1"} |> Jason.encode!(),
+          "target" => "row",
+          "initial_value" => "",
+          "new_value" => "",
+          "note" => ""
+        }
+      ]
+
       tmp_path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
       refute File.exists?(tmp_path)
       Transport.GTFSDiff.dump_diff(diff, tmp_path)
@@ -163,6 +173,9 @@ defmodule Transport.GTFSDiffTest do
                ["id", "file", "action", "target", "identifier", "initial_value", "new_value", "note"],
                ["1", "stops.txt", "delete", "row", ~s({"stop_id":"near1"}), "", "", ""]
              ] == read_csv(tmp_path)
+
+      assert diff_from_csv ==
+               File.read!(tmp_path) |> Transport.GTFSDiff.parse_diff_output()
 
       File.rm(tmp_path)
     end
@@ -177,4 +190,6 @@ defmodule Transport.GTFSDiffTest do
   defp read_csv(filepath) do
     filepath |> File.read!() |> NimbleCSV.RFC4180.parse_string(skip_headers: false)
   end
+
+  defp diff(unzip_1, unzip_2, profile), do: Transport.GTFSDiff.diff(unzip_1, unzip_2, profile, nil, "fr")
 end

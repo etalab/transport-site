@@ -47,6 +47,10 @@ defmodule TransportWeb.Router do
     plug(:check_export_secret_key)
   end
 
+  pipeline :backoffice_clear_proxy_config do
+    plug(:check_proxy_config_key)
+  end
+
   pipeline :producer_space do
     plug(:browser)
     plug(:authentication_required, destination_path: "/infos_producteurs")
@@ -249,6 +253,11 @@ defmodule TransportWeb.Router do
       get("/download_resources_csv", PageController, :download_resources_csv)
     end
 
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:backoffice_clear_proxy_config])
+      post("/clear_proxy_config", PageController, :clear_proxy_config)
+    end
+
     # Authentication
 
     scope "/login" do
@@ -402,6 +411,25 @@ defmodule TransportWeb.Router do
     expected_value = Application.fetch_env!(:transport, :export_secret_key)
 
     if Plug.Crypto.secure_compare(export_key_value, expected_value) do
+      conn
+    else
+      conn
+      |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
+      |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
+      |> halt()
+    end
+  end
+
+  defp check_proxy_config_key(%Plug.Conn{} = conn, _) do
+    key_value =
+      case Plug.Conn.get_req_header(conn, "x-key") do
+        [value] -> value
+        _ -> ""
+      end
+
+    expected_value = Application.fetch_env!(:transport, :proxy_config_secret_key)
+
+    if Plug.Crypto.secure_compare(key_value, expected_value) do
       conn
     else
       conn
