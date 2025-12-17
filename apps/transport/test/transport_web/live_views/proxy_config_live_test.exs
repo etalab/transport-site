@@ -175,7 +175,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
   defp slugs(content) when is_binary(content) do
     content
     |> Floki.parse_document!()
-    |> Floki.find(".test-unique-slug")
+    |> Floki.find(~s|[data-name="unique-slug"]|)
     |> Enum.map(&(&1 |> Floki.text() |> String.trim()))
   end
 end

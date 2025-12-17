@@ -40,8 +40,8 @@
     <tbody>
       <%= for resource <- @filtered_proxy_configuration do %>
         <tr>
-          <td class="test-type"><span class="label"><%= resource.type %></span></td>
-          <td class="test-unique-slug"><%= resource.unique_slug %></td>
+          <td><span class="label"><%= resource.type %></span></td>
+          <td data-name="unique-slug"><%= resource.unique_slug %></td>
           <% # TODO: use regular link helper %>
           <td><a href={resource.proxy_url}>lien</a></td>
           <td><a :if={resource.original_url} href={resource.original_url}>lien</a></td>

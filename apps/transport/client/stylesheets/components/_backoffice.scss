@@ -236,6 +236,20 @@
   }
 }
 
+form.search-proxy-configuration {
+  max-width: 100%;
+
+  input#search {
+    padding-left: 30px;
+    width: 350px;
+  }
+
+  .form__group {
+    margin-top: 0;
+    display: inline-block;
+  }
+}
+
 @keyframes fade-in {
   0% {
     opacity: 0;
