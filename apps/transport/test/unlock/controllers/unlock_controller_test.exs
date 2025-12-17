@@ -1002,8 +1002,12 @@ defmodule Unlock.ControllerTest do
              ] = resp.resp_headers
 
       # Cache exist and has been set up properly
-      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} == Cachex.keys(Unlock.Shared.cache_name())
-      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} ==
+               Cachex.keys(Unlock.Shared.cache_name())
+
+      {:ok, ttl} =
+        Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+
       assert_in_delta ttl / 1_000, ttl_in_seconds, 1
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
@@ -1058,8 +1062,12 @@ defmodule Unlock.ControllerTest do
              ] = resp.resp_headers
 
       # Cache exist and has been set up properly
-      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} == Cachex.keys(Unlock.Shared.cache_name())
-      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} ==
+               Cachex.keys(Unlock.Shared.cache_name())
+
+      {:ok, ttl} =
+        Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+
       assert_in_delta ttl / 1_000, ttl_in_seconds, 1
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
