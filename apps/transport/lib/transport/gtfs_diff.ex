@@ -78,15 +78,26 @@ defmodule Transport.GTFSDiff do
       |> CSV.parse_string(skip_headers: false)
       |> Enum.reduce([], fn r, acc ->
         if acc == [] do
-          {[], r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
+          {[], build_headers(r)}
         else
-          {l, headers} = acc
-          new_row = headers |> Enum.zip(r) |> Enum.into(%{})
-          {[new_row | l], headers}
+          {rows, headers} = acc
+          new_row = build_row(headers, r)
+          {[new_row | rows], headers}
         end
       end)
 
     l |> Enum.reverse()
+  end
+
+  defp build_headers(headers) do
+    headers
+    |> Enum.map(&String.replace_prefix(&1, "\uFEFF", ""))
+  end
+
+  defp build_row(headers, row) do
+    headers
+    |> Enum.zip(row)
+    |> Enum.into(%{})
   end
 
   defp get_headers(unzip, file_name) do
