@@ -15,7 +15,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
     "criticity" => "error"
   }
 
-  test "get_issues from binary" do
+  test "get_issues from binary, with errors" do
     pagination_config = make_pagination_config(%{})
 
     binary_result =
@@ -40,6 +40,34 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
              V0_2_1.get_issues(binary_result, %{"issues_category" => "xsd-schema"}, pagination_config)
 
     assert {%{"issues_category" => "base-rules"}, {41, repeated(@rule, 1)}} ==
+             V0_2_1.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
+  end
+
+  test "get_issues from binary, no error" do
+    pagination_config = make_pagination_config(%{})
+
+    binary_result =
+      result_factory("base-rules": 0, "xsd-schema": 0)
+      |> V0_2_1.to_binary_result()
+
+    assert {%{"issues_category" => "xsd-schema"}, {0, repeated(@xsd, 0)}} ==
+             V0_2_1.get_issues(binary_result, %{}, pagination_config)
+
+    assert {%{"issues_category" => "xsd-schema"}, {0, repeated(@xsd, 0)}} ==
+             V0_2_1.get_issues(binary_result, %{"issues_category" => "xsd-schema"}, pagination_config)
+
+    assert {%{"issues_category" => "base-rules"}, {0, repeated(@rule, 0)}} ==
+             V0_2_1.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
+
+    pagination_config = make_pagination_config(%{"page" => "3"})
+
+    assert {%{"issues_category" => "xsd-schema"}, {0, repeated(@xsd, 0)}} ==
+             V0_2_1.get_issues(binary_result, %{}, pagination_config)
+
+    assert {%{"issues_category" => "xsd-schema"}, {0, repeated(@xsd, 0)}} ==
+             V0_2_1.get_issues(binary_result, %{"issues_category" => "xsd-schema"}, pagination_config)
+
+    assert {%{"issues_category" => "base-rules"}, {0, repeated(@rule, 0)}} ==
              V0_2_1.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
   end
 
