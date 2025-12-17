@@ -1003,7 +1003,7 @@ defmodule Unlock.ControllerTest do
                        %{target: "proxy:an-existing-gbfs-identifier"}}
     end
 
-    test "config with query string" do
+    test "config with query string, request and response headers" do
       slug = "an-existing-gbfs-identifier"
       ttl_in_seconds = 30
       base_url = "https://example.com/gbfs.json?key=foobar"
@@ -1014,13 +1014,16 @@ defmodule Unlock.ControllerTest do
           identifier: slug,
           base_url: base_url,
           ttl: ttl_in_seconds,
+          request_headers: [{"x-key", "foo"}],
           response_headers: [{"x-key", "foobar"}]
         }
       })
 
-      setup_remote_responses(%{
-        requested_url => {200, %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()}
-      })
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn ^requested_url, [{"x-key", "foo"}], [] ->
+        body = %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()
+        %Unlock.HTTP.Response{body: body, status: 200, headers: [{"ETag", "etag-value"}]}
+      end)
 
       resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
 
@@ -1038,6 +1041,8 @@ defmodule Unlock.ControllerTest do
                {"x-request-id", _},
                {"access-control-allow-origin", "*"},
                {"access-control-expose-headers", "*"},
+               # present in the response, should be forwarded
+               {"etag", "etag-value"},
                # present in `response_headers`, should have been added
                {"x-key", "foobar"}
              ] = resp.resp_headers

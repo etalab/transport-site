@@ -254,7 +254,7 @@ defmodule Unlock.Controller do
     response = fetch_remote(item)
 
     parsed = URI.parse(item.base_url)
-    base_url = %{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
+    base_url = %URI{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
 
     body =
       String.replace(response.body, base_url, Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/")
