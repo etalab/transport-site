@@ -256,8 +256,9 @@ defmodule Unlock.Controller do
     parsed = URI.parse(item.base_url)
     base_url = %URI{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
 
-    body =
-      String.replace(response.body, base_url, Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/")
+    # Replace `base_url` with the proxy base URL and remove query parameters
+    replace = String.replace(Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/", "://", "://proxy.")
+    body = String.replace(response.body, base_url, replace) |> String.replace("?" <> to_string(parsed.query), "")
 
     response.headers
     |> prepare_response_headers()

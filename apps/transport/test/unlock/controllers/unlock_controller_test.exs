@@ -939,7 +939,7 @@ defmodule Unlock.ControllerTest do
       resp = proxy_conn() |> get("/resource/#{slug}/gbfs.json")
 
       assert resp.resp_body ==
-               %{"feed" => "http://127.0.0.1:5100/resource/#{slug}/gbfs.json", "data" => "foobar"}
+               %{"feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/gbfs.json", "data" => "foobar"}
                |> Jason.encode!()
 
       assert resp.status == 200
@@ -982,7 +982,7 @@ defmodule Unlock.ControllerTest do
       resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
 
       assert resp.resp_body ==
-               %{"feed" => "http://127.0.0.1:5100/resource/#{slug}/system_information.json", "data" => "foobar"}
+               %{"feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/system_information.json", "data" => "foobar"}
                |> Jason.encode!()
 
       assert resp.status == 200
@@ -1029,7 +1029,7 @@ defmodule Unlock.ControllerTest do
 
       assert resp.resp_body ==
                %{
-                 "feed" => "http://127.0.0.1:5100/resource/#{slug}/system_information.json?key=foobar",
+                 "feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/system_information.json",
                  "data" => "foobar"
                }
                |> Jason.encode!()
