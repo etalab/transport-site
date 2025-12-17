@@ -3,8 +3,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   A view able to display the current running configuration of the proxy.
   """
   use Phoenix.LiveView
+  use TransportWeb.InputHelpers
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
+  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
   # The number of past days we want to report on (as a positive integer).
@@ -13,11 +15,12 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
-  def mount(_params, %{"current_user" => current_user} = _session, socket) do
+  @impl true
+  def mount(_params, %{"current_user" => current_user, "csp_nonce_value" => nonce} = _session, socket) do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
-       socket |> update_data()
+       socket |> assign(nonce: nonce) |> init_state() |> update_data()
      end)}
   end
 
@@ -25,22 +28,75 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     Process.send_after(self(), :update_data, 1000)
   end
 
+  defp init_state(socket) do
+    socket |> assign(%{search: "", type: ""})
+  end
+
   defp update_data(socket) do
+    config = get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
+
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       stats_days: @stats_days,
-      proxy_configuration: get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
+      proxy_configuration: config,
+      select_options: Enum.map(config, &{&1.type, &1.type})
     )
+    |> filter_config()
   end
 
+  @impl true
+  def handle_event("change", params, %Phoenix.LiveView.Socket{} = socket) do
+    {:noreply, filter_config(socket, params)}
+  end
+
+  @impl true
+  def handle_event("refresh_proxy_config", _value, socket) do
+    config_module().clear_config_cache!()
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(:update_data, socket) do
     schedule_next_update_data()
     {:noreply, update_data(socket)}
   end
 
-  def handle_event("refresh_proxy_config", _value, socket) do
-    config_module().clear_config_cache!()
-    {:noreply, socket}
+  def filter_config(%Phoenix.LiveView.Socket{} = socket, %{"search" => search} = params) do
+    type = Map.get(params, "type", "")
+    socket |> assign(%{search: search, type: type}) |> filter_config()
+  end
+
+  defp filter_config(
+         %Phoenix.LiveView.Socket{assigns: %{proxy_configuration: proxy_configuration, search: search, type: type}} =
+           socket
+       ) do
+    filtered_proxy_configuration = proxy_configuration |> filter_by_type(type) |> filter_by_search(search)
+    socket |> assign(%{filtered_proxy_configuration: filtered_proxy_configuration})
+  end
+
+  defp filter_by_type(config, ""), do: config
+
+  defp filter_by_type(config, value),
+    do: Enum.filter(config, fn %{type: type} -> type == value end)
+
+  defp filter_by_search(config, ""), do: config
+
+  defp filter_by_search(config, value) do
+    Enum.filter(config, fn %{unique_slug: unique_slug} ->
+      String.contains?(normalize(unique_slug), normalize(value))
+    end)
+  end
+
+  @doc """
+  iex> normalize("Paris")
+  "paris"
+  iex> normalize("vélo")
+  "velo"
+  iex> normalize("Châteauroux")
+  "chateauroux"
+  """
+  def normalize(value) do
+    value |> String.normalize(:nfd) |> String.replace(~r/[^A-z]/u, "") |> String.downcase()
   end
 
   defp config_module, do: Application.fetch_env!(:transport, :unlock_config_fetcher)
