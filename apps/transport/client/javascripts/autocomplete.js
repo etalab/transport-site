@@ -69,6 +69,7 @@ const autoCompletejs = new AutoComplete({
             return match.join('')
         }
     },
+    submit: true,
     resultsList: {
         maxResults: 7,
         id: 'autoComplete_list',
@@ -81,7 +82,7 @@ const autoCompletejs = new AutoComplete({
             source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">${labels[data.value.type] || ''}</span></div>`
         },
         tag: 'li',
-        highlight: 'autoComplete_highlight',
+        highlight: 'autoComplete_highlighted',
         selected: 'autoComplete_selected'
     }
 })
