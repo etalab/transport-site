@@ -6,6 +6,30 @@ defmodule Transport.GTFSDiff do
   require Logger
   use Gettext, backend: TransportWeb.Gettext
 
+  @type gtfs_diff :: list(map())
+  # Currently one of "core" | "full"
+  @type profile :: String.t()
+
+  # Compute diff of the gtfs zip archives.
+  @spec diff(
+          unzip_1 :: Unzip.t(),
+          unzip_2 :: Unzip.t(),
+          profile :: profile(),
+          notify_func :: (String.t() -> :ok) | nil,
+          locale :: String.t()
+        ) :: gtfs_diff()
+
+  # Write a diff to a CSV file following the MobilityData standard
+  # (https://github.com/MobilityData/gtfs_diff/blob/main/specification.md).
+  @spec dump_diff(diff :: gtfs_diff(), filepath :: Path.t()) :: :ok
+
+  # Read a diff from a CSV file following the MobilityData standard
+  # (https://github.com/MobilityData/gtfs_diff/blob/main/specification.md).
+  @spec parse_diff_output(binary()) :: gtfs_diff()
+
+  # Static list of files expected in a GTFS diff output for a given profile.
+  @spec files_to_analyze(profile()) :: list(String.t())
+
   @primary_keys %{
     "agency.txt" => ["agency_id"],
     "attributions.txt" => ["organization_name"],
@@ -28,19 +52,13 @@ defmodule Transport.GTFSDiff do
     "translations.txt" => ["table_name", "field_name", "language", "record_id", "record_sub_id", "field_value"]
   }
 
-  def unzip(file_path) do
-    zip_file = Unzip.LocalFile.open(file_path)
-    {:ok, unzip} = Unzip.new(zip_file)
-    unzip
-  end
-
-  def unzip_contains_file?(unzip, file_name) do
+  defp unzip_contains_file?(unzip, file_name) do
     unzip
     |> Unzip.list_entries()
     |> Enum.any?(&(&1.file_name == file_name))
   end
 
-  def parse_from_unzip(unzip, file_name) do
+  defp parse_from_unzip(unzip, file_name) do
     if unzip_contains_file?(unzip, file_name) do
       unzip
       |> Unzip.file_stream!(file_name)
@@ -53,19 +71,7 @@ defmodule Transport.GTFSDiff do
     end
   end
 
-  def parse_from_path(file_path, file_name) do
-    file_path
-    |> File.read!()
-    |> parse_from_binary(file_name)
-  end
-
-  def parse_from_binary(binary, file_name) do
-    binary
-    |> CSV.parse_string(skip_headers: false)
-    |> parse_to_map(file_name)
-  end
-
-  def parse_to_map(parsed_csv, file_name) do
+  defp parse_to_map(parsed_csv, file_name) do
     primary_key = primary_key(file_name)
 
     {res, _headers} =
@@ -90,18 +96,29 @@ defmodule Transport.GTFSDiff do
       |> CSV.parse_string(skip_headers: false)
       |> Enum.reduce([], fn r, acc ->
         if acc == [] do
-          {[], r |> Enum.map(fn h -> h |> String.replace_prefix("\uFEFF", "") end)}
+          {[], build_headers(r)}
         else
-          {l, headers} = acc
-          new_row = headers |> Enum.zip(r) |> Enum.into(%{})
-          {[new_row | l], headers}
+          {rows, headers} = acc
+          new_row = build_row(headers, r)
+          {[new_row | rows], headers}
         end
       end)
 
     l |> Enum.reverse()
   end
 
-  def get_headers(unzip, file_name) do
+  defp build_headers(headers) do
+    headers
+    |> Enum.map(&String.replace_prefix(&1, "\uFEFF", ""))
+  end
+
+  defp build_row(headers, row) do
+    headers
+    |> Enum.zip(row)
+    |> Enum.into(%{})
+  end
+
+  defp get_headers(unzip, file_name) do
     if unzip_contains_file?(unzip, file_name) do
       unzip
       |> Unzip.file_stream!(file_name)
@@ -121,36 +138,29 @@ defmodule Transport.GTFSDiff do
 
   defp save_headers_in_acc(_r, acc), do: acc
 
-  def get_headers(file_path) do
-    file_path
-    |> File.read!()
-    |> CSV.parse_string(skip_headers: false)
-    |> Enum.at(0)
-  end
+  defp file_is_handled?(file_name), do: not (file_name |> primary_key() |> is_nil())
 
-  def file_is_handled?(file_name), do: not (file_name |> primary_key() |> is_nil())
-
-  def primary_key(file_name) do
+  defp primary_key(file_name) do
     Map.get(@primary_keys, file_name)
   end
 
-  def row_key(row, nil) do
+  defp row_key(row, nil) do
     # without a primary_key, the primary_key is the entire row
     row
   end
 
-  def row_key(row, primary_key) do
+  defp row_key(row, primary_key) do
     row |> Map.take(primary_key)
   end
 
-  def get_delete_messages(deleted_ids, file_name) do
+  defp get_delete_messages(deleted_ids, file_name) do
     deleted_ids
     |> Enum.map(fn identifier ->
       %{file: file_name, action: "delete", target: "row", identifier: identifier}
     end)
   end
 
-  def get_add_messages(added_ids, file_b, file_name) do
+  defp get_add_messages(added_ids, file_b, file_name) do
     added_ids
     |> Enum.map(fn identifier ->
       added = file_b |> Map.fetch!(identifier)
@@ -158,7 +168,7 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
-  def get_update_messages(update_ids, file_a, file_b, file_name) do
+  defp get_update_messages(update_ids, file_a, file_b, file_name) do
     check_value = fn a_value, key, b_value ->
       case a_value do
         ^b_value -> nil
@@ -196,7 +206,7 @@ defmodule Transport.GTFSDiff do
     |> Enum.reject(&is_nil/1)
   end
 
-  def diff_file(file_name, file_a, file_b) do
+  defp diff_file(file_name, file_a, file_b) do
     ids_a = file_a |> Map.keys()
     ids_b = file_b |> Map.keys()
 
@@ -218,7 +228,7 @@ defmodule Transport.GTFSDiff do
     delete_messages ++ add_messages ++ update_messages
   end
 
-  def compare_files(unzip_1, unzip_2, profile \\ "full") do
+  defp compare_files(unzip_1, unzip_2, profile \\ "full") do
     file_names_1 = unzip_1 |> list_entries(profile)
     file_names_2 = unzip_2 |> list_entries(profile)
     added_files = file_names_2 -- file_names_1
@@ -231,9 +241,7 @@ defmodule Transport.GTFSDiff do
     }
   end
 
-  def file_diff(unzip_1, unzip_2) do
-    %{added_files: added_files, deleted_files: deleted_files} = compare_files(unzip_1, unzip_2)
-
+  defp file_diff(%{added_files: added_files, deleted_files: deleted_files}) do
     added_files_diff =
       added_files
       |> Enum.map(fn file ->
@@ -249,9 +257,7 @@ defmodule Transport.GTFSDiff do
     added_files_diff ++ deleted_files_diff
   end
 
-  def column_diff(unzip_1, unzip_2) do
-    %{same_files: same_files, added_files: added_files} = compare_files(unzip_1, unzip_2)
-
+  defp column_diff(unzip_1, unzip_2, %{same_files: same_files, added_files: added_files}) do
     (same_files ++ added_files)
     |> Enum.flat_map(fn file_name ->
       column_name_1 = get_headers(unzip_1, file_name)
@@ -286,7 +292,7 @@ defmodule Transport.GTFSDiff do
     |> Enum.reject(&(&1 == []))
   end
 
-  def row_diff(unzip_1, unzip_2, notify_func, locale, profile) do
+  defp row_diff(unzip_1, unzip_2, notify_func, locale, profile) do
     file_names_2 = unzip_2 |> list_entries(profile)
 
     file_names_2
@@ -309,15 +315,16 @@ defmodule Transport.GTFSDiff do
     end)
   end
 
-  def diff(unzip_1, unzip_2, profile, notify_func \\ nil, locale \\ "fr") do
-    file_diff = file_diff(unzip_1, unzip_2)
-    column_diff = column_diff(unzip_1, unzip_2)
+  def diff(unzip_1, unzip_2, profile, notify_func, locale) do
+    files_comparison = compare_files(unzip_1, unzip_2)
+
+    file_diff = file_diff(files_comparison)
+    column_diff = column_diff(unzip_1, unzip_2, files_comparison)
     row_diff = row_diff(unzip_1, unzip_2, notify_func, locale, profile)
 
     diff = file_diff ++ column_diff ++ row_diff
-    id_range = 0..(Enum.count(diff) - 1)//1
 
-    diff |> Enum.zip_with(id_range, &Map.merge(&1, %{id: &2}))
+    diff |> Enum.with_index(&Map.merge(&1, %{id: &2}))
   end
 
   def dump_diff(diff, filepath) do
@@ -348,80 +355,6 @@ defmodule Transport.GTFSDiff do
     |> CSV.dump_to_stream()
     |> Stream.into(File.stream!(filepath))
     |> Stream.run()
-  end
-
-  def apply_delete(file, diff, primary_key) do
-    delete_ids =
-      diff
-      |> Enum.filter(fn d -> d["action"] == "delete" end)
-      |> Enum.map(fn d -> d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key) end)
-
-    file |> Enum.reject(fn r -> Map.fetch!(r, primary_key) in delete_ids end)
-  end
-
-  def apply_add(file, diff) do
-    added_rows =
-      diff
-      |> Enum.filter(fn d -> d["action"] == "add" end)
-      |> Enum.map(fn d -> d["arg"] |> Jason.decode!() end)
-
-    file ++ added_rows
-  end
-
-  def apply_update(file, diff, primary_key) do
-    updates =
-      diff
-      |> Enum.filter(fn d -> d["action"] == "update" end)
-      |> Enum.map(fn d ->
-        {d["row_identifier"] |> Jason.decode!() |> Map.fetch!(primary_key), d["arg"] |> Jason.decode!()}
-      end)
-      |> Enum.into(%{})
-
-    update_keys = updates |> Map.keys()
-
-    file
-    |> Enum.map(fn row ->
-      id = row[primary_key]
-
-      if id in update_keys do
-        changes = updates |> Map.fetch!(id)
-        Map.merge(row, changes)
-      else
-        row
-      end
-    end)
-  end
-
-  def apply_diff(file_name, file, diff) do
-    primary_key = primary_key(file_name)
-
-    file
-    |> apply_delete(diff, primary_key)
-    |> apply_add(diff)
-    |> apply_update(diff, primary_key)
-  end
-
-  def dump_file(existing_headers, file) do
-    headers =
-      file
-      |> Enum.flat_map(&Map.keys/1)
-      |> MapSet.new()
-      |> Enum.to_list()
-
-    new_headers = headers -- existing_headers
-
-    # put the new columns at the end
-    output_headers = existing_headers ++ new_headers
-
-    body =
-      file
-      |> Enum.map(fn m ->
-        output_headers |> Enum.map(fn header -> Map.get(m, header) end)
-      end)
-
-    ([output_headers] ++ body)
-    |> CSV.dump_to_iodata()
-    |> IO.iodata_to_binary()
   end
 
   defp list_entries(unzip, profile) do
