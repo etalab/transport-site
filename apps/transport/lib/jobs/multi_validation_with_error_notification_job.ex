@@ -127,6 +127,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       relevant_realtime_validations(datetime_limit),
       fn %DB.Dataset{}, mv_1, mv_2 -> mv_1 ++ mv_2 end
     )
+    |> Enum.sort_by(fn {%DB.Dataset{id: id}, _} -> id end)
   end
 
   defp relevant_static_validations(%DateTime{} = datetime_limit) do
