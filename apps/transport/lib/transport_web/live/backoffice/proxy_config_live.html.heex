@@ -9,6 +9,15 @@
   <p>
     Les items SIRI sont affichés mais sans métriques et avec des informations manquantes (ex: requestor_ref) pour l'instant
   </p>
+
+  <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
+    <%= search_input(f, :search, value: @search, id: "backoffice_search") %>
+    <%= select(f, :type, [{"Tout", ""}] ++ @select_options,
+      selected: @type,
+      label: "Type de flux"
+    ) %>
+  </.form>
+
   <table class="table mt-48">
     <thead>
       <tr>
@@ -29,10 +38,10 @@
       </tr>
     </thead>
     <tbody>
-      <%= for resource <- @proxy_configuration do %>
+      <%= for resource <- @filtered_proxy_configuration do %>
         <tr>
           <td><span class="label"><%= resource.type %></span></td>
-          <td><%= resource.unique_slug %></td>
+          <td data-name="unique-slug"><%= resource.unique_slug %></td>
           <% # TODO: use regular link helper %>
           <td><a href={resource.proxy_url}>lien</a></td>
           <td><a :if={resource.original_url} href={resource.original_url}>lien</a></td>
@@ -48,7 +57,23 @@
       <% end %>
     </tbody>
   </table>
+  <p :if={Enum.count(@filtered_proxy_configuration) < Enum.count(@proxy_configuration)}>
+    <% nb_feeds = Enum.count(@proxy_configuration) - Enum.count(@filtered_proxy_configuration) %>
+    <span :if={nb_feeds == 1}><%= Helpers.format_number(nb_feeds) %> flux est masqué.</span>
+    <span :if={nb_feeds > 1}><%= Helpers.format_number(nb_feeds) %> flux sont masqués.</span>
+  </p>
   <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 </section>
+<script nonce={@nonce}>
+  document.addEventListener('keydown', function(event) {
+    if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      const searchInput = document.getElementById('search');
+      if (searchInput) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    }
+  });
+</script>
 <script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>
