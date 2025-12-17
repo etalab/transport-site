@@ -17,7 +17,10 @@ defmodule DB.FeatureUsage do
         :post_discussion,
         :post_comment,
         :gtfs_diff,
-        :autocomplete
+        :autocomplete,
+        :upload_file,
+        :delete_resource,
+        :upload_logo
       ]
     )
 
