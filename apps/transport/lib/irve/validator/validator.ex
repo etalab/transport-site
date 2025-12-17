@@ -29,7 +29,6 @@ defmodule Transport.IRVE.Validator do
   @doc """
   Says from the dataframe output of compute_validation/1 if all rows are valid.
   """
-
   def full_file_valid?(%Explorer.DataFrame{} = df) do
     df["check_row_valid"]
     |> Explorer.Series.all?()

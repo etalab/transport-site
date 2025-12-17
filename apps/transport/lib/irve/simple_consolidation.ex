@@ -120,7 +120,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     Quick & dirty structure to massage the outcome into a report with all the same keys
     (as expected by the `DataFrame` that we use to create the CSV file).
 
-    It's all quiet tied to the other module here.
+    It's all quite tied to the other module here.
     """
     @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status]
     defstruct [:dataset_id, :resource_id, :url, :dataset_title, :status, :error_message, :error_type]
