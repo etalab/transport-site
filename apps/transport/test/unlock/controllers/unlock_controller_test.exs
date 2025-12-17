@@ -12,7 +12,7 @@ defmodule Unlock.ControllerTest do
   setup :set_mox_from_context
 
   setup do
-    Cachex.clear(Unlock.Cachex)
+    Cachex.clear(Unlock.Shared.cache_name())
     setup_telemetry_handler()
   end
 
@@ -290,8 +290,8 @@ defmodule Unlock.ControllerTest do
       Unlock.HTTP.Client.Mock
       |> expect(:get!, 0, fn _url, _headers, _options -> nil end)
 
-      {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
-      assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-identifier")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
 
       resp =
         proxy_conn()
@@ -444,7 +444,7 @@ defmodule Unlock.ControllerTest do
           resp = proxy_conn() |> get("/resource/#{identifier}")
 
           # Got an exception, nothing is stored in cache
-          assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+          assert {:ok, []} == Cachex.keys(Unlock.Shared.cache_name())
           assert resp.status == 502
           assert resp.resp_body == "Bad Gateway"
         end)
@@ -953,6 +953,11 @@ defmodule Unlock.ControllerTest do
                {"x-key", "foobar"}
              ] = resp.resp_headers
 
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:gbfs.json"]} == Cachex.keys(Unlock.Shared.cache_name())
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:gbfs.json")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-gbfs-identifier"}}
 
@@ -995,6 +1000,11 @@ defmodule Unlock.ControllerTest do
                # present in `response_headers`, should have been added
                {"x-key", "foobar"}
              ] = resp.resp_headers
+
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} == Cachex.keys(Unlock.Shared.cache_name())
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-gbfs-identifier"}}
@@ -1047,6 +1057,11 @@ defmodule Unlock.ControllerTest do
                {"x-key", "foobar"}
              ] = resp.resp_headers
 
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} == Cachex.keys(Unlock.Shared.cache_name())
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-gbfs-identifier"}}
 
@@ -1070,6 +1085,8 @@ defmodule Unlock.ControllerTest do
       resp = proxy_conn() |> get("/resource/#{slug}")
 
       assert resp.status == 404
+
+      assert {:ok, []} == Cachex.keys(Unlock.Shared.cache_name())
     end
   end
 
