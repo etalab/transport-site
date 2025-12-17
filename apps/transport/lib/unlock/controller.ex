@@ -89,10 +89,14 @@ defmodule Unlock.Controller do
   - See `Unlock.Telemetry`
   - And `Transport.Telemetry`
   """
-  def fetch(conn, %{"id" => id}) do
+  def fetch(conn, %{"id" => id} = params) do
     config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
 
-    resource = Map.get(config, id)
+    resource =
+      case Map.get(config, id) do
+        %Unlock.Config.Item.GBFS{} = item -> %{item | endpoint: Map.get(params, "endpoint")}
+        item -> item
+      end
 
     if resource do
       conn
@@ -141,7 +145,8 @@ defmodule Unlock.Controller do
       - ["content-type", "text/csv"]
   ```
   """
-  def override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+  def override_resp_headers_if_configured(conn, %module{} = item)
+      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS] do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
@@ -240,6 +245,27 @@ defmodule Unlock.Controller do
   defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
     do: send_not_allowed(conn)
 
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.GBFS{endpoint: nil}) do
+    conn |> send_resp(404, "Not Found")
+  end
+
+  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.GBFS{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+    response = fetch_remote(item)
+
+    parsed = URI.parse(item.base_url)
+    base_url = %URI{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
+
+    body =
+      String.replace(response.body, base_url, Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/")
+
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    |> override_resp_headers_if_configured(item)
+    |> send_resp(response.status, body)
+  end
+
   defp send_not_allowed(conn) do
     conn
     |> send_resp(405, "Method Not Allowed")
@@ -280,7 +306,8 @@ defmodule Unlock.Controller do
   #
   # Processing varies between the two item types, thanks to pattern-matching
   # in `Unlock.CachedFetch`.
-  defp fetch_remote(%module{} = item) when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3] do
+  defp fetch_remote(%module{} = item)
+       when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3, Unlock.Config.Item.GBFS] do
     comp_fn = fn _key ->
       Logger.debug("Processing proxy request for identifier #{item.identifier}")
 

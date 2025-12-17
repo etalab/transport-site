@@ -917,6 +917,162 @@ defmodule Unlock.ControllerTest do
     end
   end
 
+  describe "GBFS item support" do
+    test "handles GET /resource/:slug/gbfs.json (success case)" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      setup_remote_responses(%{
+        base_url => {200, %{"feed" => base_url, "data" => "foobar"} |> Jason.encode!()}
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}/gbfs.json")
+
+      assert resp.resp_body ==
+               %{"feed" => "http://127.0.0.1:5100/resource/#{slug}/gbfs.json", "data" => "foobar"}
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "handles GET /resource/:slug/system_information.json (success case)" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+      requested_url = "https://example.com/system_information.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      setup_remote_responses(%{
+        requested_url => {200, %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()}
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
+
+      assert resp.resp_body ==
+               %{"feed" => "http://127.0.0.1:5100/resource/#{slug}/system_information.json", "data" => "foobar"}
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "config with query string, request and response headers" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json?key=foobar"
+      requested_url = "https://example.com/system_information.json?key=foobar"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          request_headers: [{"x-key", "foo"}],
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn ^requested_url, [{"x-key", "foo"}], [] ->
+        body = %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()
+        %Unlock.HTTP.Response{body: body, status: 200, headers: [{"ETag", "etag-value"}]}
+      end)
+
+      resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
+
+      assert resp.resp_body ==
+               %{
+                 "feed" => "http://127.0.0.1:5100/resource/#{slug}/system_information.json?key=foobar",
+                 "data" => "foobar"
+               }
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in the response, should be forwarded
+               {"etag", "etag-value"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "root request without endpoint" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}")
+
+      assert resp.status == 404
+    end
+  end
+
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 

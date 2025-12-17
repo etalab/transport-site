@@ -149,4 +149,23 @@ defmodule Unlock.ConfigFetcherTest do
              ]
     end
   end
+
+  test "for a GBFS feed" do
+    yaml_config = """
+    ---
+    feeds:
+      - identifier: "example"
+        type: "gbfs"
+        base_url: "https://example.com/gbfs.json"
+        ttl: 10
+    """
+
+    assert parse_config(yaml_config) == [
+             %Unlock.Config.Item.GBFS{
+               identifier: "example",
+               base_url: "https://example.com/gbfs.json",
+               ttl: 10
+             }
+           ]
+  end
 end
