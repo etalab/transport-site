@@ -256,8 +256,11 @@ defmodule Unlock.Controller do
     parsed = URI.parse(item.base_url)
     base_url = %URI{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
 
-    body =
-      String.replace(response.body, base_url, Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/")
+    # Replace `base_url` with the proxy base URL and remove query parameters
+    replace =
+      String.replace(Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/", "://", "://proxy.")
+
+    body = String.replace(response.body, base_url, replace) |> String.replace("?" <> to_string(parsed.query), "")
 
     response.headers
     |> prepare_response_headers()
@@ -324,7 +327,13 @@ defmodule Unlock.Controller do
     end
 
     cache_name = Unlock.Shared.cache_name()
-    cache_key = Unlock.Shared.cache_key(item.identifier)
+
+    cache_key =
+      case item do
+        %Unlock.Config.Item.GBFS{} -> Unlock.Shared.cache_key(item.identifier, item.endpoint)
+        _ -> Unlock.Shared.cache_key(item.identifier)
+      end
+
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
     outcome = Cachex.fetch(cache_name, cache_key, comp_fn)
