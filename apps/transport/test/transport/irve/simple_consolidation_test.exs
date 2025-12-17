@@ -14,21 +14,16 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       # Mock the data.gouv.fr API response
       mock_datagouv_resources()
 
-      # Mock HTTP requests for resource content
-
+      # Mock HTTP requests for resource content, one is valid, the other is not
       mock_resource_downloads()
-      # [resource_file_path_1, resource_file_path_2] = mock_resource_downloads()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
+      # Run the consolidation process
       :ok = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
 
-      # TODO: previous assertion, should be replaced
-      # assert result == [{:ok, true}, {:ok, true}]
-
-      # Verify data file was created and contains expected content
-
+      # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
         DB.IRVEValidFile
         |> order_by([f], asc: f.dataset_datagouv_id)
@@ -39,8 +34,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
 
+      # There should be no leftover temporary files
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
+
+      # Check the generated report, here it’s stored on local disk (not default S3)
       assert File.exists?("irve_processed_resources.csv")
       report_content = "irve_processed_resources.csv" |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
