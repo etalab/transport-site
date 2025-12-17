@@ -191,6 +191,5 @@ defmodule Transport.GTFSDiffTest do
     filepath |> File.read!() |> NimbleCSV.RFC4180.parse_string(skip_headers: false)
   end
 
-  defp diff(unzip_1, unzip_2, profile), do:
-    Transport.GTFSDiff.diff(unzip_1, unzip_2, profile, nil, "fr")
+  defp diff(unzip_1, unzip_2, profile), do: Transport.GTFSDiff.diff(unzip_1, unzip_2, profile, nil, "fr")
 end
