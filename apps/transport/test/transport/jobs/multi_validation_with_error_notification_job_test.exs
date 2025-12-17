@@ -37,13 +37,12 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       # Should be empty because:
       # - real-time validations (for GTFS-RT) are ignored
       # - the GeoJSON is too old (45 minutes)
-      assert %{} == MultiValidationWithErrorNotificationJob.relevant_validations(DateTime.utc_now())
+      assert [] == MultiValidationWithErrorNotificationJob.relevant_validations(DateTime.utc_now())
 
       # Finds the GeoJSON validation because it was created 45 minutes ago
       dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
       relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
-      assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
-      assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
     end
 
     test "finds multi validation for real-time data" do
@@ -60,8 +59,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
       dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
       relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
-      assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
-      assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
     end
 
     test "finds the MobilityData validator" do
@@ -78,8 +76,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
       dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
       relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
-      assert [%DB.Dataset{id: ^dataset_id}] = relevant_validations |> Map.keys()
-      assert [[%DB.MultiValidation{id: ^mv_id}]] = relevant_validations |> Map.values()
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
     end
   end
 
