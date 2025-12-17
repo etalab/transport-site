@@ -133,7 +133,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     {:ok, view, _html} = conn |> setup_admin_in_session() |> get(@url) |> live()
 
     assert [
-             {"select", [{"id", "type"}, {"name", "type"}],
+             {"select", [{"id", "backoffice_search_container_type"}, {"name", "type"}],
               [
                 {"option", [{"selected", "selected"}, {"value", ""}], ["Tout"]},
                 {"option", [{"value", "Aggregate"}], ["Aggregate"]},
