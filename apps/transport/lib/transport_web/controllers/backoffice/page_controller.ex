@@ -319,6 +319,12 @@ defmodule TransportWeb.Backoffice.PageController do
     end
   end
 
+  def clear_proxy_config(%Plug.Conn{} = conn, _) do
+    Application.fetch_env!(:transport, :unlock_config_fetcher).clear_config_cache!()
+
+    conn |> text("OK")
+  end
+
   def download_resources_csv(%Plug.Conn{} = conn, _) do
     %Postgrex.Result{columns: columns, rows: rows} = resources_query()
     filename = "ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv"
