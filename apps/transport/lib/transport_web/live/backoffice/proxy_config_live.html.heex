@@ -10,8 +10,8 @@
     Les items SIRI sont affichés mais sans métriques et avec des informations manquantes (ex: requestor_ref) pour l'instant
   </p>
 
-  <.form :let={f} for={%{}} phx-change="change" class="search-proxy-configuration">
-    <%= search_input(f, :search, value: @search, id: "search") %>
+  <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
+    <%= search_input(f, :search, value: @search, id: "backoffice_search") %>
     <%= select(f, :type, [{"Tout", ""}] ++ @select_options,
       selected: @type,
       label: "Type de flux"
