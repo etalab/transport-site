@@ -12,6 +12,7 @@
   <table class="table mt-48">
     <thead>
       <tr>
+        <th>Type</th>
         <th>Identifiant</th>
         <th>URL proxy</th>
         <th>Donnée cible</th>
@@ -30,6 +31,7 @@
     <tbody>
       <%= for resource <- @proxy_configuration do %>
         <tr>
+          <td><span class="label"><%= resource.type %></span></td>
           <td><%= resource.unique_slug %></td>
           <% # TODO: use regular link helper %>
           <td><a href={resource.proxy_url}>lien</a></td>
