@@ -63,7 +63,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           "status" => "import_successful",
           "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
         }
-      ] = ^report_content
+      ] = report_content
 
       assert error_message =~ "could not find column name \"nom_station\"."
       File.rm!("irve_processed_resources.csv")
