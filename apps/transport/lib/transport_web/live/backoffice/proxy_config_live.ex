@@ -71,7 +71,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: resource.target_url,
-      ttl: resource.ttl
+      ttl: resource.ttl,
+      type: "HTTP"
     }
   end
 
@@ -80,7 +81,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: resource.target_url,
-      ttl: nil
+      ttl: nil,
+      type: "SIRI"
     }
   end
 
@@ -92,7 +94,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       # At time of writing, the global feed is not cached
       ttl: "N/A",
       # We do not display the internal count for aggregate item at the moment
-      internal_count_default_value: nil
+      internal_count_default_value: nil,
+      type: "Aggregate"
     }
   end
 
@@ -102,7 +105,18 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       # TODO: display original bucket & path name
       original_url: nil,
-      ttl: resource.ttl
+      ttl: resource.ttl,
+      type: "S3"
+    }
+  end
+
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.GBFS{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier) <> "/gbfs.json",
+      original_url: resource.base_url,
+      ttl: resource.ttl,
+      type: "GBFS"
     }
   end
 

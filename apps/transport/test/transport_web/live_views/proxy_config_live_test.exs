@@ -78,16 +78,19 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     # NOTE: alphabetical slug order
     assert [
              %{
+               "Type" => "Aggregate",
                "Identifiant" => "aggregate-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "N/C"
              },
              %{
+               "Type" => "HTTP",
                "Identifiant" => "gtfs-rt-slug",
                "Req ext 7j" => "2",
                "Req int 7j" => "1"
              },
              %{
+               "Type" => "S3",
                "Identifiant" => "s3-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "0"
@@ -108,6 +111,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert [
              _aggregate_item,
              %{
+               "Type" => "HTTP",
                "Identifiant" => "gtfs-rt-slug",
                "Req ext 7j" => "4",
                "Req int 7j" => "2"
