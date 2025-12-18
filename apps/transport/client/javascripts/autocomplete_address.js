@@ -43,3 +43,13 @@ new AutoComplete({
         selected: 'autoComplete_selected'
     }
 })
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        const searchInput = document.getElementById('autoComplete')
+        if (searchInput) {
+            event.preventDefault()
+            searchInput.focus()
+        }
+    }
+})
