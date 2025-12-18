@@ -995,6 +995,65 @@ defmodule TransportWeb.ResourceControllerTest do
     assert response |> html_response(200) =~ "unusable_trip"
   end
 
+  test "GTFS-Flex with lists as sampleNotices", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    result = %{
+      "notices" => [
+        %{
+          "code" => "stop_too_far_from_shape_using_user_distance",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [
+            %{
+              "match" => [
+                43.410709,
+                3.678308
+              ],
+              "stopId" => "SETCGAU1",
+              "tripId" => "93360_260105-5359",
+              "shapeId" => "260105-102",
+              "stopName" => "Charles De Gaulle",
+              "tripCsvRowNumber" => 1907,
+              "geoDistanceToShape" => 106.89965062036212,
+              "stopTimeCsvRowNumber" => 41357
+            }
+          ]
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
+      max_error: "WARNING"
+    })
+
+    response = conn |> get(resource_path(conn, :details, resource.id))
+
+    # Validation
+    assert response |> html_response(200) =~ "Rapport de validation"
+    assert response |> html_response(200) =~ "2 avertissements"
+    assert response |> html_response(200) =~ "stop_too_far_from_shape_using_user_distance"
+    assert response |> html_response(200) =~ "[43.410709, 3.678308]"
+  end
+
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, format: "GTFS", dataset: dataset)
