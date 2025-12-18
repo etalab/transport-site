@@ -814,7 +814,8 @@ defmodule TransportWeb.API.Schemas do
       "feature",
       "mode",
       "offer",
-      "format"
+      "format",
+      "dataset"
     ]
 
     @properties %{
