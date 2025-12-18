@@ -1027,9 +1027,9 @@ defmodule TransportWeb.ResourceControllerTest do
               "tripId" => "93360_260105-5359",
               "shapeId" => "260105-102",
               "stopName" => "Charles De Gaulle",
-              "tripCsvRowNumber" => 1907,
+              "tripCsvRowNumber" => 1_907,
               "geoDistanceToShape" => 106.89965062036212,
-              "stopTimeCsvRowNumber" => 41357
+              "stopTimeCsvRowNumber" => 41_357
             }
           ]
         }
