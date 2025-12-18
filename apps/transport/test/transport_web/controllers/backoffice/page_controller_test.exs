@@ -298,11 +298,9 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
   describe "clear_proxy_config" do
     test "requires auth", %{conn: conn} do
-      assert %URI{path: "/login/explanation"} =
-               conn
-               |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
-               |> redirected_to(302)
-               |> URI.parse()
+      assert conn
+             |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
+             |> text_response(401) == "Unauthorized"
     end
 
     test "success case", %{conn: conn} do
@@ -313,6 +311,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
 
       assert conn
              |> put_req_header("x-key", "fake_proxy_config_secret_key")
+             |> put_private(:plug_skip_csrf_protection, false)
              |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
              |> text_response(200) == "OK"
     end
