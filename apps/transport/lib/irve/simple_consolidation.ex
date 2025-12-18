@@ -85,6 +85,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
           )
         end)
 
+      # TODO: tests should not go through this https://github.com/etalab/transport-site/issues/5109
       :local_disk ->
         report_file = "irve_processed_resources.csv"
         Logger.info("Saving report to #{report_file}...")
