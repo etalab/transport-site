@@ -1,6 +1,7 @@
 defmodule Transport.IRVE.SimpleReportItem do
   @moduledoc """
-  Quick & dirty structure to massage the outcome into a report with all the same keys
+  Quick & dirty structure to massage the processing outcome of a single
+  IRVE file into a structure with all the same keys.
   (as expected by the `DataFrame` that we use to create the CSV file).
   """
   @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status]
