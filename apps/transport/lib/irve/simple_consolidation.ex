@@ -6,7 +6,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   - validates it,
   - and if valid writes the PDCs and file to the database.
   If there is a previous version of the same resource already in the database,
-  it’s PDCs are replaced by the newly imported ones.
+  its PDCs are replaced by the newly imported ones.
 
   The module then reports on the outcome of each resource processing in a CSV file
   (defaulting to upload it to S3, but can also be saved on local disk for dev/testing).
