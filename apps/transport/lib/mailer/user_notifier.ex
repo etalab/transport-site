@@ -2,7 +2,7 @@ defmodule Transport.UserNotifier do
   @moduledoc """
   Module in charge of building emails for end users (producers, reusers, etc.)
   """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
+  use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
   import Transport.AdminNotifier, only: [delay_str: 2]
 
   def resources_changed(%DB.Contact{} = contact, subject, %DB.Dataset{} = dataset) do

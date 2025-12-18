@@ -75,7 +75,6 @@ defmodule TransportWeb.Router do
 
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through([:browser, :admin_rights])
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end

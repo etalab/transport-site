@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      .wrapper { background-color: #f9f9f9; padding: 20px; font-family: Tahoma, Geneva, sans-serif; }
+      .content { background-color: #ffffff; padding: 30px; border-radius: 8px; max-width: 500px; margin: 0 auto;     line-height: 1.5; }
+      .footer { font-size: 12px; color: #888; text-align: center; margin-top: 20px; }
+      .navbar__home { height: 100px; margin: 2em 0 }
+      .navbar__home img { vertical-align: middle }
+      .navbar__logo-mariane { height: 90px; margin-right: 1em; }
+      .navbar__logo-black { height: auto; width: 200px }
+      a { color: #0053b3 }
+      @media (max-width: 500px) {
+        .navbar__logo-mariane { height: 60px; }
+        .navbar__logo-black { width: 133px }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="content">
+        <div class="navbar__home">
+          <img alt="Marianne" class="navbar__logo-mariane" src={static_url(TransportWeb.Endpoint, "/images/logo-header.png")}>
+          <img alt="transport.data.gouv.fr" class="navbar__logo-black" src={static_url(TransportWeb.Endpoint, "/images/logo-black.png")}>
+        </div>
+
+        <%= @inner_content %>
+
+      </div>
+      <div class="footer">
+        <p>© <%= Application.fetch_env!(:transport, :domain_name) %></p>
+      </div>
+    </div>
+  </body>
+</html>
