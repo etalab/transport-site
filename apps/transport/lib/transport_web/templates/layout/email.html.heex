@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <style>
       .wrapper { background-color: #f9f9f9; padding: 20px; font-family: Tahoma, Geneva, sans-serif; }
       .content { background-color: #ffffff; padding: 30px; border-radius: 8px; max-width: 500px; margin: 0 auto;     line-height: 1.5; }
@@ -21,12 +21,19 @@
     <div class="wrapper">
       <div class="content">
         <div class="navbar__home">
-          <img alt="Marianne" class="navbar__logo-mariane" src={static_url(TransportWeb.Endpoint, "/images/logo-header.png")}>
-          <img alt="transport.data.gouv.fr" class="navbar__logo-black" src={static_url(TransportWeb.Endpoint, "/images/logo-black.png")}>
+          <img
+            alt="Marianne"
+            class="navbar__logo-mariane"
+            src={static_url(TransportWeb.Endpoint, "/images/logo-header.png")}
+          />
+          <img
+            alt="transport.data.gouv.fr"
+            class="navbar__logo-black"
+            src={static_url(TransportWeb.Endpoint, "/images/logo-black.png")}
+          />
         </div>
 
         <%= @inner_content %>
-
       </div>
       <div class="footer">
         <p>© <%= Application.fetch_env!(:transport, :domain_name) %></p>
