@@ -17,7 +17,7 @@ new AutoComplete({
     threshold: 3,
     debounce: 200,
     highlight: true,
-    submit: true,
+    submit: false,
     resultsList: {
         maxResults: 5,
         id: 'autoComplete_list',
