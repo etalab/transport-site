@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.ReportItem do
+defmodule Transport.IRVE.RawReportItem do
   @moduledoc """
   Struct representing one IRVE resource in the consolidation report. The `ReportItem`
   let data reusers know whether a resource has been included or not, and if not,

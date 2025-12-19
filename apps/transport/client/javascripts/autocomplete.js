@@ -69,7 +69,7 @@ const autoCompletejs = new AutoComplete({
             return match.join('')
         }
     },
-    submit: true,
+    submit: false,
     resultsList: {
         maxResults: 7,
         id: 'autoComplete_list',

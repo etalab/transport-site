@@ -81,6 +81,14 @@ defmodule TransportWeb.Router do
   end
 
   scope "/", TransportWeb do
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:backoffice_clear_proxy_config])
+
+      post("/clear_proxy_config", PageController, :clear_proxy_config)
+    end
+  end
+
+  scope "/", TransportWeb do
     pipe_through(:browser)
     get("/", PageController, :index)
     get("/missions", PageController, :missions)
@@ -251,11 +259,6 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:backoffice_csv_export])
       get("/download_resources_csv", PageController, :download_resources_csv)
-    end
-
-    scope "/backoffice", Backoffice, as: :backoffice do
-      pipe_through([:backoffice_clear_proxy_config])
-      post("/clear_proxy_config", PageController, :clear_proxy_config)
     end
 
     # Authentication
@@ -432,10 +435,7 @@ defmodule TransportWeb.Router do
     if Plug.Crypto.secure_compare(key_value, expected_value) do
       conn
     else
-      conn
-      |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
-      |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
-      |> halt()
+      conn |> put_status(401) |> text("Unauthorized") |> halt()
     end
   end
 
