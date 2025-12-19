@@ -39,7 +39,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       stats_days: @stats_days,
       proxy_configuration: config,
-      select_options: Enum.map(config, &{&1.type, &1.type})
+      select_options: Enum.map(config, &{&1.type, &1.type}) |> Enum.uniq() |> Enum.sort()
     )
     |> filter_config()
   end

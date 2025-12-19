@@ -29,13 +29,15 @@ defmodule TransportWeb.ContactControllerTest do
 
     refute Phoenix.Flash.get(conn.assigns.flash, :info) =~ "🦊"
 
-    assert_email_sent(
-      from: {"PAN, Formulaire Contact", "contact@transport.data.gouv.fr"},
-      to: "contact@transport.data.gouv.fr",
-      subject: "dataset",
-      text_body: "User type: data-reuser\nQuestion type: other\n\nQuestion: where is my dataset?\n",
-      html_body: nil,
-      reply_to: "human@user.fr"
-    )
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"PAN, Formulaire Contact", "contact@transport.data.gouv.fr"},
+                           to: [{"", "contact@transport.data.gouv.fr"}],
+                           subject: "dataset",
+                           text_body: nil,
+                           html_body: html,
+                           reply_to: {"", "human@user.fr"}
+                         } ->
+      assert html =~ "where is my dataset?"
+    end)
   end
 end
