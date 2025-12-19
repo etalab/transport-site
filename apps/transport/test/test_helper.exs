@@ -24,4 +24,8 @@ ExUnit.start()
 # Define VCR's path.
 ExVCR.Config.cassette_library_dir("test/fixture/cassettes")
 
+# Disable triggers on dataset, causing deadlocks
+DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER refresh_dataset_geographic_view_trigger")
+DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER dataset_update_trigger")
+
 Ecto.Adapters.SQL.Sandbox.mode(DB.Repo, :manual)
