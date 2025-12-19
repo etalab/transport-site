@@ -17,7 +17,7 @@ new AutoComplete({
     threshold: 3,
     debounce: 200,
     highlight: true,
-    submit: true,
+    submit: false,
     resultsList: {
         maxResults: 5,
         id: 'autoComplete_list',
@@ -41,5 +41,15 @@ new AutoComplete({
         tag: 'li',
         highlight: 'autoComplete_highlighted',
         selected: 'autoComplete_selected'
+    }
+})
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        const searchInput = document.getElementById('autoComplete')
+        if (searchInput) {
+            event.preventDefault()
+            searchInput.focus()
+        }
     }
 })
