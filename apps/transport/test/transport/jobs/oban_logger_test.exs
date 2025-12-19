@@ -41,13 +41,15 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
                max_attempts: 2
              )
 
-    assert_email_sent(
-      from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
-      to: "tech@transport.data.gouv.fr",
-      subject: "Échec de job Oban : Transport.Test.Transport.Jobs.ObanLoggerJobTag",
-      text_body:
-        "Un job Oban Transport.Test.Transport.Jobs.ObanLoggerJobTag vient d'échouer, il serait bien d'investiguer."
-    )
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                           to: [{"", "tech@transport.data.gouv.fr"}],
+                           subject: "Échec de job Oban : Transport.Test.Transport.Jobs.ObanLoggerJobTag",
+                           html_body: html
+                         } ->
+      assert html =~
+               "Un job Oban Transport.Test.Transport.Jobs.ObanLoggerJobTag vient d’échouer, il serait bien d’investiguer."
+    end)
   end
 
   test "oban default logger is set up for important components" do
