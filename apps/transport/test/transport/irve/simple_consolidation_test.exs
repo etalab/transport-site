@@ -10,7 +10,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
   end
 
   describe "process/0" do
-    test "writes pdcs for valid files" do
+    # grouping successful & error test for now, will be improved
+    test "writes pdcs for valid file, and not for invalid file" do
       # Mock the data.gouv.fr API response
       mock_datagouv_resources()
 
