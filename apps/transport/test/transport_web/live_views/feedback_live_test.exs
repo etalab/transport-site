@@ -57,15 +57,17 @@ defmodule TransportWeb.FeedbackLiveTest do
     |> Kernel.=~("Merci d’avoir laissé votre avis !")
     |> assert
 
-    assert_email_sent(
-      from: {"Formulaire feedback", "contact@transport.data.gouv.fr"},
-      to: "contact@transport.data.gouv.fr",
-      subject: "Nouvel avis pour on_demand_validation : j’aime",
-      text_body:
-        "Vous avez un nouvel avis sur le PAN.\nFonctionnalité : on_demand_validation\nNotation : j’aime\nAdresse e-mail : \n\nExplication : so useful for my GTFS files\n",
-      html_body: nil,
-      reply_to: "contact@transport.data.gouv.fr"
-    )
+    assert_email_sent(fn %Swoosh.Email{
+                           from: {"Formulaire feedback", "contact@transport.data.gouv.fr"},
+                           to: [{"", "contact@transport.data.gouv.fr"}],
+                           subject: "Nouvel avis pour on_demand_validation : j’aime",
+                           text_body: nil,
+                           html_body: html,
+                           reply_to: {"", "contact@transport.data.gouv.fr"}
+                         } ->
+      assert remove_whitespace(html) =~
+               "<p> Vous avez un nouvel avis sur le PAN.</p> <ul> <li> Fonctionnalité : on_demand_validation </li> <li> Notation : j’aime </li> <li> Adresse e-mail : </li> </ul> <p> Explication : so useful for my GTFS files</p>"
+    end)
 
     assert %DB.UserFeedback{
              rating: :like,
@@ -102,4 +104,6 @@ defmodule TransportWeb.FeedbackLiveTest do
     {:ok, _view, html} = conn |> live(live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive))
     assert html =~ "<h2>Laissez-nous votre avis</h2>"
   end
+
+  defp remove_whitespace(value), do: value |> String.replace(~r/(\s)+/, " ") |> String.trim()
 end
