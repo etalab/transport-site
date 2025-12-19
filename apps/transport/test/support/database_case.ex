@@ -20,6 +20,11 @@ defmodule TransportWeb.DatabaseCase do
 
       defp cleanup(:datasets), do: Repo.delete_all(Dataset)
 
+      defp cleanup(:dataset_triggers) do
+        DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER refresh_dataset_geographic_view_trigger")
+        DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER dataset_update_trigger")
+      end
+
       defp collections do
         unquote(options)[:cleanup]
       end

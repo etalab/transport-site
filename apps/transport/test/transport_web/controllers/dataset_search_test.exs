@@ -1,12 +1,13 @@
 defmodule TransportWeb.DatasetSearchControllerTest do
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  use TransportWeb.DatabaseCase, cleanup: [:datasets, :dataset_triggers]
   import DB.Factory
 
   doctest TransportWeb.DatasetController
 
   setup do
     DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER dataset_update_trigger")
+    DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER refresh_dataset_geographic_view_trigger")
 
     insert(:dataset,
       created_at: DateTime.utc_now(),

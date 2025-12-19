@@ -1,5 +1,5 @@
 defmodule TransportWeb.API.StatsControllerTest do
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  use TransportWeb.DatabaseCase, async: false, cleanup: [:datasets, :dataset_triggers]
   use TransportWeb.ConnCase
   import Mock
   import DB.Factory
@@ -8,6 +8,11 @@ defmodule TransportWeb.API.StatsControllerTest do
     {"/api/stats", "api-stats-aoms"},
     {"/api/stats/quality", "api-stats-quality"}
   ]
+
+  setup do
+    DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER refresh_dataset_geographic_view_trigger")
+    :ok
+  end
 
   for {route, cache_key} <- @cached_features_routes do
     test "GET #{route} (invokes the cache system)", %{conn: conn} do
