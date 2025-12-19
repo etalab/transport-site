@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetSearchControllerTest do
-  use TransportWeb.ConnCase, async: true
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [:datasets, :dataset_triggers]
   import DB.Factory
 
   doctest TransportWeb.DatasetController

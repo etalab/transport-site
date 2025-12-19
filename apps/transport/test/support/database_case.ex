@@ -14,11 +14,27 @@ defmodule TransportWeb.DatabaseCase do
       import Ecto
       import Ecto.Query
 
+      defp init do
+        collections() |> Enum.each(&init(&1))
+      end
+
+      def init(:dataset_triggers) do
+        DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER refresh_dataset_geographic_view_trigger")
+        DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER dataset_update_trigger")
+      end
+
+      def init(_), do: :ok
+
       defp cleanup do
         collections() |> Enum.each(&cleanup(&1))
       end
 
       defp cleanup(:datasets), do: Repo.delete_all(Dataset)
+
+      defp cleanup(:dataset_triggers) do
+        DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER refresh_dataset_geographic_view_trigger")
+        DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER dataset_update_trigger")
+      end
 
       defp collections do
         unquote(options)[:cleanup]
@@ -88,6 +104,8 @@ defmodule TransportWeb.DatabaseCase do
         })
 
         cleanup()
+
+        init()
 
         on_exit(fn ->
           :ok = Sandbox.checkout(Repo)

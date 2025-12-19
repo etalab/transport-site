@@ -2,7 +2,7 @@ defmodule TransportWeb.API.AutocompleteController do
   use TransportWeb, :controller
   alias Helpers
   alias OpenApiSpex.Operation
-  import Ecto.{Query}
+  import Ecto.Query
 
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
@@ -38,10 +38,10 @@ defmodule TransportWeb.API.AutocompleteController do
     |> DB.Repo.all()
   end
 
-  @spec autocomplete(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def autocomplete(%Plug.Conn{} = conn, %{"q" => query}) do
+  @spec autocomplete(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def autocomplete(%Plug.Conn{} = conn, params) do
     query =
-      query
+      Map.get(params, "q", "")
       # we replace '-' to ' ' because we also did this transformation for indexed_name
       |> String.replace("-", " ")
       # we replace ' ' to '%' to search for composite name to be easily searchable
