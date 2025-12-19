@@ -265,7 +265,7 @@ defmodule Unlock.Controller do
     body = String.replace(response.body, base_url, replace) |> String.replace("?" <> to_string(parsed.query), "")
 
     response.headers
-    |> prepare_response_headers()
+    |> prepare_response_headers(item)
     |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
     |> override_resp_headers_if_configured(item)
     |> send_resp(response.status, body)
