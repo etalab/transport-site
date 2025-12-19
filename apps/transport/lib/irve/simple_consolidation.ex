@@ -73,6 +73,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
       |> Explorer.DataFrame.new()
 
+    base_name = "irve_static_consolidation_v2_report"
+
     case destination do
       :send_to_s3 ->
         with_tmp_file(fn report_file ->
@@ -80,14 +82,14 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
           upload_aggregate!(
             report_file,
-            "irve_processed_resources#{timestamp()}.csv",
-            "irve_processed_resources.csv"
+            "#{base_name}_#{timestamp()}.csv",
+            "#{base_name}.csv"
           )
         end)
 
       # TODO: tests should not go through this https://github.com/etalab/transport-site/issues/5109
       :local_disk ->
-        report_file = "irve_processed_resources.csv"
+        report_file = base_name <> ".csv"
         Logger.info("Saving report to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end

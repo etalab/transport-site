@@ -38,9 +38,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
 
+      file_name = "irve_static_consolidation_v2_report.csv"
+
       # Check the generated report, here it’s stored on local disk (not default S3)
-      assert File.exists?("irve_processed_resources.csv")
-      report_content = "irve_processed_resources.csv" |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
+      assert File.exists?(file_name)
+      report_content = file_name |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
 
       [
         %{
@@ -64,7 +66,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       ] = report_content
 
       assert error_message =~ "could not find column name \"nom_station\"."
-      File.rm!("irve_processed_resources.csv")
+      File.rm!(file_name)
     end
   end
 
