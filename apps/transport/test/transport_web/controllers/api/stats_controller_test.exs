@@ -9,11 +9,6 @@ defmodule TransportWeb.API.StatsControllerTest do
     {"/api/stats/quality", "api-stats-quality"}
   ]
 
-  setup do
-    DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER refresh_dataset_geographic_view_trigger")
-    :ok
-  end
-
   for {route, cache_key} <- @cached_features_routes do
     test "GET #{route} (invokes the cache system)", %{conn: conn} do
       # return original computed payload

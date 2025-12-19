@@ -6,9 +6,6 @@ defmodule TransportWeb.DatasetSearchControllerTest do
   doctest TransportWeb.DatasetController
 
   setup do
-    DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER dataset_update_trigger")
-    DB.Repo.query!("ALTER TABLE dataset ENABLE TRIGGER refresh_dataset_geographic_view_trigger")
-
     insert(:dataset,
       created_at: DateTime.utc_now(),
       last_update: DateTime.utc_now(),
