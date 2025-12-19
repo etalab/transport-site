@@ -43,3 +43,12 @@
     padding-right: 12px;
   }
 }
+
+a.filler {
+  margin-right: .3em;
+  text-decoration: none;
+  color: var(--theme-dark-text);
+  &:first-child {
+    margin-left: .5em;
+  }
+}
