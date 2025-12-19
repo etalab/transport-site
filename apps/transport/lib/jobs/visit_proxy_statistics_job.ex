@@ -3,12 +3,18 @@ defmodule Transport.Jobs.VisitProxyStatisticsJob do
   This job sends emails to producers who are using the transport proxy.
   It tells them to look at their producer space to see statistics.
   """
-  use Oban.Worker, max_attempts: 1
+  use Oban.Worker, max_attempts: 3
   import Ecto.Query
 
+  @notification_reason :visit_proxy_statistics
+
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
-    Enum.each(relevant_contacts(), fn %DB.Contact{} = contact ->
+  def perform(%Oban.Job{scheduled_at: %DateTime{} = scheduled_at}) do
+    already_sent_emails = email_addresses_already_sent(scheduled_at)
+
+    relevant_contacts()
+    |> Enum.reject(&(&1.email in already_sent_emails))
+    |> Enum.each(fn %DB.Contact{} = contact ->
       contact
       |> save_notification()
       |> Transport.UserNotifier.visit_proxy_statistics()
@@ -30,10 +36,20 @@ defmodule Transport.Jobs.VisitProxyStatisticsJob do
     DB.Notification.insert!(%{
       contact_id: contact_id,
       email: email,
-      reason: :visit_proxy_statistics,
+      reason: @notification_reason,
       role: :producer
     })
 
     contact
+  end
+
+  def email_addresses_already_sent(%DateTime{} = scheduled_at) do
+    datetime_limit = DateTime.add(scheduled_at, -30, :day)
+
+    DB.Notification.base_query()
+    |> where([notification: n], n.inserted_at >= ^datetime_limit and n.reason == @notification_reason)
+    |> select([notification: n], n.email)
+    |> distinct(true)
+    |> DB.Repo.all()
   end
 end

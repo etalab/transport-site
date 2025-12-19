@@ -16,11 +16,23 @@ defmodule Transport.Test.Transport.Jobs.VisitProxyStatisticsJobTest do
 
     %DB.Organization{id: organization_id} = insert(:organization)
     %DB.Contact{id: contact_id} = contact = insert_contact(%{organizations: [%{id: organization_id}]})
+
+    # Another contact but they received the email already
+    %DB.Contact{id: other_contact_id} = other_contact = insert_contact(%{organizations: [%{id: organization_id}]})
+
+    insert_notification(%{
+      contact_id: other_contact.id,
+      reason: :visit_proxy_statistics,
+      email: other_contact.email,
+      role: :producer
+    })
+
     dataset = insert(:dataset, organization_id: organization_id)
     insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/resource/example")
     insert(:resource, dataset: dataset, url: "https://proxy.transport.data.gouv.fr/resource/other_resource")
 
-    assert [%DB.Contact{id: ^contact_id}] = VisitProxyStatisticsJob.relevant_contacts()
+    assert [%DB.Contact{id: ^contact_id}, %DB.Contact{id: ^other_contact_id}] =
+             VisitProxyStatisticsJob.relevant_contacts() |> Enum.sort_by(& &1.id)
 
     assert :ok == perform_job(VisitProxyStatisticsJob, %{})
 
@@ -36,9 +48,14 @@ defmodule Transport.Test.Transport.Jobs.VisitProxyStatisticsJobTest do
     [
       %DB.Notification{
         reason: :visit_proxy_statistics,
+        contact_id: ^other_contact_id,
+        role: :producer
+      },
+      %DB.Notification{
+        reason: :visit_proxy_statistics,
         contact_id: ^contact_id,
         role: :producer
       }
-    ] = DB.Repo.all(DB.Notification)
+    ] = DB.Repo.all(DB.Notification) |> Enum.sort_by(& &1.id)
   end
 end
