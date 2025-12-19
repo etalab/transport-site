@@ -77,7 +77,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     case destination do
       :send_to_s3 ->
-        Logger.info "Uploading report file (#{base_name}.csv) to S3..."
+        Logger.info("Uploading report file (#{base_name}.csv) to S3...")
+
         with_tmp_file(fn report_file ->
           Explorer.DataFrame.to_csv!(report_df, report_file)
 
