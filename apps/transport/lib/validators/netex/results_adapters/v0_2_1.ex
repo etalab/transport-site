@@ -5,6 +5,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   use Gettext, backend: TransportWeb.Gettext
 
+  require Explorer.DataFrame, as: DF
   alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
 
@@ -106,45 +107,48 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate issue_type(list), to: V0_2_0
 
   @doc """
-  Get issues from validation results. For a specific issue type if specified, or the most severe.
-
-  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "base-rules" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
-  iex> get_issues(validation_result, %{"issues_category" => "xsd-schema"})
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(validation_result, %{"issues_category" => "broken-file"})
-  []
-  iex> get_issues(validation_result, nil)
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(validation_result, %{})
-  [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}]
-  iex> get_issues(%{}, nil)
-  []
-  iex> get_issues([], nil)
-  []
+  Get issues from validation results, filtered on category, and paginated.
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def get_issues(%{} = validation_result, %{"issues_category" => issues_category}) do
-    validation_result
-    |> Map.get(issues_category, [])
-    |> order_issues_by_location()
+  def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
+    binary
+    |> Commons.from_binary()
+    |> get_issues(filter, pagination_config)
   end
 
-  def get_issues(%{} = validation_result, _) do
-    validation_result
-    |> pick_preferred_category()
-    |> order_issues_by_location()
+  def get_issues(
+        %Explorer.DataFrame{} = df,
+        %{"issues_category" => issues_category} = filter,
+        %Scrivener.Config{} = pagination_config
+      ) do
+    results =
+      if Commons.has_column?(df, "category") do
+        df
+        |> DF.filter(category == ^issues_category)
+        |> order_issues_by_location()
+        |> Commons.count_and_slice(pagination_config)
+      else
+        {0, []}
+      end
+
+    {filter, results}
   end
 
-  def get_issues(_, _), do: []
+  def get_issues(%Explorer.DataFrame{} = df, %{}, %Scrivener.Config{} = pagination_config) do
+    default_category = pick_default_category(df)
 
-  defp pick_preferred_category(%{} = validation_result) do
-    category =
-      @categories_preferred_order
-      |> Enum.find(fn category -> not is_nil(validation_result[category]) end)
-
-    validation_result
-    |> Map.get(category || @xsd_schema_category, [])
+    get_issues(df, %{"issues_category" => default_category}, pagination_config)
   end
+
+  def get_issues(_, _, _), do: {%{"issues_category" => @xsd_schema_category}, {0, []}}
+
+  defdelegate get_categories(df), to: V0_2_0
+
+  def pick_default_category(%Explorer.DataFrame{} = df) do
+    pick_default_category(df, @categories_preferred_order)
+  end
+
+  defdelegate pick_default_category(df, categories_preferred_order), to: V0_2_0
 
   defdelegate order_issues_by_location(issues), to: V0_2_0
 

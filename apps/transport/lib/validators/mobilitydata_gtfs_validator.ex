@@ -95,6 +95,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp poll_validation_results(job_id, attempt \\ 1)
 
   defp poll_validation_results(job_id, 60 = _attempt) do
+    increment_counter("timeout")
     %{"status" => "error", "reason" => "timeout", "job_id" => job_id, "validation_performed" => false}
   end
 
@@ -105,12 +106,15 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
         poll_validation_results(job_id, attempt + 1)
 
       {:successful, data} ->
+        increment_counter("success")
         data
 
       {:error, data} ->
+        increment_counter("error")
         Map.put(data, "validation_performed", false)
 
       :unexpected_validation_status ->
+        increment_counter("unexpected_validation_status")
         %{"validation_performed" => false, "reason" => "unexpected_validation_status"}
     end
   end
@@ -125,11 +129,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     "stats" => %{"WARNING" => 2},
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
+  iex> digest([])
+  %{"max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0}, "stats" => %{}, "summary" => []}
   """
-  @spec digest([map()]) :: map()
-  def digest([]) do
-    %{"stats" => nil, "max_severity" => nil, "summary" => nil}
-  end
+
+  @spec digest([map()] | map()) :: map()
+  def digest(%{"notices" => notices}), do: digest(notices)
 
   def digest(validation_result) do
     %{
@@ -264,4 +269,6 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp validator_client, do: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper.impl()
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
+  defp increment_counter(status), do: Appsignal.increment_counter("mobilitydata_gtfs_validator.#{status}", 1)
 end

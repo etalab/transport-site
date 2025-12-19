@@ -6,6 +6,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Mox
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
+  alias Transport.Validators.NeTEx.ResultsAdapter
   alias TransportWeb.Live.OnDemandValidationSelectLive
 
   setup :verify_on_exit!
@@ -285,11 +286,15 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
+      results_adapter = ResultsAdapter.resolve("0.1.0")
+
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: "0.1.0",
-          result: result,
+          result: nil,
+          digest: results_adapter.digest(result),
+          binary_result: results_adapter.to_binary_result(result),
           max_error: "warning"
         }
       )
@@ -321,11 +326,15 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
+      results_adapter = ResultsAdapter.resolve(validator_version)
+
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: validator_version,
-          result: result,
+          result: nil,
+          digest: results_adapter.digest(result),
+          binary_result: results_adapter.to_binary_result(result),
           max_error: "error"
         }
       )

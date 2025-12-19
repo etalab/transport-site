@@ -3,6 +3,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   Collection of helpers to be used by all results adapters.
   """
   require Explorer.DataFrame, as: DF
+  alias Explorer.Series, as: S
 
   @dtypes [
     category: :category,
@@ -73,5 +74,65 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   def from_binary(binary) when is_binary(binary) do
     DF.load_parquet!(binary)
+  end
+
+  defp slice(df, %Scrivener.Config{} = config) do
+    df
+    |> DF.slice(page(config))
+    |> DF.select(["code", "criticity", "message", "resource.filename", "resource.line"])
+    |> DF.to_rows()
+  end
+
+  defp page(%Scrivener.Config{} = config) do
+    first = (config.page_number - 1) * config.page_size
+    last = config.page_number * config.page_size - 1
+    Range.new(first, last)
+  end
+
+  defp to_issues(entries), do: Enum.map(entries, &to_issue/1)
+
+  defp to_issue(%{} = entry) do
+    %{
+      "code" => entry["code"],
+      "message" => entry["message"],
+      "criticity" => entry["criticity"],
+      "resource" =>
+        %{
+          "filename" => entry["resource.filename"],
+          "line" => entry["resource.line"]
+        }
+        |> drop_empty_values()
+    }
+    |> drop_empty_values()
+  end
+
+  defp drop_empty_values(map), do: Map.filter(map, fn {_key, value} -> value != %{} and not is_nil(value) end)
+
+  def get_values(%Explorer.DataFrame{} = df, column) do
+    if has_column?(df, column) do
+      df
+      |> DF.distinct([column])
+      |> DF.to_rows()
+      |> Enum.map(& &1[column])
+    else
+      []
+    end
+  end
+
+  def count_and_slice(%Explorer.DataFrame{} = df, pagination_config) do
+    total_count = S.count(df["code"])
+
+    issues =
+      df
+      |> slice(pagination_config)
+      |> to_issues()
+
+    {total_count, issues}
+  end
+
+  def has_column?(df, column_name) do
+    df
+    |> DF.names()
+    |> Enum.member?(column_name)
   end
 end

@@ -608,6 +608,9 @@ defmodule TransportWeb.DatasetView do
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
     end
   end
+
+  def empty_to_nil(""), do: nil
+  def empty_to_nil(value), do: value
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do

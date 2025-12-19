@@ -4,6 +4,8 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
+  import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
   setup :verify_on_exit!
 
@@ -723,11 +725,14 @@ defmodule TransportWeb.ResourceControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
-        result: result,
+        digest: results_adapter.digest(result),
+        binary_result: results_adapter.to_binary_result(result),
         max_error: "error",
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42},
@@ -901,6 +906,18 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
@@ -908,22 +925,8 @@ defmodule TransportWeb.ResourceControllerTest do
         metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
         features: ["Bike Allowed"]
       },
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
@@ -957,6 +960,18 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 2
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
@@ -964,22 +979,8 @@ defmodule TransportWeb.ResourceControllerTest do
         metadata: %{"start_date" => "", "end_date" => ""},
         features: ["Bike Allowed"]
       },
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
@@ -990,7 +991,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     # Validation
     assert response |> html_response(200) =~ "Rapport de validation"
-    assert response |> html_response(200) =~ "1 avertissement"
+    assert response |> html_response(200) =~ "2 avertissements"
     assert response |> html_response(200) =~ "unusable_trip"
   end
 
@@ -1010,25 +1011,23 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert DB.ResourceHistory.gtfs_flex?(rh)
 
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
     insert(:multi_validation, %{
       resource_history: rh,
       validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
-      result: %{
-        "notices" => [
-          %{
-            "code" => "unusable_trip",
-            "sampleNotices" => [%{"foo" => "bar"}],
-            "severity" => "WARNING",
-            "totalNotices" => 2
-          }
-        ],
-        "summary" => %{"validatorVersion" => "4.2.0"}
-      },
-      digest: %{
-        "max_severity" => %{"max_level" => "WARNING", "worst_occurrences" => 1},
-        "stats" => %{"WARNING" => 1},
-        "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
-      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
       max_error: "WARNING"
     })
 
@@ -1213,6 +1212,20 @@ defmodule TransportWeb.ResourceControllerTest do
 
     assert TransportWeb.ResourceView.eligible_for_explore?(resource)
     assert html_response =~ "https://explore.data.gouv.fr"
+  end
+
+  test "NeTEx pagination" do
+    config = make_pagination_config(%{})
+
+    total_pages_for_items = fn items ->
+      paginate_netex_results({items, repeated([{}], items)}, config).total_pages
+    end
+
+    assert 0 == total_pages_for_items.(0)
+    assert 1 == total_pages_for_items.(20)
+    assert 2 == total_pages_for_items.(22)
+    assert 2 == total_pages_for_items.(30)
+    assert 3 == total_pages_for_items.(41)
   end
 
   defp test_remote_download_error(%Plug.Conn{} = conn, mock_status_code) do

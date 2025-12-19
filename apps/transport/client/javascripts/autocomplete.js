@@ -69,6 +69,7 @@ const autoCompletejs = new AutoComplete({
             return match.join('')
         }
     },
+    submit: false,
     resultsList: {
         maxResults: 7,
         id: 'autoComplete_list',
@@ -81,8 +82,18 @@ const autoCompletejs = new AutoComplete({
             source.innerHTML = `<div><span class="autocomplete_name">${data.match}</span><span class="autocomplete_type">${labels[data.value.type] || ''}</span></div>`
         },
         tag: 'li',
-        highlight: 'autoComplete_highlight',
+        highlight: 'autoComplete_highlighted',
         selected: 'autoComplete_selected'
+    }
+})
+
+document.addEventListener('keydown', function (event) {
+    if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        const searchInput = document.getElementById('autoComplete')
+        if (searchInput) {
+            event.preventDefault()
+            searchInput.focus()
+        }
     }
 })
 

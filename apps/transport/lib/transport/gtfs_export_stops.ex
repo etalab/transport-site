@@ -1,6 +1,6 @@
 defmodule Transport.GTFSExportStops do
   @moduledoc """
-  A module to generate a flat-report from GTFS stops into a CSV for biz-devs.
+  A module to generate a flat-report from GTFS stops into a CSV for bizdevs.
   """
   import Ecto.Query
 
@@ -12,6 +12,16 @@ defmodule Transport.GTFSExportStops do
   end
 
   def build_stops_report(data_import_ids) do
+    agency =
+      DB.GTFS.Agency
+      |> select([a], %{
+        data_import_id: a.data_import_id,
+        agency_id: fragment("string_agg(?, ';')", a.agency_id),
+        agency_name: fragment("string_agg(?, ';')", a.agency_name)
+      })
+      |> group_by([a], a.data_import_id)
+      |> order_by([a], a.data_import_id)
+
     DB.GTFS.Stops
     |> where([s], s.data_import_id in ^data_import_ids)
     |> order_by([s], [s.data_import_id, s.id])
@@ -19,7 +29,8 @@ defmodule Transport.GTFSExportStops do
     |> join(:inner, [_, di], rh in DB.ResourceHistory, on: di.resource_history_id == rh.id)
     |> join(:inner, [_, _, rh], r in DB.Resource, on: rh.resource_id == r.id)
     |> join(:inner, [_, _, _, r], d in DB.Dataset, on: r.dataset_id == d.id)
-    |> select([s, di, rh, r, d], %{
+    |> join(:inner, [_, di, _, _, _], a in subquery(agency), on: a.data_import_id == di.id)
+    |> select([s, di, rh, r, d, a], %{
       dataset_custom_title: d.custom_title,
       dataset_organisation: d.organization,
       dataset_id: d.id,
@@ -32,7 +43,9 @@ defmodule Transport.GTFSExportStops do
       stop_name: s.stop_name,
       stop_lat: s.stop_lat,
       stop_lon: s.stop_lon,
-      location_type: s.location_type
+      location_type: s.location_type,
+      agency_id: a.agency_id,
+      agency_name: a.agency_name
     })
   end
 
@@ -49,7 +62,9 @@ defmodule Transport.GTFSExportStops do
     :stop_name,
     :stop_lat,
     :stop_lon,
-    :location_type
+    :location_type,
+    :agency_id,
+    :agency_name
   ]
 
   def export_headers do

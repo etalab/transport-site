@@ -36,6 +36,19 @@ defmodule Unlock.CachedFetch do
     end
   end
 
+  def fetch_data(%Unlock.Config.Item.GBFS{} = item, http_client_options) do
+    target_url = item.base_url |> String.replace("gbfs.json", item.endpoint)
+    response = Unlock.HTTP.Client.impl().get!(target_url, item.request_headers, http_client_options)
+    size = byte_size(response.body)
+
+    if size > @max_allowed_cached_byte_size do
+      Logger.warning("Payload is too large (#{size} bytes > #{@max_allowed_cached_byte_size}). Skipping cache.")
+      {:ignore, response}
+    else
+      {:commit, response, expire: :timer.seconds(item.ttl)}
+    end
+  end
+
   # For S3 hosted files (which we control), which are currently larger, go a bit further
   @max_allowed_s3_cached_byte_size 4 * 20 * 1024 * 1024
 

@@ -55,6 +55,21 @@ defmodule Unlock.Config do
     defstruct [:identifier, :bucket, :path, :ttl]
   end
 
+  defmodule Item.GBFS do
+    @moduledoc """
+    Intermediate structure for GBFS configured feeds.
+    """
+    @enforce_keys [:identifier, :base_url, :ttl]
+    defstruct [
+      :identifier,
+      :base_url,
+      :endpoint,
+      :ttl,
+      request_headers: [],
+      response_headers: []
+    ]
+  end
+
   defmodule Fetcher do
     @moduledoc """
     A behaviour + shared methods for config fetching.
@@ -103,6 +118,17 @@ defmodule Unlock.Config do
         ttl: Map.get(item, "ttl", 0),
         # keep the subtype in case we need to do alternate processing later, without creating too many types too soon
         subtype: subtype,
+        request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),
+        response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
+      }
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "gbfs"} = item) do
+      %Item.GBFS{
+        identifier: Map.fetch!(item, "identifier"),
+        base_url: Map.fetch!(item, "base_url"),
+        # By default, no TTL
+        ttl: Map.get(item, "ttl", 0),
         request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),
         response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
       }

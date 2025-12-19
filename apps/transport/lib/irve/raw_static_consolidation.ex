@@ -205,7 +205,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   end
 
   def build_report_item(row, body, extension, optional_error) do
-    %Transport.IRVE.ReportItem{
+    %Transport.IRVE.RawReportItem{
       dataset_id: row.dataset_id,
       resource_id: row.resource_id,
       resource_url: row.url,
