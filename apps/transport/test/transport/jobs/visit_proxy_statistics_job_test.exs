@@ -32,5 +32,13 @@ defmodule Transport.Test.Transport.Jobs.VisitProxyStatisticsJobTest do
       subject: "Découvrez vos statistiques proxy",
       html_body: ~r/#{html_content}/
     )
+
+    [
+      %DB.Notification{
+        reason: :visit_proxy_statistics,
+        contact_id: ^contact_id,
+        role: :producer
+      }
+    ] = DB.Repo.all(DB.Notification)
   end
 end

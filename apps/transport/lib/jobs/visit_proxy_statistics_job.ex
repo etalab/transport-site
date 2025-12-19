@@ -10,6 +10,7 @@ defmodule Transport.Jobs.VisitProxyStatisticsJob do
   def perform(%Oban.Job{}) do
     Enum.each(relevant_contacts(), fn %DB.Contact{} = contact ->
       contact
+      |> save_notification()
       |> Transport.UserNotifier.visit_proxy_statistics()
       |> Transport.Mailer.deliver()
     end)
@@ -23,5 +24,16 @@ defmodule Transport.Jobs.VisitProxyStatisticsJob do
     |> Enum.filter(&DB.Resource.served_by_proxy?/1)
     |> Enum.flat_map(& &1.dataset.organization_object.contacts)
     |> Enum.uniq()
+  end
+
+  defp save_notification(%DB.Contact{id: contact_id, email: email} = contact) do
+    DB.Notification.insert!(%{
+      contact_id: contact_id,
+      email: email,
+      reason: :visit_proxy_statistics,
+      role: :producer
+    })
+
+    contact
   end
 end
