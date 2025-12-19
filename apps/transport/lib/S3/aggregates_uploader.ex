@@ -36,6 +36,8 @@ defmodule Transport.S3.AggregatesUploader do
     end
   end
 
+  def timestamp, do: DateTime.utc_now() |> Calendar.strftime("%Y%m%d.%H%M%S.%f")
+
   defp mk_tmp_file do
     path = System.tmp_dir!() |> Path.join(Ecto.UUID.generate())
 
