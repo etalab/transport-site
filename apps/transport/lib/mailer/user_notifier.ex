@@ -183,6 +183,13 @@ defmodule Transport.UserNotifier do
     |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
   end
 
+  def visit_proxy_statistics(%DB.Contact{} = contact) do
+    contact
+    |> common_email_options()
+    |> subject("Découvrez vos statistiques proxy")
+    |> render_body("visit_proxy_statistics.html")
+  end
+
   # From here, utility functions.
 
   defp common_email_options(%DB.Contact{} = contact) do
