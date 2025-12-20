@@ -1,8 +1,13 @@
 defmodule TransportWeb.Plugs.PutLocaleTest do
   use TransportWeb.ConnCase, async: true
+  import DB.Factory
   doctest TransportWeb.Plugs.PutLocale, import: true
 
   @path page_path(TransportWeb.Endpoint, :missions)
+
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+  end
 
   test "uses the locale query parameter", %{conn: conn} do
     conn = get(conn, @path)
@@ -34,5 +39,15 @@ defmodule TransportWeb.Plugs.PutLocaleTest do
       html = conn |> get(@path, locale: locale) |> html_response(200)
       assert html |> Floki.parse_document!() |> Floki.attribute("html", "lang") == [locale]
     end)
+  end
+
+  test "locale is saved in the database when switching", %{conn: conn} do
+    contact = insert_contact(%{locale: "fr", datagouv_user_id: Ecto.UUID.generate()})
+
+    conn
+    |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+    |> get(@path, locale: "en")
+
+    %DB.Contact{locale: "en"} = DB.Repo.reload!(contact)
   end
 end
