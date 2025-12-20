@@ -7,6 +7,7 @@ defmodule DB.ResourceMonthlyMetric do
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.Changeset
+  import Ecto.Query
 
   typed_schema "resource_monthly_metrics" do
     belongs_to(:resource, DB.Resource, foreign_key: :resource_datagouv_id, references: :datagouv_id, type: :string)
@@ -23,5 +24,21 @@ defmodule DB.ResourceMonthlyMetric do
     |> validate_required([:resource_datagouv_id, :year_month, :metric_name, :count])
     |> validate_format(:year_month, ~r/\A2\d{3}-(0[1-9]|1[012])\z/)
     |> validate_number(:count, greater_than_or_equal_to: 0)
+  end
+
+  @spec downloads_for_year([DB.Resource.t()], non_neg_integer()) :: %{binary() => integer()}
+  def downloads_for_year(resources, year) do
+    datagouv_ids = Enum.map(resources, fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id end)
+    year_months = DB.DatasetMonthlyMetric.year_months(year)
+
+    __MODULE__
+    |> where(
+      [rmm],
+      rmm.metric_name == :downloads and rmm.resource_datagouv_id in ^datagouv_ids and rmm.year_month in ^year_months
+    )
+    |> group_by([rmm], rmm.resource_datagouv_id)
+    |> select([rmm], {rmm.resource_datagouv_id, sum(rmm.count)})
+    |> DB.Repo.all()
+    |> Map.new()
   end
 end

@@ -535,6 +535,82 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
+  describe "download_statistics" do
+    test "requires authentication", %{conn: conn} do
+      conn |> get(espace_producteur_path(conn, :download_statistics)) |> assert_redirects_to_info_page()
+    end
+
+    test "redirects when there is an error when fetching datasets", %{conn: conn} do
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> {:error, nil} end)
+
+      conn =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :download_statistics))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Une erreur a eu lieu lors de la récupération de vos ressources"
+    end
+
+    test "renders successfully", %{conn: conn} do
+      dataset = insert(:dataset)
+
+      resource =
+        insert(:resource,
+          title: "gtfs.zip",
+          format: "GTFS",
+          url: "https://static.data.gouv.fr/example.zip",
+          dataset: dataset
+        )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      year_month = Date.utc_today() |> Date.to_iso8601() |> String.slice(0..6)
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        metric_name: :downloads,
+        count: 2_000,
+        year_month: year_month
+      )
+
+      html =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :download_statistics))
+        |> html_response(200)
+
+      assert html =~ "<h2>Statistiques de téléchargements</h2>"
+
+      assert html |> Floki.parse_document!() |> Floki.find("table") == [
+               {"table", [{"class", "table small-padding"}],
+                [
+                  {"thead", [],
+                   [
+                     {"tr", [],
+                      [
+                        {"th", [], ["Resource"]},
+                        {"th", [], ["Ressource"]},
+                        {"th", [], ["Téléchargements de l'année 2025"]}
+                      ]}
+                   ]},
+                  {"tbody", [],
+                   [
+                     {"tr", [],
+                      [
+                        {"td", [{"rowspan", "1"}], [dataset.custom_title]},
+                        {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
+                        {"td", [], ["\n2 000\n                "]}
+                      ]}
+                   ]}
+                ]}
+             ]
+    end
+  end
+
   defp assert_redirects_to_info_page(%Plug.Conn{} = conn) do
     Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
     assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)

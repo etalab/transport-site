@@ -87,6 +87,25 @@
           </div>
         </div>
       </div>
+      <div :if={show_downloads_stats?(@datasets)} class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Your download statistics") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "Get access to download statistics for your resources."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={espace_producteur_path(@conn, :download_statistics)} class="button primary">
+              <%= dgettext("espace-producteurs", "See statistics") %>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
     <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
