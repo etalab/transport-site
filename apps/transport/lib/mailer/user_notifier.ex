@@ -5,10 +5,10 @@ defmodule Transport.UserNotifier do
   use Phoenix.Swoosh, view: TransportWeb.EmailView
   import Transport.AdminNotifier, only: [delay_str: 2]
 
-  def resources_changed(%DB.Contact{} = contact, subject, %DB.Dataset{} = dataset) do
+  def resources_changed(%DB.Contact{} = contact, %DB.Dataset{} = dataset) do
     contact
     |> common_email_options()
-    |> subject(subject)
+    |> subject("#{dataset.custom_title} : ressources modifiées")
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 

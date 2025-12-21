@@ -1,0 +1,59 @@
+<section class="container pt-48 pb-48">
+  <h1>Email preview</h1>
+  <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
+    <%= search_input(f, :search, value: @search, id: "backoffice_search", list: "tags") %>
+  </.form>
+  <datalist id="tags">
+    <option :for={tag <- @tags} value={tag}></option>
+  </datalist>
+  <table class="table mt-48 mb-24">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Sujet</th>
+        <th>Tags</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {id, tags, email} <- @filtered_emails |> Enum.sort_by(& elem(&1, 2).subject) do %>
+        <tr>
+          <td><code><%= id %></code></td>
+          <td data-name="subject"><%= email.subject %></td>
+          <td>
+            <span :for={tag <- tags} class="label"><%= tag %></span>
+          </td>
+          <td>
+            <a href="#preview" class="button-outline primary small" phx-click="see_email" phx-value-key_name={id}>
+              Voir
+            </a>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+<section class="section-grey">
+  <div class="container pt-48 pb-48">
+    <h2 id="preview">Prévisualisation</h2>
+    <div :if={@selected_email} class="panel dashboard-description">
+      <div class="">
+        <h4><%= @selected_email.subject %></h4>
+        <iframe id="iframe" srcdoc={@selected_email.html_body}></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+<script nonce={@nonce}>
+    document.addEventListener('keydown', function (event) {
+      if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+          const searchInput = document.getElementById('backoffice_search')
+          if (searchInput) {
+              event.preventDefault()
+              searchInput.focus()
+              searchInput.select()
+          }
+      }
+  })
+</script>
+<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />
