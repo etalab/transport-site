@@ -42,7 +42,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def maybe_log_items(stream) do
     if System.get_env("DEBUG") == "1" do
       stream
-      |> Stream.each(&IO.inspect(&1, IEx.inspect_opts))
+      |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
     else
       stream
     end
