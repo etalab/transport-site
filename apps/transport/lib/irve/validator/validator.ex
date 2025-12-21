@@ -12,6 +12,9 @@ defmodule Transport.IRVE.Validator do
   end
 
   def validate(path) do
+    # TODO https://github.com/etalab/transport-site/issues/5135 -> the most important
+    # thing to integrate now
+
     # NOTES rapportées de ma branche de travail
     #
     # prendre le fichier:
@@ -34,15 +37,27 @@ defmodule Transport.IRVE.Validator do
     #  valid row count, chemin vers dataframe et le dataframe réduit (bits) dans le format le plus
     #  compact possible. Pourquoi pas un zip avec les deux.
 
-    path
-    |> load_file_as_dataframe()
+    # NOTE: for now, load the body in memory, because refactoring to get full streaming
+    # is too involved for the current sprint deadline.
+
+    body = File.read!(path)
+    # TODO: explain `_fake_extension`
+    # TODO: structure
+    Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, ".csv")
+    # TODO: accumulate warning
+    body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
+    # TODO: accumulate warning
+    delimiter = Transport.IRVE.DataFrame.guess_delimiter!(body)
+
+    body
+    |> load_binary_as_dataframe(delimiter: delimiter)
     |> compute_validation()
   end
 
   # NOTE: will be refactored at next validator iteration
-  defp load_file_as_dataframe(path) do
+  defp load_binary_as_dataframe(body, delimiter: delimiter) do
     # NOTE: `infer_schema_length: 0` enforces strings everywhere
-    case Explorer.DataFrame.from_csv(path, infer_schema_length: 0) do
+    case Explorer.DataFrame.load_csv(body, infer_schema_length: 0, delimiter: delimiter) do
       {:ok, df} -> df
       {:error, error} -> raise error
     end
