@@ -147,10 +147,6 @@ msgstr ""
 msgid "Last updated at %{date}."
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validation results"
 msgstr ""
@@ -310,10 +306,6 @@ msgstr ""
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "calendar span by network:"
 msgstr ""
@@ -398,10 +390,26 @@ msgstr ""
 msgid "french-profile-description"
 msgstr "Set of rules of the <a href=\"https://normes.transport.data.gouv.fr\" target=\"_blank\">French profile</a>."
 
-#, elixir-autogen, elixir-format, fuzzy
-msgid "This file contains the GTFS-Flex extension. We are not able to validate it for now. You can validate it using the <a href=\"%{url}\" target=\"_blank\">Canonical GTFS Schedule Validator from MobilityData</a>."
+#, elixir-autogen, elixir-format
+msgid "during %{retention_days} days"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "during %{retention_days} days"
+msgid "This validation is now expired. Results cannot be accessed anymore."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Relevant files"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Relevant links"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Canonical GTFS Schedule Validator"
 msgstr ""

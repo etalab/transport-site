@@ -47,6 +47,10 @@ defmodule TransportWeb.Router do
     plug(:check_export_secret_key)
   end
 
+  pipeline :backoffice_clear_proxy_config do
+    plug(:check_proxy_config_key)
+  end
+
   pipeline :producer_space do
     plug(:browser)
     plug(:authentication_required, destination_path: "/infos_producteurs")
@@ -73,6 +77,14 @@ defmodule TransportWeb.Router do
     scope "/dev" do
       pipe_through([:browser, :admin_rights])
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
+    end
+  end
+
+  scope "/", TransportWeb do
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:backoffice_clear_proxy_config])
+
+      post("/clear_proxy_config", PageController, :clear_proxy_config)
     end
   end
 
@@ -155,6 +167,7 @@ defmodule TransportWeb.Router do
       get("/departement/:departement", DatasetController, :by_departement_insee)
       get("/epci/:epci", DatasetController, :by_epci)
       get("/commune/:commune", DatasetController, :by_commune_insee)
+      get("/offer/:identifiant_offre", DatasetController, :by_offer)
 
       scope "/:dataset_datagouv_id" do
         pipe_through([:authenticated])
@@ -236,6 +249,7 @@ defmodule TransportWeb.Router do
         post("/_all_/_import_validate", DatasetController, :import_validate_all)
         post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
+        post("/:id/_resource_format_override", DatasetController, :resource_format_override)
       end
 
       get("/breaking_news", BreakingNewsController, :index)
@@ -406,6 +420,22 @@ defmodule TransportWeb.Router do
       |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
       |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
       |> halt()
+    end
+  end
+
+  defp check_proxy_config_key(%Plug.Conn{} = conn, _) do
+    key_value =
+      case Plug.Conn.get_req_header(conn, "x-key") do
+        [value] -> value
+        _ -> ""
+      end
+
+    expected_value = Application.fetch_env!(:transport, :proxy_config_secret_key)
+
+    if Plug.Crypto.secure_compare(key_value, expected_value) do
+      conn
+    else
+      conn |> put_status(401) |> text("Unauthorized") |> halt()
     end
   end
 

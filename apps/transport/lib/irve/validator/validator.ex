@@ -11,7 +11,7 @@ defmodule Transport.IRVE.Validator do
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
   end
 
-  def validate_file(file_path) do
+  def validate(path) do
     # prendre le fichier
     # probe: si c'est un zip, lever une erreur et arrêter
     # probe: si c'est un encoding latin1, convertir et noter
@@ -26,6 +26,26 @@ defmodule Transport.IRVE.Validator do
     # avaler la data résultante via DataFrame, et calculer colonnes dérivées
     # persister: un JSON avec checksum du fichier, résultat général valid: true/false, valid row count, chemin vers dataframe
     #            et le dataframe réduit (bits) dans le format le plus compact possible. Pourquoi pas un zip avec les deux.
-    raise "ToBeImplemented"
+
+    path
+    |> load_file_as_dataframe()
+    |> compute_validation()
+  end
+
+  # NOTE: will be refactored at next validator iteration
+  defp load_file_as_dataframe(path) do
+    # NOTE: `infer_schema_length: 0` enforces strings everywhere
+    case Explorer.DataFrame.from_csv(path, infer_schema_length: 0) do
+      {:ok, df} -> df
+      {:error, error} -> raise error
+    end
+  end
+
+  @doc """
+  Says from the dataframe output of compute_validation/1 if all rows are valid.
+  """
+  def full_file_valid?(%Explorer.DataFrame{} = df) do
+    df["check_row_valid"]
+    |> Explorer.Series.all?()
   end
 end

@@ -1,0 +1,86 @@
+<div class={assigns[:div_class] || "panel"}>
+  <%= render("_errors_warnings_count.html",
+    nb_errors: get_in(@validation.digest, ["stats", "ERROR"]) || 0,
+    nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0
+  ) %>
+
+  <%= for {severity, notices} <- @validation.result["notices"] |> Enum.group_by(& &1["severity"]) |> Enum.sort_by(& elem(&1, 0) |> Transport.Validators.MobilityDataGTFSValidator.severity_level(), :asc) do %>
+    <h4><%= error_label(severity) %></h4>
+    <%= for notice <- notices do %>
+      <% rule = notice["code"] |> Transport.Validators.MobilityDataGTFSValidator.rule_for_code() %>
+      <div class="panel">
+        <p class="mt-0 mb-0">
+          <% nb_errors = notice["totalNotices"] %>
+          <b lang="en"><%= notice["code"] %></b>
+          <span class="label">
+            <%= "#{format_number(nb_errors)} #{dpngettext("validations", "errors", "error", "errors", nb_errors)}" %>
+          </span>
+        </p>
+        <p lang="en">
+          <%= rule["shortSummary"] |> markdown() %>
+        </p>
+
+        <blockquote lang="en">
+          <%= Regex.replace(~r/([^\n])\n([^\n])/, rule["description"] || "", "\\1 \\2") |> markdown() %>
+        </blockquote>
+
+        <%= unless Enum.empty?(get_in(rule, ["references", "fileReferences"]) || []) do %>
+          <p>
+            <%= dgettext("validations", "Relevant files") %>
+          </p>
+          <ul>
+            <li :for={file <- get_in(rule, ["references", "fileReferences"])}>
+              <code><%= file %></code>
+            </li>
+          </ul>
+        <% end %>
+
+        <%= unless Enum.empty?(get_in(rule, ["references", "urlReferences"]) || []) do %>
+          <p>
+            <%= dgettext("validations", "Relevant links") %>
+          </p>
+          <ul lang="en">
+            <li :for={link <- get_in(rule, ["references", "urlReferences"])}>
+              <%= link(link["label"], to: link["url"]) %>
+            </li>
+          </ul>
+        <% end %>
+
+        <details>
+          <summary><%= dgettext("validations", "Sample errors") %></summary>
+          <% nb_sample_notices = Enum.count(notice["sampleNotices"]) %>
+          <% sample_notices = Enum.take(notice["sampleNotices"], max_display_errors()) %>
+          <table class="table" lang="en">
+            <% headers = sample_notices |> hd() |> Map.keys() %>
+            <tr>
+              <th :for={header <- headers}><%= header %></th>
+            </tr>
+            <tr :for={notice <- sample_notices}>
+              <td :for={header <- headers}><%= Map.get(notice, header) %></td>
+            </tr>
+          </table>
+          <p :if={nb_sample_notices > max_display_errors()} class="notification">
+            <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
+          </p>
+        </details>
+      </div>
+    <% end %>
+  <% end %>
+  <p>
+    <%= raw(
+      dgettext(
+        "validations",
+        ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
+        link: @file_url,
+        format: "GTFS",
+        date:
+          DateTimeDisplay.format_datetime_to_paris(
+            @validation.validation_timestamp,
+            @locale
+          ),
+        validator_url: mobilitydata_gtfs_validator_url(),
+        validator_name: dgettext("validations", "Canonical GTFS Schedule Validator")
+      )
+    ) %>
+  </p>
+</div>

@@ -16,7 +16,8 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   @static_data_validators [
     Transport.Validators.GTFSTransport,
     Transport.Validators.TableSchema,
-    Transport.Validators.EXJSONSchema
+    Transport.Validators.EXJSONSchema,
+    Transport.Validators.MobilityDataGTFSValidator
   ]
   @realtime_data_validators [
     Transport.Validators.GBFSValidator
@@ -126,6 +127,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       relevant_realtime_validations(datetime_limit),
       fn %DB.Dataset{}, mv_1, mv_2 -> mv_1 ++ mv_2 end
     )
+    |> Enum.sort_by(fn {%DB.Dataset{id: id}, _} -> id end)
   end
 
   defp relevant_static_validations(%DateTime{} = datetime_limit) do
@@ -134,7 +136,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     DB.MultiValidation.base_query()
     |> where(
       [multi_validation: mv],
-      mv.max_error in ["Error", "Fatal"] or fragment("?->>'has_errors' = 'true'", mv.result)
+      mv.max_error in ["Error", "Fatal", "ERROR"] or fragment("?->>'has_errors' = 'true'", mv.result)
     )
     |> where(
       [multi_validation: mv],
@@ -187,6 +189,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       Transport.Validators.GTFSTransport => {7, :day},
       Transport.Validators.TableSchema => {7, :day},
       Transport.Validators.EXJSONSchema => {7, :day},
+      Transport.Validators.MobilityDataGTFSValidator => {7, :day},
       Transport.Validators.GBFSValidator => {30, :day}
     }
     |> Map.new(fn {validator, delay} -> {validator.validator_name(), delay} end)

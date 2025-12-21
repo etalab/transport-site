@@ -1,0 +1,21 @@
+<div :if={not is_nil(@validation.metadata)} %>
+  <% %DB.ResourceMetadata{metadata: metadata, features: features} = @validation.metadata
+  locale = get_session(@conn, :locale) %>
+  <%= if metadata["start_date"] not in ["", nil] and metadata["end_date"] not in ["", nil] do %>
+    <p>
+      <%= dgettext("validations", "It is valid from") %>
+      <strong><%= DateTimeDisplay.format_date(metadata["start_date"], locale) %></strong> <%= dgettext(
+        "validations",
+        "to"
+      ) %> <strong><%= DateTimeDisplay.format_date(metadata["end_date"], locale) %></strong>.
+    </p>
+  <% end %>
+  <div :if={not is_nil(metadata["counts"])}>
+    <ul>
+      <li :for={{value, count} <- metadata["counts"]}><%= value %> : <%= format_number(count, locale: locale) %></li>
+    </ul>
+  </div>
+  <div :if={Enum.count(features) > 0} lang="en">
+    <span :for={feature <- Enum.sort(features)} class="label"><%= feature %></span>
+  </div>
+</div>

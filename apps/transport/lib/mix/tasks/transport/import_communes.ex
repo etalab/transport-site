@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Transport.ImportCommunes do
   @moduledoc """
-  Import or updates commune data (list, geometry) from official sources. Run with `mix Transport.ImportCommunes`.
-
+  Import or updates commune data (list, geometry) from official sources.
+  Run with `WORKER=0 mix Transport.ImportCommunes`.
   """
   @shortdoc "Refreshes the database table `commune` with the latest data"
   use Mix.Task
@@ -180,9 +180,45 @@ defmodule Mix.Tasks.Transport.ImportCommunes do
 
     Logger.info("Ensure valid geometries and rectify if needed.")
     ensure_valid_geometries()
-    Logger.info("Enabling trigger and refreshing views.")
+
+    Logger.info("Updating administrative_division.")
+    update_administrative_division()
   end
 
   defp ensure_valid_geometries,
     do: Repo.query!("UPDATE commune SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom);")
+
+  def update_administrative_division do
+    DB.Repo.query!("""
+      DELETE
+      FROM administrative_division
+      WHERE type = 'commune' AND insee NOT IN (SELECT insee FROM commune);
+    """)
+
+    DB.Repo.query!("""
+      INSERT INTO administrative_division (type_insee, insee, type, nom, geom, population)
+      SELECT
+        CONCAT('commune_', insee) AS type_insee,
+        insee,
+        'commune' AS type,
+        nom,
+        geom,
+        population
+      FROM commune
+      WHERE insee NOT IN (select insee from administrative_division where type = 'commune')
+    """)
+
+    DB.Repo.query!("""
+      update administrative_division set nom = t.nom, geom = t.geom, population = t.population
+      from (
+        select insee, nom, geom, population
+        from commune
+      ) t where t.insee = administrative_division.insee and type = 'commune'
+       and (
+          administrative_division.nom != t.nom
+          or administrative_division.population != t.population
+          or not st_equals(administrative_division.geom, t.geom)
+       )
+    """)
+  end
 end

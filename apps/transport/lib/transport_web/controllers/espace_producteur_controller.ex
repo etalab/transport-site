@@ -17,6 +17,8 @@ defmodule TransportWeb.EspaceProducteurController do
   plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
   plug(:find_db_datasets_or_redirect when action in [:proxy_statistics])
 
+  plug(:assign_current_contact when action in [:delete_resource, :post_file, :upload_logo])
+
   def edit_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
     # While resources list is from the API
@@ -51,6 +53,10 @@ defmodule TransportWeb.EspaceProducteurController do
     %{datagouv_id: datagouv_id, path: destination_path}
     |> Transport.Jobs.CustomLogoConversionJob.new()
     |> Oban.insert!()
+
+    DB.FeatureUsage.insert!(:upload_logo, conn.assigns.current_contact.id, %{
+      dataset_datagouv_id: datagouv_id
+    })
 
     conn
     |> put_flash(:info, dgettext("espace-producteurs", "Your logo has been received. It will be replaced soon."))
@@ -129,11 +135,20 @@ defmodule TransportWeb.EspaceProducteurController do
            DB.Repo.get_by(DB.Dataset, datagouv_id: dataset_datagouv_id),
          {:ok, _} <- ImportData.import_dataset_logged(dataset),
          {:ok, _} <- DB.Dataset.validate(dataset) do
+      Appsignal.increment_counter("espace_producteur.delete_resource.success", 1)
+
+      DB.FeatureUsage.insert!(:delete_resource, conn.assigns.current_contact.id, %{
+        dataset_datagouv_id: dataset_datagouv_id,
+        resource_datagouv_id: resource_datagouv_id
+      })
+
       conn
       |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
       |> redirect(to: page_path(conn, :espace_producteur))
     else
       _ ->
+        Appsignal.increment_counter("espace_producteur.delete_resource.error", 1)
+
         conn
         |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
         |> redirect(to: page_path(conn, :espace_producteur))
@@ -148,7 +163,7 @@ defmodule TransportWeb.EspaceProducteurController do
   instead of rendering again the form: it’s a suboptimal experience, can be improved.
   """
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def post_file(conn, params) do
+  def post_file(conn, %{"dataset_datagouv_id" => dataset_datagouv_id} = params) do
     success_message =
       if Map.has_key?(params, "resource_file") do
         dgettext("resource", "File uploaded!")
@@ -160,14 +175,22 @@ defmodule TransportWeb.EspaceProducteurController do
 
     with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, post_params),
          dataset when not is_nil(dataset) <-
-           DB.Repo.get_by(DB.Dataset, datagouv_id: params["dataset_datagouv_id"]),
+           DB.Repo.get_by(DB.Dataset, datagouv_id: dataset_datagouv_id),
          {:ok, _} <- ImportData.import_dataset_logged(dataset),
          {:ok, _} <- DB.Dataset.validate(dataset) do
+      Appsignal.increment_counter("espace_producteur.post_file.success", 1)
+
+      DB.FeatureUsage.insert!(:upload_file, conn.assigns.current_contact.id, %{
+        dataset_datagouv_id: dataset_datagouv_id
+      })
+
       conn
       |> put_flash(:info, success_message)
       |> redirect(to: dataset_path(conn, :details, params["dataset_datagouv_id"]))
     else
       {:error, error} ->
+        Appsignal.increment_counter("espace_producteur.post_file.error", 1)
+
         Logger.error(
           "Unable to update resource #{params["resource_datagouv_id"]} of dataset #{params["dataset_datagouv_id"]}, error: #{inspect(error)}"
         )
@@ -177,6 +200,7 @@ defmodule TransportWeb.EspaceProducteurController do
         |> redirect(to: page_path(conn, :espace_producteur))
 
       nil ->
+        Appsignal.increment_counter("espace_producteur.post_file.error", 1)
         Logger.error("Unable to get dataset with datagouv_id: #{params["dataset_datagouv_id"]}")
 
         conn
@@ -282,5 +306,16 @@ defmodule TransportWeb.EspaceProducteurController do
       end
 
     Map.take(post_params, ["title", "format", "url", "resource_file", "dataset_id", "resource_id"])
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+      end
+
+    assign(conn, :current_contact, current_contact)
   end
 end

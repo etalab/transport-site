@@ -6,7 +6,6 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
-  alias Opendatasoft.UrlExtractor
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -45,10 +44,10 @@ defmodule Transport.ImportData do
     # validation is now gone, replaced by DB.MultiValidation
   end
 
-  def refresh_places do
+  def refresh_autocomplete do
     Logger.info("Refreshing places...")
-    # NOTE: I could not find a way to call "refresh_places()" directly
-    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+    # NOTE: I could not find a way to call "refresh_autocomplete()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW autocomplete;")
   end
 
   def generate_import_logs!(
@@ -105,7 +104,7 @@ defmodule Transport.ImportData do
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
-    refresh_places()
+    refresh_autocomplete()
     result
   end
 
@@ -221,7 +220,7 @@ defmodule Transport.ImportData do
         resource
         |> Map.put("url", cleaned_url(resource["url"]))
 
-      format = formated_format(resource, type, is_community_resource)
+      format = Map.get(existing_resource, :format_override) || formated_format(resource, type, is_community_resource)
 
       {%{
          "url" => resource["url"],
@@ -308,33 +307,18 @@ defmodule Transport.ImportData do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
-      !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
   end
 
   @spec get_valid_netex_resources([map()]) :: [map()]
   def get_valid_netex_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
+    resources |> Enum.filter(&netex?/1) |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
+    resources |> Enum.filter(&gtfs_rt?/1) |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
   end
 
   @doc """
@@ -528,6 +512,8 @@ defmodule Transport.ImportData do
   true
   iex> siri?(%{"type" => "documentation", "title" => "Documentation de l'API SIRI"})
   false
+  iex> siri?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring", "format" => "siri"})
+  true
   """
   @spec siri?(binary() | map() | nil) :: boolean()
   def siri?(%{} = params) do
@@ -557,10 +543,13 @@ defmodule Transport.ImportData do
   true
   iex> siri_lite?("SIRI")
   false
+  iex> siri_lite?(%{"description" => "SIRI CheckStatus, SIRI EstimatedTimetable, SIRI Lite VehicleMonitoring"})
+  false
   """
   @spec siri_lite?(binary() | map() | nil) :: boolean()
   def siri_lite?(%{} = params) do
     cond do
+      isolated_siri_lite?(params) -> false
       ods_resource?(params) or documentation?(params) -> false
       format?(params, "SIRI Lite") -> true
       siri_lite?(params["title"]) -> true
@@ -571,6 +560,19 @@ defmodule Transport.ImportData do
   end
 
   def siri_lite?(format), do: format?(format, "SIRI Lite")
+
+  @doc """
+  Identify cases when the occurence of `SIRI Lite` appears
+  way less often than SIRI.
+  """
+  def isolated_siri_lite?(%{"description" => description}) do
+    description = String.downcase(description || "")
+    count_siri_lite = Regex.scan(~r/siri( |-)lite/, description) |> length()
+    count_siri = Regex.scan(~r/siri/, description) |> length()
+    count_siri_lite < count_siri
+  end
+
+  def isolated_siri_lite?(_), do: false
 
   @doc """
   iex> ssim?("ssim")
@@ -865,7 +867,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 
@@ -873,7 +875,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 

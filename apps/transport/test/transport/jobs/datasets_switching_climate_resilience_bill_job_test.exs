@@ -9,6 +9,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsSwitchingClimateResilienceBillJo
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   test "datasets_custom_tags_changes, datasets_previously_climate_resilience_bill and datasets_now_climate_resilience_bill" do

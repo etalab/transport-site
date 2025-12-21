@@ -351,6 +351,152 @@ defmodule TransportWeb.DatasetControllerTest do
     assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
   end
 
+  test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "ERROR",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"},
+        features: ["Bike Allowed"]
+      }
+    )
+
+    mock_empty_history_resources()
+
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+
+    assert content |> extract_resource_details() =~ "1 erreur"
+    assert content =~ "01/12/2025"
+    assert content =~ "31/12/2025"
+  end
+
+  test "displays no error when validated with the MobilityData validator", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    result = %{"notices" => []}
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result["notices"])
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "Pas d'erreur"
+  end
+
+  test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, format: "GTFS")
+    resource_history = insert(:resource_history, resource_id: resource.id)
+
+    result = %{"Slow" => [%{"severity" => "Information"}]}
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.GTFSTransport.validator_name(),
+      result: result,
+      digest: Transport.Validators.GTFSTransport.digest(result),
+      metadata: %DB.ResourceMetadata{metadata: %{}, modes: ["ferry", "bus"]}
+    )
+
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "ERROR",
+          "totalNotices" => 1
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result)
+    )
+
+    mock_empty_history_resources()
+
+    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+
+    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+  end
+
+  test "GTFS-Flex validation with the MobilityData validator, with empty dates", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    result = %{
+      "notices" => [
+        %{
+          "code" => "unusable_trip",
+          "sampleNotices" => [%{"foo" => "bar"}],
+          "severity" => "WARNING",
+          "totalNotices" => 2
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"start_date" => "", "end_date" => ""},
+        features: ["Bike Allowed"]
+      },
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
+      max_error: "WARNING"
+    })
+
+    mock_empty_history_resources()
+
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+
+    assert content =~ "2 avertissements"
+  end
+
   test "GBFS with a nil validation", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset_id: dataset.id, format: "gbfs", url: "url")
@@ -1138,9 +1284,48 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn
-    |> get(dataset_path(conn, :details, dataset.slug))
-    |> html_response(200) =~ "Test Département, Test Commune"
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200) =~ "Test Département, Test Commune"
+  end
+
+  test "dataset#details, transport offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
+
+    mock_empty_history_resources()
+
+    assert conn
+           |> get(dataset_path(conn, :details, dataset.slug))
+           |> html_response(200) =~ offer.nom_commercial
+  end
+
+  test "dataset#by_offer", %{conn: conn} do
+    offer = insert(:offer)
+    dataset = insert(:dataset, offers: [offer])
+    other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+
+    content = conn |> get(dataset_path(conn, :by_offer, offer.identifiant_offre)) |> html_response(200)
+
+    assert offer.nom_commercial == dataset_page_title(content)
+    assert content =~ "offre de transport"
+    assert content =~ dataset.custom_title
+    refute content =~ other_dataset.custom_title
+  end
+
+  test "dataset by format", %{conn: conn} do
+    dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+    insert(:resource, format: "GTFS", dataset: dataset)
+
+    other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+    insert(:resource, format: "NeTEx", dataset: other_dataset)
+
+    content = conn |> get(dataset_path(conn, :index, format: "GTFS")) |> html_response(200)
+
+    assert "GTFS" == dataset_page_title(content)
+    assert content =~ "format de données"
+    assert content =~ dataset.custom_title
+    refute content =~ other_dataset.custom_title
   end
 
   def dataset_href_download_button(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do

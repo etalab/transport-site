@@ -1,6 +1,6 @@
 defmodule TransportWeb.DatasetSearchControllerTest do
-  use TransportWeb.ConnCase, async: true
-  use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [:datasets, :dataset_triggers]
   import DB.Factory
 
   doctest TransportWeb.DatasetController
@@ -415,6 +415,27 @@ defmodule TransportWeb.DatasetSearchControllerTest do
 
     assert [d1.id, d2.id, d3.id, d4.id] ==
              %{"epci" => epci.insee}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
+  test "search by transport offer" do
+    o1 = insert(:offer)
+    o2 = insert(:offer)
+
+    d1 = insert(:dataset, offers: [o1], custom_title: "A")
+    d2 = insert(:dataset, offers: [o2])
+    d3 = insert(:dataset, offers: [o1], custom_title: "B")
+
+    assert [d1.id, d3.id] ==
+             %{"identifiant_offre" => o1.identifiant_offre}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+
+    assert [d2.id] ==
+             %{"identifiant_offre" => o2.identifiant_offre}
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)

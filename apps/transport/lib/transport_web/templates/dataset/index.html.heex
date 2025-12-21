@@ -236,4 +236,4 @@
     </div>
   </section>
 <% end %>
-<script src={static_path(@conn, "/js/autocomplete.js")} />
+<%= render(TransportWeb.PageView, "_home_autocomplete.html", conn: @conn) %>

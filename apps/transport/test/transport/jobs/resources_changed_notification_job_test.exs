@@ -8,6 +8,7 @@ defmodule Transport.Test.Transport.Jobs.ResourcesChangedNotificationJobTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   setup :verify_on_exit!

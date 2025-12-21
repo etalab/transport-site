@@ -178,7 +178,21 @@ defmodule Datagouvfr.Client.Resources.External do
     # (the underlying lib is the same: hackney)
     {:multipart,
      [
-       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, filename}]}, []}
+       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, remove_accents_and_spaces(filename)}]}, []}
      ]}
+  end
+
+  @doc """
+  iex> remove_accents_and_spaces("cédille")
+  "cedille"
+  iex> remove_accents_and_spaces("Hello")
+  "Hello"
+  iex> remove_accents_and_spaces("Hello  world\t")
+  "Hello_world"
+  iex> remove_accents_and_spaces("Hello world")
+  "Hello_world"
+  """
+  def remove_accents_and_spaces(value) do
+    value |> String.trim() |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "") |> String.replace(~r/(\s)+/, "_")
   end
 end

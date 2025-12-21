@@ -55,7 +55,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateLEZsJobTest do
         schema_name: "etalab/schema-zfe"
       )
 
-    assert [zfe_aire.id, zfe_voies.id] == ConsolidateLEZsJob.relevant_resources() |> Enum.map(& &1.id)
+    assert [zfe_aire.id, zfe_voies.id] == ConsolidateLEZsJob.relevant_resources() |> Enum.map(& &1.id) |> Enum.sort()
   end
 
   test "consolidate_features and consolidate" do

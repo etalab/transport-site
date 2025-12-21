@@ -50,13 +50,16 @@ config :transport,
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
   export_secret_key: "fake_export_secret_key",
+  proxy_config_secret_key: "fake_proxy_config_secret_key",
   api_auth_clients: "client1:secret_token;client2:other_token",
   enroute_token: "fake_enroute_token",
   enroute_validation_token: "fake_enroute_token",
   enroute_rulesets_token: "fake_enroute_token",
   enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
   enroute_rulesets_client: Transport.EnRoute.ChouetteValidRulesetsClient.Mock,
-  netex_validator: Transport.Validators.NeTEx.Validator.Mock
+  netex_validator: Transport.Validators.NeTEx.Validator.Mock,
+  mobilitydata_gtfs_validator_client: Transport.Validators.MobilityDataGTFSValidatorClient.Mock,
+  unlock_event_incrementer: Unlock.BatchMetrics.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"

@@ -9,6 +9,7 @@ defmodule DB.Dataset do
   alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
+  import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
@@ -106,6 +107,7 @@ defmodule DB.Dataset do
   def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
   def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
   def base_with_hidden_datasets, do: base_query() |> include_hidden_datasets()
+  def reject_archived_datasets(%Ecto.Query{} = query), do: where(query, [dataset: d], is_nil(d.archived_at))
 
   @spec archived?(__MODULE__.t()) :: boolean()
   def archived?(%__MODULE__{archived_at: nil}), do: false
@@ -479,6 +481,14 @@ defmodule DB.Dataset do
 
   defp filter_by_commune(query, _), do: query
 
+  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
+    |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
+  end
+
+  defp filter_by_offer(query, _), do: query
+
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
     do: where(query, [d], d.licence in @licences_ouvertes)
@@ -518,8 +528,9 @@ defmodule DB.Dataset do
       |> filter_by_organization(params)
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
+      |> filter_by_offer(params)
+      |> reject_archived_datasets()
       |> select([dataset: d], d.id)
-      |> where([dataset: d], is_nil(d.archived_at))
 
     base_query()
     |> where([dataset: d], d.id in subquery(q))
@@ -631,6 +642,7 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
+    |> validate_spatial_area_overlap(declarative_spatial_areas)
     |> set_population(declarative_spatial_areas)
     |> validate_organization_type()
     |> add_organization(params)
@@ -659,6 +671,22 @@ defmodule DB.Dataset do
       %{valid?: false} = errors ->
         Logger.warning("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
+    end
+  end
+
+  defp validate_spatial_area_overlap(%Ecto.Changeset{} = changeset, administrative_divisions) do
+    ids = Enum.map(administrative_divisions, & &1.id)
+
+    overlaps =
+      DB.AdministrativeDivision
+      |> join(:inner, [ad], ad2 in DB.AdministrativeDivision, on: ad2.id < ad.id and ad2.id in ^ids)
+      |> where([ad, ad2], ad.id in ^ids and st_overlaps(ad.geom, ad2.geom))
+      |> DB.Repo.exists?()
+
+    if overlaps do
+      add_error(changeset, :declarative_spatial_areas, "Spatial areas overlap")
+    else
+      changeset
     end
   end
 
@@ -777,6 +805,7 @@ defmodule DB.Dataset do
 
   defp count_by_mode_query(mode) do
     base_query()
+    |> reject_archived_datasets()
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
     |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^mode))
   end
@@ -784,6 +813,7 @@ defmodule DB.Dataset do
   @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.type == ^type)
     |> Repo.aggregate(:count, :id)
   end
@@ -794,13 +824,14 @@ defmodule DB.Dataset do
   @spec count_public_transport_has_realtime :: number()
   def count_public_transport_has_realtime do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.has_realtime and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_by_custom_tag(binary()) :: non_neg_integer()
   def count_by_custom_tag(custom_tag) do
-    base_query() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
+    base_query() |> reject_archived_datasets() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
   end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
@@ -809,6 +840,7 @@ defmodule DB.Dataset do
     |> where(slug: ^slug)
     |> preload([
       :declarative_spatial_areas,
+      offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()
@@ -917,7 +949,7 @@ defmodule DB.Dataset do
     target_formats = target_conversion_formats(dataset)
     # The filler's purpose is to make sure we have a {conversion_format, nil} value
     # for every resource, even if we don't have a conversion
-    filler = Enum.into(available_conversion_formats(), %{}, &{&1, nil})
+    filler = Enum.into(DB.DataConversion.available_conversion_formats(), %{}, &{&1, nil})
     resource_ids = Enum.map(resources, & &1.id)
 
     results =
@@ -962,10 +994,8 @@ defmodule DB.Dataset do
   """
   @spec target_conversion_formats(DB.Dataset.t()) :: [atom()]
   def target_conversion_formats(%__MODULE__{}) do
-    available_conversion_formats()
+    DB.DataConversion.available_conversion_formats()
   end
-
-  defp available_conversion_formats, do: Ecto.Enum.values(DB.DataConversion, :convert_to)
 
   defp validate_siren(%Ecto.Changeset{} = changeset) do
     case get_change(changeset, :legal_owner_company_siren) do
@@ -1027,7 +1057,7 @@ defmodule DB.Dataset do
     |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
     |> where([r], r.dataset_id == ^dataset_id)
     |> group_by([r, rh], [r.id, rh.resource_id])
-    |> select([r, rh], {r.id, count(rh.id), max(fragment("payload ->>'download_datetime'"))})
+    |> select([r, rh], {r.id, count(rh.id), max(rh.inserted_at)})
     |> DB.Repo.all()
     |> Enum.map(fn {id, count, updated_at} ->
       case count do
@@ -1035,8 +1065,7 @@ defmodule DB.Dataset do
           {id, nil}
 
         _ ->
-          {:ok, datetime_updated_at, 0} = updated_at |> DateTime.from_iso8601()
-          {id, datetime_updated_at}
+          {id, updated_at}
       end
     end)
     |> Enum.into(%{})
@@ -1102,7 +1131,6 @@ defmodule DB.Dataset do
   def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
 
   def reject_experimental_datasets(queryable) do
-    queryable
-    |> where([d], @experimental_tag not in d.tags)
+    queryable |> where([d], @experimental_tag not in d.custom_tags)
   end
 end

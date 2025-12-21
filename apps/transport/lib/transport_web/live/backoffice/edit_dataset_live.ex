@@ -104,8 +104,7 @@ defmodule TransportWeb.EditDatasetLive do
       "Réseau",
       "Opérateur de transport",
       "Partenariat régional",
-      "Fournisseur de système",
-      "Autre"
+      "Fournisseur de système"
     ]
 
   def handle_event(
@@ -162,9 +161,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def handle_info({:updated_offers, offers}, socket) do
-    legal_owners =
-      (socket.assigns.legal_owners ++ Enum.map(offers, &%{id: &1.aom_id, type: "aom", label: &1.nom_aom}))
-      |> Enum.uniq()
+    new_aoms =
+      offers
+      |> Enum.reject(&is_nil(&1.aom_id))
+      |> Enum.map(&%{id: &1.aom_id, type: "aom", label: &1.nom_aom})
+
+    legal_owners = (socket.assigns.legal_owners ++ new_aoms) |> Enum.uniq()
 
     {:noreply, socket |> assign(:offers, offers) |> assign(:legal_owners, legal_owners)}
   end

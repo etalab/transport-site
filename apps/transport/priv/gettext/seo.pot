@@ -61,3 +61,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "%{name} department: Transport open datasets"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Transport open datasets for transport offer %{name}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Transport open datasets for data format %{name}"
+msgstr ""

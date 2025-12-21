@@ -296,6 +296,27 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     end
   end
 
+  describe "clear_proxy_config" do
+    test "requires auth", %{conn: conn} do
+      assert conn
+             |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
+             |> text_response(401) == "Unauthorized"
+    end
+
+    test "success case", %{conn: conn} do
+      Unlock.Config.Fetcher.Mock
+      |> expect(:clear_config_cache!, fn -> :ok end)
+
+      assert "fake_proxy_config_secret_key" == Application.fetch_env!(:transport, :proxy_config_secret_key)
+
+      assert conn
+             |> put_req_header("x-key", "fake_proxy_config_secret_key")
+             |> put_private(:plug_skip_csrf_protection, false)
+             |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
+             |> text_response(200) == "OK"
+    end
+  end
+
   defp sample_org(%{} = args) do
     Map.merge(
       %{

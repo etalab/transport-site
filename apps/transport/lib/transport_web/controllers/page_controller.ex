@@ -6,6 +6,8 @@ defmodule TransportWeb.PageController do
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
   import TransportWeb.Router.Helpers
 
+  plug(:assign_current_contact when action in [:index])
+
   def index(conn, _params) do
     conn
     |> merge_assigns(home_index_stats())
@@ -45,7 +47,7 @@ defmodule TransportWeb.PageController do
       count_regions: count_regions(),
       count_aoms: Repo.aggregate(AOM, :count, :id),
       count_aoms_with_dataset: count_aoms_with_dataset(),
-      count_regions_completed: count_regions_completed(),
+      count_transport_offers: count_transport_offers(),
       percent_population: percent_population(),
       facilitators: CachedFiles.facilitators()
     ]
@@ -217,12 +219,8 @@ defmodule TransportWeb.PageController do
           {conn, []}
       end
 
-    last_year = Date.utc_today().year - 1
-
     conn
     |> assign(:datasets, datasets)
-    |> assign(:downloads_reference_year, last_year)
-    |> assign(:downloads_last_year, DB.DatasetMonthlyMetric.downloads_for_year(datasets, last_year))
     |> TransportWeb.Session.set_is_producer(datasets)
     |> render("espace_producteur.html")
   end
@@ -250,10 +248,6 @@ defmodule TransportWeb.PageController do
 
   defp count_regions do
     Region |> where([r], r.nom != "National") |> select([r], count(r.id)) |> Repo.one!()
-  end
-
-  defp count_regions_completed do
-    Region |> where([r], r.is_completed == true) |> Repo.aggregate(:count, :id)
   end
 
   defmodule Tile do
@@ -301,5 +295,23 @@ defmodule TransportWeb.PageController do
       count: Keyword.fetch!(stats, :count_by_type)[type],
       documentation_url: Keyword.get(options, :documentation_url)
     }
+  end
+
+  defp count_transport_offers do
+    DB.Dataset.base_query()
+    |> join(:inner, [dataset: d], o in assoc(d, :offers), as: :offer)
+    |> select([offer: o], count(o.id, :distinct))
+    |> DB.Repo.one!()
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
+    current_contact =
+      if is_nil(current_user) do
+        nil
+      else
+        DB.Contact |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
+      end
+
+    assign(conn, :current_contact, current_contact)
   end
 end

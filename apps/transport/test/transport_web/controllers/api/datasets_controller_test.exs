@@ -137,6 +137,15 @@ defmodule TransportWeb.API.DatasetControllerTest do
         organization_id: "org_id",
         declarative_spatial_areas: [
           build(:administrative_division, nom: "Angers Métropole", insee: "123456", type: :epci)
+        ],
+        custom_tags: ["foo", "bar"],
+        offers: [
+          insert(:offer,
+            identifiant_offre: 1,
+            nom_commercial: "Superbus",
+            nom_aom: "Super AOM",
+            type_transport: "Transport urbain"
+          )
         ]
       )
 
@@ -201,7 +210,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     dataset_res = %{
       "community_resources" => [],
       "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-      "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+      "legal_owners" => [],
       "created_at" => "2021-12-23",
       "datagouv_id" => "datagouv",
       "id" => "datagouv",
@@ -261,7 +270,16 @@ defmodule TransportWeb.API.DatasetControllerTest do
         [resource_1, gbfs_resource, resource_2]
         |> Enum.map(& &1.last_update)
         |> Enum.max(DateTime)
-        |> DateTime.to_iso8601()
+        |> DateTime.to_iso8601(),
+      "tags" => ["foo", "bar"],
+      "offers" => [
+        %{
+          "identifiant_offre" => 1,
+          "nom_aom" => "Super AOM",
+          "nom_commercial" => "Superbus",
+          "type_transport" => "Transport urbain"
+        }
+      ]
     }
 
     assert json = conn |> get(path) |> json_response(200)
@@ -314,7 +332,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              %{
                "community_resources" => [],
                "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-               "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+               "legal_owners" => [],
                "created_at" => "2021-12-23",
                "datagouv_id" => "datagouv",
                "id" => "datagouv",
@@ -338,7 +356,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "slug" => "slug-1",
                "title" => "title",
                "type" => "public-transit",
-               "updated" => resource.last_update |> DateTime.to_iso8601()
+               "updated" => resource.last_update |> DateTime.to_iso8601(),
+               "tags" => [],
+               "offers" => []
              }
            ] == json
 
@@ -374,7 +394,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
           slug: "slug-2",
           is_active: true,
           created_at: ~U[2021-12-23 13:30:40.000000Z],
-          tags: ["netex", "experimental"]
+          custom_tags: ["netex", "experimental"]
         ),
       url: "https://link.to/gbfs.json",
       datagouv_id: "2",
@@ -444,13 +464,10 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-             "legal_owners" => %{
-               "aoms" => [
-                 %{"name" => "Angers Métropole", "siren" => "siren"}
-               ],
-               "company" => nil,
-               "regions" => [%{"name" => "Pays de la Loire", "insee" => "52"}]
-             },
+             "legal_owners" => [
+               %{"name" => "Angers Métropole", "siren" => "siren", "type" => "aom"},
+               %{"insee" => "52", "name" => "Pays de la Loire", "type" => "region"}
+             ],
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
@@ -491,7 +508,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "title" => "title",
              "type" => "public-transit",
              "licence" => "lov2",
-             "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601()
+             "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601(),
+             "tags" => [],
+             "offers" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
@@ -569,7 +588,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert %{
              "community_resources" => [],
              "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
-             "legal_owners" => %{"aoms" => [], "company" => nil, "regions" => []},
+             "legal_owners" => [],
              "created_at" => "2021-12-23",
              "datagouv_id" => "datagouv",
              "history" => [],
@@ -619,7 +638,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "title" => "title",
              "type" => "public-transit",
              "updated" =>
-               [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601()
+               [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601(),
+             "tags" => [],
+             "offers" => []
            } == json
 
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
@@ -652,7 +673,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
         datagouv_id: "datagouv-2",
         is_active: true,
         created_at: ~U[2021-12-23 13:30:40.000000Z],
-        tags: ["netex", "experimental"]
+        custom_tags: ["netex", "experimental"]
       )
 
     assert %{"datagouv_id" => ^visible_dataset_datagouv_id} =

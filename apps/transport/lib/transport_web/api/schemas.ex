@@ -273,6 +273,24 @@ defmodule TransportWeb.API.Schemas do
     })
   end
 
+  defmodule Offer do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Offer",
+      description: "A transport offer",
+      type: :object,
+      properties: %{
+        nom_commercial: %Schema{type: :string, nullable: false},
+        identifiant_offre: %Schema{type: :integer, nullable: false},
+        type_transport: %Schema{type: :string, nullable: false},
+        nom_aom: %Schema{type: :string, nullable: false}
+      },
+      additionalProperties: false
+    })
+  end
+
   defmodule AOM do
     @moduledoc false
     require OpenApiSpex
@@ -281,10 +299,11 @@ defmodule TransportWeb.API.Schemas do
       title: "AOM",
       description: "AOM object, as used in covered area and legal owners",
       type: :object,
-      required: [:name, :siren],
+      required: [:name, :siren, :type],
       properties: %{
         name: %Schema{type: :string},
-        siren: %Schema{type: :string}
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["aom"]}
       },
       additionalProperties: false
     })
@@ -298,10 +317,28 @@ defmodule TransportWeb.API.Schemas do
       title: "Region",
       description: "Region object",
       type: :object,
-      required: [:name, :insee],
+      required: [:name, :insee, :type],
       properties: %{
         name: %Schema{type: :string},
-        insee: %Schema{type: :string}
+        insee: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["region"]}
+      },
+      additionalProperties: false
+    })
+  end
+
+  defmodule Company do
+    @moduledoc false
+    require OpenApiSpex
+
+    OpenApiSpex.schema(%{
+      title: "Company",
+      description: "Company object",
+      type: :object,
+      required: [:siren, :type],
+      properties: %{
+        siren: %Schema{type: :string},
+        type: %Schema{type: :string, enum: ["company"]}
       },
       additionalProperties: false
     })
@@ -367,17 +404,13 @@ defmodule TransportWeb.API.Schemas do
 
     OpenApiSpex.schema(%{
       title: "LegalOwners",
-      type: :object,
-      properties: %{
-        aoms: %Schema{
-          type: :array,
-          items: AOM.schema()
-        },
-        regions: %Schema{
-          type: :array,
-          items: Region.schema()
-        },
-        company: %Schema{type: :string, nullable: true}
+      type: :array,
+      items: %Schema{
+        anyOf: [
+          AOM.schema(),
+          Region.schema(),
+          Company.schema()
+        ]
       },
       additionalProperties: false
     })
@@ -703,7 +736,17 @@ defmodule TransportWeb.API.Schemas do
           items: CommunityResource
         },
         covered_area: CoveredArea.schema(),
-        legal_owners: LegalOwners.schema()
+        legal_owners: LegalOwners.schema(),
+        tags: %Schema{
+          type: :array,
+          description: "Tags associated to the dataset, as set by the NAP team",
+          items: %Schema{type: :string}
+        },
+        offers: %Schema{
+          type: :array,
+          description: "Transport offers associated to the dataset",
+          items: Offer
+        }
       }
 
       if details do
@@ -763,11 +806,28 @@ defmodule TransportWeb.API.Schemas do
     @moduledoc false
     require OpenApiSpex
 
+    @types [
+      "region",
+      "departement",
+      "epci",
+      "commune",
+      "feature",
+      "mode",
+      "offer",
+      "format"
+    ]
+
     @properties %{
-      url: %Schema{type: :string, description: "URL of the Resource"},
-      type: %Schema{type: :string, description: "type of the resource (commune, region, aom)"},
-      name: %Schema{type: :string, description: "name of the resource"}
+      url: %Schema{type: :string, description: "URL of the resource"},
+      type: %Schema{
+        type: :string,
+        description: "Type of the resource",
+        enum: @types
+      },
+      name: %Schema{type: :string, description: "Name of the resource"}
     }
+
+    def types, do: @types
 
     OpenApiSpex.schema(%{
       title: "Autocomplete result",

@@ -13,7 +13,8 @@ defmodule TransportWeb.ResourceController do
                         Transport.Validators.GBFSValidator,
                         Transport.Validators.TableSchema,
                         Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx.Validator
+                        Transport.Validators.NeTEx.Validator,
+                        Transport.Validators.MobilityDataGTFSValidator
                       ])
   plug(:assign_current_contact when action in [:details])
 
@@ -23,7 +24,8 @@ defmodule TransportWeb.ResourceController do
         not_found(conn)
 
       resource ->
-        validation = latest_validation(resource)
+        resource_history = DB.ResourceHistory.latest_resource_history(id)
+        validation = latest_validation(resource, resource_history)
 
         conn =
           conn
@@ -31,7 +33,7 @@ defmodule TransportWeb.ResourceController do
             :uptime_per_day,
             DB.ResourceUnavailability.uptime_per_day(resource, availability_number_days())
           )
-          |> assign(:resource_history, DB.ResourceHistory.latest_resource_history(id))
+          |> assign(:resource_history, resource_history)
           |> assign(:gtfs_rt_feed, gtfs_rt_feed(conn, resource))
           |> assign(:gtfs_rt_entities, gtfs_rt_entities(resource))
           |> assign(:latest_validations_details, latest_validations_details(resource))
@@ -39,9 +41,14 @@ defmodule TransportWeb.ResourceController do
           |> put_resource_flash(resource.dataset.is_active)
 
         cond do
-          Resource.gtfs?(resource) -> render_gtfs_details(conn, params, resource, validation)
-          Resource.netex?(resource) -> render_netex_details(conn, params, resource, validation)
-          true -> render_details(conn, resource)
+          Resource.gtfs?(resource) and Transport.Validators.GTFSTransport.mine?(validation) ->
+            render_gtfs_details(conn, params, resource, validation)
+
+          Resource.netex?(resource) ->
+            render_netex_details(conn, params, resource, validation)
+
+          true ->
+            render_details(conn, resource)
         end
     end
   end
@@ -136,8 +143,14 @@ defmodule TransportWeb.ResourceController do
 
   defp put_resource_flash(conn, _), do: conn
 
-  defp latest_validation(%Resource{id: resource_id} = resource) do
-    validators = resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+  defp latest_validation(%Resource{id: resource_id} = resource, latest_resource_history) do
+    # Swap-out the validator for GTFS-Flex
+    validators =
+      if not is_nil(latest_resource_history) and DB.ResourceHistory.gtfs_flex?(latest_resource_history) do
+        [Transport.Validators.MobilityDataGTFSValidator]
+      else
+        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+      end
 
     validator =
       cond do
@@ -145,7 +158,12 @@ defmodule TransportWeb.ResourceController do
         Enum.empty?(validators) -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator, include_result: true)
+    netex? = validator == Transport.Validators.NeTEx.Validator
+
+    DB.MultiValidation.resource_latest_validation(resource_id, validator,
+      include_result: not netex?,
+      include_binary_result: netex?
+    )
   end
 
   def render_details(conn, resource) do
@@ -153,7 +171,9 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_gtfs_details(conn, params, resource, validation) do
-    validation_details = {_, _, _, _, issues} = build_gtfs_validation_details(validation, params)
+    config = make_pagination_config(params)
+
+    {validation_details, issues} = build_gtfs_validation_details(validation, params)
 
     issue_type =
       case params["issue_type"] do
@@ -162,28 +182,35 @@ defmodule TransportWeb.ResourceController do
       end
 
     conn
-    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign_base_resource_details(resource, validation_details)
+    |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validator, Transport.Validators.GTFSTransport)
     |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> render("gtfs_details.html")
   end
 
-  defp build_gtfs_validation_details(nil, _params), do: {nil, nil, nil, [], []}
+  defp build_gtfs_validation_details(nil, _params), do: {{nil, nil, nil, []}, []}
 
   defp build_gtfs_validation_details(%{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}}, params) do
     summary = Transport.Validators.GTFSTransport.summary(validation_result)
     stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
     issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
 
-    {summary, stats, metadata.metadata, metadata.modes, issues}
+    {{summary, stats, metadata.metadata, metadata.modes}, issues}
   end
 
   defp render_netex_details(conn, params, resource, validation) do
-    {results_adapter, validation_details, errors_template, max_severity} =
+    config = make_pagination_config(params)
+
+    {results_adapter, validation_details, issues, errors_template, max_severity} =
       build_netex_validation_details(validation, params)
 
+    {filter, pagination} = issues
+
     conn
-    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign_base_resource_details(resource, validation_details)
+    |> assign(:filter, filter)
+    |> assign(:issues, paginate_netex_results(pagination, config))
     |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
@@ -191,36 +218,61 @@ defmodule TransportWeb.ResourceController do
     |> render("netex_details.html")
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, [], []}, nil, nil}
+  # For NeTEx results we avoid loading every entries. We emulate
+  # Scrivener.paginate based on the total count.
+  def paginate_netex_results({total_entries, issues}, config) do
+    total_pages = div(total_entries, config.page_size)
+
+    total_pages =
+      if rem(total_entries, config.page_size) > 0 do
+        total_pages + 1
+      else
+        total_pages
+      end
+
+    %Scrivener.Page{
+      entries: issues,
+      page_number: config.page_number,
+      page_size: config.page_size,
+      total_entries: total_entries,
+      total_pages: total_pages
+    }
+  end
+
+  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil}
 
   defp build_netex_validation_details(
-         %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}},
+         %{
+           validator_version: version,
+           digest: digest,
+           binary_result: binary_result,
+           metadata: metadata = %DB.ResourceMetadata{}
+         },
          params
        ) do
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-    summary = results_adapter.summary(validation_result)
-    stats = results_adapter.count_by_severity(validation_result)
-    issues = results_adapter.get_issues(validation_result, params)
+    summary = digest["summary"]
+    stats = digest["stats"]
     errors_template = pick_netex_errors_template(version)
-    max_severity = results_adapter.count_max_severity(validation_result)
+    max_severity = digest["max_severity"]
 
-    {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template, max_severity}
+    pagination_config = make_pagination_config(params)
+    issues = results_adapter.get_issues(binary_result, params, pagination_config)
+
+    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity}
   end
 
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
-  defp assign_base_resource_details(conn, params, resource, validation_details) do
-    config = make_pagination_config(params)
-
-    {validation_summary, severities_count, metadata, modes, issues} = validation_details
+  defp assign_base_resource_details(conn, resource, validation_details) do
+    {validation_summary, severities_count, metadata, modes} = validation_details
 
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
-    |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
     |> assign(:metadata, metadata)
@@ -252,9 +304,12 @@ defmodule TransportWeb.ResourceController do
   they are referenced on an HTTPS page.
   """
   def download(%Plug.Conn{assigns: %{original_method: "HEAD"}} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         forward_head_response(conn, resource)
 
@@ -270,9 +325,12 @@ defmodule TransportWeb.ResourceController do
   end
 
   def download(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
-    resource = DB.Resource |> DB.Repo.get!(id) |> DB.Repo.preload(:dataset)
+    resource = get_with_dataset(id)
 
     cond do
+      is_nil(resource) ->
+        not_found(conn)
+
       DB.Dataset.has_custom_tag?(resource.dataset, "authentification_experimentation") ->
         log_and_redirect(conn, resource)
 
@@ -302,6 +360,12 @@ defmodule TransportWeb.ResourceController do
             |> render("404.html")
         end
     end
+  end
+
+  defp get_with_dataset(resource_id) do
+    DB.Resource
+    |> DB.Repo.get(resource_id)
+    |> DB.Repo.preload(:dataset)
   end
 
   defp forward_head_response(%Plug.Conn{} = conn, %DB.Resource{} = resource) do

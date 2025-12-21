@@ -13,11 +13,13 @@ defmodule TransportWeb.API.DatasetController do
   # that it will still protect a lot against excessive querying.
   @index_cache_ttl Transport.PreemptiveAPICache.cache_ttl()
   @by_id_cache_ttl :timer.seconds(30)
+  @offers_columns [:nom_commercial, :identifiant_offre, :type_transport, :nom_aom]
   @dataset_preload [
     :resources,
     :legal_owners_aom,
     :legal_owners_region,
     :declarative_spatial_areas,
+    offers: from(o in DB.Offer, select: ^@offers_columns),
     resources: [:dataset]
   ]
 
@@ -127,7 +129,7 @@ defmodule TransportWeb.API.DatasetController do
     Dataset
     |> Dataset.reject_experimental_datasets()
     |> Repo.get_by(datagouv_id: id)
-    |> Repo.preload([:declarative_spatial_areas])
+    |> Repo.preload(declarative_spatial_areas: from(p in DB.AdministrativeDivision, select: [:nom, :type, :geom]))
     |> case do
       %Dataset{} = dataset ->
         data =
@@ -193,7 +195,9 @@ defmodule TransportWeb.API.DatasetController do
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
       "licence" => dataset.licence,
-      "publisher" => get_publisher(dataset)
+      "publisher" => get_publisher(dataset),
+      "tags" => dataset.custom_tags,
+      "offers" => offers(dataset)
     }
 
   @spec get_publisher(Dataset.t()) :: map()
@@ -330,21 +334,28 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp legal_owners(dataset) do
-    %{
-      "aoms" => legal_owners_aom(dataset.legal_owners_aom),
-      "regions" => legal_owners_region(dataset.legal_owners_region),
-      "company" => dataset.legal_owner_company_siren
-    }
+    legal_owners_aom(dataset.legal_owners_aom) ++
+      legal_owners_region(dataset.legal_owners_region) ++ legal_owners_company(dataset)
   end
 
   defp legal_owners_aom(aoms) do
-    aoms
-    |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
+    Enum.map(aoms, fn aom -> %{"name" => aom.nom, "siren" => aom.siren, "type" => "aom"} end)
   end
 
   defp legal_owners_region(regions) do
-    regions
-    |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
+    Enum.map(regions, fn region -> %{"name" => region.nom, "insee" => region.insee, "type" => "region"} end)
+  end
+
+  def legal_owners_company(%{legal_owner_company_siren: nil}), do: []
+
+  def legal_owners_company(%{legal_owner_company_siren: legal_owner_company_siren}) do
+    [
+      %{"id" => nil, "siren" => legal_owner_company_siren, "type" => "company"}
+    ]
+  end
+
+  def offers(%DB.Dataset{} = dataset) do
+    Enum.map(dataset.offers, &Map.take(&1, @offers_columns))
   end
 
   def prepare_datasets_index_data do

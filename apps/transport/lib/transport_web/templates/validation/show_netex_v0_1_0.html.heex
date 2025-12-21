@@ -40,21 +40,16 @@
       <div class="validation-content-details">
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
-            <%= pagination_links(@conn, @issues, [@validation_id],
-              issue_type: @results_adapter.issue_type(@issues.entries),
-              token: @token,
-              path: &validation_path/4,
-              action: :show
-            ) %>
-            <%= render(netex_template(), issues: @issues || [], conn: @conn) %>
-            <div class="pt-24">
-              <%= pagination_links(@conn, @issues, [@validation_id],
-                issue_type: @results_adapter.issue_type(@issues.entries),
+            <% pagination =
+              pagination_links(@conn, @issues, [@validation_id],
+                issue_type: @filter["issue_type"],
                 token: @token,
                 path: &validation_path/4,
                 action: :show
               ) %>
-            </div>
+            <%= pagination %>
+            <%= render(netex_template(), issues: @issues || [], conn: @conn) %>
+            <div class="pt-24"><%= pagination %></div>
           <% else %>
             <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>
           <% end %>

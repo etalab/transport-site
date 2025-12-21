@@ -119,13 +119,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
     end
 
-    test "uploads the logo to S3, send an email and redirect", %{conn: conn} do
+    test "uploads the logo to S3, enqueue a job and redirect", %{conn: conn} do
       %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
 
       filename = "sample.jpg"
       local_path = System.tmp_dir!() |> Path.join(filename)
       upload_path = "tmp_#{datagouv_id}.jpg"
-      user_email = "john@example.com"
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
@@ -141,9 +140,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         :ok
       end)
 
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
       conn =
         conn
-        |> init_test_session(current_user: %{"email" => user_email})
+        |> init_test_session(current_user: %{"id" => contact.datagouv_user_id})
         |> post(espace_producteur_path(conn, :upload_logo, dataset.id), %{
           "upload" => %{"file" => %Plug.Upload{path: local_path, filename: filename}}
         })
@@ -156,6 +157,16 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              ] = all_enqueued()
 
       assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :upload_logo,
+                 contact_id: ^contact_id,
+                 metadata: %{
+                   "dataset_datagouv_id" => ^datagouv_id
+                 }
+               }
+             ] = DB.Repo.all(DB.FeatureUsage)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) ==
                "Votre logo a bien été reçu. Il sera remplacé dans quelques instants."
@@ -336,7 +347,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
     test "we can add a new resource with a URL", %{conn: conn} do
       %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
-      conn = conn |> init_test_session(%{current_user: %{}})
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
 
       # We expect a call to the function Datagouvfr.Client.Resource.update/2, but this is indeed to create a new resource.
       # There is a clause in the real client that does a POST call for a new resource if there is no resource_id
@@ -373,6 +385,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       # No need to really check content of dataset and resources in database,
       # because the response of Datagouv.Client.Resources.update is discarded.
       # We would just check that import_data works correctly, while this is already tested elsewhere.
+      assert [
+               %DB.FeatureUsage{
+                 feature: :upload_file,
+                 contact_id: ^contact_id,
+                 metadata: %{
+                   "dataset_datagouv_id" => ^dataset_datagouv_id
+                 }
+               }
+             ] = DB.Repo.all(DB.FeatureUsage)
     end
 
     test "we can show the delete confirmation page", %{conn: conn} do
@@ -405,7 +426,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       %DB.Dataset{datagouv_id: dataset_datagouv_id, resources: [%DB.Resource{datagouv_id: resource_datagouv_id}]} =
         insert(:dataset, resources: [insert(:resource)])
 
-      conn = conn |> init_test_session(%{current_user: %{}})
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
 
       Datagouvfr.Client.Resources.Mock
       |> expect(:delete, fn _conn, %{"dataset_id" => ^dataset_datagouv_id, "resource_id" => ^resource_datagouv_id} ->
@@ -426,6 +448,17 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       # No need to really check content of dataset and resources in database,
       # because the response of Datagouv.Client.Resources.update is discarded.
       # We would just check that import_data works correctly, while this is already tested elsewhere.
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :delete_resource,
+                 contact_id: ^contact_id,
+                 metadata: %{
+                   "dataset_datagouv_id" => ^dataset_datagouv_id,
+                   "resource_datagouv_id" => ^resource_datagouv_id
+                 }
+               }
+             ] = DB.Repo.all(DB.FeatureUsage)
     end
   end
 

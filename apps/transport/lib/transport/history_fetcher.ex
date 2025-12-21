@@ -52,20 +52,25 @@ defmodule Transport.History.Fetcher.Database do
         query |> preload(:metadata)
       end
 
-    dataset_id_sub =
+    dataset_id_sub1 =
       DB.ResourceHistory.base_query()
       |> where([resource_history: rh], fragment("(?->>'dataset_id')::bigint = ?", rh.payload, ^dataset_id))
       |> select([resource_history: rh], rh.id)
 
-    query =
+    dataset_id_sub2 =
       DB.ResourceHistory.base_query()
       |> join(:left, [resource_history: rh], r in DB.Resource,
-        on: r.id == rh.resource_id and r.dataset_id == ^dataset_id,
+        on: r.id == rh.resource_id,
         as: :resource
       )
+      |> where([resource: r, resource_history: _], r.dataset_id == ^dataset_id)
+      |> select([resource_history: rh], rh.id)
+
+    query =
+      DB.ResourceHistory.base_query()
       |> where(
-        [resource: r, resource_history: rh],
-        not is_nil(r.id) or rh.id in subquery(dataset_id_sub)
+        [resource_history: rh],
+        rh.id in subquery(union(dataset_id_sub1, ^dataset_id_sub2))
       )
       |> order_by([resource_history: rh], desc: rh.inserted_at)
 

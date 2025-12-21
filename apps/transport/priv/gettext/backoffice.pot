@@ -285,13 +285,13 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, elixir-autogen, elixir-format
-msgid "Spatial area (new)"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "spatial areas label"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Offers"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Spatial area"
 msgstr ""

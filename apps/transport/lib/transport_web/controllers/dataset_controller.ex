@@ -10,7 +10,7 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact when action in [:details, :resources_history_csv])
+  plug(:assign_current_contact)
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
@@ -138,7 +138,8 @@ defmodule TransportWeb.DatasetController do
       Transport.Validators.TableSchema,
       Transport.Validators.EXJSONSchema,
       Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
     ]
 
   def resources_infos(dataset) do
@@ -210,6 +211,10 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, DB.Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
+  def by_offer(%Plug.Conn{} = conn, params) do
+    conn |> list_datasets(params, _count_by_region = false)
+  end
+
   defp unavailabilities(%Dataset{id: id, resources: resources}) do
     Transport.Cache.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
@@ -254,8 +259,20 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload([:declarative_spatial_areas])
+    |> preload_spatial_areas(params)
     |> Repo.paginate(page: config.page_number)
+  end
+
+  # pre-optimisation version kept, in order to allow side-by-side prod benchmark
+  defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
+    query |> preload([:declarative_spatial_areas])
+  end
+
+  defp preload_spatial_areas(query, _params) do
+    DB.AdministrativeDivision
+    # avoid loading `:geom` (total for `/datasets` can be several MB)
+    |> select([a], struct(a, [:type, :nom]))
+    |> then(&preload(query, declarative_spatial_areas: ^&1))
   end
 
   @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
@@ -479,6 +496,13 @@ defmodule TransportWeb.DatasetController do
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
+  defp get_name(DB.Offer, identifiant_offre) do
+    DB.Offer
+    |> where([o], o.identifiant_offre == ^identifiant_offre)
+    |> select([o], o.nom_commercial)
+    |> DB.Repo.one!()
+  end
+
   defp get_name(territory, insee) do
     territory
     |> Repo.get_by(insee: insee)
@@ -564,6 +588,28 @@ defmodule TransportWeb.DatasetController do
         conn,
         :page_title,
         %{type: "EPCI", name: get_name(DB.EPCI, insee)}
+      )
+
+  defp put_page_title(conn, %{"identifiant_offre" => identifiant_offre}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "transport offer"),
+          name: get_name(DB.Offer, identifiant_offre)
+        }
+      )
+
+  defp put_page_title(conn, %{"format" => format}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "data format"),
+          name: format
+        }
       )
 
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do

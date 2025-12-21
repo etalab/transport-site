@@ -1,7 +1,7 @@
 <% locale = get_session(@conn, :locale) %>
 <% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
-<% [validation] = @resources_infos.validations |> Map.get(@resource.id) %>
+<% validation = latest_validation(@resource, @resources_infos) %>
 <% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
 
@@ -19,8 +19,8 @@
   <% end %>
 
   <%= if Resource.gtfs?(@resource) do %>
-    <% start_date = validation |> get_metadata_info("start_date") %>
-    <% end_date = validation |> get_metadata_info("end_date") %>
+    <% start_date = validation |> get_metadata_info("start_date") |> empty_to_nil() %>
+    <% end_date = validation |> get_metadata_info("end_date") |> empty_to_nil() %>
     <%= if start_date && end_date do %>
       <div title={dgettext("page-dataset-details", "Validity period")}>
         <i class="icon icon--calendar-alt" aria-hidden="true"></i>

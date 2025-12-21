@@ -74,7 +74,7 @@ defmodule TransportWeb.PageControllerTest do
 
     test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
       %DB.Dataset{organization_id: organization_id} =
-        dataset = insert(:dataset, datagouv_title: datagouv_title = "Foobar")
+        dataset = insert(:dataset, custom_title: custom_title = "Foobar")
 
       resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
       assert DB.Resource.hosted_on_datagouv?(resource)
@@ -104,67 +104,9 @@ defmodule TransportWeb.PageControllerTest do
       {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
       assert Floki.find(doc, ".message--error") == []
 
-      assert doc |> Floki.find(".dataset-item h5") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
-               datagouv_title
+      assert doc |> Floki.find("h3.dataset__title") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
+               custom_title
              ]
-    end
-
-    test "download stats are displayed", %{conn: conn} do
-      # A dataset with a resource hosted on data.gouv.fr
-      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset, datagouv_title: "A")
-      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
-
-      # Another dataset but the resource is not hosted on data.gouv.fr
-      %DB.Dataset{} = other_dataset = insert(:dataset, datagouv_title: "B", organization_id: organization_id)
-      other_resource = insert(:resource, url: "https://example.com/file", dataset: other_dataset)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-      last_year = Date.utc_today().year - 1
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-12",
-        metric_name: :downloads,
-        count: 50_250
-      )
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-11",
-        metric_name: :downloads,
-        count: 70_000
-      )
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: other_dataset.datagouv_id,
-        year_month: "#{last_year}-11",
-        metric_name: :downloads,
-        count: 100_000
-      )
-
-      parsed_document =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-        |> html_response(200)
-        |> Floki.parse_document!()
-
-      # Download stats for last year are displayed only for the dataset
-      # with at least a resource hosted on data.gouv.fr
-      assert DB.Resource.hosted_on_datagouv?(resource)
-      refute DB.Resource.hosted_on_datagouv?(other_resource)
-
-      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-      refute other_dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-
-      assert %{dataset.datagouv_id => 50_250 + 70_000} ==
-               DB.DatasetMonthlyMetric.downloads_for_year([dataset], last_year)
-
-      [first_dataset, second_dataset] = parsed_document |> Floki.find(".dataset-item")
-      assert first_dataset |> Floki.text() =~ "120 k téléchargements en #{last_year}"
-      refute second_dataset |> Floki.text() =~ "téléchargements"
     end
 
     test "with an OAuth2 error", %{conn: conn} do
@@ -313,6 +255,7 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
     espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
@@ -325,11 +268,11 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     refute conn
-           |> init_test_session(current_user: %{"is_producer" => false})
+           |> init_test_session(current_user: %{"is_producer" => false, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
 
     assert conn
-           |> init_test_session(current_user: %{"is_producer" => true})
+           |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
   end
 end

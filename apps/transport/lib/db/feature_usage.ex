@@ -16,7 +16,11 @@ defmodule DB.FeatureUsage do
         :download_resource_history,
         :post_discussion,
         :post_comment,
-        :gtfs_diff
+        :gtfs_diff,
+        :autocomplete,
+        :upload_file,
+        :delete_resource,
+        :upload_logo
       ]
     )
 

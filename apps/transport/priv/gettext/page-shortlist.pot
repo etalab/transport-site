@@ -239,3 +239,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "EPCI %{name} has not yet published any datasets"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport offer"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data format"
+msgstr ""
