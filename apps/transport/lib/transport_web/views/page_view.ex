@@ -64,6 +64,7 @@ defmodule TransportWeb.PageView do
       "mode" => dgettext("autocomplete", "mode"),
       "offer" => dgettext("autocomplete", "offer"),
       "format" => dgettext("autocomplete", "format"),
+      "dataset" => dgettext("autocomplete", "dataset"),
       "search-description" => dgettext("autocomplete", "search-description"),
       "results-description" => dgettext("autocomplete", "results-description")
     }
