@@ -309,3 +309,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Producer space"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""

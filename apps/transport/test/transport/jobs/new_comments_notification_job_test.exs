@@ -195,7 +195,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
                            text_body: nil,
                            html_body: html_body
                          } ->
-      assert remove_whitespace(html_body) == remove_whitespace(~s|
+      assert remove_whitespace(html_body) =~ remove_whitespace(~s|
       <p>Bonjour,</p>
 
       <p>

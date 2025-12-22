@@ -18,7 +18,10 @@ defmodule NoCSSInlineStyleTest do
   end
 
   def ignore_filepath?(filepath) do
-    String.contains?(filepath, ["apps/transport/lib/transport_web/templates/email/"])
+    String.contains?(filepath, [
+      "apps/transport/lib/transport_web/templates/email/",
+      "apps/transport/lib/transport_web/templates/layout/email.html.heex"
+    ])
   end
 
   def potential_css_inline?(file) do

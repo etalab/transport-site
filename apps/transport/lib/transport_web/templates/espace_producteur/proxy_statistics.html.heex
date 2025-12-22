@@ -5,6 +5,12 @@
   <div class="container">
     <h2><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h2>
     <div class="panel">
+      <p>
+        <%= dgettext(
+          "espace-producteurs",
+          "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
+        ) %>
+      </p>
       <%= for dataset <- Enum.sort_by(@datasets, & &1.custom_title) do %>
         <% resources_served_by_proxy = Enum.filter(dataset.resources, &DB.Resource.served_by_proxy?/1) %>
         <%= unless Enum.empty?(resources_served_by_proxy) do %>
@@ -19,6 +25,19 @@
           <% end %>
         <% end %>
       <% end %>
+      <div class="pt-12">
+        <a
+          class="button-outline small secondary"
+          href={espace_producteur_path(@conn, :proxy_statistics_csv)}
+          data-tracking-category="espace_producteur"
+          data-tracking-action="download_proxy_statistics_csv"
+        >
+          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+            "espace-producteurs",
+            "Download proxy statistics"
+          ) %>
+        </a>
+      </div>
     </div>
   </div>
 </section>
