@@ -107,7 +107,7 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 [`apps/unlock`](https://github.com/etalab/transport-site/tree/master/apps/unlock) is a sub-part of the "umbrella app", which is served on its own subdomain (https://proxy.transport.data.gouv.fr for production, https://proxy.prochainement.transport.data.gouv.fr/ for staging).
 
-The proxy relies on this [yaml configuration](https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
+The proxy relies on this [yaml configuration](https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
 
 Each proxied "feed" (currently GTFS-RT data) has a private (target) url hidden from the general public, can be configured with an independent Time-To-Live (TTL), and is exposed as a credential-free public url to the public. When a query occurs, the incoming HTTP connection is kept on hold while the proxy issues a query to the target server, caching the response in RAM based on the configured TTL.
 
