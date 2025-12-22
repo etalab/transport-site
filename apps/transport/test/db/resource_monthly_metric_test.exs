@@ -71,7 +71,7 @@ defmodule DB.ResourceMonthlyMetricTest do
 
       assert %{} == DB.ResourceMonthlyMetric.downloads_for_year([resource, other_resource], 2024)
     end
-    
+
     test "download_statistics" do
       dataset = insert(:dataset, custom_title: "Title")
 
