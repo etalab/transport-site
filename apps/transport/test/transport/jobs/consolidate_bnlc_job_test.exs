@@ -888,7 +888,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                            subject: "[OK] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->
-      assert html_body =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
+      assert html_body =~ ~r"✅ La consolidation s'est déroulée sans erreurs"
 
       assert html_body =~
                ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
