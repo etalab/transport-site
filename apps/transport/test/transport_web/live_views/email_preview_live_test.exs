@@ -53,6 +53,25 @@ defmodule TransportWeb.Backoffice.EmailPreviewLiveTest do
     assert form |> search_by_value("") |> subjects() |> Enum.count() >= 15
   end
 
+  test "all emails in Transport.UserNotifier are present" do
+    insert(:dataset, type: "public-transit")
+    insert(:dataset, type: "public-transit")
+
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+    {:ok, %Phoenix.LiveView.Socket{assigns: %{emails: emails}}} =
+      TransportWeb.Backoffice.EmailPreviewLive.mount(
+        %{},
+        %{"current_user" => %{"id" => contact.datagouv_user_id, "is_admin" => true}, "csp_nonce_value" => "nonce"},
+        %Phoenix.LiveView.Socket{}
+      )
+
+    assert Transport.UserNotifier.__info__(:functions)
+           |> Enum.map(fn {function, _arity} -> function end)
+           |> Enum.reject(&(&1 in [:resource_titles, :render_body, :expiration_email_subject]))
+           |> MapSet.new() == emails |> Enum.map(&elem(&1, 0)) |> MapSet.new()
+  end
+
   defp search_by_value(%Phoenix.LiveViewTest.Element{} = el, value) do
     render_change(el, %{_target: ["search"], search: value})
   end

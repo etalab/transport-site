@@ -101,8 +101,14 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
   @impl true
   def handle_event("see_email", %{"key_name" => key_name}, socket) do
     key_name = String.to_existing_atom(key_name)
-    selected_email = Enum.find_value(socket.assigns.emails, fn {key, _tags, item} -> if key == key_name, do: item end)
-    {:noreply, socket |> assign(selected_email: selected_email)}
+    {:noreply, socket |> assign(selected_email: find_email(socket, key_name))}
+  end
+
+  @impl true
+  def handle_event("receive_email", %{"key_name" => key_name}, socket) do
+    key_name = String.to_existing_atom(key_name)
+    find_email(socket, key_name) |> Transport.Mailer.deliver()
+    {:noreply, socket}
   end
 
   @impl true
@@ -119,7 +125,11 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
     {:noreply, socket}
   end
 
-  def filter_config(%Phoenix.LiveView.Socket{} = socket, %{"search" => search}) do
+  defp find_email(%Phoenix.LiveView.Socket{assigns: %{emails: emails}}, key_name) do
+    Enum.find_value(emails, fn {key, _tags, item} -> if key == key_name, do: item end)
+  end
+
+  defp filter_config(%Phoenix.LiveView.Socket{} = socket, %{"search" => search}) do
     socket |> assign(%{search: search}) |> filter_config()
   end
 
