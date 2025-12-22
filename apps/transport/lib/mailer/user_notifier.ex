@@ -183,6 +183,13 @@ defmodule Transport.UserNotifier do
     |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
   end
 
+  def visit_download_statistics(%DB.Contact{} = contact) do
+    contact
+    |> common_email_options()
+    |> subject("Découvrez vos statistiques de téléchargement")
+    |> render_body("visit_download_statistics.html")
+  end
+
   # From here, utility functions.
 
   defp common_email_options(%DB.Contact{} = contact) do

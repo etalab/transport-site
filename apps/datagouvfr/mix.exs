@@ -44,7 +44,7 @@ defmodule Datagouvfr.MixProject do
       {:vex, "~> 0.9"},
       {:exvcr, "~> 0.13", only: :test},
       {:mox, "~> 1.1", only: :test},
-      {:sentry, "~> 10.1"},
+      {:sentry, "~> 11.0"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test}
     ]
