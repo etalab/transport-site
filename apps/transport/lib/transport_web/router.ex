@@ -75,7 +75,6 @@ defmodule TransportWeb.Router do
 
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through([:browser, :admin_rights])
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end
@@ -85,6 +84,14 @@ defmodule TransportWeb.Router do
       pipe_through([:backoffice_clear_proxy_config])
 
       post("/clear_proxy_config", PageController, :clear_proxy_config)
+    end
+
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:browser_no_csp, :authentication_required, :transport_data_gouv_member])
+
+      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/email_preview", EmailPreviewLive)
+      end
     end
   end
 
@@ -238,10 +245,6 @@ defmodule TransportWeb.Router do
 
       live_session :irve_dashboard, root_layout: {TransportWeb.LayoutView, :app} do
         live("/irve-dashboard", IRVEDashboardLive)
-      end
-
-      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/email_preview", EmailPreviewLive)
       end
 
       scope "/datasets" do

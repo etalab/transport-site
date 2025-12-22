@@ -27,7 +27,10 @@ defmodule TransportWeb.Backoffice.EmailPreviewLiveTest do
 
     conn =
       conn
-      |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id, "is_admin" => true}})
+      |> init_test_session(%{
+        current_user: %{"id" => contact.datagouv_user_id, "is_admin" => true},
+        csp_nonce_value: "nonce"
+      })
       |> get(@url)
 
     {:ok, view, _html} = live(conn)
