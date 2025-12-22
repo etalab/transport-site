@@ -5,10 +5,10 @@ defmodule Transport.UserNotifier do
   use Phoenix.Swoosh, view: TransportWeb.EmailView
   import Transport.AdminNotifier, only: [delay_str: 2]
 
-  def resources_changed(%DB.Contact{} = contact, subject, %DB.Dataset{} = dataset) do
+  def resources_changed(%DB.Contact{} = contact, %DB.Dataset{} = dataset) do
     contact
     |> common_email_options()
-    |> subject(subject)
+    |> subject("#{dataset.custom_title} : ressources modifiées")
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 
@@ -181,6 +181,13 @@ defmodule Transport.UserNotifier do
     |> common_email_options()
     |> subject("Votre compte sera supprimé #{String.downcase(horizon)}")
     |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
+  end
+
+  def visit_download_statistics(%DB.Contact{} = contact) do
+    contact
+    |> common_email_options()
+    |> subject("Découvrez vos statistiques de téléchargement")
+    |> render_body("visit_download_statistics.html")
   end
 
   # From here, utility functions.

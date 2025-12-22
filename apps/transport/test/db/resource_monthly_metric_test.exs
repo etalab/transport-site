@@ -71,5 +71,80 @@ defmodule DB.ResourceMonthlyMetricTest do
 
       assert %{} == DB.ResourceMonthlyMetric.downloads_for_year([resource, other_resource], 2024)
     end
+    
+    test "download_statistics" do
+      dataset = insert(:dataset, custom_title: "Title")
+
+      resource =
+        insert(:resource,
+          title: "GTFS",
+          url: "https://static.data.gouv.fr/url",
+          dataset: dataset,
+          datagouv_id: "a" <> Ecto.UUID.generate()
+        )
+
+      assert resource |> DB.Resource.hosted_on_datagouv?()
+
+      other_resource =
+        insert(:resource,
+          title: "GTFS 2",
+          url: "https://static.data.gouv.fr/url2",
+          dataset: dataset,
+          datagouv_id: "b" <> Ecto.UUID.generate()
+        )
+
+      assert other_resource |> DB.Resource.hosted_on_datagouv?()
+
+      insert(:resource_monthly_metric,
+        metric_name: :downloads,
+        dataset_datagouv_id: dataset.datagouv_id,
+        resource_datagouv_id: resource.datagouv_id,
+        count: 2,
+        year_month: "2025-12"
+      )
+
+      insert(:resource_monthly_metric,
+        metric_name: :downloads,
+        dataset_datagouv_id: dataset.datagouv_id,
+        resource_datagouv_id: resource.datagouv_id,
+        count: 3,
+        year_month: "2025-11"
+      )
+
+      insert(:resource_monthly_metric,
+        metric_name: :downloads,
+        dataset_datagouv_id: dataset.datagouv_id,
+        resource_datagouv_id: other_resource.datagouv_id,
+        count: 4,
+        year_month: "2025-11"
+      )
+
+      assert [dataset |> DB.Repo.preload(:resources)] |> DB.ResourceMonthlyMetric.download_statistics() == [
+               %{
+                 count: 3,
+                 dataset_title: "Title",
+                 resource_title: "GTFS",
+                 year_month: "2025-11",
+                 resource_datagouv_id: resource.datagouv_id,
+                 dataset_datagouv_id: dataset.datagouv_id
+               },
+               %{
+                 count: 4,
+                 dataset_title: "Title",
+                 resource_title: "GTFS 2",
+                 year_month: "2025-11",
+                 resource_datagouv_id: other_resource.datagouv_id,
+                 dataset_datagouv_id: dataset.datagouv_id
+               },
+               %{
+                 count: 2,
+                 dataset_title: "Title",
+                 resource_title: "GTFS",
+                 year_month: "2025-12",
+                 resource_datagouv_id: resource.datagouv_id,
+                 dataset_datagouv_id: dataset.datagouv_id
+               }
+             ]
+    end
   end
 end
