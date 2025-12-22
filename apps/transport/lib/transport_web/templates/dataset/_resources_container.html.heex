@@ -20,7 +20,8 @@
             resources_related_files: assigns[:resources_related_files],
             dataset: assigns[:dataset],
             resources_infos: assigns[:resources_infos],
-            latest_resources_history_infos: assigns[:latest_resources_history_infos]
+            latest_resources_history_infos: assigns[:latest_resources_history_infos],
+            locale: get_session(@conn, :locale)
           ) %>
         <% end %>
       </div>

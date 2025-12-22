@@ -18,11 +18,11 @@
       </p>
       <div class="domain-stats general">
         <div class="tile">
-          <h3><%= format_number(@nb_datasets) %></h3>
+          <h3><%= format_number(@nb_datasets, locale: get_session(@conn, :locale)) %></h3>
           <div>Jeux de données ouverts</div>
         </div>
         <div class="tile">
-          <h3><%= format_number(@nb_reuses) %></h3>
+          <h3><%= format_number(@nb_reuses, locale: get_session(@conn, :locale)) %></h3>
           <div>Réutilisations déclarées</div>
         </div>
       </div>
@@ -103,7 +103,7 @@
         <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
         <div class="panel">
           <div class="tile">
-            <h3><%= format_number(@nb_gtfs_rt) %></h3>
+            <h3><%= format_number(@nb_gtfs_rt, locale: get_session(@conn, :locale)) %></h3>
             <div>
               <a href="/datasets?format=gtfs-rt&type=public-transit">
                 jeux de données<br />en <strong>GTFS-RT</strong>
@@ -116,20 +116,20 @@
                     <span title={type}>
                       <a href={"/datasets?features%5B%5D=" <> type}><%= friendly_gtfs_type(type) %></a>
                     </span>
-                    : <%= format_number(count) %>
+                    : <%= format_number(count, locale: get_session(@conn, :locale)) %>
                   </li>
                 <% end %>
               </ul>
             </div>
           </div>
           <div class="tile">
-            <h3><%= format_number(@nb_siri) %></h3>
+            <h3><%= format_number(@nb_siri, locale: get_session(@conn, :locale)) %></h3>
             <div>
               <a href="/datasets?format=SIRI&type=public-transit">jeux de données<br />en <strong>SIRI</strong></a>
             </div>
           </div>
           <div class="tile">
-            <h3><%= format_number(@nb_siri_lite) %></h3>
+            <h3><%= format_number(@nb_siri_lite, locale: get_session(@conn, :locale)) %></h3>
             <div>
               <a href="/datasets?format=SIRI+Lite&type=public-transit">
                 jeux de données<br />en <strong>SIRI Lite</strong>

@@ -69,9 +69,20 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def format_severity(key, count) do
     case key do
-      "error" -> dngettext("netex-validator", "error", "errors", count)
-      "warning" -> dngettext("netex-validator", "warning", "warnings", count)
-      "information" -> dngettext("netex-validator", "information", "informations", count)
+      "error" ->
+        dngettext("netex-validator", "error", "errors", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
+
+      "warning" ->
+        dngettext("netex-validator", "warning", "warnings", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
+
+      "information" ->
+        dngettext("netex-validator", "information", "informations", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
     end
   end
 

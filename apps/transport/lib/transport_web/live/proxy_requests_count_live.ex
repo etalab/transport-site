@@ -16,21 +16,23 @@ defmodule TransportWeb.ProxyRequestsCountLive do
     </p>
     <div :if={assigns[:data]}>
       <% ratio = Map.get(assigns[:data], "external", 0) / Map.get(assigns[:data], "internal", 1) %>
-      <div class="proxy-external-requests"><%= Helpers.format_number(Map.get(assigns[:data], "external", 0)) %></div>
+      <div class="proxy-external-requests">
+        <%= Helpers.format_number(Map.get(assigns[:data], "external", 0), locale: @locale) %>
+      </div>
       <div class="proxy-legend">Nombre de requêtes au cours des 30 derniers jours</div>
       <p>
         Ce service facilite la diffusion de données temps réel et diminue
         les coûts de mise à disposition des producteurs.
         Notre proxy a diminué le nombre de requêtes que doivent gérer les producteurs
-        par un facteur de <%= ratio |> Float.round(1) |> Helpers.format_number() %> sur cette période.
+        par un facteur de <%= ratio |> Float.round(1) |> Helpers.format_number(locale: @locale) %> sur cette période.
       </p>
     </div>
     """
   end
 
-  def mount(_, _, socket) do
+  def mount(_, %{"locale" => locale}, socket) do
     send(self(), :update_data)
-    {:ok, socket |> assign(:doc_url, @doc_url)}
+    {:ok, socket |> assign(doc_url: @doc_url, locale: locale)}
   end
 
   def handle_info(:update_data, socket) do

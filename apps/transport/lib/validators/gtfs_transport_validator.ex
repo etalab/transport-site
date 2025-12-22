@@ -85,6 +85,8 @@ defmodule Transport.Validators.GTFSTransport do
   "1 fatal failure"
   iex> format_severity("Fatal", 2)
   "2 fatal failures"
+  iex> format_severity("Fatal", 2_000)
+  "2,000 fatal failures"
   iex> Gettext.put_locale("fr")
   iex> format_severity("Fatal", 1)
   "1 échec irrécupérable"
@@ -98,17 +100,23 @@ defmodule Transport.Validators.GTFSTransport do
     case key do
       "Fatal" ->
         dngettext("gtfs-transport-validator", "Fatal failure", "Fatal failures", count,
-          value: Helpers.format_number(count)
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
         )
 
       "Error" ->
-        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Error", "Errors", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "Warning" ->
-        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "Information" ->
-        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Information", "Informations", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
     end
   end
 

@@ -7,10 +7,10 @@
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% end %>
         <%= if @nb_errors == 0 and is_integer(@nb_warnings) and @nb_warnings > 0 do %>
-          <%= "#{format_number(@nb_warnings)} #{dpngettext("validations", "warnings", "warning", "warnings", @nb_warnings)}" %>
+          <%= "#{format_number(@nb_warnings, locale: @locale)} #{dpngettext("validations", "warnings", "warning", "warnings", @nb_warnings)}" %>
         <% end %>
         <%= if @nb_errors > 0 do %>
-          <%= "#{format_number(@nb_errors)} #{dpngettext("validations", "errors", "error", "errors", @nb_errors)}" %>
+          <%= "#{format_number(@nb_errors, locale: @locale)} #{dpngettext("validations", "errors", "error", "errors", @nb_errors)}" %>
         <% end %>
       </span>
     </a>
