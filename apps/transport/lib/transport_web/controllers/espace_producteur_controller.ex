@@ -15,7 +15,11 @@ defmodule TransportWeb.EspaceProducteurController do
   )
 
   plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
-  plug(:find_db_datasets_or_redirect when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics_csv])
+
+  plug(
+    :find_db_datasets_or_redirect
+    when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics_csv]
+  )
 
   plug(:assign_current_contact when action in [:delete_resource, :post_file, :upload_logo])
 
