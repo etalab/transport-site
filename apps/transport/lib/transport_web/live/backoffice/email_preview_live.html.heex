@@ -27,7 +27,7 @@
             <a href="#preview" class="button-outline primary small" phx-click="see_email" phx-value-key_name={id}>
               <i class="fa-solid fa-magnifying-glass"></i> Voir
             </a>
-            <a href="#" class="button-outline primary small" phx-click="receive_email" phx-value-key_name={id}>
+            <a href="#" class="button-outline secondary small" phx-click="receive_email" phx-value-key_name={id}>
               <i class="fa-solid fa-envelope"></i> Recevoir
             </a>
           </td>
@@ -43,6 +43,9 @@
       <div class="">
         <h4><%= @selected_email.subject %></h4>
         <iframe id="iframe" srcdoc={@selected_email.html_body}></iframe>
+        <a href="#" class="mt-24 button-outline primary small" phx-click="receive_selected_email">
+          <i class="fa-solid fa-envelope"></i> Recevoir
+        </a>
       </div>
     </div>
   </div>
