@@ -85,6 +85,14 @@ defmodule TransportWeb.Router do
 
       post("/clear_proxy_config", PageController, :clear_proxy_config)
     end
+
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:browser_no_csp, :authentication_required, :transport_data_gouv_member])
+
+      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/email_preview", EmailPreviewLive)
+      end
+    end
   end
 
   scope "/", TransportWeb do
@@ -236,10 +244,6 @@ defmodule TransportWeb.Router do
 
       live_session :irve_dashboard, root_layout: {TransportWeb.LayoutView, :app} do
         live("/irve-dashboard", IRVEDashboardLive)
-      end
-
-      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
-        live("/email_preview", EmailPreviewLive)
       end
 
       scope "/datasets" do
