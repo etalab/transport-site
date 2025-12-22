@@ -238,6 +238,10 @@ defmodule TransportWeb.Router do
         live("/irve-dashboard", IRVEDashboardLive)
       end
 
+      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/email_preview", EmailPreviewLive)
+      end
+
       scope "/datasets" do
         get("/new", PageController, :new)
         get("/:id/edit", PageController, :edit)
