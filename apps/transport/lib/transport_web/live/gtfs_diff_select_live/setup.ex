@@ -84,7 +84,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   end
 
   defp upload(%{entry: entry, index: _, uploads: uploads} = assigns) do
-    has_errors = length(upload_errors(uploads, entry)) > 0
+    has_errors = not Enum.empty?(upload_errors(uploads, entry))
 
     classname =
       if has_errors do
