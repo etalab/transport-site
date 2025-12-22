@@ -331,8 +331,11 @@ msgstr ""
 msgid "Resource"
 msgstr ""
 
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Your download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Download proxy statistics"
 msgstr ""
 
