@@ -210,10 +210,12 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr", %{
     conn: conn
   } do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, datagouv_token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}, datagouv_token: %{}})
     content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end

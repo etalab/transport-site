@@ -16,11 +16,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   # Authentication is assumed to happen in regular HTTP land. Here we verify
   # the user presence + belonging to admin team, or redirect immediately.
   @impl true
-  def mount(_params, %{"current_user" => current_user, "csp_nonce_value" => nonce} = _session, socket) do
+  def mount(params, %{"current_user" => current_user, "csp_nonce_value" => nonce} = _session, socket) do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
-       socket |> assign(nonce: nonce) |> init_state() |> update_data()
+       socket |> assign(nonce: nonce, search: params["search"], type: params["type"]) |> init_state() |> update_data()
      end)}
   end
 
@@ -45,14 +45,23 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   @impl true
-  def handle_event("change", params, %Phoenix.LiveView.Socket{} = socket) do
-    {:noreply, filter_config(socket, params)}
+  def handle_event("change", %{"search" => search, "type" => type}, %Phoenix.LiveView.Socket{} = socket) do
+    {:noreply, socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search, type: type))}
   end
 
   @impl true
   def handle_event("refresh_proxy_config", _value, socket) do
     config_module().clear_config_cache!()
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_params(%{"search" => _, "type" => _} = params, _uri, socket) do
+    {:noreply, filter_config(socket, params)}
+  end
+
+  def handle_params(_params, _uri, socket) do
+    {:noreply, update_data(socket)}
   end
 
   @impl true

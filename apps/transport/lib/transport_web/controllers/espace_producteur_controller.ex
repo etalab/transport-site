@@ -15,7 +15,7 @@ defmodule TransportWeb.EspaceProducteurController do
   )
 
   plug(:find_db_dataset_or_redirect when action in [:upload_logo, :remove_custom_logo])
-  plug(:find_db_datasets_or_redirect when action in [:proxy_statistics, :proxy_statistics_csv])
+  plug(:find_db_datasets_or_redirect when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics_csv])
 
   plug(:assign_current_contact when action in [:delete_resource, :post_file, :upload_logo])
 
@@ -109,6 +109,18 @@ defmodule TransportWeb.EspaceProducteurController do
       |> DB.Metrics.proxy_requests()
 
     filename = "proxy_statistics-#{Date.utc_today() |> Date.to_iso8601()}.csv"
+    content = stats |> CSV.encode(headers: true) |> Enum.to_list() |> to_string()
+
+    conn
+    |> put_resp_content_type("text/csv")
+    |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
+    |> send_resp(200, content)
+  end
+
+  def download_statistics_csv(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do
+    stats = datasets |> DB.ResourceMonthlyMetric.download_statistics()
+
+    filename = "download_statistics-#{Date.utc_today() |> Date.to_iso8601()}.csv"
     content = stats |> CSV.encode(headers: true) |> Enum.to_list() |> to_string()
 
     conn

@@ -106,6 +106,7 @@ defmodule TransportWeb.Router do
       get("/", PageController, :espace_producteur)
       get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
       get("/proxy_statistics_csv", EspaceProducteurController, :proxy_statistics_csv)
+      get("/download_statistics_csv", EspaceProducteurController, :download_statistics_csv)
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
@@ -238,6 +239,10 @@ defmodule TransportWeb.Router do
 
       live_session :irve_dashboard, root_layout: {TransportWeb.LayoutView, :app} do
         live("/irve-dashboard", IRVEDashboardLive)
+      end
+
+      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/email_preview", EmailPreviewLive)
       end
 
       scope "/datasets" do
