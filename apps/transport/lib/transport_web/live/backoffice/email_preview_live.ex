@@ -91,7 +91,8 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
        Transport.UserNotifier.expiration_reuser(contact, "<p>Exemple de contenu</p>")},
       {:promote_producer_space, ["producer"], Transport.UserNotifier.promote_producer_space(contact)},
       {:warn_inactivity, ["contact"], Transport.UserNotifier.warn_inactivity(contact, "Dans 1 mois")},
-      {:visit_download_statistics, ["producer"], Transport.UserNotifier.visit_download_statistics(contact)}
+      {:visit_download_statistics, ["producer"], Transport.UserNotifier.visit_download_statistics(contact)},
+      {:visit_proxy_statistics, ["producer"], Transport.UserNotifier.visit_proxy_statistics(contact)}
     ]
 
     tags = Enum.flat_map(emails, &elem(&1, 1)) |> Enum.uniq() |> Enum.sort()
