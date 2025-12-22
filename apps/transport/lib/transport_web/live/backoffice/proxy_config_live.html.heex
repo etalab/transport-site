@@ -67,7 +67,7 @@
 <script nonce={@nonce}>
   document.addEventListener('keydown', function(event) {
     if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-      const searchInput = document.getElementById('search');
+      const searchInput = document.getElementById('backoffice_search');
       if (searchInput) {
         event.preventDefault();
         searchInput.focus();
