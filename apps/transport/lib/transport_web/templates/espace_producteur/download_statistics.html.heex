@@ -29,6 +29,19 @@
           <% end %>
         </tbody>
       </table>
+      <div class="pt-12">
+        <a
+          class="button-outline small secondary"
+          href={espace_producteur_path(@conn, :download_statistics_csv)}
+          data-tracking-category="espace_producteur"
+          data-tracking-action="download_statistics_csv"
+        >
+          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+            "espace-producteurs",
+            "Download download statistics"
+          ) %>
+        </a>
+      </div>
     </div>
   </div>
 </section>
