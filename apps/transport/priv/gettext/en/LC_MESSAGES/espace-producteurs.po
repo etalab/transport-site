@@ -333,4 +333,9 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Your download statistics"
+msgid "Download proxy statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
 msgstr ""

@@ -1,0 +1,916 @@
+<!doctype html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;" />
+    <style type="text/css">
+          .hide-white {
+            display: none !important;
+          }
+
+          .hide-black {
+            display: block !important;
+          }
+
+          /********* DARK MODE ************/
+          :root {
+            color-scheme: light dark;
+            supported-color-schemes: light dark;
+          }
+
+          @media (prefers-color-scheme: dark) {
+            body {
+              background: #161616 !important;
+              font-color: #ffffff !important;
+            }
+
+            svg {
+              fill: white;
+              filter: invert(1);
+            }
+
+            .white {
+              fill: #ffffff !important;
+              filter: invert(1);
+            }
+
+            .hide-black {
+              display: none !important;
+            }
+
+            .hide-white {
+              display: block !important;
+            }
+
+            .darkmode {
+              background-color: #161616 !important;
+              font-color: #ffffff !important;
+              color: #ffffff !important;
+              background: none !important;
+              border-color: #2A2A2A !important;
+            }
+
+            .darkmode-1 {
+              background-color: #161616 !important;
+              font-color: #CECECE !important;
+              color: #CECECE !important;
+              background: none !important;
+            }
+
+            .darkmode-2 {
+              background-color: #242424 !important;
+              font-color: #ffffff !important;
+              color: #ffffff !important;
+              border-color: #2A2A2A !important;
+            }
+
+            .darkmode-3 {
+              background-color: #1E1E1E !important;
+              font-color: #ffffff !important;
+              color: #ffffff !important;
+              border-color: #2A2A2A !important;
+            }
+
+            .darkmode-4 {
+              background-color: #1B1B35 !important;
+              font-color: #CECECE !important;
+              color: #CECECE !important;
+              border-color: #2A2A2A !important;
+            }
+
+            .darkmode-5 {
+              background-color: #1A1A3D !important;
+              font-color: #ffffff !important;
+              color: #ffffff !important;
+              border-color: #2A2A2A !important;
+            }
+
+            .darkmode-6 {
+              background-color: #1F1F4A !important;
+              font-color: #ffffff !important;
+              color: #ffffff !important;
+              border-color: #2A2A2A !important;
+            }
+
+            a[href] {
+              color: #8585F6 !important;
+            }
+
+            a.darkmode-button-color-primary[href] {
+              font-color: #000091 !important;
+              color: #000091 !important;
+            }
+
+            .darkmode-button-primary {
+              background-color: #8585F6 !important;
+              font-color: #000091 !important;
+              color: #000091 !important;
+              border: solid 1px #8585F6 !important;
+            }
+
+            .darkmode-button-secondary {
+              background-color: #1E1E1E !important;
+              font-color: #8585F6 !important;
+              color: #8585F6 !important;
+              border: solid 1px #8585F6 !important;
+            }
+
+            .darkmode-button-tertiary {
+              background-color: transparent !important;
+              font-color: #8585F6 !important;
+              color: #8585F6 !important;
+              border: solid 1px #353535 !important;
+            }
+
+            .darkmode-button-color-primary {
+              font-color: #000091 !important;
+              color: #000091 !important;
+            }
+
+            .darkmode-button-color-secondary {
+              font-color: #8585F6 !important;
+              color: #8585F6 !important;
+            }
+
+            .darkmode-button-color-tertiary {
+              font-color: #8585F6 !important;
+              color: #8585F6 !important;
+            }
+
+            .darkmode-img img {
+              display: none !important;
+            }
+
+            .invert-img img {
+              -webkit-filter: invert(100%);
+              filter: invert(100%);
+            }
+
+            /* Custom Dark Mode Font Colors
+      h1, h2, p, span, a, b {
+          color: #ffffff !important;
+      }*/
+            /* Custom Dark Mode Text Link Color */
+            .link {
+              color: #8585F6 !important;
+            }
+
+            /* Custom Dark Mode Background Color */
+            [data-ogsc] .darkmode {
+              background-color: #161616 !important;
+            }
+
+            /* Custom Dark Mode Font Colors */
+            [data-ogsc] h1,
+            [data-ogsc] h2,
+            [data-ogsc] p,
+            [data-ogsc] span,
+            [data-ogsc] a,
+            [data-ogsc] b {
+              color: #ffffff !important;
+            }
+
+            /* Custom Dark Mode Text Link Color */
+            [data-ogsc] .link {
+              color: #7C7CFF !important;
+            }
+          }
+
+          body {
+            width: 100%;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: none;
+            -webkit-font-smoothing: antialiased;
+            -ms-text-size-adjust: none;
+            mso-margin-top-alt: 0px;
+            mso-margin-bottom-alt: 0px;
+            mso-padding-alt: 0px 0px 0px 0px;
+          }
+
+          svg {
+            fill: #000000;
+          }
+
+          .white {
+            fill: #000000 !important;
+          }
+
+          html {
+            width: 100%;
+          }
+
+          a[href] {
+            color: #000091;
+          }
+
+          table {
+            border-collapse: collapse;
+          }
+
+          table,
+          td {
+            border-collapse: collapse;
+            padding: 0px;
+            margin: 0px;
+          }
+
+          table.wlkm-mw {
+            min-width: 0px !important;
+          }
+
+          @media only screen and (max-width: 600px) {
+            .wlkm-mw {
+              width: 480px !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important
+            }
+
+            .wlkm-cl {
+              width: 460px !important;
+            }
+
+            .wlkm-hAuto {
+              height: auto !important;
+            }
+
+            .wlkm-mw {
+              width: 480px !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important
+            }
+
+            .wlkm-resp {
+              width: auto !important;
+              max-width: 460px !important;
+            }
+
+            .wlkm-resp2 {
+              width: auto !important;
+              max-width: 480px !important;
+            }
+
+            .wlkm-hide {
+              display: none !important;
+            }
+
+            .wlkm-alignCenter {
+              display: block !important;
+              text-align: center !important;
+            }
+
+            .wlkm-alignCenter img {
+              margin: 0 auto;
+            }
+
+            .wlkm-pLeft {
+              padding-right: 10px !important;
+            }
+
+            .wlkm-pRight {
+              padding-left: 10px !important;
+            }
+
+            .wlkm-demicl {
+              width: 220px !important;
+            }
+
+            .wlkm-demiResp {
+              width: auto !important;
+              max-width: 220px !important;
+            }
+
+            .img-max {
+              width: 460px !important;
+            }
+          }
+
+          @media only screen and (max-width: 480px) {
+            .wlkm-cl {
+              width: 90% !important;
+              margin: 0 auto;
+            }
+
+            .wlkm-resp {
+              max-width: 280px !important;
+            }
+
+            .img-max {
+              width: 90% !important;
+              margin: 0 auto;
+            }
+
+            .wlkm-resp2 {
+              max-width: 300px !important;
+            }
+
+            .wlkm-mw {
+              width: 100% !important;
+              margin: 0 auto;
+            }
+
+            .wlkm-demicl {
+              width: 280px !important;
+            }
+
+            .wlkm-demiResp {
+              max-width: 280px !important;
+            }
+          }
+    </style>
+  </head>
+
+  <body style="font-family: Tahoma, Geneva, sans-serif;">
+    <table
+      style="min-width:100%!important; width:100%;"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      role="presentation"
+      border="0"
+      bgcolor="#ffffff"
+      class="wlkm-mw darkmode"
+    >
+      <tr>
+        <td align="center" class="darkmode">
+          <table
+            style="min-width:600px; margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; width:600px;"
+            class="wlkm-mw darkmode"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            role="presentation"
+            border="0"
+            bgcolor="#ffffff"
+            align="center"
+          >
+            <tr>
+              <td class="darkmode">
+                <table
+                  style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                  class="wlkm-cl darkmode"
+                  width="496"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                  border="0"
+                  bgcolor="#ffffff"
+                  align="center"
+                >
+                  <tr>
+                    <td height="12" style="height:12px; line-height:12px; font-size:12px;">&nbsp;</td>
+                  </tr>
+                </table>
+                <table
+                  style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                  class="wlkm-cl darkmode"
+                  width="496"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                  border="0"
+                  bgcolor="#ffffff"
+                  align="center"
+                >
+                  <tr>
+                    <td
+                      class="darkmode-1"
+                      width="496"
+                      align="left"
+                      valign="top"
+                      style="padding:4px 0px 0px 0px;line-height: 18px;font-size: 12px;color: #6b6b6b; font-family: 'Marianne', Arial, Helvetica, sans-serif;"
+                    >
+                      <span style="font-family: 'Marianne', Arial, Helvetica, sans-serif !important;"></span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <table
+      width="100%"
+      border="0"
+      align="center"
+      cellpadding="0"
+      cellspacing="0"
+      bgcolor="#ffffff"
+      class="darkmode"
+      style="min-width:100%!important;width:100%;"
+      role="presentation"
+      data-filtertype="En-tête,logo"
+    >
+      <tr>
+        <td align="center">
+          <table
+            style="min-width:620px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+            width="620"
+            cellspacing="0"
+            cellpadding="0"
+            role="presentation"
+            border="0"
+            align="center"
+            class="wlkm-mw darkmode"
+          >
+            <tr>
+              <td align="center">
+                <table
+                  style="min-width:600px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:600px;border-left:1px #e5e5e5 solid; border-right:1px #e5e5e5 solid; border-top:1px #e5e5e5 solid;"
+                  class="wlkm-mw darkmode"
+                  width="600"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                  border="0"
+                  bgcolor="#ffffff"
+                  align="center"
+                >
+                  <tr>
+                    <td>
+                      <table
+                        style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                        class="wlkm-cl darkmode"
+                        width="496"
+                        cellspacing="0"
+                        cellpadding="0"
+                        role="presentation"
+                        border="0"
+                        bgcolor="#ffffff"
+                        align="center"
+                      >
+                        <tr>
+                          <td height="12" style="height:12px;line-height: 12px; font-size: 12px">&nbsp;</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+                <table
+                  style="min-width:600px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:600px;border-left:1px #e5e5e5 solid; border-right:1px #e5e5e5 solid;"
+                  class="wlkm-mw darkmode"
+                  width="600"
+                  cellspacing="0"
+                  cellpadding="0"
+                  role="presentation"
+                  border="0"
+                  bgcolor="#ffffff"
+                  align="center"
+                >
+                  <tr>
+                    <td style="padding:0px 0px 20px 0px;">
+                      <table
+                        style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                        class="wlkm-cl darkmode"
+                        width="496"
+                        cellspacing="0"
+                        cellpadding="0"
+                        role="presentation"
+                        border="0"
+                        bgcolor="#ffffff"
+                        align="center"
+                      >
+                        <tr>
+                          <td style="width:100%;" width="100%" valign="top" align="center">
+                            <table
+                              style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                              width="70"
+                              cellspacing="0"
+                              cellpadding="0"
+                              role="presentation"
+                              border="0"
+                              align="left"
+                              bgcolor="#ffffff"
+                              class="darkmode"
+                            >
+                              <tr>
+                                <td align="center">
+                                  <table
+                                    style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                    width="100%"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                    role="presentation"
+                                    border="0"
+                                    align="left"
+                                    bgcolor="#ffffff"
+                                    class="darkmode"
+                                  >
+                                    <tr>
+                                      <td height="12" style="line-height:12px; font-size:12px; height:12px;">&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                      <td class="hide-black" align="left">
+                                        <img
+                                          src={static_url(TransportWeb.Endpoint, "/images/Marianne-Light@2x.png")}
+                                          alt="République française"
+                                          style="display: Block;  height:auto; width: 76px;"
+                                          width="76"
+                                          border="0"
+                                          class="hide-black"
+                                        />
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td class="hide-white" align="left" valign="bottom">
+                                        <img
+                                          src={static_url(TransportWeb.Endpoint, "/images/Marianne-Dark@2x.png")}
+                                          alt="République française"
+                                          width="76"
+                                          class="hide-white"
+                                          style="display: Block; height:auto; width: 76px;"
+                                          border="0"
+                                        />
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td height="12" style="line-height:12px; font-size:12px; height:12px;">&nbsp;</td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                            <table
+                              style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                              width="130"
+                              cellspacing="0"
+                              cellpadding="0"
+                              role="presentation"
+                              border="0"
+                              align="right"
+                              bgcolor="#ffffff"
+                              class="darkmode"
+                            >
+                              <tr>
+                                <td align="center">
+                                  <table
+                                    style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                    width="100%"
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                    role="presentation"
+                                    border="0"
+                                    align="center"
+                                    bgcolor="#ffffff"
+                                    class="darkmode"
+                                  >
+                                    <tr>
+                                      <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                      <td
+                                        class="darkmode"
+                                        style="line-height: 20px;font-size: 12px;color: #161616; font-family: Marianne, Arial, Helvetica, sans-serif;"
+                                        align="right"
+                                      >
+                                        <span style="font-family: 'Marianne', Arial, Helvetica, sans-serif !important;">
+                                          <strong>transport.data.gouv.fr</strong>
+                                        </span>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>&nbsp;</td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <table
+      style="min-width:100%!important;width:100%;"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      role="presentation"
+      border="0"
+      bgcolor="#ffffff"
+      class="darkmode"
+    >
+      <tbody>
+        <tr>
+          <td align="center">
+            <table
+              style="min-width:620px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; background:linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(234,234,234,1) 5%, rgba(234,234,234,1) 95%, rgba(255,255,255,1) 100%);"
+              width="620"
+              cellspacing="0"
+              cellpadding="0"
+              role="presentation"
+              border="0"
+              align="center"
+              class="wlkm-mw darkmode"
+            >
+              <tbody>
+                <tr>
+                  <td align="center">
+                    <table
+                      style="min-width:600px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:600px;border-left:1px #e5e5e5 solid; border-right:1px #e5e5e5 solid;"
+                      class="wlkm-mw darkmode-3"
+                      width="600"
+                      cellspacing="0"
+                      cellpadding="0"
+                      role="presentation"
+                      border="0"
+                      bgcolor="#ffffff"
+                      align="center"
+                    >
+                      <tbody>
+                        <tr>
+                          <td>
+                            <table
+                              style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                              class="wlkm-cl darkmode"
+                              width="496"
+                              cellspacing="0"
+                              cellpadding="0"
+                              role="presentation"
+                              border="0"
+                              bgcolor="#ffffff"
+                              align="center"
+                            >
+                              <tbody>
+                                <tr>
+                                  <td
+                                    class="darkmode-1"
+                                    width="496"
+                                    align="left"
+                                    valign="top"
+                                    style="padding:0px 10px 20px 10px;line-height: 21px;font-size: 14px;color: #3A3A3A; font-family: 'Marianne', Arial, Helvetica, sans-serif;"
+                                  >
+                                    <%= @inner_content %>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table
+      width="100%"
+      border="0"
+      align="center"
+      cellpadding="0"
+      cellspacing="0"
+      bgcolor="#ffffff"
+      class="darkmode"
+      style="min-width:100%!important;width:100%;"
+      role="presentation"
+      data-filtertype="En-tête,logo"
+    >
+      <tbody>
+        <tr>
+          <td align="center">
+            <table
+              style="min-width:620px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; background:linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(234,234,234,1) 5%, rgba(234,234,234,1) 95%, rgba(255,255,255,1) 100%);"
+              width="620"
+              cellspacing="0"
+              cellpadding="0"
+              role="presentation"
+              border="0"
+              align="center"
+              class="wlkm-mw darkmode"
+            >
+              <tbody>
+                <tr>
+                  <td align="center">
+                    <table
+                      style="min-width:600px;margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:600px;border-left:1px #e5e5e5 solid; border-right:1px #e5e5e5 solid; border-bottom:1px #e5e5e5 solid;"
+                      class="wlkm-mw darkmode"
+                      width="600"
+                      cellspacing="0"
+                      cellpadding="0"
+                      role="presentation"
+                      border="0"
+                      bgcolor="#ffffff"
+                      align="center"
+                    >
+                      <tbody>
+                        <tr>
+                          <td style="padding:0px 0px 20px 0px;">
+                            <table
+                              style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px;"
+                              class="wlkm-cl darkmode"
+                              width="496"
+                              cellspacing="0"
+                              cellpadding="0"
+                              role="presentation"
+                              border="0"
+                              bgcolor="#ffffff"
+                              align="center"
+                            >
+                              <tbody>
+                                <tr>
+                                  <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                  <td
+                                    class="darkmode-1"
+                                    align="left"
+                                    valign="middle"
+                                    style="line-height: 24px; font-size: 12px; color: #6b6b6b; font-family: 'Marianne', Arial, Helvetica, sans-serif; padding:0px 10px 0px 10px;"
+                                  >
+                                    Vous recevez ce message car vous participez à transport.data.gouv.fr.
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <table
+                                      style="margin:0 auto; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;width:496px; border-top:1px #e5e5e5 solid;"
+                                      class="wlkm-cl darkmode"
+                                      width="496"
+                                      cellspacing="0"
+                                      cellpadding="0"
+                                      role="presentation"
+                                      border="0"
+                                      bgcolor="#ffffff"
+                                      align="center"
+                                    >
+                                      <tbody>
+                                        <tr>
+                                          <td style="width:100%;" width="100%" valign="top" align="center">
+                                            <table
+                                              style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                              width="70"
+                                              cellspacing="0"
+                                              cellpadding="0"
+                                              role="presentation"
+                                              border="0"
+                                              align="left"
+                                              bgcolor="#ffffff"
+                                              class="darkmode"
+                                            >
+                                              <tbody>
+                                                <tr>
+                                                  <td align="center">
+                                                    <table
+                                                      style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                                      width="100%"
+                                                      cellspacing="0"
+                                                      cellpadding="0"
+                                                      role="presentation"
+                                                      border="0"
+                                                      align="left"
+                                                      bgcolor="#ffffff"
+                                                      class="darkmode"
+                                                    >
+                                                      <tbody>
+                                                        <tr>
+                                                          <td
+                                                            height="12"
+                                                            style="line-height:12px; font-size:12px; height:12px;"
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td class="hide-black" align="left">
+                                                            <img
+                                                              src={
+                                                                static_url(
+                                                                  TransportWeb.Endpoint,
+                                                                  "/images/Marianne-Light@2x.png"
+                                                                )
+                                                              }
+                                                              alt="République française"
+                                                              style="display: Block; height: auto; width:76px"
+                                                              width="76"
+                                                              border="0"
+                                                              class="hide-black"
+                                                            />
+                                                          </td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td class="hide-white" align="left" valign="bottom">
+                                                            <img
+                                                              src={
+                                                                static_url(
+                                                                  TransportWeb.Endpoint,
+                                                                  "/images/Marianne-Dark@2x.png"
+                                                                )
+                                                              }
+                                                              alt="République française"
+                                                              width="76"
+                                                              class="hide-white"
+                                                              style="display: Block; height:auto; width:76px"
+                                                              border="0"
+                                                            />
+                                                          </td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td
+                                                            height="12"
+                                                            style="line-height:12px; font-size:12px; height:12px;"
+                                                          >
+                                                            &nbsp;
+                                                          </td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                            <table
+                                              style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                              width="130"
+                                              cellspacing="0"
+                                              cellpadding="0"
+                                              role="presentation"
+                                              border="0"
+                                              align="right"
+                                              bgcolor="#ffffff"
+                                              class="darkmode"
+                                            >
+                                              <tbody>
+                                                <tr>
+                                                  <td align="center">
+                                                    <table
+                                                      style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"
+                                                      width="100%"
+                                                      cellspacing="0"
+                                                      cellpadding="0"
+                                                      role="presentation"
+                                                      border="0"
+                                                      align="center"
+                                                      bgcolor="#ffffff"
+                                                      class="darkmode"
+                                                    >
+                                                      <tbody>
+                                                        <tr>
+                                                          <td>&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td
+                                                            class="darkmode"
+                                                            style="line-height: 20px;font-size: 12px;color: #161616; font-family: Marianne, Arial, Helvetica, sans-serif;"
+                                                            align="right"
+                                                          >
+                                                            <span style="font-family: 'Marianne', Arial, Helvetica, sans-serif !important;">
+                                                              <strong>transport.data.gouv.fr</strong>
+                                                            </span>
+                                                          </td>
+                                                        </tr>
+                                                        <tr>
+                                                          <td>&nbsp;</td>
+                                                        </tr>
+                                                      </tbody>
+                                                    </table>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td height="12" style="height:12px;line-height: 12px; font-size: 12px">&nbsp;</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
