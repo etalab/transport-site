@@ -309,3 +309,35 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Producer space"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Downloads for %{year}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Get access to download statistics for your resources."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""

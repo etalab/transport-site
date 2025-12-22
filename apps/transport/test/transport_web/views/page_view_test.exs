@@ -18,5 +18,10 @@ defmodule TransportWeb.PageViewTest do
     resource = insert(:resource, dataset: dataset, url: "https://static.data.gouv.fr/file.csv")
     assert DB.Resource.hosted_on_datagouv?(resource)
     assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
+
+    # Works with list
+    dataset = dataset |> DB.Repo.preload(:resources)
+    other_dataset = insert(:dataset) |> DB.Repo.preload(:resources)
+    assert [dataset, other_dataset] |> TransportWeb.PageView.show_downloads_stats?()
   end
 end

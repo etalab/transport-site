@@ -41,6 +41,13 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :download_statistics) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Download statistics"), espace_producteur_path(conn, :download_statistics)}
+      ]
+  end
+
   def crumbs(conn, :espace_producteur_notifications) do
     crumbs(conn, :espace_producteur) ++
       [

@@ -363,6 +363,86 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
+  describe "proxy_statistics_csv" do
+    test "requires authentication", %{conn: conn} do
+      conn |> get(espace_producteur_path(conn, :proxy_statistics_csv)) |> assert_redirects_to_info_page()
+    end
+
+    test "redirects when there is an error when fetching datasets", %{conn: conn} do
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> {:error, nil} end)
+
+      conn =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :proxy_statistics_csv))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Une erreur a eu lieu lors de la récupération de vos ressources"
+    end
+
+    test "renders successfully with a resource handled by the proxy", %{conn: conn} do
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+
+      slug = "divia-dijon-gtfs-rt-trip-update"
+
+      gtfs_rt_resource =
+        insert(:resource,
+          dataset: dataset,
+          format: "gtfs-rt",
+          url: "https://proxy.transport.data.gouv.fr/resource/#{slug}"
+        )
+
+      assert DB.Resource.served_by_proxy?(gtfs_rt_resource)
+      proxy_slug = DB.Resource.proxy_slug(gtfs_rt_resource)
+      assert proxy_slug == slug
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:external",
+        count: 2,
+        period: ~U[2025-11-01 10:00:00.0Z]
+      )
+
+      insert(:metrics,
+        target: "proxy:#{proxy_slug}",
+        event: "proxy:request:internal",
+        count: 1,
+        period: ~U[2025-11-01 10:00:00.0Z]
+      )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      response =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :proxy_statistics_csv))
+
+      assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
+
+      assert Plug.Conn.get_resp_header(response, "content-disposition") == [
+               ~s(attachment; filename="proxy_statistics-#{Date.utc_today() |> Date.to_iso8601()}.csv")
+             ]
+
+      assert [response(response, 200)] |> CSV.decode!(headers: true) |> Enum.to_list() == [
+               %{
+                 "count" => "2",
+                 "event" => "proxy:request:external",
+                 "month" => "2025-11",
+                 "target" => "proxy:divia-dijon-gtfs-rt-trip-update"
+               },
+               %{
+                 "count" => "1",
+                 "event" => "proxy:request:internal",
+                 "month" => "2025-11",
+                 "target" => "proxy:divia-dijon-gtfs-rt-trip-update"
+               }
+             ]
+    end
+  end
+
   describe "resource_actions" do
     test "we can show the form of an existing resource", %{conn: conn} do
       conn = conn |> init_test_session(%{current_user: %{}})
@@ -603,6 +683,82 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert %{"modified_url" => reuser_improved_data.download_url, "reference_url" => resource.url} ==
                URI.decode_query(query)
+    end
+  end
+
+  describe "download_statistics" do
+    test "requires authentication", %{conn: conn} do
+      conn |> get(espace_producteur_path(conn, :download_statistics)) |> assert_redirects_to_info_page()
+    end
+
+    test "redirects when there is an error when fetching datasets", %{conn: conn} do
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> {:error, nil} end)
+
+      conn =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :download_statistics))
+
+      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Une erreur a eu lieu lors de la récupération de vos ressources"
+    end
+
+    test "renders successfully", %{conn: conn} do
+      dataset = insert(:dataset)
+
+      resource =
+        insert(:resource,
+          title: "gtfs.zip",
+          format: "GTFS",
+          url: "https://static.data.gouv.fr/example.zip",
+          dataset: dataset
+        )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      year_month = Date.utc_today() |> Date.to_iso8601() |> String.slice(0..6)
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        metric_name: :downloads,
+        count: 2_000,
+        year_month: year_month
+      )
+
+      html =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :download_statistics))
+        |> html_response(200)
+
+      assert html =~ "<h2>Statistiques de téléchargements</h2>"
+
+      assert html |> Floki.parse_document!() |> Floki.find("table") == [
+               {"table", [{"class", "table small-padding"}],
+                [
+                  {"thead", [],
+                   [
+                     {"tr", [],
+                      [
+                        {"th", [], ["Resource"]},
+                        {"th", [], ["Ressource"]},
+                        {"th", [], ["Téléchargements de l'année 2025"]}
+                      ]}
+                   ]},
+                  {"tbody", [],
+                   [
+                     {"tr", [],
+                      [
+                        {"td", [{"rowspan", "1"}], [dataset.custom_title]},
+                        {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
+                        {"td", [], ["\n2 000\n                "]}
+                      ]}
+                   ]}
+                ]}
+             ]
     end
   end
 

@@ -54,6 +54,26 @@ defmodule DB.Metrics do
     query |> DB.Repo.all()
   end
 
+  def proxy_requests(resources) do
+    targets =
+      Enum.map(resources, fn resource ->
+        Enum.join([DB.Resource.proxy_namespace(resource), DB.Resource.proxy_slug(resource)], ":")
+      end)
+
+    from(m in DB.Metrics,
+      group_by: [fragment("month"), m.target, m.event],
+      order_by: [fragment("month"), m.event, m.target],
+      where: m.target in ^targets,
+      select: %{
+        month: fragment("left(?::varchar, 7) as month", m.period),
+        target: m.target,
+        event: m.event,
+        count: sum(m.count)
+      }
+    )
+    |> DB.Repo.all()
+  end
+
   @doc """
   A function to compute the total count of event per identifier/event
   for the last N days. You can optionally keep only a given

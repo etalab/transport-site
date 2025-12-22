@@ -26,6 +26,22 @@ defmodule DB.ResourceMonthlyMetric do
     |> validate_number(:count, greater_than_or_equal_to: 0)
   end
 
+  @spec downloads_for_year([DB.Resource.t()], non_neg_integer()) :: %{binary() => integer()}
+  def downloads_for_year(resources, year) do
+    datagouv_ids = Enum.map(resources, fn %DB.Resource{datagouv_id: datagouv_id} -> datagouv_id end)
+    year_months = DB.DatasetMonthlyMetric.year_months(year)
+
+    __MODULE__
+    |> where(
+      [rmm],
+      rmm.metric_name == :downloads and rmm.resource_datagouv_id in ^datagouv_ids and rmm.year_month in ^year_months
+    )
+    |> group_by([rmm], rmm.resource_datagouv_id)
+    |> select([rmm], {rmm.resource_datagouv_id, sum(rmm.count)})
+    |> DB.Repo.all()
+    |> Map.new()
+  end
+
   def download_statistics(datasets) do
     datagouv_ids =
       datasets

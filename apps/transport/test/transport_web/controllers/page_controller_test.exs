@@ -109,6 +109,51 @@ defmodule TransportWeb.PageControllerTest do
              ]
     end
 
+    test "action items", %{conn: conn} do
+      menu_items = fn %Plug.Conn{} = conn ->
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(page_path(conn, :espace_producteur))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find(".publish-header h4")
+      end
+
+      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, 3, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]}
+             ]
+
+      # Should show download stats
+      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
+      assert DB.Resource.hosted_on_datagouv?(resource)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]},
+               {"h4", [], ["Vos statistiques de téléchargements"]}
+             ]
+
+      # Should show proxy stats
+      resource = insert(:resource, url: "https://proxy.transport.data.gouv.fr/url", dataset: dataset)
+      assert DB.Resource.served_by_proxy?(resource)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]},
+               {"h4", [], ["Vos statistiques proxy"]},
+               {"h4", [], ["Vos statistiques de téléchargements"]}
+             ]
+    end
+
     test "with an OAuth2 error", %{conn: conn} do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
