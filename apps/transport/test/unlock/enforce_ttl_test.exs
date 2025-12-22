@@ -67,17 +67,17 @@ defmodule Unlock.EnforceTTLTest do
     setup_proxy_config(%{
       "aggregate" => %Unlock.Config.Item.Aggregate{
         identifier: slug,
-        ttl: 10,
+        ttl: ttl_config_value,
         feeds: [
           %Unlock.Config.Item.Generic.HTTP{
             identifier: "first-remote",
             target_url: "http://localhost:1234",
-            ttl: 10
+            ttl: ttl_config_value
           },
           %Unlock.Config.Item.Generic.HTTP{
             identifier: "second-remote",
             target_url: "http://localhost:1234",
-            ttl: 10
+            ttl: ttl_config_value
           }
         ]
       }
@@ -98,6 +98,34 @@ defmodule Unlock.EnforceTTLTest do
     refute "resource:aggregate:first-remote" in cache_keys()
     # the other one should remain
     assert ["resource:aggregate:second-remote"] == cache_keys()
+  end
+
+  test "supports GBFS" do
+    ttl_config_value = 10
+    slug = "some-slug"
+
+    setup_proxy_config(%{
+      "gbfs" => %Unlock.Config.Item.GBFS{
+        identifier: slug,
+        base_url: "https://example.com/gbfs.json",
+        ttl: ttl_config_value
+      }
+    })
+
+    assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
+
+    # create a cache entry without cachex TTL to reproduce the bug
+    cache_put(cache_key("gbfs:gbfs.json"), nil)
+    # create a non-bogus entry with proper Cachex TTL
+    cache_put(cache_key("gbfs:system_information.json"), :timer.seconds(5))
+
+    assert ["resource:gbfs:gbfs.json", "resource:gbfs:system_information.json"] == cache_keys()
+    Unlock.EnforceTTL.handle_info(:work, %{})
+
+    # bogus cache key should have been removed
+    refute "resource:gbfs:gbfs.json" in cache_keys()
+    # the other one should remain
+    assert ["resource:gbfs:system_information.json"] == cache_keys()
   end
 
   def setup_proxy_config(config) do

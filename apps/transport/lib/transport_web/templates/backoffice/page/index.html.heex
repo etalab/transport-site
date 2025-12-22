@@ -42,6 +42,10 @@
   <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.IRVEDashboardLive)}>
     <%= dgettext("backoffice", "IRVE dashboard") %>
   </a>
+
+  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.EmailPreviewLive)}>
+    <%= dgettext("backoffice", "Email preview") %>
+  </a>
   <h2>Actions</h2>
 
   <a class="button" href={backoffice_page_path(@conn, :new)}>

@@ -30,7 +30,7 @@ defmodule Unlock.Controller do
   Based on the provided slug/id, a look-up is done on the configuration.
 
   For production environments, the configuration is GitHub-based
-  (https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml).
+  (https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml).
 
   When working locally, the config is loaded from disk (`config/proxy-config.yml`)
   at each request, so that one can tweak it easily when iterating locally.

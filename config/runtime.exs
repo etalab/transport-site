@@ -176,7 +176,8 @@ oban_prod_crontab = [
   {"10 2 * * *", Transport.Jobs.CleanMultiValidationJob},
   {"20 2 * * *", Transport.Jobs.TableSizeHistoryJob},
   # End of year, 29th of December
-  {"0 8 29 12 *", Transport.Jobs.VisitProxyStatisticsJob}
+  {"0 8 29 12 *", Transport.Jobs.VisitProxyStatisticsJob},
+  {"0 8 29 12 *", Transport.Jobs.VisitDownloadStatisticsJob}
 ]
 
 # Make sure that all modules exist

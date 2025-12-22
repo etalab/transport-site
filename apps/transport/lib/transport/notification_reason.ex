@@ -76,6 +76,11 @@ defmodule Transport.NotificationReason do
       scope: :platform,
       possible_roles: [:producer],
       disallow_subscription: true
+    },
+    visit_download_statistics: %{
+      scope: :platform,
+      possible_roles: [:producer],
+      disallow_subscription: true
     }
   }
 

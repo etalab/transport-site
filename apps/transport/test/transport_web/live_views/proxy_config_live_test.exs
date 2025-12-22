@@ -149,17 +149,23 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
     assert ["s3-slug"] == form |> search_by_type("S3") |> slugs()
 
+    assert_patch(view, @url <> "?search=&type=S3")
+
     # Reset the form
     form |> search_by_type("")
 
     assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
+    assert_patch(view, @url <> "?search=siri&type=")
 
     form |> search_by_type("SIRI")
     assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
+    assert_patch(view, @url <> "?search=siri&type=SIRI")
 
     assert [] == form |> search_by_value("other") |> slugs()
     form |> search_by_type("")
+
     assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug", "siri-slug"] == form |> search_by_value("slug") |> slugs()
+    assert_patch(view, @url <> "?search=slug&type=")
   end
 
   defp search_by_value(%Phoenix.LiveViewTest.Element{} = el, value) do
