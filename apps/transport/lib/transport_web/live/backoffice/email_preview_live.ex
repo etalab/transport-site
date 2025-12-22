@@ -112,12 +112,22 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
   end
 
   @impl true
-  def handle_event("change", %{"search" => search} = params, %Phoenix.LiveView.Socket{} = socket) do
+  def handle_event(
+        "receive_selected_email",
+        _params,
+        %Phoenix.LiveView.Socket{assigns: %{selected_email: %Swoosh.Email{} = selected_email}} = socket
+      ) do
+    selected_email |> Transport.Mailer.deliver()
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("change", %{"search" => search}, %Phoenix.LiveView.Socket{} = socket) do
     {:noreply, socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search))}
   end
 
   @impl true
-  def handle_params(%{"search" => search} = params, _uri, socket) do
+  def handle_params(%{"search" => _} = params, _uri, socket) do
     {:noreply, socket |> filter_config(params)}
   end
 
