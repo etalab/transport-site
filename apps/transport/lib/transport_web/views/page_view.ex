@@ -22,7 +22,9 @@ defmodule TransportWeb.PageView do
     datasets |> Enum.flat_map(& &1.resources) |> Enum.any?(&DB.Resource.served_by_proxy?/1)
   end
 
-  @spec show_downloads_stats?(DB.Dataset.t()) :: boolean()
+  @spec show_downloads_stats?(DB.Dataset.t() | [DB.Dataset.t()]) :: boolean()
+  def show_downloads_stats?(datasets) when is_list(datasets), do: Enum.any?(datasets, &show_downloads_stats?/1)
+
   def show_downloads_stats?(%DB.Dataset{resources: resources}) do
     Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
   end

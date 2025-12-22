@@ -18,7 +18,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
   plug(
     :find_db_datasets_or_redirect
-    when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics_csv]
+    when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics, :download_statistics_csv]
   )
 
   plug(:assign_current_contact when action in [:delete_resource, :post_file, :upload_logo])
@@ -103,6 +103,18 @@ defmodule TransportWeb.EspaceProducteurController do
     |> assign(:proxy_stats, proxy_stats)
     |> assign(:proxy_requests_stats_nb_days, proxy_requests_stats_nb_days())
     |> render("proxy_statistics.html")
+  end
+
+  def download_statistics(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do
+    resources = Enum.flat_map(datasets, & &1.resources) |> Enum.filter(&DB.Resource.hosted_on_datagouv?/1)
+    year = Date.utc_today().year
+    download_stats = DB.ResourceMonthlyMetric.downloads_for_year(resources, year)
+
+    conn
+    |> assign(:download_stats, download_stats)
+    |> assign(:datasets, datasets)
+    |> assign(:year, year)
+    |> render("download_statistics.html")
   end
 
   def proxy_statistics_csv(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do

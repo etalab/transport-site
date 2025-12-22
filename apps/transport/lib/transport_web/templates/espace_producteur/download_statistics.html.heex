@@ -1,0 +1,34 @@
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :download_statistics]) %>
+</section>
+<section class="producer-actions">
+  <div class="container">
+    <h2><%= dgettext("espace-producteurs", "Download statistics") %></h2>
+    <div class="panel">
+      <table class="table small-padding">
+        <thead>
+          <tr>
+            <th><%= dgettext("espace-producteurs", "Dataset") %></th>
+            <th><%= dgettext("espace-producteurs", "Resource") %></th>
+            <th><%= dgettext("espace-producteurs", "Downloads for %{year}", year: @year) %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for dataset <- Enum.sort_by(@datasets, & &1.custom_title) do %>
+            <% resources =
+              dataset.resources |> Enum.filter(&DB.Resource.hosted_on_datagouv?/1) |> Enum.sort_by(& &1.title) %>
+            <%= for {resource, index} <- Enum.with_index(resources) do %>
+              <tr>
+                <td :if={index == 0} rowspan={Enum.count(resources)}><%= dataset.custom_title %></td>
+                <td><%= resource.title %> <span class="label"><%= resource.format %></span></td>
+                <td>
+                  <%= format_number(@download_stats[resource.datagouv_id] || 0, locale: get_session(@conn, :locale)) %>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

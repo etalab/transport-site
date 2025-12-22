@@ -39,6 +39,39 @@ defmodule DB.ResourceMonthlyMetricTest do
                })
     end
 
+    test "downloads_for_year" do
+      resource = insert(:resource)
+      other_resource = insert(:resource)
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        year_month: "2023-12",
+        metric_name: :downloads,
+        count: 42
+      )
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        year_month: "2023-01",
+        metric_name: :downloads,
+        count: 1_337
+      )
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: other_resource.datagouv_id,
+        year_month: "2023-10",
+        metric_name: :downloads,
+        count: 5
+      )
+
+      assert %{resource.datagouv_id => 1_337 + 42} == DB.ResourceMonthlyMetric.downloads_for_year([resource], 2023)
+
+      assert %{resource.datagouv_id => 1_337 + 42, other_resource.datagouv_id => 5} ==
+               DB.ResourceMonthlyMetric.downloads_for_year([resource, other_resource], 2023)
+
+      assert %{} == DB.ResourceMonthlyMetric.downloads_for_year([resource, other_resource], 2024)
+    end
+
     test "download_statistics" do
       dataset = insert(:dataset, custom_title: "Title")
 

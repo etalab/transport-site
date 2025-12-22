@@ -33,7 +33,7 @@ defmodule DB.DatasetMonthlyMetric do
     |> validate_number(:count, greater_than_or_equal_to: 0)
   end
 
-  @spec downloads_for_year([DB.Dataset.t()], integer()) :: %{integer() => integer()}
+  @spec downloads_for_year([DB.Dataset.t()], non_neg_integer()) :: %{binary() => integer()}
   def downloads_for_year(datasets, year) do
     datagouv_ids = Enum.map(datasets, fn %DB.Dataset{datagouv_id: datagouv_id} -> datagouv_id end)
     year_months = year_months(year)
