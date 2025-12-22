@@ -17,10 +17,10 @@
       <tr>
         <td><a href={gtfs_rt_validator_rule_url(error_id)} target="_blank"><%= error_id %></a></td>
         <td lang="en"><%= details["description"] %></td>
-        <td><%= format_number(details["errors_count"]) %></td>
+        <td><%= format_number(details["errors_count"], locale: @locale) %></td>
         <td>
           <%= dgettext("validations", "%{count} times (%{percentage} % of validations)",
-            count: format_number(details["occurence"]),
+            count: format_number(details["occurence"], locale: @locale),
             percentage: details["percentage"]
           ) %>
         </td>

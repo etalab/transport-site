@@ -1,7 +1,8 @@
 <div class={assigns[:div_class] || "panel"}>
   <%= render("_errors_warnings_count.html",
     nb_errors: get_in(@validation.digest, ["stats", "ERROR"]) || 0,
-    nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0
+    nb_warnings: get_in(@validation.digest, ["stats", "WARNING"]) || 0,
+    locale: @locale
   ) %>
 
   <%= for {severity, notices} <- @validation.result["notices"] |> Enum.group_by(& &1["severity"]) |> Enum.sort_by(& elem(&1, 0) |> Transport.Validators.MobilityDataGTFSValidator.severity_level(), :asc) do %>

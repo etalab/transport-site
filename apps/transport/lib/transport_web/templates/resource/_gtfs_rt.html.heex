@@ -25,7 +25,7 @@
     <%= for {entity, count} <- @gtfs_rt_feed.feed |> Transport.GTFSRT.count_entities() |> Enum.sort_by(fn {_, v} -> v end, &>=/2) do %>
       <% maybe_mode = if count > 0, do: " mode", else: "" %>
       <span class={"label" <> maybe_mode} lang="en">
-        <%= "#{entity} (#{format_number(count)})" %>
+        <%= "#{entity} (#{format_number(count, locale: @locale)})" %>
       </span>
     <% end %>
     <%= if @gtfs_rt_feed.feed_is_too_old do %>
@@ -35,7 +35,7 @@
             "page-dataset-details",
             ~s(The <a href="%{link}" target="_blank">timestamp field</a> appears to be too old compared to the current time: the delay is %{seconds} seconds. Try to update your feed at most every 30 seconds.),
             link: "https://developers.google.com/transit/gtfs-realtime/reference#message-feedheader",
-            seconds: format_number(@gtfs_rt_feed.feed_timestamp_delay)
+            seconds: format_number(@gtfs_rt_feed.feed_timestamp_delay, locale: @locale)
           )
         ) %>
       </p>

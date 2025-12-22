@@ -249,13 +249,19 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def format_severity(key, count) do
     case key do
       "ERROR" ->
-        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Error", "Errors", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "WARNING" ->
-        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "INFO" ->
-        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Information", "Informations", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
     end
   end
 

@@ -66,20 +66,20 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "error"
 msgid_plural "errors"
-msgstr[0] "%{count} error"
-msgstr[1] "%{count} errors"
+msgstr[0] "%{value} error"
+msgstr[1] "%{value} errors"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "information"
 msgid_plural "informations"
-msgstr[0] "%{count} information"
-msgstr[1] "%{count} informations"
+msgstr[0] "%{value} information"
+msgstr[1] "%{value} informations"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "warning"
 msgid_plural "warnings"
-msgstr[0] "%{count} warning"
-msgstr[1] "%{count} warnings"
+msgstr[0] "%{value} warning"
+msgstr[1] "%{value} warnings"
 
 #, elixir-autogen, elixir-format
 msgid "no error"

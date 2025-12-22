@@ -287,8 +287,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
 
       assert html =~ "Statistiques des requêtes gérées par le proxy"
-      assert html =~ "<strong>2</strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
-      assert html =~ "<strong>1</strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
+      assert html =~ "<strong>\n2\n    </strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
+      assert html =~ "<strong>\n1\n    </strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
     end
   end
 
