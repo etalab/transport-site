@@ -56,7 +56,7 @@
               <th :for={header <- headers}><%= header %></th>
             </tr>
             <tr :for={notice <- sample_notices}>
-              <td :for={header <- headers}><%= Map.get(notice, header) %></td>
+              <td :for={header <- headers}><%= Map.get(notice, header) |> inspect() %></td>
             </tr>
           </table>
           <p :if={nb_sample_notices > max_display_errors()} class="notification">
