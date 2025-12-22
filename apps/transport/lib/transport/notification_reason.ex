@@ -72,6 +72,11 @@ defmodule Transport.NotificationReason do
       possible_roles: [:producer, :reuser],
       disallow_subscription: true
     },
+    visit_proxy_statistics: %{
+      scope: :platform,
+      possible_roles: [:producer],
+      disallow_subscription: true
+    },
     visit_download_statistics: %{
       scope: :platform,
       possible_roles: [:producer],
