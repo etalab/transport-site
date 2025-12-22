@@ -21,8 +21,65 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
+      # Check the content on S3
+      bucket_name = "transport-data-gouv-fr-aggregates-test"
+      date = Calendar.strftime(Date.utc_today(), "%Y%m%d")
+
+      report_content =
+        [
+          %{
+            "dataset_id" => "another-dataset-id",
+            "dataset_title" => "another-dataset-title",
+            "error_message" =>
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "paiement_acte", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "reservation", "adresse_station", "id_station_itinerance", "siren_amenageur", "paiement_cb", "prise_type_combo_ccs", "contact_operateur", "prise_type_ef", "implantation_station", "date_mise_en_service", "station_deux_roues", "cable_t2_attache", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "prise_type_autre", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "prise_type_2", "paiement_autre", "tarification", "prise_type_chademo", "gratuit", "condition_acces", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
+            "error_type" => "ArgumentError",
+            "resource_id" => "another-resource-id",
+            "status" => "error_occurred",
+            "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+          },
+          %{
+            "dataset_id" => "the-dataset-id",
+            "dataset_title" => "the-dataset-title",
+            "error_message" => "",
+            "error_type" => "",
+            "resource_id" => "the-resource-id",
+            "status" => "import_successful",
+            "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+          }
+        ]
+        |> CSV.encode(headers: true)
+        |> Enum.to_list()
+        |> to_string()
+        |> String.replace("\r\n", "\n")
+
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "irve_static_consolidation_v2_report_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: report_content
+      )
+
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "irve_static_consolidation_v2_report_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: "be09aa4a95907235c9e3a984c79a41fd943a0465a1b5d69025d1994ed1c99a16"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "irve_static_consolidation_v2_report_#{date}",
+        "irve_static_consolidation_v2_report.csv"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "irve_static_consolidation_v2_report_#{date}",
+        "irve_static_consolidation_v2_report.csv.sha256sum"
+      )
+
       # Run the consolidation process
-      :ok = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+      :ok = Transport.IRVE.SimpleConsolidation.process()
 
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
@@ -38,36 +95,6 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       # There should be no leftover temporary files
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
-
-      file_name = "irve_static_consolidation_v2_report.csv"
-
-      # Check the generated report, here it’s stored on local disk (not default S3)
-      assert File.exists?(file_name)
-      report_content = file_name |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
-
-      [
-        %{
-          "dataset_id" => "another-dataset-id",
-          "dataset_title" => "another-dataset-title",
-          "error_message" => error_message,
-          "error_type" => "ArgumentError",
-          "resource_id" => "another-resource-id",
-          "status" => "error_occurred",
-          "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
-        },
-        %{
-          "dataset_id" => "the-dataset-id",
-          "dataset_title" => "the-dataset-title",
-          "error_message" => "",
-          "error_type" => "",
-          "resource_id" => "the-resource-id",
-          "status" => "import_successful",
-          "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
-        }
-      ] = report_content
-
-      assert error_message =~ "could not find column name \"nom_station\"."
-      File.rm!(file_name)
     end
   end
 
