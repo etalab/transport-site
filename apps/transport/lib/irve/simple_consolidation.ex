@@ -89,6 +89,13 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
       |> Explorer.DataFrame.new()
 
+    # Nicely displays what happened
+    if System.get_env("DEBUG") == "1" do
+      report_df["status"]
+      |> Explorer.Series.frequencies()
+      |> IO.inspect(IEx.inspect_opts())
+    end
+
     base_name = "irve_static_consolidation_v2_report"
 
     case destination do
