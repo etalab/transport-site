@@ -1,4 +1,4 @@
-# mix run scripts/irve/process-raw-static-consolidation.exs
+# mix run scripts/irve/process-simple-consolidation.exs
 
 Logger.configure(level: :info)
 
@@ -12,4 +12,4 @@ DB.Repo.delete_all(
   )
 )
 
-Transport.IRVE.SimpleConsolidation.process()
+Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
