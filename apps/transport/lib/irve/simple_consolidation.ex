@@ -65,6 +65,10 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def process_resource(resource) do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
+
+    # Raise if the producer is not an organization
+    Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+
     path = storage_path(resource.resource_id)
 
     with_maybe_cached_download_on_disk(resource, path, use_permanent_disk_cache, fn path ->
