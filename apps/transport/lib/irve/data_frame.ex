@@ -334,7 +334,7 @@ defmodule Transport.IRVE.DataFrame do
       dataframe
     else
       dataframe
-      |> Explorer.DataFrame.mutate(%{^field_name => nil})
+      |> Explorer.DataFrame.mutate(%{^field_name => ""})
     end
   end
 end

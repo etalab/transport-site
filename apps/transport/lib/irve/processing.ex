@@ -46,9 +46,12 @@ defmodule Transport.IRVE.Processing do
 
   A later version will likely automatically use all fields, but manual exceptions are likely
   to still be useful.
+
+  Note: the field `cable_t2_attache` is added here, and then in the "raw static consolidation"
+  path it is later removed again in `select_fields/1`.
   """
   def add_missing_optional_columns(dataframe) do
-    optional_columns()
+    Transport.IRVE.StaticIRVESchema.optional_fields()
     |> Enum.reduce(dataframe, fn column, dataframe_acc ->
       Transport.IRVE.DataFrame.add_empty_column_if_missing(dataframe_acc, column)
     end)
@@ -61,34 +64,5 @@ defmodule Transport.IRVE.Processing do
          ["coordonneesXY", "cable_t2_attache"]) ++
         ["longitude", "latitude"]
     )
-  end
-
-  # NOTE: these could be inferred from `required:` in the schema,
-  # but keeping it manual for now.
-  defp optional_columns do
-    [
-      # as seen in dataset 62ea8cd6af9f2e745fa84023
-      "id_pdc_local",
-      # as seen in dataset 62ea8cd6af9f2e745fa84023
-      "tarification",
-      # dataset 650866fc526f1050c8e4e252
-      "paiement_cb",
-      # dataset 61606900558502c87d0c9522
-      "id_station_local",
-      # dataset 661e3f4f8ee5dff6c8286fd2, 648758ebd41d68c851fa15c4
-      "paiement_autre",
-      # dataset 661e3f4f8ee5dff6c8286fd2
-      "raccordement",
-      # dataset 661e3f4f8ee5dff6c8286fd2
-      "num_pdl",
-      # dataset 661e3f4f8ee5dff6c8286fd2
-      "observations",
-      # dataset 650866fc526f1050c8e4e252
-      "date_mise_en_service",
-      # dataset 623ca46c13130c3228abd018
-      "telephone_operateur",
-      # dataset 623ca46c13130c3228abd018
-      "code_insee_commune"
-    ]
   end
 end
