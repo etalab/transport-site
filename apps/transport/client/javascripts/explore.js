@@ -53,9 +53,9 @@ Leaflet.tileLayer(Mapbox.url, {
 
 const visibility = { gtfsrt: document.getElementById('gtfs-rt-check').checked }
 
-function prepareLayer (layerId, layerData) {
+function prepareGTFSRTLayer (layerData) {
     return new ScatterplotLayer({
-        id: layerId,
+        id: 'gtfs-rt',
         data: layerData,
         pickable: true,
         opacity: 1,
@@ -109,16 +109,18 @@ function getTooltip ({ object, layer }) {
     }
 }
 // internal dictionary were all layers are stored
-const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
+let GTFSRTData = {}
+const layers = { gtfsrt: undefined, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
 
 function getLayers (layers) {
-    const layersArray = Object.values(layers.gtfsrt)
-    layersArray.push(layers.bnlc)
-    layersArray.push(layers.parkings_relais)
-    layersArray.push(layers.zfe)
-    layersArray.push(layers.irve)
-    layersArray.push(layers.gbfs_stations)
-    return layersArray
+    return [
+        layers.gtfsrt,
+        layers.zfe,
+        layers.bnlc,
+        layers.parkings_relais,
+        layers.irve,
+        layers.gbfs_stations
+    ]
 }
 
 function withQueryParams (alter) {
@@ -159,7 +161,8 @@ function startGTFSRT () {
         if (payload.error) {
             console.log(`Resource ${payload.resource_id} failed to load`)
         } else {
-            layers.gtfsrt[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
+            GTFSRTData[payload.resource_id] = payload.vehicle_positions
+            layers.gtfsrt = prepareGTFSRTLayer(Object.values(GTFSRTData).flatMap(array => array))
             deckGLLayer.setProps({ layers: getLayers(layers) })
         }
     })
@@ -168,9 +171,8 @@ function startGTFSRT () {
 function stopGTFSRT () {
     visibility.gtfsrt = false
     channel.off('vehicle-positions', gtfsChannelRef)
-    for (const key in layers.gtfsrt) {
-        layers.gtfsrt[key] = prepareLayer(key, [])
-    }
+    GTFSRTData = {}
+    layers.gtfsrt = prepareGTFSRTLayer([])
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
 
