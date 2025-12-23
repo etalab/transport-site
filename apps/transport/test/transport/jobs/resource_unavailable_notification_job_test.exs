@@ -109,7 +109,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       role: :producer,
       reason: :resource_unavailable,
       email: "foo@example.com",
-      inserted_at: add_days(-8)
+      inserted_at: add_hours(-25)
     }
     |> insert_notification()
 
@@ -271,6 +271,203 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              |> DB.Repo.one!()
 
     assert MapSet.new([job_id_1, job_id_2, job_id_3]) |> Enum.count() == 1
+
+    assert [
+             %Oban.Job{
+               worker: "Transport.Jobs.ResourceUnavailableNotificationJob",
+               args: %{
+                 "dataset_id" => ^gtfs_dataset_id,
+                 "resource_ids" => [^resource_gtfs_id],
+                 "hours_consecutive_downtime" => 30
+               },
+               state: "scheduled",
+               scheduled_at: scheduled_at_1
+             },
+             %Oban.Job{
+               worker: "Transport.Jobs.ResourceUnavailableNotificationJob",
+               args: %{
+                 "dataset_id" => ^dataset_id,
+                 "resource_ids" => [^resource_1_id, ^resource_2_id],
+                 "hours_consecutive_downtime" => 30
+               },
+               state: "scheduled",
+               scheduled_at: scheduled_at_2
+             }
+           ] = all_enqueued()
+
+    assert_in_delta DateTime.to_unix(scheduled_at_1),
+                    DateTime.utc_now() |> DateTime.add(24, :hour) |> DateTime.to_unix(),
+                    2
+
+    assert_in_delta DateTime.to_unix(scheduled_at_2),
+                    DateTime.utc_now() |> DateTime.add(24, :hour) |> DateTime.to_unix(),
+                    2
+  end
+
+  describe "perform when sending again" do
+    test "when resources remain unavailable" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      %DB.Resource{id: resource_1_id} = resource_1 = insert(:resource, dataset: dataset, is_available: false)
+
+      %DB.Contact{id: foo_contact_id} = foo_contact = insert_contact()
+      %DB.Contact{id: bar_contact_id} = bar_contact = insert_contact()
+
+      %{id: ns_1} =
+        insert(:notification_subscription, %{
+          reason: :resource_unavailable,
+          source: :admin,
+          role: :producer,
+          contact_id: foo_contact_id,
+          dataset_id: dataset.id
+        })
+
+      %{id: ns_2} =
+        insert(:notification_subscription, %{
+          reason: :resource_unavailable,
+          source: :admin,
+          role: :reuser,
+          contact_id: bar_contact_id,
+          dataset_id: dataset.id
+        })
+
+      assert :ok ==
+               perform_job(ResourceUnavailableNotificationJob, %{
+                 dataset_id: dataset.id,
+                 resource_ids: [resource_1.id],
+                 hours_consecutive_downtime: 30
+               })
+
+      # Emails have been sent
+      display_name = DB.Contact.display_name(foo_contact)
+      foo_email = foo_contact.email
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{^display_name, ^foo_email}],
+                             subject: subject,
+                             html_body: html_part
+                           } ->
+        assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
+
+        assert html_part =~
+                 ~s(Les ressources #{resource_1.title} dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> ne sont plus disponibles au téléchargement depuis plus de 30h.)
+      end)
+
+      display_name = DB.Contact.display_name(bar_contact)
+      reuser_email = bar_contact.email
+
+      assert_email_sent(fn %Swoosh.Email{
+                             from: {"transport.data.gouv.fr", "contact@transport.data.gouv.fr"},
+                             to: [{^display_name, ^reuser_email}],
+                             subject: subject,
+                             html_body: html_part
+                           } ->
+        assert subject == "Ressources indisponibles dans le jeu de données #{dataset.custom_title}"
+
+        assert html_part =~
+                 ~s(Les ressources #{resource_1.title} du jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a> que vous réutilisez ne sont plus disponibles au téléchargement depuis plus de 30h.)
+
+        assert html_part =~ "Nous avons déjà informé le producteur de ces données."
+      end)
+
+      # Logs have been saved
+      recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)
+
+      assert DB.Notification |> DB.Repo.aggregate(:count) == 2
+
+      assert %DB.Notification{
+               notification_subscription_id: ^ns_1,
+               reason: :resource_unavailable,
+               role: :producer,
+               contact_id: ^foo_contact_id,
+               payload: %{
+                 "hours_consecutive_downtime" => 30,
+                 "resource_ids" => [^resource_1_id],
+                 "job_id" => job_id_1
+               }
+             } =
+               DB.Notification.base_query()
+               |> where(
+                 [notification: n],
+                 n.role == :producer and n.inserted_at >= ^recent_dt and n.dataset_id == ^dataset_id
+               )
+               |> DB.Repo.one!()
+
+      assert %DB.Notification{
+               notification_subscription_id: ^ns_2,
+               reason: :resource_unavailable,
+               role: :reuser,
+               contact_id: ^bar_contact_id,
+               payload: %{
+                 "hours_consecutive_downtime" => 30,
+                 "resource_ids" => [^resource_1_id],
+                 "producer_warned" => true,
+                 "job_id" => job_id_2
+               }
+             } =
+               DB.Notification.base_query()
+               |> where(
+                 [notification: n],
+                 n.role == :reuser and n.inserted_at >= ^recent_dt and n.dataset_id == ^dataset_id
+               )
+               |> DB.Repo.one!()
+
+      assert job_id_1 == job_id_2
+
+      # Next job has been enqueued
+      assert [
+               %Oban.Job{
+                 worker: "Transport.Jobs.ResourceUnavailableNotificationJob",
+                 args: %{
+                   "dataset_id" => ^dataset_id,
+                   "resource_ids" => [^resource_1_id],
+                   "hours_consecutive_downtime" => 54
+                 },
+                 state: "scheduled",
+                 scheduled_at: scheduled_at
+               }
+             ] = all_enqueued()
+
+      assert_in_delta DateTime.to_unix(scheduled_at),
+                      DateTime.utc_now() |> DateTime.add(24, :hour) |> DateTime.to_unix(),
+                      2
+    end
+
+    test "when resources are now available" do
+      dataset = insert(:dataset)
+      resource_1 = insert(:resource, dataset: dataset, is_available: true)
+
+      foo_contact = insert_contact()
+      bar_contact = insert_contact()
+
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :producer,
+        contact: foo_contact,
+        dataset: dataset
+      })
+
+      insert(:notification_subscription, %{
+        reason: :resource_unavailable,
+        source: :admin,
+        role: :reuser,
+        contact: bar_contact,
+        dataset: dataset
+      })
+
+      assert :ok ==
+               perform_job(ResourceUnavailableNotificationJob, %{
+                 dataset_id: dataset.id,
+                 resource_ids: [resource_1.id],
+                 hours_consecutive_downtime: 30
+               })
+
+      assert_no_email_sent()
+
+      assert DB.Repo.all(DB.Notification) |> Enum.empty?()
+      assert all_enqueued() |> Enum.empty?()
+    end
   end
 
   describe "created_resource_hosted_on_datagouv_recently?" do
@@ -307,7 +504,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       role: :producer,
       reason: :resource_unavailable,
       email: "foo@example.com",
-      inserted_at: add_days(-6)
+      inserted_at: add_hours(-20)
     }
     |> insert_notification()
 
@@ -317,18 +514,18 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
       role: :producer,
       reason: :resource_unavailable,
       email: "bar@example.com",
-      inserted_at: add_days(-8)
+      inserted_at: add_hours(-25)
     }
     |> insert_notification()
 
     # Another reason
-    %{dataset: dataset, role: :producer, reason: :expiration, email: "baz@example.com", inserted_at: add_days(-6)}
+    %{dataset: dataset, role: :producer, reason: :expiration, email: "baz@example.com", inserted_at: add_hours(-6)}
     |> insert_notification()
 
     assert ["foo@example.com"] == ResourceUnavailableNotificationJob.email_addresses_already_sent(dataset)
   end
 
-  defp add_days(days), do: DateTime.utc_now() |> DateTime.add(days, :day)
+  defp add_hours(days), do: DateTime.utc_now() |> DateTime.add(days, :hour)
 
   defp setup_dataset_response(%DB.Dataset{datagouv_id: datagouv_id}, resource_url, created_at) do
     url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
