@@ -11,7 +11,7 @@ defmodule Transport.IRVE.Validator do
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
   end
 
-  def validate(path) do
+  def validate(path, extension \\ ".csv") do
     # TODO https://github.com/etalab/transport-site/issues/5135 -> the most important
     # thing to integrate now
 
@@ -43,7 +43,7 @@ defmodule Transport.IRVE.Validator do
     body = File.read!(path)
     # TODO: explain `_fake_extension`
     # TODO: structure
-    Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, ".csv")
+    Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, extension)
     # TODO: accumulate warning
     body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
     # TODO: accumulate warning
