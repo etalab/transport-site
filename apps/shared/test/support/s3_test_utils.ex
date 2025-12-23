@@ -33,6 +33,25 @@ defmodule Transport.Test.S3TestUtils do
   end
 
   def s3_mock_stream_file(
+        start_path: expected_start_path,
+        bucket: expected_bucket,
+        acl: expected_acl,
+        file_content: expected_file_content
+      ) do
+    Transport.ExAWS.Mock
+    |> expect(:request!, fn %ExAws.S3.Upload{
+                              src: src = %File.Stream{},
+                              bucket: ^expected_bucket,
+                              path: path,
+                              opts: [acl: ^expected_acl],
+                              service: :s3
+                            } ->
+      assert String.starts_with?(path, expected_start_path)
+      assert src |> Enum.join("\n") == expected_file_content
+    end)
+  end
+
+  def s3_mock_stream_file(
         path: expected_path,
         bucket: expected_bucket,
         acl: expected_acl,
