@@ -2,9 +2,43 @@
   <div class="container container_min_height">
     <h1><%= dgettext("validations", "Check the quality of a file or a feed") %></h1>
     <div class="pb-48">
+      <div class="available-data grid">
+        <a
+          :for={{type, item} <- @tiles}
+          class={if @selected_tile == type, do: "tile tile-colored", else: "tile"}
+          phx-click="select_tile"
+          phx-value-tile={type}
+        >
+          <img class="tile__icon" src={item.icon} alt={item.title} />
+          <div class="tile__text">
+            <h4><%= item.title %></h4>
+            <div><%= item.subtitle %></div>
+          </div>
+        </a>
+      </div>
+
+      <%= for {identifier, item} <- @tiles do %>
+        <div :if={@selected_tile == identifier} class="container available-data grid pt-24 pb-48">
+          <a
+            :for={{title, type} <- item.sub_tiles}
+            href="#form_anchor"
+            class={if @selected_subtile == type, do: "tile tile-colored", else: "tile sub_tile"}
+            phx-click="select_subtile"
+            phx-value-tile={type}
+          >
+            <img class="tile__icon" src={icon(type)} alt="" />
+            <div class="tile__text">
+              <h4><%= title %></h4>
+            </div>
+          </a>
+        </div>
+      <% end %>
+
+      <div id="form_anchor"></div>
       <.form
         :let={f}
-        for={@changeset}
+        :if={@selected_subtile}
+        for={%{}}
         action={validation_path(@socket, :validate)}
         class="no-margin"
         multipart={true}
@@ -12,7 +46,7 @@
         phx-change="form_changed"
         phx-trigger-action={@trigger_submit}
       >
-        <%= select(f, :type, @select_options, label: dgettext("validations", "Data type"), required: true) %>
+        <%= hidden_input(f, :type, value: @selected_subtile) %>
         <%= if @input_type == "file" do %>
           <%= file_input(f, :file, label: dgettext("validations", "Choose your file"), required: true) %>
         <% end %>

@@ -11,6 +11,14 @@ defmodule TransportWeb.GbfsAnalyzerController do
   end
 
   def index(conn, _params) do
-    conn |> redirect(to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gbfs"))
+    conn
+    |> redirect(
+      to:
+        live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive,
+          type: "gbfs",
+          selected_tile: "vehicles-sharing",
+          selected_subtile: "gbfs"
+        )
+    )
   end
 end

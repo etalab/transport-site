@@ -28,25 +28,92 @@ defmodule TransportWeb.ValidationControllerTest do
     test "updates inputs", %{conn: conn} do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
       {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
-      assert view |> has_element?("input[name='upload[file]']")
+
+      # Select "vehicles sharing" > "GBFS"
+      view |> element(~s|[phx-value-tile="vehicles-sharing"]|) |> render_click()
+      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, selected_tile: "vehicles-sharing"))
+      refute view |> has_element?("input[name='upload[file]']")
       refute view |> has_element?("input[name='upload[url]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gbfs"}, "_target" => ["upload", "type"]})
-      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gbfs"))
+      assert [
+               {"h4", [], ["Transport public collectif"]},
+               {"h4", [], ["Véhicules en libre-service"]},
+               {"h4", [], ["Mobilités routières et vélo"]},
+               {"h4", [], ["GBFS"]}
+             ] == view |> render() |> Floki.parse_document!() |> Floki.find(".tile__text h4")
+
+      view |> element(~s|[phx-value-tile="gbfs"]|) |> render_click()
+
+      assert_patched(
+        view,
+        live_path(conn, OnDemandValidationSelectLive,
+          type: "gbfs",
+          selected_subtile: "gbfs",
+          selected_tile: "vehicles-sharing"
+        )
+      )
+
       assert view |> has_element?("input[name='upload[url]']")
       refute view |> has_element?("input[name='upload[file]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs"}, "_target" => ["upload", "type"]})
-      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "gtfs"))
+      # Select "public-transit" > "GTFS"
+      view |> element(~s|[phx-value-tile="public-transit"]|) |> render_click()
+      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, selected_tile: "public-transit"))
+      refute view |> has_element?("input[name='upload[file]']")
+      refute view |> has_element?("input[name='upload[url]']")
+
+      assert [
+               {"h4", [], ["Transport public collectif"]},
+               {"h4", [], ["Véhicules en libre-service"]},
+               {"h4", [], ["Mobilités routières et vélo"]},
+               {"h4", [], ["GTFS"]},
+               {"h4", [], ["GTFS-Flex"]},
+               {"h4", [], ["GTFS-RT"]},
+               {"h4", [], ["NeTEx"]}
+             ] == view |> render() |> Floki.parse_document!() |> Floki.find(".tile__text h4")
+
+      view |> element(~s|[phx-value-tile="gtfs"]|) |> render_click()
+
+      assert_patched(
+        view,
+        live_path(conn, OnDemandValidationSelectLive,
+          type: "gtfs",
+          selected_subtile: "gtfs",
+          selected_tile: "public-transit"
+        )
+      )
+
+      assert view |> has_element?("input[name='upload[file]']")
+      refute view |> has_element?("input[name='upload[url]']")
+
+      # Select "NeTEx"
+      view |> element(~s|[phx-value-tile="netex"]|) |> render_click()
+
+      assert_patched(
+        view,
+        live_path(conn, OnDemandValidationSelectLive,
+          type: "netex",
+          selected_subtile: "netex",
+          selected_tile: "public-transit"
+        )
+      )
+
       refute view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[file]']")
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "netex"}, "_target" => ["upload", "type"]})
-      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, type: "netex"))
-      refute view |> has_element?("input[name='upload[url]']")
-      assert view |> has_element?("input[name='upload[file]']")
+      # Select "GTFS-RT"
+      view |> element(~s|[phx-value-tile="gtfs-rt"]|) |> render_click()
 
-      render_change(view, "form_changed", %{"upload" => %{"type" => "gtfs-rt"}, "_target" => ["upload", "type"]})
+      assert_patched(
+        view,
+        live_path(conn, OnDemandValidationSelectLive,
+          type: "gtfs-rt",
+          selected_subtile: "gtfs-rt",
+          selected_tile: "public-transit"
+        )
+      )
+
+      refute view |> has_element?("input[name='upload[file]']")
       assert view |> has_element?("input[name='upload[url]']")
       assert view |> has_element?("input[name='upload[feed_url]']")
     end
@@ -54,7 +121,17 @@ defmodule TransportWeb.ValidationControllerTest do
     test "takes into account query params", %{conn: conn} do
       Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
 
-      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive, type: "gbfs")) |> live()
+      {:ok, view, _html} =
+        conn
+        |> get(
+          live_path(conn, OnDemandValidationSelectLive,
+            type: "gbfs",
+            selected_tile: "vehicles-sharing",
+            selected_subtile: "gbfs"
+          )
+        )
+        |> live()
+
       refute view |> has_element?("input[name='upload[file]']")
       assert view |> has_element?("input[name='upload[url]']")
     end
