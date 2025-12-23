@@ -415,9 +415,13 @@ msgid "Public transit"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Schemas"
+msgid "Vehicles sharing"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Vehicles sharing"
+msgid "IRVE, ZFE, carpooling, bike data etc."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Road mobility and bike"
 msgstr ""

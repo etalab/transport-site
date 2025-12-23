@@ -18,11 +18,11 @@
       </div>
 
       <%= for {identifier, item} <- @tiles do %>
-        <div :if={@selected_tile == identifier} class="available-data grid pb-48">
+        <div :if={@selected_tile == identifier} class="container available-data grid pt-24 pb-48">
           <a
             :for={{title, type} <- item.sub_tiles}
             href="#form_anchor"
-            class={if @selected_subtile == type, do: "tile tile-colored", else: "tile"}
+            class={if @selected_subtile == type, do: "tile tile-colored", else: "tile sub_tile"}
             phx-click="select_subtile"
             phx-value-tile={type}
           >

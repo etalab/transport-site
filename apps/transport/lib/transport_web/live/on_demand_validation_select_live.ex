@@ -41,8 +41,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
          {"schemas",
           %{
             icon: static_path(socket, "/images/icons/infos.svg"),
-            title: dgettext("validations", "Schemas"),
-            subtitle: "IRVE, ZFE, etc.",
+            title: dgettext("validations", "Road mobility and bike"),
+            subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
             sub_tiles:
               Transport.Shared.Schemas.Wrapper.transport_schemas()
               |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)

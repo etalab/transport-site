@@ -38,7 +38,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert [
                {"h4", [], ["Transport public collectif"]},
                {"h4", [], ["Véhicules en libre-service"]},
-               {"h4", [], ["Schémas de données"]},
+               {"h4", [], ["Mobilités routières et vélo"]},
                {"h4", [], ["GBFS"]}
              ] == view |> render() |> Floki.parse_document!() |> Floki.find(".tile__text h4")
 
@@ -65,7 +65,7 @@ defmodule TransportWeb.ValidationControllerTest do
       assert [
                {"h4", [], ["Transport public collectif"]},
                {"h4", [], ["Véhicules en libre-service"]},
-               {"h4", [], ["Schémas de données"]},
+               {"h4", [], ["Mobilités routières et vélo"]},
                {"h4", [], ["GTFS"]},
                {"h4", [], ["GTFS-Flex"]},
                {"h4", [], ["GTFS-RT"]},
