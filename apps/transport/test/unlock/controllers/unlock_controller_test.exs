@@ -853,7 +853,21 @@ defmodule Unlock.ControllerTest do
                  service: :s3
                } = operation
 
-        %{body: content, status_code: 200}
+        %{
+          body: content,
+          status_code: 200,
+          headers: [
+            {"content-length", "154685"},
+            {"accept-ranges", "bytes"},
+            {"last-modified", "Mon, 08 Apr 2024 12:14:12 GMT"},
+            {"ETag", "\"576b7c0ca6ddb298909bd4a4d756a0c9-1\""},
+            {"content-type", "application/octet-stream"},
+            {"date", "Wed, 03 Dec 2025 07:48:54 GMT"},
+            # Should be ignored
+            {"x-amz-request-id", "tx0000097b85cfeb2e3c5e1-00692feb66-3ba2ffc1-default"},
+            {"x-rgw-object-type", "Normal"}
+          ]
+        }
       end)
 
       resp =
@@ -862,6 +876,17 @@ defmodule Unlock.ControllerTest do
 
       assert resp.resp_body == content
       assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               {"last-modified", "Mon, 08 Apr 2024 12:14:12 GMT"},
+               # Uses the path
+               {"content-disposition", "attachment; filename=irve_static_consolidation.csv"}
+             ] = resp.resp_headers
+
       # enforce the filename provided via the config (especially to get its extension passed to clients)
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
 
