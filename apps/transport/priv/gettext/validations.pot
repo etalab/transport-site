@@ -177,10 +177,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, elixir-autogen, elixir-format
-msgid "Data type"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Validate"
 msgstr ""
 
@@ -410,4 +406,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Canonical GTFS Schedule Validator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Public transit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Schemas"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Vehicles sharing"
 msgstr ""

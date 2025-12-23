@@ -7,7 +7,13 @@ defmodule TransportWeb.GbfsAnalyzerControllerTest do
   describe "GBFS analyzer" do
     test "the analyzer starting page", %{conn: conn} do
       conn = conn |> get(gbfs_analyzer_path(conn, :index))
-      assert redirected_to(conn, 302) == live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "gbfs")
+
+      assert redirected_to(conn, 302) ==
+               live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive,
+                 type: "gbfs",
+                 selected_tile: "vehicles-sharing",
+                 selected_subtile: "gbfs"
+               )
     end
 
     test "with a GBFS to analyze", %{conn: conn} do

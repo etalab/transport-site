@@ -123,6 +123,15 @@ a.tile:hover {
   margin-right: 2em;
 }
 
+.tile-colored {
+  color: var(--theme-light-text) !important;
+
+  .tile__icon {
+    background: #fff;
+    padding: 5px;
+  }
+}
+
 .grid.available-data {
   grid-gap: 1.5em !important;
   grid-auto-rows: 1fr;
