@@ -148,6 +148,7 @@ defmodule TransportWeb.EspaceProducteurController do
   @spec new_resource(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def new_resource(conn, %{"dataset_id" => _dataset_id}) do
     conn
+    |> assign(:formats, formats_for_dataset(conn))
     |> assign(:datagouv_resource, nil)
     |> render("resource_form.html")
   end
@@ -155,6 +156,7 @@ defmodule TransportWeb.EspaceProducteurController do
   @spec edit_resource(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def edit_resource(conn, %{"dataset_id" => _dataset_id, "resource_datagouv_id" => _resource_datagouv_id}) do
     conn
+    |> assign(:formats, formats_for_dataset(conn))
     |> render("resource_form.html")
   end
 
@@ -254,6 +256,16 @@ defmodule TransportWeb.EspaceProducteurController do
   end
 
   defp proxy_requests_stats_nb_days, do: 15
+
+  def formats_for_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{type: dataset_type}}}) do
+    DB.Dataset.base_query()
+    |> DB.Resource.join_dataset_with_resource()
+    |> where([dataset: d], d.type == ^dataset_type)
+    |> select([resource: r], r.format)
+    |> group_by([resource: r], r.format)
+    |> order_by([resource: r], {:desc, count(r.id)})
+    |> DB.Repo.all()
+  end
 
   defp find_db_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
     conn

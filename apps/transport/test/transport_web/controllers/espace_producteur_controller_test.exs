@@ -762,6 +762,21 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
+  test "formats_for_dataset" do
+    dataset = insert(:dataset, type: "public-transit")
+    other_dataset = insert(:dataset, type: "vehicles-sharing")
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "GTFS", dataset: dataset)
+    insert(:resource, format: "NeTEx", dataset: dataset)
+    insert(:resource, format: "gbfs", dataset: other_dataset)
+
+    assert ["GTFS", "NeTEx"] ==
+             TransportWeb.EspaceProducteurController.formats_for_dataset(%Plug.Conn{assigns: %{dataset: dataset}})
+
+    assert ["gbfs"] ==
+             TransportWeb.EspaceProducteurController.formats_for_dataset(%Plug.Conn{assigns: %{dataset: other_dataset}})
+  end
+
   defp assert_redirects_to_info_page(%Plug.Conn{} = conn) do
     Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
     assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
