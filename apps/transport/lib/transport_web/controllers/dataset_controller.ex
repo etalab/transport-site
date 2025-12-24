@@ -132,15 +132,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def validators_to_use,
-    do: [
-      Transport.Validators.GTFSTransport,
-      Transport.Validators.GTFSRT,
-      Transport.Validators.TableSchema,
-      Transport.Validators.EXJSONSchema,
-      Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator,
-      Transport.Validators.MobilityDataGTFSValidator
-    ]
+    do: Transport.ValidatorsSelection.validators_for_feature(:dataset_controller)
 
   def resources_infos(dataset) do
     %{

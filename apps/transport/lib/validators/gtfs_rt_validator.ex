@@ -5,7 +5,6 @@ defmodule Transport.Validators.GTFSRT do
   import Ecto.Query
   alias DB.{Dataset, MultiValidation, Repo, Resource, ResourceHistory, ResourceMetadata}
   alias Transport.Validators.GTFSRT
-  alias Transport.Validators.GTFSTransport
   require Logger
 
   @behaviour Transport.Validators.Validator
@@ -192,7 +191,9 @@ defmodule Transport.Validators.GTFSRT do
   def up_to_date_gtfs_resources(%Dataset{id: dataset_id}) do
     Resource.base_query()
     |> ResourceHistory.join_resource_with_latest_resource_history()
-    |> MultiValidation.join_resource_history_with_latest_validation(GTFSTransport.validator_name())
+    |> MultiValidation.join_resource_history_with_latest_validation(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:gtfs_rt_validator), & &1.validator_name())
+    )
     |> ResourceMetadata.join_validation_with_metadata()
     |> where([resource: r], r.format == "GTFS" and not r.is_community_resource and r.dataset_id == ^dataset_id)
     |> ResourceMetadata.where_gtfs_up_to_date()

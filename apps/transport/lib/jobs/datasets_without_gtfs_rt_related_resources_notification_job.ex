@@ -31,7 +31,12 @@ defmodule Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob do
   def relevant_datasets do
     datasets_with_multiple_gtfs =
       DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.Dataset.join_from_dataset_to_metadata(
+        Enum.map(
+          Transport.ValidatorsSelection.validators_for_feature(:datasets_without_gtfs_rt_related_resouces),
+          & &1.validator_name()
+        )
+      )
       |> DB.ResourceMetadata.where_gtfs_up_to_date()
       |> where([resource: r], r.format == "GTFS" and not r.is_community_resource)
       |> group_by([dataset: d], d.id)

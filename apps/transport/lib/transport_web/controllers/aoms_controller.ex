@@ -128,7 +128,9 @@ defmodule TransportWeb.AOMSController do
   defp gtfs_datasets do
     gtfs_datasets =
       DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.Dataset.join_from_dataset_to_metadata(
+        Enum.map(Transport.ValidatorsSelection.validators_for_feature(:aoms_controller), & &1.validator_name())
+      )
       |> join(:left, [dataset: d], a in assoc(d, :legal_owners_aom), as: :aom)
       |> where([dataset: d], d.type == "public-transit")
       |> select(
