@@ -33,7 +33,10 @@ defmodule Transport.Jobs.ExpirationAdminProducerNotificationJob do
   @spec gtfs_datasets_expiring_on(Date.t()) :: [{DB.Dataset.t(), [DB.Resource.t()]}]
   def gtfs_datasets_expiring_on(%Date{} = date) do
     DB.Dataset.base_query()
-    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.Dataset.join_from_dataset_to_metadata([
+      Transport.Validators.GTFSTransport.validator_name(),
+      Transport.Validators.MobilityDataGTFSValidator.validator_name()
+    ])
     |> where(
       [metadata: m, resource: r],
       fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"

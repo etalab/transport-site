@@ -187,4 +187,23 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
     assert %Oban.Job{conflict?: false, unique: %{fields: [:args, :queue, :worker], period: 72_000}} = enqueue_job.()
     assert %Oban.Job{conflict?: true, unique: nil} = enqueue_job.()
   end
+
+  test "gtfs_expiring_on_target_dates works with both GTFS validators" do
+    today = Date.utc_today()
+    a_week_ago = Date.add(today, -7)
+
+    %{dataset: %DB.Dataset{id: d1_id}} = insert_resource_and_friends(today)
+
+    %DB.Dataset{id: d2_id} = insert(:dataset)
+    resource = insert(:resource, dataset_id: d2_id, format: "GTFS")
+    resource_history = insert(:resource_history, resource: resource)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{metadata: %{"start_date" => a_week_ago, "end_date" => a_week_ago}}
+    )
+
+    assert %{-7 => [d2_id], 0 => [d1_id]} == ExpirationNotificationJob.gtfs_expiring_on_target_dates(today)
+  end
 end
