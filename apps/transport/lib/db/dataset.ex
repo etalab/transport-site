@@ -120,6 +120,7 @@ defmodule DB.Dataset do
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
+  @spec join_from_dataset_to_metadata(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   def join_from_dataset_to_metadata(query, validator_name) do
     query
     |> DB.Resource.join_dataset_with_resource()

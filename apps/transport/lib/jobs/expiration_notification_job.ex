@@ -177,7 +177,10 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
         expiring_dates = Map.values(delays_and_dates)
 
         DB.Dataset.base_query()
-        |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+        |> DB.Dataset.join_from_dataset_to_metadata([
+          Transport.Validators.GTFSTransport.validator_name(),
+          Transport.Validators.MobilityDataGTFSValidator.validator_name()
+        ])
         |> where([resource: r], r.format == "GTFS")
         |> where(
           [metadata: m],
