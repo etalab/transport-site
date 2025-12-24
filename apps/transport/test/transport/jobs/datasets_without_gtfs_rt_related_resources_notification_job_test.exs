@@ -6,6 +6,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNot
   alias Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> assert_no_email_sent() end)
   end

@@ -13,15 +13,6 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   import Ecto.Query
 
   @notification_reason Transport.NotificationReason.reason(:dataset_with_error)
-  @static_data_validators [
-    Transport.Validators.GTFSTransport,
-    Transport.Validators.TableSchema,
-    Transport.Validators.EXJSONSchema,
-    Transport.Validators.MobilityDataGTFSValidator
-  ]
-  @realtime_data_validators [
-    Transport.Validators.GBFSValidator
-  ]
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do
@@ -131,7 +122,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp relevant_static_validations(%DateTime{} = datetime_limit) do
-    validator_names = Enum.map(@static_data_validators, & &1.validator_name())
+    validator_names = Enum.map(static_data_validators(), & &1.validator_name())
 
     DB.MultiValidation.base_query()
     |> where(
@@ -148,7 +139,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   end
 
   defp relevant_realtime_validations(%DateTime{} = datetime_limit) do
-    validator_names = Enum.map(@realtime_data_validators, & &1.validator_name())
+    validator_names = Enum.map(realtime_data_validators(), & &1.validator_name())
 
     DB.MultiValidation.base_query()
     |> where([multi_validation: mv], fragment("?->>'has_errors' = 'true'", mv.result))
@@ -175,7 +166,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     end)
   end
 
-  def all_validators, do: @static_data_validators ++ @realtime_data_validators
+  def all_validators, do: static_data_validators() ++ realtime_data_validators()
 
   @doc """
   iex> sending_delay_by_validator(Transport.Validators.GBFSValidator.validator_name())
@@ -216,4 +207,10 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> distinct(true)
     |> DB.Repo.all()
   end
+
+  def static_data_validators,
+    do: Transport.ValidatorsSelection.validators_for_feature(:multi_validation_with_error_static_validators)
+
+  def realtime_data_validators,
+    do: Transport.ValidatorsSelection.validators_for_feature(:multi_validation_with_error_realtime_validators)
 end

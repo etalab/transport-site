@@ -241,12 +241,12 @@ defmodule TransportWeb.API.StatsController do
         nom: fragment("string_agg(distinct ?, ', ')", ad.nom),
         quality: %{
           expired_from: fragment("TO_DATE(?, 'YYYY-MM-DD') - max(?)", ^dt, expired_info.end_date),
-          error_level: fragment("case max(CASE max_error::text
-              WHEN 'Fatal' THEN 1
-              WHEN 'Error' THEN 2
-              WHEN 'Warning' THEN 3
-              WHEN 'Information' THEN 4
-              WHEN 'NoError' THEN 5
+          error_level: fragment("case max(CASE lower(max_error::text)
+              WHEN 'fatal' THEN 1
+              WHEN 'error' THEN 2
+              WHEN 'warning' THEN 3
+              WHEN 'information' THEN 4
+              WHEN 'noerror' THEN 5
               END)
             WHEN 1 THEN 'Fatal'
             WHEN 2 THEN 'Error'
@@ -263,7 +263,9 @@ defmodule TransportWeb.API.StatsController do
 
   def dataset_expiration_dates do
     DB.Dataset.base_query()
-    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.Dataset.join_from_dataset_to_metadata(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_stats_controller), & &1.validator_name())
+    )
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, metadata: m], %{
       dataset_id: d.id,
@@ -273,7 +275,9 @@ defmodule TransportWeb.API.StatsController do
 
   def dataset_error_levels do
     DB.Dataset.base_query()
-    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.Dataset.join_from_dataset_to_metadata(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_stats_controller), & &1.validator_name())
+    )
     |> DB.ResourceMetadata.where_gtfs_up_to_date()
     |> where([resource: r], r.is_available == true)
     |> select([dataset: d, multi_validation: mv], %{dataset_id: d.id, max_error: mv.max_error})

@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

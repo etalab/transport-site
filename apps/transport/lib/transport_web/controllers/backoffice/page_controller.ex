@@ -7,7 +7,9 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def end_dates_query do
     DB.Dataset.base_with_hidden_datasets()
-    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.Dataset.join_from_dataset_to_metadata(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:backoffice_page_controller), & &1.validator_name())
+    )
     |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
     |> group_by([dataset: d], d.id)
     |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})

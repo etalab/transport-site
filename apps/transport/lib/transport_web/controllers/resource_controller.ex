@@ -7,16 +7,9 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
-  @enabled_validators MapSet.new([
-                        Transport.Validators.GTFSTransport,
-                        Transport.Validators.GTFSRT,
-                        Transport.Validators.GBFSValidator,
-                        Transport.Validators.TableSchema,
-                        Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx.Validator,
-                        Transport.Validators.MobilityDataGTFSValidator
-                      ])
   plug(:assign_current_contact when action in [:details])
+
+  def enabled_validators, do: Transport.ValidatorsSelection.validators_for_feature(:resource_controller) |> MapSet.new()
 
   def details(conn, %{"id" => id} = params) do
     case load_resource(id) do
@@ -149,7 +142,7 @@ defmodule TransportWeb.ResourceController do
       if not is_nil(latest_resource_history) and DB.ResourceHistory.gtfs_flex?(latest_resource_history) do
         [Transport.Validators.MobilityDataGTFSValidator]
       else
-        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in enabled_validators()))
       end
 
     validator =
