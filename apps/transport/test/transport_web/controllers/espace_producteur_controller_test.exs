@@ -46,6 +46,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
       end)
 
+      td_text = fn doc ->
+        doc |> Floki.find("td.align-right") |> Floki.text() |> String.replace(~r/(\s)+/, " ") |> String.trim()
+      end
+
       doc =
         conn
         |> init_test_session(current_user: %{})
@@ -54,7 +58,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> Floki.parse_document!()
 
       assert doc |> Floki.find("h2") |> Floki.text() == custom_title
-      assert doc |> Floki.find("td.align-right") |> Floki.text() == "Modifier la ressourceSupprimer la ressource"
+
+      assert td_text.(doc) == "Modifier la ressource Supprimer la ressource"
 
       # With a reuser improved data
       insert(:reuser_improved_data, dataset: dataset, resource: resource)
@@ -66,8 +71,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find("td.align-right") |> Floki.text() ==
-               "Modifier la ressourceGTFS réutilisateurSupprimer la ressource"
+      assert td_text.(doc) == "Modifier la ressource GTFS réutilisateurSupprimer la ressource"
     end
 
     test "when a custom logo is set", %{conn: conn} do

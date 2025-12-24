@@ -50,12 +50,14 @@
                 <%= resource["title"] %> <span :if={db_resource} class="label"><%= db_resource.format %></span>
               </td>
               <td class="align-right">
-                <%= link(dgettext("espace-producteurs", "Edit resource"),
-                  to: espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"]),
-                  class: "button-outline primary small",
-                  "data-tracking-category": "espace_producteur",
-                  "data-tracking-action": "update_resource_button"
-                ) %>
+                <a
+                  href={espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"])}
+                  data-tracking-category="espace_producteur"
+                  data-tracking-action="update_resource_button"
+                  class="button-outline primary small"
+                >
+                  <i class="icon fa fa-edit"></i><%= dgettext("espace-producteurs", "Edit resource") %>
+                </a>
                 <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
                   <%= link(dgettext("espace-producteurs", "Reuser GTFS"),
                     to: espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id),
@@ -64,29 +66,27 @@
                     "data-tracking-action": "see_reuser_improved_data"
                   ) %>
                 <% end %>
-                <%= link(dgettext("espace-producteurs", "Delete resource"),
-                  to:
-                    espace_producteur_path(
-                      @conn,
-                      :delete_resource_confirmation,
-                      @dataset.id,
-                      resource["id"]
-                    ),
-                  class: "button-outline warning small",
-                  "data-tracking-category": "espace_producteur",
-                  "data-tracking-action": "delete_resource_button"
-                ) %>
+                <a
+                  href={espace_producteur_path(@conn, :delete_resource_confirmation, @dataset.id, resource["id"])}
+                  data-tracking-category="espace_producteur"
+                  data-tracking-action="delete_resource_button"
+                  class="button-outline warning small"
+                >
+                  <i class="icon fa fa-trash"></i><%= dgettext("espace-producteurs", "Delete resource") %>
+                </a>
               </td>
             </tr>
           <% end %>
         </table>
 
-        <%= link(dgettext("espace-producteurs", "Add a resource"),
-          to: espace_producteur_path(@conn, :new_resource, @dataset.id),
-          class: "button primary",
-          "data-tracking-category": "espace_producteur",
-          "data-tracking-action": "add_resource_button"
-        ) %>
+        <a
+          href={espace_producteur_path(@conn, :new_resource, @dataset.id)}
+          data-tracking-category="espace_producteur"
+          data-tracking-action="add_resource_button"
+          class="button primary"
+        >
+          <i class="icon fa fa-plus"></i><%= dgettext("espace-producteurs", "Add a resource") %>
+        </a>
 
         <p class="pt-24"><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
         <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),

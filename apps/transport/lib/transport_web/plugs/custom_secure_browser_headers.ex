@@ -67,6 +67,14 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     end
   end
 
+  defp additional_content("frame-src", mix_env, app_env) do
+    if mix_env == :dev do
+      "'self'"
+    else
+      ""
+    end
+  end
+
   defp additional_content("report-uri", _mix_env, app_env) when app_env in [:production, :staging] do
     Application.fetch_env!(:sentry, :csp_url)
   end
