@@ -57,19 +57,8 @@
                 placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
                 value: @datagouv_resource["title"]
               ) %>
-              <%= text_input(
-                f,
-                :format,
-                label:
-                  label f, :format do
-                    [
-                      dgettext("espace-producteurs", "Format"),
-                      content_tag(:a, "GTFS", class: "filler label", onclick: "fill(this);"),
-                      content_tag(:a, "NeTEx", class: "filler label", onclick: "fill(this);"),
-                      content_tag(:a, "gtfs-rt", class: "filler label", onclick: "fill(this);")
-                    ]
-                  end,
-                placeholder: "GTFS, NeTEx, …",
+              <%= select(f, :format, @formats,
+                label: dgettext("espace-producteurs", "Format"),
                 value: @datagouv_resource["format"]
               ) %>
               <div class="pt-48">
