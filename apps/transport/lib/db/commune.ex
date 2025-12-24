@@ -14,7 +14,6 @@ defmodule DB.Commune do
     field(:population, :integer)
     field(:siren, :string)
     field(:arrondissement_insee, :string)
-    # field(:aom_siren, :string)
 
     belongs_to(:region, DB.Region)
     belongs_to(:departement, DB.Departement, foreign_key: :departement_insee, references: :insee, type: :string)

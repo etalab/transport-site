@@ -108,7 +108,10 @@ defmodule TransportWeb.API.AomControllerTest do
       siren: "247400690"
     )
 
-    json = conn |> get(TransportWeb.API.Router.Helpers.aom_path(conn, :by_coordinates, lon: 56.0, lat: 4.0)) |> json_response(200)
+    json =
+      conn
+      |> get(TransportWeb.API.Router.Helpers.aom_path(conn, :by_coordinates, lon: 56.0, lat: 4.0))
+      |> json_response(200)
 
     assert_response_schema(json, "AOMResponse", TransportWeb.API.Spec.spec())
 
