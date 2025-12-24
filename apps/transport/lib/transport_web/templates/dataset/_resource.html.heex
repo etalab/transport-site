@@ -138,7 +138,7 @@
         </div>
       <% end %>
       <%= if Resource.gbfs?(@resource) do %>
-        <%= for version <- validation |> get_metadata_info("versions", []) do %>
+        <%= for version <- validation |> get_metadata_info("versions", []) || [] do %>
           <a href={gbfs_documentation_link(version)} target="_blank">
             <span class="label version">
               <%= dgettext("page-dataset-details", "Version %{version}", version: version) %>
