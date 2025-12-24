@@ -59,5 +59,3 @@
   <.live_component module={JobsTableComponent} jobs={@last_discarded_jobs} state="discarded" id="discarded_jobs" />
   <p class="small">Total: <%= Helpers.format_number(@count_discarded_jobs, locale: "en") %></p>
 </section>
-<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
-</script>

@@ -79,7 +79,6 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
         </div>
       <% end %>
     </div>
-    <script type="text/javascript" src={static_path(@socket, "/js/app.js")} />
     <script nonce={@nonce}>
       [form] = document.getElementsByClassName("search-followed-datasets");
       form.onkeydown = function(event) {
