@@ -341,14 +341,15 @@ defmodule TransportWeb.DatasetControllerTest do
       validator: Transport.Validators.GBFSValidator.validator_name(),
       result: result,
       digest: digest,
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{"versions" => nil, "ttl" => 60}}
     )
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
 
-    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+    assert content |> extract_resource_details() =~ "1 erreur"
+    assert content |> extract_resource_details() =~ "60s"
   end
 
   test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
