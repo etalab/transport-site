@@ -63,6 +63,7 @@ defmodule Transport.ValidatorsSelection.Impl do
 
   def validators(_), do: []
 
+  @impl Transport.ValidatorsSelection
   def validators_for_feature(feature)
       when feature in [
              :expiration_notification,

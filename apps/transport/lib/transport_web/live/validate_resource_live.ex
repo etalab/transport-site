@@ -33,6 +33,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   import TransportWeb.Router.Helpers
   import TransportWeb.DatasetView, only: [outdated_class: 1, empty_to_nil: 1]
 
+  @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
     <div :if={@show_upload}>
@@ -147,6 +148,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     """
   end
 
+  @impl Phoenix.LiveView
   def mount(_params, %{"locale" => locale}, socket) do
     {:ok,
      socket

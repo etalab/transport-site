@@ -343,6 +343,7 @@ defmodule TransportWeb.ResourceView do
 
   defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
     ~H"""
+
     """
   end
 

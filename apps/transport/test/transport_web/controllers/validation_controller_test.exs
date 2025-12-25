@@ -126,8 +126,8 @@ defmodule TransportWeb.ValidationControllerTest do
         |> get(
           live_path(conn, OnDemandValidationSelectLive,
             type: "gbfs",
-            selected_tile: "vehicles-sharing",
-            selected_subtile: "gbfs"
+            selected_subtile: "gbfs",
+            selected_tile: "vehicles-sharing"
           )
         )
         |> live()

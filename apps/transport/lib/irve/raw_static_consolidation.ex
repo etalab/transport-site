@@ -150,7 +150,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
       raise("the content is likely to be a zip file, not uncompressed CSV data")
     end
 
-    if (extension |> String.downcase()) not in ["", ".csv"] do
+    if String.downcase(extension) not in ["", ".csv"] do
       raise("the content is likely not a CSV file (extension is #{extension})")
     end
 

@@ -198,7 +198,7 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   - a resource hosted on datagouv is unavailable (ie it was deleted)
   - call the API now and see that a resource hosted on datagouv has been created recently
   """
-  def deleted_and_recreated_resource_hosted_on_datagouv(%DB.Dataset{} = dataset, [%DB.Resource{} | _]), do: false
+  def deleted_and_recreated_resource_hosted_on_datagouv(%DB.Dataset{}, [%DB.Resource{} | _]), do: false
 
   def deleted_and_recreated_resource_hosted_on_datagouv(%DB.Dataset{} = dataset, unavailabilities) do
     hosted_on_datagouv = Enum.any?(unavailabilities, &DB.Resource.hosted_on_datagouv?(&1.resource))
