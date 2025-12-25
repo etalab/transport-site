@@ -1,4 +1,4 @@
-FROM ghcr.io/etalab/transport-ops:elixir-1.18.4-erlang-27.3.4.1-ubuntu-noble-20250529-transport-tools-2.0.0
+FROM ghcr.io/transportdatagouvfr/ops:elixir-1.19.4-erlang-27.3.4.1-ubuntu-noble-20251013-transport-tools-2.0.0
 
 RUN apt-get install -y git inotify-tools postgresql-client>=11
 

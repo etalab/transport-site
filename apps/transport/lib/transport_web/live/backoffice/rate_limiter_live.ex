@@ -1,7 +1,6 @@
 defmodule TransportWeb.Backoffice.RateLimiterLive do
   use Phoenix.LiveView
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.Router.Helpers, only: [static_path: 2]
   import Helpers, only: [format_number: 1]
 
   @impl true

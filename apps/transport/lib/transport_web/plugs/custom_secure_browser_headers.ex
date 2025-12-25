@@ -67,7 +67,7 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
     end
   end
 
-  defp additional_content("frame-src", mix_env, app_env) do
+  defp additional_content("frame-src", mix_env, _app_env) do
     if mix_env == :dev do
       "'self'"
     else

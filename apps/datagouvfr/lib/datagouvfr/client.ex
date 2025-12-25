@@ -65,7 +65,7 @@ defmodule Datagouvfr.Client do
 
       @spec add_trailing_slash(map() | path) :: binary()
       defp add_trailing_slash(uri) when is_map(uri) do
-        %URI{uri | path: add_trailing_slash(uri.path)}
+        %{uri | path: add_trailing_slash(uri.path)}
         |> to_string
       end
 
