@@ -13,9 +13,6 @@ defmodule Transport.MixProject do
         plt_add_apps: [:mix],
         plt_local_path: "dialyzer-plt",
         plt_core_path: "dialyzer-plt"
-      ],
-      preferred_cli_env: [
-        check_all: :test
       ]
     ]
   end
@@ -52,6 +49,10 @@ defmodule Transport.MixProject do
         "test"
       ]
     ]
+  end
+
+  def cli do
+    [preferred_envs: [check_all: :test]]
   end
 
   defp aliases(:dev) do
