@@ -209,6 +209,10 @@ defmodule TransportWeb.EspaceProducteurController do
   instead of rendering again the form: it’s a suboptimal experience, can be improved.
   """
   @spec post_file(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def post_file(conn, %{"resource_file" => %{"filename" => filename, "path" => path}} = params) do
+    post_file(conn, Map.put(params, "resource_file", %Plug.Upload{filename: filename, path: path}))
+  end
+
   def post_file(conn, %{"dataset_datagouv_id" => dataset_datagouv_id} = params) do
     success_message =
       if Map.has_key?(params, "resource_file") do
@@ -227,7 +231,8 @@ defmodule TransportWeb.EspaceProducteurController do
       Appsignal.increment_counter("espace_producteur.post_file.success", 1)
 
       DB.FeatureUsage.insert!(:upload_file, conn.assigns.current_contact.id, %{
-        dataset_datagouv_id: dataset_datagouv_id
+        dataset_datagouv_id: dataset_datagouv_id,
+        format: params["format"]
       })
 
       conn
@@ -320,11 +325,14 @@ defmodule TransportWeb.EspaceProducteurController do
     with %DB.Dataset{datagouv_id: datagouv_id} = dataset <- find_dataset_for_user(conn, dataset_id),
          {:ok, datagouv_dataset} <- Datagouvfr.Client.Datasets.get(datagouv_id),
          datagouv_resource when not is_nil(datagouv_resource) <-
-           assign_resource_from_dataset_payload(datagouv_dataset, resource_datagouv_id) do
+           assign_datagouv_resource_from_dataset_payload(datagouv_dataset, resource_datagouv_id),
+         resource when not is_nil(datagouv_resource) <-
+           assign_resource_from_dataset_payload(dataset, resource_datagouv_id) do
       conn
       |> assign(:dataset, dataset)
       |> assign(:datagouv_dataset, datagouv_dataset)
       |> assign(:datagouv_resource, datagouv_resource)
+      |> assign(:resource, resource)
     else
       _ ->
         conn
@@ -347,8 +355,12 @@ defmodule TransportWeb.EspaceProducteurController do
     |> Enum.find(fn %DB.Dataset{id: id} -> id == dataset_id end)
   end
 
-  defp assign_resource_from_dataset_payload(dataset, resource_id) do
+  defp assign_datagouv_resource_from_dataset_payload(dataset, resource_id) do
     Enum.find(dataset["resources"], &(&1["id"] == resource_id))
+  end
+
+  defp assign_resource_from_dataset_payload(dataset, resource_id) do
+    Enum.find(dataset.resources, &(&1.datagouv_id == resource_id))
   end
 
   defp datagouv_api_update_params(params) do

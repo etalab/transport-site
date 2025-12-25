@@ -126,3 +126,9 @@
     </div>
   </div>
 </section>
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "producer_space"}
+  ) %>
+</section>

@@ -5,6 +5,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   import Plug.Test, only: [init_test_session: 2]
   import Mox
 
+  @gtfs_path "#{__DIR__}/../../fixture/files/gtfs.zip"
+
   setup :verify_on_exit!
 
   setup do
@@ -43,7 +45,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 2, fn ^dataset_datagouv_id ->
-        dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id)
       end)
 
       td_text = fn doc ->
@@ -57,7 +59,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find("h2") |> Floki.text() == custom_title
+      assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == custom_title <> "|Laissez-nous votre avis"
 
       assert td_text.(doc) == "Modifier la ressource Supprimer la ressource"
 
@@ -290,6 +292,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :proxy_statistics))
         |> html_response(200)
 
+      assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques du proxy Transport"])
+
       assert html =~ "Statistiques des requêtes gérées par le proxy"
       assert html =~ "<strong>\n2\n    </strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
       assert html =~ "<strong>\n1\n    </strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
@@ -448,7 +452,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   end
 
   describe "resource_actions" do
-    test "we can show the form of an existing resource", %{conn: conn} do
+    test "we can show the form of an existing remote resource", %{conn: conn} do
       conn = conn |> init_test_session(%{current_user: %{}})
       resource_datagouv_id = "resource_dataset_id"
 
@@ -460,7 +464,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
-        dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id)
       end)
 
       html =
@@ -471,10 +475,33 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       doc = html |> Floki.parse_document!()
       assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
       # Title
-      assert doc |> Floki.find("h2") |> Floki.text() == "Modification d’une ressource"
+      assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == "Modification d’une ressource|Laissez-nous votre avis"
       assert html =~ "bnlc.csv"
       assert html =~ "csv"
       assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+    end
+
+    test "edit a resource for a GTFS file", %{conn: conn} do
+      resource_datagouv_id = Ecto.UUID.generate()
+      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} = insert(:dataset)
+      insert(:resource, format: "GTFS", datagouv_id: resource_datagouv_id, dataset_id: dataset_id)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, 1, fn ^dataset_datagouv_id ->
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id, filetype: "file")
+      end)
+
+      html =
+        conn
+        |> init_test_session(%{current_user: %{}})
+        |> get(espace_producteur_path(conn, :edit_resource, dataset_id, resource_datagouv_id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      refute html |> Floki.find("form#upload-form") |> is_nil()
     end
 
     test "we can show the form for a new resource", %{conn: conn} do
@@ -497,7 +524,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert_breadcrumb_content(doc, ["Votre espace producteur", custom_title, "Nouvelle ressource"])
       # Title
-      assert doc |> Floki.find("h2") |> Floki.text() == "Ajouter une nouvelle ressource"
+      assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == "Ajouter une nouvelle ressource|Laissez-nous votre avis"
     end
 
     test "we can add a new resource with a URL", %{conn: conn} do
@@ -528,7 +555,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> post(
           espace_producteur_path(conn, :post_file, dataset_datagouv_id),
           %{
-            "dataset_id" => dataset_datagouv_id,
             "format" => "csv",
             "title" => "Test",
             "url" => "https://example.com/my_csv_resource.csv"
@@ -545,7 +571,56 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                  feature: :upload_file,
                  contact_id: ^contact_id,
                  metadata: %{
-                   "dataset_datagouv_id" => ^dataset_datagouv_id
+                   "dataset_datagouv_id" => ^dataset_datagouv_id,
+                   "format" => "csv"
+                 }
+               }
+             ] = DB.Repo.all(DB.FeatureUsage)
+    end
+
+    test "post_file with a file with hidden fields", %{conn: conn} do
+      %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
+      %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+
+      Datagouvfr.Client.Resources.Mock
+      |> expect(:update, fn %Plug.Conn{},
+                            %{
+                              "dataset_id" => ^dataset_datagouv_id,
+                              "format" => "GTFS",
+                              "title" => "Test",
+                              "resource_file" => %Plug.Upload{
+                                path: @gtfs_path,
+                                filename: "GTFS.zip"
+                              }
+                            } = _params ->
+        # We don’t really care about API answer, as it is discarded and not used (see controller code)
+        {:ok, %{}}
+      end)
+
+      mocks_for_import_data_etc(dataset_datagouv_id)
+
+      assert conn
+             |> post(
+               espace_producteur_path(conn, :post_file, dataset_datagouv_id),
+               %{
+                 "format" => "GTFS",
+                 "title" => "Test",
+                 "resource_file" => %{
+                   "filename" => "GTFS.zip",
+                   "path" => @gtfs_path
+                 }
+               }
+             )
+             |> redirected_to(302) == dataset_path(conn, :details, dataset_datagouv_id)
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :upload_file,
+                 contact_id: ^contact_id,
+                 metadata: %{
+                   "dataset_datagouv_id" => ^dataset_datagouv_id,
+                   "format" => "GTFS"
                  }
                }
              ] = DB.Repo.all(DB.FeatureUsage)
@@ -563,7 +638,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
-        dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id)
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id)
       end)
 
       html =
@@ -738,6 +813,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :download_statistics))
         |> html_response(200)
 
+      assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques de téléchargements"])
+
       assert html =~ "<h2>Statistiques de téléchargements</h2>"
 
       assert html |> Floki.parse_document!() |> Floki.find("table") == [
@@ -786,7 +863,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
   end
 
-  defp dataset_datagouv_get_response(dataset_datagouv_id, resource_datagouv_id \\ "resource_id_1") do
+  defp dataset_datagouv_get_response(dataset_datagouv_id, opts \\ []) do
     {:ok,
      datagouv_dataset_response(%{
        "id" => dataset_datagouv_id,
@@ -795,8 +872,9 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
          generate_resources_payload(
            title: "bnlc.csv",
            url: "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv",
-           id: resource_datagouv_id,
-           format: "csv"
+           id: Keyword.get(opts, :resource_id, "resource_id_1"),
+           format: "csv",
+           filetype: Keyword.get(opts, :filetype, "remote")
          )
      })}
   end

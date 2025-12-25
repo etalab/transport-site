@@ -346,3 +346,27 @@ msgstr "Vous trouverez ci-dessous les statistiques du proxy pour vos ressources.
 #, elixir-autogen, elixir-format
 msgid "Download download statistics"
 msgstr "Télécharger les statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr "Fichier : <strong>%{name}</strong>"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr "Fichier invalide"
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr "Pas d'erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr "Voir le rapport de validation"
+
+#, elixir-autogen, elixir-format
+msgid "Drop your GTFS file here or click to browse your local drive"
+msgstr "Glissez un fichier GTFS ici ou cliquez pour parcourir vos répertoires locaux"
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr "Essayer à nouveau"
