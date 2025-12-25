@@ -345,3 +345,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Download download statistics"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Drop your GTFS file here or click to browse your local drive"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr ""
