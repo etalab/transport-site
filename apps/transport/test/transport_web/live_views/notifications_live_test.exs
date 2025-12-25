@@ -526,6 +526,43 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     assert [^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
   end
 
+  describe "feedback form is displayed" do
+    test "for a reuser", %{conn: conn} do
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()
+      })
+
+      doc =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+        |> get(@reuser_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find("input#feedback_feature") |> Floki.attribute("value") == ["reuser_space"]
+    end
+
+    test "for a producer", %{conn: conn} do
+      insert_admin()
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()
+      })
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _ -> {:ok, %{"organizations" => []}} end)
+
+      doc =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
+        |> get(@producer_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find("input#feedback_feature") |> Floki.attribute("value") == ["producer_space"]
+    end
+  end
+
   defp insert_admin do
     insert_contact(%{
       organizations: [

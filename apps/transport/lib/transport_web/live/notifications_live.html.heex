@@ -2,6 +2,7 @@
 is_reuser = not is_producer
 colspan = if is_producer, do: 3, else: 2
 breadcrumb = if is_producer, do: :espace_producteur_notifications, else: :reuser_space_notifications
+feedback_feature = if is_producer, do: "producer_space", else: "reuser_space"
 display_error = is_producer and not is_nil(@error) %>
 <div class="pt-48">
   <div class="container pb-24">
@@ -150,4 +151,10 @@ display_error = is_producer and not is_nil(@error) %>
       </.form>
     </div>
   </div>
+</section>
+<section class="section section-white">
+  <%= live_render(@socket, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => feedback_feature}
+  ) %>
 </section>
