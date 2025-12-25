@@ -31,7 +31,6 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   use Phoenix.LiveView
   use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Router.Helpers
-  import TransportWeb.DatasetView, only: [outdated_class: 1, empty_to_nil: 1]
 
   @impl Phoenix.LiveView
   def render(assigns) do
@@ -110,18 +109,8 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     ~H"""
     <p class="notification success">
       <%= dgettext("espace-producteurs", "No errors") %>
-      <% start_date = @multi_validation |> DB.MultiValidation.get_metadata_info("start_date") |> empty_to_nil() %>
-      <% end_date = @multi_validation |> DB.MultiValidation.get_metadata_info("end_date") |> empty_to_nil() %>
-      <% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(@multi_validation) %>
-      <%= if start_date && end_date do %>
-        <div title={dgettext("page-dataset-details", "Validity period")}>
-          <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-          <span><%= start_date |> Shared.DateTimeDisplay.format_date(@locale) %></span>
-          <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-          <span class={outdated_class(gtfs_outdated?)}><%= end_date |> Shared.DateTimeDisplay.format_date(@locale) %></span>
-        </div>
-      <% end %>
     </p>
+    <TransportWeb.DatasetView.validity_dates multi_validation={@multi_validation} locale={@locale} />
     """
   end
 

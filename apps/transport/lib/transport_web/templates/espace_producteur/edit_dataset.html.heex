@@ -49,6 +49,13 @@
               <td>
                 <%= resource["title"] %> <span :if={db_resource} class="label"><%= db_resource.format %></span>
               </td>
+              <td data-name="validity-dates">
+                <TransportWeb.DatasetView.validity_dates
+                  :if={db_resource}
+                  multi_validation={@latest_validation[db_resource.id] |> hd()}
+                  locale={get_session(@conn, :locale)}
+                />
+              </td>
               <td class="align-right">
                 <a
                   href={espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"])}

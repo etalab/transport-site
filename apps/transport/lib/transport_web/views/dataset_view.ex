@@ -300,8 +300,41 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
-  def outdated_class(_), do: ""
+  @doc """
+  iex> outdated_class(~D[2025-12-28], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2026-01-15], ~D[2025-12-31])
+  ""
+  iex> outdated_class(~D[2025-12-01], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-25], ~D[2025-12-25])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-26], ~D[2025-12-25])
+  "resource__summary--Warning"
+  """
+  def outdated_class(%Date{} = end_date, reference_date \\ Date.utc_today()) do
+    case Date.diff(end_date, reference_date) do
+      diff when diff <= 0 -> "resource__summary--Error"
+      diff when diff <= 7 -> "resource__summary--Warning"
+      _ -> ""
+    end
+  end
+
+  def validity_dates(assigns) do
+    ~H"""
+    <% start_date = @multi_validation |> DB.MultiValidation.get_metadata_info("start_date") |> empty_to_nil() %>
+    <% end_date = @multi_validation |> DB.MultiValidation.get_metadata_info("end_date") |> empty_to_nil() %>
+    <%= if start_date && end_date do %>
+      <% end_date_date = end_date |> Date.from_iso8601!() %>
+      <div title={dgettext("page-dataset-details", "Validity period")}>
+        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+        <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
+        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+        <span class={outdated_class(end_date_date)}><%= Shared.DateTimeDisplay.format_date(end_date, @locale) %></span>
+      </div>
+    <% end %>
+    """
+  end
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
