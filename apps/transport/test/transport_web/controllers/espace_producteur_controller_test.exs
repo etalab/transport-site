@@ -10,6 +10,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -99,6 +100,45 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              |> Floki.parse_document!()
              |> Floki.find(~s{.producer-actions button[type="submit"]})
              |> Floki.text() =~ "Supprimer le logo personnalisé"
+    end
+
+    test "validity dates for a GTFS", %{conn: conn} do
+      %DB.Dataset{
+        id: dataset_id,
+        datagouv_id: datagouv_id,
+        organization_id: organization_id
+      } = dataset = insert(:dataset)
+
+      %{resource: %DB.Resource{} = resource} = insert_resource_and_friends(~D[2025-12-25], dataset: dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id ->
+        dataset_datagouv_get_response(datagouv_id, resource_id: resource.datagouv_id)
+      end)
+
+      content =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
+        |> html_response(200)
+
+      assert content
+             |> Floki.parse_document!()
+             |> Floki.find(~s|[data-name="validity-dates"|) == [
+               {"td", [{"data-name", "validity-dates"}],
+                [
+                  {"div", [{"title", "Période de validité"}],
+                   [
+                     {"i", [{"class", "icon icon--calendar-alt"}, {"aria-hidden", "true"}], []},
+                     {"span", [], ["26/10/2025"]},
+                     {"i", [{"class", "icon icon--right-arrow ml-05-em"}, {"aria-hidden", "true"}], []},
+                     {"span", [{"class", "resource__summary--Error"}], ["25/12/2025"]}
+                   ]}
+                ]}
+             ]
     end
   end
 

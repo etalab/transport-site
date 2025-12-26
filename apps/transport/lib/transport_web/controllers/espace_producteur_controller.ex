@@ -29,6 +29,13 @@ defmodule TransportWeb.EspaceProducteurController do
     # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
     conn
     |> assign(:dataset, dataset |> DB.Repo.preload(reuser_improved_data: [:resource]))
+    |> assign(
+      :latest_validation,
+      DB.MultiValidation.dataset_latest_validation(
+        dataset.id,
+        Transport.ValidatorsSelection.validators_for_feature(:espace_producteur_controller)
+      )
+    )
     |> render("edit_dataset.html")
   end
 

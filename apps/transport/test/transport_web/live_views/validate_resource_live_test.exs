@@ -73,7 +73,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
     |> Ecto.Changeset.change(%{
       oban_args: Map.put(multi_validation.oban_args, "state", "completed"),
       max_error: "Warning",
-      metadata: %DB.ResourceMetadata{metadata: %{"start_date" => "2025-12-01", "end_date" => "2025-12-31"}}
+      metadata: %DB.ResourceMetadata{metadata: %{"start_date" => "2025-01-01", "end_date" => "2025-01-31"}}
     })
     |> DB.Repo.update!()
 
@@ -85,22 +85,22 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
              {
                "p",
                [{"class", "notification success"}],
-               [
-                 "\n  Pas d'erreurs\n  \n  \n  \n  \n    ",
-                 _
-               ]
+               ["\n  Pas d'erreurs\n"]
              }
            ] = content |> Floki.find(".notification")
 
     # Validity period is displayed
     assert content |> Floki.find(~s|[title="Période de validité"]|) == [
-             {"div", [{"title", "Période de validité"}],
-              [
-                {"i", [{"class", "icon icon--calendar-alt"}, {"aria-hidden", "true"}], []},
-                {"span", [], ["01/12/2025"]},
-                {"i", [{"class", "icon icon--right-arrow ml-05-em"}, {"aria-hidden", "true"}], []},
-                {"span", [{"class", ""}], ["31/12/2025"]}
-              ]}
+             {
+               "div",
+               [{"title", "Période de validité"}],
+               [
+                 {"i", [{"class", "icon icon--calendar-alt"}, {"aria-hidden", "true"}], []},
+                 {"span", [], ["01/01/2025"]},
+                 {"i", [{"class", "icon icon--right-arrow ml-05-em"}, {"aria-hidden", "true"}], []},
+                 {"span", [{"class", "resource__summary--Error"}], ["31/01/2025"]}
+               ]
+             }
            ]
 
     # Link to see the validation report
