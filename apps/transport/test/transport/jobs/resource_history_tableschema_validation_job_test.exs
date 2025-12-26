@@ -24,12 +24,12 @@ defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJobTest do
         }
       })
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn ^schema_name, ^permanent_url, ^schema_version ->
       %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata_api_version" => validata_api_version}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validator_api_url, fn ^schema_name, ^permanent_url, ^schema_version ->
       fake_validator_url
     end)

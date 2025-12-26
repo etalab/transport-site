@@ -184,7 +184,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       validation = create_validation(%{"type" => "tableschema", "schema_name" => schema_name})
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn ^schema_name, url ->
         assert url == @url
         validation_result
@@ -202,7 +202,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "type" => "tableschema",
                  "schema_name" => ^schema_name
                },
-               data_vis: nil
+               data_vis: nil,
+               validator: "validata-api"
              } = reload(validation)
     end
 
