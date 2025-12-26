@@ -8,7 +8,6 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
   alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
-  alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Jobs.OnDemandNeTExPollerJob
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
@@ -16,6 +15,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   alias Transport.Validators.GTFSTransport
   alias Transport.Validators.MobilityDataGTFSValidator
   alias Transport.Validators.NeTEx.Validator, as: NeTEx
+  alias Transport.Validators.TableSchema.Wrapper, as: TableSchemaValidator
 
   @download_timeout_ms 10_000
 
@@ -96,15 +96,13 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
-    validator = "validata"
+    validator = Transport.Validators.TableSchema.validator_name()
 
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
         %{oban_args: Helpers.error("could not perform validation"), validator: validator}
         |> Helpers.terminal_state()
 
-      # https://github.com/etalab/transport-site/issues/2390
-      # validator name should come from validator module, when it is properly extracted
       validation ->
         %{
           oban_args: Helpers.completed(),

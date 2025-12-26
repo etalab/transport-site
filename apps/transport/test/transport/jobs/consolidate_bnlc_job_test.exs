@@ -163,17 +163,17 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       }
     ]
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^url ->
       %{"has_errors" => false}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^other_url ->
       %{"has_errors" => true}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^file_error_url ->
       nil
     end)
@@ -534,12 +534,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
         %{"has_errors" => false}
       end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => false}
       end)
@@ -638,10 +638,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url -> nil end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => false}
       end)
@@ -710,12 +710,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
         %{"has_errors" => false}
       end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => true}
       end)
