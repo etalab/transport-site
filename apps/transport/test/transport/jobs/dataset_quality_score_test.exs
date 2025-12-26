@@ -978,7 +978,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    "previous_score" => nil,
                    "today_score" => 1.0,
                    "resources" => [
-                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => nil}, "resource_id" => ^resource_id}
+                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => "NoError"}, "resource_id" => ^resource_id}
                    ]
                  }
                }

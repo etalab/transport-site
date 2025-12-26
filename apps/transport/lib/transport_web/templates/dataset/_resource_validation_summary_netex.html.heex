@@ -4,7 +4,7 @@
     <% results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(@validation.validator_version) %>
     <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <a href={link}>
-      <span class={summary_class(%{severity: String.capitalize(severity), count_errors: count})}>
+      <span class={summary_class(@validation)}>
         <%= if results_adapter.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>

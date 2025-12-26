@@ -242,6 +242,10 @@ defmodule TransportWeb.DatasetView do
   iex> summary_class(%{severity: "ERROR"})
   "resource__summary--Error"
   """
+  def summary_class(%{digest: %{"max_severity" => %{"max_level" => severity, "worst_occurrences" => count_errors}}}) do
+    summary_class(%{count_errors: count_errors, severity: severity})
+  end
+
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{String.capitalize(severity)}"
 
