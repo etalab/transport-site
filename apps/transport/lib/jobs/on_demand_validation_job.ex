@@ -46,6 +46,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
         %{
           result: validation,
+          digest: GTFSTransport.digest(validation),
           metadata: metadata,
           data_vis: DataVisualization.validation_data_vis(validation),
           validator: validator,
@@ -105,7 +106,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       # https://github.com/etalab/transport-site/issues/2390
       # validator name should come from validator module, when it is properly extracted
       validation ->
-        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        %{
+          oban_args: Helpers.completed(),
+          result: validation,
+          digest: Transport.Validators.TableSchema.digest(validation),
+          validator: validator
+        }
         |> Helpers.terminal_state()
     end
   end
@@ -131,7 +137,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         |> Helpers.terminal_state()
 
       validation ->
-        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        %{
+          oban_args: Helpers.completed(),
+          result: validation,
+          digest: Transport.Validators.EXJSONSchema.digest(validation),
+          validator: validator
+        }
         |> Helpers.terminal_state()
     end
   end
@@ -151,7 +162,11 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     remove_files([gtfs_path, gtfs_rt_path, gtfs_rt_result_path(gtfs_rt_path)])
 
     result
-    |> Map.merge(%{validated_data_name: gtfs_rt_url, secondary_validated_data_name: gtfs_url})
+    |> Map.merge(%{
+      validated_data_name: gtfs_rt_url,
+      secondary_validated_data_name: gtfs_url,
+      digest: GTFSRT.digest(Map.get(result, :result, %{}))
+    })
     |> Helpers.terminal_state()
   end
 
