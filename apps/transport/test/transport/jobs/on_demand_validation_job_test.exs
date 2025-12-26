@@ -239,7 +239,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "type" => "jsonschema",
                  "schema_name" => ^schema_name
                },
-               data_vis: nil
+               data_vis: nil,
+               validator: "EXJSONSchema"
              } = reload(validation)
     end
 
@@ -265,7 +266,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "type" => "jsonschema",
                  "schema_name" => ^schema_name
                },
-               data_vis: nil
+               data_vis: nil,
+               validator: "validator"
              } = reload(validation)
     end
 

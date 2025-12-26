@@ -119,9 +119,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
-    # https://github.com/etalab/transport-site/issues/2390
-    # validator name should come from validator module, when it is properly extracted
-    validator = "ExJsonSchema"
+    validator = Transport.Validators.JSONSchema.validator_name()
 
     case JSONSchemaValidator.validate(
            JSONSchemaValidator.load_jsonschema_for_schema(schema_name),
