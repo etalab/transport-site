@@ -102,18 +102,12 @@
   <% end %>
 
   <%= unless Resource.gtfs?(@resource) or Resource.netex?(@resource) do %>
-    <%= if multi_validation_performed?(validation) do %>
-      <% nb_warnings = warnings_count(validation) %>
-      <% nb_errors = errors_count(validation) %>
-      <%= render(TransportWeb.DatasetView, "_resource_validation_summary.html",
-        conn: @conn,
-        resource: @resource,
-        validation: validation,
-        nb_warnings: nb_warnings,
-        nb_errors: nb_errors,
-        locale: @locale
-      ) %>
-    <% end %>
+    <%= render(TransportWeb.DatasetView, "_resource_validation_summary.html",
+      conn: @conn,
+      resource: @resource,
+      validation: validation,
+      locale: @locale
+    ) %>
   <% end %>
 
   <div class="resource-panel-bottom">

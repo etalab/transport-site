@@ -102,7 +102,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              |> Floki.text() =~ "Supprimer le logo personnalisé"
     end
 
-    test "validity dates for a GTFS", %{conn: conn} do
+    test "validity dates and validity for a GTFS", %{conn: conn} do
       %DB.Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
@@ -119,15 +119,14 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         dataset_datagouv_get_response(datagouv_id, resource_id: resource.datagouv_id)
       end)
 
-      content =
+      doc =
         conn
         |> init_test_session(current_user: %{})
         |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
         |> html_response(200)
+        |> Floki.parse_document!()
 
-      assert content
-             |> Floki.parse_document!()
-             |> Floki.find(~s|[data-name="validity-dates"|) == [
+      assert doc |> Floki.find(~s|[data-name="validity-dates"|) == [
                {"td", [{"data-name", "validity-dates"}],
                 [
                   {"div", [{"title", "Période de validité"}],
@@ -136,6 +135,70 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                      {"span", [], ["26/10/2025"]},
                      {"i", [{"class", "icon icon--right-arrow ml-05-em"}, {"aria-hidden", "true"}], []},
                      {"span", [{"class", "resource__summary--Error"}], ["25/12/2025"]}
+                   ]}
+                ]}
+             ]
+
+      assert doc |> Floki.find(~s|[data-name="validity"|) == [
+               {"td", [{"data-name", "validity"}, {"class", "no-underline"}],
+                [
+                  {"div", [{"class", "pb-24"}],
+                   [
+                     {"a", [{"href", resource_path(conn, :details, resource.id) <> "#validation-report"}],
+                      [{"span", [{"class", "resource__summary--Success"}], ["\n\nPas d'erreur\n\n      "]}]},
+                     {"span", [], ["lors de la validation"]}
+                   ]}
+                ]}
+             ]
+    end
+
+    test "validity for a TableSchema", %{conn: conn} do
+      %DB.Dataset{
+        id: dataset_id,
+        datagouv_id: datagouv_id,
+        organization_id: organization_id
+      } = dataset = insert(:dataset)
+
+      resource = insert(:resource, dataset: dataset)
+
+      schema_name = "etalab/foo"
+
+      result = %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]}
+
+      insert(:multi_validation,
+        resource_history: insert(:resource_history, resource_id: resource.id, payload: %{"schema_name" => schema_name}),
+        validator: Transport.Validators.TableSchema.validator_name(),
+        result: result,
+        digest: Transport.Validators.TableSchema.digest(result)
+      )
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id ->
+        dataset_datagouv_get_response(datagouv_id, resource_id: resource.datagouv_id)
+      end)
+
+      doc =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find(~s|[data-name="validity-dates"|) == [{"td", [{"data-name", "validity-dates"}], []}]
+
+      assert doc |> Floki.find(~s|[data-name="validity"|) == [
+               {"td", [{"data-name", "validity"}, {"class", "no-underline"}],
+                [
+                  {"div", [{"class", "pb-24"}],
+                   [
+                     {"a",
+                      [
+                        {"href", resource_path(conn, :details, resource.id) <> "#validation-report"}
+                      ], [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n1 erreur\n\n        "]}]},
+                     {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
              ]
