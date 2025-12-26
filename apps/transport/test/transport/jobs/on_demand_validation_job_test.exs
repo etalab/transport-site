@@ -47,6 +47,12 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert %{
                validation_timestamp: date,
                result: %{},
+               digest: %{
+                 "issues" => [],
+                 "max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0},
+                 "stats" => %{},
+                 "summary" => []
+               },
                oban_args: %{"state" => "completed", "type" => "gtfs"},
                metadata: %{metadata: %{"modes" => ["bus"]}},
                data_vis: %{}
@@ -190,6 +196,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: ^validation_result,
+               digest: %{"errors_count" => 0},
                oban_args: %{
                  "state" => "completed",
                  "type" => "tableschema",
@@ -225,6 +232,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: ^validation_result,
+               digest: %{"errors_count" => 0},
                oban_args: %{
                  "state" => "completed",
                  "type" => "jsonschema",
@@ -250,6 +258,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: nil,
+               digest: nil,
                oban_args: %{
                  "state" => "error",
                  "type" => "jsonschema",
@@ -302,6 +311,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: ^expected_details,
+               digest: %{"errors_count" => 4, "warnings_count" => 26},
                oban_args: %{
                  "state" => "completed",
                  "type" => "gtfs-rt",
@@ -337,6 +347,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: nil,
+               digest: %{},
                oban_args: %{
                  "state" => "error",
                  "error_reason" => ^expected_error_reason,
@@ -393,6 +404,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: nil,
+               digest: %{},
                oban_args: %{
                  "state" => "error",
                  "error_reason" => ~s("validator error"),
@@ -470,6 +482,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert %{
                result: ^expected_details,
+               digest: %{"warnings_count" => 26, "errors_count" => 4},
                oban_args: %{
                  "state" => "completed",
                  "type" => "gtfs-rt",
@@ -521,6 +534,14 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
       assert %{
                validation_timestamp: date,
                result: result,
+               digest: %{
+                 "max_severity" => %{"max_level" => "error", "worst_occurrences" => 3},
+                 "stats" => %{"error" => 3, "warning" => 1},
+                 "summary" => [
+                   %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}}
+                 ]
+               },
                max_error: "error",
                oban_args: %{"state" => "completed", "type" => "netex"},
                metadata: %{},
@@ -548,6 +569,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       validation = reload(validation)
       assert nil == validation.result
+      assert nil == validation.digest
       assert nil == validation.max_error
 
       assert %{
