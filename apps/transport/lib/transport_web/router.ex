@@ -110,7 +110,7 @@ defmodule TransportWeb.Router do
 
     scope "/espace_producteur" do
       pipe_through([:producer_space])
-      get("/", PageController, :espace_producteur)
+      get("/", EspaceProducteurController, :espace_producteur)
       get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
       get("/download_statistics", EspaceProducteurController, :download_statistics)
       get("/proxy_statistics_csv", EspaceProducteurController, :proxy_statistics_csv)

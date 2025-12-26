@@ -4,7 +4,7 @@
       <div class="home-title">
         <h1><%= dgettext("page-index", "title") %></h1>
         <h2><%= dgettext("page-index", "subtitle") %></h2>
-        <a href={page_path(@conn, :espace_producteur, utm_campaign: "home_button")} class="button">
+        <a href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "home_button")} class="button">
           <%= dgettext("page-index", "Producer space") %>
         </a>
         <a
