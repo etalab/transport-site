@@ -1,6 +1,5 @@
 defmodule TransportWeb.EspaceProducteurView do
   use TransportWeb, :view
-  use Phoenix.Component
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   @spec action_path(Plug.Conn.t()) :: any
