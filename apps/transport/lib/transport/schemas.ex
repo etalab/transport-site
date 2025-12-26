@@ -1,4 +1,4 @@
-defmodule Transport.Shared.Schemas.Wrapper do
+defmodule Transport.Schemas.Wrapper do
   @moduledoc """
   This behaviour defines the API for schemas
   """
@@ -45,13 +45,12 @@ defmodule Transport.Shared.Schemas.Wrapper do
   end
 end
 
-defmodule Transport.Shared.Schemas do
+defmodule Transport.Schemas do
   @moduledoc """
   Load transport schemas listed on https://schema.data.gouv.fr
   """
-  import Shared.Application, only: [cache_name: 0]
-  alias Transport.Shared.Schemas.Wrapper
-  @behaviour Transport.Shared.Schemas.Wrapper
+  alias Transport.Schemas.Wrapper
+  @behaviour Transport.Schemas.Wrapper
 
   @schemas_catalog_url "https://schema.data.gouv.fr/schemas.json"
 
@@ -125,4 +124,5 @@ defmodule Transport.Shared.Schemas do
   end
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+  defp cache_name, do: Transport.Application.cache_name()
 end

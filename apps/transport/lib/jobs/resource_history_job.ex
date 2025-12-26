@@ -63,7 +63,7 @@ defmodule Transport.Jobs.ResourceHistoryJob do
   use Oban.Worker, unique: [period: {5, :hours}, fields: [:args, :queue, :worker]], tags: ["history"], max_attempts: 5
   require Logger
   import Ecto.Query
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias Transport.Schemas.Wrapper, as: Schemas
   import Transport.Jobs.Workflow.Notifier, only: [notify_workflow: 2]
 
   @headers_to_keep [

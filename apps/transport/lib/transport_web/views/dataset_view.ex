@@ -510,7 +510,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def documentation_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
-    Transport.Shared.Schemas.documentation_url(schema_name, schema_version)
+    Transport.Schemas.documentation_url(schema_name, schema_version)
   end
 
   def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do

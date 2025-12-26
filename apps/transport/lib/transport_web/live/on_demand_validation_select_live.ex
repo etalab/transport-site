@@ -44,7 +44,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
             title: dgettext("validations", "Road mobility and bike"),
             subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
             sub_tiles:
-              Transport.Shared.Schemas.Wrapper.transport_schemas()
+              Transport.Schemas.Wrapper.transport_schemas()
               |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
               |> Enum.sort_by(&elem(&1, 0))
           }}

@@ -20,7 +20,7 @@ defmodule Transport.Validators.TableSchema do
   Validate a file against a Table Schema schema using [the Validata API](https://validata.fr).
   """
   alias Transport.Validators.TableSchema.Wrapper, as: TableSchemaValidator
-  import Transport.Shared.Schemas
+  import Transport.Schemas
   @validator_version_key_name "validata_api_version"
   @validator_key_name "validator"
 

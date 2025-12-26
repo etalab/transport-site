@@ -272,7 +272,7 @@ defmodule TransportWeb.ValidationController do
 
   defp schema_type(schema_name), do: transport_schemas()[schema_name]["schema_type"]
 
-  defp transport_schemas, do: Transport.Shared.Schemas.Wrapper.transport_schemas()
+  defp transport_schemas, do: Transport.Schemas.Wrapper.transport_schemas()
 
   defp not_found(%Plug.Conn{} = conn) do
     conn

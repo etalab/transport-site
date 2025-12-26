@@ -50,10 +50,10 @@ defmodule Script do
         Transport.Validators.ValidataJson.digest(mv.result)
 
       "EXJSONSchema" ->
-        Transport.Validators.EXJSONSchema.digest(mv.result)
+        Transport.Validators.JSONSchema.digest(mv.result)
 
       "ExJsonSchema" ->
-        Transport.Validators.EXJSONSchema.digest(mv.result)
+        Transport.Validators.JSONSchema.digest(mv.result)
 
       "MobilityData GTFS Validator" ->
         Transport.Validators.MobilityDataGTFSValidator.digest(mv.result)
