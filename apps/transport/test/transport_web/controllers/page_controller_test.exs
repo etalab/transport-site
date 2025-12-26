@@ -65,112 +65,6 @@ defmodule TransportWeb.PageControllerTest do
     assert html =~ "Nous contacter"
   end
 
-  describe "GET /espace_producteur" do
-    test "requires authentication", %{conn: conn} do
-      conn = conn |> get(page_path(conn, :espace_producteur))
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
-      assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
-    end
-
-    test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id} =
-        dataset = insert(:dataset, custom_title: custom_title = "Foobar")
-
-      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
-      assert DB.Resource.hosted_on_datagouv?(resource)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-      last_year = Date.utc_today().year - 1
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-12",
-        metric_name: :downloads,
-        count: 120_250
-      )
-
-      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-
-      conn =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-
-      # `is_producer` attribute has been set for the current user
-      assert %{"is_producer" => true} = conn |> get_session(:current_user)
-
-      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
-      assert Floki.find(doc, ".message--error") == []
-
-      assert doc |> Floki.find("h3.dataset__title") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
-               custom_title
-             ]
-    end
-
-    test "action items", %{conn: conn} do
-      menu_items = fn %Plug.Conn{} = conn ->
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-        |> html_response(200)
-        |> Floki.parse_document!()
-        |> Floki.find(".publish-header h4")
-      end
-
-      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, 3, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-      assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]}
-             ]
-
-      # Should show download stats
-      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
-      assert DB.Resource.hosted_on_datagouv?(resource)
-
-      assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]}
-             ]
-
-      # Should show proxy stats
-      resource = insert(:resource, url: "https://proxy.transport.data.gouv.fr/url", dataset: dataset)
-      assert DB.Resource.served_by_proxy?(resource)
-
-      assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Vos statistiques proxy"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]}
-             ]
-    end
-
-    test "with an OAuth2 error", %{conn: conn} do
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
-
-      conn =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-
-      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
-      assert doc |> Floki.find(".dataset-item") |> length == 0
-
-      assert doc |> Floki.find(".message--error") |> Floki.text() ==
-               "Une erreur a eu lieu lors de la récupération de vos ressources"
-    end
-  end
-
   describe "infos_producteurs" do
     test "for logged-out users", %{conn: conn} do
       conn = conn |> get(page_path(conn, :infos_producteurs))
@@ -301,7 +195,7 @@ defmodule TransportWeb.PageControllerTest do
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
     contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-    espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
+    espace_producteur_path = espace_producteur_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
       conn

@@ -94,7 +94,7 @@
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
                     <%= link(gettext("Producer space"),
-                      to: page_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
+                      to: espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
                     ) %>
                   <% end %>
                   <%= link(gettext("Reuser space"),

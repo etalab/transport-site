@@ -14,6 +14,112 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  describe "GET /espace_producteur" do
+    test "requires authentication", %{conn: conn} do
+      conn = conn |> get(espace_producteur_path(conn, :espace_producteur))
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
+      assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
+    end
+
+    test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
+      %DB.Dataset{organization_id: organization_id} =
+        dataset = insert(:dataset, custom_title: custom_title = "Foobar")
+
+      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
+      assert DB.Resource.hosted_on_datagouv?(resource)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      last_year = Date.utc_today().year - 1
+
+      insert(:dataset_monthly_metric,
+        dataset_datagouv_id: dataset.datagouv_id,
+        year_month: "#{last_year}-12",
+        metric_name: :downloads,
+        count: 120_250
+      )
+
+      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.EspaceProducteurView.show_downloads_stats?()
+
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :espace_producteur))
+
+      # `is_producer` attribute has been set for the current user
+      assert %{"is_producer" => true} = conn |> get_session(:current_user)
+
+      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
+      assert Floki.find(doc, ".message--error") == []
+
+      assert doc |> Floki.find("h3.dataset__title") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
+               custom_title
+             ]
+    end
+
+    test "action items", %{conn: conn} do
+      menu_items = fn %Plug.Conn{} = conn ->
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :espace_producteur))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find(".publish-header h4")
+      end
+
+      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, 3, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]}
+             ]
+
+      # Should show download stats
+      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
+      assert DB.Resource.hosted_on_datagouv?(resource)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]},
+               {"h4", [], ["Vos statistiques de téléchargements"]}
+             ]
+
+      # Should show proxy stats
+      resource = insert(:resource, url: "https://proxy.transport.data.gouv.fr/url", dataset: dataset)
+      assert DB.Resource.served_by_proxy?(resource)
+
+      assert menu_items.(conn) == [
+               {"h4", [], ["Tester vos jeux de données"]},
+               {"h4", [], ["Publier un jeu de données"]},
+               {"h4", [], ["Recevoir des notifications"]},
+               {"h4", [], ["Vos statistiques proxy"]},
+               {"h4", [], ["Vos statistiques de téléchargements"]}
+             ]
+    end
+
+    test "with an OAuth2 error", %{conn: conn} do
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
+
+      conn =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :espace_producteur))
+
+      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
+      assert doc |> Floki.find(".dataset-item") |> length == 0
+
+      assert doc |> Floki.find(".message--error") |> Floki.text() ==
+               "Une erreur a eu lieu lors de la récupération de vos ressources"
+    end
+  end
+
   describe "edit_dataset" do
     test "requires authentication", %{conn: conn} do
       conn |> get(espace_producteur_path(conn, :edit_dataset, 42)) |> assert_redirects_to_info_page()
@@ -30,7 +136,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(current_user: %{})
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
     end
@@ -223,7 +329,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(current_user: %{})
         |> post(espace_producteur_path(conn, :upload_logo, dataset.id), %{"upload" => %{"file" => %Plug.Upload{}}})
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
     end
@@ -265,7 +371,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                }
              ] = all_enqueued()
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert [
                %DB.FeatureUsage{
@@ -298,7 +404,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(current_user: %{})
         |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
     end
@@ -326,7 +432,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(current_user: %{})
         |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Votre logo personnalisé a été supprimé."
 
@@ -350,7 +456,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(%{current_user: %{}})
         |> get(espace_producteur_path(conn, :proxy_statistics))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Une erreur a eu lieu lors de la récupération de vos ressources"
@@ -416,7 +522,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(%{current_user: %{}})
         |> get(espace_producteur_path(conn, :download_statistics_csv))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Une erreur a eu lieu lors de la récupération de vos ressources"
@@ -487,7 +593,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(%{current_user: %{}})
         |> get(espace_producteur_path(conn, :proxy_statistics_csv))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Une erreur a eu lieu lors de la récupération de vos ressources"
@@ -777,7 +883,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> delete(espace_producteur_path(conn, :delete_resource, dataset_datagouv_id, resource_datagouv_id))
         |> redirected_to
 
-      assert location == page_path(conn, :espace_producteur)
+      assert location == espace_producteur_path(conn, :espace_producteur)
       # No need to really check content of dataset and resources in database,
       # because the response of Datagouv.Client.Resources.update is discarded.
       # We would just check that import_data works correctly, while this is already tested elsewhere.
@@ -809,7 +915,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(current_user: %{})
         |> get(espace_producteur_path(conn, :reuser_improved_data, 42, 1337))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Impossible de récupérer ce jeu de données pour le moment"
     end
@@ -881,7 +987,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> init_test_session(%{current_user: %{}})
         |> get(espace_producteur_path(conn, :download_statistics))
 
-      assert redirected_to(conn, 302) == page_path(conn, :espace_producteur)
+      assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Une erreur a eu lieu lors de la récupération de vos ressources"
@@ -980,6 +1086,24 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
            filetype: Keyword.get(opts, :filetype, "remote")
          )
      })}
+  end
+
+  test "show_downloads_stats?" do
+    dataset = insert(:dataset)
+    refute dataset |> DB.Repo.preload(:resources) |> TransportWeb.EspaceProducteurView.show_downloads_stats?()
+
+    resource = insert(:resource, dataset: dataset)
+    refute DB.Resource.hosted_on_datagouv?(resource)
+    refute dataset |> DB.Repo.preload(:resources) |> TransportWeb.EspaceProducteurView.show_downloads_stats?()
+
+    resource = insert(:resource, dataset: dataset, url: "https://static.data.gouv.fr/file.csv")
+    assert DB.Resource.hosted_on_datagouv?(resource)
+    assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.EspaceProducteurView.show_downloads_stats?()
+
+    # Works with list
+    dataset = dataset |> DB.Repo.preload(:resources)
+    other_dataset = insert(:dataset) |> DB.Repo.preload(:resources)
+    assert [dataset, other_dataset] |> TransportWeb.EspaceProducteurView.show_downloads_stats?()
   end
 
   defp mocks_for_import_data_etc(dataset_datagouv_id) do

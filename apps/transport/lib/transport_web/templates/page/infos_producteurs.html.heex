@@ -9,7 +9,10 @@
       <%= if assigns[:current_user] do %>
         <div class="panel-producteurs signed-in">
           <h2><%= dgettext("page-producteurs", "Welcome!") %></h2>
-          <a class="button" href={page_path(@conn, :espace_producteur, utm_campaign: "producer_infos_page")}>
+          <a
+            class="button"
+            href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "producer_infos_page")}
+          >
             <%= dgettext("page-producteurs", "Access your producer section") %>
           </a>
           <div class="pt-24">
@@ -28,7 +31,10 @@
               "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
             ) %>
           </div>
-          <a class="button" href={page_path(@conn, :login, redirect_path: page_path(@conn, :espace_producteur))}>
+          <a
+            class="button"
+            href={page_path(@conn, :login, redirect_path: espace_producteur_path(@conn, :espace_producteur))}
+          >
             <%= dgettext("page-dataset-details", "Log in") %>
           </a>
         </div>

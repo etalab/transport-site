@@ -138,7 +138,7 @@ defmodule TransportWeb.PageController do
             page_url(conn, :robots_txt),
             page_url(conn, :security_txt),
             page_url(conn, :humans_txt),
-            page_url(conn, :espace_producteur),
+            espace_producteur_url(conn, :espace_producteur),
             reuser_space_url(conn, :espace_reutilisateur),
             reuse_url(conn, :index),
             stats_url(conn, :index),
@@ -206,23 +206,6 @@ defmodule TransportWeb.PageController do
     |> List.flatten()
     |> Enum.reject(&is_nil/1)
     |> Enum.join("\n")
-  end
-
-  def espace_producteur(%Plug.Conn{} = conn, _params) do
-    {conn, datasets} =
-      case DB.Dataset.datasets_for_user(conn) do
-        datasets when is_list(datasets) ->
-          {conn, datasets}
-
-        {:error, _} ->
-          conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-          {conn, []}
-      end
-
-    conn
-    |> assign(:datasets, datasets)
-    |> TransportWeb.Session.set_is_producer(datasets)
-    |> render("espace_producteur.html")
   end
 
   defp aoms_with_dataset do
