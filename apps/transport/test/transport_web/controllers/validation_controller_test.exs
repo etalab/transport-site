@@ -21,12 +21,12 @@ defmodule TransportWeb.ValidationControllerTest do
 
   describe "GET /validation " do
     test "renders form", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
       conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> html_response(200)
     end
 
     test "updates inputs", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
       {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
 
       # Select "vehicles sharing" > "GBFS"
@@ -119,7 +119,7 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "takes into account query params", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
 
       {:ok, view, _html} =
         conn
@@ -167,7 +167,7 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with a GTFS", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
       S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
       assert 0 == count_validations()
 
@@ -237,7 +237,7 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with a GTFS-Flex", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
       S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
       assert 0 == count_validations()
 
@@ -424,7 +424,7 @@ defmodule TransportWeb.ValidationControllerTest do
     test "with a schema", %{conn: conn} do
       schema_name = "etalab/foo"
 
-      Transport.Shared.Schemas.Mock
+      Transport.Schemas.Mock
       |> expect(:transport_schemas, 3, fn -> %{schema_name => %{"schema_type" => "tableschema", "title" => "foo"}} end)
 
       S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
@@ -550,7 +550,7 @@ defmodule TransportWeb.ValidationControllerTest do
     end
 
     test "with an invalid type", %{conn: conn} do
-      Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+      Transport.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
 
       conn
       |> post(validation_path(conn, :validate), %{
@@ -661,7 +661,7 @@ defmodule TransportWeb.ValidationControllerTest do
     test "with a validation result", %{conn: conn} do
       schema_name = "etalab/foo"
 
-      Transport.Shared.Schemas.Mock
+      Transport.Schemas.Mock
       |> expect(:transport_schemas, 1, fn ->
         %{
           schema_name => %{
@@ -759,7 +759,7 @@ defmodule TransportWeb.ValidationControllerTest do
   end
 
   defp setup_netex_validation(conn) do
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
     S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")
     assert 0 == count_validations()
 

@@ -179,7 +179,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     %{
       Transport.Validators.GTFSTransport => {7, :day},
       Transport.Validators.TableSchema => {7, :day},
-      Transport.Validators.EXJSONSchema => {7, :day},
+      Transport.Validators.JSONSchema => {7, :day},
       Transport.Validators.MobilityDataGTFSValidator => {7, :day},
       Transport.Validators.GBFSValidator => {30, :day}
     }

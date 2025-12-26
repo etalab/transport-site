@@ -620,12 +620,12 @@ defmodule TransportWeb.DatasetControllerTest do
         url: "https://example.com/file"
       )
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, resource_id: resource_id),
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      validator: Transport.Validators.JSONSchema.validator_name(),
       result: %{"validation_performed" => false}
     })
 

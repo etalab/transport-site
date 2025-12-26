@@ -100,7 +100,7 @@ defmodule TransportWeb.FeedbackLiveTest do
   end
 
   test "Is correctly included in the validation Liveview", %{conn: conn} do
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, 2, fn -> %{} end)
     {:ok, _view, html} = conn |> live(live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive))
     assert html =~ "<h2>Laissez-nous votre avis</h2>"
   end

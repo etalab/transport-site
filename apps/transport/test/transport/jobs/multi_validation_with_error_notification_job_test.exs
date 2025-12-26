@@ -30,7 +30,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       %DB.MultiValidation{id: mv_id} =
         insert(:multi_validation, %{
           resource_history: rh_geojson_resource,
-          validator: Transport.Validators.EXJSONSchema.validator_name(),
+          validator: Transport.Validators.JSONSchema.validator_name(),
           result: %{"has_errors" => true},
           inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
         })
@@ -102,13 +102,13 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     insert(:multi_validation, %{
       resource_history: rh_resource_1,
-      validator: jsonschema_validator_name = Transport.Validators.EXJSONSchema.validator_name(),
+      validator: jsonschema_validator_name = Transport.Validators.JSONSchema.validator_name(),
       result: %{"has_errors" => true}
     })
 
     insert(:multi_validation, %{
       resource_history: rh_resource_2,
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      validator: Transport.Validators.JSONSchema.validator_name(),
       result: %{"has_errors" => true}
     })
 
@@ -362,7 +362,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, resource: geojson),
-      validator: geojson_validator_name = Transport.Validators.EXJSONSchema.validator_name(),
+      validator: geojson_validator_name = Transport.Validators.JSONSchema.validator_name(),
       result: %{"has_errors" => true}
     })
 

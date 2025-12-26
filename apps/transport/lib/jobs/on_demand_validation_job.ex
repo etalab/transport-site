@@ -7,12 +7,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   """
   use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
-  alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Jobs.OnDemandNeTExPollerJob
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.JSONSchema.Wrapper, as: JSONSchemaValidator
   alias Transport.Validators.MobilityDataGTFSValidator
   alias Transport.Validators.NeTEx.Validator, as: NeTEx
   alias Transport.Validators.TableSchema.Wrapper, as: TableSchemaValidator
@@ -138,7 +138,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         %{
           oban_args: Helpers.completed(),
           result: validation,
-          digest: Transport.Validators.EXJSONSchema.digest(validation),
+          digest: Transport.Validators.JSONSchema.digest(validation),
           validator: validator
         }
         |> Helpers.terminal_state()

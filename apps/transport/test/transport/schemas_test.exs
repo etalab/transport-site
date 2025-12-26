@@ -1,12 +1,17 @@
-defmodule Transport.Shared.SchemasTest do
-  use Shared.CacheCase
-  import Transport.Shared.Schemas
+defmodule Transport.SchemasTest do
+  use ExUnit.Case, async: false
+  import Transport.Schemas
+  import Mox
+
+  setup :verify_on_exit!
 
   @base_url "https://schema.data.gouv.fr"
 
   setup do
     setup_schemas_response()
-    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
+    Cachex.clear(Transport.Application.cache_name())
+    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
+    Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
     :ok
   end
 
@@ -72,7 +77,13 @@ defmodule Transport.Shared.SchemasTest do
 
     Transport.HTTPoison.Mock
     |> expect(:get!, fn ^url ->
-      %HTTPoison.Response{body: File.read!("#{__DIR__}/fixtures/schemas.json"), status_code: 200}
+      %HTTPoison.Response{body: File.read!("#{__DIR__}/../fixture/schemas/schemas.json"), status_code: 200}
     end)
+  end
+
+  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
+    assert_in_delta Cachex.ttl!(Transport.Application.cache_name(), cache_key),
+                    :timer.seconds(expected_ttl),
+                    :timer.seconds(1)
   end
 end

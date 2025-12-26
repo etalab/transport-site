@@ -16,7 +16,7 @@ defmodule Transport.ValidatorsSelection.Impl do
   Lists which validators should run for a `DB.Resource` or `DB.ResourceHistory`
   """
   @behaviour Transport.ValidatorsSelection
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias Transport.Schemas.Wrapper, as: Schemas
   alias Transport.Validators
 
   @doc """
@@ -54,7 +54,7 @@ defmodule Transport.ValidatorsSelection.Impl do
         [Transport.Validators.TableSchema]
 
       Schemas.jsonschema?(schema_name) ->
-        [Transport.Validators.EXJSONSchema]
+        [Transport.Validators.JSONSchema]
 
       true ->
         []
@@ -84,7 +84,7 @@ defmodule Transport.ValidatorsSelection.Impl do
     do: [
       Transport.Validators.GTFSTransport,
       Transport.Validators.TableSchema,
-      Transport.Validators.EXJSONSchema,
+      Transport.Validators.JSONSchema,
       Transport.Validators.MobilityDataGTFSValidator
     ]
 
@@ -101,7 +101,7 @@ defmodule Transport.ValidatorsSelection.Impl do
         Transport.Validators.GTFSTransport,
         Transport.Validators.GTFSRT,
         Transport.Validators.TableSchema,
-        Transport.Validators.EXJSONSchema,
+        Transport.Validators.JSONSchema,
         Transport.Validators.GBFSValidator,
         Transport.Validators.NeTEx.Validator,
         Transport.Validators.MobilityDataGTFSValidator

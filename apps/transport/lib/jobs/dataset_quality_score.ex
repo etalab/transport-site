@@ -201,7 +201,7 @@ defmodule Transport.Jobs.DatasetComplianceScore do
 
   @validators_with_has_errors [
     Transport.Validators.TableSchema,
-    Transport.Validators.EXJSONSchema,
+    Transport.Validators.JSONSchema,
     Transport.Validators.GBFSValidator
   ]
   @gtfs_validator Transport.Validators.GTFSTransport

@@ -213,7 +213,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       validation = create_validation(%{"type" => "jsonschema", "schema_name" => schema_name})
 
-      Shared.Validation.JSONSchemaValidator.Mock
+      Transport.Validators.JSONSchema.Mock
       |> expect(:load_jsonschema_for_schema, fn ^schema_name ->
         %ExJsonSchema.Schema.Root{
           schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
@@ -221,7 +221,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
         }
       end)
 
-      Shared.Validation.JSONSchemaValidator.Mock
+      Transport.Validators.JSONSchema.Mock
       |> expect(:validate, fn _schema, url ->
         assert url == @url
         validation_result
@@ -248,7 +248,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       validation = create_validation(%{"type" => "jsonschema", "schema_name" => schema_name})
 
-      Shared.Validation.JSONSchemaValidator.Mock
+      Transport.Validators.JSONSchema.Mock
       |> expect(:load_jsonschema_for_schema, fn ^schema_name ->
         raise "not a valid schema"
       end)

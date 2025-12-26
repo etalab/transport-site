@@ -116,7 +116,7 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /validation ", %{conn: conn} do
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
     title = conn |> get(~p"/validation") |> html_response(200) |> title
     assert title =~ "Évaluation de la qualité d’un fichier ou d’un flux"
   end

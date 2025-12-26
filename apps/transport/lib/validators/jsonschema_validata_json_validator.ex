@@ -18,7 +18,7 @@ defmodule Transport.Validators.ValidataJson do
       })
       when is_binary(schema_name) do
     schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
-    schema_url = Transport.Shared.Schemas.schema_url(schema_name, schema_version)
+    schema_url = Transport.Schemas.schema_url(schema_name, schema_version)
 
     {:ok, validation} = perform_validation(schema_url, url)
 

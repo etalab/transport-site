@@ -1,8 +1,8 @@
 defmodule Transport.Validators.TableSchemaTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   import DB.Factory
   import Mox
-  import Transport.Shared.Schemas, only: [schema_url: 2]
+  import Transport.Schemas, only: [schema_url: 2]
   import Transport.Validators.TableSchema
   alias Transport.Validators.TableSchema
 
@@ -12,9 +12,9 @@ defmodule Transport.Validators.TableSchemaTest do
   doctest Transport.Validators.TableSchema, import: true
 
   setup do
-    Mox.stub_with(Transport.Shared.Schemas.Mock, Transport.Shared.Schemas)
-    Cachex.clear(Shared.Application.cache_name())
-    on_exit(fn -> Cachex.clear(Shared.Application.cache_name()) end)
+    Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
+    Cachex.clear(Transport.Application.cache_name())
+    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

@@ -78,7 +78,7 @@ defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJobTest do
     # does not need validation: schema is not a Table Schema
     _rh4 = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate()}})
 
-    Transport.Shared.Schemas.Mock |> expect(:schemas_by_type, fn "tableschema" -> %{schema_name => %{}} end)
+    Transport.Schemas.Mock |> expect(:schemas_by_type, fn "tableschema" -> %{schema_name => %{}} end)
 
     assert :ok == perform_job(ResourceHistoryTableSchemaValidationJob, %{})
 
