@@ -313,7 +313,7 @@ msgstr "Espace producteur"
 
 #, elixir-autogen, elixir-format
 msgid "Dataset"
-msgstr "Resource"
+msgstr "Jeu de données"
 
 #, elixir-autogen, elixir-format
 msgid "Download statistics"
@@ -370,3 +370,27 @@ msgstr "Glissez un fichier GTFS ici ou cliquez pour parcourir vos répertoires l
 #, elixir-autogen, elixir-format
 msgid "Start again"
 msgstr "Essayer à nouveau"
+
+#, elixir-autogen, elixir-format
+msgid "Issue"
+msgstr "Problème"
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr "Ressource arrivant à expiration"
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr "Ressource invalide"
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr "Ressource indisponible"
+
+#, elixir-autogen, elixir-format
+msgid "The following urgent resource issues require your attention."
+msgstr "Les problèmes sur les ressources suivantes requièrent votre attention."
+
+#, elixir-autogen, elixir-format
+msgid "Urgent issues on your resources"
+msgstr "Problèmes urgents sur vos ressources"

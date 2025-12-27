@@ -29,6 +29,11 @@ defmodule TransportWeb.EspaceProducteurView do
     Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
   end
 
+  @spec show_urgent_issues?([DB.Dataset.t()]) :: boolean()
+  def show_urgent_issues?(datasets) do
+    datasets |> Enum.map(&Transport.DatasetChecks.check/1) |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
+  end
+
   def dataset_creation_url,
     do:
       :transport
