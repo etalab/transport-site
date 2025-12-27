@@ -1,5 +1,6 @@
 defmodule TransportWeb.LayoutView do
   use TransportWeb, :view
+  use Phoenix.Component
   alias __MODULE__
   alias Phoenix.Controller
   import TransportWeb.DatasetView, only: [markdown_to_safe_html!: 1]
@@ -30,5 +31,28 @@ defmodule TransportWeb.LayoutView do
   def add_locale_to_url(conn, locale) do
     query_params = conn.query_params |> Map.put("locale", locale) |> Plug.Conn.Query.encode()
     "#{conn.request_path}?#{query_params}"
+  end
+
+  def notifications_count(%Plug.Conn{} = conn) do
+    if TransportWeb.Session.producer?(conn) do
+      conn.assigns.datasets_for_user
+      |> Enum.map(&Transport.DatasetChecks.check/1)
+      |> Enum.reduce(0, fn x, acc -> Transport.DatasetChecks.count_issues(x) + acc end)
+    else
+      0
+    end
+  end
+
+  def notification_count(%{count: _, static: _} = assigns) do
+    ~H"""
+    <% class = if @static, do: "notification_badge static", else: "notification_badge" %>
+    <span
+      :if={@count > 0}
+      class={class}
+      aria-label={dngettext("default", "%{count} notification count", "%{count} notifications count", @count)}
+    >
+      <%= @count %>
+    </span>
+    """
   end
 end

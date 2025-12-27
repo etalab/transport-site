@@ -4,6 +4,9 @@
 <section class="section section-grey reuser-space producer-space">
   <div class="container">
     <h1><%= dgettext("espace-producteurs", "Producer space") %></h1>
+
+    <%= render("_urgent_issues.html", datasets: @datasets, conn: @conn) %>
+
     <h2><%= dgettext("espace-producteurs", "Actions") %></h2>
     <div class="row">
       <div class="panel action-panel">
@@ -107,8 +110,6 @@
         </div>
       </div>
     </div>
-
-    <%= render("_urgent_issues.html", datasets: @datasets, conn: @conn) %>
 
     <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
     <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,

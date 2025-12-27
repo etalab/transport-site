@@ -18,6 +18,8 @@ defmodule Transport.DatasetChecksTest do
     %{resource: %{id: r4_id}, multi_validation: %{id: mv2_id}} =
       insert_resource_and_friends(Date.add(Date.utc_today(), 10), dataset: dataset, max_error: "Error")
 
+    result = Transport.DatasetChecks.check(dataset)
+
     assert %{
              unavailable_resource: [%DB.Resource{id: ^r1_id, is_available: false}],
              expiring_resource: [{%DB.Resource{id: ^r3_id}, [%DB.MultiValidation{id: ^mv1_id}]}],
@@ -25,15 +27,22 @@ defmodule Transport.DatasetChecksTest do
                {%DB.Resource{id: ^r4_id},
                 [%DB.MultiValidation{id: ^mv2_id, digest: %{"max_severity" => %{"max_level" => "Error"}}}]}
              ]
-           } = Transport.DatasetChecks.check(dataset)
+           } = result
+
+    assert Transport.DatasetChecks.count_issues(result) == 3
   end
 
-  test "has_issues?" do
+  test "has_issues?/1 and count_issues/1" do
     d1 = insert(:dataset)
     d2 = insert(:dataset)
     insert(:resource, dataset: d2, is_available: false)
 
-    refute Transport.DatasetChecks.check(d1) |> Transport.DatasetChecks.has_issues?()
-    assert Transport.DatasetChecks.check(d2) |> Transport.DatasetChecks.has_issues?()
+    result = Transport.DatasetChecks.check(d1)
+    refute result |> Transport.DatasetChecks.has_issues?()
+    assert Transport.DatasetChecks.count_issues(result) == 0
+
+    result = Transport.DatasetChecks.check(d2)
+    assert result |> Transport.DatasetChecks.has_issues?()
+    assert Transport.DatasetChecks.count_issues(result) == 1
   end
 end
