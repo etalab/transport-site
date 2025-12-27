@@ -87,15 +87,21 @@
                       <%= gettext("My account") %>
                     <% end %>
                   </span>
+                  <% notifications_count = notifications_count(@conn) %>
+                  <.notification_count count={notifications_count} static={false} />
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
                     <%= link("Administration", to: "/backoffice") %>
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
-                    <%= link(gettext("Producer space"),
-                      to: espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")
-                    ) %>
+                    <a
+                      data-link-name="producer-space"
+                      href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")}
+                    >
+                      <%= gettext("Producer space") %>
+                      <.notification_count count={notifications_count} static={true} />
+                    </a>
                   <% end %>
                   <%= link(gettext("Reuser space"),
                     to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")

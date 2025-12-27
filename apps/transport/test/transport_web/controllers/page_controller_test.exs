@@ -9,6 +9,7 @@ defmodule TransportWeb.PageControllerTest do
   doctest TransportWeb.PageController
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -79,6 +80,8 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "for logged-in users", %{conn: conn} do
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
+
       conn =
         conn
         |> init_test_session(current_user: %{"is_producer" => true})
@@ -195,23 +198,52 @@ defmodule TransportWeb.PageControllerTest do
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
     contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-    espace_producteur_path = espace_producteur_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
-      conn
-      |> get(page_path(conn, :index))
-      |> html_response(200)
-      |> Floki.parse_document!()
-      |> Floki.find("nav .dropdown-content a")
-      |> Enum.any?(&(&1 == {"a", [{"href", espace_producteur_path}], ["Espace producteur"]}))
+      not (conn
+           |> get(page_path(conn, :index))
+           |> html_response(200)
+           |> Floki.parse_document!()
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Enum.empty?())
     end
 
     refute conn
            |> init_test_session(current_user: %{"is_producer" => false, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
 
+    Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
+
     assert conn
            |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
+  end
+
+  test "menu has notification count if producer has issues to tackle", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    dataset = insert(:dataset)
+    insert(:resource, dataset: dataset, is_available: false)
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace producteur 1"
   end
 end

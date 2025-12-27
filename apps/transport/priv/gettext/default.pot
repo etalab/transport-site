@@ -210,3 +210,9 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Reuser information"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{count} notification count"
+msgid_plural "%{count} notifications count"
+msgstr[0] ""
+msgstr[1] ""

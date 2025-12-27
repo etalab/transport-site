@@ -25,7 +25,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
   def espace_producteur(%Plug.Conn{} = conn, _params) do
     {conn, datasets} =
-      case DB.Dataset.datasets_for_user(conn) do
+      case conn.assigns.datasets_for_user do
         datasets when is_list(datasets) ->
           {conn, datasets}
 
@@ -297,8 +297,7 @@ defmodule TransportWeb.EspaceProducteurController do
   end
 
   defp find_db_datasets_or_redirect(%Plug.Conn{} = conn, _options) do
-    conn
-    |> DB.Dataset.datasets_for_user()
+    conn.assigns.datasets_for_user
     |> case do
       datasets when is_list(datasets) ->
         conn |> assign(:datasets, datasets)
@@ -370,8 +369,7 @@ defmodule TransportWeb.EspaceProducteurController do
   defp find_dataset_for_user(%Plug.Conn{} = conn, dataset_id_str) do
     {dataset_id, ""} = Integer.parse(dataset_id_str)
 
-    conn
-    |> DB.Dataset.datasets_for_user()
+    conn.assigns.datasets_for_user
     |> case do
       datasets when is_list(datasets) -> datasets
       {:error, _} -> []

@@ -49,6 +49,11 @@ defmodule Transport.DatasetChecks do
     )
   end
 
+  @spec count_issues(check_result()) :: non_neg_integer()
+  def count_issues(result) do
+    result |> Map.values() |> Enum.flat_map(fn x -> x end) |> Enum.count()
+  end
+
   @spec unavailable_resource(DB.Dataset.t()) :: [DB.Resource.t()]
   def unavailable_resource(%DB.Dataset{resources: resources}) do
     Enum.filter(resources, &(not &1.is_available))
