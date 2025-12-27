@@ -136,7 +136,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) == [
                {"div", [{"data-name", "urgent-issues"}],
                 [
-                  {"h2", [{"class", "mt-48"}], ["Problèmes urgents sur vos ressources"]},
+                  {"h2", [], ["Problèmes urgents sur vos ressources"]},
                   {"div", [{"class", "panel"}],
                    [
                      {"p", [], ["Les problèmes sur les ressources suivantes requièrent votre attention."]},
