@@ -107,6 +107,9 @@
         </div>
       </div>
     </div>
+
+    <%= render("_urgent_issues.html", datasets: @datasets, conn: @conn) %>
+
     <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
     <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
       session: %{"dataset_ids" => Enum.map(@datasets, & &1.id), "mode" => :producer}

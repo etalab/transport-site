@@ -369,3 +369,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Start again"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Issue"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following urgent resource issues require your attention."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Urgent issues on your resources"
+msgstr ""

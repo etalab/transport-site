@@ -1,0 +1,51 @@
+<div :if={show_urgent_issues?(@datasets)} data-name="urgent-issues">
+  <h2 class="mt-48"><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
+  <div class="panel">
+    <p><%= dgettext("espace-producteurs", "The following urgent resource issues require your attention.") %></p>
+    <table class="table small-padding">
+      <thead>
+        <tr>
+          <th><%= dgettext("espace-producteurs", "Dataset") %></th>
+          <th><%= dgettext("espace-producteurs", "Resource") %></th>
+          <th><%= dgettext("espace-producteurs", "Issue") %></th>
+          <th><%= dgettext("espace-producteurs", "Actions") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>
+          <% checks = Transport.DatasetChecks.check(dataset) %>
+          <%= for {check_name, issues} <- checks do %>
+            <%= for issue <- issues do %>
+              <% resource =
+                case issue do
+                  %DB.Resource{} = resource -> resource
+                  {%DB.Resource{} = resource, _} -> resource
+                end %>
+              <tr>
+                <td>
+                  <a href={dataset_path(@conn, :details, dataset.slug)} target="_blank">
+                    <i class="fa fa-external-link"></i>
+                    <%= dataset.custom_title %>
+                  </a>
+                </td>
+                <td><%= resource.title %> <span class="label"><%= resource.format %></span></td>
+                <td><%= Transport.DatasetChecks.issue_name(check_name) %></td>
+                <td>
+                  <a
+                    href={espace_producteur_path(@conn, :edit_resource, dataset.id, resource.datagouv_id)}
+                    class="button-outline primary"
+                    data-tracking-category="espace_producteur"
+                    data-tracking-action="urgent_issues_edit_resource_button"
+                  >
+                    <i class="fa fa-edit"></i>
+                    <%= dgettext("espace-producteurs", "Edit resource") %>
+                  </a>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

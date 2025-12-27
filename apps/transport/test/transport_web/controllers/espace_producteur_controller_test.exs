@@ -118,6 +118,80 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert doc |> Floki.find(".message--error") |> Floki.text() ==
                "Une erreur a eu lieu lors de la récupération de vos ressources"
     end
+
+    test "urgent issues panel", %{conn: conn} do
+      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
+      resource = insert(:resource, title: "GTFS Super", format: "GTFS", is_available: false, dataset: dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      doc =
+        conn
+        |> init_test_session(current_user: %{})
+        |> get(espace_producteur_path(conn, :espace_producteur))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) == [
+               {"div", [{"data-name", "urgent-issues"}],
+                [
+                  {"h2", [{"class", "mt-48"}], ["Problèmes urgents sur vos ressources"]},
+                  {"div", [{"class", "panel"}],
+                   [
+                     {"p", [], ["Les problèmes sur les ressources suivantes requièrent votre attention."]},
+                     {"table", [{"class", "table small-padding"}],
+                      [
+                        {"thead", [],
+                         [
+                           {"tr", [],
+                            [
+                              {"th", [], ["Jeu de données"]},
+                              {"th", [], ["Ressource"]},
+                              {"th", [], ["Problème"]},
+                              {"th", [], ["Actions"]}
+                            ]}
+                         ]},
+                        {"tbody", [],
+                         [
+                           {"tr", [],
+                            [
+                              {"td", [],
+                               [
+                                 {"a",
+                                  [
+                                    {"href", dataset_path(conn, :details, dataset.slug)},
+                                    {"target", "_blank"}
+                                  ],
+                                  [
+                                    {"i", [{"class", "fa fa-external-link"}], []},
+                                    "\nHello\n                  "
+                                  ]}
+                               ]},
+                              {"td", [], ["GTFS Super ", {"span", [{"class", "label"}], ["GTFS"]}]},
+                              {"td", [], ["Ressource indisponible"]},
+                              {"td", [],
+                               [
+                                 {"a",
+                                  [
+                                    {"href",
+                                     espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
+                                    {"class", "button-outline primary"},
+                                    {"data-tracking-category", "espace_producteur"},
+                                    {"data-tracking-action", "urgent_issues_edit_resource_button"}
+                                  ],
+                                  [
+                                    {"i", [{"class", "fa fa-edit"}], []},
+                                    "\nModifier la ressource\n                  "
+                                  ]}
+                               ]}
+                            ]}
+                         ]}
+                      ]}
+                   ]}
+                ]}
+             ]
+    end
   end
 
   describe "edit_dataset" do
@@ -208,7 +282,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              |> Floki.text() =~ "Supprimer le logo personnalisé"
     end
 
-    test "validity dates and validity for a GTFS", %{conn: conn} do
+    test "validity dates, validity and urgent issues for a GTFS", %{conn: conn} do
       %DB.Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
@@ -232,7 +306,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find(~s|[data-name="validity-dates"|) == [
+      assert doc |> Floki.find(~s|[data-name="validity-dates"]|) == [
                {"td", [{"data-name", "validity-dates"}],
                 [
                   {"div", [{"title", "Période de validité"}],
@@ -245,7 +319,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                 ]}
              ]
 
-      assert doc |> Floki.find(~s|[data-name="validity"|) == [
+      assert doc |> Floki.find(~s|[data-name="validity"]|) == [
                {"td", [{"data-name", "validity"}, {"class", "no-underline"}],
                 [
                   {"div", [{"class", "pb-24"}],
@@ -256,6 +330,9 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                    ]}
                 ]}
              ]
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
+               "Problèmes urgents sur vos ressources"
     end
 
     test "validity for a TableSchema", %{conn: conn} do
@@ -1033,7 +1110,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                    [
                      {"tr", [],
                       [
-                        {"th", [], ["Resource"]},
+                        {"th", [], ["Jeu de données"]},
                         {"th", [], ["Ressource"]},
                         {"th", [], ["Téléchargements de l'année 2025"]}
                       ]}
