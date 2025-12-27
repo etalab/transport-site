@@ -375,7 +375,11 @@ defmodule TransportWeb.Router do
       conn
       |> assign(
         :datasets_for_user,
-        Transport.Cache.fetch("datasets_for_user", fn -> DB.Dataset.datasets_for_user(conn) end, :timer.minutes(30))
+        Transport.Cache.fetch(
+          ~s|datasets_for_user::#{conn.assigns.current_user["id"]}|,
+          fn -> DB.Dataset.datasets_for_user(conn) end,
+          :timer.minutes(30)
+        )
       )
     else
       conn
