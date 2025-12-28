@@ -48,10 +48,22 @@
       </div>
     <% end %>
 
+    <div :if={@discussion["closed"]} class="discussion-form">
+      <div class="notification warning">
+        <i class="fa fa-xmark"></i>
+        <%= dgettext("page-dataset-details", "This discussion is closed") %>
+      </div>
+    </div>
+
     <div :if={not is_nil(@current_user) and is_nil(@discussion["closed"])} class="discussion-form">
       <% current_user_in_org = @current_user["id"] in @org_member_ids %>
-      <a href={"#reply-#{@discussion["id"]}"}>
-        <%= dgettext("page-dataset-details", "Respond") %>
+      <a href={"#reply-#{@discussion["id"]}"} class="button-outline primary small">
+        <i class="fa fa-reply"></i>
+        <%= if current_user_in_org do %>
+          <%= dgettext("page-dataset-details", "Respond or close") %>
+        <% else %>
+          <%= dgettext("page-dataset-details", "Respond") %>
+        <% end %>
       </a>
       <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
         <%= form_for %{}, discussion_path(@socket, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>

@@ -721,3 +721,11 @@ msgstr "Produits tarifaires"
 #, elixir-autogen, elixir-format
 msgid "Transport offers"
 msgstr "Offres de transport"
+
+#, elixir-autogen, elixir-format
+msgid "Respond or close"
+msgstr "Répondre ou clore"
+
+#, elixir-autogen, elixir-format
+msgid "This discussion is closed"
+msgstr "Cette discussion est fermée"
