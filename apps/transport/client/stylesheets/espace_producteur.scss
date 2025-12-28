@@ -30,6 +30,9 @@
   .button-outline.primary {
     color: var(--primary-color-producer);
     border-color: var(--primary-color-producer);
+    &.small-padding {
+      padding: var(--space-xs);
+    }
   }
   .button-outline.reuser {
     color: var(--primary-color-reuser);

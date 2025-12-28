@@ -26,10 +26,19 @@ defmodule TransportWeb.Plugs.ProducerDataTest do
   describe "call" do
     test "when user is a producer", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+
+      %DB.Dataset{id: dataset_id, organization_id: organization_id, datagouv_id: datagouv_id} =
+        dataset = insert(:dataset)
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [] end)
 
       current_user = %{"is_producer" => true, "id" => contact.datagouv_user_id}
 
@@ -41,7 +50,9 @@ defmodule TransportWeb.Plugs.ProducerDataTest do
 
       # Assigns have been saved
       assert %{
-               datasets_checks: [%{expiring_resource: [], invalid_resource: [], unavailable_resource: []}],
+               datasets_checks: [
+                 %{expiring_resource: [], invalid_resource: [], unavailable_resource: [], unanswered_discussions: []}
+               ],
                datasets_for_user: [%DB.Dataset{id: ^dataset_id}]
              } = conn.assigns
 

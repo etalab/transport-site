@@ -1,5 +1,6 @@
 defmodule TransportWeb.EspaceProducteurView do
   use TransportWeb, :view
+  use Phoenix.Component
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   @spec action_path(Plug.Conn.t()) :: any
@@ -29,9 +30,20 @@ defmodule TransportWeb.EspaceProducteurView do
     Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
   end
 
-  @spec show_urgent_issues?([DB.Dataset.t()]) :: boolean()
-  def show_urgent_issues?(datasets) do
-    datasets |> Enum.map(&Transport.DatasetChecks.check/1) |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
+  def show_urgent_issues?(checks) do
+    checks |> Map.values() |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
+  end
+
+  def issue_title(%{issue: %DB.Resource{}} = assigns) do
+    ~H"""
+    <%= @issue.title %> <span class="label"><%= @issue.format %></span>
+    """
+  end
+
+  def issue_title(%{issue: _} = assigns) do
+    ~H"""
+    <%= @issue["title"] %>
+    """
   end
 
   def dataset_creation_url,

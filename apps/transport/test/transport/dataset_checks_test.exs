@@ -1,6 +1,9 @@
 defmodule Transport.DatasetChecksTest do
   use ExUnit.Case, async: true
   import DB.Factory
+  import Mox
+
+  setup :verify_on_exit!
 
   setup do
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
@@ -8,7 +11,8 @@ defmodule Transport.DatasetChecksTest do
   end
 
   test "check" do
-    dataset = insert(:dataset)
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
     %DB.Resource{id: r1_id} = insert(:resource, dataset: dataset, is_available: false)
     insert(:resource, dataset: dataset, is_available: true)
 
@@ -18,6 +22,19 @@ defmodule Transport.DatasetChecksTest do
     %{resource: %{id: r4_id}, multi_validation: %{id: mv2_id}} =
       insert_resource_and_friends(Date.add(Date.utc_today(), 10), dataset: dataset, max_error: "Error")
 
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
+    end)
+
+    discussion = %{
+      "discussion" => [
+        %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(), "posted_by" => %{"id" => Ecto.UUID.generate()}}
+      ]
+    }
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [discussion] end)
+
     result = Transport.DatasetChecks.check(dataset)
 
     assert %{
@@ -26,16 +43,24 @@ defmodule Transport.DatasetChecksTest do
              invalid_resource: [
                {%DB.Resource{id: ^r4_id},
                 [%DB.MultiValidation{id: ^mv2_id, digest: %{"max_severity" => %{"max_level" => "Error"}}}]}
-             ]
+             ],
+             unanswered_discussions: [^discussion]
            } = result
 
-    assert Transport.DatasetChecks.count_issues(result) == 3
+    assert Transport.DatasetChecks.count_issues(result) == 4
   end
 
   test "has_issues?/1 and count_issues/1" do
     d1 = insert(:dataset)
     d2 = insert(:dataset)
     insert(:resource, dataset: d2, is_available: false)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 
     result = Transport.DatasetChecks.check(d1)
     refute result |> Transport.DatasetChecks.has_issues?()
@@ -44,5 +69,61 @@ defmodule Transport.DatasetChecksTest do
     result = Transport.DatasetChecks.check(d2)
     assert result |> Transport.DatasetChecks.has_issues?()
     assert Transport.DatasetChecks.count_issues(result) == 1
+  end
+
+  test "unanswered_discussions" do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
+    end)
+
+    discussion_by_contact = %{
+      "discussion" => [
+        %{
+          "posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(),
+          "posted_by" => %{"id" => contact.datagouv_user_id}
+        }
+      ]
+    }
+
+    discussion_too_old = %{
+      "discussion" => [
+        %{
+          "posted_on" => DateTime.utc_now() |> DateTime.add(-31, :day) |> DateTime.to_iso8601(),
+          "posted_by" => %{"id" => Ecto.UUID.generate()}
+        }
+      ]
+    }
+
+    unanswered_discussion = %{
+      "discussion" => [
+        %{
+          "posted_on" => DateTime.utc_now() |> DateTime.add(-20, :day) |> DateTime.to_iso8601(),
+          "posted_by" => %{"id" => Ecto.UUID.generate()}
+        }
+      ]
+    }
+
+    Datagouvfr.Client.Discussions.Mock
+    |> expect(:get, fn ^datagouv_id ->
+      [
+        discussion_by_contact,
+        discussion_too_old,
+        unanswered_discussion
+      ]
+    end)
+
+    assert Transport.DatasetChecks.recent_discussion?(discussion_by_contact)
+    assert Transport.DatasetChecks.recent_discussion?(unanswered_discussion)
+    refute Transport.DatasetChecks.recent_discussion?(discussion_too_old)
+
+    assert Transport.DatasetChecks.answered_by_team_member(discussion_by_contact, [contact.datagouv_user_id])
+    refute Transport.DatasetChecks.answered_by_team_member(discussion_too_old, [contact.datagouv_user_id])
+    refute Transport.DatasetChecks.answered_by_team_member(unanswered_discussion, [contact.datagouv_user_id])
+
+    assert [unanswered_discussion] == Transport.DatasetChecks.unanswered_discussions(dataset)
   end
 end
