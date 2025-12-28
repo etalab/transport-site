@@ -5,7 +5,7 @@
   <div class="container">
     <h1><%= dgettext("espace-producteurs", "Producer space") %></h1>
 
-    <%= render("_urgent_issues.html", datasets: @datasets, conn: @conn) %>
+    <%= render("_urgent_issues.html", datasets: @datasets, checks: @checks, conn: @conn) %>
 
     <h2><%= dgettext("espace-producteurs", "Actions") %></h2>
     <div class="row">

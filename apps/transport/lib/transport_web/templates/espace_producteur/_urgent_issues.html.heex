@@ -13,7 +13,7 @@
       </thead>
       <tbody>
         <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>
-          <% checks = Transport.DatasetChecks.check(dataset) %>
+          <% checks = @checks[dataset.id] %>
           <%= for {check_name, issues} <- checks do %>
             <%= for issue <- issues do %>
               <% resource =

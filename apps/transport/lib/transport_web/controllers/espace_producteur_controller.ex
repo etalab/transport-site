@@ -36,8 +36,15 @@ defmodule TransportWeb.EspaceProducteurController do
 
     conn
     |> assign(:datasets, datasets)
+    |> assign(:checks, datasets_checks(conn))
     |> TransportWeb.Session.set_is_producer(datasets)
     |> render("espace_producteur.html")
+  end
+
+  defp datasets_checks(%Plug.Conn{assigns: %{datasets_for_user: {:error, _}}}), do: %{}
+
+  defp datasets_checks(%Plug.Conn{assigns: %{datasets_for_user: datasets_for_user, datasets_checks: datasets_checks}}) do
+    Enum.map(datasets_for_user, & &1.id) |> Enum.zip(datasets_checks) |> Map.new()
   end
 
   def edit_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, %{"dataset_id" => _}) do
@@ -46,6 +53,7 @@ defmodule TransportWeb.EspaceProducteurController do
     # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
     conn
     |> assign(:dataset, dataset |> DB.Repo.preload(reuser_improved_data: [:resource]))
+    |> assign(:checks, datasets_checks(conn))
     |> assign(
       :latest_validation,
       DB.MultiValidation.dataset_latest_validation(
