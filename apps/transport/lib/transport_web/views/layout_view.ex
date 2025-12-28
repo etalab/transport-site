@@ -35,9 +35,9 @@ defmodule TransportWeb.LayoutView do
 
   def notifications_count(%Plug.Conn{} = conn) do
     if TransportWeb.Session.producer?(conn) do
-      conn.assigns.datasets_for_user
-      |> Enum.map(&Transport.DatasetChecks.check/1)
-      |> Enum.reduce(0, fn x, acc -> Transport.DatasetChecks.count_issues(x) + acc end)
+      Enum.reduce(conn.assigns.datasets_checks, 0, fn check, acc ->
+        Transport.DatasetChecks.count_issues(check) + acc
+      end)
     else
       0
     end

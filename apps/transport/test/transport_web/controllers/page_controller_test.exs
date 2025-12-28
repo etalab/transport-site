@@ -80,11 +80,12 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "for logged-in users", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
         |> get(page_path(conn, :infos_producteurs))
 
       body = html_response(conn, 200)
