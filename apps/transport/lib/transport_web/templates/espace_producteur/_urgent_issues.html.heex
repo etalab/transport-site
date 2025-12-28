@@ -1,4 +1,4 @@
-<div :if={show_urgent_issues?(@datasets)} data-name="urgent-issues">
+<div :if={show_urgent_issues?(@checks)} data-name="urgent-issues">
   <h2><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
   <div class="panel">
     <p><%= dgettext("espace-producteurs", "The following urgent resource issues require your attention.") %></p>
@@ -14,12 +14,13 @@
       <tbody>
         <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>
           <% checks = @checks[dataset.id] %>
-          <%= for {check_name, issues} <- checks do %>
+          <%= for {check_name, issues} <- checks |> Enum.sort_by(& elem(&1, 0)) do %>
             <%= for issue <- issues do %>
-              <% resource =
+              <% issue =
                 case issue do
                   %DB.Resource{} = resource -> resource
                   {%DB.Resource{} = resource, _} -> resource
+                  discussion -> discussion
                 end %>
               <tr>
                 <td>
@@ -28,12 +29,23 @@
                     <%= dataset.custom_title %>
                   </a>
                 </td>
-                <td><%= resource.title %> <span class="label"><%= resource.format %></span></td>
+                <td><.issue_title issue={issue} /></td>
                 <td><%= Transport.DatasetChecks.issue_name(check_name) %></td>
-                <td>
+                <td :if={check_name == :unanswered_discussions}>
                   <a
-                    href={espace_producteur_path(@conn, :edit_resource, dataset.id, resource.datagouv_id)}
-                    class="button-outline primary"
+                    href={dataset_path(@conn, :details, dataset.slug) <> ~s|#discussion-#{issue["id"]}|}
+                    class="button-outline primary small-padding"
+                    data-tracking-category="espace_producteur"
+                    data-tracking-action="urgent_issues_see_discussion_button"
+                  >
+                    <i class="icon fas fa-comments"></i>
+                    <%= dgettext("espace-producteurs", "See the discussion") %>
+                  </a>
+                </td>
+                <td :if={check_name != :unanswered_discussions}>
+                  <a
+                    href={espace_producteur_path(@conn, :edit_resource, dataset.id, issue.datagouv_id)}
+                    class="button-outline primary small-padding"
                     data-tracking-category="espace_producteur"
                     data-tracking-action="urgent_issues_edit_resource_button"
                   >

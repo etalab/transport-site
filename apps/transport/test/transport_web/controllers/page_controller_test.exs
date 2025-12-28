@@ -222,11 +222,18 @@ defmodule TransportWeb.PageControllerTest do
 
   test "menu has notification count if producer has issues to tackle", %{conn: conn} do
     contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-    dataset = insert(:dataset)
+    %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} = dataset = insert(:dataset)
     insert(:resource, dataset: dataset, is_available: false)
 
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
 
     doc =
       conn

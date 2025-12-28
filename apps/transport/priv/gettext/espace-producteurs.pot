@@ -393,3 +393,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Urgent issues on your resources"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unanswered_discussions"
+msgstr ""
