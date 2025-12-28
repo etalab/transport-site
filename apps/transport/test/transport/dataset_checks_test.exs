@@ -50,15 +50,26 @@ defmodule Transport.DatasetChecksTest do
     assert Transport.DatasetChecks.count_issues(result) == 4
   end
 
+  test "issue_name" do
+    dataset = insert(:dataset)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn _organization_id, [restrict_fields: true] -> {:ok, %{"members" => []}} end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
+    Transport.DatasetChecks.check(dataset)
+    |> Map.keys()
+    |> Enum.each(&Transport.DatasetChecks.issue_name/1)
+  end
+
   test "has_issues?/1 and count_issues/1" do
     d1 = insert(:dataset)
     d2 = insert(:dataset)
     insert(:resource, dataset: d2, is_available: false)
 
     Datagouvfr.Client.Organization.Mock
-    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
-      {:ok, %{"members" => []}}
-    end)
+    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] -> {:ok, %{"members" => []}} end)
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 
