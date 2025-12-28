@@ -69,17 +69,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> Floki.find(".publish-header h4")
       end
 
-      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, 3, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, 3, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, 3, fn ^datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset, 3)
 
       assert menu_items.(conn) == [
                {"h4", [], ["Tester vos jeux de données"]},
@@ -276,12 +271,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id)
       end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, 2, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset, 2)
 
       td_text = fn doc ->
         doc |> Floki.find("td.align-right") |> Floki.text() |> String.replace(~r/(\s)+/, " ") |> String.trim()
@@ -446,6 +436,58 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                 ]}
              ]
     end
+
+    test "when another dataset has failing dataset checks", %{conn: conn} do
+      %DB.Dataset{
+        id: dataset_id,
+        datagouv_id: datagouv_id,
+        organization_id: organization_id
+      } = dataset = insert(:dataset)
+
+      resource = insert(:resource, dataset: dataset)
+
+      %DB.Dataset{datagouv_id: d2_datagouvid} = d2 = insert(:dataset, organization_id: organization_id)
+      insert(:resource, dataset: d2, is_available: false)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, 2, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
+
+      mock_organization_and_discussion(dataset)
+      mock_organization_and_discussion(d2)
+
+      mock_organization_and_discussion(dataset)
+      mock_organization_and_discussion(d2)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^datagouv_id ->
+        dataset_datagouv_get_response(datagouv_id, resource_id: resource.datagouv_id)
+      end)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, fn ^d2_datagouvid ->
+        dataset_datagouv_get_response(d2_datagouvid, resource_id: resource.datagouv_id)
+      end)
+
+      # Panel is not displayed
+      doc =
+        conn
+        |> init_session_for_producer()
+        |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> Enum.empty?()
+
+      # Other dataset has the panel displayed
+      doc =
+        conn
+        |> init_session_for_producer()
+        |> get(espace_producteur_path(conn, :edit_dataset, d2.id))
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      refute doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> Enum.empty?()
+    end
   end
 
   describe "upload_logo" do
@@ -603,8 +645,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully with a resource handled by the proxy", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} =
-        dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
+      dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
 
       gtfs_rt_resource =
         insert(:resource,
@@ -636,12 +677,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       html =
         conn
@@ -674,7 +710,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully with a datagouv resource", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} = dataset = insert(:dataset)
+      dataset = insert(:dataset)
       resource = insert(:resource, dataset: dataset, url: "https://static.data.gouv.fr/url", title: "GTFS.zip")
 
       assert DB.Resource.hosted_on_datagouv?(resource)
@@ -682,12 +718,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       insert(:resource_monthly_metric,
         metric_name: :downloads,
@@ -820,17 +851,13 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       resource_datagouv_id = "resource_dataset_id"
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
+        dataset =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -853,18 +880,16 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
     test "edit a resource for a GTFS file", %{conn: conn} do
       resource_datagouv_id = Ecto.UUID.generate()
-      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} = insert(:dataset)
+
+      %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
+        dataset = insert(:dataset)
+
       insert(:resource, format: "GTFS", datagouv_id: resource_datagouv_id, dataset_id: dataset_id)
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -885,17 +910,13 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       conn = conn |> init_session_for_producer()
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
+        dataset =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id -> dataset_datagouv_get_response(dataset_datagouv_id) end)
@@ -1017,17 +1038,13 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       resource_datagouv_id = "resource_dataset_id"
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
+        dataset =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
@@ -1182,7 +1199,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} = dataset = insert(:dataset)
+      %DB.Dataset{} = dataset = insert(:dataset)
 
       resource =
         insert(:resource,
@@ -1195,12 +1212,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
-      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+      mock_organization_and_discussion(dataset)
 
       year_month = Date.utc_today() |> Date.to_iso8601() |> String.slice(0..6)
 
@@ -1327,12 +1339,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     conn |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
   end
 
-  defp mock_organization_and_discussion(%DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id}) do
+  defp mock_organization_and_discussion(
+         %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id},
+         times \\ 1
+       ) do
     Datagouvfr.Client.Organization.Mock
-    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+    |> expect(:get, times, fn ^organization_id, [restrict_fields: true] ->
       {:ok, %{"members" => []}}
     end)
 
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [] end)
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, times, fn ^datagouv_id -> [] end)
   end
 end
