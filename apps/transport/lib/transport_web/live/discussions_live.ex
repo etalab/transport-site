@@ -25,7 +25,7 @@ defmodule TransportWeb.DiscussionsLive do
 
     <%= if assigns[:discussions] do %>
       <div>
-        <% nb_open_discussions = Enum.count(@discussions, & is_nil(&1["closed"])) %>
+        <% nb_open_discussions = Enum.count(@discussions, &is_nil(&1["closed"])) %>
         <TransportWeb.LayoutView.notification_count count={nb_open_discussions} static={false} />
         <%= for discussion <- @discussions do %>
           <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
