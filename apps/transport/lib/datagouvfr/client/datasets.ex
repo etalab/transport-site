@@ -3,8 +3,7 @@ defmodule Datagouvfr.Client.Datasets do
   A wrapper to get datasets from data.gouv.fr API (or mock it for tests)
   See https://doc.data.gouv.fr/api/reference/#/datasets
   """
-
-  use Gettext, backend: Datagouvfr.Gettext
+  use Gettext, backend: TransportWeb.Gettext
   use Vex.Struct
 
   defstruct description: nil,
@@ -18,7 +17,7 @@ defmodule Datagouvfr.Client.Datasets do
   validates(:description,
     length: [
       min: 1,
-      message: dgettext("dataset", "A description is needed")
+      message: dgettext("datagouv-dataset", "A description is needed")
     ]
   )
 
@@ -55,14 +54,14 @@ defmodule Datagouvfr.Client.Datasets do
   validates(:organization,
     length: [
       min: 1,
-      message: dgettext("dataset", "An organization is needed")
+      message: dgettext("datagouv-dataset", "An organization is needed")
     ]
   )
 
   validates(:title,
     length: [
       min: 1,
-      message: dgettext("dataset", "A title is needed")
+      message: dgettext("datagouv-dataset", "A title is needed")
     ]
   )
 
@@ -88,7 +87,7 @@ defmodule Datagouvfr.Client.Datasets do
   @callback get(String.t()) :: {atom, any}
   def get(id), do: impl().get(id)
 
-  defp impl, do: Application.get_env(:datagouvfr, :datasets_impl)
+  defp impl, do: Application.get_env(:transport, :datasets_impl)
 end
 
 defmodule Datagouvfr.Client.Datasets.External do

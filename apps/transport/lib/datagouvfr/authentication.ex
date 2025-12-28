@@ -4,7 +4,7 @@ defmodule Datagouvfr.Authentication.Wrapper do
   """
   @callback get_token!(keyword() | map()) :: map()
 
-  def impl, do: Application.get_env(:datagouvfr, :authentication_impl)
+  def impl, do: Application.get_env(:transport, :authentication_impl)
 end
 
 defmodule Datagouvfr.Authentication.Dummy do

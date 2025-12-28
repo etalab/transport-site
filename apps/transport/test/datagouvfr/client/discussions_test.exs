@@ -1,5 +1,6 @@
 defmodule Datagouvfr.Client.DiscussionTest do
-  use Datagouvfr.ConnCase, async: true
+  use TransportWeb.ConnCase, async: true
+  @moduletag :datagouvfr
   alias Datagouvfr.Client.Discussions
   import Tesla.Mock
 

@@ -21,3 +21,12 @@ Mox.defmock(Transport.Schemas.Mock, for: Transport.Schemas.Wrapper)
 
 Mox.defmock(Unlock.Config.Fetcher.Mock, for: Unlock.Config.Fetcher)
 Mox.defmock(Unlock.HTTP.Client.Mock, for: Unlock.HTTP.Client)
+
+Mox.defmock(Datagouvfr.Client.CommunityResources.Mock, for: Datagouvfr.Client.CommunityResources)
+Mox.defmock(Datagouvfr.Authentication.Mock, for: Datagouvfr.Authentication.Wrapper)
+Mox.defmock(Datagouvfr.Client.User.Mock, for: Datagouvfr.Client.User.Wrapper)
+Mox.defmock(Datagouvfr.Client.Reuses.Mock, for: Datagouvfr.Client.Reuses.Wrapper)
+Mox.defmock(Datagouvfr.Client.Discussions.Mock, for: Datagouvfr.Client.Discussions.Wrapper)
+Mox.defmock(Datagouvfr.Client.Organization.Mock, for: Datagouvfr.Client.Organization.Wrapper)
+Mox.defmock(Datagouvfr.Client.Datasets.Mock, for: Datagouvfr.Client.Datasets)
+Mox.defmock(Datagouvfr.Client.Resources.Mock, for: Datagouvfr.Client.Resources)

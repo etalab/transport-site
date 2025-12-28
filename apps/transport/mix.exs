@@ -88,7 +88,6 @@ defmodule Transport.Mixfile do
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
-      {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -155,7 +154,9 @@ defmodule Transport.Mixfile do
       {:image, "~> 0.52"},
       {:nx, "~> 0.7"},
       {:timescale, "~> 0.1.0"},
-      {:mock, "~> 0.3.6", only: :test}
+      {:mock, "~> 0.3.6", only: :test},
+      {:vex, "~> 0.9"},
+      {:oauth2, "~> 2.1"},
     ]
   end
 end

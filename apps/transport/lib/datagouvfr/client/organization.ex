@@ -7,7 +7,7 @@ defmodule Datagouvfr.Client.Organization.Wrapper do
   def get(id, opts), do: impl().get(id, opts)
   def get(id), do: impl().get(id)
 
-  defp impl, do: Application.get_env(:datagouvfr, :organization_impl)
+  defp impl, do: Application.get_env(:transport, :organization_impl)
 end
 
 defmodule Datagouvfr.Client.Organization do

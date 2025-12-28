@@ -14,7 +14,7 @@ defmodule Datagouvfr.Client.Discussions.Wrapper do
   @callback post(Plug.Conn.t(), binary(), binary(), binary()) :: OAuth.oauth2_response()
   def post(%Plug.Conn{} = conn, dataset_id, title, comment), do: impl().post(conn, dataset_id, title, comment)
 
-  defp impl, do: Application.fetch_env!(:datagouvfr, :datagouvfr_discussions)
+  defp impl, do: Application.fetch_env!(:transport, :datagouvfr_discussions)
 end
 
 defmodule Datagouvfr.Client.Discussions.Dummy do
