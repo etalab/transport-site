@@ -19,7 +19,7 @@ defmodule TransportWeb.Router do
     plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
     plug(:assign_datagouv_token)
-    plug(:assign_datasets_for_user)
+    plug(TransportWeb.Plugs.ProducerData)
     plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
@@ -368,22 +368,6 @@ defmodule TransportWeb.Router do
   defp assign_current_user(conn, _) do
     # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
-  end
-
-  defp assign_datasets_for_user(conn, _) do
-    if TransportWeb.Session.producer?(conn) do
-      conn
-      |> assign(
-        :datasets_for_user,
-        Transport.Cache.fetch(
-          ~s|datasets_for_user::#{conn.assigns.current_user["id"]}|,
-          fn -> DB.Dataset.datasets_for_user(conn) end,
-          :timer.minutes(30)
-        )
-      )
-    else
-      conn
-    end
   end
 
   defp assign_datagouv_token(conn, _) do

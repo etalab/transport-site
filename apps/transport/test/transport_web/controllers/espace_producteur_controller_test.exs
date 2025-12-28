@@ -44,7 +44,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :espace_producteur))
 
       # `is_producer` attribute has been set for the current user
@@ -61,7 +61,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     test "action items", %{conn: conn} do
       menu_items = fn %Plug.Conn{} = conn ->
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :espace_producteur))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -109,7 +109,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :espace_producteur))
 
       {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
@@ -128,7 +128,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :espace_producteur))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -207,7 +207,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -235,7 +235,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -249,7 +249,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -272,7 +272,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       content =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
         |> html_response(200)
 
@@ -301,7 +301,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -365,7 +365,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_dataset, dataset_id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -403,7 +403,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> post(espace_producteur_path(conn, :upload_logo, dataset.id), %{"upload" => %{"file" => %Plug.Upload{}}})
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -478,7 +478,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -506,7 +506,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> delete(espace_producteur_path(conn, :remove_custom_logo, dataset.id))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -530,7 +530,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :proxy_statistics))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -574,7 +574,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :proxy_statistics))
         |> html_response(200)
 
@@ -594,10 +594,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     test "redirects when there is an error when fetching datasets", %{conn: conn} do
       Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> {:error, nil} end)
 
-      conn =
-        conn
-        |> init_test_session(current_user: %{"is_producer" => true})
-        |> get(espace_producteur_path(conn, :download_statistics_csv))
+      conn = conn |> init_session_for_producer() |> get(espace_producteur_path(conn, :download_statistics_csv))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
 
@@ -635,7 +632,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       response =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :download_statistics_csv))
 
       assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
@@ -667,7 +664,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :proxy_statistics_csv))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -711,7 +708,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       response =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :proxy_statistics_csv))
 
       assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
@@ -739,7 +736,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   describe "resource_actions" do
     test "we can show the form of an existing remote resource", %{conn: conn} do
-      conn = conn |> init_test_session(current_user: %{"is_producer" => true})
+      conn = conn |> init_session_for_producer()
       resource_datagouv_id = "resource_dataset_id"
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
@@ -782,7 +779,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :edit_resource, dataset_id, resource_datagouv_id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -791,7 +788,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "we can show the form for a new resource", %{conn: conn} do
-      conn = conn |> init_test_session(current_user: %{"is_producer" => true})
+      conn = conn |> init_session_for_producer()
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
@@ -814,7 +811,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "we can add a new resource with a URL", %{conn: conn} do
-      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> :ok end)
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
       %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
       %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id, "is_producer" => true}})
@@ -866,7 +863,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "post_file with a file with hidden fields", %{conn: conn} do
-      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> :ok end)
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
       %DB.Dataset{datagouv_id: dataset_datagouv_id} = insert(:dataset)
       %DB.Contact{id: contact_id} = contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id, "is_producer" => true}})
@@ -915,7 +912,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "we can show the delete confirmation page", %{conn: conn} do
-      conn = conn |> init_test_session(current_user: %{"is_producer" => true})
+      conn = conn |> init_session_for_producer()
       resource_datagouv_id = "resource_dataset_id"
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
@@ -941,7 +938,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "we can delete a resource", %{conn: conn} do
-      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> :ok end)
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
 
       %DB.Dataset{datagouv_id: dataset_datagouv_id, resources: [%DB.Resource{datagouv_id: resource_datagouv_id}]} =
         insert(:dataset, resources: [insert(:resource)])
@@ -993,7 +990,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :reuser_improved_data, 42, 1337))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -1016,7 +1013,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :reuser_improved_data, dataset.id, resource.id))
         |> html_response(200)
         |> Floki.parse_document!()
@@ -1065,7 +1062,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :download_statistics))
 
       assert redirected_to(conn, 302) == espace_producteur_path(conn, :espace_producteur)
@@ -1099,7 +1096,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       html =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_session_for_producer()
         |> get(espace_producteur_path(conn, :download_statistics))
         |> html_response(200)
 
@@ -1206,5 +1203,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
   defp assert_breadcrumb_content(doc, expected) do
     assert doc |> Floki.find(".breadcrumbs-element") |> Enum.map(&Floki.text/1) == expected
+  end
+
+  defp init_session_for_producer(%Plug.Conn{} = conn) do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    conn |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
   end
 end
