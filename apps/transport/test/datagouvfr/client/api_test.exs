@@ -1,6 +1,7 @@
 defmodule Datagouvfr.Client.APITest do
   # Need to be async: false because we swap application config in a test
   use ExUnit.Case, async: false
+  @moduletag :datagouvfr
   doctest Datagouvfr.Client.API, import: true
 
   import Datagouvfr.ApiFixtures

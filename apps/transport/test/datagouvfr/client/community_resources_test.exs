@@ -1,5 +1,6 @@
 defmodule Datagouvfr.Client.CommunityResources.APITest do
   use ExUnit.Case, async: true
+  @moduletag :datagouvfr
   doctest Datagouvfr.Client.CommunityResources.API
 
   import Datagouvfr.ApiFixtures

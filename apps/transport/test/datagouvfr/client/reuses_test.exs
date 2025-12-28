@@ -1,5 +1,6 @@
 defmodule Datagouvfr.Client.ReusesTest do
   use ExUnit.Case, async: true
+  @moduletag :datagouvfr
   alias Datagouvfr.Client.API
   alias Datagouvfr.Client.Reuses
   import Datagouvfr.ApiFixtures, only: [mock_httpoison_request: 3]
