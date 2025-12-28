@@ -25,7 +25,7 @@ defmodule Datagouvfr.Client.Resources do
   @callback delete(Plug.Conn.t(), map) :: Datagouvfr.Client.OAuth.oauth2_response()
   def delete(%Plug.Conn{} = conn, %{"dataset_id" => _, "resource_id" => _} = params), do: impl().delete(conn, params)
 
-  def impl, do: Application.get_env(:datagouvfr, :resources_impl)
+  def impl, do: Application.get_env(:transport, :resources_impl)
 end
 
 defmodule Datagouvfr.Client.Resources.External do

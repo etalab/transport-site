@@ -4,7 +4,7 @@ defmodule Datagouvfr.Client.User.Wrapper do
   """
   @callback me(Plug.Conn.t() | OAuth2.AccessToken.t()) :: {:error, map()} | {:ok, map()}
 
-  def impl, do: Application.get_env(:datagouvfr, :user_impl)
+  def impl, do: Application.get_env(:transport, :user_impl)
 end
 
 defmodule Datagouvfr.Client.User.Dummy do

@@ -1,5 +1,5 @@
 defmodule Datagouvfr.Client.DatasetsTest do
-  use Datagouvfr.ConnCase, async: true
+  use TransportWeb.ConnCase, async: true
   alias Datagouvfr.Client
   alias Datagouvfr.Client.Datasets
   import Mox

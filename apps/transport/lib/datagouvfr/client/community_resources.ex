@@ -8,7 +8,7 @@ defmodule Datagouvfr.Client.CommunityResources do
   @callback delete(dataset_id :: binary(), resource_id :: binary()) ::
               {:ok, any()} | {:error, any()}
 
-  defp impl, do: Application.get_env(:datagouvfr, :community_resources_impl)
+  defp impl, do: Application.get_env(:transport, :community_resources_impl)
   def get(dataset_id), do: impl().get(dataset_id)
   def delete(dataset_id, resource_id), do: impl().delete(dataset_id, resource_id)
 end

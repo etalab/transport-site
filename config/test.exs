@@ -68,7 +68,8 @@ config :ex_aws, :database_backup_source, bucket_name: "fake_source_bucket_name"
 
 config :ex_aws, :database_backup_destination, bucket_name: "fake_destination_bucket_name"
 
-config :datagouvfr,
+# data.gouv.fr
+config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
