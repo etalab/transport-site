@@ -38,8 +38,7 @@ defmodule TransportWeb.Plugs.ProducerData do
     cache_key = "datasets_for_user::#{user_id}"
 
     datasets =
-      maybe_delete_cache(conn, cache_key)
-      |> Transport.Cache.fetch(fn -> DB.Dataset.datasets_for_user(conn) end, @cache_delay)
+      maybe_skip_cache(conn, cache_key, fn -> DB.Dataset.datasets_for_user(conn) end)
       |> maybe_delete_if_error(cache_key)
 
     assign(conn, :datasets_for_user, datasets)
@@ -51,11 +50,7 @@ defmodule TransportWeb.Plugs.ProducerData do
     checks =
       case datasets do
         [%DB.Dataset{} | _] = datasets ->
-          maybe_delete_cache(conn, cache_key)
-          |> Transport.Cache.fetch(
-            fn -> Enum.map(datasets, &Transport.DatasetChecks.check/1) end,
-            @cache_delay
-          )
+          maybe_skip_cache(conn, cache_key, fn -> Enum.map(datasets, &Transport.DatasetChecks.check/1) end)
 
         _ ->
           []
@@ -71,14 +66,17 @@ defmodule TransportWeb.Plugs.ProducerData do
 
   defp maybe_delete_if_error(value, _cache_key), do: value
 
-  defp maybe_delete_cache(%Plug.Conn{method: method, request_path: request_path} = conn, cache_key) do
+  defp maybe_skip_cache(%Plug.Conn{method: method, request_path: request_path} = conn, cache_key, function) do
     in_espace_producteur? =
       String.starts_with?(request_path, TransportWeb.Router.Helpers.espace_producteur_path(conn, :espace_producteur))
 
-    if method == "POST" and in_espace_producteur? do
-      Cachex.del(@cache_name, cache_key)
-    end
+    skip_cache? = method == "POST" and in_espace_producteur?
 
-    cache_key
+    if skip_cache? do
+      Cachex.del(@cache_name, cache_key)
+      function.()
+    else
+      Transport.Cache.fetch(cache_key, function, @cache_delay)
+    end
   end
 end
