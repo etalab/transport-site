@@ -32,7 +32,7 @@ defmodule Transport.DatasetChecks do
     validations =
       DB.MultiValidation.dataset_latest_validation(
         dataset.id,
-        Transport.ValidatorsSelection.validators_for_feature(:dataset_controller)
+        Transport.ValidatorsSelection.validators_for_feature(:dataset_checks)
       )
 
     %{

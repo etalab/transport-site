@@ -107,5 +107,15 @@ defmodule Transport.ValidatorsSelection.Impl do
         Transport.Validators.MobilityDataGTFSValidator
       ]
 
+  def validators_for_feature(:dataset_checks),
+    do: [
+      Transport.Validators.GTFSTransport,
+      Transport.Validators.TableSchema,
+      Transport.Validators.JSONSchema,
+      Transport.Validators.GBFSValidator,
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
+    ]
+
   defp netex_validator_enabled?, do: !Application.fetch_env!(:transport, :disable_netex_validator)
 end
