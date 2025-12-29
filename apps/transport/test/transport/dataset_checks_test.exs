@@ -63,6 +63,31 @@ defmodule Transport.DatasetChecksTest do
     |> Enum.each(&Transport.DatasetChecks.issue_name/1)
   end
 
+  test "invalid_resource for a GTFS-RT" do
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset)
+
+    too_few_errors = [
+      %{"error_id" => "E003", "errors_count" => 10},
+      %{"error_id" => "E004", "errors_count" => 20},
+      %{"error_id" => "E011", "errors_count" => 10}
+    ]
+
+    errors = too_few_errors ++ [%{"error_id" => "E034", "errors_count" => 10}]
+
+    mv1 = %DB.MultiValidation{
+      validator: Transport.Validators.GTFSRT.validator_name(),
+      result: %{"errors" => too_few_errors}
+    }
+
+    mv2 = %{mv1 | result: %{"errors" => errors}}
+
+    dataset = dataset |> DB.Repo.preload(:resources)
+
+    assert [] == dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv1]})
+    assert [{_, [^mv2]}] = dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv2]})
+  end
+
   test "has_issues?/1 and count_issues/1" do
     d1 = insert(:dataset)
     d2 = insert(:dataset)

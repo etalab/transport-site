@@ -96,7 +96,7 @@ defmodule Transport.ValidatorsSelection.Impl do
   def validators_for_feature(:stats_compute_aom_gtfs_max_severity), do: [Transport.Validators.GTFSTransport]
 
   def validators_for_feature(feature)
-      when feature in [:dataset_controller, :resource_controller, :espace_producteur_controller],
+      when feature in [:dataset_controller, :resource_controller, :espace_producteur_controller, :dataset_checks],
       do: [
         Transport.Validators.GTFSTransport,
         Transport.Validators.GTFSRT,
@@ -106,16 +106,6 @@ defmodule Transport.ValidatorsSelection.Impl do
         Transport.Validators.NeTEx.Validator,
         Transport.Validators.MobilityDataGTFSValidator
       ]
-
-  def validators_for_feature(:dataset_checks),
-    do: [
-      Transport.Validators.GTFSTransport,
-      Transport.Validators.TableSchema,
-      Transport.Validators.JSONSchema,
-      Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator,
-      Transport.Validators.MobilityDataGTFSValidator
-    ]
 
   defp netex_validator_enabled?, do: !Application.fetch_env!(:transport, :disable_netex_validator)
 end
