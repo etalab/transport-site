@@ -92,5 +92,42 @@ defmodule TransportWeb.Plugs.ProducerDataTest do
     test "when user is not a producer", %{conn: conn} do
       assert %Plug.Conn{} = conn |> Phoenix.ConnTest.init_test_session(%{}) |> ProducerData.call([])
     end
+
+    test "cache is deleted for POST request on espace_producteur", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      random_cache_value = Ecto.UUID.generate()
+
+      Cachex.put(@cache_name, "datasets_for_user::#{contact.datagouv_user_id}", random_cache_value)
+
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [] end)
+
+      current_user = %{"is_producer" => true, "id" => contact.datagouv_user_id}
+
+      %{conn | method: "POST", request_path: "/espace_producteur/datasets"}
+      |> Phoenix.ConnTest.init_test_session(%{current_user: current_user})
+      |> assign(:current_user, current_user)
+      |> ProducerData.call([])
+
+      # Cache has been set
+      assert ["datasets_checks::#{contact.datagouv_user_id}", "datasets_for_user::#{contact.datagouv_user_id}"] ==
+               Cachex.keys!(@cache_name) |> Enum.sort()
+
+      # Cache has been rewritten
+      assert Cachex.get(@cache_name, "datasets_for_user::#{contact.datagouv_user_id}") != random_cache_value
+
+      # With the appropriate TTL
+      assert_in_delta Cachex.ttl!(@cache_name, "datasets_checks::#{contact.datagouv_user_id}"), :timer.minutes(30), 50
+      assert_in_delta Cachex.ttl!(@cache_name, "datasets_for_user::#{contact.datagouv_user_id}"), :timer.minutes(30), 50
+    end
   end
 end

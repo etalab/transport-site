@@ -7,6 +7,11 @@ defmodule TransportWeb.Plugs.ProducerData do
   of data integrity checks, caching the results during 30 minutes to optimize
   performance.
 
+  ## Cache busting
+
+  Cached values are cleaned after 30 minutes or immediately when performing a
+  `POST` request within the Espace Producteur.
+
   ## Assignments
 
   This plug adds the following keys to `conn.assigns`:
@@ -33,25 +38,21 @@ defmodule TransportWeb.Plugs.ProducerData do
     cache_key = "datasets_for_user::#{user_id}"
 
     datasets =
-      Transport.Cache.fetch(cache_key, fn -> DB.Dataset.datasets_for_user(conn) end, @cache_delay)
-      |> maybe_delete(cache_key)
+      maybe_delete_cache(conn, cache_key)
+      |> Transport.Cache.fetch(fn -> DB.Dataset.datasets_for_user(conn) end, @cache_delay)
+      |> maybe_delete_if_error(cache_key)
 
     assign(conn, :datasets_for_user, datasets)
   end
 
-  defp maybe_delete({:error, _} = value, cache_key) do
-    Cachex.del(@cache_name, cache_key)
-    value
-  end
-
-  defp maybe_delete(value, _cache_key), do: value
-
   defp datasets_checks(%Plug.Conn{assigns: %{datasets_for_user: datasets, current_user: %{"id" => user_id}}} = conn) do
+    cache_key = "datasets_checks::#{user_id}"
+
     checks =
       case datasets do
         [%DB.Dataset{} | _] = datasets ->
-          Transport.Cache.fetch(
-            "datasets_checks::#{user_id}",
+          maybe_delete_cache(conn, cache_key)
+          |> Transport.Cache.fetch(
             fn -> Enum.map(datasets, &Transport.DatasetChecks.check/1) end,
             @cache_delay
           )
@@ -61,5 +62,23 @@ defmodule TransportWeb.Plugs.ProducerData do
       end
 
     assign(conn, :datasets_checks, checks)
+  end
+
+  defp maybe_delete_if_error({:error, _} = value, cache_key) do
+    Cachex.del(@cache_name, cache_key)
+    value
+  end
+
+  defp maybe_delete_if_error(value, _cache_key), do: value
+
+  defp maybe_delete_cache(%Plug.Conn{method: method, request_path: request_path} = conn, cache_key) do
+    in_espace_producteur? =
+      String.starts_with?(request_path, TransportWeb.Router.Helpers.espace_producteur_path(conn, :espace_producteur))
+
+    if method == "POST" and in_espace_producteur? do
+      Cachex.del(@cache_name, cache_key)
+    end
+
+    cache_key
   end
 end
