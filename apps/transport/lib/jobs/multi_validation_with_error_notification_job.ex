@@ -14,6 +14,9 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
 
   @notification_reason Transport.NotificationReason.reason(:dataset_with_error)
 
+  @gtfs_rt_validator Transport.Validators.GTFSRT.validator_name()
+  @gtfs_rt_errors_threshold 50
+
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do
     relevant_validations(inserted_at)
@@ -141,7 +144,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   defp relevant_realtime_validations(%DateTime{} = datetime_limit) do
     validator_names = Enum.map(realtime_data_validators(), & &1.validator_name())
 
-    DB.MultiValidation.base_query()
+    DB.MultiValidation.with_result()
     |> where([multi_validation: mv], fragment("?->>'has_errors' = 'true'", mv.result))
     |> where(
       [multi_validation: mv],
@@ -149,8 +152,19 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     )
     |> preload(resource: :dataset)
     |> DB.Repo.all()
+    |> Enum.filter(&relevant_realtime_validation?/1)
     |> Enum.group_by(& &1.resource.dataset)
   end
+
+  def relevant_realtime_validation?(%DB.MultiValidation{validator: @gtfs_rt_validator, result: %{"errors" => errors}}) do
+    high_severity_errors = ["E003", "E004", "E011", "E034"]
+
+    errors
+    |> Enum.filter(&(&1["error_id"] in high_severity_errors))
+    |> Enum.sum_by(& &1["errors_count"]) >= @gtfs_rt_errors_threshold
+  end
+
+  def relevant_realtime_validation?(%DB.MultiValidation{}), do: true
 
   defp subscriptions(%DB.Dataset{} = dataset, role, validator_name) do
     @notification_reason
@@ -181,7 +195,8 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       Transport.Validators.TableSchema => {7, :day},
       Transport.Validators.JSONSchema => {7, :day},
       Transport.Validators.MobilityDataGTFSValidator => {7, :day},
-      Transport.Validators.GBFSValidator => {30, :day}
+      Transport.Validators.GBFSValidator => {30, :day},
+      Transport.Validators.GTFSRT => {30, :day}
     }
     |> Map.new(fn {validator, delay} -> {validator.validator_name(), delay} end)
     |> Map.fetch!(validator)
