@@ -28,6 +28,7 @@ defmodule Transport.DatasetChecksTest do
     end)
 
     discussion = %{
+      "closed" => nil,
       "discussion" => [
         %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(), "posted_by" => %{"id" => Ecto.UUID.generate()}}
       ]
@@ -117,6 +118,7 @@ defmodule Transport.DatasetChecksTest do
     end)
 
     discussion_by_contact = %{
+      "closed" => nil,
       "discussion" => [
         %{
           "posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(),
@@ -126,6 +128,7 @@ defmodule Transport.DatasetChecksTest do
     }
 
     discussion_too_old = %{
+      "closed" => nil,
       "discussion" => [
         %{
           "posted_on" => DateTime.utc_now() |> DateTime.add(-31, :day) |> DateTime.to_iso8601(),
@@ -135,6 +138,7 @@ defmodule Transport.DatasetChecksTest do
     }
 
     unanswered_discussion = %{
+      "closed" => nil,
       "discussion" => [
         %{
           "posted_on" => DateTime.utc_now() |> DateTime.add(-20, :day) |> DateTime.to_iso8601(),
@@ -143,12 +147,15 @@ defmodule Transport.DatasetChecksTest do
       ]
     }
 
+    closed_discussion = %{unanswered_discussion | "closed" => DateTime.utc_now() |> DateTime.to_iso8601()}
+
     Datagouvfr.Client.Discussions.Mock
     |> expect(:get, fn ^datagouv_id ->
       [
         discussion_by_contact,
         discussion_too_old,
-        unanswered_discussion
+        unanswered_discussion,
+        closed_discussion
       ]
     end)
 
