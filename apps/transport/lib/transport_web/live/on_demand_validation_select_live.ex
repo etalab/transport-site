@@ -11,45 +11,47 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
-  @params [:type, :selected_tile, :selected_subtile, :url]
+  @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
 
     {:ok,
      socket
-     |> socket_data(%{
-       selected_tile: nil,
-       selected_subtile: nil,
-       trigger_submit: false,
-       type: nil,
-       tiles: [
-         {"public-transit",
-          %{
-            icon: static_path(socket, "/images/icons/bus.svg"),
-            title: dgettext("validations", "Public transit"),
-            subtitle: "GTFS, GTFS-RT, NeTEx",
-            sub_tiles: ["GTFS", "GTFS-Flex", "GTFS-RT", "NeTEx"] |> Enum.map(&{&1, String.downcase(&1)})
-          }},
-         {"vehicles-sharing",
-          %{
-            icon: static_path(socket, "/images/icons/vehicles-sharing.svg"),
-            title: dgettext("validations", "Vehicles sharing"),
-            subtitle: "GBFS",
-            sub_tiles: [{"GBFS", "gbfs"}]
-          }},
-         {"schemas",
-          %{
-            icon: static_path(socket, "/images/icons/infos.svg"),
-            title: dgettext("validations", "Road mobility and bike"),
-            subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
-            sub_tiles:
-              Transport.Schemas.Wrapper.transport_schemas()
-              |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
-              |> Enum.sort_by(&elem(&1, 0))
-          }}
-       ]
-     })}
+     |> socket_data(
+       Map.merge(
+         %{
+           trigger_submit: false,
+           tiles: [
+             {"public-transit",
+              %{
+                icon: static_path(socket, "/images/icons/bus.svg"),
+                title: dgettext("validations", "Public transit"),
+                subtitle: "GTFS, GTFS-RT, NeTEx",
+                sub_tiles: ["GTFS", "GTFS-Flex", "GTFS-RT", "NeTEx"] |> Enum.map(&{&1, String.downcase(&1)})
+              }},
+             {"vehicles-sharing",
+              %{
+                icon: static_path(socket, "/images/icons/vehicles-sharing.svg"),
+                title: dgettext("validations", "Vehicles sharing"),
+                subtitle: "GBFS",
+                sub_tiles: [{"GBFS", "gbfs"}]
+              }},
+             {"schemas",
+              %{
+                icon: static_path(socket, "/images/icons/infos.svg"),
+                title: dgettext("validations", "Road mobility and bike"),
+                subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
+                sub_tiles:
+                  Transport.Schemas.Wrapper.transport_schemas()
+                  |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
+                  |> Enum.sort_by(&elem(&1, 0))
+              }}
+           ]
+         },
+         Map.new(@params, fn k -> {k, nil} end)
+       )
+     )}
   end
 
   def handle_params(params, _uri, socket) do
