@@ -1297,6 +1297,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
 
       doc = html |> Floki.parse_document!()
+
       assert doc |> Floki.find("table") == [
                {"table", [{"class", "table small-padding"}],
                 [
