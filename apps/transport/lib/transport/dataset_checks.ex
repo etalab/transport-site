@@ -15,6 +15,9 @@ defmodule Transport.DatasetChecks do
   @expire_days_ahead 7
   @unanswered_discussion_since_days 30
 
+  @gtfs_rt_validator Transport.Validators.GTFSRT.validator_name()
+  @gtfs_rt_errors_threshold 50
+
   @type validation_list :: [DB.MultiValidation.t()]
   @type resource_with_validations :: {DB.Resource.t(), validation_list()}
   @type validation_map :: %{required(integer()) => [DB.MultiValidation.t()] | nil}
@@ -72,6 +75,14 @@ defmodule Transport.DatasetChecks do
     |> keep_validations(validations)
     |> Enum.filter(fn {%DB.Resource{}, [mv]} ->
       case mv do
+        %DB.MultiValidation{validator: @gtfs_rt_validator, result: %{"errors" => errors}} ->
+          # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md
+          high_severity_errors = ["E003", "E004", "E011", "E034"]
+
+          errors
+          |> Enum.filter(&(&1["error_id"] in high_severity_errors))
+          |> Enum.sum_by(& &1["errors_count"]) >= @gtfs_rt_errors_threshold
+
         %DB.MultiValidation{digest: %{"max_severity" => %{"max_level" => severity}}}
         when severity in ["Error", "ERROR", "Fatal"] ->
           true
