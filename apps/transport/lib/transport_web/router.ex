@@ -114,6 +114,7 @@ defmodule TransportWeb.Router do
       get("/download_statistics", EspaceProducteurController, :download_statistics)
       get("/proxy_statistics_csv", EspaceProducteurController, :proxy_statistics_csv)
       get("/download_statistics_csv", EspaceProducteurController, :download_statistics_csv)
+      get("/discussions", EspaceProducteurController, :discussions)
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)

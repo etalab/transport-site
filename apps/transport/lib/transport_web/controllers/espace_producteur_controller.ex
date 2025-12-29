@@ -292,6 +292,42 @@ defmodule TransportWeb.EspaceProducteurController do
     end
   end
 
+  def discussions(%Plug.Conn{} = conn, _params) do
+    unanswered_discussions =
+      conn.assigns.datasets_for_user
+      |> Enum.map(fn %DB.Dataset{} = dataset -> {dataset, unanswered_discussions(dataset)} end)
+      |> Enum.reject(fn {_dataset, discussions} -> Enum.empty?(discussions) end)
+
+    conn
+    |> assign(:unanswered_discussions, unanswered_discussions)
+    |> render("discussions.html")
+  end
+
+  defp unanswered_discussions(%DB.Dataset{} = dataset) do
+    team_member_ids = team_member_ids(dataset)
+
+    Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+    |> Enum.reject(&discussion_closed?/1)
+    |> Enum.reject(&answered_by_team_member(&1, team_member_ids))
+  end
+
+  def discussion_closed?(%{"closed" => closed}), do: not is_nil(closed)
+
+  def answered_by_team_member(%{"discussion" => comment_list}, team_member_ids) do
+    %{"posted_by" => %{"id" => author_id}} = comment_list |> List.last()
+    author_id in team_member_ids
+  end
+
+  defp team_member_ids(%DB.Dataset{organization_id: organization_id}) do
+    case Datagouvfr.Client.Organization.Wrapper.get(organization_id, restrict_fields: true) do
+      {:ok, %{"members" => members}} ->
+        Enum.map(members, fn member -> member["user"]["id"] end)
+
+      _ ->
+        []
+    end
+  end
+
   defp proxy_requests_stats_nb_days, do: 15
 
   def formats_for_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{type: dataset_type}}}) do

@@ -402,3 +402,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "unanswered_discussions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Link"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Unanswered discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You have no unanswered discussions."
+msgstr ""

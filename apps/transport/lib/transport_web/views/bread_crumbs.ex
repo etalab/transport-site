@@ -48,6 +48,13 @@ defmodule TransportWeb.BreadCrumbs do
       ]
   end
 
+  def crumbs(conn, :unanswered_discussions) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Unanswered discussions"), espace_producteur_path(conn, :discussions)}
+      ]
+  end
+
   def crumbs(conn, :espace_producteur_notifications) do
     crumbs(conn, :espace_producteur) ++
       [
