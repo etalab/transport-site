@@ -1259,6 +1259,83 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
+  describe "discussions" do
+    test "requires authentication", %{conn: conn} do
+      conn |> get(espace_producteur_path(conn, :discussions)) |> assert_redirects_to_info_page()
+    end
+
+    test "we can see unanswered discussions", %{conn: conn} do
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, 2, fn ^organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      discussion = %{
+        "id" => Ecto.UUID.generate(),
+        "closed" => nil,
+        "title" => "Discussion title",
+        "discussion" => [
+          %{
+            "posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(),
+            "posted_by" => %{"id" => Ecto.UUID.generate()}
+          }
+        ]
+      }
+
+      Datagouvfr.Client.Discussions.Mock
+      |> expect(:get, 2, fn ^datagouv_id -> [discussion] end)
+
+      html =
+        conn
+        |> init_session_for_producer()
+        |> get(espace_producteur_path(conn, :discussions))
+        |> html_response(200)
+
+      doc = html |> Floki.parse_document!()
+      assert doc |> Floki.find("table") == [
+               {"table", [{"class", "table small-padding"}],
+                [
+                  {"thead", [],
+                   [{"tr", [], [{"th", [], ["Jeu de données"]}, {"th", [], ["Discussion"]}, {"th", [], ["Lien"]}]}]},
+                  {"tbody", [],
+                   [
+                     {"tr", [],
+                      [
+                        {"td", [{"rowspan", "1"}],
+                         [
+                           {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
+                            [{"i", [{"class", "fa fa-external-link"}], []}, "\nHello\n                  "]}
+                         ]},
+                        {"td", [], ["Discussion title"]},
+                        {"td", [],
+                         [
+                           {"a",
+                            [
+                              {"href",
+                               dataset_path(conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|},
+                              {"target", "_blank"},
+                              {"class", "button-outline primary small-padding"},
+                              {"data-tracking-category", "espace_producteur"},
+                              {"data-tracking-action", "unanswered_discussion_button"}
+                            ],
+                            [{"i", [{"class", "icon fas fa-comments"}], []}, "\nVoir la discussion\n                  "]}
+                         ]}
+                      ]}
+                   ]}
+                ]}
+             ]
+
+      assert doc |> Floki.find(".notification") |> Enum.empty?()
+
+      assert_breadcrumb_content(html, ["Votre espace producteur", "Discussions sans réponse"])
+    end
+  end
+
   test "formats_for_dataset" do
     dataset = insert(:dataset, type: "public-transit")
     other_dataset = insert(:dataset, type: "vehicles-sharing")

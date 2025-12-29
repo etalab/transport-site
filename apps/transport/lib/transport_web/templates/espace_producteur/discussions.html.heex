@@ -1,0 +1,55 @@
+<section class="container pt-48 pb-24">
+  <%= breadcrumbs([@conn, :unanswered_discussions]) %>
+</section>
+<section class="producer-actions">
+  <div class="container">
+    <h2><%= dgettext("espace-producteurs", "Unanswered discussions") %></h2>
+    <div class="panel">
+      <p :if={Enum.empty?(@unanswered_discussions)} class="notification">
+        <%= dgettext("espace-producteurs", "You have no unanswered discussions.") %>
+      </p>
+      <table :if={not Enum.empty?(@unanswered_discussions)} class="table small-padding">
+        <thead>
+          <tr>
+            <th><%= dgettext("espace-producteurs", "Dataset") %></th>
+            <th><%= dgettext("espace-producteurs", "Discussion") %></th>
+            <th><%= dgettext("espace-producteurs", "Link") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for {dataset, discussions} <- @unanswered_discussions do %>
+            <%= for {discussion, index} <- Enum.with_index(discussions) do %>
+              <tr>
+                <td :if={index == 0} rowspan={Enum.count(discussions)}>
+                  <a href={dataset_path(@conn, :details, dataset.slug)} target="_blank">
+                    <i class="fa fa-external-link"></i>
+                    <%= dataset.custom_title %>
+                  </a>
+                </td>
+                <td><%= discussion["title"] %></td>
+                <td>
+                  <a
+                    href={dataset_path(@conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|}
+                    target="_blank"
+                    class="button-outline primary small-padding"
+                    data-tracking-category="espace_producteur"
+                    data-tracking-action="unanswered_discussion_button"
+                  >
+                    <i class="icon fas fa-comments"></i>
+                    <%= dgettext("espace-producteurs", "See the discussion") %>
+                  </a>
+                </td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "producer_space"}
+  ) %>
+</section>
