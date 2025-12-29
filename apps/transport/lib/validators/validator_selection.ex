@@ -90,7 +90,8 @@ defmodule Transport.ValidatorsSelection.Impl do
 
   def validators_for_feature(:multi_validation_with_error_realtime_validators),
     do: [
-      Transport.Validators.GBFSValidator
+      Transport.Validators.GBFSValidator,
+      Transport.Validators.GTFSRT
     ]
 
   def validators_for_feature(:stats_compute_aom_gtfs_max_severity), do: [Transport.Validators.GTFSTransport]
