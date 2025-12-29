@@ -113,9 +113,12 @@ defmodule Transport.DatasetChecks do
     team_member_ids = team_member_ids(dataset)
 
     Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+    |> Enum.reject(&closed_discussion?/1)
     |> Enum.filter(&recent_discussion?/1)
     |> Enum.reject(&answered_by_team_member(&1, team_member_ids))
   end
+
+  def closed_discussion?(%{"closed" => closed}), do: not is_nil(closed)
 
   def recent_discussion?(%{"discussion" => comment_list}) do
     latest_comment_datetime =
