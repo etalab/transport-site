@@ -56,11 +56,11 @@ defmodule TransportWeb.EspaceProducteurView do
     do:
       :transport
       |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}/resource/#{resource_id}")
+      |> Path.join("admin/datasets/#{dataset_id}/files?resource_id=#{resource_id}")
 
   def datagouv_resource_creation_url(dataset_id),
     do:
       :transport
       |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/#{dataset_id}?new_resource=")
+      |> Path.join("/admin/datasets/#{dataset_id}/files")
 end

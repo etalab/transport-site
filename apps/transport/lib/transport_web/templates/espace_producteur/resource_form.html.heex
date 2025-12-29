@@ -119,7 +119,7 @@
               <div>
                 <a
                   class="button primary"
-                  href={datagouv_resource_edit_url(@datagouv_dataset["id"], @conn.params["resource_id"])}
+                  href={datagouv_resource_edit_url(@datagouv_dataset["id"], Map.fetch!(@conn.params, "resource_datagouv_id"))}
                   role="link"
                   target="_blank"
                 >
