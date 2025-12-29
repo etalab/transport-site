@@ -135,6 +135,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       end)
 
       discussion = %{
+        "closed" => nil,
         "discussion" => [
           %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(), "posted_by" => %{"id" => Ecto.UUID.generate()}}
         ],
