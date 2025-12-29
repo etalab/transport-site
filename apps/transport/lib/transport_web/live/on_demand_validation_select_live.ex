@@ -11,7 +11,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
-  @params [:type, :selected_tile, :selected_subtile, :url]
+  @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
