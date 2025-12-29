@@ -23,6 +23,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
        selected_subtile: nil,
        trigger_submit: false,
        type: nil,
+       url: nil,
+       feed_url: nil,
        tiles: [
          {"public-transit",
           %{
