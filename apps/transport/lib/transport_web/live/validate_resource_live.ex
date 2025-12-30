@@ -34,7 +34,11 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
-  @types %{
+  @hide_file_upload_formats ["gbfs", "gtfs-rt"]
+  @file_validation_enabled_formats ["GTFS", "NeTEx"]
+  @url_validation_enabled_formats ["GTFS", "NeTEx"]
+
+  @changeset_types %{
     title: :string,
     format: :string,
     url: :string
@@ -52,7 +56,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       <%= select(f, :format, @formats, label: dgettext("espace-producteurs", "Format"), required: true) %>
       <div class="pt-24">
         <%= if @new_resource do %>
-          <%= if changeset_value(@changeset, :format) == "GTFS" do %>
+          <%= if file_validation_enabled?(changeset_value(@changeset, :format)) do %>
             <.interactive_validation_upload
               socket={@socket}
               locale={@locale}
@@ -63,9 +67,9 @@ defmodule TransportWeb.Live.ValidateResourceLive do
               uploaded_path={@uploaded_path}
             />
           <% else %>
-            <.upload_file datagouv_resource={@datagouv_resource} f={f} />
+            <.upload_file :if={display_file_upload?(@changeset)} datagouv_resource={@datagouv_resource} f={f} />
           <% end %>
-          <div class="choose-or">
+          <div :if={display_file_upload?(@changeset)} class="choose-or">
             - <%= dgettext("espace-producteurs", "or") %> -
           </div>
           <.specify_url
@@ -94,7 +98,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
               socket={@socket}
             />
           <% else %>
-            <%= if changeset_value(@changeset, :format) == "GTFS" do %>
+            <%= if file_validation_enabled?(changeset_value(@changeset, :format)) do %>
               <.interactive_validation_upload
                 socket={@socket}
                 locale={@locale}
@@ -105,7 +109,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
                 uploaded_path={@uploaded_path}
               />
             <% else %>
-              <.upload_file datagouv_resource={@datagouv_resource} f={f} />
+              <.upload_file :if={display_file_upload?(@changeset)} datagouv_resource={@datagouv_resource} f={f} />
             <% end %>
           <% end %>
           <div class="choose-submit pt-24">
@@ -120,14 +124,14 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   defp interactive_validation_upload(%{} = assigns) do
     ~H"""
     <div :if={@show_upload}>
-      <div id="gtfs-diff-input" phx-drop-target={@uploads.gtfs.ref}>
+      <div id="gtfs-diff-input" phx-drop-target={@uploads.zip.ref}>
         <div id="upload-form" class="pb-12" phx-change="validate">
           <.upload_drop_zone uploads={@uploads} />
         </div>
       </div>
 
-      <section phx-drop-target={@uploads.gtfs.ref}>
-        <article :for={entry <- @uploads.gtfs.entries} class="upload-entry">
+      <section phx-drop-target={@uploads.zip.ref}>
+        <article :for={entry <- @uploads.zip.entries} class="upload-entry">
           <div class="entry-name">
             <.icon :if={entry.valid?} class="fa fa-square-check" title={dgettext("gtfs-diff", "Valid file")} />
             <.icon :if={not entry.valid?} class="fa fa-square-xmark" title={dgettext("gtfs-diff", "Invalid file")} />
@@ -206,10 +210,11 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       ) %>
     </div>
     <a
-      :if={@format == "GTFS" and is_nil(@multi_validation) and valid_url?(@url)}
+      :if={display_url_validation?(@format) and is_nil(@multi_validation) and valid_url?(@url)}
       class="button-outline primary small mt-12"
       phx-click="start-validation"
       phx-value-url={@url}
+      phx-value-format={@format}
     >
       <i class="icon fa fa-check"></i><%= dgettext("espace-producteurs", "Start the validation") %>
     </a>
@@ -226,13 +231,13 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   defp upload_drop_zone(%{uploads: _} = assigns) do
     ~H"""
     <div class="drop-zone section-grey">
-      <label for={@uploads.gtfs.ref}>
+      <label for={@uploads.zip.ref}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         <span>
-          <%= dgettext("espace-producteurs", "Drop your GTFS file here or click to browse your local drive") %>
+          <%= dgettext("espace-producteurs", "Drop your file here or click to browse your local drive") %>
         </span>
       </label>
-      <.live_file_input upload={@uploads.gtfs} />
+      <.live_file_input upload={@uploads.zip} />
     </div>
     """
   end
@@ -303,15 +308,15 @@ defmodule TransportWeb.Live.ValidateResourceLive do
        changeset: initialize_changeset(resource, formats)
      })
      |> reset_state()
-     |> allow_upload(:gtfs, accept: ~w(.zip), max_entries: 1, auto_upload: true, progress: &handle_progress/3)}
+     |> allow_upload(:zip, accept: ~w(.zip), max_entries: 1, auto_upload: true, progress: &handle_progress/3)}
   end
 
   defp initialize_changeset(%DB.Resource{} = resource, _formats) do
-    Ecto.Changeset.cast({%{}, @types}, Map.from_struct(resource), Map.keys(@types))
+    Ecto.Changeset.cast({%{}, @changeset_types}, Map.from_struct(resource), Map.keys(@changeset_types))
   end
 
   defp initialize_changeset(_, formats) do
-    Ecto.Changeset.cast({%{}, @types}, %{format: List.first(formats)}, Map.keys(@types))
+    Ecto.Changeset.cast({%{}, @changeset_types}, %{format: List.first(formats)}, Map.keys(@changeset_types))
   end
 
   defp reset_state(socket) do
@@ -324,12 +329,12 @@ defmodule TransportWeb.Live.ValidateResourceLive do
 
   @impl Phoenix.LiveView
   def handle_event("change", %{"form" => form}, socket) do
-    {:noreply, socket |> assign(:changeset, Ecto.Changeset.cast({%{}, @types}, form, Map.keys(@types)))}
+    {:noreply,
+     socket |> assign(:changeset, Ecto.Changeset.cast({%{}, @changeset_types}, form, Map.keys(@changeset_types)))}
   end
 
-  def handle_event("start-validation", params, socket) do
-    url = Map.get(params, "url", "")
-    multi_validation = create_multi_validation_from_url(url)
+  def handle_event("start-validation", %{"url" => url, "format" => format}, socket) do
+    multi_validation = create_multi_validation_for_url(url, format)
     dispatch_validation_job(multi_validation)
     schedule_next_update()
     {:noreply, socket |> assign(:multi_validation, multi_validation)}
@@ -347,18 +352,19 @@ defmodule TransportWeb.Live.ValidateResourceLive do
 
   @impl Phoenix.LiveView
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
-    {:noreply, cancel_upload(socket, :gtfs, ref)}
+    {:noreply, cancel_upload(socket, :zip, ref)}
   end
 
-  defp handle_progress(:gtfs, entry, socket) do
+  defp handle_progress(:zip, entry, socket) do
     if entry.done? do
       [{multi_validation, path, client_name}] =
-        consume_uploaded_entries(socket, :gtfs, fn %{path: path},
-                                                   %Phoenix.LiveView.UploadEntry{client_name: client_name} ->
+        consume_uploaded_entries(socket, :zip, fn %{path: path},
+                                                  %Phoenix.LiveView.UploadEntry{client_name: client_name} ->
           filename = Ecto.UUID.generate()
           stream_to_s3(path, filename)
 
-          multi_validation = create_multi_validation(filename)
+          multi_validation =
+            create_multi_validation_for_file(filename, changeset_value(socket.assigns.changeset, :format))
 
           dispatch_validation_job(multi_validation)
 
@@ -397,14 +403,14 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     Process.send_after(self(), :update_data, 1_000)
   end
 
-  defp create_multi_validation_from_url(url) do
+  defp create_multi_validation_for_url(url, format) do
     filename = Path.basename(url)
 
     %DB.MultiValidation{
       validator: "on demand validation requested",
       validation_timestamp: DateTime.utc_now(),
       oban_args: %{
-        "type" => "gtfs",
+        "type" => String.downcase(format),
         "state" => "waiting",
         "filename" => filename,
         "permanent_url" => url,
@@ -415,12 +421,12 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     |> DB.Repo.insert!()
   end
 
-  defp create_multi_validation(filename) do
+  defp create_multi_validation_for_file(filename, format) do
     %DB.MultiValidation{
       validator: "on demand validation requested",
       validation_timestamp: DateTime.utc_now(),
       oban_args: %{
-        "type" => "gtfs",
+        "type" => String.downcase(format),
         "state" => "waiting",
         "filename" => filename,
         "permanent_url" => Transport.S3.permanent_url(:on_demand_validation, filename),
@@ -441,6 +447,13 @@ defmodule TransportWeb.Live.ValidateResourceLive do
 
   defp changeset_value(changeset, field) do
     Ecto.Changeset.get_change(changeset, field)
+  end
+
+  defp file_validation_enabled?(format), do: format in @file_validation_enabled_formats
+  defp display_url_validation?(format), do: format in @url_validation_enabled_formats
+
+  defp display_file_upload?(changeset) do
+    changeset_value(changeset, :format) not in @hide_file_upload_formats
   end
 
   def valid_url?(nil), do: false

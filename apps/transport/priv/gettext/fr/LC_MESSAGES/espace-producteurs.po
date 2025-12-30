@@ -364,10 +364,6 @@ msgid "See the validation report"
 msgstr "Voir le rapport de validation"
 
 #, elixir-autogen, elixir-format
-msgid "Drop your GTFS file here or click to browse your local drive"
-msgstr "Glissez un fichier GTFS ici ou cliquez pour parcourir vos répertoires locaux"
-
-#, elixir-autogen, elixir-format
 msgid "Start again"
 msgstr "Essayer à nouveau"
 
@@ -438,3 +434,7 @@ msgstr "Vous trouverez ici les discussions qui n'ont pas été clôturées et o�
 #, elixir-autogen, elixir-format
 msgid "Start the validation"
 msgstr "Démarrer la validation"
+
+#, elixir-autogen, elixir-format
+msgid "Drop your file here or click to browse your local drive"
+msgstr "Glissez un fichier ici ou cliquez pour parcourir vos répertoires locaux"
