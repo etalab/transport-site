@@ -735,7 +735,7 @@ defmodule TransportWeb.DatasetControllerTest do
       reason: :expiration,
       email: Ecto.UUID.generate() <> "@example.com",
       payload: %{"delay" => 7},
-      inserted_at: ~U[2025-12-30 11:27:23.516350Z]
+      inserted_at: inserted_at = DateTime.utc_now()
     })
 
     mock_empty_history_resources()
@@ -744,6 +744,8 @@ defmodule TransportWeb.DatasetControllerTest do
     [msg] = Floki.find(doc, "#notifications-sent")
     assert Floki.text(msg) =~ "Expiration de données"
 
+    expected_dt = Shared.DateTimeDisplay.format_datetime_to_paris(inserted_at, "fr")
+
     assert Floki.find(doc, "#notifications-sent table tbody") == [
              {"tbody", [],
               [
@@ -751,7 +753,7 @@ defmodule TransportWeb.DatasetControllerTest do
                  [
                    {"td", [], ["Expiration de données"]},
                    {"td", [], ["\n  dans 7 jours\n"]},
-                   {"td", [], ["30/12/2025 à 12h27 Europe/Paris"]}
+                   {"td", [], [expected_dt]}
                  ]}
               ]}
            ]
