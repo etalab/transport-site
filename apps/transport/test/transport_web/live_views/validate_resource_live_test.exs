@@ -28,7 +28,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
               [
                 {"id", _},
                 {"type", "file"},
-                {"name", "gtfs"},
+                {"name", "zip"},
                 {"accept", ".zip"},
                 {"data-phx-hook", "Phoenix.LiveFileUpload"},
                 {"data-phx-update", "ignore"},
@@ -303,6 +303,81 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
              |> Enum.map(&{Floki.attribute(&1, "name"), Floki.attribute(&1, "value")})
   end
 
+  for format <- ["gtfs-rt", "gbfs"] do
+    test "file input is hidden for #{format}", %{conn: conn} do
+      {:ok, view, _html} =
+        live_isolated(conn, TransportWeb.Live.ValidateResourceLive,
+          session: %{
+            "locale" => "fr",
+            "action_path" => "/action",
+            "datagouv_resource" => %{},
+            "new_resource" => true,
+            "resource" => nil,
+            "formats" => [unquote(format)]
+          }
+        )
+
+      refute view |> has_element?(~s|input[type="file"]|)
+    end
+  end
+
+  for format <- ["GTFS", "NeTEx"] do
+    test "file validation is enabled for #{format}", %{conn: conn} do
+      {:ok, view, _html} =
+        live_isolated(conn, TransportWeb.Live.ValidateResourceLive,
+          session: %{
+            "locale" => "fr",
+            "action_path" => "/action",
+            "datagouv_resource" => %{},
+            "new_resource" => true,
+            "resource" => nil,
+            "formats" => ["gtfs-rt", unquote(format)]
+          }
+        )
+
+      refute view |> has_element?(~s|input[type="file"]|)
+
+      view |> element("form") |> render_change(%{_target: ["form[format]"], form: %{format: unquote(format)}})
+
+      assert [
+               {"input",
+                [
+                  {"id", _},
+                  {"type", "file"},
+                  {"name", "zip"},
+                  {"accept", ".zip"},
+                  {"data-phx-hook", "Phoenix.LiveFileUpload"},
+                  {"data-phx-update", "ignore"},
+                  {"data-phx-upload-ref", _},
+                  {"data-phx-active-refs", ""},
+                  {"data-phx-done-refs", ""},
+                  {"data-phx-preflighted-refs", ""},
+                  {"data-phx-auto-upload", "data-phx-auto-upload"}
+                ], []}
+             ] = render(view) |> Floki.parse_document!() |> Floki.find(~s|input[type="file"]|)
+    end
+  end
+
+  for format <- ["GTFS", "NeTEx"] do
+    test "URL validation is enabled for #{format}", %{conn: conn} do
+      {:ok, view, _html} =
+        live_isolated(conn, TransportWeb.Live.ValidateResourceLive,
+          session: %{
+            "locale" => "fr",
+            "action_path" => "/action",
+            "datagouv_resource" => %{},
+            "new_resource" => true,
+            "resource" => nil,
+            "formats" => [unquote(format)]
+          }
+        )
+
+      view |> element("form") |> render_change(%{_target: ["form[url]"], form: %{url: "https://example.com/file"}})
+
+      assert view |> has_element?(~s|a[phx-click="start-validation]|)
+    end
+  end
+
   defp assert_validation_report_link(content, %DB.MultiValidation{
          id: id,
          oban_args: %{"secret_url_token" => secret_url_token}
@@ -328,7 +403,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
   end
 
   defp upload_file(%Phoenix.LiveViewTest.View{} = view) do
-    file_input(view, "#upload-form", :gtfs, [
+    file_input(view, "#upload-form", :zip, [
       %{
         name: "gtfs.zip",
         content: File.read!(@gtfs_path)
