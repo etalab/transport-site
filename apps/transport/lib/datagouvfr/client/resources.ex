@@ -178,21 +178,29 @@ defmodule Datagouvfr.Client.Resources.External do
     # (the underlying lib is the same: hackney)
     {:multipart,
      [
-       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, remove_accents_and_spaces(filename)}]}, []}
+       {:file, filepath,
+        {"form-data", [{:name, "file"}, {:filename, remove_special_characters(filename)}]}, []}
      ]}
   end
 
   @doc """
-  iex> remove_accents_and_spaces("cédille")
+  iex> remove_special_characters("cédille")
   "cedille"
-  iex> remove_accents_and_spaces("Hello")
+  iex> remove_special_characters("Hello")
   "Hello"
-  iex> remove_accents_and_spaces("Hello  world\t")
+  iex> remove_special_characters("Hello  world\t")
   "Hello_world"
-  iex> remove_accents_and_spaces("Hello world")
+  iex> remove_special_characters("Hello world")
   "Hello_world"
+  iex> remove_special_characters("Hello world (1).zip")
+  "Hello_world_1.zip"
   """
-  def remove_accents_and_spaces(value) do
-    value |> String.trim() |> String.normalize(:nfd) |> String.replace(~r/\p{M}/u, "") |> String.replace(~r/(\s)+/, "_")
+  def remove_special_characters(value) do
+    value
+    |> String.trim()
+    |> String.normalize(:nfd)
+    |> String.replace(~r/\p{M}/u, "")
+    |> String.replace(~r/(\s)+/, "_")
+    |> String.replace(~r/[^a-zA-Z0-9_.]/, "")
   end
 end
