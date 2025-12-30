@@ -338,7 +338,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
   end
 
   defp assert_job_has_been_enqueued(multi_validation) do
-        # Job has been enqueued
+    # Job has been enqueued
     oban_args = Map.put(multi_validation.oban_args, "id", multi_validation.id)
 
     assert [
