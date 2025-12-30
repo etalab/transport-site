@@ -5,6 +5,12 @@
   <div class="container">
     <h2><%= dgettext("espace-producteurs", "Download statistics") %></h2>
     <div class="panel">
+      <p>
+        <%= dgettext(
+          "espace-producteurs",
+          "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+        ) %>
+      </p>
       <table class="table small-padding">
         <thead>
           <tr>
@@ -29,7 +35,7 @@
           <% end %>
         </tbody>
       </table>
-      <div class="pt-12">
+      <div class="mt-24">
         <a
           class="button-outline small secondary"
           href={espace_producteur_path(@conn, :download_statistics_csv)}

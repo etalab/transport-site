@@ -418,3 +418,7 @@ msgstr "Discussions sans réponse"
 #, elixir-autogen, elixir-format
 msgid "You have no unanswered discussions."
 msgstr "Vous n'avez aucune discussion sans réponse."
+
+#, elixir-autogen, elixir-format
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr "Vous trouverez ci-dessous les données de téléchargement pour vos ressources. Les statistiques peuvent être téléchargées en bas de page."

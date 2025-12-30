@@ -417,3 +417,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "You have no unanswered discussions."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""
