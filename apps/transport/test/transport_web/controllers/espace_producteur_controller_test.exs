@@ -79,7 +79,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert menu_items.(conn) == [
                {"h4", [], ["Tester vos jeux de données"]},
                {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]}
+               {"h4", [], ["Recevoir des notifications"]},
+               {"h4", [], ["Discussions sans réponse"]}
              ]
 
       # Should show download stats
@@ -90,7 +91,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                {"h4", [], ["Tester vos jeux de données"]},
                {"h4", [], ["Publier un jeu de données"]},
                {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]}
+               {"h4", [], ["Vos statistiques de téléchargements"]},
+               {"h4", [], ["Discussions sans réponse"]}
              ]
 
       # Should show proxy stats
@@ -102,7 +104,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                {"h4", [], ["Publier un jeu de données"]},
                {"h4", [], ["Recevoir des notifications"]},
                {"h4", [], ["Vos statistiques proxy"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]}
+               {"h4", [], ["Vos statistiques de téléchargements"]},
+               {"h4", [], ["Discussions sans réponse"]}
              ]
     end
 

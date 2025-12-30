@@ -5,6 +5,9 @@
   <div class="container">
     <h2><%= dgettext("espace-producteurs", "Unanswered discussions") %></h2>
     <div class="panel">
+      <p>
+        <%= dgettext("espace-producteurs", "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation.") %>
+      </p>
       <p :if={Enum.empty?(@unanswered_discussions)} class="notification">
         <%= dgettext("espace-producteurs", "You have no unanswered discussions.") %>
       </p>
