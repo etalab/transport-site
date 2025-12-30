@@ -60,6 +60,7 @@ defmodule Shared.MixProject do
       {:ex_cldr_calendars, "~> 2.4"},
       {:ex_cldr_lists, "~> 2.11"},
       {:ex_cldr_units, "~> 3.17"},
+      {:ex_cldr_dates_times, "~> 2.0"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:cachex, "~> 4.1"},
