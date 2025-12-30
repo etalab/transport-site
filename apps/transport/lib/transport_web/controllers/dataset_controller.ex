@@ -58,7 +58,7 @@ defmodule TransportWeb.DatasetController do
           )
         )
         |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
-        |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
+        |> assign(:notifications_sent, DB.Notification.recent_reasons(dataset, days_notifications_sent()))
         |> assign_scores(dataset)
         |> assign_is_producer(dataset)
         |> assign_follows_dataset(dataset)
