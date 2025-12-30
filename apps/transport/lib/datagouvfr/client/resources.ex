@@ -178,8 +178,7 @@ defmodule Datagouvfr.Client.Resources.External do
     # (the underlying lib is the same: hackney)
     {:multipart,
      [
-       {:file, filepath,
-        {"form-data", [{:name, "file"}, {:filename, remove_special_characters(filename)}]}, []}
+       {:file, filepath, {"form-data", [{:name, "file"}, {:filename, remove_special_characters(filename)}]}, []}
      ]}
   end
 

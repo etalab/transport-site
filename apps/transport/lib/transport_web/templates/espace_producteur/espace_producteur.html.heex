@@ -109,6 +109,25 @@
           </div>
         </div>
       </div>
+      <div class="panel action-panel">
+        <img class="picto" src={static_path(@conn, "/images/producteurs/picto-discussions.svg")} alt="" />
+        <div>
+          <div class="publish-header">
+            <h4><%= dgettext("espace-producteurs", "Unanswered discussions") %></h4>
+          </div>
+          <div class="pt-12">
+            <%= dgettext(
+              "espace-producteurs",
+              "See unanswered discussions on your datasets."
+            ) %>
+          </div>
+          <div class="pt-12">
+            <a href={espace_producteur_path(@conn, :discussions)} class="button primary">
+              <%= dgettext("espace-producteurs", "See unanswered discussions") %>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
