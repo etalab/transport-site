@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetViewTest do
   use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
+  import Phoenix.LiveViewTest
   import TransportWeb.DatasetView
 
   doctest TransportWeb.DatasetView, import: true
@@ -251,6 +252,85 @@ defmodule TransportWeb.DatasetViewTest do
 
       assert File.exists?(path)
     end)
+  end
+
+  describe "notification_sent" do
+    test "expiration" do
+      assert render_component(&notification_sent/1,
+               locale: "fr",
+               notification: %{
+                 timestamp: ~U[2025-12-30 11:27:23.516350Z],
+                 payload: %{"delay" => 7},
+                 reason: :expiration
+               }
+             )
+             |> Floki.parse_document!() == [
+               {"tr", [],
+                [
+                  {"td", [], ["Expiration de données"]},
+                  {"td", [], ["\n  dans 7 jours\n"]},
+                  {"td", [], ["30/12/2025 à 12h27 Europe/Paris"]}
+                ]}
+             ]
+    end
+
+    test "dataset_with_error" do
+      resource = insert(:resource, title: "GTFS")
+
+      assert render_component(&notification_sent/1,
+               locale: "fr",
+               notification: %{
+                 timestamp: ~U[2025-12-30 11:27:23.516350Z],
+                 payload: %{"resource_ids" => [resource.id]},
+                 reason: :dataset_with_error
+               }
+             )
+             |> Floki.parse_document!() == [
+               {
+                 "tr",
+                 [],
+                 [
+                   {"td", [], ["Erreurs de validation"]},
+                   {"td", [],
+                    [
+                      {"a",
+                       [{"href", resource_path(TransportWeb.Endpoint, :details, resource.id)}, {"target", "_blank"}],
+                       ["\n    GTFS\n  "]}
+                    ]},
+                   {"td", [], ["30/12/2025 à 12h27 Europe/Paris"]}
+                 ]
+               }
+             ]
+    end
+
+    test "resource_unavailable" do
+      resource = insert(:resource, title: "GTFS")
+
+      assert render_component(&notification_sent/1,
+               locale: "fr",
+               notification: %{
+                 timestamp: ~U[2025-12-30 11:27:23.516350Z],
+                 payload: %{"resource_ids" => [resource.id]},
+                 reason: :resource_unavailable
+               }
+             )
+             |> Floki.parse_document!() == [
+               {
+                 "tr",
+                 [],
+                 [
+                   {"td", [], ["Ressources indisponibles"]},
+                   {"td", [],
+                    [
+                      {"a",
+                       [{"href", resource_path(TransportWeb.Endpoint, :details, resource.id)}, {"target", "_blank"}],
+                       ["\n    GTFS\n  "]}
+                    ]},
+                   {"td", [], ["30/12/2025 à 12h27 Europe/Paris"]}
+                 ]
+               }
+             ]
+    end
   end
 
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do

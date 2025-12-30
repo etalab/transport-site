@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetView do
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
   alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
+  import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -648,6 +649,42 @@ defmodule TransportWeb.DatasetView do
 
   def empty_to_nil(""), do: nil
   def empty_to_nil(value), do: value
+
+  def notification_sent(%{} = assigns) do
+    ~H"""
+    <tr>
+      <td><%= Transport.NotificationReason.reason_to_str(@notification.reason) %></td>
+      <.notification_sent_details reason={@notification.reason} payload={@notification.payload} locale={@locale} />
+      <td><%= DateTimeDisplay.format_datetime_to_paris(@notification.timestamp, @locale) %></td>
+    </tr>
+    """
+  end
+
+  def notification_sent_details(%{reason: reason, payload: %{"resource_ids" => resource_ids}} = assigns)
+      when reason in [:dataset_with_error, :resource_unavailable] do
+    assigns =
+      assign(
+        assigns,
+        :resources,
+        DB.Resource |> where([r], r.id in ^resource_ids) |> Ecto.Query.select([r], [:title, :id]) |> DB.Repo.all()
+      )
+
+    ~H"""
+    <td>
+      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+        <%= resource.title %>
+      </a>
+    </td>
+    """
+  end
+
+  def notification_sent_details(%{reason: :expiration} = assigns) do
+    ~H"""
+    <td>
+      <%= Shared.DateTimeDisplay.relative_datetime_in_days(@payload["delay"], @locale) %>
+    </td>
+    """
+  end
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do

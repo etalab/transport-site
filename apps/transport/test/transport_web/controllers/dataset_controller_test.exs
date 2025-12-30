@@ -733,7 +733,9 @@ defmodule TransportWeb.DatasetControllerTest do
       dataset: dataset,
       role: :producer,
       reason: :expiration,
-      email: Ecto.UUID.generate() <> "@example.com"
+      email: Ecto.UUID.generate() <> "@example.com",
+      payload: %{"delay" => 7},
+      inserted_at: inserted_at = DateTime.utc_now()
     })
 
     mock_empty_history_resources()
@@ -741,6 +743,20 @@ defmodule TransportWeb.DatasetControllerTest do
     doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
     [msg] = Floki.find(doc, "#notifications-sent")
     assert Floki.text(msg) =~ "Expiration de données"
+
+    expected_dt = Shared.DateTimeDisplay.format_datetime_to_paris(inserted_at, "fr")
+
+    assert Floki.find(doc, "#notifications-sent table tbody") == [
+             {"tbody", [],
+              [
+                {"tr", [],
+                 [
+                   {"td", [], ["Expiration de données"]},
+                   {"td", [], ["\n  dans 7 jours\n"]},
+                   {"td", [], [expected_dt]}
+                 ]}
+              ]}
+           ]
   end
 
   test "dataset#details with a SIRI resource links to the query generator", %{conn: conn} do

@@ -92,6 +92,7 @@ defmodule DB.Notification do
     ]
 
     base_query()
+    |> where([notification: n], not is_nil(n.payload))
     |> where([notification: n], n.reason in ^enabled_reasons and n.role == :producer)
     |> where([notification: n], n.inserted_at >= ^datetime_limit and n.dataset_id == ^dataset_id)
     |> group_by([notification: n], [fragment("?->'job_id'", n.payload), n.reason, n.payload])
