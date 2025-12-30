@@ -70,7 +70,7 @@ defmodule TransportWeb.Plugs.ProducerData do
     in_espace_producteur? =
       String.starts_with?(request_path, TransportWeb.Router.Helpers.espace_producteur_path(conn, :espace_producteur))
 
-    skip_cache? = method == "POST" and in_espace_producteur?
+    skip_cache? = method in ["PUT", "POST", "DELETE"] and in_espace_producteur?
 
     if skip_cache? do
       Cachex.del(@cache_name, cache_key)
