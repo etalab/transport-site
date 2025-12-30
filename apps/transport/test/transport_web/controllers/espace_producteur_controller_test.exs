@@ -852,11 +852,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   describe "resource_actions" do
     test "we can show the form of an existing remote resource", %{conn: conn} do
       conn = conn |> init_session_for_producer()
-      resource_datagouv_id = "resource_dataset_id"
 
       %DB.Dataset{id: dataset_id, datagouv_id: dataset_datagouv_id, organization_id: organization_id} =
         dataset =
         insert(:dataset, custom_title: custom_title = "Base Nationale des Lieux de Covoiturage")
+
+      resource = insert(:resource, url: url = "https://example.com/file", dataset: dataset)
 
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
@@ -865,21 +866,21 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^dataset_datagouv_id ->
-        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource_datagouv_id)
+        dataset_datagouv_get_response(dataset_datagouv_id, resource_id: resource.datagouv_id)
       end)
 
       html =
         conn
-        |> get(espace_producteur_path(conn, :edit_resource, dataset_id, resource_datagouv_id))
+        |> get(espace_producteur_path(conn, :edit_resource, dataset_id, resource.datagouv_id))
         |> html_response(200)
 
       doc = html |> Floki.parse_document!()
       assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
+
       # Title
       assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == "Modification d’une ressource|Laissez-nous votre avis"
       assert html =~ "bnlc.csv"
-      assert html =~ "csv"
-      assert html =~ "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
+      assert html =~ url
     end
 
     test "edit a resource for a GTFS file", %{conn: conn} do
@@ -965,9 +966,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> post(
           espace_producteur_path(conn, :post_file, dataset_datagouv_id),
           %{
-            "format" => "csv",
-            "title" => "Test",
-            "url" => "https://example.com/my_csv_resource.csv"
+            "form" => %{
+              "format" => "csv",
+              "title" => "Test",
+              "url" => "https://example.com/my_csv_resource.csv"
+            }
           }
         )
         |> redirected_to
