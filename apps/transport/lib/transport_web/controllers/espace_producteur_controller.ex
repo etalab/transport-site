@@ -253,6 +253,7 @@ defmodule TransportWeb.EspaceProducteurController do
         dgettext("resource", "Resource updated with URL!")
       end
 
+    params = Map.merge(params, Map.get(params, "form", %{}))
     post_params = datagouv_api_update_params(params)
 
     with {:ok, _} <- Datagouvfr.Client.Resources.update(conn, post_params),

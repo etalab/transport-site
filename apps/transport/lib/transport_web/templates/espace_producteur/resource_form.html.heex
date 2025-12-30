@@ -24,7 +24,7 @@
           <%= raw(
             dgettext(
               "resource",
-              "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it.",
+              ~s|If you haven’t done it yet, think about <a href="%{link}">validating your data</a> before publishing it.|,
               link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
             )
           ) %>
@@ -55,42 +55,15 @@
             <% end %>
           </div>
           <div>
-            <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
-              <%= text_input(f, :title,
-                label: dgettext("espace-producteurs", "title"),
-                placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
-                value: @datagouv_resource["title"]
-              ) %>
-              <%= select(f, :format, @formats,
-                label: dgettext("espace-producteurs", "Format"),
-                value: @datagouv_resource["format"]
-              ) %>
-              <div class="pt-24">
-                <%= if new_resource do %>
-                  <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <div class="choose-or">
-                    - <%= dgettext("espace-producteurs", "or") %> -
-                  </div>
-                  <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <div class="choose-submit pt-24">
-                    <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
-                  </div>
-                <% else %>
-                  <%= if remote?(@datagouv_resource) do %>
-                    <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <% else %>
-                    <%= if DB.Resource.gtfs?(resource) do %>
-                      <%= live_render(@conn, TransportWeb.Live.ValidateResourceLive, session: %{}) %>
-                    <% else %>
-                      <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                    <% end %>
-                  <% end %>
-                  <div class="choose-submit pt-24">
-                    <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
+            <%= live_render(@conn, TransportWeb.Live.ValidateResourceLive,
+              session: %{
+                "action_path" => action_path(@conn),
+                "datagouv_resource" => @datagouv_resource,
+                "new_resource" => new_resource,
+                "resource" => resource,
+                "formats" => @formats
+              }
+            ) %>
           </div>
         </div>
       </div>
