@@ -65,6 +65,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               </div>
             </div>
           </div>
+          <div class="panel__content"></div>
           <div class="panel__extra">
             <% {link, text} =
               if @mode == :producer do
