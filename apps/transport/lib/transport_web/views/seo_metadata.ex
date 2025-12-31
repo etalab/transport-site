@@ -101,9 +101,7 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "Data quality evaluation")
     }
 
-  def metadata(TransportWeb.ExploreView, %{page_title: page_title}) do
-    %{title: page_title}
-  end
+  def metadata(_view, %{page_title: page_title}), do: %{title: page_title}
 
   def metadata(TransportWeb.LandingPagesView, %{seo_page: "vls"}),
     do: %{

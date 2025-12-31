@@ -90,7 +90,9 @@ defmodule TransportWeb.PageController do
     markdown = File.read!(__DIR__ <> "/../templates/page/nouveautes.html.md")
     content = TransportWeb.MarkdownHandler.to_html_with_anchors(markdown)
     menu = generate_menu(content)
-    single_page(conn, %{"content" => content, "menu" => menu})
+    conn
+    |> assign(:page_title, dgettext("page-nouveautes", "New features"))
+    |> single_page(%{"content" => content, "menu" => menu})
   end
 
   def generate_menu(html) do
