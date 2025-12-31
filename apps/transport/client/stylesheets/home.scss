@@ -397,3 +397,15 @@ a.button.reuser-space {
     position: static;
   }
 }
+
+a.anchor {
+  text-decoration: none;
+  color: var(--light-grey);
+}
+
+/* Show the anchor when hovering over the heading */
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor {
+  display: inline;
+}
