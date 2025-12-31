@@ -10,72 +10,70 @@
     <h2><%= dgettext("reuser-space", "Actions") %></h2>
     <div class="row">
       <div class="panel action-panel">
-        <img
-          class="picto"
-          src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
-          alt={dgettext("reuser-space", "Notification bell")}
-        />
-        <div>
-          <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "Receive notifications") %></h4>
-          </div>
-          <div class="pt-12">
-            <%= dgettext(
-              "reuser-space",
-              "Receive helpful notifications about your favorite datasets."
-            ) %>
-          </div>
-          <div class="pt-12">
-            <a href={reuser_space_path(@conn, :notifications)} class="button">
-              <%= dgettext("reuser-space", "Manage notifications") %>
-            </a>
-          </div>
+        <div class="publish-header">
+          <h4>
+            <img
+              class="picto"
+              src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
+              alt={dgettext("reuser-space", "Notification bell")}
+            />
+            <%= dgettext("reuser-space", "Receive notifications") %>
+          </h4>
+        </div>
+        <div class="action-text">
+          <%= dgettext(
+            "reuser-space",
+            "Receive helpful notifications about your favorite datasets."
+          ) %>
+        </div>
+        <div class="action-button">
+          <a href={reuser_space_path(@conn, :notifications)} class="button">
+            <%= dgettext("reuser-space", "Manage notifications") %>
+          </a>
         </div>
       </div>
       <div class="panel action-panel">
-        <img
-          class="picto"
-          src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
-          alt={dgettext("reuser-space", "Reuses")}
-        />
-        <div>
-          <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "Declare your reuses") %></h4>
-          </div>
-          <div class="pt-12">
-            <%= dgettext(
-              "reuser-space",
-              "Highlight your reuses and make yourself known."
-            ) %>
-          </div>
-          <div class="pt-12">
-            <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
-              <%= dgettext("reuser-space", "Declare a reuse") %>
-            </a>
-          </div>
+        <div class="publish-header">
+          <h4>
+            <img
+              class="picto"
+              src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+              alt={dgettext("reuser-space", "Reuses")}
+            /><%= dgettext("reuser-space", "Declare your reuses") %>
+          </h4>
+        </div>
+        <div class="action-text">
+          <%= dgettext(
+            "reuser-space",
+            "Highlight your reuses and make yourself known."
+          ) %>
+        </div>
+        <div class="action-button">
+          <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
+            <%= dgettext("reuser-space", "Declare a reuse") %>
+          </a>
         </div>
       </div>
       <div class="panel action-panel">
-        <img
-          class="picto"
-          src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
-          alt={dgettext("reuser-space", "Settings")}
-        />
-        <div>
-          <div class="publish-header">
-            <h4><%= dgettext("reuser-space", "API - Manage your tokens") %></h4>
-          </div>
-          <div class="pt-12">
-            <%= dgettext(
-              "reuser-space",
-              "Create and manage your tokens independently."
-            ) %>
-          </div>
-          <div class="pt-12">
-            <a href={reuser_space_path(@conn, :settings)} class="button">
-              <%= dgettext("reuser-space", "Manage your tokens") %>
-            </a>
-          </div>
+        <div class="publish-header">
+          <h4>
+            <img
+              class="picto"
+              src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
+              alt={dgettext("reuser-space", "Settings")}
+            /><%= dgettext("reuser-space", "API - Manage your tokens") %>
+          </h4>
+        </div>
+        <div class="action-text">
+          <%= dgettext(
+            "reuser-space",
+            "Create and manage your tokens independently."
+          ) %>
+        </div>
+        <div class="action-button">
+          <a href={reuser_space_path(@conn, :settings)} class="button">
+            <%= dgettext("reuser-space", "Manage your tokens") %>
+          </a>
         </div>
       </div>
     </div>
