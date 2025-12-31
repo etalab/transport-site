@@ -101,6 +101,7 @@ defmodule TransportWeb.Router do
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/infos_reutilisateurs", PageController, :infos_reutilisateurs)
+    get("/nouveautes", PageController, :nouveautes)
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)

@@ -1,7 +1,44 @@
 <section class="single-page section section-grey">
-  <div class="container">
+  <div class="container documentation">
+    <nav :if={@menu_items} class="side-pane" role="navigation">
+      <ul class="side-pane__menu">
+        <%= for {h2, index} <- Enum.with_index(@menu_items) do %>
+          <% class = if index == 0, do: "side-pane__dropdown unfolded", else: "side-pane__dropdown folded" %>
+          <li class={class}>
+            <a><%= h2.title %></a>
+            <ul :if={h2.sub_items != []} class="side-pane__submenu">
+              <li :for={sub <- h2.sub_items}>
+                <a href={"##{sub.id}"}><%= sub.title %></a>
+              </li>
+            </ul>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
     <article class="panel">
-      <%= render(@page, assigns) %>
+      <%= if @content do %>
+        <%= raw(@content) %>
+      <% else %>
+        <%= render(@page, assigns) %>
+      <% end %>
     </article>
   </div>
 </section>
+
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const dropdowns = document.querySelectorAll('.side-pane__dropdown');
+
+  dropdowns.forEach(dropdown => {
+    dropdown.addEventListener('click', function(event) {
+    const dropdown = event.target.closest('.side-pane__dropdown');
+    if (!dropdown) return;
+
+    const isSubmenuClick = event.target.closest('.side-pane__submenu');
+
+    if (!isSubmenuClick) {
+      dropdown.classList.toggle('unfolded');
+      dropdown.classList.toggle('folded');
+    }
+  });
+  });
+</script>

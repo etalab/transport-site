@@ -59,8 +59,17 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
+  defp single_page(conn, %{"content" => content, "menu" => menu}) do
+    conn
+    |> assign(:content, content)
+    |> assign(:menu_items, menu)
+    |> render("single_page.html")
+  end
+
   defp single_page(conn, %{"page" => page}) do
     conn
+    |> assign(:content, nil)
+    |> assign(:menu_items, nil)
     |> assign(:page, page <> ".html")
     |> render("single_page.html")
   end
@@ -75,6 +84,43 @@ defmodule TransportWeb.PageController do
 
   def infos_producteurs(conn, _params) do
     conn |> render("infos_producteurs.html")
+  end
+
+  def nouveautes(conn, _params) do
+    markdown = File.read!(__DIR__ <> "/../templates/page/nouveautes.html.md")
+    content = TransportWeb.MarkdownHandler.to_html_with_anchors(markdown)
+    menu = generate_menu(content)
+    single_page(conn, %{"content" => content, "menu" => menu})
+  end
+
+  def generate_menu(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find("h2, h3, h4")
+    |> Enum.reduce([], fn {tag, attrs, children}, acc ->
+      id = Floki.attribute([{tag, attrs, children}], "id") |> List.first()
+      text = Floki.text(children) |> String.trim_leading("# \n")
+
+      case tag do
+        "h2" ->
+          # Start a new H2 block with an empty list for sub-items
+          [%{title: text, id: id, sub_items: []} | acc]
+
+        # h3 or h4
+        _sub ->
+          case acc do
+            [current_h2 | rest] ->
+              # Add this sub-heading to the most recent H2
+              updated_h2 = %{current_h2 | sub_items: current_h2.sub_items ++ [%{title: text, id: id}]}
+              [updated_h2 | rest]
+
+            [] ->
+              # Handle case where h3/h4 appears before any h2
+              acc
+          end
+      end
+    end)
+    |> Enum.reverse()
   end
 
   def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")

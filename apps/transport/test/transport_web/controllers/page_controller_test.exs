@@ -139,6 +139,10 @@ defmodule TransportWeb.PageControllerTest do
     conn |> get(~p"/.well-known/security.txt") |> text_response(200)
   end
 
+  test "nouveautés", %{conn: conn} do
+    conn |> get(~p"/nouveautes") |> html_response(200)
+  end
+
   describe "robots.txt" do
     test "200 response, doesn't disallow indexing everything and includes sitemap", %{conn: conn} do
       content = conn |> get(~p"/robots.txt") |> text_response(200)
