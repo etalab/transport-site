@@ -96,36 +96,6 @@ defmodule TransportWeb.PageController do
     |> single_page(%{"content" => content, "menu" => menu})
   end
 
-  def generate_menu(html) do
-    html
-    |> Floki.parse_fragment!()
-    |> Floki.find("h2, h3, h4")
-    |> Enum.reduce([], fn {tag, attrs, children}, acc ->
-      id = Floki.attribute([{tag, attrs, children}], "id") |> List.first()
-      text = Floki.text(children) |> String.trim_leading("# \n")
-
-      case tag do
-        "h2" ->
-          # Start a new H2 block with an empty list for sub-items
-          [%{title: text, id: id, sub_items: []} | acc]
-
-        # h3 or h4
-        _sub ->
-          case acc do
-            [current_h2 | rest] ->
-              # Add this sub-heading to the most recent H2
-              updated_h2 = %{current_h2 | sub_items: current_h2.sub_items ++ [%{title: text, id: id}]}
-              [updated_h2 | rest]
-
-            [] ->
-              # Handle case where h3/h4 appears before any h2
-              acc
-          end
-      end
-    end)
-    |> Enum.reverse()
-  end
-
   def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")
 
   def robots_txt(%Plug.Conn{} = conn, _params) do
@@ -181,6 +151,7 @@ defmodule TransportWeb.PageController do
           [
             page_url(conn, :index),
             page_url(conn, :missions),
+            page_url(conn, :nouveautes),
             page_url(conn, :accessibility),
             page_url(conn, :infos_producteurs),
             page_url(conn, :infos_reutilisateurs),
@@ -334,6 +305,38 @@ defmodule TransportWeb.PageController do
     |> join(:inner, [dataset: d], o in assoc(d, :offers), as: :offer)
     |> select([offer: o], count(o.id, :distinct))
     |> DB.Repo.one!()
+  end
+
+  defp generate_menu(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find("h2, h3, h4")
+    |> Enum.reduce([], &accumulate_tags/2)
+    |> Enum.reverse()
+  end
+
+  defp accumulate_tags({tag, attrs, children} = node, acc) do
+    id = Floki.attribute(node, "id")
+    text = Floki.text(children) |> String.trim_leading("# \n")
+
+    case tag do
+      "h2" ->
+        # Start a new H2 block with an empty list for sub-items
+        [%{title: text, id: id, sub_items: []} | acc]
+
+      # h3 or h4
+      _sub ->
+        case acc do
+          [current_h2 | rest] ->
+            # Add this sub-heading to the most recent H2
+            updated_h2 = %{current_h2 | sub_items: current_h2.sub_items ++ [%{title: text, id: id}]}
+            [updated_h2 | rest]
+
+          [] ->
+            # Handle case where h3/h4 appears before any h2
+            acc
+        end
+    end
   end
 
   defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
