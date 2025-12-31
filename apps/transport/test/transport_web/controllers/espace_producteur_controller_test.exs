@@ -67,6 +67,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
         |> Floki.find(".publish-header h4")
+        |> Floki.text(sep: "|")
+        |> String.replace(~r/(\s)+/, " ")
+        |> String.split("|")
+        |> Enum.map(&String.trim/1)
       end
 
       %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset)
@@ -76,37 +80,32 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       mock_organization_and_discussion(dataset, 3)
 
-      assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Discussions sans réponse"]}
-             ]
+      assert menu_items.(conn) == ["Tester vos jeux de données", "Publier un jeu de données", "Recevoir des notifications", "Discussions sans réponse"]
 
       # Should show download stats
       resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
       assert DB.Resource.hosted_on_datagouv?(resource)
 
       assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]},
-               {"h4", [], ["Discussions sans réponse"]}
-             ]
+              "Tester vos jeux de données",
+              "Publier un jeu de données",
+              "Recevoir des notifications",
+              "Vos statistiques de téléchargements",
+              "Discussions sans réponse"
+            ]
 
       # Should show proxy stats
       resource = insert(:resource, url: "https://proxy.transport.data.gouv.fr/url", dataset: dataset)
       assert DB.Resource.served_by_proxy?(resource)
 
       assert menu_items.(conn) == [
-               {"h4", [], ["Tester vos jeux de données"]},
-               {"h4", [], ["Publier un jeu de données"]},
-               {"h4", [], ["Recevoir des notifications"]},
-               {"h4", [], ["Vos statistiques proxy"]},
-               {"h4", [], ["Vos statistiques de téléchargements"]},
-               {"h4", [], ["Discussions sans réponse"]}
-             ]
+              "Tester vos jeux de données",
+              "Publier un jeu de données",
+              "Recevoir des notifications",
+              "Vos statistiques proxy",
+              "Vos statistiques de téléchargements",
+              "Discussions sans réponse"
+            ]
     end
 
     test "with an OAuth2 error", %{conn: conn} do
