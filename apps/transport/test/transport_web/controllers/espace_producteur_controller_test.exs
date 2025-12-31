@@ -80,32 +80,37 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       mock_organization_and_discussion(dataset, 3)
 
-      assert menu_items.(conn) == ["Tester vos jeux de données", "Publier un jeu de données", "Recevoir des notifications", "Discussions sans réponse"]
+      assert menu_items.(conn) == [
+               "Tester vos jeux de données",
+               "Publier un jeu de données",
+               "Recevoir des notifications",
+               "Discussions sans réponse"
+             ]
 
       # Should show download stats
       resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
       assert DB.Resource.hosted_on_datagouv?(resource)
 
       assert menu_items.(conn) == [
-              "Tester vos jeux de données",
-              "Publier un jeu de données",
-              "Recevoir des notifications",
-              "Vos statistiques de téléchargements",
-              "Discussions sans réponse"
-            ]
+               "Tester vos jeux de données",
+               "Publier un jeu de données",
+               "Recevoir des notifications",
+               "Vos statistiques de téléchargements",
+               "Discussions sans réponse"
+             ]
 
       # Should show proxy stats
       resource = insert(:resource, url: "https://proxy.transport.data.gouv.fr/url", dataset: dataset)
       assert DB.Resource.served_by_proxy?(resource)
 
       assert menu_items.(conn) == [
-              "Tester vos jeux de données",
-              "Publier un jeu de données",
-              "Recevoir des notifications",
-              "Vos statistiques proxy",
-              "Vos statistiques de téléchargements",
-              "Discussions sans réponse"
-            ]
+               "Tester vos jeux de données",
+               "Publier un jeu de données",
+               "Recevoir des notifications",
+               "Vos statistiques proxy",
+               "Vos statistiques de téléchargements",
+               "Discussions sans réponse"
+             ]
     end
 
     test "with an OAuth2 error", %{conn: conn} do
