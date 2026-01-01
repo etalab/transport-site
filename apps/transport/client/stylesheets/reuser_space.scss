@@ -26,6 +26,11 @@
   a.button, .button.primary {
     background-color: var(--primary-color-reuser);
   }
+
+  .button-outline.primary {
+    color: var(--primary-color-reuser);
+    border-color: var(--primary-color-reuser);
+  }
 }
 
 .reuser-space-section {
