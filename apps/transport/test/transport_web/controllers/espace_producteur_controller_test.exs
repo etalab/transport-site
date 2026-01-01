@@ -1253,7 +1253,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"th", [], ["Jeu de données"]},
                         {"th", [], ["Ressource"]},
-                        {"th", [], ["Téléchargements de l'année 2025"]}
+                        {"th", [], ["Téléchargements de l'année #{Date.utc_today().year}"]}
                       ]}
                    ]},
                   {"tbody", [],

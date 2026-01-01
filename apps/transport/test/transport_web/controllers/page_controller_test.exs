@@ -140,7 +140,25 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "nouveautés", %{conn: conn} do
-    conn |> get(~p"/nouveautes") |> html_response(200)
+    content = conn |> get(~p"/nouveautes") |> html_response(200)
+
+    doc = content |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".side-pane__dropdown.unfolded") |> Enum.count() == 1
+    assert doc |> Floki.find(".side-pane__dropdown.folded") |> Enum.count() >= 1
+
+    tags = doc |> Floki.find("h2, h3") |> Floki.text(sep: "|") |> String.replace("#| \n", "") |> String.split("|")
+
+    assert sublist?(tags, [
+             "Décembre 2025",
+             "⚡️ IRVE",
+             "🚀 Espace Producteur & Expérience Utilisateur",
+             "🔍 Recherche",
+             "🛠 Validation & Qualité des Données",
+             "🔌 Proxy & Flux Temps Réel",
+             "📧 Notifications & Backoffice",
+             "⚙️ Technique & Infrastructure"
+           ])
   end
 
   describe "robots.txt" do
@@ -257,5 +275,11 @@ defmodule TransportWeb.PageControllerTest do
            |> String.trim()
            |> String.replace(~r/(\s)+/, " ") ==
              "Espace producteur 1"
+  end
+
+  def sublist?(list, sublist) do
+    list
+    |> Enum.chunk_every(length(sublist), 1, :discard)
+    |> Enum.member?(sublist)
   end
 end

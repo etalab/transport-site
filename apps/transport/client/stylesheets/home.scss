@@ -1,5 +1,6 @@
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 25px;
 }
 
 .hero.home-hero {
@@ -403,9 +404,18 @@ a.anchor {
   color: var(--light-grey);
 }
 
-/* Show the anchor when hovering over the heading */
-h1:hover .anchor,
-h2:hover .anchor,
-h3:hover .anchor {
-  display: inline;
+.side-pane__submenu a.active {
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.documentation {
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .side-pane {
+    position: sticky;
+    top: 20px;
+  }
 }

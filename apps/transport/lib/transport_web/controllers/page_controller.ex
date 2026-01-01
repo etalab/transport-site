@@ -89,11 +89,12 @@ defmodule TransportWeb.PageController do
   def nouveautes(conn, _params) do
     markdown = File.read!(__DIR__ <> "/../templates/page/nouveautes.html.md")
     content = TransportWeb.MarkdownHandler.to_html_with_anchors(markdown)
-    menu = generate_menu(content)
+    menu_title = content |> Floki.parse_document!() |> Floki.find("h1") |> Floki.text() |> String.replace("# ", "")
 
     conn
     |> assign(:page_title, dgettext("page-nouveautes", "New features"))
-    |> single_page(%{"content" => content, "menu" => menu})
+    |> assign(:menu_title, menu_title)
+    |> single_page(%{"content" => content, "menu" => generate_menu(content)})
   end
 
   def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")
@@ -315,7 +316,7 @@ defmodule TransportWeb.PageController do
     |> Enum.reverse()
   end
 
-  defp accumulate_tags({tag, attrs, children} = node, acc) do
+  defp accumulate_tags({tag, _attrs, children} = node, acc) do
     id = Floki.attribute(node, "id")
     text = Floki.text(children) |> String.trim_leading("# \n")
 
