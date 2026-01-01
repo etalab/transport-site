@@ -119,6 +119,37 @@ defmodule TransportWeb.EspaceProducteurView do
     """
   end
 
+  defp issue_link(%{mode: :reuser, issue: %DB.Resource{}} = assigns) do
+    ~H"""
+    <td>
+      <a
+        href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
+        class="button-outline primary small-padding"
+        target="_blank"
+        data-tracking-category="espace_reutilisateur"
+        data-tracking-action="urgent_issues_see_resource_button"
+      >
+        <%= dgettext("reuser-space", "See the resource") %>
+      </a>
+    </td>
+    """
+  end
+
+  defp issue_link(%{mode: :reuser, check_name: :unanswered_discussions} = assigns) do
+    ~H"""
+    <td>
+      <a
+        href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
+        class="button-outline primary small-padding"
+        data-tracking-category="espace_producteur"
+        data-tracking-action="urgent_issues_see_discussion_button"
+      >
+        <i class="icon fas fa-comments"></i><%= dgettext("espace-producteurs", "See the discussion") %>
+      </a>
+    </td>
+    """
+  end
+
   def dataset_creation_url,
     do:
       :transport
