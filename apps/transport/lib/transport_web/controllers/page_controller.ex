@@ -6,8 +6,6 @@ defmodule TransportWeb.PageController do
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
   import TransportWeb.Router.Helpers
 
-  plug(:assign_current_contact when action in [:index])
-
   def index(conn, _params) do
     conn
     |> merge_assigns(home_index_stats())
@@ -338,16 +336,5 @@ defmodule TransportWeb.PageController do
             acc
         end
     end
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end

@@ -40,8 +40,9 @@ defmodule TransportWeb.ConnCase do
     {:ok, conn: ConnTest.build_conn()}
   end
 
-  def setup_admin_in_session(%Plug.Conn{} = conn) do
-    init_test_session(conn, %{current_user: %{"is_admin" => true}})
+  def setup_admin_in_session(%Plug.Conn{} = conn, contact \\ nil) do
+    contact = contact || DB.Factory.insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    init_test_session(conn, %{current_user: %{"is_admin" => true, "id" => contact.datagouv_user_id}})
   end
 
   @doc """

@@ -45,9 +45,11 @@ defmodule TransportWeb.BackofficeControllerTest do
   end
 
   test "Check that you are an admin", %{conn: conn} do
+    contact = DB.Factory.insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
     conn =
       conn
-      |> init_test_session(%{current_user: %{"is_admin" => false}})
+      |> init_test_session(%{current_user: %{"is_admin" => false, "id" => contact.datagouv_user_id}})
       |> get(backoffice_page_path(conn, :index))
 
     assert redirected_to(conn, 302) =~ "/login/explanation"

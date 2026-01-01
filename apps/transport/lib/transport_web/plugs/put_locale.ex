@@ -13,7 +13,7 @@ defmodule TransportWeb.Plugs.PutLocale do
 
     if locale in @supported_locales do
       Gettext.put_locale(locale)
-      maybe_save_locale_for_current_user(conn, locale)
+      maybe_save_locale_for_current_contact(conn, locale)
       conn |> put_session(:locale, locale)
     else
       conn
@@ -23,15 +23,10 @@ defmodule TransportWeb.Plugs.PutLocale do
     end
   end
 
-  def maybe_save_locale_for_current_user(%Plug.Conn{} = conn, locale) do
-    case get_session(conn, :current_user) do
-      %{"id" => datagouv_id} ->
-        DB.Repo.get_by!(DB.Contact, datagouv_user_id: datagouv_id)
-        |> Ecto.Changeset.change(%{locale: locale})
-        |> DB.Repo.update!()
-
-      _ ->
-        :ok
+  def maybe_save_locale_for_current_contact(%Plug.Conn{assigns: %{current_contact: current_contact}}, locale) do
+    case current_contact do
+      %DB.Contact{} = contact -> contact |> Ecto.Changeset.change(%{locale: locale}) |> DB.Repo.update!()
+      _ -> :ok
     end
   end
 

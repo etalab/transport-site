@@ -10,8 +10,6 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact)
-
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
@@ -674,18 +672,5 @@ defmodule TransportWeb.DatasetController do
 
       {dataset_id, value}
     end)
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-        |> DB.Repo.preload(:default_tokens)
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end
