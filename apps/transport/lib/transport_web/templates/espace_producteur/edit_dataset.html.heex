@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <%= render("_urgent_issues.html", datasets: [@dataset], checks: @checks, conn: @conn) %>
+      <%= render("_urgent_issues.html", datasets: [@dataset], checks: @checks, conn: @conn, mode: :producer) %>
       <div>
         <table class="table mt-24">
           <%= for resource <- @datagouv_dataset["resources"] do %>

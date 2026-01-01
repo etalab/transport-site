@@ -109,6 +109,13 @@ defmodule TransportWeb.DatasetControllerTest do
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
 
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
       document =
         conn
         |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => false}})
@@ -137,6 +144,13 @@ defmodule TransportWeb.DatasetControllerTest do
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
       insert(:dataset, custom_title: "C")
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       document =
         conn
@@ -202,6 +216,13 @@ defmodule TransportWeb.DatasetControllerTest do
       contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       dataset = insert(:dataset)
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       assert [
                {"a",

@@ -15,6 +15,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -156,6 +157,13 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       source: :user
     )
 
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
     content =
       conn
       |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -276,6 +284,13 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       %DB.Dataset{id: dataset_id} = insert(:dataset)
       %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       {:ok, view, _html} =
         conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}}) |> get(@reuser_url) |> live()

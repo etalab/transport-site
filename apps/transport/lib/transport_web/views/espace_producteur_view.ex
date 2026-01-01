@@ -45,7 +45,7 @@ defmodule TransportWeb.EspaceProducteurView do
       </td>
       <.issue_title issue={@issue} check_name={@check_name} multi_validation={@multi_validation} locale={@locale} />
       <.issue_name issue={@issue} check_name={@check_name} multi_validation={@multi_validation} />
-      <.issue_link issue={@issue} check_name={@check_name} dataset={@dataset} />
+      <.issue_link mode={@mode} issue={@issue} check_name={@check_name} dataset={@dataset} />
     </tr>
     """
   end
@@ -89,7 +89,7 @@ defmodule TransportWeb.EspaceProducteurView do
     """
   end
 
-  defp issue_link(%{check_name: :unanswered_discussions} = assigns) do
+  defp issue_link(%{mode: :producer, check_name: :unanswered_discussions} = assigns) do
     ~H"""
     <td>
       <a
@@ -104,7 +104,7 @@ defmodule TransportWeb.EspaceProducteurView do
     """
   end
 
-  defp issue_link(%{check_name: _} = assigns) do
+  defp issue_link(%{mode: :producer, check_name: _} = assigns) do
     ~H"""
     <td>
       <a
@@ -114,6 +114,22 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-action="urgent_issues_edit_resource_button"
       >
         <i class="fa fa-edit"></i><%= dgettext("espace-producteurs", "Edit resource") %>
+      </a>
+    </td>
+    """
+  end
+
+  defp issue_link(%{mode: :reuser} = assigns) do
+    ~H"""
+    <td>
+      <a
+        href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
+        class="button-outline primary small-padding"
+        target="_blank"
+        data-tracking-category="espace_reutilisateur"
+        data-tracking-action="urgent_issues_see_resource_button"
+      >
+        <%= dgettext("reuser-space", "See the resource") %>
       </a>
     </td>
     """

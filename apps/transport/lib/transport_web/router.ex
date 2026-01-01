@@ -21,6 +21,7 @@ defmodule TransportWeb.Router do
     plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_datagouv_token)
     plug(TransportWeb.Plugs.ProducerData)
+    plug(TransportWeb.Plugs.ReuserData)
     plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
