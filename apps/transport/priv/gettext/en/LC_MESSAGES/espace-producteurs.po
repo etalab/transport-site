@@ -438,3 +438,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Drop your file here or click to browse your local drive"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr ""

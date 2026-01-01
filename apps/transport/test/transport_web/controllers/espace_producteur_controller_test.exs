@@ -2,6 +2,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
   use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: true
   import DB.Factory
+  import Phoenix.LiveViewTest
   import Plug.Test, only: [init_test_session: 2]
   import Mox
 
@@ -184,7 +185,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                               {"td", [],
                                [
                                  {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-                                  [{"i", [{"class", "fa fa-external-link"}], []}, "\nHello\n                  "]}
+                                  [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
                                ]},
                               {"td", [], []},
                               {"td", [], ["Discussions sans réponse"]},
@@ -200,7 +201,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                   ],
                                   [
                                     {"i", [{"class", "icon fas fa-comments"}], []},
-                                    "\nVoir la discussion\n                  "
+                                    "Voir la discussion\n  "
                                   ]}
                                ]}
                             ]},
@@ -215,7 +216,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                   ],
                                   [
                                     {"i", [{"class", "fa fa-external-link"}], []},
-                                    "\nHello\n                  "
+                                    "\n      Hello\n    "
                                   ]}
                                ]},
                               {"td", [], ["GTFS Super ", {"span", [{"class", "label"}], ["GTFS"]}]},
@@ -232,7 +233,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                   ],
                                   [
                                     {"i", [{"class", "fa fa-edit"}], []},
-                                    "\nModifier la ressource\n                  "
+                                    "Modifier la ressource\n  "
                                   ]}
                                ]}
                             ]}
@@ -242,6 +243,65 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                 ]}
              ]
     end
+  end
+
+  test "urgent_issues for expiring_resource" do
+    %{resource: resource, dataset: dataset, multi_validation: multi_validation} =
+      insert_resource_and_friends(Date.utc_today())
+
+    multi_validation = multi_validation |> DB.Repo.preload(:metadata)
+
+    start_date =
+      DB.MultiValidation.get_metadata_info(multi_validation, "start_date") |> Shared.DateTimeDisplay.format_date("fr")
+
+    end_date =
+      DB.MultiValidation.get_metadata_info(multi_validation, "end_date") |> Shared.DateTimeDisplay.format_date("fr")
+
+    assert render_component(&TransportWeb.EspaceProducteurView.urgent_issue/1,
+             issue: resource,
+             dataset: dataset,
+             check_name: :expiring_resource,
+             multi_validation: multi_validation,
+             locale: "fr"
+           )
+           |> Floki.parse_document!() == [
+             {"tr", [],
+              [
+                {"td", [],
+                 [
+                   {"a", [{"href", dataset_path(TransportWeb.Endpoint, :details, dataset.slug)}, {"target", "_blank"}],
+                    [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+                 ]},
+                {"td", [],
+                 [
+                   "GTFS.zip ",
+                   {"span", [{"class", "label"}], ["GTFS"]},
+                   {"div", [{"title", "Période de validité"}],
+                    [
+                      {"i", [{"class", "icon icon--calendar-alt"}, {"aria-hidden", "true"}], []},
+                      {"span", [], [start_date]},
+                      {"i",
+                       [
+                         {"class", "icon icon--right-arrow ml-05-em"},
+                         {"aria-hidden", "true"}
+                       ], []},
+                      {"span", [{"class", "resource__summary--Error"}], [end_date]}
+                    ]}
+                 ]},
+                {"td", [], ["Ressource expirée"]},
+                {"td", [],
+                 [
+                   {"a",
+                    [
+                      {"href",
+                       espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)},
+                      {"class", "button-outline primary small-padding"},
+                      {"data-tracking-category", "espace_producteur"},
+                      {"data-tracking-action", "urgent_issues_edit_resource_button"}
+                    ], [{"i", [{"class", "fa fa-edit"}], []}, "Modifier la ressource\n  "]}
+                 ]}
+              ]}
+           ]
   end
 
   describe "edit_dataset" do

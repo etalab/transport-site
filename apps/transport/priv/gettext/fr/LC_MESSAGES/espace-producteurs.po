@@ -438,3 +438,7 @@ msgstr "Démarrer la validation"
 #, elixir-autogen, elixir-format
 msgid "Drop your file here or click to browse your local drive"
 msgstr "Glissez un fichier ici ou cliquez pour parcourir vos répertoires locaux"
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr "Ressource expirée"

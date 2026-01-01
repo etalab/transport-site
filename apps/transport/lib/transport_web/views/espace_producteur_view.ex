@@ -34,15 +34,88 @@ defmodule TransportWeb.EspaceProducteurView do
     checks |> Map.values() |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
   end
 
-  def issue_title(%{issue: %DB.Resource{}} = assigns) do
+  def urgent_issue(%{} = assigns) do
     ~H"""
-    <%= @issue.title %> <span class="label"><%= @issue.format %></span>
+    <tr>
+      <td>
+        <a href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
+          <i class="fa fa-external-link"></i>
+          <%= @dataset.custom_title %>
+        </a>
+      </td>
+      <.issue_title issue={@issue} check_name={@check_name} multi_validation={@multi_validation} locale={@locale} />
+      <.issue_name issue={@issue} check_name={@check_name} multi_validation={@multi_validation} />
+      <.issue_link issue={@issue} check_name={@check_name} dataset={@dataset} />
+    </tr>
     """
   end
 
-  def issue_title(%{issue: _} = assigns) do
+  defp issue_title(%{issue: %DB.Resource{}, check_name: :expiring_resource} = assigns) do
     ~H"""
-    <%= @issue["title"] %>
+    <td><%= @issue.title %> <span class="label"><%= @issue.format %></span>
+      <TransportWeb.DatasetView.validity_dates multi_validation={@multi_validation} locale={@locale} /></td>
+    """
+  end
+
+  defp issue_title(%{issue: %DB.Resource{}} = assigns) do
+    ~H"""
+    <td><%= @issue.title %> <span class="label"><%= @issue.format %></span></td>
+    """
+  end
+
+  defp issue_title(%{issue: _} = assigns) do
+    ~H"""
+    <td><%= @issue["title"] %></td>
+    """
+  end
+
+  defp issue_name(%{check_name: :expiring_resource, multi_validation: %DB.MultiValidation{} = mv} = assigns) do
+    end_date = DB.MultiValidation.get_metadata_info(mv, "end_date") |> Date.from_iso8601!()
+
+    if Date.compare(end_date, Date.utc_today()) in [:eq, :lt] do
+      ~H"""
+      <td><%= dgettext("espace-producteurs", "Expired resource") %></td>
+      """
+    else
+      ~H"""
+      <td><%= Transport.DatasetChecks.issue_name(@check_name) %></td>
+      """
+    end
+  end
+
+  defp issue_name(%{} = assigns) do
+    ~H"""
+    <td><%= Transport.DatasetChecks.issue_name(@check_name) %></td>
+    """
+  end
+
+  defp issue_link(%{check_name: :unanswered_discussions} = assigns) do
+    ~H"""
+    <td>
+      <a
+        href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
+        class="button-outline primary small-padding"
+        data-tracking-category="espace_producteur"
+        data-tracking-action="urgent_issues_see_discussion_button"
+      >
+        <i class="icon fas fa-comments"></i><%= dgettext("espace-producteurs", "See the discussion") %>
+      </a>
+    </td>
+    """
+  end
+
+  defp issue_link(%{check_name: _} = assigns) do
+    ~H"""
+    <td>
+      <a
+        href={espace_producteur_path(TransportWeb.Endpoint, :edit_resource, @dataset.id, @issue.datagouv_id)}
+        class="button-outline primary small-padding"
+        data-tracking-category="espace_producteur"
+        data-tracking-action="urgent_issues_edit_resource_button"
+      >
+        <i class="fa fa-edit"></i><%= dgettext("espace-producteurs", "Edit resource") %>
+      </a>
+    </td>
     """
   end
 

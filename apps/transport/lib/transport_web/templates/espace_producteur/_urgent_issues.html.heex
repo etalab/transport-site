@@ -16,44 +16,19 @@
           <% checks = @checks[dataset.id] %>
           <%= for {check_name, issues} <- checks |> Enum.sort_by(& elem(&1, 0)) do %>
             <%= for issue <- issues do %>
-              <% issue =
+              <% {issue, multi_validation} =
                 case issue do
-                  %DB.Resource{} = resource -> resource
-                  {%DB.Resource{} = resource, _} -> resource
-                  discussion -> discussion
+                  %DB.Resource{} = resource -> {resource, nil}
+                  {%DB.Resource{} = resource, [mv]} -> {resource, mv}
+                  discussion -> {discussion, nil}
                 end %>
-              <tr>
-                <td>
-                  <a href={dataset_path(@conn, :details, dataset.slug)} target="_blank">
-                    <i class="fa fa-external-link"></i>
-                    <%= dataset.custom_title %>
-                  </a>
-                </td>
-                <td><.issue_title issue={issue} /></td>
-                <td><%= Transport.DatasetChecks.issue_name(check_name) %></td>
-                <td :if={check_name == :unanswered_discussions}>
-                  <a
-                    href={dataset_path(@conn, :details, dataset.slug) <> ~s|#discussion-#{issue["id"]}|}
-                    class="button-outline primary small-padding"
-                    data-tracking-category="espace_producteur"
-                    data-tracking-action="urgent_issues_see_discussion_button"
-                  >
-                    <i class="icon fas fa-comments"></i>
-                    <%= dgettext("espace-producteurs", "See the discussion") %>
-                  </a>
-                </td>
-                <td :if={check_name != :unanswered_discussions}>
-                  <a
-                    href={espace_producteur_path(@conn, :edit_resource, dataset.id, issue.datagouv_id)}
-                    class="button-outline primary small-padding"
-                    data-tracking-category="espace_producteur"
-                    data-tracking-action="urgent_issues_edit_resource_button"
-                  >
-                    <i class="fa fa-edit"></i>
-                    <%= dgettext("espace-producteurs", "Edit resource") %>
-                  </a>
-                </td>
-              </tr>
+              <.urgent_issue
+                issue={issue}
+                dataset={dataset}
+                check_name={check_name}
+                multi_validation={multi_validation}
+                locale={get_session(@conn, :locale)}
+              />
             <% end %>
           <% end %>
         <% end %>
