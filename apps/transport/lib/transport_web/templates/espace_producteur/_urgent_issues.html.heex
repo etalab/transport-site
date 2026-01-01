@@ -1,5 +1,6 @@
 <div :if={show_urgent_issues?(@checks)} data-name="urgent-issues">
-  <h2><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
+  <h2 :if={@mode == :producer}><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
+  <h2 :if={@mode == :reuser}><%= dgettext("reuser-space", "Urgent issues on resources you follow") %></h2>
   <div class="panel">
     <p><%= dgettext("espace-producteurs", "The following urgent resource issues require your attention.") %></p>
     <table class="table small-padding">
@@ -8,7 +9,7 @@
           <th><%= dgettext("espace-producteurs", "Dataset") %></th>
           <th><%= dgettext("espace-producteurs", "Resource") %></th>
           <th><%= dgettext("espace-producteurs", "Issue") %></th>
-          <th><%= dgettext("espace-producteurs", "Actions") %></th>
+          <th :if={@mode == :producer}><%= dgettext("espace-producteurs", "Actions") %></th>
         </tr>
       </thead>
       <tbody>
@@ -19,7 +20,7 @@
               <% {issue, multi_validation} =
                 case issue do
                   %DB.Resource{} = resource -> {resource, nil}
-                  {%DB.Resource{} = resource, [mv]} -> {resource, mv}
+                  {%DB.Resource{} = resource, [mv | _]} -> {resource, mv}
                   discussion -> {discussion, nil}
                 end %>
               <.urgent_issue
@@ -28,6 +29,7 @@
                 check_name={check_name}
                 multi_validation={multi_validation}
                 locale={get_session(@conn, :locale)}
+                mode={@mode}
               />
             <% end %>
           <% end %>

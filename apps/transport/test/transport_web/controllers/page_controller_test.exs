@@ -279,6 +279,53 @@ defmodule TransportWeb.PageControllerTest do
              "Espace producteur 1"
   end
 
+  test "notifications count for a producer and reuser", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    dataset = insert(:dataset)
+    insert(:resource, dataset: dataset, is_available: false)
+
+    other_dataset = insert(:dataset)
+    insert(:resource, dataset: other_dataset, is_available: false)
+    insert(:dataset_follower, contact: contact, dataset: dataset)
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _dataset_datagouv_id -> [] end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "2 notifications"}], ["\n  2\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace producteur 1"
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="reuser-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace réutilisateur 1"
+  end
+
   def sublist?(list, sublist) do
     list
     |> Enum.chunk_every(length(sublist), 1, :discard)

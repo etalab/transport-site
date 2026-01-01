@@ -35,7 +35,8 @@ defmodule Transport.DatasetChecks do
     validations =
       DB.MultiValidation.dataset_latest_validation(
         dataset.id,
-        Transport.ValidatorsSelection.validators_for_feature(:dataset_checks)
+        Transport.ValidatorsSelection.validators_for_feature(:dataset_checks),
+        include_result: true
       )
 
     %{
@@ -73,7 +74,7 @@ defmodule Transport.DatasetChecks do
   def invalid_resource(%DB.Dataset{} = dataset, validations) do
     dataset
     |> keep_validations(validations)
-    |> Enum.filter(fn {%DB.Resource{}, [mv]} ->
+    |> Enum.filter(fn {%DB.Resource{}, [mv | _]} ->
       case mv do
         %DB.MultiValidation{validator: @gtfs_rt_validator, result: %{"errors" => errors}} ->
           # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md
@@ -100,7 +101,7 @@ defmodule Transport.DatasetChecks do
   def expiring_resource(%DB.Dataset{} = dataset, validations) do
     dataset
     |> keep_validations(validations)
-    |> Enum.filter(fn {%DB.Resource{}, [mv]} ->
+    |> Enum.filter(fn {%DB.Resource{}, [mv | _]} ->
       case DB.MultiValidation.get_metadata_info(mv, "end_date") do
         nil -> false
         date -> date |> Date.from_iso8601!() |> Date.diff(Date.utc_today()) <= @expire_days_ahead

@@ -15,6 +15,10 @@ defmodule TransportWeb.ReuserSpaceController do
     conn
     |> assign(:contact, contact)
     |> assign(:followed_datasets_ids, followed_datasets_ids)
+    |> assign(
+      :checks,
+      Enum.map(conn.assigns.followed_datasets, & &1.id) |> Enum.zip(conn.assigns.followed_datasets_checks) |> Map.new()
+    )
     |> render("index.html")
   end
 

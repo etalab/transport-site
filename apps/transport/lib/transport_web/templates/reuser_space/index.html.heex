@@ -7,6 +7,14 @@
     <p>
       <%= dgettext("reuser-space", "reuser-space-intro") %>
     </p>
+
+    <%= render(TransportWeb.EspaceProducteurView, "_urgent_issues.html",
+      datasets: @conn.assigns[:followed_datasets],
+      checks: @checks,
+      conn: @conn,
+      mode: :reuser
+    ) %>
+
     <h2><%= dgettext("reuser-space", "Actions") %></h2>
     <div class="row">
       <div class="panel action-panel">
