@@ -2,9 +2,12 @@ defmodule TransportWeb.Live.DatasetNotificationsLiveTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.LiveCase
   import DB.Factory
+  import Mox
   import Phoenix.LiveViewTest
 
   setup do
+    :verify_on_exit!
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -54,6 +57,13 @@ defmodule TransportWeb.Live.DatasetNotificationsLiveTest do
       role: :reuser,
       source: :user
     )
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 
     content =
       conn

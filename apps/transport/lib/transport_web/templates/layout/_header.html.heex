@@ -101,12 +101,16 @@
                       href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")}
                     >
                       <%= gettext("Producer space") %>
-                      <.notification_count count={notifications_count} static={true} />
+                      <.notification_count count={producer_notifications_count(@conn)} static={true} />
                     </a>
                   <% end %>
-                  <%= link(gettext("Reuser space"),
-                    to: reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")
-                  ) %>
+                  <a
+                    data-link-name="reuser-space"
+                    href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")}
+                  >
+                    <%= gettext("Reuser space") %>
+                    <.notification_count count={reuser_notifications_count(@conn)} static={true} />
+                  </a>
                   <a
                     class="navigation__link nagivation__link--logout"
                     href={session_path(@conn, :delete, redirect_path: current_path(@conn))}

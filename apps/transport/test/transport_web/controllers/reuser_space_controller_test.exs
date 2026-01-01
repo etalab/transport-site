@@ -3,11 +3,15 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   use TransportWeb.ConnCase, async: false
   import TransportWeb.ReuserSpaceController
   import DB.Factory
+  import Mox
 
   @home_url reuser_space_path(TransportWeb.Endpoint, :espace_reutilisateur)
   @google_maps_org_id "63fdfe4f4cd1c437ac478323"
 
+  setup :verify_on_exit!
+
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -29,6 +33,57 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       # Feedback form is displayed
       refute content |> Floki.parse_document!() |> Floki.find("form.feedback-form") |> Enum.empty?()
+    end
+
+    test "urgent issues are displayed", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      resource = insert(:resource, dataset: dataset, is_available: false)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
+               "Problèmes urgents sur les ressources que vous suivez"
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"] tbody|) == [
+               {"tbody", [],
+                [
+                  {"tr", [],
+                   [
+                     {"td", [],
+                      [
+                        {"a", [{"href", "/datasets/#{dataset.slug}"}, {"target", "_blank"}],
+                         [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+                      ]},
+                     {"td", [], ["GTFS.zip ", {"span", [{"class", "label"}], []}]},
+                     {"td", [], ["Ressource indisponible"]},
+                     {"td", [],
+                      [
+                        {"a",
+                         [
+                           {"href", "/resources/#{resource.id}"},
+                           {"class", "button-outline primary small-padding"},
+                           {"target", "_blank"},
+                           {"data-tracking-category", "espace_reutilisateur"},
+                           {"data-tracking-action", "urgent_issues_see_resource_button"}
+                         ], ["\n    Voir la ressource\n  "]}
+                      ]}
+                   ]}
+                ]}
+             ]
     end
   end
 
@@ -57,6 +112,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       dataset = insert(:dataset)
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
 
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
              |> get(reuser_space_path(conn, :datasets_edit, dataset.id))
@@ -77,6 +139,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         })
 
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       assert conn
              |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
@@ -116,6 +185,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         role: :reuser
       )
 
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => []}}
+      end)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
       conn =
         conn
         |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
@@ -144,6 +220,13 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     download_url = "https://example.com/#{Ecto.UUID.generate()}"
 
     insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 
     conn =
       conn

@@ -89,6 +89,34 @@ defmodule Transport.DatasetChecksTest do
     assert [{_, [^mv2]}] = dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv2]})
   end
 
+  test "invalid_resource for a GTFS-RT at the check level" do
+    dataset = insert(:dataset)
+    %{id: resource_id} = resource = insert(:resource, dataset: dataset)
+    resource_history = insert(:resource_history, resource: resource)
+
+    errors = [
+      %{"error_id" => "E003", "errors_count" => 10},
+      %{"error_id" => "E004", "errors_count" => 20},
+      %{"error_id" => "E011", "errors_count" => 10},
+      %{"error_id" => "E034", "errors_count" => 10}
+    ]
+
+    %{id: mv_id} =
+      insert(:multi_validation,
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        result: %{"errors" => errors},
+        resource_history: resource_history
+      )
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn _organization_id, [restrict_fields: true] -> {:ok, %{"members" => []}} end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
+    assert %{invalid_resource: [{%DB.Resource{id: ^resource_id}, [%DB.MultiValidation{id: ^mv_id}]}]} =
+             Transport.DatasetChecks.check(dataset)
+  end
+
   test "has_issues?/1 and count_issues/1" do
     d1 = insert(:dataset)
     d2 = insert(:dataset)

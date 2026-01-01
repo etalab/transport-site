@@ -262,7 +262,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              dataset: dataset,
              check_name: :expiring_resource,
              multi_validation: multi_validation,
-             locale: "fr"
+             locale: "fr",
+             mode: :producer
            )
            |> Floki.parse_document!() == [
              {"tr", [],
