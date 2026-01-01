@@ -4,7 +4,6 @@ defmodule TransportWeb.DiscussionController do
   require Logger
 
   plug(:assign_dataset)
-  plug(:assign_current_contact)
 
   @spec post_discussion(Plug.Conn.t(), map) :: Plug.Conn.t()
   def post_discussion(%Plug.Conn{} = conn, %{
@@ -65,17 +64,5 @@ defmodule TransportWeb.DiscussionController do
       :dataset,
       DB.Repo.get_by(DB.Dataset, slug: dataset_slug)
     )
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end

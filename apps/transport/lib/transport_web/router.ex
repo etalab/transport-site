@@ -16,8 +16,9 @@ defmodule TransportWeb.Router do
     plug(:fetch_flash)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
-    plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
+    plug(:assign_current_contact)
+    plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_datagouv_token)
     plug(TransportWeb.Plugs.ProducerData)
     plug(:maybe_login_again)
@@ -370,6 +371,16 @@ defmodule TransportWeb.Router do
   defp assign_current_user(conn, _) do
     # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: nil}} = conn, _) do
+    assign(conn, :current_contact, nil)
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: %{"id" => id}}} = conn, _) do
+    current_contact = DB.Contact |> DB.Repo.get_by!(datagouv_user_id: id) |> DB.Repo.preload(:default_tokens)
+
+    assign(conn, :current_contact, current_contact)
   end
 
   defp assign_datagouv_token(conn, _) do

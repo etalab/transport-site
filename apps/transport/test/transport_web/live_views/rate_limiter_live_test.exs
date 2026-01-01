@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.RateLimiterLiveTest do
   @url "/backoffice/rate_limiter"
 
   setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     {:ok, conn: build_conn()}
   end
 

@@ -21,8 +21,6 @@ defmodule TransportWeb.EspaceProducteurController do
     when action in [:proxy_statistics, :proxy_statistics_csv, :download_statistics, :download_statistics_csv]
   )
 
-  plug(:assign_current_contact when action in [:delete_resource, :post_file, :upload_logo])
-
   def espace_producteur(%Plug.Conn{} = conn, _params) do
     {conn, datasets} =
       case conn.assigns.datasets_for_user do
@@ -441,16 +439,5 @@ defmodule TransportWeb.EspaceProducteurController do
       end
 
     Map.take(post_params, ["title", "format", "url", "resource_file", "dataset_id", "resource_id"])
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end

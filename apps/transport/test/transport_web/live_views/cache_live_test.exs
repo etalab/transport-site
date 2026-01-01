@@ -9,6 +9,7 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
   @url "/backoffice/cache"
 
   setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     {:ok, conn: build_conn()}
   end
