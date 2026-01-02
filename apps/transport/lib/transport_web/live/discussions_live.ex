@@ -18,8 +18,15 @@ defmodule TransportWeb.DiscussionsLive do
             "discussion"
           )
         )
+
         // Scroll to the right place after discussions have been loaded
-        if (location.hash) location.href = location.hash;
+        if (window.location.hash) {
+          setTimeout(() => {
+            const id = window.location.hash.substring(1);
+            const element = document.getElementById(id);
+            if (element) element.scrollIntoView({ behavior: "smooth" });
+          }, 1000);
+        }
       })
     </script>
 
