@@ -53,15 +53,7 @@ config :phoenix, :json_library, Jason
 #
 config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 
-# Configures Elixir's Logger
-config :logger,
-  backends: [
-    :console,
-    # Error logs are also sent to Sentry
-    Sentry.LoggerBackend
-  ]
-
-config :logger, :console,
+config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   # :remote_ip is set by the dependency `remote_ip`
   # `:(method|path|user_agent)` are set by TransportWeb.Plugs.RateLimiter only

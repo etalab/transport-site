@@ -157,6 +157,7 @@ defmodule Transport.Mixfile do
       {:mock, "~> 0.3.6", only: :test},
       {:vex, "~> 0.9"},
       {:oauth2, "~> 2.1"},
+      {:logger_backends, "~> 1.0"}
     ]
   end
 end
