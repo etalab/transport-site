@@ -166,16 +166,16 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"div", [{"class", "panel"}],
                    [
                      {"p", [], ["Les problèmes sur les ressources suivantes requièrent votre attention."]},
-                     {"table", [{"class", "table small-padding"}],
+                     {"table", [{"class", "table small-padding sorted_table"}],
                       [
                         {"thead", [],
                          [
                            {"tr", [],
                             [
-                              {"th", [], ["Jeu de données"]},
+                              {"th", [{"class", "sort"}], ["Jeu de données"]},
                               {"th", [], ["Ressource"]},
-                              {"th", [], ["Problème"]},
-                              {"th", [], ["Actions"]}
+                              {"th", [{"class", "sort"}], ["Problème"]},
+                              {"th", [{"class", "action-column"}], ["Actions"]}
                             ]}
                          ]},
                         {"tbody", [],
