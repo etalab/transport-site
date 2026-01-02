@@ -41,13 +41,23 @@ defmodule TransportWeb.Plugs.ReuserData do
     checks =
       case datasets do
         [%DB.Dataset{} | _] = datasets ->
-          Transport.Cache.fetch(cache_key, fn -> Enum.map(datasets, &Transport.DatasetChecks.check/1) end, @cache_delay)
+          datasets_checks(datasets, cache_key)
 
         _ ->
           []
       end
 
     assign(conn, :followed_datasets_checks, checks)
+  end
+
+  defp datasets_checks(datasets, cache_key) do
+    Transport.Cache.fetch(
+      cache_key,
+      fn ->
+        Enum.map(datasets, fn %DB.Dataset{} = dataset -> Transport.DatasetChecks.check(dataset, :reuser) end)
+      end,
+      @cache_delay
+    )
   end
 
   defp followed_datasets_checks(%Plug.Conn{} = conn), do: assign(conn, :followed_datasets_checks, [])

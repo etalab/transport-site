@@ -157,11 +157,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       source: :user
     )
 
-    Datagouvfr.Client.Organization.Mock
-    |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-      {:ok, %{"members" => []}}
-    end)
-
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
     content =
@@ -284,11 +279,6 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       %DB.Dataset{id: dataset_id} = insert(:dataset)
       %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
-
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
 
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 

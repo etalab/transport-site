@@ -195,7 +195,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                   [
                                     {"href",
                                      dataset_path(conn, :details, dataset.slug) <> "#discussion-" <> discussion_id},
-                                    {"class", "button-outline primary small-padding"},
+                                    {"class", "button-outline primary small"},
                                     {"data-tracking-category", "espace_producteur"},
                                     {"data-tracking-action", "urgent_issues_see_discussion_button"}
                                   ],
@@ -227,7 +227,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                   [
                                     {"href",
                                      espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
-                                    {"class", "button-outline primary small-padding"},
+                                    {"class", "button-outline primary small"},
                                     {"data-tracking-category", "espace_producteur"},
                                     {"data-tracking-action", "urgent_issues_edit_resource_button"}
                                   ],
@@ -296,7 +296,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                     [
                       {"href",
                        espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)},
-                      {"class", "button-outline primary small-padding"},
+                      {"class", "button-outline primary small"},
                       {"data-tracking-category", "espace_producteur"},
                       {"data-tracking-action", "urgent_issues_edit_resource_button"}
                     ], [{"i", [{"class", "fa fa-edit"}], []}, "Modifier la ressource\n  "]}
@@ -1392,7 +1392,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                               {"href",
                                dataset_path(conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|},
                               {"target", "_blank"},
-                              {"class", "button-outline primary small-padding"},
+                              {"class", "button-outline primary small"},
                               {"data-tracking-category", "espace_producteur"},
                               {"data-tracking-action", "unanswered_discussion_button"}
                             ],
