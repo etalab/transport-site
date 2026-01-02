@@ -80,7 +80,7 @@ defmodule TransportWeb.Backoffice.CacheLive do
   end
 
   def format_ttl(value) when is_integer(value) do
-    Helpers.format_number(value) <> "ms"
+    Shared.DateTimeDisplay.relative_datetime_in_seconds(round(value / 1_000), "fr")
   end
 
   defp cache_keys(filter_key_name) do
