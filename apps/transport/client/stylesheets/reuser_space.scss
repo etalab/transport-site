@@ -97,3 +97,43 @@ a.button.reuser-space {
 a.no-bg:hover {
   background: none;
 }
+
+th.action-column {
+  width: 175px;
+}
+
+.sorted_table {
+  th {
+    border: 1px solid var(--light-grey);
+  }
+  td {
+    border: 1px solid var(--lighter-grey);
+  }
+  th.sort {
+    padding-right: 20px;
+    position: relative;
+    cursor: pointer;
+
+    &::after {
+      content: '';
+      height: 30px;
+      width: 15px;
+      position: absolute;
+      top: calc(50% - 15px);
+      right: 0;
+      background: url('/images/icons/unsorted.svg');
+      background-size: cover;
+      margin-right: 15px;
+    }
+
+    &.asc::after {
+      background: url('/images/icons/sorted_asc.svg');
+      background-size: cover;
+    }
+
+    &.desc::after {
+      background: url('/images/icons/sorted_desc.svg');
+      background-size: cover;
+    }
+  }
+}

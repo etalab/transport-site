@@ -3,13 +3,13 @@
   <h2 :if={@mode == :reuser}><%= dgettext("reuser-space", "Urgent issues on resources you follow") %></h2>
   <div class="panel">
     <p><%= dgettext("espace-producteurs", "The following urgent resource issues require your attention.") %></p>
-    <table class="table small-padding">
+    <table class="table small-padding sorted_table">
       <thead>
         <tr>
-          <th><%= dgettext("espace-producteurs", "Dataset") %></th>
+          <th class="sort"><%= dgettext("espace-producteurs", "Dataset") %></th>
           <th><%= dgettext("espace-producteurs", "Resource") %></th>
-          <th><%= dgettext("espace-producteurs", "Issue") %></th>
-          <th><%= dgettext("espace-producteurs", "Actions") %></th>
+          <th class="sort"><%= dgettext("espace-producteurs", "Issue") %></th>
+          <th class="action-column"><%= dgettext("espace-producteurs", "Actions") %></th>
         </tr>
       </thead>
       <tbody>
@@ -38,3 +38,23 @@
     </table>
   </div>
 </div>
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+  const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+      v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2, "fr", { ignorePunctuation: true })
+      )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+  document.querySelectorAll('th.sort').forEach(th => th.addEventListener('click', (() => {
+      const table = th.closest('table');
+      table.querySelectorAll('th.sort').forEach(th => th.className = 'sort')
+      th.className = !this.asc ? 'sort asc' : 'sort desc'
+      const header_index = Array.from(th.parentNode.children).indexOf(th);
+
+      const tbody = table.querySelector('tbody') || table;
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+
+      rows.sort(comparer(header_index, this.asc = !this.asc))
+          .forEach(tr => tbody.appendChild(tr));
+  })));
+</script>
