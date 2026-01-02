@@ -90,7 +90,8 @@ defmodule Transport.UserNotifier do
         deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
         resource_titles: resource_titles,
         unavailabilities: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -109,7 +110,8 @@ defmodule Transport.UserNotifier do
         producer_warned: producer_warned,
         resource_titles: resource_titles,
         unavailabilities: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
