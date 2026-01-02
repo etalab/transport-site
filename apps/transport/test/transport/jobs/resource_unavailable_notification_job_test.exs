@@ -10,8 +10,6 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
   setup :verify_on_exit!
 
   setup do
-    # Using the real implementation for the moment, then it falls back on `HTTPoison.Mock`
-    Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> assert_no_email_sent() end)
   end
@@ -226,6 +224,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              payload: %{
                "deleted_recreated_on_datagouv" => true,
                "hours_consecutive_downtime" => 6,
+               "attempt" => 1,
                "resource_ids" => [^resource_1_id, ^resource_2_id],
                "job_id" => job_id_1
              }
@@ -245,6 +244,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              role: :reuser,
              payload: %{
                "hours_consecutive_downtime" => 6,
+               "attempt" => 1,
                "producer_warned" => true,
                "resource_ids" => [^resource_1_id, ^resource_2_id],
                "job_id" => job_id_2
@@ -262,6 +262,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
              payload: %{
                "deleted_recreated_on_datagouv" => false,
                "hours_consecutive_downtime" => 6,
+               "attempt" => 1,
                "resource_ids" => [^resource_gtfs_id],
                "job_id" => job_id_3
              }
@@ -278,7 +279,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                args: %{
                  "dataset_id" => ^gtfs_dataset_id,
                  "resource_ids" => [^resource_gtfs_id],
-                 "hours_consecutive_downtime" => 30
+                 "hours_consecutive_downtime" => 30,
+                 "attempt" => 2
                },
                state: "scheduled",
                scheduled_at: scheduled_at_1
@@ -288,7 +290,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                args: %{
                  "dataset_id" => ^dataset_id,
                  "resource_ids" => [^resource_1_id, ^resource_2_id],
-                 "hours_consecutive_downtime" => 30
+                 "hours_consecutive_downtime" => 30,
+                 "attempt" => 2
                },
                state: "scheduled",
                scheduled_at: scheduled_at_2
@@ -382,6 +385,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                contact_id: ^foo_contact_id,
                payload: %{
                  "hours_consecutive_downtime" => 30,
+                 "attempt" => 2,
                  "resource_ids" => [^resource_1_id],
                  "job_id" => job_id_1
                }
@@ -400,6 +404,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                contact_id: ^bar_contact_id,
                payload: %{
                  "hours_consecutive_downtime" => 30,
+                 "attempt" => 2,
                  "resource_ids" => [^resource_1_id],
                  "producer_warned" => true,
                  "job_id" => job_id_2
@@ -421,7 +426,8 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
                  args: %{
                    "dataset_id" => ^dataset_id,
                    "resource_ids" => [^resource_1_id],
-                   "hours_consecutive_downtime" => 54
+                   "hours_consecutive_downtime" => 54,
+                   "attempt" => 3
                  },
                  state: "scheduled",
                  scheduled_at: scheduled_at
@@ -528,15 +534,9 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableNotificationJobTest d
   defp add_hours(days), do: DateTime.utc_now() |> DateTime.add(days, :hour)
 
   defp setup_dataset_response(%DB.Dataset{datagouv_id: datagouv_id}, resource_url, created_at) do
-    url = "https://demo.data.gouv.fr/api/1/datasets/#{datagouv_id}/"
-
-    Transport.HTTPoison.Mock
-    |> expect(:request, fn :get, ^url, "", [], [follow_redirect: true] ->
-      {:ok,
-       %HTTPoison.Response{
-         status_code: 200,
-         body: Jason.encode!(%{"resources" => [%{"url" => resource_url, "created_at" => created_at}]})
-       }}
+    Datagouvfr.Client.Datasets.Mock
+    |> expect(:get, fn ^datagouv_id ->
+      {:ok, %{"resources" => [%{"url" => resource_url, "created_at" => created_at |> DateTime.to_iso8601()}]}}
     end)
   end
 end

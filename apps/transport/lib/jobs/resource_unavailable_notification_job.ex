@@ -52,12 +52,20 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   @impl Oban.Worker
   def perform(%Oban.Job{
         id: job_id,
-        args: %{
-          "dataset_id" => dataset_id,
-          "resource_ids" => resource_ids,
-          "hours_consecutive_downtime" => hours_consecutive_downtime
-        }
+        args:
+          %{
+            "dataset_id" => dataset_id,
+            "resource_ids" => resource_ids,
+            "hours_consecutive_downtime" => hours_consecutive_downtime
+          } = args
       }) do
+    attempt =
+      Map.get(
+        args,
+        "attempt",
+        round((hours_consecutive_downtime - 6) / @nb_hours_before_sending_notification_again) + 1
+      )
+
     dataset = DB.Repo.get!(DB.Dataset, dataset_id) |> DB.Repo.preload(:resources)
 
     dataset.resources
@@ -73,7 +81,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
         send_to_producers(producer_subscriptions, dataset, resources,
           job_id: job_id,
-          hours_consecutive_downtime: hours_consecutive_downtime
+          hours_consecutive_downtime: hours_consecutive_downtime,
+          attempt: attempt
         )
 
         dataset
@@ -81,16 +90,25 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
         |> send_to_reusers(dataset, resources,
           producer_warned: not Enum.empty?(producer_subscriptions),
           job_id: job_id,
-          hours_consecutive_downtime: hours_consecutive_downtime
+          hours_consecutive_downtime: hours_consecutive_downtime,
+          attempt: attempt
         )
 
-        enqueue_next_job(dataset, resources, hours_consecutive_downtime + @nb_hours_before_sending_notification_again)
+        enqueue_next_job(
+          dataset,
+          resources,
+          hours_consecutive_downtime + @nb_hours_before_sending_notification_again,
+          attempt
+        )
+
         :ok
     end
   end
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, inserted_at: %DateTime{} = inserted_at}) do
+    attempt = 1
+
     inserted_at
     |> relevant_unavailabilities()
     |> Enum.each(fn {%DB.Dataset{} = dataset, unavailabilities} ->
@@ -98,13 +116,15 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
 
       send_to_producers(producer_subscriptions, dataset, unavailabilities,
         job_id: job_id,
-        hours_consecutive_downtime: @hours_consecutive_downtime
+        hours_consecutive_downtime: @hours_consecutive_downtime,
+        attempt: attempt
       )
 
       enqueue_next_job(
         dataset,
         Enum.map(unavailabilities, & &1.resource),
-        @hours_consecutive_downtime + @nb_hours_before_sending_notification_again
+        @hours_consecutive_downtime + @nb_hours_before_sending_notification_again,
+        attempt
       )
 
       dataset
@@ -112,15 +132,21 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
       |> send_to_reusers(dataset, unavailabilities,
         producer_warned: not Enum.empty?(producer_subscriptions),
         job_id: job_id,
-        hours_consecutive_downtime: @hours_consecutive_downtime
+        hours_consecutive_downtime: @hours_consecutive_downtime,
+        attempt: attempt
       )
     end)
   end
 
-  defp enqueue_next_job(%DB.Dataset{id: dataset_id}, resources, hours_consecutive_downtime) do
+  defp enqueue_next_job(%DB.Dataset{id: dataset_id}, resources, hours_consecutive_downtime, attempt) do
     resource_ids = Enum.map(resources, & &1.id)
 
-    %{dataset_id: dataset_id, resource_ids: resource_ids, hours_consecutive_downtime: hours_consecutive_downtime}
+    %{
+      dataset_id: dataset_id,
+      resource_ids: resource_ids,
+      hours_consecutive_downtime: hours_consecutive_downtime,
+      attempt: attempt + 1
+    }
     |> new(schedule_in: @nb_hours_before_sending_notification_again * 60 * 60)
     |> Oban.insert!()
   end
@@ -128,7 +154,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
   defp send_to_reusers(subscriptions, %DB.Dataset{} = dataset, unavailabilities,
          producer_warned: producer_warned,
          job_id: job_id,
-         hours_consecutive_downtime: hours_consecutive_downtime
+         hours_consecutive_downtime: hours_consecutive_downtime,
+         attempt: attempt
        ) do
     Enum.each(subscriptions, fn %DB.NotificationSubscription{} = subscription ->
       send_mail(subscription,
@@ -137,14 +164,16 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
         producer_warned: producer_warned,
         resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1),
         unavailabilities: unavailabilities,
-        job_id: job_id
+        job_id: job_id,
+        attempt: attempt
       )
     end)
   end
 
   defp send_to_producers(subscriptions, %DB.Dataset{} = dataset, unavailabilities,
          job_id: job_id,
-         hours_consecutive_downtime: hours_consecutive_downtime
+         hours_consecutive_downtime: hours_consecutive_downtime,
+         attempt: attempt
        ) do
     Enum.each(subscriptions, fn %DB.NotificationSubscription{} = subscription ->
       send_mail(subscription,
@@ -153,7 +182,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
         deleted_recreated_on_datagouv: deleted_and_recreated_resource_hosted_on_datagouv(dataset, unavailabilities),
         resource_titles: Enum.map_join(unavailabilities, ", ", &resource_title/1),
         unavailabilities: unavailabilities,
-        job_id: job_id
+        job_id: job_id,
+        attempt: attempt
       )
     end)
   end
@@ -174,7 +204,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
       resource_ids: Enum.map(unavailabilities, &resource_id/1),
       producer_warned: Keyword.fetch!(args, :producer_warned),
       hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
-      job_id: Keyword.fetch!(args, :job_id)
+      job_id: Keyword.fetch!(args, :job_id),
+      attempt: Keyword.fetch!(args, :attempt)
     })
   end
 
@@ -186,7 +217,8 @@ defmodule Transport.Jobs.ResourceUnavailableNotificationJob do
       resource_ids: Enum.map(unavailabilities, &resource_id/1),
       deleted_recreated_on_datagouv: Keyword.fetch!(args, :deleted_recreated_on_datagouv),
       hours_consecutive_downtime: Keyword.fetch!(args, :hours_consecutive_downtime),
-      job_id: Keyword.fetch!(args, :job_id)
+      job_id: Keyword.fetch!(args, :job_id),
+      attempt: Keyword.fetch!(args, :attempt)
     })
   end
 
