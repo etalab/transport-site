@@ -442,3 +442,7 @@ msgstr "Glissez un fichier ici ou cliquez pour parcourir vos répertoires locaux
 #, elixir-autogen, elixir-format
 msgid "Expired resource"
 msgstr "Ressource expirée"
+
+#, elixir-autogen, elixir-format
+msgid "recent_discussions"
+msgstr "Discussion récente"

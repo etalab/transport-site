@@ -41,11 +41,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       resource = insert(:resource, dataset: dataset, is_available: false)
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       doc =
@@ -75,7 +70,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
                         {"a",
                          [
                            {"href", "/resources/#{resource.id}"},
-                           {"class", "button-outline primary small-padding"},
+                           {"class", "button-outline primary small"},
                            {"target", "_blank"},
                            {"data-tracking-category", "espace_reutilisateur"},
                            {"data-tracking-action", "urgent_issues_see_resource_button"}
@@ -112,11 +107,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       dataset = insert(:dataset)
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       assert conn
@@ -139,11 +129,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         })
 
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
-
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
 
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
@@ -185,11 +170,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         role: :reuser
       )
 
-      Datagouvfr.Client.Organization.Mock
-      |> expect(:get, fn _organization_id, [restrict_fields: true] ->
-        {:ok, %{"members" => []}}
-      end)
-
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       conn =
@@ -220,11 +200,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     download_url = "https://example.com/#{Ecto.UUID.generate()}"
 
     insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
-
-    Datagouvfr.Client.Organization.Mock
-    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
-      {:ok, %{"members" => []}}
-    end)
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 

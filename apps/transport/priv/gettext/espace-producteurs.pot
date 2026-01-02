@@ -441,3 +441,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Expired resource"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "recent_discussions"
+msgstr ""

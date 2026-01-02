@@ -94,7 +94,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <td>
       <a
         href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
-        class="button-outline primary small-padding"
+        class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_see_discussion_button"
       >
@@ -109,7 +109,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <td>
       <a
         href={espace_producteur_path(TransportWeb.Endpoint, :edit_resource, @dataset.id, @issue.datagouv_id)}
-        class="button-outline primary small-padding"
+        class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_edit_resource_button"
       >
@@ -124,7 +124,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <td>
       <a
         href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
-        class="button-outline primary small-padding"
+        class="button-outline primary small"
         target="_blank"
         data-tracking-category="espace_reutilisateur"
         data-tracking-action="urgent_issues_see_resource_button"
@@ -135,12 +135,12 @@ defmodule TransportWeb.EspaceProducteurView do
     """
   end
 
-  defp issue_link(%{mode: :reuser, check_name: :unanswered_discussions} = assigns) do
+  defp issue_link(%{mode: :reuser, check_name: :recent_discussions} = assigns) do
     ~H"""
     <td>
       <a
         href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
-        class="button-outline primary small-padding"
+        class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_see_discussion_button"
       >

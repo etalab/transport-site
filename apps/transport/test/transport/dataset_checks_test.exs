@@ -10,45 +10,83 @@ defmodule Transport.DatasetChecksTest do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
-  test "check" do
-    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
-    %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
-    %DB.Resource{id: r1_id} = insert(:resource, dataset: dataset, is_available: false)
-    insert(:resource, dataset: dataset, is_available: true)
+  describe "check" do
+    test "producer" do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      %DB.Resource{id: r1_id} = insert(:resource, dataset: dataset, is_available: false)
+      insert(:resource, dataset: dataset, is_available: true)
 
-    %{resource: %{id: r3_id}, multi_validation: %{id: mv1_id}} =
-      insert_resource_and_friends(Date.utc_today(), dataset: dataset)
+      %{resource: %{id: r3_id}, multi_validation: %{id: mv1_id}} =
+        insert_resource_and_friends(Date.utc_today(), dataset: dataset)
 
-    %{resource: %{id: r4_id}, multi_validation: %{id: mv2_id}} =
-      insert_resource_and_friends(Date.add(Date.utc_today(), 10), dataset: dataset, max_error: "Error")
+      %{resource: %{id: r4_id}, multi_validation: %{id: mv2_id}} =
+        insert_resource_and_friends(Date.add(Date.utc_today(), 10), dataset: dataset, max_error: "Error")
 
-    Datagouvfr.Client.Organization.Mock
-    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
-      {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
-    end)
+      Datagouvfr.Client.Organization.Mock
+      |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+        {:ok, %{"members" => [%{"user" => %{"id" => contact.datagouv_user_id}}]}}
+      end)
 
-    discussion = %{
-      "closed" => nil,
-      "discussion" => [
-        %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(), "posted_by" => %{"id" => Ecto.UUID.generate()}}
-      ]
-    }
+      discussion = %{
+        "closed" => nil,
+        "discussion" => [
+          %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601(), "posted_by" => %{"id" => Ecto.UUID.generate()}}
+        ]
+      }
 
-    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [discussion] end)
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [discussion] end)
 
-    result = Transport.DatasetChecks.check(dataset)
+      result = Transport.DatasetChecks.check(dataset, :producer)
 
-    assert %{
-             unavailable_resource: [%DB.Resource{id: ^r1_id, is_available: false}],
-             expiring_resource: [{%DB.Resource{id: ^r3_id}, [%DB.MultiValidation{id: ^mv1_id}]}],
-             invalid_resource: [
-               {%DB.Resource{id: ^r4_id},
-                [%DB.MultiValidation{id: ^mv2_id, digest: %{"max_severity" => %{"max_level" => "Error"}}}]}
-             ],
-             unanswered_discussions: [^discussion]
-           } = result
+      assert %{
+               unavailable_resource: [%DB.Resource{id: ^r1_id, is_available: false}],
+               expiring_resource: [{%DB.Resource{id: ^r3_id}, [%DB.MultiValidation{id: ^mv1_id}]}],
+               invalid_resource: [
+                 {%DB.Resource{id: ^r4_id},
+                  [%DB.MultiValidation{id: ^mv2_id, digest: %{"max_severity" => %{"max_level" => "Error"}}}]}
+               ],
+               unanswered_discussions: [^discussion]
+             } = result
 
-    assert Transport.DatasetChecks.count_issues(result) == 4
+      assert Transport.DatasetChecks.count_issues(result) == 4
+    end
+
+    test "reuser" do
+      insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      %DB.Dataset{datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      %DB.Resource{id: r1_id} = insert(:resource, dataset: dataset, is_available: false)
+      insert(:resource, dataset: dataset, is_available: true)
+
+      %{resource: %{id: r3_id}, multi_validation: %{id: mv1_id}} =
+        insert_resource_and_friends(Date.utc_today(), dataset: dataset)
+
+      %{resource: %{id: r4_id}, multi_validation: %{id: mv2_id}} =
+        insert_resource_and_friends(Date.add(Date.utc_today(), 10), dataset: dataset, max_error: "Error")
+
+      discussion = %{
+        "closed" => nil,
+        "discussion" => [
+          %{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601()}
+        ]
+      }
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^datagouv_id -> [discussion] end)
+
+      result = Transport.DatasetChecks.check(dataset, :reuser)
+
+      assert %{
+               unavailable_resource: [%DB.Resource{id: ^r1_id, is_available: false}],
+               expiring_resource: [{%DB.Resource{id: ^r3_id}, [%DB.MultiValidation{id: ^mv1_id}]}],
+               invalid_resource: [
+                 {%DB.Resource{id: ^r4_id},
+                  [%DB.MultiValidation{id: ^mv2_id, digest: %{"max_severity" => %{"max_level" => "Error"}}}]}
+               ],
+               recent_discussions: [^discussion]
+             } = result
+
+      assert Transport.DatasetChecks.count_issues(result) == 4
+    end
   end
 
   test "issue_name" do
@@ -59,7 +97,7 @@ defmodule Transport.DatasetChecksTest do
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
-    Transport.DatasetChecks.check(dataset)
+    Transport.DatasetChecks.check(dataset, :producer)
     |> Map.keys()
     |> Enum.each(&Transport.DatasetChecks.issue_name/1)
   end
@@ -114,7 +152,7 @@ defmodule Transport.DatasetChecksTest do
     Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
     assert %{invalid_resource: [{%DB.Resource{id: ^resource_id}, [%DB.MultiValidation{id: ^mv_id}]}]} =
-             Transport.DatasetChecks.check(dataset)
+             Transport.DatasetChecks.check(dataset, :producer)
   end
 
   test "has_issues?/1 and count_issues/1" do
@@ -127,11 +165,11 @@ defmodule Transport.DatasetChecksTest do
 
     Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _datagouv_id -> [] end)
 
-    result = Transport.DatasetChecks.check(d1)
+    result = Transport.DatasetChecks.check(d1, :producer)
     refute result |> Transport.DatasetChecks.has_issues?()
     assert Transport.DatasetChecks.count_issues(result) == 0
 
-    result = Transport.DatasetChecks.check(d2)
+    result = Transport.DatasetChecks.check(d2, :producer)
     assert result |> Transport.DatasetChecks.has_issues?()
     assert Transport.DatasetChecks.count_issues(result) == 1
   end
@@ -187,14 +225,31 @@ defmodule Transport.DatasetChecksTest do
       ]
     end)
 
-    assert Transport.DatasetChecks.recent_discussion?(discussion_by_contact)
-    assert Transport.DatasetChecks.recent_discussion?(unanswered_discussion)
-    refute Transport.DatasetChecks.recent_discussion?(discussion_too_old)
+    assert Transport.DatasetChecks.discussion_since(discussion_by_contact, 30)
+    assert Transport.DatasetChecks.discussion_since(unanswered_discussion, 30)
+    refute Transport.DatasetChecks.discussion_since(discussion_too_old, 30)
 
     assert Transport.DatasetChecks.answered_by_team_member(discussion_by_contact, [contact.datagouv_user_id])
     refute Transport.DatasetChecks.answered_by_team_member(discussion_too_old, [contact.datagouv_user_id])
     refute Transport.DatasetChecks.answered_by_team_member(unanswered_discussion, [contact.datagouv_user_id])
 
     assert [unanswered_discussion] == Transport.DatasetChecks.unanswered_discussions(dataset)
+  end
+
+  test "recent_discussions" do
+    %DB.Dataset{datagouv_id: datagouv_id} = dataset = insert(:dataset)
+
+    discussion = %{
+      "discussion" => [%{"posted_on" => DateTime.utc_now() |> DateTime.to_iso8601()}]
+    }
+
+    discussion_too_old = %{
+      "discussion" => [%{"posted_on" => DateTime.utc_now() |> DateTime.add(-8, :day) |> DateTime.to_iso8601()}]
+    }
+
+    Datagouvfr.Client.Discussions.Mock
+    |> expect(:get, fn ^datagouv_id -> [discussion, discussion_too_old] end)
+
+    assert [discussion] == Transport.DatasetChecks.recent_discussions(dataset)
   end
 end

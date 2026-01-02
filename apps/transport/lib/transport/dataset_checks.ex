@@ -14,6 +14,7 @@ defmodule Transport.DatasetChecks do
 
   @expire_days_ahead 7
   @unanswered_discussion_since_days 30
+  @recent_discussions_days 7
 
   @gtfs_rt_validator Transport.Validators.GTFSRT.validator_name()
   @gtfs_rt_errors_threshold 50
@@ -21,15 +22,21 @@ defmodule Transport.DatasetChecks do
   @type validation_list :: [DB.MultiValidation.t()]
   @type resource_with_validations :: {DB.Resource.t(), validation_list()}
   @type validation_map :: %{required(integer()) => [DB.MultiValidation.t()] | nil}
-  @type check_result :: %{
+  @type check_result_producer :: %{
           unavailable_resource: [DB.Resource.t()],
           expiring_resource: [resource_with_validations()],
           invalid_resource: [resource_with_validations()],
           unanswered_discussions: [map()]
         }
 
-  @spec check(DB.Dataset.t()) :: check_result()
-  def check(%DB.Dataset{} = dataset) do
+  @type check_result_reuser :: %{
+          unavailable_resource: [DB.Resource.t()],
+          expiring_resource: [resource_with_validations()],
+          invalid_resource: [resource_with_validations()],
+          recent_discussions: [map()]
+        }
+  @spec check(DB.Dataset.t(), :producer | :reuser) :: check_result_producer() | check_result_reuser()
+  def check(%DB.Dataset{} = dataset, mode) do
     dataset = DB.Repo.preload(dataset, :resources)
 
     validations =
@@ -39,28 +46,35 @@ defmodule Transport.DatasetChecks do
         include_result: true
       )
 
-    %{
-      unavailable_resource: unavailable_resource(dataset),
-      expiring_resource: expiring_resource(dataset, validations),
-      invalid_resource: invalid_resource(dataset, validations),
-      unanswered_discussions: unanswered_discussions(dataset)
-    }
+    case mode do
+      :producer ->
+        %{
+          unavailable_resource: unavailable_resource(dataset),
+          expiring_resource: expiring_resource(dataset, validations),
+          invalid_resource: invalid_resource(dataset, validations),
+          unanswered_discussions: unanswered_discussions(dataset)
+        }
+
+      :reuser ->
+        %{
+          unavailable_resource: unavailable_resource(dataset),
+          expiring_resource: expiring_resource(dataset, validations),
+          invalid_resource: invalid_resource(dataset, validations),
+          recent_discussions: recent_discussions(dataset)
+        }
+    end
   end
 
   def issue_name(:unavailable_resource), do: dgettext("espace-producteurs", "unavailable_resource")
   def issue_name(:expiring_resource), do: dgettext("espace-producteurs", "expiring_resource")
   def issue_name(:invalid_resource), do: dgettext("espace-producteurs", "invalid_resource")
   def issue_name(:unanswered_discussions), do: dgettext("espace-producteurs", "unanswered_discussions")
+  def issue_name(:recent_discussions), do: dgettext("espace-producteurs", "recent_discussions")
 
-  @spec has_issues?(check_result()) :: boolean()
-  def has_issues?(result) do
-    not match?(
-      %{unavailable_resource: [], expiring_resource: [], invalid_resource: []},
-      result
-    )
-  end
+  @spec has_issues?(check_result_producer() | check_result_reuser()) :: boolean()
+  def has_issues?(result), do: count_issues(result) >= 1
 
-  @spec count_issues(check_result()) :: non_neg_integer()
+  @spec count_issues(check_result_producer() | check_result_reuser()) :: non_neg_integer()
   def count_issues(result) do
     result |> Map.values() |> Enum.flat_map(fn x -> x end) |> Enum.count()
   end
@@ -115,13 +129,19 @@ defmodule Transport.DatasetChecks do
 
     Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
     |> Enum.reject(&closed_discussion?/1)
-    |> Enum.filter(&recent_discussion?/1)
+    |> Enum.filter(fn discussion -> discussion_since(discussion, @unanswered_discussion_since_days) end)
     |> Enum.reject(&answered_by_team_member(&1, team_member_ids))
+  end
+
+  @spec recent_discussions(DB.Dataset.t()) :: [map()]
+  def recent_discussions(%DB.Dataset{} = dataset) do
+    Datagouvfr.Client.Discussions.Wrapper.get(dataset.datagouv_id)
+    |> Enum.filter(fn discussion -> discussion_since(discussion, @recent_discussions_days) end)
   end
 
   def closed_discussion?(%{"closed" => closed}), do: not is_nil(closed)
 
-  def recent_discussion?(%{"discussion" => comment_list}) do
+  def discussion_since(%{"discussion" => comment_list}, since_days) do
     latest_comment_datetime =
       comment_list
       |> Enum.map(fn comment ->
@@ -130,7 +150,7 @@ defmodule Transport.DatasetChecks do
       end)
       |> Enum.max(DateTime)
 
-    month_ago = DateTime.utc_now() |> DateTime.add(-@unanswered_discussion_since_days, :day)
+    month_ago = DateTime.utc_now() |> DateTime.add(-since_days, :day)
     Date.after?(latest_comment_datetime, month_ago)
   end
 

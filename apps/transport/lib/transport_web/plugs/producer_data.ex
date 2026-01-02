@@ -50,13 +50,19 @@ defmodule TransportWeb.Plugs.ProducerData do
     checks =
       case datasets do
         [%DB.Dataset{} | _] = datasets ->
-          maybe_skip_cache(conn, cache_key, fn -> Enum.map(datasets, &Transport.DatasetChecks.check/1) end)
+          datasets_checks(conn, cache_key, datasets)
 
         _ ->
           []
       end
 
     assign(conn, :datasets_checks, checks)
+  end
+
+  defp datasets_checks(conn, cache_key, datasets) do
+    maybe_skip_cache(conn, cache_key, fn ->
+      Enum.map(datasets, fn %DB.Dataset{} = dataset -> Transport.DatasetChecks.check(dataset, :producer) end)
+    end)
   end
 
   defp maybe_delete_if_error({:error, _} = value, cache_key) do

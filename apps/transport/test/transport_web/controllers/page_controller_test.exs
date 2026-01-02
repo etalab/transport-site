@@ -292,7 +292,7 @@ defmodule TransportWeb.PageControllerTest do
     |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
 
     Datagouvfr.Client.Organization.Mock
-    |> expect(:get, 2, fn _organization_id, [restrict_fields: true] ->
+    |> expect(:get, fn _organization_id, [restrict_fields: true] ->
       {:ok, %{"members" => []}}
     end)
 
