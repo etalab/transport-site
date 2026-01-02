@@ -51,14 +51,16 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
          dataset: dataset,
          resources: dataset.resources,
          validator_name: nil,
-         job_id: nil
+         job_id: nil,
+         attempt: nil
        )},
       {:multi_validation_with_error_notification, ["reuser", "notification", "error"],
        Transport.UserNotifier.multi_validation_with_error_notification(contact, :reuser,
          dataset: dataset,
          producer_warned: true,
          validator_name: nil,
-         job_id: nil
+         job_id: nil,
+         attempt: nil
        )},
       {:resource_unavailable, ["producer", "notification", "availability"],
        Transport.UserNotifier.resource_unavailable(contact, :producer,

@@ -62,7 +62,8 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         resources: resources,
         validator_name: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -74,7 +75,8 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         producer_warned: producer_warned,
         validator_name: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
