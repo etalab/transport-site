@@ -63,6 +63,8 @@ defmodule Transport.Application do
     :ok = Transport.Telemetry.setup()
     :ok = Transport.AppSignal.EctoTelemetry.setup()
 
+    LoggerBackends.add(Sentry.LoggerBackend)
+
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
   end
