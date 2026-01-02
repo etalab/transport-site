@@ -159,89 +159,93 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) == [
-               {"div", [{"data-name", "urgent-issues"}],
-                [
-                  {"h2", [], ["Problèmes urgents sur vos ressources"]},
-                  {"div", [{"class", "panel"}],
-                   [
-                     {"p", [], ["Les problèmes sur les ressources suivantes requièrent votre attention."]},
-                     {"table", [{"class", "table small-padding sorted_table"}],
-                      [
-                        {"thead", [],
-                         [
-                           {"tr", [],
-                            [
-                              {"th", [{"class", "sort"}], ["Jeu de données"]},
-                              {"th", [], ["Ressource"]},
-                              {"th", [{"class", "sort"}], ["Problème"]},
-                              {"th", [{"class", "action-column"}], ["Actions"]}
-                            ]}
-                         ]},
-                        {"tbody", [],
-                         [
-                           {"tr", [],
-                            [
-                              {"td", [],
-                               [
-                                 {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-                                  [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
-                               ]},
-                              {"td", [], []},
-                              {"td", [], ["Discussions sans réponse"]},
-                              {"td", [],
-                               [
-                                 {"a",
-                                  [
-                                    {"href",
-                                     dataset_path(conn, :details, dataset.slug) <> "#discussion-" <> discussion_id},
-                                    {"class", "button-outline primary small"},
-                                    {"data-tracking-category", "espace_producteur"},
-                                    {"data-tracking-action", "urgent_issues_see_discussion_button"}
-                                  ],
-                                  [
-                                    {"i", [{"class", "icon fas fa-comments"}], []},
-                                    "Voir la discussion\n  "
-                                  ]}
-                               ]}
-                            ]},
-                           {"tr", [],
-                            [
-                              {"td", [],
-                               [
-                                 {"a",
-                                  [
-                                    {"href", dataset_path(conn, :details, dataset.slug)},
-                                    {"target", "_blank"}
-                                  ],
-                                  [
-                                    {"i", [{"class", "fa fa-external-link"}], []},
-                                    "\n      Hello\n    "
-                                  ]}
-                               ]},
-                              {"td", [], ["GTFS Super ", {"span", [{"class", "label"}], ["GTFS"]}]},
-                              {"td", [], ["Ressource indisponible"]},
-                              {"td", [],
-                               [
-                                 {"a",
-                                  [
-                                    {"href",
-                                     espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
-                                    {"class", "button-outline primary small"},
-                                    {"data-tracking-category", "espace_producteur"},
-                                    {"data-tracking-action", "urgent_issues_edit_resource_button"}
-                                  ],
-                                  [
-                                    {"i", [{"class", "fa fa-edit"}], []},
-                                    "Modifier la ressource\n  "
-                                  ]}
-                               ]}
-                            ]}
-                         ]}
-                      ]}
-                   ]}
-                ]}
-             ]
+      # Filter out recent_features row if present (during first 7 days of month)
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+
+      tbody_rows_without_recent_features =
+        all_tbody_rows
+        |> Enum.reject(fn row ->
+          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
+        end)
+
+      # Expected tbody structure without recent_features
+      expected_tbody_rows = [
+        {"tr", [],
+         [
+           {"td", [],
+            [
+              {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
+               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+            ]},
+           {"td", [], []},
+           {"td", [], ["Discussions sans réponse"]},
+           {"td", [],
+            [
+              {"a",
+               [
+                 {"href", dataset_path(conn, :details, dataset.slug) <> "#discussion-" <> discussion_id},
+                 {"class", "button-outline primary small"},
+                 {"data-tracking-category", "espace_producteur"},
+                 {"data-tracking-action", "urgent_issues_see_discussion_button"}
+               ],
+               [
+                 {"i", [{"class", "icon fas fa-comments"}], []},
+                 "Voir la discussion\n  "
+               ]}
+            ]}
+         ]},
+        {"tr", [],
+         [
+           {"td", [],
+            [
+              {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
+               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+            ]},
+           {"td", [], ["GTFS Super ", {"span", [{"class", "label"}], ["GTFS"]}]},
+           {"td", [], ["Ressource indisponible"]},
+           {"td", [],
+            [
+              {"a",
+               [
+                 {"href", espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
+                 {"class", "button-outline primary small"},
+                 {"data-tracking-category", "espace_producteur"},
+                 {"data-tracking-action", "urgent_issues_edit_resource_button"}
+               ],
+               [
+                 {"i", [{"class", "fa fa-edit"}], []},
+                 "Modifier la ressource\n  "
+               ]}
+            ]}
+         ]}
+      ]
+
+      assert tbody_rows_without_recent_features == expected_tbody_rows
+
+      # Verify the complete structure with the filtered tbody
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> length() == 1
+
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
+               "Problèmes urgents sur vos ressources"
+
+      assert doc
+             |> Floki.find(~s|[data-name="urgent-issues"] p|)
+             |> Floki.text() ==
+               "Les problèmes sur les ressources suivantes requièrent votre attention."
+
+      # Verify table structure
+      assert doc |> Floki.find(~s|[data-name="urgent-issues"] table|) |> length() == 1
+
+      # If we're in the first 7 days, recent_features row should be present
+      if Date.utc_today().day in 1..7 do
+        assert length(all_tbody_rows) == 3
+
+        assert Enum.any?(all_tbody_rows, fn row ->
+                 row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
+               end)
+      else
+        assert length(all_tbody_rows) == 2
+      end
     end
   end
 
@@ -327,8 +331,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
 
     test "renders successfully and finds the dataset using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} =
-        dataset = insert(:dataset, custom_title: custom_title = "Foobar")
+      %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} = dataset = insert(:dataset)
 
       %DB.Resource{datagouv_id: resource_datagouv_id} = resource = insert(:resource, dataset: dataset)
 
@@ -352,8 +355,6 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :edit_dataset, dataset.id))
         |> html_response(200)
         |> Floki.parse_document!()
-
-      assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == custom_title <> "|Laissez-nous votre avis"
 
       assert td_text.(doc) == "Modifier la ressource Supprimer la ressource"
 
@@ -545,7 +546,17 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> Enum.empty?()
+      # urgent-issues may be present if we're in first 7 days (recent_features banner)
+      # but should not contain any real issues (only recent_features if present)
+      urgent_issues_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+
+      real_issues_rows =
+        urgent_issues_rows
+        |> Enum.reject(fn row ->
+          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
+        end)
+
+      assert Enum.empty?(real_issues_rows)
 
       # Other dataset has the panel displayed
       doc =

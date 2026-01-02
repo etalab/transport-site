@@ -1,4 +1,5 @@
-<div :if={show_urgent_issues?(@checks)} data-name="urgent-issues">
+<% show_recent_features = Date.utc_today().day in 1..7 %>
+<div :if={show_urgent_issues?(@checks) or show_recent_features} data-name="urgent-issues">
   <h2 :if={@mode == :producer}><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
   <h2 :if={@mode == :reuser}><%= dgettext("reuser-space", "Urgent issues on resources you follow") %></h2>
   <div class="panel">
@@ -13,6 +14,20 @@
         </tr>
       </thead>
       <tbody>
+        <tr :if={show_recent_features}>
+          <td colspan="2"><%= dgettext("espace-producteurs", "New features available") %></td>
+          <td><%= dgettext("espace-producteurs", "recent_features") %></td>
+          <td>
+            <a
+              href={page_path(@conn, :nouveautes)}
+              class="button-outline primary small"
+              data-tracking-category="espace_producteur"
+              data-tracking-action="urgent_issues_see_recent_features_button"
+            >
+              <i class="icon fas fa-star"></i><%= dgettext("espace-producteurs", "Discover new features") %>
+            </a>
+          </td>
+        </tr>
         <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>
           <% checks = @checks[dataset.id] %>
           <%= for {check_name, issues} <- checks |> Enum.sort_by(& elem(&1, 0)) do %>

@@ -446,3 +446,15 @@ msgstr "Ressource expirée"
 #, elixir-autogen, elixir-format
 msgid "recent_discussions"
 msgstr "Discussion récente"
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr "Découvrir les nouveautés"
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr "Nouvelles fonctionnalités disponibles"
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr "Nouvelles fonctionnalités"

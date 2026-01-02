@@ -53,32 +53,52 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
                "Problèmes urgents sur les ressources que vous suivez"
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"] tbody|) == [
-               {"tbody", [],
-                [
-                  {"tr", [],
-                   [
-                     {"td", [],
-                      [
-                        {"a", [{"href", "/datasets/#{dataset.slug}"}, {"target", "_blank"}],
-                         [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
-                      ]},
-                     {"td", [], ["GTFS.zip ", {"span", [{"class", "label"}], []}]},
-                     {"td", [], ["Ressource indisponible"]},
-                     {"td", [],
-                      [
-                        {"a",
-                         [
-                           {"href", "/resources/#{resource.id}"},
-                           {"class", "button-outline primary small"},
-                           {"target", "_blank"},
-                           {"data-tracking-category", "espace_reutilisateur"},
-                           {"data-tracking-action", "urgent_issues_see_resource_button"}
-                         ], ["\n    Voir la ressource\n  "]}
-                      ]}
-                   ]}
-                ]}
-             ]
+      # Filter out recent_features row if present (during first 7 days of month)
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+
+      tbody_rows_without_recent_features =
+        all_tbody_rows
+        |> Enum.reject(fn row ->
+          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
+        end)
+
+      # Expected tbody structure without recent_features
+      expected_tbody_rows = [
+        {"tr", [],
+         [
+           {"td", [],
+            [
+              {"a", [{"href", "/datasets/#{dataset.slug}"}, {"target", "_blank"}],
+               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+            ]},
+           {"td", [], ["GTFS.zip ", {"span", [{"class", "label"}], []}]},
+           {"td", [], ["Ressource indisponible"]},
+           {"td", [],
+            [
+              {"a",
+               [
+                 {"href", "/resources/#{resource.id}"},
+                 {"class", "button-outline primary small"},
+                 {"target", "_blank"},
+                 {"data-tracking-category", "espace_reutilisateur"},
+                 {"data-tracking-action", "urgent_issues_see_resource_button"}
+               ], ["\n    Voir la ressource\n  "]}
+            ]}
+         ]}
+      ]
+
+      assert tbody_rows_without_recent_features == expected_tbody_rows
+
+      # If we're in the first 7 days, recent_features row should be present
+      if Date.utc_today().day in 1..7 do
+        assert length(all_tbody_rows) == 2
+
+        assert Enum.any?(all_tbody_rows, fn row ->
+                 row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
+               end)
+      else
+        assert length(all_tbody_rows) == 1
+      end
     end
   end
 
