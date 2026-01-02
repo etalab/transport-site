@@ -69,7 +69,8 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
          deleted_recreated_on_datagouv: true,
          resource_titles: Enum.map_join(dataset.resources, ",", & &1.title),
          unavailabilities: nil,
-         job_id: nil
+         job_id: nil,
+         attempt: nil
        )},
       {:resource_unavailable, ["reuser", "notification", "availability"],
        Transport.UserNotifier.resource_unavailable(contact, :reuser,
@@ -78,7 +79,8 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
          producer_warned: true,
          resource_titles: Enum.map_join(dataset.resources, ",", & &1.title),
          unavailabilities: nil,
-         job_id: nil
+         job_id: nil,
+         attempt: nil
        )},
       {:periodic_reminder_producers_no_subscriptions, ["producer"],
        Transport.UserNotifier.periodic_reminder_producers_no_subscriptions(contact, [dataset, other_dataset])},
