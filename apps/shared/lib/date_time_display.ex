@@ -238,6 +238,10 @@ defmodule Shared.DateTimeDisplay do
     Transport.Cldr.DateTime.Relative.to_string!(days, unit: :day, locale: locale)
   end
 
+  def relative_datetime_in_seconds(seconds, locale) do
+    Transport.Cldr.DateTime.Relative.to_string!(seconds, locale: locale)
+  end
+
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
   def convert_to_paris_time(%DateTime{} = dt) do
     TimeWrapper.convert_to_paris_time(dt)
