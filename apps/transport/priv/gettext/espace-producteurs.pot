@@ -445,3 +445,15 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "recent_discussions"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr ""
