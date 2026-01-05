@@ -29,17 +29,13 @@
   </table>
   <p>
     <strong>
-      <%= @stats_per_day
-      |> Enum.map(& &1.requests_external)
-      |> Enum.sum()
+      <%= Enum.sum_by(@stats_per_day, & &1.requests_external)
       |> format_number(locale: get_session(@conn, :locale)) %>
     </strong>
     <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
     <br />
     <strong>
-      <%= @stats_per_day
-      |> Enum.map(& &1.requests_internal)
-      |> Enum.sum()
+      <%= Enum.sum_by(@stats_per_day, & &1.requests_internal)
       |> format_number(locale: get_session(@conn, :locale)) %>
     </strong>
     <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days) %>
