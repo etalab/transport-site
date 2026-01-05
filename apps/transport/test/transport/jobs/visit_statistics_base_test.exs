@@ -75,12 +75,13 @@ defmodule Transport.Test.Transport.Jobs.VisitStatisticsBaseTest do
       %DB.Contact{email: email} = contact = insert_contact()
 
       # Insert old notification
-      notification = insert_notification(%{
-        contact_id: contact.id,
-        reason: reason,
-        email: email,
-        role: :producer
-      })
+      notification =
+        insert_notification(%{
+          contact_id: contact.id,
+          reason: reason,
+          email: email,
+          role: :producer
+        })
 
       # Update to make it 31 days old
       DB.Notification
