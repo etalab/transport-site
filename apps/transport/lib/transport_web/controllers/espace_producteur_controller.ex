@@ -51,7 +51,7 @@ defmodule TransportWeb.EspaceProducteurController do
     # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
     conn
     |> assign(:dataset, dataset |> DB.Repo.preload(reuser_improved_data: [:resource]))
-    |> assign(:checks, datasets_checks(conn) |> Map.filter(fn {dataset_id, _check} -> dataset_id == dataset.id end))
+    |> assign(:checks, dataset_check(conn, dataset))
     |> assign(
       :latest_validation,
       DB.MultiValidation.dataset_latest_validation(
@@ -60,6 +60,10 @@ defmodule TransportWeb.EspaceProducteurController do
       )
     )
     |> render("edit_dataset.html")
+  end
+
+  defp dataset_check(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    datasets_checks(conn) |> Map.filter(fn {dataset_id, _check} -> dataset_id == dataset.id end)
   end
 
   def reuser_improved_data(%Plug.Conn{assigns: %{dataset: %DB.Dataset{id: dataset_id}}} = conn, %{
