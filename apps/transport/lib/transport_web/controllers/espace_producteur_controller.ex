@@ -138,12 +138,16 @@ defmodule TransportWeb.EspaceProducteurController do
   def download_statistics(%Plug.Conn{assigns: %{datasets: datasets}} = conn, _params) do
     resources = Enum.flat_map(datasets, & &1.resources) |> Enum.filter(&DB.Resource.hosted_on_datagouv?/1)
     year = Date.utc_today().year
+    previous_year = year - 1
     download_stats = DB.ResourceMonthlyMetric.downloads_for_year(resources, year)
+    download_stats_previous_year = DB.ResourceMonthlyMetric.downloads_for_year(resources, previous_year)
 
     conn
     |> assign(:download_stats, download_stats)
+    |> assign(:download_stats_previous_year, download_stats_previous_year)
     |> assign(:datasets, datasets)
     |> assign(:year, year)
+    |> assign(:previous_year, previous_year)
     |> render("download_statistics.html")
   end
 

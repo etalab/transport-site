@@ -1297,13 +1297,23 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       mock_organization_and_discussion(dataset)
 
+      current_year = Date.utc_today().year
+      previous_year = current_year - 1
       year_month = Date.utc_today() |> Date.to_iso8601() |> String.slice(0..6)
+      previous_year_month = "#{previous_year}-01"
 
       insert(:resource_monthly_metric,
         resource_datagouv_id: resource.datagouv_id,
         metric_name: :downloads,
         count: 2_000,
         year_month: year_month
+      )
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        metric_name: :downloads,
+        count: 1_500,
+        year_month: previous_year_month
       )
 
       html =
@@ -1325,7 +1335,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"th", [], ["Jeu de données"]},
                         {"th", [], ["Ressource"]},
-                        {"th", [], ["Téléchargements de l'année #{Date.utc_today().year}"]}
+                        {"th", [], ["Téléchargements de l'année #{previous_year}"]},
+                        {"th", [], ["Téléchargements de l'année #{current_year}"]}
                       ]}
                    ]},
                   {"tbody", [],
@@ -1334,6 +1345,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"td", [{"rowspan", "1"}], [dataset.custom_title]},
                         {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
+                        {"td", [], ["\n1 500\n                "]},
                         {"td", [], ["\n2 000\n                "]}
                       ]}
                    ]}

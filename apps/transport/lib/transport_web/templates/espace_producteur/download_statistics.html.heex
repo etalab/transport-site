@@ -16,6 +16,7 @@
           <tr>
             <th><%= dgettext("espace-producteurs", "Dataset") %></th>
             <th><%= dgettext("espace-producteurs", "Resource") %></th>
+            <th><%= dgettext("espace-producteurs", "Downloads for %{year}", year: @previous_year) %></th>
             <th><%= dgettext("espace-producteurs", "Downloads for %{year}", year: @year) %></th>
           </tr>
         </thead>
@@ -27,6 +28,11 @@
               <tr>
                 <td :if={index == 0} rowspan={Enum.count(resources)}><%= dataset.custom_title %></td>
                 <td><%= resource.title %> <span class="label"><%= resource.format %></span></td>
+                <td>
+                  <%= format_number(@download_stats_previous_year[resource.datagouv_id] || 0,
+                    locale: get_session(@conn, :locale)
+                  ) %>
+                </td>
                 <td>
                   <%= format_number(@download_stats[resource.datagouv_id] || 0, locale: get_session(@conn, :locale)) %>
                 </td>
