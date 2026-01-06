@@ -64,7 +64,7 @@ defmodule Transport.IRVE.StaticIRVESchema do
   @doc """
   Returns the list of optional fields in the schema.
 
-  iex > optional_fields()
+  iex> optional_fields()
   ["nom_amenageur", "siren_amenageur", "contact_amenageur", "nom_operateur",
   "telephone_operateur", "id_station_local", "code_insee_commune",
   "id_pdc_local", "gratuit", "paiement_cb", "paiement_autre", "tarification",
