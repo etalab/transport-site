@@ -113,9 +113,17 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert options[:url] ==
                "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=100"
 
+      # Start from factory payload but ensure all datasets have an organization
+      payload =
+        DB.Factory.IRVE.build_datagouv_page_payload()
+        |> update_in(["data", Access.all(), "organization"], fn
+          nil -> %{"id" => "fallback-org-id", "name" => "fallback-org", "page" => "http://fallback-org"}
+          org -> org
+        end)
+
       %Req.Response{
         status: 200,
-        body: DB.Factory.IRVE.build_datagouv_page_payload()
+        body: payload
       }
     end)
   end
