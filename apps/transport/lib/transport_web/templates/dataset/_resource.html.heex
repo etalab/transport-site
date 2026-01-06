@@ -43,8 +43,10 @@
     <% end %>
     <div :if={related_gtfs_resource != nil}>
       <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
-        <i class="icon fa fa-link" aria-hidden="true"></i>
-        {link("GTFS", to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id), class: "dark")}
+        <i class="icon fa fa-link" aria-hidden="true"></i>{link("GTFS",
+          to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id),
+          class: "dark"
+        )}
       </span>
     </div>
     <%= if Map.has_key?(unavailabilities, @resource.id) do %>

@@ -151,7 +151,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert text_for_cell.(3, 1) =~ "expiration"
     assert text_for_cell.(3, 2) =~ "admin"
 
-    assert doc |> Floki.find("#reuser_subscriptions") |> Floki.text() |> String.replace(~r/\s/, " ") =~
+    assert doc |> Floki.find("#reuser_subscriptions") |> Floki.text() |> String.replace(~r/(\s)+/, " ") =~
              "Ainsi que 2 abonnements de 1 réutilisateur."
   end
 
