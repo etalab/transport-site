@@ -368,7 +368,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
 
           dispatch_validation_job(multi_validation)
 
-          destination = System.tmp_dir!() <> filename
+          destination = System.tmp_dir!() |> Path.join(filename)
           File.cp!(path, destination)
 
           {:ok, {multi_validation, destination, client_name}}
