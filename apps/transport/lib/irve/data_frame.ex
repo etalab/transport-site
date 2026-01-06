@@ -170,7 +170,7 @@ defmodule Transport.IRVE.DataFrame do
   In cases where we have mixed separators, an error is raised:
 
   iex> guess_delimiter!("hello;world,again")
-  ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
+  ** (Transport.IRVE.DataFrame.ColumnDelimiterGuessError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
 
   During unit tests, bodies with a single column (hence not column separator) are allowed.
   In that case "," is assumed:
