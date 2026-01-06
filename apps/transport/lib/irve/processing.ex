@@ -32,10 +32,10 @@ defmodule Transport.IRVE.Processing do
     Transport.IRVE.DataFrame.preprocess_xy_coordinates(dataframe)
   end
 
-  def preprocess_boolean_fields(dataframe) do
-    (Transport.IRVE.StaticIRVESchema.boolean_columns() -- ["cable_t2_attache"])
+  def preprocess_boolean_fields(dataframe, keep_as_string \\ false) do
+    Transport.IRVE.StaticIRVESchema.boolean_columns()
     |> Enum.reduce(dataframe, fn column, dataframe_acc ->
-      Transport.IRVE.DataFrame.preprocess_boolean(dataframe_acc, column)
+      Transport.IRVE.DataFrame.preprocess_boolean(dataframe_acc, column, keep_as_string)
     end)
   end
 

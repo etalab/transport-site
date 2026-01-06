@@ -299,11 +299,18 @@ defmodule Transport.IRVE.DataFrame do
   # experimental, I think Explorer lacks a feature to allow this operation within Polars.
   # For now, using `transform`, which is a costly operation comparatively
   # https://hexdocs.pm/explorer/Explorer.DataFrame.html#transform/3
-  def preprocess_boolean(df, field_name) do
+  def preprocess_boolean(df, field_name, keep_as_string \\ false) do
     df
     |> Explorer.DataFrame.transform([names: [field_name]], fn row ->
+      remapped =
+        if keep_as_string do
+          Map.fetch!(@boolean_mappings, row[field_name]) |> to_string()
+        else
+          Map.fetch!(@boolean_mappings, row[field_name])
+        end
+
       %{
-        (field_name <> "_remapped") => Map.fetch!(@boolean_mappings, row[field_name])
+        (field_name <> "_remapped") => remapped
       }
     end)
     |> Explorer.DataFrame.discard(field_name)

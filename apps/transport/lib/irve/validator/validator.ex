@@ -63,6 +63,7 @@ defmodule Transport.IRVE.Validator do
     |> load_binary_as_dataframe(delimiter: delimiter)
     # TODO: accumulate warnings
     |> Transport.IRVE.Processing.add_missing_optional_columns()
+    |> Transport.IRVE.Processing.preprocess_boolean_fields(true)
     |> compute_validation()
   end
 
