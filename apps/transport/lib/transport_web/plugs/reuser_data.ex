@@ -50,6 +50,8 @@ defmodule TransportWeb.Plugs.ReuserData do
     assign(conn, :followed_datasets_checks, checks)
   end
 
+  defp followed_datasets_checks(%Plug.Conn{} = conn), do: assign(conn, :followed_datasets_checks, [])
+
   defp datasets_checks(datasets, cache_key) do
     Transport.Cache.fetch(
       cache_key,
@@ -59,6 +61,4 @@ defmodule TransportWeb.Plugs.ReuserData do
       @cache_delay
     )
   end
-
-  defp followed_datasets_checks(%Plug.Conn{} = conn), do: assign(conn, :followed_datasets_checks, [])
 end
