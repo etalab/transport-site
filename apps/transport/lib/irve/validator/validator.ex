@@ -48,32 +48,11 @@ defmodule Transport.IRVE.Validator do
     # TODO: see why there are still polar errors like this:
     # Polars Error: could not parse `Non concern�` as dtype `str` at column 'id_station_itinerance' (column number 8)
     body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
-    # TODO: accumulate warning
-    delimiter = Transport.IRVE.DataFrame.guess_delimiter!(body)
-
-    # In raw static consolidation we use the following lines:
-    #  body
-    # |> convert_to_dataframe!() => can’t use it really here, because it interpolates types from the schema
-    # |> add_missing_optional_columns() => This one is kept, see below
-    # |> preprocess_coordinates() => the validator already does something similar later
-    # |> preprocess_boolean_fields() => this one needs to be rewriten later because it interpolates types (again)
-    # |> select_fields() => this one removes too much columns for "raw"
+    # TODO: accumulate warnings
 
     body
-    |> load_binary_as_dataframe(delimiter: delimiter)
-    # TODO: accumulate warnings
-    |> Transport.IRVE.Processing.add_missing_optional_columns()
-    |> Transport.IRVE.Processing.preprocess_boolean_fields(true)
+    |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
     |> compute_validation()
-  end
-
-  # NOTE: will be refactored at next validator iteration
-  defp load_binary_as_dataframe(body, delimiter: delimiter) do
-    # NOTE: `infer_schema_length: 0` enforces strings everywhere
-    case Explorer.DataFrame.load_csv(body, infer_schema_length: 0, delimiter: delimiter) do
-      {:ok, df} -> df
-      {:error, error} -> raise "Error loading CSV into dataframe: #{inspect(error)}"
-    end
   end
 
   @doc """

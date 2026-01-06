@@ -16,6 +16,29 @@ defmodule Transport.IRVE.Processing do
     |> select_fields()
   end
 
+  @doc """
+  Same as above, but prepares the DataFrame without any type casting, all columns remain strings.
+  This is useful for validation purposes.
+  """
+
+  def read_as_uncasted_data_frame(body) do
+    # In raw static consolidation we use the following lines:
+    #  body
+    # |> convert_to_dataframe!() => can’t use it here, because it interpolates types from the schema
+    # |> add_missing_optional_columns() => This one is kept, see below
+    # |> preprocess_coordinates() => the validator already does something similar later
+    # |> preprocess_boolean_fields() => this is kept but with a flag to avoid type interpolation
+    # |> select_fields() => this one removes too much columns for "raw"
+
+    body
+    # This allows non-comma delimiters, should have a warning accumulation later
+    |> convert_to_uncasted_dataframe!()
+    # Same as above, should exit a warning accumulation later
+    |> add_missing_optional_columns()
+    # True means: keep as string, avoid type interpolation
+    |> preprocess_boolean_fields(true)
+  end
+
   def convert_to_dataframe!(body) do
     # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
     # and often not provided
@@ -26,6 +49,16 @@ defmodule Transport.IRVE.Processing do
       # because we manually reprocess them right here after.
       _strict = false
     )
+  end
+
+  defp convert_to_uncasted_dataframe!(body) do
+    delimiter = Transport.IRVE.DataFrame.guess_delimiter!(body)
+    # TODO: accumulate warning
+    # NOTE: `infer_schema_length: 0` enforces strings everywhere
+    case Explorer.DataFrame.load_csv(body, infer_schema_length: 0, delimiter: delimiter) do
+      {:ok, df} -> df
+      {:error, error} -> raise "Error loading CSV into dataframe: #{inspect(error)}"
+    end
   end
 
   def preprocess_coordinates(dataframe) do
