@@ -23,7 +23,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
   def espace_producteur(%Plug.Conn{} = conn, _params) do
     {conn, datasets} =
-      case conn.assigns.datasets_for_user do
+      case Map.get(conn.assigns, :datasets_for_user, []) do
         datasets when is_list(datasets) ->
           {conn, datasets}
 
@@ -44,6 +44,8 @@ defmodule TransportWeb.EspaceProducteurController do
   defp datasets_checks(%Plug.Conn{assigns: %{datasets_for_user: datasets_for_user, datasets_checks: datasets_checks}}) do
     Enum.map(datasets_for_user, & &1.id) |> Enum.zip(datasets_checks) |> Map.new()
   end
+
+  defp datasets_checks(%Plug.Conn{}), do: %{}
 
   def edit_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
