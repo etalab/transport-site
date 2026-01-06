@@ -35,7 +35,7 @@ defmodule TransportWeb.DiscussionsLive do
         <% nb_open_discussions = Enum.count(@discussions, &is_nil(&1["closed"])) %>
         <TransportWeb.LayoutView.notification_count count={nb_open_discussions} static={false} />
         <%= for discussion <- @discussions do %>
-          <%= Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
+          {Phoenix.View.render(TransportWeb.DatasetView, "_discussion.html",
             discussion: discussion,
             current_user: @current_user,
             socket: @socket,
@@ -45,12 +45,12 @@ defmodule TransportWeb.DiscussionsLive do
             org_member_ids: @org_member_ids,
             org_logo_thumbnail: @org_logo_thumbnail,
             locale: @locale
-          ) %>
+          )}
         <% end %>
       </div>
     <% else %>
       <div>
-        <%= dgettext("page-dataset-details", "loading discussions...") %>
+        {dgettext("page-dataset-details", "loading discussions...")}
       </div>
     <% end %>
     """
@@ -153,7 +153,7 @@ defmodule TransportWeb.CountDiscussionsLive do
 
   def render(assigns) do
     ~H"""
-    <%= if assigns[:count], do: "(#{@count})" %>
+    {if assigns[:count], do: "(#{@count})"}
     """
   end
 

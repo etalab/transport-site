@@ -228,12 +228,12 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification do
 
   def file_description(%{selected_file: _} = assigns) do
     ~H"""
-    <h4><i class="symbol fa fa-file"></i> <%= @selected_file %></h4>
+    <h4><i class="symbol fa fa-file"></i> {@selected_file}</h4>
     <p>
-      « <em><%= description_text(@selected_file) %></em>
+      « <em>{description_text(@selected_file)}</em>
       »
       <a target="_blank" href={specification_url(@selected_file)}>
-        <%= dgettext("gtfs-file-descriptions", "Know more about this file.") %>
+        {dgettext("gtfs-file-descriptions", "Know more about this file.")}
       </a>
     </p>
     """

@@ -1,43 +1,43 @@
 <div class="panel">
   <div>
-    <%= dgettext("resource", "Feed name:") %>
-    <a href={resource_path(@conn, :details, @resource.id)}><strong><%= @resource.title %></strong></a>
+    {dgettext("resource", "Feed name:")}
+    <a href={resource_path(@conn, :details, @resource.id)}><strong>{@resource.title}</strong></a>
   </div>
   <div>
-    <%= dgettext("resource", "Format:") %><span class="label"><%= @resource.format %></span>
+    {dgettext("resource", "Format:")}<span class="label"><%= @resource.format %></span>
   </div>
 
-  <h4><%= dgettext("resource", "Proxy requests statistics") %></h4>
+  <h4>{dgettext("resource", "Proxy requests statistics")}</h4>
 
   <table class="table small-padding">
     <thead>
       <tr>
-        <th><%= dgettext("resource", "Date") %></th>
-        <th><%= dgettext("resource", "Number of requests served by transport.data.gouv.fr") %></th>
-        <th><%= dgettext("resource", "Number of requests served by the upstream server") %></th>
+        <th>{dgettext("resource", "Date")}</th>
+        <th>{dgettext("resource", "Number of requests served by transport.data.gouv.fr")}</th>
+        <th>{dgettext("resource", "Number of requests served by the upstream server")}</th>
       </tr>
     </thead>
     <tbody>
       <%= for stats_for_day <- @stats_per_day do %>
         <tr>
-          <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
-          <td><%= format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale)) %></td>
-          <td><%= format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale)) %></td>
+          <td>{Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale))}</td>
+          <td>{format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale))}</td>
+          <td>{format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale))}</td>
         </tr>
       <% end %>
     </tbody>
   </table>
   <p>
     <strong>
-      <%= Enum.sum_by(@stats_per_day, & &1.requests_external)
-      |> format_number(locale: get_session(@conn, :locale)) %>
+      {Enum.sum_by(@stats_per_day, & &1.requests_external)
+      |> format_number(locale: get_session(@conn, :locale))}
     </strong>
-    <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
+    {dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days)}
     <br />
     <strong>
-      <%= Enum.sum_by(@stats_per_day, & &1.requests_internal)
-      |> format_number(locale: get_session(@conn, :locale)) %>
+      {Enum.sum_by(@stats_per_day, & &1.requests_internal)
+      |> format_number(locale: get_session(@conn, :locale))}
     </strong>
-    <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days) %>
+    {dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days)}
   </p>
 </div>

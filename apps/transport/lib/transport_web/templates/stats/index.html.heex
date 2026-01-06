@@ -18,11 +18,11 @@
       </p>
       <div class="domain-stats general">
         <div class="tile">
-          <h3><%= format_number(@nb_datasets, locale: get_session(@conn, :locale)) %></h3>
+          <h3>{format_number(@nb_datasets, locale: get_session(@conn, :locale))}</h3>
           <div>Jeux de données ouverts</div>
         </div>
         <div class="tile">
-          <h3><%= format_number(@nb_reuses, locale: get_session(@conn, :locale)) %></h3>
+          <h3>{format_number(@nb_reuses, locale: get_session(@conn, :locale))}</h3>
           <div>Réutilisations déclarées</div>
         </div>
       </div>
@@ -33,7 +33,7 @@
     <div class="domain theorical">
       <h2>Transports en commun</h2>
       <div class="domain-stats staticPTdata">
-        <%= render("_maps.html", droms: @droms, prefix: "map_aoms") %>
+        {render("_maps.html", droms: @droms, prefix: "map_aoms")}
         <div class="panel">
           <div class="description" id="public-transport-by-aom">
             <h3>Par territoire administatif</h3>
@@ -58,17 +58,17 @@
             </p>
           </div>
           <div class="tile">
-            <h3><%= @population_couverte %></h3>
+            <h3>{@population_couverte}</h3>
             millions
             <div>de personnes peuvent en bénéficier
-              sur les <%= @population_totale %> millions de Français·e·s vivant dans une AOM</div>
+              sur les {@population_totale} millions de Français·e·s vivant dans une AOM</div>
           </div>
         </div>
       </div>
     </div>
     <div class="domain">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_format_map") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_format_map")}
         <div class="panel">
           <div class="description">
             <h3>Zoom sur les formats de données</h3>
@@ -83,13 +83,13 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_gtfs %></h3>
+              <h3>{@nb_gtfs}</h3>
               <div>
                 <a href="/datasets?format=GTFS&type=public-transit">jeux de données en <strong>GTFS</strong></a>
               </div>
             </div>
             <div class="tile">
-              <h3><%= @nb_netex %></h3>
+              <h3>{@nb_netex}</h3>
               <div>
                 <a href="/datasets?format=NeTEx&type=public-transit">jeux de données en <strong>NeTEx</strong></a>
               </div>
@@ -100,10 +100,10 @@
     </div>
     <div class="domain quality">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "rt_pt_format_map") %>
+        {render("_maps.html", droms: @droms, prefix: "rt_pt_format_map")}
         <div class="panel">
           <div class="tile">
-            <h3><%= format_number(@nb_gtfs_rt, locale: get_session(@conn, :locale)) %></h3>
+            <h3>{format_number(@nb_gtfs_rt, locale: get_session(@conn, :locale))}</h3>
             <div>
               <a href="/datasets?format=gtfs-rt&type=public-transit">
                 jeux de données<br />en <strong>GTFS-RT</strong>
@@ -114,22 +114,22 @@
                 <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
                     <span title={type}>
-                      <a href={"/datasets?features%5B%5D=" <> type}><%= friendly_gtfs_type(type) %></a>
+                      <a href={"/datasets?features%5B%5D=" <> type}>{friendly_gtfs_type(type)}</a>
                     </span>
-                    : <%= format_number(count, locale: get_session(@conn, :locale)) %>
+                    : {format_number(count, locale: get_session(@conn, :locale))}
                   </li>
                 <% end %>
               </ul>
             </div>
           </div>
           <div class="tile">
-            <h3><%= format_number(@nb_siri, locale: get_session(@conn, :locale)) %></h3>
+            <h3>{format_number(@nb_siri, locale: get_session(@conn, :locale))}</h3>
             <div>
               <a href="/datasets?format=SIRI&type=public-transit">jeux de données<br />en <strong>SIRI</strong></a>
             </div>
           </div>
           <div class="tile">
-            <h3><%= format_number(@nb_siri_lite, locale: get_session(@conn, :locale)) %></h3>
+            <h3>{format_number(@nb_siri_lite, locale: get_session(@conn, :locale))}</h3>
             <div>
               <a href="/datasets?format=SIRI+Lite&type=public-transit">
                 jeux de données<br />en <strong>SIRI Lite</strong>
@@ -141,7 +141,7 @@
     </div>
     <div class="domain">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_up_to_date") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_up_to_date")}
         <div class="panel">
           <div class="description" id="public-transport-freshness">
             <h3>Zoom sur la fraicheur des données</h3>
@@ -162,7 +162,7 @@
     </div>
     <div class="domain quality">
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "pt_quality") %>
+        {render("_maps.html", droms: @droms, prefix: "pt_quality")}
         <div class="panel">
           <div class="description" id="public-transport-quality">
             <h3>Zoom sur la qualité des données</h3>
@@ -180,14 +180,14 @@
             </p>
           </div>
           <div class="tile">
-            <h3><%= round(@ratio_aom_with_at_most_warnings * 100) %>%</h3>
+            <h3>{round(@ratio_aom_with_at_most_warnings * 100)}%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données de
               qualité satisfaisante (sans aucune erreur)
             </div>
           </div>
           <div class="tile">
-            <h3><%= round(@ratio_aom_good_quality * 100) %>%</h3>
+            <h3>{round(@ratio_aom_good_quality * 100)}%</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               avec des jeux de données de bonne qualité
@@ -195,13 +195,13 @@
             </div>
           </div>
           <div class="tile">
-            <h3><%= @aom_with_errors %></h3>
+            <h3>{@aom_with_errors}</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym> avec des jeux de données en erreur
             </div>
           </div>
           <div class="tile">
-            <h3><%= @aom_with_fatal %></h3>
+            <h3>{@aom_with_fatal}</h3>
             <div>
               <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               avec des jeux de données ne respectant pas les spécifications GTFS
@@ -213,7 +213,7 @@
     <div class="domain vehicles" id="real-time-vehicles">
       <h2>Véhicules libre service</h2>
       <div class="domain-stats">
-        <%= render("_maps.html", droms: @droms, prefix: "vehicles_map") %>
+        {render("_maps.html", droms: @droms, prefix: "vehicles_map")}
         <div class="panel">
           <div class="description">
             <span class="stat-link">
@@ -233,7 +233,7 @@
           </div>
           <div class="tile-numbers">
             <div class="tile">
-              <h3><%= @nb_vehicles_sharing_datasets %></h3>
+              <h3>{@nb_vehicles_sharing_datasets}</h3>
               <div><a href="/datasets?type=vehicles-sharing">Jeux de données disponibles</a></div>
             </div>
             <div class="rt-viz">
@@ -245,7 +245,7 @@
         </div>
       </div>
     </div>
-    <%= live_render(@conn, TransportWeb.ProxyRequestsCountLive) %>
+    {live_render(@conn, TransportWeb.ProxyRequestsCountLive)}
   </div>
 </section>
 <script src={static_path(@conn, "/js/map.js")} />

@@ -76,7 +76,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
-      %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
+      %{order_by: ^order_by} -> ~H{<span class="activefilter">{@msg\}</span>}
       _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
     end
   end
@@ -89,7 +89,7 @@ defmodule TransportWeb.DatasetView do
         to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
       )
     else
-      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= @count %>)</span>}
+      ~H{<span class="activefilter">{dgettext("page-shortlist", "All (feminine)")\} ({@count\})</span>}
     end
   end
 
@@ -97,7 +97,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
-      ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
+      ~H{<span class="activefilter">{@name\} ({@count\})</span>}
     else
       link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
@@ -117,7 +117,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
+      ^url -> ~H{<span class="activefilter">{@nom\} ({@count\})</span>}
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -157,7 +157,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-    active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+    active_filter_text = ~H{<span class="activefilter">{@msg\} ({@count\})</span>}
 
     case conn.params do
       %{^key_name => ^key} ->
@@ -187,7 +187,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+      _ -> ~H{<span class="activefilter">{@msg\} ({@count\})</span>}
     end
   end
 
@@ -333,9 +333,9 @@ defmodule TransportWeb.DatasetView do
       <% end_date_date = end_date |> Date.from_iso8601!() %>
       <div title={dgettext("page-dataset-details", "Validity period")}>
         <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-        <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
+        <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
         <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-        <span class={outdated_class(end_date_date)}><%= Shared.DateTimeDisplay.format_date(end_date, @locale) %></span>
+        <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
       </div>
     <% end %>
     """
@@ -551,9 +551,9 @@ defmodule TransportWeb.DatasetView do
     ~H"""
     <span title={if @real_time, do: "", else: dgettext("page-dataset-details", "latest-content-modification-popover")}>
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-      <%= resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time) %>
+      {resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time)}
       <span :if={!@real_time} class="small">
-        <%= dgettext("page-dataset-details", "latest-content-modification-label") %>
+        {dgettext("page-dataset-details", "latest-content-modification-label")}
       </span>
     </span>
     """
@@ -653,9 +653,9 @@ defmodule TransportWeb.DatasetView do
   def notification_sent(%{} = assigns) do
     ~H"""
     <tr>
-      <td><%= Transport.NotificationReason.reason_to_str(@notification.reason) %></td>
+      <td>{Transport.NotificationReason.reason_to_str(@notification.reason)}</td>
       <.notification_sent_details reason={@notification.reason} payload={@notification.payload} locale={@locale} />
-      <td><%= DateTimeDisplay.format_datetime_to_paris(@notification.timestamp, @locale) %></td>
+      <td>{DateTimeDisplay.format_datetime_to_paris(@notification.timestamp, @locale)}</td>
     </tr>
     """
   end
@@ -672,7 +672,7 @@ defmodule TransportWeb.DatasetView do
     ~H"""
     <td>
       <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
-        <%= resource.title %>
+        {resource.title}
       </a>
     </td>
     """
@@ -681,7 +681,7 @@ defmodule TransportWeb.DatasetView do
   def notification_sent_details(%{reason: :expiration} = assigns) do
     ~H"""
     <td>
-      <%= Shared.DateTimeDisplay.relative_datetime_in_days(@payload["delay"], @locale) %>
+      {Shared.DateTimeDisplay.relative_datetime_in_days(@payload["delay"], @locale)}
     </td>
     """
   end

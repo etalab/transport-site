@@ -1,19 +1,19 @@
 <div class="container">
-  <h2><%= dgettext("feedback", "Leave your feedback") %></h2>
+  <h2>{dgettext("feedback", "Leave your feedback")}</h2>
   <.form :let={f} :if={!@feedback_sent} for={@form} as={:feedback} phx-submit="submit" class="feedback-form no-margin">
     <div class="form__group feedback-selector">
       <fieldset>
-        <legend><%= dgettext("feedback", "What's your feedback on this page?") %></legend>
+        <legend>{dgettext("feedback", "What's your feedback on this page?")}</legend>
 
-        <%= radio_button(f, :rating, "like", id: "like") %>
+        {radio_button(f, :rating, "like", id: "like")}
         <%= label f, "like", class: "label-inline", for: "like" do %>
           <i class="fa-regular fa-face-smile feedback-emojis"></i>
         <% end %>
-        <%= radio_button(f, :rating, "neutral", id: "neutral") %>
+        {radio_button(f, :rating, "neutral", id: "neutral")}
         <%= label f, "neutral", class: "label-inline", for: "neutral" do %>
           <i class="fa-regular fa-face-meh feedback-emojis"></i>
         <% end %>
-        <%= radio_button(f, :rating, "dislike", id: "dislike") %>
+        {radio_button(f, :rating, "dislike", id: "dislike")}
         <%= label f, "like", class: "label-inline", for: "dislike" do %>
           <i class="fa-regular fa-face-frown feedback-emojis"></i>
         <% end %>
@@ -22,30 +22,30 @@
 
     <div id="full-feedback-form" class="hidden">
       <div class="form__group">
-        <%= label(f, :explanation, dgettext("feedback", "Why?"), class: "required") %>
-        <%= textarea(f, :explanation, required: true) %>
+        {label(f, :explanation, dgettext("feedback", "Why?"), class: "required")}
+        {textarea(f, :explanation, required: true)}
       </div>
 
       <div class="form__group">
-        <%= label(f, :email, dgettext("feedback", "Your email (optional)")) %>
-        <%= text_input(f, :email, type: "email") %>
+        {label(f, :email, dgettext("feedback", "Your email (optional)"))}
+        {text_input(f, :email, type: "email")}
       </div>
 
-      <%= text_input(f, :name,
+      {text_input(f, :name,
         placeholder: "your name",
         class: "form-special-field",
         tabindex: "-1",
         autocomplete: "off"
-      ) %>
+      )}
 
-      <%= hidden_input(f, :feature) %>
+      {hidden_input(f, :feature)}
 
-      <%= submit(dgettext("feedback", "Send the feedback"), class: "button") %>
+      {submit(dgettext("feedback", "Send the feedback"), class: "button")}
     </div>
   </.form>
 
-  <p :if={@feedback_sent} class="notification"><%= dgettext("feedback", "Thanks for your feedback!") %></p>
-  <p :if={@feedback_error}><%= gettext("There has been an error, try again later") %></p>
+  <p :if={@feedback_sent} class="notification">{dgettext("feedback", "Thanks for your feedback!")}</p>
+  <p :if={@feedback_error}>{gettext("There has been an error, try again later")}</p>
 
   <script nonce={@nonce}>
     document.querySelectorAll(".feedback-selector label").forEach(

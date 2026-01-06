@@ -22,15 +22,15 @@
     <ul>
       <li>
         <code>PHOENIX_DDOS_MAX_2MIN_REQUESTS</code>
-        : nombre de requêtes max autorisée par IP par période de 2 minutes. Valeur actuelle : <%= format_number(
+        : nombre de requêtes max autorisée par IP par période de 2 minutes. Valeur actuelle : {format_number(
           @phoenix_ddos_max_2min_requests
-        ) %>
+        )}
       </li>
       <li>
         <code>PHOENIX_DDOS_MAX_1HOUR_REQUESTS</code>
-        : nombre de requêtes max autorisée par IP par période d'1 heure. Valeur actuelle : <%= format_number(
+        : nombre de requêtes max autorisée par IP par période d'1 heure. Valeur actuelle : {format_number(
           @phoenix_ddos_max_1hour_requests
-        ) %>
+        )}
       </li>
     </ul>
 
@@ -40,12 +40,12 @@
       <li>
         <code>PHOENIX_DDOS_SAFELIST_IPS</code>
         : liste d'adresses IP <strong>toujours autorisées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
-        <code><%= @phoenix_ddos_safelist_ips %></code>
+        <code>{@phoenix_ddos_safelist_ips}</code>
       </li>
       <li>
         <code>PHOENIX_DDOS_BLOCKLIST_IPS</code>
         : liste d'adresses IP <strong>toujours bloquées</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
-        <code><%= @phoenix_ddos_blocklist_ips %></code>
+        <code>{@phoenix_ddos_blocklist_ips}</code>
       </li>
     </ul>
 
@@ -55,17 +55,17 @@
       <li>
         <code>LOG_USER_AGENT</code>
         : active ou désactive le fait de logguer les user agents. Valeurs possible : <code>true</code>
-        ou <code>false</code>. Valeur actuelle : <code><%= @log_user_agent %></code>
+        ou <code>false</code>. Valeur actuelle : <code>{@log_user_agent}</code>
       </li>
       <li>
         <code>ALLOW_USER_AGENTS</code>
         : user agents <strong>toujours autorisés</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
-        <code><%= @allow_user_agents %></code>
+        <code>{@allow_user_agents}</code>
       </li>
       <li>
         <code>BLOCK_USER_AGENT_KEYWORDS</code>
         : user agents <strong>toujours bloqués</strong>. Les valeurs doivent être séparées par des <code>|</code>. Valeur actuelle :
-        <code><%= @block_user_agent_keywords %></code>
+        <code>{@block_user_agent_keywords}</code>
       </li>
     </ul>
 
@@ -87,7 +87,7 @@
       <ul>
         <%= for ip <- @ips_in_jail do %>
           <li>
-            <%= ip %>
+            {ip}
             <button class="button small" phx-click="bail_ip_from_jail" phx-value-ip={ip}>
               Retirer de la jail
             </button>
@@ -95,6 +95,6 @@
         <% end %>
       </ul>
     </div>
-    <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+    <p class="small">Dernière mise à jour: {@last_updated_at}</p>
   </div>
 </section>

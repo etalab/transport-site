@@ -1,21 +1,21 @@
 <div class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :reuser_space]) %>
+  {breadcrumbs([@conn, :reuser_space])}
 </div>
 <section class="section section-grey reuser-space">
   <div class="container">
-    <h1><%= dgettext("reuser-space", "Reuser space") %></h1>
+    <h1>{dgettext("reuser-space", "Reuser space")}</h1>
     <p>
-      <%= dgettext("reuser-space", "reuser-space-intro") %>
+      {dgettext("reuser-space", "reuser-space-intro")}
     </p>
 
-    <%= render(TransportWeb.EspaceProducteurView, "_urgent_issues.html",
+    {render(TransportWeb.EspaceProducteurView, "_urgent_issues.html",
       datasets: @conn.assigns[:followed_datasets],
       checks: @checks,
       conn: @conn,
       mode: :reuser
-    ) %>
+    )}
 
-    <h2><%= dgettext("reuser-space", "Actions") %></h2>
+    <h2>{dgettext("reuser-space", "Actions")}</h2>
     <div class="row">
       <div class="panel action-panel">
         <div class="publish-header">
@@ -25,18 +25,18 @@
               src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
               alt={dgettext("reuser-space", "Notification bell")}
             />
-            <%= dgettext("reuser-space", "Receive notifications") %>
+            {dgettext("reuser-space", "Receive notifications")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "reuser-space",
             "Receive helpful notifications about your favorite datasets."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={reuser_space_path(@conn, :notifications)} class="button">
-            <%= dgettext("reuser-space", "Manage notifications") %>
+            {dgettext("reuser-space", "Manage notifications")}
           </a>
         </div>
       </div>
@@ -47,18 +47,18 @@
               class="picto"
               src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
               alt={dgettext("reuser-space", "Reuses")}
-            /><%= dgettext("reuser-space", "Declare your reuses") %>
+            />{dgettext("reuser-space", "Declare your reuses")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "reuser-space",
             "Highlight your reuses and make yourself known."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
-            <%= dgettext("reuser-space", "Declare a reuse") %>
+            {dgettext("reuser-space", "Declare a reuse")}
           </a>
         </div>
       </div>
@@ -69,34 +69,34 @@
               class="picto"
               src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
               alt={dgettext("reuser-space", "Settings")}
-            /><%= dgettext("reuser-space", "API - Manage your tokens") %>
+            />{dgettext("reuser-space", "API - Manage your tokens")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "reuser-space",
             "Create and manage your tokens independently."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={reuser_space_path(@conn, :settings)} class="button">
-            <%= dgettext("reuser-space", "Manage your tokens") %>
+            {dgettext("reuser-space", "Manage your tokens")}
           </a>
         </div>
       </div>
     </div>
-    <h2 class="pt-48"><%= dgettext("reuser-space", "Favorite datasets") %></h2>
-    <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
+    <h2 class="pt-48">{dgettext("reuser-space", "Favorite datasets")}</h2>
+    {live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
       session: %{"dataset_ids" => @followed_datasets_ids, "mode" => :reuser}
-    ) %>
+    )}
   </div>
 </section>
 <div class="tramway">
   <img src={static_path(@conn, "/images/producteurs/tramway.svg")} alt="" />
 </div>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "reuser_space"}
-  ) %>
+  )}
 </section>

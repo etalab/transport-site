@@ -6,12 +6,12 @@
     <a href={link}>
       <span class={summary_class(@validation)}>
         <%= if results_adapter.no_error?(severity) do %>
-          <%= dgettext("page-dataset-details", "No error detected") %>
+          {dgettext("page-dataset-details", "No error detected")}
         <% else %>
-          <%= results_adapter.format_severity(severity, count) %>
+          {results_adapter.format_severity(severity, count)}
         <% end %>
       </span>
     </a>
-    <span><%= dgettext("page-dataset-details", "during validation") %></span>
+    <span>{dgettext("page-dataset-details", "during validation")}</span>
   </div>
 <% end %>

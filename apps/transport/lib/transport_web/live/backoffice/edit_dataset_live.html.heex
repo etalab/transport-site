@@ -10,15 +10,15 @@
 >
   <h1>
     <%= if is_nil(@dataset) do %>
-      <%= dgettext("backoffice", "Add a dataset") %>
+      {dgettext("backoffice", "Add a dataset")}
     <% else %>
-      <%= dgettext("backoffice", "Edit a dataset") %>
+      {dgettext("backoffice", "Edit a dataset")}
     <% end %>
   </h1>
   <%= unless is_nil(assigns[:dataset]) do %>
     <div class="pb-24">
       <i class="fa fa-external-link-alt"></i>
-      <%= link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id)) %>
+      {link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id))}
     </div>
   <% end %>
 
@@ -27,7 +27,7 @@
   </p>
 
   <div class="pt-24">
-    <%= InputHelpers.text_input(f, :url, placeholder: dgettext("backoffice", "Dataset's url")) %>
+    {InputHelpers.text_input(f, :url, placeholder: dgettext("backoffice", "Dataset's url"))}
 
     <%= if assigns[:datagouv_infos] do %>
       <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
@@ -36,16 +36,16 @@
         <%= if is_nil(dataset_datagouv_id) do %>
           Impossible de trouver ce jeu de données sur data.gouv
         <% else %>
-          <div>Jeu de données <strong>"<%= @datagouv_infos[:datagouv_title] %>"</strong></div>
+          <div>Jeu de données <strong>"{@datagouv_infos[:datagouv_title]}"</strong></div>
           <div class="pt-12">
-            Son identifiant data.gouv est <code><%= @datagouv_infos[:dataset_datagouv_id] %></code>
+            Son identifiant data.gouv est <code>{@datagouv_infos[:dataset_datagouv_id]}</code>
           </div>
           <div class="pt-12">
             <%= if @datagouv_infos[:dataset_id] do %>
-              ⚠️ Ce jeu de données est déjà référencé <%= link("sur le PAN",
+              ⚠️ Ce jeu de données est déjà référencé {link("sur le PAN",
                 to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
                 target: "_blank"
-              ) %>, il n'est pas possible de le référencer une seconde fois.
+              )}, il n'est pas possible de le référencer une seconde fois.
             <% else %>
               Ce jeu n'est pas encore référencé chez nous ✅
             <% end %>
@@ -53,15 +53,15 @@
         <% end %>
       </div>
     <% end %>
-    <%= InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name")) %>
-    <%= InputHelpers.select(f, :type, @dataset_types,
+    {InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name"))}
+    {InputHelpers.select(f, :type, @dataset_types,
       selected:
         if not is_nil(@dataset) do
           @dataset.type
         else
           "public-transit"
         end
-    ) %>
+    )}
   </div>
 
   <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
@@ -72,29 +72,29 @@
 
   <div :if={@dataset_organization} class="panel mt-48">
     <div class="panel-explanation">
-      <%= dgettext("backoffice", "published by") %>
+      {dgettext("backoffice", "published by")}
     </div>
-    <h4><%= @dataset_organization %></h4>
-    <%= select(f, :organization_type, @organization_types,
+    <h4>{@dataset_organization}</h4>
+    {select(f, :organization_type, @organization_types,
       selected:
         if not is_nil(@dataset) do
           @dataset.organization_type
         end,
       required: true,
       prompt: dgettext("backoffice", "Publisher type")
-    ) %>
+    )}
   </div>
 
   <div class="panel mt-48">
     <div class="panel-explanation">
-      <%= dgettext("backoffice", "Offers") %>
+      {dgettext("backoffice", "Offers")}
     </div>
     <.live_component module={TransportWeb.OfferSelectLive} id="offers_selection" form={f} offers={@offers} />
   </div>
 
   <div class="panel mt-48">
     <div class="panel-explanation">
-      <%= dgettext("backoffice", "Legal owners") %>
+      {dgettext("backoffice", "Legal owners")}
     </div>
     <.live_component
       module={TransportWeb.LegalOwnerSelectLive}
@@ -103,14 +103,14 @@
       owners={@legal_owners}
       offers={@offers}
     />
-    <div class="pt-12"><%= dgettext("backoffice", "or") %></div>
+    <div class="pt-12">{dgettext("backoffice", "or")}</div>
     <div class="pt-12">
       <label>
-        <%= dgettext("backoffice", "Company SIREN code") %>
-        <%= InputHelpers.text_input(f, :legal_owner_company_siren,
+        {dgettext("backoffice", "Company SIREN code")}
+        {InputHelpers.text_input(f, :legal_owner_company_siren,
           placeholder: "821611431",
           pattern: "\\d{9,9}"
-        ) %>
+        )}
       </label>
     </div>
   </div>
@@ -118,7 +118,7 @@
   <div class="panel mt-48">
     <div class="panel__header">
       <h4>
-        <%= dgettext("backoffice", "Spatial area") %>
+        {dgettext("backoffice", "Spatial area")}
       </h4>
     </div>
     <.live_component
@@ -133,15 +133,15 @@
   <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
     <div>
       <%= if is_nil(@dataset) do %>
-        <%= hidden_input(f, :action, value: "new") %>
-        <%= InputHelpers.submit(dgettext("backoffice", "Add")) %>
+        {hidden_input(f, :action, value: "new")}
+        {InputHelpers.submit(dgettext("backoffice", "Add"))}
       <% else %>
-        <%= hidden_input(f, :action, value: "edit") %>
-        <%= InputHelpers.submit(dgettext("backoffice", "Save")) %>
+        {hidden_input(f, :action, value: "edit")}
+        {InputHelpers.submit(dgettext("backoffice", "Save"))}
       <% end %>
     </div>
     <div>
-      <%= link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index)) %>
+      {link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index))}
     </div>
   </div>
 </.form>
