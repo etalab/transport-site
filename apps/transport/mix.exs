@@ -68,12 +68,12 @@ defmodule Transport.Mixfile do
        ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
       {:phoenix_live_view, "~> 0.20.14"},
       {:html_sanitize_ex, "~> 1.4"},
-      {:floki, ">= 0.0.0", only: :test},
+      {:floki, ">= 0.0.0"},
       {:plug_cowboy, "~> 2.3"},
       {:recon, "~> 2.4"},
       {:quantum, "~> 3.4"},
       {:timex, "~> 3.7"},
-      {:sentry, "~> 10.1"},
+      {:sentry, "~> 11.0"},
       {:scrivener, "~> 2.5"},
       {:finch, "~> 0.8"},
       {:yaml_elixir, "~> 2.7"},
@@ -88,7 +88,6 @@ defmodule Transport.Mixfile do
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
-      {:datagouvfr, in_umbrella: true},
       {:shared, in_umbrella: true},
       {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -120,7 +119,7 @@ defmodule Transport.Mixfile do
       {:oban, "~> 2.13"},
       {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11"},
-      {:nimble_csv, "~> 1.2.0"},
+      {:nimble_csv, "~> 1.3.0"},
       {:explorer, "~> 0.10.0"},
       {:kino, "~> 0.6", only: :dev},
       # db
@@ -129,7 +128,7 @@ defmodule Transport.Mixfile do
       {:postgrex, "~> 0.20.0"},
       {:geo_postgis, "~> 3.4"},
       {:ecto_interval, github: "AntoineAugusti/ecto_interval", branch: "patch-1"},
-      {:scrivener_ecto, "~> 2.7.0"},
+      {:scrivener_ecto, "~> 3.1.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
       {:ex_machina, "~> 2.4", only: :test},
@@ -141,7 +140,7 @@ defmodule Transport.Mixfile do
       {:luhn, "~> 0.3.0"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
-      {:appsignal_phoenix, "~> 2.4.1"},
+      {:appsignal_phoenix, "~> 2.8.1"},
       {:vega_lite, "~> 0.1.7"},
       {:req, "~> 0.5"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
@@ -155,7 +154,10 @@ defmodule Transport.Mixfile do
       {:image, "~> 0.52"},
       {:nx, "~> 0.7"},
       {:timescale, "~> 0.1.0"},
-      {:mock, "~> 0.3.6", only: :test}
+      {:mock, "~> 0.3.6", only: :test},
+      {:vex, "~> 0.9"},
+      {:oauth2, "~> 2.1"},
+      {:logger_backends, "~> 1.0"}
     ]
   end
 end

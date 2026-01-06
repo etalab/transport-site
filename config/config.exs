@@ -19,7 +19,8 @@ config :os_mon,
 config :transport,
   unlock_config_fetcher: Unlock.Config.GitHub,
   unlock_http_client: Unlock.HTTP.FinchImpl,
-  unlock_github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
+  unlock_github_config_url:
+    "https://raw.githubusercontent.com/transportdatagouvfr/proxy-config/refs/heads/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
   unlock_siri_public_requestor_ref: "transport-data-gouv-fr",
   unlock_event_incrementer: Unlock.BatchMetrics
@@ -52,15 +53,7 @@ config :phoenix, :json_library, Jason
 #
 config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 
-# Configures Elixir's Logger
-config :logger,
-  backends: [
-    :console,
-    # Error logs are also sent to Sentry
-    Sentry.LoggerBackend
-  ]
-
-config :logger, :console,
+config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   # :remote_ip is set by the dependency `remote_ip`
   # `:(method|path|user_agent)` are set by TransportWeb.Plugs.RateLimiter only
@@ -86,8 +79,8 @@ config :transport,
   gbfs_metadata_impl: Transport.GBFSMetadata,
   availability_checker_impl: Transport.AvailabilityChecker,
   jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
-  tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
-  schemas_impl: Transport.Shared.Schemas,
+  tableschema_validator_impl: Transport.Validators.TableSchema,
+  schemas_impl: Transport.Schemas,
   hasher_impl: Hasher,
   validator_selection: Transport.ValidatorsSelection.Impl,
   data_visualization: Transport.DataVisualization.Impl,
@@ -122,7 +115,8 @@ config :transport,
   datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"
 
-config :datagouvfr,
+# data.gouv.fr
+config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,

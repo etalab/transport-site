@@ -1,4 +1,8 @@
 <% new_resource = is_nil(@datagouv_resource) %>
+<% resource =
+  Enum.find_value(@dataset.resources, fn resource ->
+    if resource.datagouv_id == @datagouv_resource["id"], do: resource
+  end) %>
 <div class="add-update-resource">
   <section class="container pt-48 pb-24">
     <%= if new_resource do %>
@@ -20,7 +24,7 @@
           <%= raw(
             dgettext(
               "resource",
-              "If you haven’t done it yet, think about <a href=\"%{link}\">validating your data</a> before publishing it.",
+              ~s|If you haven’t done it yet, think about <a href="%{link}">validating your data</a> before publishing it.|,
               link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
             )
           ) %>
@@ -51,49 +55,15 @@
             <% end %>
           </div>
           <div>
-            <%= form_for @conn, action_path(@conn), [multipart: true], fn f -> %>
-              <%= text_input(f, :title,
-                label: dgettext("espace-producteurs", "title"),
-                placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
-                value: @datagouv_resource["title"]
-              ) %>
-              <%= text_input(
-                f,
-                :format,
-                label:
-                  label f, :format do
-                    [
-                      dgettext("espace-producteurs", "Format"),
-                      content_tag(:a, "GTFS", class: "filler label", onclick: "fill(this);"),
-                      content_tag(:a, "NeTEx", class: "filler label", onclick: "fill(this);"),
-                      content_tag(:a, "gtfs-rt", class: "filler label", onclick: "fill(this);")
-                    ]
-                  end,
-                placeholder: "GTFS, NeTEx, …",
-                value: @datagouv_resource["format"]
-              ) %>
-              <div class="pt-48">
-                <%= if new_resource do %>
-                  <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <div class="choose-or">
-                    - <%= dgettext("espace-producteurs", "or") %> -
-                  </div>
-                  <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <div class="choose-submit pt-24">
-                    <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
-                  </div>
-                <% else %>
-                  <%= if remote?(@datagouv_resource) do %>
-                    <%= render("_specify_url.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <% else %>
-                    <%= render("_upload_file.html", datagouv_resource: @datagouv_resource, f: f, conn: @conn) %>
-                  <% end %>
-                  <div class="choose-submit pt-24">
-                    <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
+            <%= live_render(@conn, TransportWeb.Live.ValidateResourceLive,
+              session: %{
+                "action_path" => action_path(@conn),
+                "datagouv_resource" => @datagouv_resource,
+                "new_resource" => new_resource,
+                "resource" => resource,
+                "formats" => @formats
+              }
+            ) %>
           </div>
         </div>
       </div>
@@ -122,7 +92,12 @@
               <div>
                 <a
                   class="button primary"
-                  href={datagouv_resource_edit_url(@datagouv_dataset["id"], @conn.params["resource_id"])}
+                  href={
+                    datagouv_resource_edit_url(
+                      @datagouv_dataset["id"],
+                      Map.fetch!(@conn.params, "resource_datagouv_id")
+                    )
+                  }
                   role="link"
                   target="_blank"
                 >
@@ -145,8 +120,9 @@
     </div>
   </section>
 </div>
-<script>
-  function fill(id) {
-      id.parentNode.control.value = id.innerHTML
-  }
-</script>
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "producer_space"}
+  ) %>
+</section>

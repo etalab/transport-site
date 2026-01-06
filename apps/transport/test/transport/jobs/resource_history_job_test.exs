@@ -553,7 +553,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       setup_req_mock(resource_url, csv_content)
       setup_aws_mock(resource_id)
 
-      Transport.Shared.Schemas.Mock
+      Transport.Schemas.Mock
       |> expect(:transport_schemas, 1, fn ->
         %{schema_name => %{"versions" => [%{"version_name" => latest_schema_version}]}}
       end)

@@ -7,6 +7,7 @@ defmodule Transport.StatsHandlerTest do
   doctest Transport.StatsHandler, import: true
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     insert_bnlc_dataset()
     insert_irve_dataset()

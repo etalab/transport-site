@@ -17,7 +17,7 @@ config :transport, TransportWeb.Endpoint,
   # NOTE: this is required to ensure code reloading will work.
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
-  reloadable_apps: [:shared, :transport, :datagouvfr]
+  reloadable_apps: [:shared, :transport]
 
 # Uncomment this to avoid having to restart the app for each change in description
 # See https://github.com/open-api-spex/open_api_spex#serve-the-spec
@@ -38,7 +38,7 @@ config :transport, TransportWeb.Endpoint,
   ]
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :default_formatter, format: "[$level] $message\n"
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

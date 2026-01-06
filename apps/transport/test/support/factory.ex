@@ -274,7 +274,10 @@ defmodule DB.Factory do
       insert(:multi_validation,
         validator: Transport.Validators.GTFSTransport.validator_name(),
         resource_history_id: resource_history.id,
-        max_error: Keyword.get(opts, :max_error)
+        max_error: Keyword.get(opts, :max_error, "NoError"),
+        digest: %{
+          "max_severity" => %{"max_level" => Keyword.get(opts, :max_error, "NoError"), "worst_occurrences" => 0}
+        }
       )
 
     resource_metadata =

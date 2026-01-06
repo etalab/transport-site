@@ -9,7 +9,7 @@
     <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
     <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <a href={link}>
-      <span class={summary_class(%{severity: severity, count_errors: count})}>
+      <span class={summary_class(@validation)}>
         <%= if validator.no_error?(severity) do %>
           <%= dgettext("page-dataset-details", "No error detected") %>
         <% else %>

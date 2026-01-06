@@ -33,9 +33,9 @@ config :transport,
   rambo_impl: Transport.Rambo.Mock,
   gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
   availability_checker_impl: Transport.AvailabilityChecker.Mock,
-  jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator.Mock,
-  tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
-  schemas_impl: Transport.Shared.Schemas.Mock,
+  jsonschema_validator_impl: Transport.Validators.JSONSchema.Mock,
+  tableschema_validator_impl: Transport.Validators.TableSchema.Mock,
+  schemas_impl: Transport.Schemas.Mock,
   hasher_impl: Hasher.Mock,
   validator_selection: Transport.ValidatorsSelection.Mock,
   data_visualization: Transport.DataVisualization.Mock,
@@ -68,7 +68,8 @@ config :ex_aws, :database_backup_source, bucket_name: "fake_source_bucket_name"
 
 config :ex_aws, :database_backup_destination, bucket_name: "fake_destination_bucket_name"
 
-config :datagouvfr,
+# data.gouv.fr
+config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,

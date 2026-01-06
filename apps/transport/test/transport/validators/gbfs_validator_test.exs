@@ -65,6 +65,7 @@ defmodule Transport.Validators.GBFSValidatorTest do
                  "version_validated" => "1.1"
                },
              validated_data_name: ^url,
+             digest: %{"errors_count" => 0},
              command: "https://gbfs-validator.netlify.app/.netlify/functions/validator",
              validator: "MobilityData/gbfs-validator",
              validator_version: "31c5325"

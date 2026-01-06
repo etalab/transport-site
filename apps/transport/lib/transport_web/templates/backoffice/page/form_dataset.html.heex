@@ -44,7 +44,7 @@
           "There is %{n} resource in this dataset",
           "There are %{n} resources in this dataset",
           nb_resources,
-          n: nb_resources
+          n: Helpers.format_number(nb_resources, locale: get_session(@conn, :locale))
         ) %>
 
         <%= if nb_resources > 0 do %>
@@ -184,14 +184,15 @@
           "reuser-subscription-count",
           "reuser-subscriptions-count",
           @reuser_subscriptions_count,
-          reuser_subscriptions_count: @reuser_subscriptions_count
+          reuser_subscriptions_count:
+            Helpers.format_number(@reuser_subscriptions_count, locale: get_session(@conn, :locale))
         ) %>
         <%= dngettext(
           "backoffice",
           "reuser-count",
           "reusers-count",
           @reusers_count,
-          reusers_count: @reusers_count
+          reusers_count: Helpers.format_number(@reusers_count, locale: get_session(@conn, :locale))
         ) %>
       </p>
       <p :if={Enum.empty?(@dataset.notification_subscriptions)} class="mt-48 notification">
@@ -250,4 +251,3 @@
   <% end %>
 </div>
 <div class="pt-48"></div>
-<script src={static_path(@conn, "/js/app.js")} />

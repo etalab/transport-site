@@ -1,7 +1,6 @@
 defmodule TransportWeb.API.AomController do
   use TransportWeb, :controller
   import Ecto.Query
-  alias DB.{AOM, Commune, Repo}
   alias Geo.JSON
   alias OpenApiSpex.Operation
   alias Plug.Conn
@@ -55,11 +54,11 @@ defmodule TransportWeb.API.AomController do
   @spec by_insee(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_insee(conn, %{"insee" => insee}) do
     data =
-      Commune
-      |> join(:left, [c], a in assoc(c, :aom_res))
+      DB.Commune
+      |> join(:left, [c], a in assoc(c, :aom))
       |> select([c, a], [map(a, @aom_fields), c])
       |> where([c, a], c.insee == ^insee)
-      |> Repo.one()
+      |> DB.Repo.one()
       |> case do
         nil -> %{"error" => "Commune not found"}
         [nil, _] -> %{"error" => "No corresponding AOM found"}
@@ -74,10 +73,10 @@ defmodule TransportWeb.API.AomController do
   @spec query_by_coordinates(Plug.Conn.t(), number(), number()) :: Plug.Conn.t()
   def query_by_coordinates(conn, lon, lat) do
     aom =
-      AOM
+      DB.AOM
       |> select([a], map(a, @aom_fields))
       |> where([a], fragment("st_contains(geom, st_setsrid(st_point(?, ?), 4326))", ^lon, ^lat))
-      |> Repo.one()
+      |> DB.Repo.one()
 
     render(conn, data: aom)
   end
@@ -101,9 +100,9 @@ defmodule TransportWeb.API.AomController do
   @spec geojson(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def geojson(conn, _params) do
     json =
-      AOM
+      DB.AOM
       |> select([a], [map(a, @aom_fields), a.geom])
-      |> Repo.all()
+      |> DB.Repo.all()
       |> Enum.reject(fn [_, geom] -> is_nil(geom) end)
       |> Enum.map(fn [properties, geom] ->
         %{

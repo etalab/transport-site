@@ -21,7 +21,7 @@ getapony.com;Pony
 lime.bike;Lime
 media.ilevia.fr/opendata;Cykleo
 nextbike.net;nextbike
-smovengo.cloud;Fifteen
+smovengo.cloud;Smovengo
 stce.transdev-hdf.fr;Transdev
 urbansharing.com/lovelolibreservice.fr;Citybike
 valence.publicbikesystem.net;Fifteen
@@ -35,3 +35,4 @@ grandestprod.data4citizen.com;Fifteen
 fr.getaround.com/gbfs;Getaround
 www.mobility-parc.net/gbfs;Green On
 data.mulhouse-alsace.fr;nextbike
+proxy.transport.data.gouv.fr/resource/pony-;Pony

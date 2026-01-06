@@ -2,13 +2,13 @@ defmodule Transport.UserNotifier do
   @moduledoc """
   Module in charge of building emails for end users (producers, reusers, etc.)
   """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
+  use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
   import Transport.AdminNotifier, only: [delay_str: 2]
 
-  def resources_changed(%DB.Contact{} = contact, subject, %DB.Dataset{} = dataset) do
+  def resources_changed(%DB.Contact{} = contact, %DB.Dataset{} = dataset) do
     contact
     |> common_email_options()
-    |> subject(subject)
+    |> subject("#{dataset.custom_title} : ressources modifiées")
     |> render_body("resources_changed.html", %{dataset: dataset})
   end
 
@@ -62,7 +62,8 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         resources: resources,
         validator_name: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -74,7 +75,8 @@ defmodule Transport.UserNotifier do
         dataset: dataset,
         producer_warned: producer_warned,
         validator_name: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -88,7 +90,8 @@ defmodule Transport.UserNotifier do
         deleted_recreated_on_datagouv: deleted_recreated_on_datagouv,
         resource_titles: resource_titles,
         unavailabilities: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -107,7 +110,8 @@ defmodule Transport.UserNotifier do
         producer_warned: producer_warned,
         resource_titles: resource_titles,
         unavailabilities: _,
-        job_id: _
+        job_id: _,
+        attempt: _
       ) do
     contact
     |> common_email_options()
@@ -181,6 +185,20 @@ defmodule Transport.UserNotifier do
     |> common_email_options()
     |> subject("Votre compte sera supprimé #{String.downcase(horizon)}")
     |> render_body("warn_inactivity.html", contact_email: email, horizon: horizon)
+  end
+
+  def visit_proxy_statistics(%DB.Contact{} = contact) do
+    contact
+    |> common_email_options()
+    |> subject("Découvrez vos statistiques proxy")
+    |> render_body("visit_proxy_statistics.html")
+  end
+
+  def visit_download_statistics(%DB.Contact{} = contact) do
+    contact
+    |> common_email_options()
+    |> subject("Découvrez vos statistiques de téléchargement")
+    |> render_body("visit_download_statistics.html")
   end
 
   # From here, utility functions.

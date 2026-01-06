@@ -5,6 +5,7 @@ defmodule Transport.Test.Transport.Jobs.ExpirationAdminProducerNotificationJobTe
   use Oban.Testing, repo: DB.Repo
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> assert_no_email_sent() end)
   end
@@ -169,5 +170,28 @@ defmodule Transport.Test.Transport.Jobs.ExpirationAdminProducerNotificationJobTe
               [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]},
              {%DB.Dataset{id: ^d2_id}, [%DB.Resource{dataset_id: ^d2_id}]}
            ] = today |> Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on()
+  end
+
+  test "gtfs_datasets_expiring_on works with both GTFS validators" do
+    today = Date.utc_today()
+    a_week_ago = Date.add(today, -7)
+
+    %{dataset: %DB.Dataset{id: d1_id}} = insert_resource_and_friends(today)
+
+    %DB.Dataset{id: d2_id} = insert(:dataset)
+    resource = insert(:resource, dataset_id: d2_id, format: "GTFS")
+    resource_history = insert(:resource_history, resource: resource)
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      metadata: %DB.ResourceMetadata{metadata: %{"start_date" => a_week_ago, "end_date" => a_week_ago}}
+    )
+
+    assert [{%DB.Dataset{id: ^d1_id}, _}] =
+             Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on(today)
+
+    assert [{%DB.Dataset{id: ^d2_id}, _}] =
+             Transport.Jobs.ExpirationAdminProducerNotificationJob.gtfs_datasets_expiring_on(a_week_ago)
   end
 end

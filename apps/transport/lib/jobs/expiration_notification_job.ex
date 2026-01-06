@@ -86,7 +86,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
           role: :reuser
         )
 
-      DB.Notification.insert!(dataset, %DB.NotificationSubscription{subscription | contact: contact}, %{job_id: job_id})
+      DB.Notification.insert!(dataset, %{subscription | contact: contact}, %{job_id: job_id})
     end)
   end
 
@@ -177,7 +177,12 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
         expiring_dates = Map.values(delays_and_dates)
 
         DB.Dataset.base_query()
-        |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+        |> DB.Dataset.join_from_dataset_to_metadata(
+          Enum.map(
+            Transport.ValidatorsSelection.validators_for_feature(:expiration_notification),
+            & &1.validator_name()
+          )
+        )
         |> where([resource: r], r.format == "GTFS")
         |> where(
           [metadata: m],

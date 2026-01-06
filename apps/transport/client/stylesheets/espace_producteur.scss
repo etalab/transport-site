@@ -24,14 +24,17 @@
   background-color: var(--theme-background-grey);
   min-height: 80vh;
 
-  .button.primary {
+  a.button.primary, button.button.primary {
     background-color: var(--primary-color-producer);
   }
-  .button-outline.primary {
+  a.button-outline.primary, button.button-outline.primary {
     color: var(--primary-color-producer);
     border-color: var(--primary-color-producer);
+    &.small-padding {
+      padding: var(--space-xs);
+    }
   }
-  .button-outline.reuser {
+  a.button-outline.reuser, button.button-outline.reuser  {
     color: var(--primary-color-reuser);
     border-color: var(--primary-color-reuser);
   }
@@ -44,11 +47,6 @@
   }
 }
 
-a.filler {
-  margin-right: .3em;
+.no-underline a {
   text-decoration: none;
-  color: var(--theme-dark-text);
-  &:first-child {
-    margin-left: .5em;
-  }
 }

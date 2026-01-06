@@ -50,3 +50,7 @@ msgstr "Ou rechercher par :"
 #, elixir-autogen, elixir-format
 msgid "format"
 msgstr "format de données"
+
+#, elixir-autogen, elixir-format
+msgid "dataset"
+msgstr "jeu de données"

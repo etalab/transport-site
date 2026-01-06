@@ -178,10 +178,6 @@ msgid_plural "warnings"
 msgstr[0] ""
 msgstr[1] ""
 
-#, elixir-autogen, elixir-format
-msgid "Data type"
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validate"
 msgstr ""
@@ -412,4 +408,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Canonical GTFS Schedule Validator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Public transit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Vehicles sharing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE, ZFE, carpooling, bike data etc."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Road mobility and bike"
 msgstr ""

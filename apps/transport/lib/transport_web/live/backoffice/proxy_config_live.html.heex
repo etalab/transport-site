@@ -3,7 +3,7 @@
   <a class="button" phx-click="refresh_proxy_config">Recharger la configuration</a>
   <p>
     Attention: il faut attendre 5 minutes après le dernier commit sur la
-    <a href="https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml">configuration GitHub</a>
+    <a href="https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml">configuration GitHub</a>
     pour recharger, car GitHub met en cache ses propre fichiers.
   </p>
   <p>
@@ -67,13 +67,11 @@
 <script nonce={@nonce}>
   document.addEventListener('keydown', function(event) {
     if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-      const searchInput = document.getElementById('search');
+      const searchInput = document.getElementById('backoffice_search');
       if (searchInput) {
         event.preventDefault();
         searchInput.focus();
       }
     }
   });
-</script>
-<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")}>
 </script>

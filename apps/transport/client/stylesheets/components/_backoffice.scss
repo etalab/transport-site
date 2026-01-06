@@ -248,3 +248,12 @@
 .red {
   color: red;
 }
+
+iframe {
+  border-radius: 8px;
+  border: 2px solid var(--grey);
+  aspect-ratio: 16 / 9;
+  max-width: 700px;
+  margin: 0 auto;
+  display: block;
+}

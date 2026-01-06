@@ -163,17 +163,17 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       }
     ]
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^url ->
       %{"has_errors" => false}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^other_url ->
       %{"has_errors" => true}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^file_error_url ->
       nil
     end)
@@ -534,12 +534,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
         %{"has_errors" => false}
       end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => false}
       end)
@@ -638,10 +638,10 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url -> nil end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => false}
       end)
@@ -710,12 +710,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end)
 
       # Validating resources with the schema validator
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^foo_url ->
         %{"has_errors" => false}
       end)
 
-      Shared.Validation.TableSchemaValidator.Mock
+      Transport.Validators.TableSchema.Mock
       |> expect(:validate, fn "etalab/schema-lieux-covoiturage", ^bar_url ->
         %{"has_errors" => true}
       end)
@@ -888,7 +888,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                            subject: "[OK] Rapport de consolidation de la BNLC",
                            html_body: html_body
                          } ->
-      assert html_body =~ ~r"^✅ La consolidation s'est déroulée sans erreurs"
+      assert html_body =~ ~r"✅ La consolidation s'est déroulée sans erreurs"
 
       assert html_body =~
                ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}

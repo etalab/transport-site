@@ -2,7 +2,6 @@ defmodule TransportWeb.Live.NotificationsLive do
   use Phoenix.LiveView
   import Ecto.Query
   use TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers
   use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 

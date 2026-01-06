@@ -47,10 +47,13 @@
     </tbody>
   </table>
 
-  <p :if={Enum.count(@stats.keys) != nb_non_expired_keys}>
+  <p :if={nb_non_expired_keys - Enum.count(@stats.keys) == 1}>
+    1 clé est masquée par le filtre courant.
+  </p>
+
+  <p :if={nb_non_expired_keys - Enum.count(@stats.keys) >= 2}>
     <%= Helpers.format_number(nb_non_expired_keys - Enum.count(@stats.keys)) %> clés sont masquées par le filtre courant.
   </p>
 
   <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
 </section>
-<script defer type="text/javascript" src={static_path(@socket, "/js/app.js")} />

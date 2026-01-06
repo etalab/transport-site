@@ -1,5 +1,6 @@
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 25px;
 }
 
 .hero.home-hero {
@@ -121,6 +122,15 @@ a.tile:hover {
 .tile__icon {
   height: 4em;
   margin-right: 2em;
+}
+
+.tile-colored {
+  color: var(--theme-light-text) !important;
+
+  .tile__icon {
+    background: #fff;
+    padding: 5px;
+  }
 }
 
 .grid.available-data {
@@ -371,4 +381,41 @@ a.button.reuser-space {
 
 #mce-responses .response {
   display: none;
+}
+
+.notification_badge {
+  background-color: #fa3e3e;
+  border-radius: 2px;
+  color: white;
+  line-height: 1.5em;
+  padding: 1px 3px;
+  font-size: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  &.static {
+    position: static;
+  }
+}
+
+a.anchor {
+  text-decoration: none;
+  color: var(--light-grey);
+}
+
+.side-pane__submenu a.active {
+  color: var(--blue);
+  font-weight: bold;
+}
+
+.documentation {
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .side-pane {
+    position: sticky;
+    top: 20px;
+  }
 }

@@ -7,15 +7,15 @@ defmodule Transport.Jobs.OnDemandValidationJob do
   """
   use Oban.Worker, tags: ["validation"], max_attempts: 5, queue: :on_demand_validation
   require Logger
-  alias Shared.Validation.JSONSchemaValidator.Wrapper, as: JSONSchemaValidator
-  alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
   alias Transport.DataVisualization
   alias Transport.Jobs.OnDemandNeTExPollerJob
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
   alias Transport.Validators.GTFSRT
   alias Transport.Validators.GTFSTransport
+  alias Transport.Validators.JSONSchema.Wrapper, as: JSONSchemaValidator
   alias Transport.Validators.MobilityDataGTFSValidator
   alias Transport.Validators.NeTEx.Validator, as: NeTEx
+  alias Transport.Validators.TableSchema.Wrapper, as: TableSchemaValidator
 
   @download_timeout_ms 10_000
 
@@ -46,6 +46,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       {:ok, %{"validations" => validation, "metadata" => metadata}} ->
         %{
           result: validation,
+          digest: GTFSTransport.digest(validation),
           metadata: metadata,
           data_vis: DataVisualization.validation_data_vis(validation),
           validator: validator,
@@ -95,17 +96,20 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
-    validator = "validata"
+    validator = Transport.Validators.TableSchema.validator_name()
 
     case TableSchemaValidator.validate(schema_name, url) do
       nil ->
         %{oban_args: Helpers.error("could not perform validation"), validator: validator}
         |> Helpers.terminal_state()
 
-      # https://github.com/etalab/transport-site/issues/2390
-      # validator name should come from validator module, when it is properly extracted
       validation ->
-        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        %{
+          oban_args: Helpers.completed(),
+          result: validation,
+          digest: Transport.Validators.TableSchema.digest(validation),
+          validator: validator
+        }
         |> Helpers.terminal_state()
     end
   end
@@ -115,9 +119,7 @@ defmodule Transport.Jobs.OnDemandValidationJob do
          "permanent_url" => url,
          "schema_name" => schema_name
        }) do
-    # https://github.com/etalab/transport-site/issues/2390
-    # validator name should come from validator module, when it is properly extracted
-    validator = "ExJsonSchema"
+    validator = Transport.Validators.JSONSchema.validator_name()
 
     case JSONSchemaValidator.validate(
            JSONSchemaValidator.load_jsonschema_for_schema(schema_name),
@@ -131,7 +133,12 @@ defmodule Transport.Jobs.OnDemandValidationJob do
         |> Helpers.terminal_state()
 
       validation ->
-        %{oban_args: Helpers.completed(), result: validation, validator: validator}
+        %{
+          oban_args: Helpers.completed(),
+          result: validation,
+          digest: Transport.Validators.JSONSchema.digest(validation),
+          validator: validator
+        }
         |> Helpers.terminal_state()
     end
   end
@@ -151,7 +158,11 @@ defmodule Transport.Jobs.OnDemandValidationJob do
     remove_files([gtfs_path, gtfs_rt_path, gtfs_rt_result_path(gtfs_rt_path)])
 
     result
-    |> Map.merge(%{validated_data_name: gtfs_rt_url, secondary_validated_data_name: gtfs_url})
+    |> Map.merge(%{
+      validated_data_name: gtfs_rt_url,
+      secondary_validated_data_name: gtfs_url,
+      digest: GTFSRT.digest(Map.get(result, :result, %{}))
+    })
     |> Helpers.terminal_state()
   end
 

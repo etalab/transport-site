@@ -114,4 +114,23 @@ defmodule TransportWeb.API.AutocompleteControllerTest do
 
     assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
   end
+
+  test "search a dataset", %{conn: conn} do
+    dataset = insert(:dataset, custom_title: "Réseau urbain Astuce")
+
+    refresh_autocomplete_view()
+
+    json =
+      conn
+      |> get(Helpers.autocomplete_path(conn, :autocomplete, q: "astuce"))
+      |> json_response(200)
+
+    assert json == [
+             %{"name" => "Réseau urbain Astuce", "type" => "dataset", "url" => "/datasets/#{dataset.slug}"}
+           ]
+
+    assert_response_schema(json, "AutocompleteResponse", TransportWeb.API.Spec.spec())
+  end
+
+  defp refresh_autocomplete_view, do: Ecto.Adapters.SQL.query!(DB.Repo, "REFRESH MATERIALIZED VIEW autocomplete")
 end

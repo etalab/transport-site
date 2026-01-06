@@ -82,7 +82,7 @@ defmodule TransportWeb.ResourceControllerTest do
       metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
 
     conn = conn |> get(resource_path(conn, :details, resource.id))
     assert conn |> html_response(200) =~ "1 erreur"
@@ -99,7 +99,7 @@ defmodule TransportWeb.ResourceControllerTest do
       metadata: %DB.ResourceMetadata{metadata: %{}}
     })
 
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
 
     assert conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
   end
@@ -115,7 +115,7 @@ defmodule TransportWeb.ResourceControllerTest do
   test "resource has download availability displayed", %{conn: conn} do
     resource = DB.Resource |> DB.Repo.get_by(datagouv_id: "4")
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:schemas_by_type, 1, fn _type -> %{resource.schema_name => %{}} end)
 
     html = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
@@ -821,7 +821,7 @@ defmodule TransportWeb.ResourceControllerTest do
         url: "https://example.com/file"
       })
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:schemas_by_type, 3, fn type ->
       case type do
         "tableschema" -> %{schema_name => %{}}
@@ -829,7 +829,7 @@ defmodule TransportWeb.ResourceControllerTest do
       end
     end)
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
@@ -861,7 +861,7 @@ defmodule TransportWeb.ResourceControllerTest do
         url: "https://example.com/file"
       })
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:schemas_by_type, 6, fn type ->
       case type do
         "tableschema" -> %{}
@@ -869,7 +869,7 @@ defmodule TransportWeb.ResourceControllerTest do
       end
     end)
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:transport_schemas, 2, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     conn1 = conn |> get(resource_path(conn, :details, resource_id))
@@ -878,7 +878,7 @@ defmodule TransportWeb.ResourceControllerTest do
     insert(:multi_validation, %{
       resource_history:
         insert(:resource_history, %{resource_id: resource_id, payload: %{"schema_name" => schema_name}}),
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      validator: Transport.Validators.JSONSchema.validator_name(),
       result: %{"has_errors" => true, "errors_count" => 1, "validation_performed" => true, "errors" => ["oops"]},
       metadata: %DB.ResourceMetadata{metadata: %{}}
     })
@@ -995,6 +995,65 @@ defmodule TransportWeb.ResourceControllerTest do
     assert response |> html_response(200) =~ "unusable_trip"
   end
 
+  test "GTFS-Flex with lists as sampleNotices", %{conn: conn} do
+    dataset = insert(:dataset)
+    resource = insert(:resource, format: "GTFS", dataset: dataset)
+
+    rh =
+      insert(:resource_history,
+        resource: resource,
+        payload: %{
+          "format" => "GTFS",
+          "filenames" => ["locations.geojson", "stops.txt"],
+          "permanent_url" => "https://example.com/gtfs"
+        }
+      )
+
+    assert DB.ResourceHistory.gtfs_flex?(rh)
+
+    result = %{
+      "notices" => [
+        %{
+          "code" => "stop_too_far_from_shape_using_user_distance",
+          "severity" => "WARNING",
+          "totalNotices" => 2,
+          "sampleNotices" => [
+            %{
+              "match" => [
+                43.410709,
+                3.678308
+              ],
+              "stopId" => "SETCGAU1",
+              "tripId" => "93360_260105-5359",
+              "shapeId" => "260105-102",
+              "stopName" => "Charles De Gaulle",
+              "tripCsvRowNumber" => 1_907,
+              "geoDistanceToShape" => 106.89965062036212,
+              "stopTimeCsvRowNumber" => 41_357
+            }
+          ]
+        }
+      ],
+      "summary" => %{"validatorVersion" => "4.2.0"}
+    }
+
+    insert(:multi_validation, %{
+      resource_history: rh,
+      validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+      result: result,
+      digest: Transport.Validators.MobilityDataGTFSValidator.digest(result),
+      max_error: "WARNING"
+    })
+
+    response = conn |> get(resource_path(conn, :details, resource.id))
+
+    # Validation
+    assert response |> html_response(200) =~ "Rapport de validation"
+    assert response |> html_response(200) =~ "2 avertissements"
+    assert response |> html_response(200) =~ "stop_too_far_from_shape_using_user_distance"
+    assert response |> html_response(200) =~ "[43.410709, 3.678308]"
+  end
+
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, format: "GTFS", dataset: dataset)
@@ -1056,7 +1115,7 @@ defmodule TransportWeb.ResourceControllerTest do
         url: "https://example.com/file"
       })
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:schemas_by_type, 4, fn type ->
       case type do
         "tableschema" -> %{}
@@ -1071,7 +1130,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
     insert(:multi_validation, %{
       resource_history_id: resource_history_id,
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      validator: Transport.Validators.JSONSchema.validator_name(),
       result: %{"validation_performed" => false}
     })
 

@@ -249,7 +249,12 @@ defmodule Transport.StatsHandler do
 
     validation_infos =
       DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.Dataset.join_from_dataset_to_metadata(
+        Enum.map(
+          Transport.ValidatorsSelection.validators_for_feature(:stats_compute_aom_gtfs_max_severity),
+          & &1.validator_name()
+        )
+      )
       |> select([resource: r, multi_validation: mv, metadata: m], %{
         max_error:
           fragment("""

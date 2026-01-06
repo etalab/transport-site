@@ -278,3 +278,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Manage your tokens"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Urgent issues on resources you follow"
+msgstr ""

@@ -21,17 +21,23 @@
       <%= for stats_for_day <- @stats_per_day do %>
         <tr>
           <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
-          <td><%= format_number(stats_for_day.requests_external) %></td>
-          <td><%= format_number(stats_for_day.requests_internal) %></td>
+          <td><%= format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale)) %></td>
+          <td><%= format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale)) %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
   <p>
-    <strong><%= @stats_per_day |> Enum.map(& &1.requests_external) |> Enum.sum() |> format_number() %></strong>
+    <strong>
+      <%= Enum.sum_by(@stats_per_day, & &1.requests_external)
+      |> format_number(locale: get_session(@conn, :locale)) %>
+    </strong>
     <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
     <br />
-    <strong><%= @stats_per_day |> Enum.map(& &1.requests_internal) |> Enum.sum() |> format_number() %></strong>
+    <strong>
+      <%= Enum.sum_by(@stats_per_day, & &1.requests_internal)
+      |> format_number(locale: get_session(@conn, :locale)) %>
+    </strong>
     <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days) %>
   </p>
 </div>

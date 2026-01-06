@@ -13,16 +13,12 @@
         <thead>
           <tr>
             <th><%= dgettext("page-dataset-details", "Notification reason") %></th>
+            <th><%= dgettext("page-dataset-details", "Details") %></th>
             <th><%= dgettext("page-dataset-details", "Date") %></th>
           </tr>
         </thead>
         <tbody>
-          <%= for notification_sent <- @notifications_sent do %>
-            <tr>
-              <td><%= Transport.NotificationReason.reason_to_str(notification_sent.reason) %></td>
-              <td><%= DateTimeDisplay.format_datetime_to_paris(notification_sent.timestamp, @locale) %></td>
-            </tr>
-          <% end %>
+          <.notification_sent :for={notification <- @notifications_sent} notification={notification} locale={@locale} />
         </tbody>
       </table>
     </div>

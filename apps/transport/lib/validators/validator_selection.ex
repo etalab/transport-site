@@ -3,10 +3,12 @@ defmodule Transport.ValidatorsSelection do
   behavior for Transport.ValidatorsSelection.Impl
   """
   @callback validators(DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
-
-  def impl, do: Application.get_env(:transport, :validator_selection)
+  @callback validators_for_feature(atom()) :: [Transport.Validators.Validator.t()]
 
   def validators(value), do: impl().validators(value)
+  def validators_for_feature(feature), do: impl().validators_for_feature(feature)
+
+  def impl, do: Application.get_env(:transport, :validator_selection)
 end
 
 defmodule Transport.ValidatorsSelection.Impl do
@@ -14,7 +16,7 @@ defmodule Transport.ValidatorsSelection.Impl do
   Lists which validators should run for a `DB.Resource` or `DB.ResourceHistory`
   """
   @behaviour Transport.ValidatorsSelection
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias Transport.Schemas.Wrapper, as: Schemas
   alias Transport.Validators
 
   @doc """
@@ -52,7 +54,7 @@ defmodule Transport.ValidatorsSelection.Impl do
         [Transport.Validators.TableSchema]
 
       Schemas.jsonschema?(schema_name) ->
-        [Transport.Validators.EXJSONSchema]
+        [Transport.Validators.JSONSchema]
 
       true ->
         []
@@ -60,6 +62,51 @@ defmodule Transport.ValidatorsSelection.Impl do
   end
 
   def validators(_), do: []
+
+  @impl Transport.ValidatorsSelection
+  def validators_for_feature(feature)
+      when feature in [
+             :expiration_notification,
+             :datasets_without_gtfs_rt_related_resouces,
+             :gtfs_import_stops_job,
+             :api_datasets_controller,
+             :api_stats_controller,
+             :aoms_controller,
+             :backoffice_page_controller,
+             :gtfs_rt_validator
+           ],
+      do: [
+        Transport.Validators.GTFSTransport,
+        Transport.Validators.MobilityDataGTFSValidator
+      ]
+
+  def validators_for_feature(:multi_validation_with_error_static_validators),
+    do: [
+      Transport.Validators.GTFSTransport,
+      Transport.Validators.TableSchema,
+      Transport.Validators.JSONSchema,
+      Transport.Validators.MobilityDataGTFSValidator
+    ]
+
+  def validators_for_feature(:multi_validation_with_error_realtime_validators),
+    do: [
+      Transport.Validators.GBFSValidator,
+      Transport.Validators.GTFSRT
+    ]
+
+  def validators_for_feature(:stats_compute_aom_gtfs_max_severity), do: [Transport.Validators.GTFSTransport]
+
+  def validators_for_feature(feature)
+      when feature in [:dataset_controller, :resource_controller, :espace_producteur_controller, :dataset_checks],
+      do: [
+        Transport.Validators.GTFSTransport,
+        Transport.Validators.GTFSRT,
+        Transport.Validators.TableSchema,
+        Transport.Validators.JSONSchema,
+        Transport.Validators.GBFSValidator,
+        Transport.Validators.NeTEx.Validator,
+        Transport.Validators.MobilityDataGTFSValidator
+      ]
 
   defp netex_validator_enabled?, do: !Application.fetch_env!(:transport, :disable_netex_validator)
 end

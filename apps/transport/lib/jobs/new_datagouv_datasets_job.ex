@@ -6,7 +6,7 @@ defmodule Transport.Jobs.NewDatagouvDatasetsJob do
   """
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
   import Ecto.Query
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias Transport.Schemas.Wrapper, as: Schemas
 
   @rules [
     %{

@@ -210,3 +210,13 @@ msgstr "Infos producteurs"
 #, elixir-autogen, elixir-format
 msgid "Reuser information"
 msgstr "Infos réutilisateurs"
+
+#, elixir-autogen, elixir-format
+msgid "%{count} notification count"
+msgid_plural "%{count} notifications count"
+msgstr[0] "%{count} notification"
+msgstr[1] "%{count} notifications"
+
+#, elixir-autogen, elixir-format
+msgid "New features"
+msgstr "Nouvelles fonctionnalités"

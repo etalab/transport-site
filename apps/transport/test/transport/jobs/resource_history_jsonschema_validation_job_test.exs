@@ -21,7 +21,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
         }
       })
 
-    Shared.Validation.JSONSchemaValidator.Mock
+    Transport.Validators.JSONSchema.Mock
     |> expect(:load_jsonschema_for_schema, fn ^sample_json_schema_name, ^schema_version ->
       %ExJsonSchema.Schema.Root{
         schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
@@ -29,7 +29,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
       }
     end)
 
-    Shared.Validation.JSONSchemaValidator.Mock
+    Transport.Validators.JSONSchema.Mock
     |> expect(:validate, fn _schema, ^permanent_url ->
       %{"has_errors" => false, "errors_count" => 0, "errors" => []}
     end)
@@ -54,7 +54,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
 
     insert(:multi_validation, %{
       resource_history_id: rh.id,
-      validator: Transport.Validators.EXJSONSchema.validator_name()
+      validator: Transport.Validators.JSONSchema.validator_name()
     })
 
     assert {:cancel, _} = perform_job(ResourceHistoryJSONSchemaValidationJob, %{resource_history_id: rh.id})
@@ -69,7 +69,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
 
     insert(:multi_validation, %{
       resource_history_id: rh2.id,
-      validator: Transport.Validators.EXJSONSchema.validator_name()
+      validator: Transport.Validators.JSONSchema.validator_name()
     })
 
     # needs validation: validated with another validator
@@ -78,7 +78,7 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJobTest do
     # does not need validation: schema is not a JSON Schema
     _rh4 = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate()}})
 
-    Transport.Shared.Schemas.Mock |> expect(:schemas_by_type, fn "jsonschema" -> %{sample_json_schema_name => %{}} end)
+    Transport.Schemas.Mock |> expect(:schemas_by_type, fn "jsonschema" -> %{sample_json_schema_name => %{}} end)
 
     assert :ok == perform_job(ResourceHistoryJSONSchemaValidationJob, %{})
 

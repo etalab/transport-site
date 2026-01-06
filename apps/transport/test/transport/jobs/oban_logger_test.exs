@@ -56,7 +56,7 @@ defmodule Transport.Test.Transport.Jobs.ObanLoggerTest do
     registered_handlers =
       Enum.filter(:telemetry.list_handlers([]), &(&1.id == Oban.Telemetry.default_handler_id()))
 
-    assert Enum.count(registered_handlers) > 0
+    refute Enum.empty?(registered_handlers)
 
     components =
       registered_handlers

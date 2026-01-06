@@ -21,7 +21,14 @@
       <% else %>
         <%= if @conn.assigns[:q] do %>
           <h1>
-            <%= @datasets.total_entries %> <%= dngettext("page-shortlist", "result", "results", @datasets.total_entries) %> pour "<%= @q %>"
+            <%= dngettext(
+              "page-shortlist",
+              "result",
+              "results",
+              @datasets.total_entries,
+              value: format_number(@datasets.total_entries, locale: get_session(@conn, :locale)),
+              q: @q
+            ) %>
           </h1>
         <% else %>
           <h1><%= dgettext("page-index", "Datasets") %></h1>

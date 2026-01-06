@@ -10,6 +10,7 @@ defmodule TransportWeb.BackofficeControllerTest do
 
   setup do
     Mox.stub_with(Datagouvfr.Client.CommunityResources.Mock, Datagouvfr.Client.StubCommunityResources)
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
     # ressource.db now uses Transport.Shared.Wrapper.HTTPoison instead of HTTPoison directly
     # we stub the mock with the real module here to keep the tests of this file unchanged.
@@ -44,9 +45,11 @@ defmodule TransportWeb.BackofficeControllerTest do
   end
 
   test "Check that you are an admin", %{conn: conn} do
+    contact = DB.Factory.insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
     conn =
       conn
-      |> init_test_session(%{current_user: %{"is_admin" => false}})
+      |> init_test_session(%{current_user: %{"is_admin" => false, "id" => contact.datagouv_user_id}})
       |> get(backoffice_page_path(conn, :index))
 
     assert redirected_to(conn, 302) =~ "/login/explanation"

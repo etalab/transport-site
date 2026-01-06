@@ -9,9 +9,9 @@ defmodule TransportWeb.ResourceView do
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
-  import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
+  import Transport.Validators.TableSchema, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
-  import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
+  import Transport.Schemas.Wrapper, only: [schema_type: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
@@ -147,19 +147,23 @@ defmodule TransportWeb.ResourceView do
   def mobilitydata_gtfs_validator_url, do: "https://gtfs-validator.mobilitydata.org"
 
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do
-    type =
+    {tile, sub_tile} =
       cond do
-        DB.Resource.gtfs?(resource) -> "gtfs"
-        DB.Resource.gbfs?(resource) -> "gbfs"
-        not is_nil(resource.schema_name) -> resource.schema_name
+        DB.Resource.gtfs?(resource) -> {"public-transit", "gtfs"}
+        DB.Resource.gbfs?(resource) -> {"vehicles-sharing", "gbfs"}
+        not is_nil(resource.schema_name) -> {"schemas", resource.schema_name}
         true -> ""
       end
 
-    unless type == "" or TransportWeb.ValidationController.valid_type?(type) do
-      raise "#{type} is not a valid type for on demand validation"
+    unless sub_tile == "" or TransportWeb.ValidationController.valid_type?(sub_tile) do
+      raise "#{sub_tile} is not a valid type for on demand validation"
     end
 
-    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
+    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive,
+      type: sub_tile,
+      selected_tile: tile,
+      selected_subtile: sub_tile
+    )
   end
 
   @doc """
@@ -339,6 +343,7 @@ defmodule TransportWeb.ResourceView do
 
   defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
     ~H"""
+
     """
   end
 

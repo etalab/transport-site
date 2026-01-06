@@ -365,7 +365,9 @@ defmodule TransportWeb.API.DatasetController do
     # On the next weekday, this query must be optimized :-)
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.Dataset.join_from_dataset_to_metadata(
+        Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_datasets_controller), & &1.validator_name())
+      )
       |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d],
         resources: {r, dataset: d, resource_history: {rh, validations: {mv, metadata: m}}}
       )
@@ -416,7 +418,7 @@ defmodule TransportWeb.API.DatasetController do
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
       |> DB.MultiValidation.join_resource_history_with_latest_validation(
-        Transport.Validators.GTFSTransport.validator_name()
+        Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_datasets_controller), & &1.validator_name())
       )
       |> DB.ResourceMetadata.join_validation_with_metadata()
       |> preload([resource_history: rh, multi_validation: mv, metadata: m],

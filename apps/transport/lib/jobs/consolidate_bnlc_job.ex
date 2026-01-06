@@ -17,7 +17,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   use Oban.Worker, max_attempts: 3
   require Logger
-  alias Shared.Validation.TableSchemaValidator.Wrapper, as: TableSchemaValidator
+  alias Transport.Validators.TableSchema.Wrapper, as: TableSchemaValidator
 
   @schema_name "etalab/schema-lieux-covoiturage"
   @separator_key "csv_separator"

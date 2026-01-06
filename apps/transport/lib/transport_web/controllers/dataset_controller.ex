@@ -10,8 +10,6 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact)
-
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
@@ -58,7 +56,7 @@ defmodule TransportWeb.DatasetController do
           )
         )
         |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
-        |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
+        |> assign(:notifications_sent, DB.Notification.recent_reasons(dataset, days_notifications_sent()))
         |> assign_scores(dataset)
         |> assign_is_producer(dataset)
         |> assign_follows_dataset(dataset)
@@ -132,15 +130,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def validators_to_use,
-    do: [
-      Transport.Validators.GTFSTransport,
-      Transport.Validators.GTFSRT,
-      Transport.Validators.TableSchema,
-      Transport.Validators.EXJSONSchema,
-      Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator,
-      Transport.Validators.MobilityDataGTFSValidator
-    ]
+    do: Transport.ValidatorsSelection.validators_for_feature(:dataset_controller)
 
   def resources_infos(dataset) do
     %{
@@ -682,18 +672,5 @@ defmodule TransportWeb.DatasetController do
 
       {dataset_id, value}
     end)
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-        |> DB.Repo.preload(:default_tokens)
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end

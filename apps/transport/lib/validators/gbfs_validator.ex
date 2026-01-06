@@ -17,7 +17,7 @@ defmodule Transport.Validators.GBFSValidator do
       validated_data_name: url,
       validator: validator_name(),
       result: Map.from_struct(validation_result),
-      digest: Map.from_struct(validation_result) |> digest(),
+      digest: Map.from_struct(validation_result) |> Map.new(fn {k, v} -> {to_string(k), v} end) |> digest(),
       metadata: %DB.ResourceMetadata{
         metadata: Map.reject(result, fn {key, _val} -> key == :validation end),
         resource_id: resource_id

@@ -261,7 +261,7 @@ msgstr "Envoyer un fichier"
 
 #, elixir-autogen, elixir-format
 msgid "or"
-msgstr ""
+msgstr "ou"
 
 #, elixir-autogen, elixir-format
 msgid "title"
@@ -310,3 +310,151 @@ msgstr "Gérer"
 #, elixir-autogen, elixir-format
 msgid "Producer space"
 msgstr "Espace producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr "Jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Download statistics"
+msgstr "Statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "Downloads for %{year}"
+msgstr "Téléchargements de l'année %{year}"
+
+#, elixir-autogen, elixir-format
+msgid "Get access to download statistics for your resources."
+msgstr "Accédez aux statistiques de téléchargements de vos ressources."
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr "Ressource"
+
+#, elixir-autogen, elixir-format
+msgid "Your download statistics"
+msgstr "Vos statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr "Télécharger les statistiques du proxy"
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr "Vous trouverez ci-dessous les statistiques du proxy pour vos ressources. Les statistiques peuvent être téléchargées en bas de page."
+
+#, elixir-autogen, elixir-format
+msgid "Download download statistics"
+msgstr "Télécharger les statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr "Fichier : <strong>%{name}</strong>"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr "Fichier invalide"
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr "Pas d'erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr "Voir le rapport de validation"
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr "Essayer à nouveau"
+
+#, elixir-autogen, elixir-format
+msgid "Issue"
+msgstr "Problème"
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr "Ressource arrivant à expiration"
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr "Ressource invalide"
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr "Ressource indisponible"
+
+#, elixir-autogen, elixir-format
+msgid "The following urgent resource issues require your attention."
+msgstr "Les problèmes sur les ressources suivantes requièrent votre attention."
+
+#, elixir-autogen, elixir-format
+msgid "Urgent issues on your resources"
+msgstr "Problèmes urgents sur vos ressources"
+
+#, elixir-autogen, elixir-format
+msgid "See the discussion"
+msgstr "Voir la discussion"
+
+#, elixir-autogen, elixir-format
+msgid "unanswered_discussions"
+msgstr "Discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "Discussion"
+msgstr "Discussion"
+
+#, elixir-autogen, elixir-format
+msgid "Link"
+msgstr "Lien"
+
+#, elixir-autogen, elixir-format
+msgid "Unanswered discussions"
+msgstr "Discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "You have no unanswered discussions."
+msgstr "Vous n'avez aucune discussion sans réponse."
+
+#, elixir-autogen, elixir-format
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr "Vous trouverez ci-dessous les données de téléchargement pour vos ressources. Les statistiques peuvent être téléchargées en bas de page."
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions"
+msgstr "Voir les discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions on your datasets."
+msgstr "Voir les discussions sans réponse sur vos jeux de données."
+
+#, elixir-autogen, elixir-format
+msgid "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation."
+msgstr "Vous trouverez ici les discussions qui n'ont pas été clôturées et où la dernière personne ayant répondu n'est pas membre de votre organisation."
+
+#, elixir-autogen, elixir-format
+msgid "Start the validation"
+msgstr "Démarrer la validation"
+
+#, elixir-autogen, elixir-format
+msgid "Drop your file here or click to browse your local drive"
+msgstr "Glissez un fichier ici ou cliquez pour parcourir vos répertoires locaux"
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr "Ressource expirée"
+
+#, elixir-autogen, elixir-format
+msgid "recent_discussions"
+msgstr "Discussion récente"
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr "Découvrir les nouveautés"
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr "Nouvelles fonctionnalités disponibles"
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr "Nouvelles fonctionnalités"

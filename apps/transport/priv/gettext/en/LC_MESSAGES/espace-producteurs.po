@@ -310,3 +310,151 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Producer space"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Downloads for %{year}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Get access to download statistics for your resources."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Issue"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr "Expiring resource"
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr "Invalid resource"
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr "Unavailable resource"
+
+#, elixir-autogen, elixir-format
+msgid "The following urgent resource issues require your attention."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Urgent issues on your resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unanswered_discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Link"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Unanswered discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You have no unanswered discussions."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "See unanswered discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions on your datasets."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start the validation"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Drop your file here or click to browse your local drive"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "recent_discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr "Discover new features"
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr "New features available"
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr "New features"

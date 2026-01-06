@@ -15,6 +15,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -156,6 +157,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       source: :user
     )
 
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
     content =
       conn
       |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -210,10 +213,12 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
   test "displays an error message if we can’t retrieve user orgs (and thus datasets) through data.gouv.fr", %{
     conn: conn
   } do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
     Datagouvfr.Client.User.Mock
     |> expect(:me, fn _ -> {:error, %HTTPoison.Error{reason: :nxdomain, id: nil}} end)
 
-    conn = conn |> init_test_session(%{current_user: %{"id" => Ecto.UUID.generate()}, datagouv_token: %{}})
+    conn = conn |> init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}, datagouv_token: %{}})
     content = conn |> get(@producer_url) |> html_response(200)
     assert content =~ "Une erreur a eu lieu lors de la récupération de vos ressources"
   end
@@ -274,6 +279,8 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
       %DB.Dataset{id: dataset_id} = insert(:dataset)
       %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       insert(:dataset_follower, contact_id: contact_id, dataset_id: dataset_id, source: :follow_button)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       {:ok, view, _html} =
         conn |> init_test_session(%{current_user: %{"id" => datagouv_user_id}}) |> get(@reuser_url) |> live()
@@ -522,6 +529,43 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
     render_change(view, "toggle-all", %{"action" => "turn_off"})
 
     assert [^not_to_be_deleted_notification] = DB.NotificationSubscription |> DB.Repo.all()
+  end
+
+  describe "feedback form is displayed" do
+    test "for a reuser", %{conn: conn} do
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()
+      })
+
+      doc =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+        |> get(@reuser_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find("input#feedback_feature") |> Floki.attribute("value") == ["reuser_space"]
+    end
+
+    test "for a producer", %{conn: conn} do
+      insert_admin()
+
+      insert_contact(%{
+        datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()
+      })
+
+      Datagouvfr.Client.User.Mock
+      |> expect(:me, fn _ -> {:ok, %{"organizations" => []}} end)
+
+      doc =
+        conn
+        |> init_test_session(%{current_user: %{"id" => datagouv_user_id}, datagouv_token: %{}})
+        |> get(@producer_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert doc |> Floki.find("input#feedback_feature") |> Floki.attribute("value") == ["producer_space"]
+    end
   end
 
   defp insert_admin do

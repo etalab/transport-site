@@ -1,6 +1,5 @@
 defmodule TransportWeb.PageView do
   use TransportWeb, :view
-  import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   def current_tiles(tiles), do: Enum.filter(tiles, &(&1.count > 0))
 
@@ -17,16 +16,6 @@ defmodule TransportWeb.PageView do
   def make_link(""), do: "—"
   def make_link(o), do: link("Lien", to: o)
 
-  @spec show_proxy_stats_block?([DB.Dataset.t()]) :: boolean()
-  def show_proxy_stats_block?(datasets) do
-    datasets |> Enum.flat_map(& &1.resources) |> Enum.any?(&DB.Resource.served_by_proxy?/1)
-  end
-
-  @spec show_downloads_stats?(DB.Dataset.t()) :: boolean()
-  def show_downloads_stats?(%DB.Dataset{resources: resources}) do
-    Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
-  end
-
   @doc """
   iex> nb_downloads_for_humans(2_400_420, "fr")
   "2 M"
@@ -40,12 +29,6 @@ defmodule TransportWeb.PageView do
   def nb_downloads_for_humans(value, locale) do
     Transport.Cldr.Number.to_string!(value, format: :short, locale: locale)
   end
-
-  def dataset_creation_url,
-    do:
-      :transport
-      |> Application.fetch_env!(:datagouvfr_site)
-      |> Path.join("/fr/admin/dataset/new/")
 
   @doc """
   iex> types = TransportWeb.API.Schemas.AutocompleteItem.types()
@@ -62,6 +45,7 @@ defmodule TransportWeb.PageView do
       "mode" => dgettext("autocomplete", "mode"),
       "offer" => dgettext("autocomplete", "offer"),
       "format" => dgettext("autocomplete", "format"),
+      "dataset" => dgettext("autocomplete", "dataset"),
       "search-description" => dgettext("autocomplete", "search-description"),
       "results-description" => dgettext("autocomplete", "results-description")
     }

@@ -58,10 +58,10 @@ defmodule DB.MultiValidation do
     base_query(include_result: true)
   end
 
-  @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   @doc """
   joins the query with the latest validation, given a validator name or a list of validator names
   """
+  @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   def join_resource_history_with_latest_validation(query, validator) do
     latest_validation = multi_validation_subquery(validator)
 

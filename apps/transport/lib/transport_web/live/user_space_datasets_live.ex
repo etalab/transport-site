@@ -65,6 +65,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               </div>
             </div>
           </div>
+          <div class="panel__content"></div>
           <div class="panel__extra">
             <% {link, text} =
               if @mode == :producer do
@@ -79,7 +80,6 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
         </div>
       <% end %>
     </div>
-    <script type="text/javascript" src={static_path(@socket, "/js/app.js")} />
     <script nonce={@nonce}>
       [form] = document.getElementsByClassName("search-followed-datasets");
       form.onkeydown = function(event) {

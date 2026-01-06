@@ -1,7 +1,110 @@
 <section class="single-page section section-grey">
-  <div class="container">
+  <div class="container documentation">
+    <nav :if={@menu_items} class="side-pane" role="navigation">
+      <li class="side-pane__title">
+        <h3><%= @menu_title %></h3>
+      </li>
+      <ul class="side-pane__menu">
+        <%= for {h2, index} <- Enum.with_index(@menu_items) do %>
+          <% class = if index == 0, do: "side-pane__dropdown unfolded", else: "side-pane__dropdown folded" %>
+          <li class={class}>
+            <a><%= h2.title %></a>
+            <ul :if={h2.sub_items != []} class="side-pane__submenu">
+              <li :for={sub <- h2.sub_items}>
+                <a href={"##{sub.id}"}><%= sub.title %></a>
+              </li>
+            </ul>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
     <article class="panel">
-      <%= render(@page, assigns) %>
+      <%= if @content do %>
+        <%= raw(@content) %>
+      <% else %>
+        <%= render(@page, assigns) %>
+      <% end %>
     </article>
   </div>
 </section>
+
+<script nonce={@conn.assigns[:csp_nonce_value]}>
+  const dropdowns = document.querySelectorAll('.side-pane__dropdown');
+
+  dropdowns.forEach(dropdown => {
+    dropdown.addEventListener('click', function(event) {
+    const dropdown = event.target.closest('.side-pane__dropdown');
+    if (!dropdown) return;
+
+    const isSubmenuClick = event.target.closest('.side-pane__submenu');
+
+    dropdowns.forEach(div => {
+      if (div == dropdown) return;
+      div.classList.remove('unfolded');
+      div.classList.add('folded');
+    });
+
+    if (!isSubmenuClick) {
+      dropdown.classList.toggle('unfolded');
+      dropdown.classList.toggle('folded');
+    }
+  });
+  });
+
+  const sections = document.querySelectorAll('h3[id]');
+  const navLinks = document.querySelectorAll('.side-pane__submenu a');
+  let isScrollingManual = false;
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      isScrollingManual = true;
+
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      // Reset the flag after the smooth scroll finishes (approx 1s)
+      setTimeout(() => {
+        isScrollingManual = false;
+      }, 1000);
+    });
+  });
+
+  const options = {
+    root: null, // use the browser viewport
+    rootMargin: '-50% 0px -50% 0px', // trigger when section is in the top-ish area
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    if (isScrollingManual) return; // Skip updating if we just clicked a link
+
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+
+        navLinks.forEach(link => link.classList.remove('active'));
+
+        const activeLink = document.querySelector(`.side-pane__submenu a[href="#${id}"]`);
+        if (activeLink) {
+          activeLink.classList.add('active');
+
+          history.replaceState(null, null, `#${id}`);
+
+          // Ensure only the parent month (dropdown) is unfolded
+          document.querySelectorAll('.side-pane__dropdown').forEach(div => {
+            div.classList.remove('unfolded');
+            div.classList.add('folded');
+          });
+
+          const parentDropdown = activeLink.closest('.side-pane__dropdown');
+          if (parentDropdown) {
+            parentDropdown.classList.remove('folded');
+            parentDropdown.classList.add('unfolded');
+          }
+        }
+      }
+    });
+  }, options);
+
+  sections.forEach(section => observer.observe(section));
+</script>

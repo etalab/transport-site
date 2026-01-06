@@ -6,8 +6,6 @@ defmodule TransportWeb.PageController do
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
   import TransportWeb.Router.Helpers
 
-  plug(:assign_current_contact when action in [:index])
-
   def index(conn, _params) do
     conn
     |> merge_assigns(home_index_stats())
@@ -59,8 +57,17 @@ defmodule TransportWeb.PageController do
     |> render("login.html")
   end
 
+  defp single_page(conn, %{"content" => content, "menu" => menu}) do
+    conn
+    |> assign(:content, content)
+    |> assign(:menu_items, menu)
+    |> render("single_page.html")
+  end
+
   defp single_page(conn, %{"page" => page}) do
     conn
+    |> assign(:content, nil)
+    |> assign(:menu_items, nil)
     |> assign(:page, page <> ".html")
     |> render("single_page.html")
   end
@@ -75,6 +82,17 @@ defmodule TransportWeb.PageController do
 
   def infos_producteurs(conn, _params) do
     conn |> render("infos_producteurs.html")
+  end
+
+  def nouveautes(conn, _params) do
+    markdown = File.read!(__DIR__ <> "/../templates/page/nouveautes.html.md")
+    content = TransportWeb.MarkdownHandler.to_html_with_anchors(markdown)
+    menu_title = content |> Floki.parse_document!() |> Floki.find("h1") |> Floki.text() |> String.replace("# ", "")
+
+    conn
+    |> assign(:page_title, dgettext("page-nouveautes", "New features"))
+    |> assign(:menu_title, menu_title)
+    |> single_page(%{"content" => content, "menu" => generate_menu(content)})
   end
 
   def infos_reutilisateurs(%Plug.Conn{} = conn, _params), do: render(conn, "infos_reutilisateurs.html")
@@ -132,13 +150,14 @@ defmodule TransportWeb.PageController do
           [
             page_url(conn, :index),
             page_url(conn, :missions),
+            page_url(conn, :nouveautes),
             page_url(conn, :accessibility),
             page_url(conn, :infos_producteurs),
             page_url(conn, :infos_reutilisateurs),
             page_url(conn, :robots_txt),
             page_url(conn, :security_txt),
             page_url(conn, :humans_txt),
-            page_url(conn, :espace_producteur),
+            espace_producteur_url(conn, :espace_producteur),
             reuser_space_url(conn, :espace_reutilisateur),
             reuse_url(conn, :index),
             stats_url(conn, :index),
@@ -206,23 +225,6 @@ defmodule TransportWeb.PageController do
     |> List.flatten()
     |> Enum.reject(&is_nil/1)
     |> Enum.join("\n")
-  end
-
-  def espace_producteur(%Plug.Conn{} = conn, _params) do
-    {conn, datasets} =
-      case DB.Dataset.datasets_for_user(conn) do
-        datasets when is_list(datasets) ->
-          {conn, datasets}
-
-        {:error, _} ->
-          conn = conn |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-          {conn, []}
-      end
-
-    conn
-    |> assign(:datasets, datasets)
-    |> TransportWeb.Session.set_is_producer(datasets)
-    |> render("espace_producteur.html")
   end
 
   defp aoms_with_dataset do
@@ -304,14 +306,35 @@ defmodule TransportWeb.PageController do
     |> DB.Repo.one!()
   end
 
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-      end
+  defp generate_menu(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find("h2, h3, h4")
+    |> Enum.reduce([], &accumulate_tags/2)
+    |> Enum.reverse()
+  end
 
-    assign(conn, :current_contact, current_contact)
+  defp accumulate_tags({tag, _attrs, children} = node, acc) do
+    id = Floki.attribute(node, "id")
+    text = Floki.text(children) |> String.trim_leading("# \n")
+
+    case tag do
+      "h2" ->
+        # Start a new H2 block with an empty list for sub-items
+        [%{title: text, id: id, sub_items: []} | acc]
+
+      # h3 or h4
+      _sub ->
+        case acc do
+          [current_h2 | rest] ->
+            # Add this sub-heading to the most recent H2
+            updated_h2 = %{current_h2 | sub_items: current_h2.sub_items ++ [%{title: text, id: id}]}
+            [updated_h2 | rest]
+
+          [] ->
+            # Handle case where h3/h4 appears before any h2
+            acc
+        end
+    end
   end
 end

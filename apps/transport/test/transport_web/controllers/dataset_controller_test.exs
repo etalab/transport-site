@@ -109,6 +109,8 @@ defmodule TransportWeb.DatasetControllerTest do
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
 
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
+
       document =
         conn
         |> init_test_session(%{current_user: %{"id" => datagouv_user_id, "is_admin" => false}})
@@ -137,6 +139,8 @@ defmodule TransportWeb.DatasetControllerTest do
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
       insert(:dataset, custom_title: "C")
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       document =
         conn
@@ -202,6 +206,8 @@ defmodule TransportWeb.DatasetControllerTest do
       contact = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
       dataset = insert(:dataset)
       insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
       assert [
                {"a",
@@ -341,14 +347,15 @@ defmodule TransportWeb.DatasetControllerTest do
       validator: Transport.Validators.GBFSValidator.validator_name(),
       result: result,
       digest: digest,
-      metadata: %{metadata: %{}}
+      metadata: %DB.ResourceMetadata{metadata: %{"versions" => nil, "ttl" => 60}}
     )
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
 
-    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+    assert content |> extract_resource_details() =~ "1 erreur"
+    assert content |> extract_resource_details() =~ "60s"
   end
 
   test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
@@ -619,12 +626,12 @@ defmodule TransportWeb.DatasetControllerTest do
         url: "https://example.com/file"
       )
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:transport_schemas, 1, fn -> %{schema_name => %{"title" => "foo"}} end)
 
     insert(:multi_validation, %{
       resource_history: insert(:resource_history, resource_id: resource_id),
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
+      validator: Transport.Validators.JSONSchema.validator_name(),
       result: %{"validation_performed" => false}
     })
 
@@ -732,7 +739,9 @@ defmodule TransportWeb.DatasetControllerTest do
       dataset: dataset,
       role: :producer,
       reason: :expiration,
-      email: Ecto.UUID.generate() <> "@example.com"
+      email: Ecto.UUID.generate() <> "@example.com",
+      payload: %{"delay" => 7},
+      inserted_at: inserted_at = DateTime.utc_now()
     })
 
     mock_empty_history_resources()
@@ -740,6 +749,20 @@ defmodule TransportWeb.DatasetControllerTest do
     doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
     [msg] = Floki.find(doc, "#notifications-sent")
     assert Floki.text(msg) =~ "Expiration de données"
+
+    expected_dt = Shared.DateTimeDisplay.format_datetime_to_paris(inserted_at, "fr")
+
+    assert Floki.find(doc, "#notifications-sent table tbody") == [
+             {"tbody", [],
+              [
+                {"tr", [],
+                 [
+                   {"td", [], ["Expiration de données"]},
+                   {"td", [], ["\n  dans 7 jours\n"]},
+                   {"td", [], [expected_dt]}
+                 ]}
+              ]}
+           ]
   end
 
   test "dataset#details with a SIRI resource links to the query generator", %{conn: conn} do

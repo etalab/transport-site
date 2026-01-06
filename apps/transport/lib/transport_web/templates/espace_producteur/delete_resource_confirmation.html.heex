@@ -15,7 +15,7 @@
           data-tracking-category="espace_producteur"
           data-tracking-action="confirm_delete_resource"
         >
-          <%= dgettext("espace-producteurs", "Delete the resource") %>
+          <i class="icon fa fa-trash"></i><%= dgettext("espace-producteurs", "Delete the resource") %>
         </button>
         <a
           href={espace_producteur_path(@conn, :edit_resource, @dataset.id, @datagouv_resource["id"])}
@@ -23,12 +23,16 @@
           data-tracking-action="abort_delete_update_resource"
         >
           <button class="button-outline primary" type="button">
-            <%= dgettext("espace-producteurs", "Update the resource") %>
+            <i class="icon fa fa-folder"></i><%= dgettext("espace-producteurs", "Update the resource") %>
           </button>
         </a>
       </div>
     <% end %>
   </div>
 </section>
-
-<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />
+<section class="section section-white">
+  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "producer_space"}
+  ) %>
+</section>

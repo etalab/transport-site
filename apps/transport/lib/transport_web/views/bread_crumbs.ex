@@ -11,7 +11,7 @@ defmodule TransportWeb.BreadCrumbs do
   end
 
   def crumbs(conn, :espace_producteur) do
-    [{dgettext("espace-producteurs", "Your producer space"), page_path(conn, :espace_producteur)}]
+    [{dgettext("espace-producteurs", "Your producer space"), espace_producteur_path(conn, :espace_producteur)}]
   end
 
   def crumbs(conn, :reuser_space) do
@@ -38,6 +38,20 @@ defmodule TransportWeb.BreadCrumbs do
     crumbs(conn, :espace_producteur) ++
       [
         {dgettext("espace-producteurs", "Transport proxy statistics"), espace_producteur_path(conn, :proxy_statistics)}
+      ]
+  end
+
+  def crumbs(conn, :download_statistics) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Download statistics"), espace_producteur_path(conn, :download_statistics)}
+      ]
+  end
+
+  def crumbs(conn, :unanswered_discussions) do
+    crumbs(conn, :espace_producteur) ++
+      [
+        {dgettext("espace-producteurs", "Unanswered discussions"), espace_producteur_path(conn, :discussions)}
       ]
   end
 

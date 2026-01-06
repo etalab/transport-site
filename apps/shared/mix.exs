@@ -52,14 +52,15 @@ defmodule Shared.MixProject do
       # otherwise running tests for an individual umbrella sub-app will raise error.
       # A better way to achieve this will be to configure it at runtime, like described
       # in https://github.com/getsentry/sentry-elixir/pull/472.
-      {:sentry, "~> 10.1"},
+      {:sentry, "~> 11.0"},
       # Similarly, Jason is configured as `json_library` by the main app, so it will
       # be required no matter what.
       {:jason, ">= 0.0.0"},
       {:ex_cldr_numbers, "~> 2.0"},
-      {:ex_cldr_calendars, "~> 1.26"},
+      {:ex_cldr_calendars, "~> 2.4"},
       {:ex_cldr_lists, "~> 2.11"},
       {:ex_cldr_units, "~> 3.17"},
+      {:ex_cldr_dates_times, "~> 2.0"},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
       {:cachex, "~> 4.1"},

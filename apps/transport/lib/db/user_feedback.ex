@@ -10,7 +10,8 @@ defmodule DB.UserFeedback do
     :gtfs_stops,
     :on_demand_validation,
     :gbfs_validation,
-    :reuser_space
+    :reuser_space,
+    :producer_space
   ]
 
   @ratings [:like, :neutral, :dislike]

@@ -387,7 +387,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: rh_geojson_resource,
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"has_errors" => true},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
@@ -498,14 +498,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: geojson_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"has_errors" => false},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: zip_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"validation_performed" => false},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
@@ -527,7 +527,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: geojson_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: nil,
         digest: %{"errors_count" => 0}
       })
@@ -978,7 +978,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    "previous_score" => nil,
                    "today_score" => 1.0,
                    "resources" => [
-                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => nil}, "resource_id" => ^resource_id}
+                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => "NoError"}, "resource_id" => ^resource_id}
                    ]
                  }
                }

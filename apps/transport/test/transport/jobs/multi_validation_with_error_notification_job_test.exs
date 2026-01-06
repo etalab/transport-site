@@ -9,6 +9,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
   doctest MultiValidationWithErrorNotificationJob, import: true
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> assert_no_email_sent() end)
   end
@@ -29,7 +30,7 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       %DB.MultiValidation{id: mv_id} =
         insert(:multi_validation, %{
           resource_history: rh_geojson_resource,
-          validator: Transport.Validators.EXJSONSchema.validator_name(),
+          validator: Transport.Validators.JSONSchema.validator_name(),
           result: %{"has_errors" => true},
           inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
         })
@@ -54,6 +55,38 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
           resource_id: gbfs.id,
           validator: Transport.Validators.GBFSValidator.validator_name(),
           result: %{"has_errors" => true},
+          inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+        })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
+    end
+
+    test "for a GTFS-RT" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      gtfs_rt = insert(:resource, format: "gtfs-rt", dataset: dataset)
+
+      errors = [
+        %{"error_id" => "E003", "errors_count" => 10},
+        %{"error_id" => "E004", "errors_count" => 20},
+        %{"error_id" => "E011", "errors_count" => 10},
+        %{"error_id" => "E034", "errors_count" => 10}
+      ]
+
+      # Should be ignored, number of errors is below the threshold
+      insert(:multi_validation, %{
+        resource_id: gtfs_rt.id,
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        result: %{"has_errors" => true, "errors" => Enum.take(errors, 3)},
+        inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+      })
+
+      %DB.MultiValidation{id: mv_id} =
+        insert(:multi_validation, %{
+          resource_id: gtfs_rt.id,
+          validator: Transport.Validators.GTFSRT.validator_name(),
+          result: %{"has_errors" => true, "errors" => errors},
           inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
         })
 
@@ -99,23 +132,26 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
     rh_resource_2 = insert(:resource_history, resource: resource_2)
     rh_resource_gtfs = insert(:resource_history, resource: resource_gtfs)
 
-    insert(:multi_validation, %{
-      resource_history: rh_resource_1,
-      validator: jsonschema_validator_name = Transport.Validators.EXJSONSchema.validator_name(),
-      result: %{"has_errors" => true}
-    })
+    %{id: mv1_id} =
+      insert(:multi_validation, %{
+        resource_history: rh_resource_1,
+        validator: jsonschema_validator_name = Transport.Validators.JSONSchema.validator_name(),
+        result: %{"has_errors" => true}
+      })
 
-    insert(:multi_validation, %{
-      resource_history: rh_resource_2,
-      validator: Transport.Validators.EXJSONSchema.validator_name(),
-      result: %{"has_errors" => true}
-    })
+    %{id: mv2_id} =
+      insert(:multi_validation, %{
+        resource_history: rh_resource_2,
+        validator: Transport.Validators.JSONSchema.validator_name(),
+        result: %{"has_errors" => true}
+      })
 
-    insert(:multi_validation, %{
-      resource_history: rh_resource_gtfs,
-      validator: gtfs_validator_name = Transport.Validators.GTFSTransport.validator_name(),
-      max_error: "Fatal"
-    })
+    %{id: mv3_id} =
+      insert(:multi_validation, %{
+        resource_history: rh_resource_gtfs,
+        validator: gtfs_validator_name = Transport.Validators.GTFSTransport.validator_name(),
+        max_error: "Fatal"
+      })
 
     already_sent_email = "alreadysent@example.fr"
     insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_with_error, email: already_sent_email})
@@ -232,7 +268,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                "resource_formats" => ["geojson", "geojson"],
                "resource_ids" => [^resource_1_id, ^resource_2_id],
                "validator_name" => ^jsonschema_validator_name,
-               "job_id" => job_id
+               "job_id" => job_id,
+               "attempt" => 1
              },
              notification_subscription_id: ^subscription_foo_id
            } =
@@ -250,7 +287,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
              payload: %{
                "producer_warned" => true,
                "validator_name" => ^jsonschema_validator_name,
-               "job_id" => reuser_job_id
+               "job_id" => reuser_job_id,
+               "attempt" => 1
              },
              notification_subscription_id: ^subscription_reuser_id
            } =
@@ -268,7 +306,8 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                "resource_formats" => ["GTFS"],
                "resource_ids" => [^resource_gtfs_id],
                "validator_name" => ^gtfs_validator_name,
-               "job_id" => bar_job_id
+               "job_id" => bar_job_id,
+               "attempt" => 1
              },
              notification_subscription_id: ^subscription_bar_id
            } =
@@ -280,6 +319,24 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
              |> DB.Repo.one!()
 
     assert MapSet.new([job_id, reuser_job_id, bar_job_id]) |> Enum.count() == 1
+
+    assert [
+             %Oban.Job{
+               worker: "Transport.Jobs.MultiValidationWithErrorNotificationJob",
+               args: %{"dataset_id" => ^gtfs_dataset_id, "multi_validation_ids" => [^mv3_id], "attempt" => 2},
+               scheduled_at: scheduled_at,
+               state: "scheduled"
+             },
+             %Oban.Job{
+               worker: "Transport.Jobs.MultiValidationWithErrorNotificationJob",
+               args: %{"dataset_id" => ^dataset_id, "multi_validation_ids" => [^mv1_id, ^mv2_id], "attempt" => 2},
+               state: "scheduled"
+             }
+           ] = all_enqueued()
+
+    assert_in_delta scheduled_at |> DateTime.to_unix(),
+                    DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.to_unix(),
+                    50
   end
 
   test "perform for a real-time error dataset" do
@@ -340,11 +397,14 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                  "resource_formats" => ["gbfs"],
                  "resource_ids" => [^gbfs_id],
                  "validator_name" => ^gbfs_validator_name,
-                 "job_id" => _
+                 "job_id" => _,
+                 "attempt" => 1
                },
                notification_subscription_id: ^subscription_producer_id
              }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at, DateTime)
+
+    assert [] = all_enqueued()
   end
 
   test "perform when a real-time notification was already sent and we have an error for static data" do
@@ -359,11 +419,12 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       result: %{"has_errors" => true}
     })
 
-    insert(:multi_validation, %{
-      resource_history: insert(:resource_history, resource: geojson),
-      validator: geojson_validator_name = Transport.Validators.EXJSONSchema.validator_name(),
-      result: %{"has_errors" => true}
-    })
+    %{id: mv_id} =
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: geojson),
+        validator: geojson_validator_name = Transport.Validators.JSONSchema.validator_name(),
+        result: %{"has_errors" => true}
+      })
 
     %DB.Contact{id: producer_contact_id} = producer_contact = insert_contact()
 
@@ -419,11 +480,108 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
                  "resource_formats" => ["geojson"],
                  "resource_ids" => [^geojson_id],
                  "validator_name" => ^geojson_validator_name,
-                 "job_id" => _
+                 "job_id" => _,
+                 "attempt" => 1
                },
                notification_subscription_id: ^subscription_producer_id
              }
            ] = DB.Notification |> DB.Repo.all() |> Enum.sort_by(& &1.inserted_at, DateTime)
+
+    assert [
+             %Oban.Job{
+               args: %{"dataset_id" => ^dataset_id, "multi_validation_ids" => [^mv_id], "attempt" => 2},
+               worker: "Transport.Jobs.MultiValidationWithErrorNotificationJob",
+               state: "scheduled",
+               scheduled_at: scheduled_at
+             }
+           ] = all_enqueued()
+
+    assert_in_delta scheduled_at |> DateTime.to_unix(),
+                    DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.to_unix(),
+                    50
+  end
+
+  test "perform for a job reenqueued, when validation is the same" do
+    insert(:dataset)
+    %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+    %DB.Resource{id: geojson_id} = geojson = insert(:resource, dataset: dataset, format: "geojson")
+
+    %{id: mv_id} =
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: geojson),
+        validator: geojson_validator_name = Transport.Validators.JSONSchema.validator_name(),
+        result: %{"has_errors" => true}
+      })
+
+    %DB.Contact{id: producer_contact_id} = producer_contact = insert_contact()
+
+    %DB.NotificationSubscription{id: subscription_producer_id} =
+      insert(:notification_subscription, %{
+        reason: :dataset_with_error,
+        source: :admin,
+        role: :producer,
+        contact_id: producer_contact_id,
+        dataset_id: dataset.id
+      })
+
+    # Reuser is subscribed but should not receive the notification as this is
+    # the second attempt.
+    reuser_contact = insert_contact()
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :admin,
+      role: :reuser,
+      contact_id: reuser_contact.id,
+      dataset_id: dataset.id
+    })
+
+    assert :ok ==
+             perform_job(MultiValidationWithErrorNotificationJob, %{
+               dataset_id: dataset.id,
+               multi_validation_ids: [mv_id],
+               attempt: 2
+             })
+
+    assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
+      assert to == [{DB.Contact.display_name(producer_contact), producer_contact.email}]
+      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
+
+      assert html =~
+               ~s(Des erreurs bloquantes ont été détectées dans votre jeu de données <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+
+      assert html =~
+               ~s(<a href="http://127.0.0.1:5100/resources/#{geojson.id}">#{geojson.title}</a>)
+    end)
+
+    assert [
+             %Oban.Job{
+               worker: "Transport.Jobs.MultiValidationWithErrorNotificationJob",
+               args: %{"dataset_id" => ^dataset_id, "multi_validation_ids" => [^mv_id], "attempt" => 3},
+               state: "scheduled",
+               scheduled_at: scheduled_at
+             }
+           ] = all_enqueued()
+
+    assert_in_delta scheduled_at |> DateTime.to_unix(),
+                    DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.to_unix(),
+                    50
+
+    assert [
+             %DB.Notification{
+               contact_id: ^producer_contact_id,
+               dataset_id: ^dataset_id,
+               role: :producer,
+               payload: %{
+                 "resource_formats" => ["geojson"],
+                 "resource_ids" => [^geojson_id],
+                 "validator_name" => ^geojson_validator_name,
+                 "job_id" => _,
+                 "attempt" => 2
+               },
+               notification_subscription_id: ^subscription_producer_id
+             }
+           ] = DB.Notification |> DB.Repo.all()
   end
 
   test "email_addresses_already_sent" do

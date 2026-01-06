@@ -3,6 +3,7 @@ defmodule TransportWeb.DatasetView do
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
   alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
+  import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -242,6 +243,10 @@ defmodule TransportWeb.DatasetView do
   iex> summary_class(%{severity: "ERROR"})
   "resource__summary--Error"
   """
+  def summary_class(%{digest: %{"max_severity" => %{"max_level" => severity, "worst_occurrences" => count_errors}}}) do
+    summary_class(%{count_errors: count_errors, severity: severity})
+  end
+
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{String.capitalize(severity)}"
 
@@ -300,8 +305,41 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
-  def outdated_class(_), do: ""
+  @doc """
+  iex> outdated_class(~D[2025-12-28], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2026-01-15], ~D[2025-12-31])
+  ""
+  iex> outdated_class(~D[2025-12-01], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-25], ~D[2025-12-25])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-26], ~D[2025-12-25])
+  "resource__summary--Warning"
+  """
+  def outdated_class(%Date{} = end_date, reference_date \\ Date.utc_today()) do
+    case Date.diff(end_date, reference_date) do
+      diff when diff <= 0 -> "resource__summary--Error"
+      diff when diff <= 7 -> "resource__summary--Warning"
+      _ -> ""
+    end
+  end
+
+  def validity_dates(assigns) do
+    ~H"""
+    <% start_date = @multi_validation |> DB.MultiValidation.get_metadata_info("start_date") |> empty_to_nil() %>
+    <% end_date = @multi_validation |> DB.MultiValidation.get_metadata_info("end_date") |> empty_to_nil() %>
+    <%= if start_date && end_date do %>
+      <% end_date_date = end_date |> Date.from_iso8601!() %>
+      <div title={dgettext("page-dataset-details", "Validity period")}>
+        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+        <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
+        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+        <span class={outdated_class(end_date_date)}><%= Shared.DateTimeDisplay.format_date(end_date, @locale) %></span>
+      </div>
+    <% end %>
+    """
+  end
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
@@ -477,7 +515,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def documentation_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
-    Transport.Shared.Schemas.documentation_url(schema_name, schema_version)
+    Transport.Schemas.documentation_url(schema_name, schema_version)
   end
 
   def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
@@ -611,6 +649,42 @@ defmodule TransportWeb.DatasetView do
 
   def empty_to_nil(""), do: nil
   def empty_to_nil(value), do: value
+
+  def notification_sent(%{} = assigns) do
+    ~H"""
+    <tr>
+      <td><%= Transport.NotificationReason.reason_to_str(@notification.reason) %></td>
+      <.notification_sent_details reason={@notification.reason} payload={@notification.payload} locale={@locale} />
+      <td><%= DateTimeDisplay.format_datetime_to_paris(@notification.timestamp, @locale) %></td>
+    </tr>
+    """
+  end
+
+  def notification_sent_details(%{reason: reason, payload: %{"resource_ids" => resource_ids}} = assigns)
+      when reason in [:dataset_with_error, :resource_unavailable] do
+    assigns =
+      assign(
+        assigns,
+        :resources,
+        DB.Resource |> where([r], r.id in ^resource_ids) |> Ecto.Query.select([r], [:title, :id]) |> DB.Repo.all()
+      )
+
+    ~H"""
+    <td>
+      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+        <%= resource.title %>
+      </a>
+    </td>
+    """
+  end
+
+  def notification_sent_details(%{reason: :expiration} = assigns) do
+    ~H"""
+    <td>
+      <%= Shared.DateTimeDisplay.relative_datetime_in_days(@payload["delay"], @locale) %>
+    </td>
+    """
+  end
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do

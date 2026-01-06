@@ -1,6 +1,8 @@
 <% validation_path =
   live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive,
     type: "gbfs",
+    selected_tile: "vehicles-sharing",
+    selected_subtile: "gbfs",
     url: @resource.url
   ) %>
 <a class="button" href={validation_path} target="_blank" role="link">

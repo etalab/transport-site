@@ -4,6 +4,11 @@ defmodule TransportWeb.API.StatsControllerTest do
   import Mock
   import DB.Factory
 
+  setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
+    :ok
+  end
+
   @cached_features_routes [
     {"/api/stats", "api-stats-aoms"},
     {"/api/stats/quality", "api-stats-quality"}

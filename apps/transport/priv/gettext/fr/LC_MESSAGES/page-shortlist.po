@@ -205,8 +205,8 @@ msgstr "région"
 #, elixir-format, elixir-autogen
 msgid "result"
 msgid_plural "results"
-msgstr[0] "résultat"
-msgstr[1] "résultats"
+msgstr[0] "%{value} résultat pour \"%{q}\""
+msgstr[1] "%{value} résultats pour \"%{q}\""
 
 #, elixir-autogen, elixir-format
 msgid "city"

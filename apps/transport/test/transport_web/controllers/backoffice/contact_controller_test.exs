@@ -95,7 +95,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
                organization: "Corp Inc",
                creation_source: :admin
              } =
-               DB.Repo.one!(DB.Contact)
+               DB.Repo.get_by!(DB.Contact, organization: "Corp Inc")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Contact mis à jour"
     end
@@ -110,7 +110,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
 
       assert redirected_to(conn, 302) == backoffice_contact_path(conn, :new) <> "?#{URI.encode_query(args)}"
 
-      assert DB.Contact |> DB.Repo.all() |> Enum.empty?()
+      assert DB.Contact |> DB.Repo.all() |> Enum.count() == 1
     end
   end
 
@@ -323,7 +323,7 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
     %Plug.Conn{state: :chunked} =
       response =
       conn
-      |> setup_admin_in_session()
+      |> setup_admin_in_session(contact)
       |> get(backoffice_contact_path(conn, :csv_export))
 
     content = response(response, 200)

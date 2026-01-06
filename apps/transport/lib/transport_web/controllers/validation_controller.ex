@@ -4,7 +4,6 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import Ecto.Query
 
-  plug(:assign_current_contact when action in [:validate])
   plug(:log_usage when action in [:validate])
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
@@ -272,7 +271,7 @@ defmodule TransportWeb.ValidationController do
 
   defp schema_type(schema_name), do: transport_schemas()[schema_name]["schema_type"]
 
-  defp transport_schemas, do: Transport.Shared.Schemas.Wrapper.transport_schemas()
+  defp transport_schemas, do: Transport.Schemas.Wrapper.transport_schemas()
 
   defp not_found(%Plug.Conn{} = conn) do
     conn
@@ -303,18 +302,6 @@ defmodule TransportWeb.ValidationController do
   end
 
   def temporary_on_demand_validator_name, do: "on demand validation requested"
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-      end
-
-    assign(conn, :current_contact, current_contact)
-  end
 
   defp log_usage(%Plug.Conn{} = conn, _options) do
     DB.FeatureUsage.insert!(

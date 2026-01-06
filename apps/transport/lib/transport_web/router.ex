@@ -16,9 +16,12 @@ defmodule TransportWeb.Router do
     plug(:fetch_flash)
     plug(:fetch_live_flash)
     plug(:protect_from_forgery)
-    plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_current_user)
+    plug(:assign_current_contact)
+    plug(TransportWeb.Plugs.PutLocale)
     plug(:assign_datagouv_token)
+    plug(TransportWeb.Plugs.ProducerData)
+    plug(TransportWeb.Plugs.ReuserData)
     plug(:maybe_login_again)
     plug(:assign_mix_env)
     plug(Sentry.PlugContext)
@@ -52,12 +55,10 @@ defmodule TransportWeb.Router do
   end
 
   pipeline :producer_space do
-    plug(:browser)
     plug(:authentication_required, destination_path: "/infos_producteurs")
   end
 
   pipeline :reuser_space do
-    plug(:browser)
     plug(:authentication_required, destination_path: "/infos_reutilisateurs")
   end
 
@@ -75,7 +76,6 @@ defmodule TransportWeb.Router do
 
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through([:browser, :admin_rights])
       forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end
@@ -86,6 +86,14 @@ defmodule TransportWeb.Router do
 
       post("/clear_proxy_config", PageController, :clear_proxy_config)
     end
+
+    scope "/backoffice", Backoffice, as: :backoffice do
+      pipe_through([:browser_no_csp, :authentication_required, :transport_data_gouv_member])
+
+      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/email_preview", EmailPreviewLive)
+      end
+    end
   end
 
   scope "/", TransportWeb do
@@ -95,6 +103,7 @@ defmodule TransportWeb.Router do
     get("/accessibilite", PageController, :accessibility)
     get("/infos_producteurs", PageController, :infos_producteurs)
     get("/infos_reutilisateurs", PageController, :infos_reutilisateurs)
+    get("/nouveautes", PageController, :nouveautes)
     get("/robots.txt", PageController, :robots_txt)
     get("/.well-known/security.txt", PageController, :security_txt)
     get("/humans.txt", PageController, :humans_txt)
@@ -103,8 +112,12 @@ defmodule TransportWeb.Router do
 
     scope "/espace_producteur" do
       pipe_through([:producer_space])
-      get("/", PageController, :espace_producteur)
+      get("/", EspaceProducteurController, :espace_producteur)
       get("/proxy_statistics", EspaceProducteurController, :proxy_statistics)
+      get("/download_statistics", EspaceProducteurController, :download_statistics)
+      get("/proxy_statistics_csv", EspaceProducteurController, :proxy_statistics_csv)
+      get("/download_statistics_csv", EspaceProducteurController, :download_statistics_csv)
+      get("/discussions", EspaceProducteurController, :discussions)
 
       scope "/datasets" do
         get("/:dataset_id/edit", EspaceProducteurController, :edit_dataset)
@@ -359,6 +372,16 @@ defmodule TransportWeb.Router do
   defp assign_current_user(conn, _) do
     # `current_user` is set by TransportWeb.SessionController.user_params_for_session/1
     assign(conn, :current_user, get_session(conn, :current_user))
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: nil}} = conn, _) do
+    assign(conn, :current_contact, nil)
+  end
+
+  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: %{"id" => id}}} = conn, _) do
+    current_contact = DB.Contact |> DB.Repo.get_by!(datagouv_user_id: id) |> DB.Repo.preload(:default_tokens)
+
+    assign(conn, :current_contact, current_contact)
   end
 
   defp assign_datagouv_token(conn, _) do

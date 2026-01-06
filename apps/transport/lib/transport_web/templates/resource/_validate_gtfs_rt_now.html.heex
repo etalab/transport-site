@@ -12,6 +12,8 @@
   <% validation_path =
     live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive,
       type: "gtfs-rt",
+      selected_tile: "public-transit",
+      selected_subtile: "gtfs-rt",
       url: associated_gtfs.url,
       feed_url: DB.Resource.download_url(@resource)
     ) %>

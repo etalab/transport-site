@@ -2,37 +2,66 @@
   padding-top: 24px;
 
   .row {
-    justify-content: stretch;
-    flex-wrap: wrap;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 2em;
 
     &> * {
-      max-width: 22em;
-      margin: 0 var(--space-m) 0 0;
+      margin-top: var(--space-m);
     }
 
     .dataset__panel {
       margin-top: 1em;
     }
   }
+
+  .row > * + * {
+    margin-left: 0;
+  }
+
+  .panel__content {
+    flex-grow: 1;
+  }
+
+  a.button, .button.primary {
+    background-color: var(--primary-color-reuser);
+  }
+
+  .button-outline.primary {
+    color: var(--primary-color-reuser);
+    border-color: var(--primary-color-reuser);
+  }
 }
 
 .reuser-space-section {
   background-color: var(--theme-background-grey);
   min-height: 80vh;
+
+  a.button, .button.primary {
+    background-color: var(--primary-color-reuser);
+  }
 }
 
 .action-panel {
   display: flex;
+  flex-direction: column;
 
   img.picto {
     height: 40px;
+    width: 55px;
     padding-right: 12px;
-    margin-top: -5px;
+    vertical-align: middle;
   }
 
-  a.button {
-    background-color: var(--primary-color-reuser);
+  .action-text {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .action-button {
+    margin: var(--space-xs) auto 0 auto;
   }
 }
 
@@ -50,7 +79,7 @@ form.search-followed-datasets {
   }
 }
 
-.align-right {
+.align-right, td.align-right {
   text-align: right;
 }
 
@@ -67,4 +96,44 @@ a.button.reuser-space {
 
 a.no-bg:hover {
   background: none;
+}
+
+th.action-column {
+  width: 175px;
+}
+
+.sorted_table {
+  th {
+    border: 1px solid var(--light-grey);
+  }
+  td {
+    border: 1px solid var(--lighter-grey);
+  }
+  th.sort {
+    padding-right: 20px;
+    position: relative;
+    cursor: pointer;
+
+    &::after {
+      content: '';
+      height: 30px;
+      width: 15px;
+      position: absolute;
+      top: calc(50% - 15px);
+      right: 0;
+      background: url('/images/icons/unsorted.svg');
+      background-size: cover;
+      margin-right: 15px;
+    }
+
+    &.asc::after {
+      background: url('/images/icons/sorted_asc.svg');
+      background-size: cover;
+    }
+
+    &.desc::after {
+      background: url('/images/icons/sorted_desc.svg');
+      background-size: cover;
+    }
+  }
 }
