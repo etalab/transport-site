@@ -28,7 +28,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
   :string
   iex> Transport.IRVE.DataFrame.remap_schema_type(:number)
-  {:f, 32}
+  {:f, 64}
   iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean)
   :boolean
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
@@ -47,7 +47,7 @@ defmodule Transport.IRVE.DataFrame do
   def remap_schema_type(input_type, true = _strict) do
     case input_type do
       :geopoint -> :string
-      :number -> {:f, 32}
+      :number -> {:f, 64}
       type -> type
     end
   end
