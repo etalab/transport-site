@@ -1,43 +1,66 @@
-<div class="panel">
-  <div>
-    <%= dgettext("resource", "Feed name:") %>
-    <a href={resource_path(@conn, :details, @resource.id)}><strong><%= @resource.title %></strong></a>
-  </div>
-  <div>
-    <%= dgettext("resource", "Format:") %><span class="label"><%= @resource.format %></span>
+<div class="panel proxy-stats-panel">
+  <div class="proxy-stats-panel__resource-header">
+    <div>
+      <div class="proxy-stats-panel__resource-header-name">
+        <%= dgettext("resource", "Feed name:") %>
+        <a href={resource_path(@conn, :details, @resource.id)}><strong><%= @resource.title %></strong></a>
+      </div>
+      <div>
+        <%= dgettext("resource", "Format:") %> <span class="label"><%= @resource.format %></span>
+      </div>
+    </div>
   </div>
 
-  <h4><%= dgettext("resource", "Proxy requests statistics") %></h4>
+  <% total_proxy = Enum.sum_by(@stats_per_day, & &1.requests_external) %>
+  <% total_upstream = Enum.sum_by(@stats_per_day, & &1.requests_internal) %>
 
-  <table class="table small-padding">
-    <thead>
-      <tr>
-        <th><%= dgettext("resource", "Date") %></th>
-        <th><%= dgettext("resource", "Number of requests served by transport.data.gouv.fr") %></th>
-        <th><%= dgettext("resource", "Number of requests served by the upstream server") %></th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for stats_for_day <- @stats_per_day do %>
+  <div class="proxy-stats-panel__metrics-grid">
+    <div class="proxy-stats-panel__metric-card">
+      <div class="proxy-stats-panel__metric-card-label">
+        <%= dgettext("resource", "Requests served by the proxy") %>
+      </div>
+      <div class="proxy-stats-panel__metric-card-value" data-name="total-proxy">
+        <%= format_number(total_proxy, locale: get_session(@conn, :locale)) %>
+      </div>
+      <div class="proxy-stats-panel__metric-card-period">
+        <%= dgettext("resource", "over the last %{nb} days", nb: @nb_days) %>
+      </div>
+    </div>
+
+    <div class="proxy-stats-panel__metric-card">
+      <div class="proxy-stats-panel__metric-card-label">
+        <%= dgettext("resource", "Requests served by upstream") %>
+      </div>
+      <div class="proxy-stats-panel__metric-card-value" data-name="total-upstream">
+        <%= format_number(total_upstream, locale: get_session(@conn, :locale)) %>
+      </div>
+      <div class="proxy-stats-panel__metric-card-period">
+        <%= dgettext("resource", "over the last %{nb} days", nb: @nb_days) %>
+      </div>
+    </div>
+  </div>
+
+  <details class="proxy-stats-panel__details">
+    <summary>
+      <%= dgettext("resource", "View detailed statistics") %>
+    </summary>
+    <table class="table small-padding">
+      <thead>
         <tr>
-          <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
-          <td><%= format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale)) %></td>
-          <td><%= format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale)) %></td>
+          <th><%= dgettext("resource", "Date") %></th>
+          <th><%= dgettext("resource", "Proxy requests") %></th>
+          <th><%= dgettext("resource", "Upstream requests") %></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <p>
-    <strong>
-      <%= Enum.sum_by(@stats_per_day, & &1.requests_external)
-      |> format_number(locale: get_session(@conn, :locale)) %>
-    </strong>
-    <%= dgettext("resource", "requests served by the proxy over the last %{nb} days", nb: @nb_days) %>
-    <br />
-    <strong>
-      <%= Enum.sum_by(@stats_per_day, & &1.requests_internal)
-      |> format_number(locale: get_session(@conn, :locale)) %>
-    </strong>
-    <%= dgettext("resource", "requests served by the upstream server over the last %{nb} days", nb: @nb_days) %>
-  </p>
+      </thead>
+      <tbody>
+        <%= for stats_for_day <- @stats_per_day do %>
+          <tr>
+            <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
+            <td><%= format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale)) %></td>
+            <td><%= format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale)) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </details>
 </div>

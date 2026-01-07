@@ -339,10 +339,6 @@ msgstr ""
 msgid "Download proxy statistics"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
-msgstr ""
-
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Download download statistics"
 msgstr ""
@@ -458,3 +454,7 @@ msgstr "New features available"
 #, elixir-autogen, elixir-format
 msgid "recent_features"
 msgstr "New features"
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
+msgstr ""
