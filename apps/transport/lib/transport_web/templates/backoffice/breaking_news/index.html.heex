@@ -7,14 +7,14 @@
 
   <%= form_for @conn, backoffice_breaking_news_path(@conn, :update_breaking_news), [class: "no-margin"], fn f -> %>
     <%= label do %>
-      Message à faire apparaitre sur le site <%= text_input(f, :msg, value: Map.get(@current_breaking_news, :msg)) %>
+      Message à faire apparaitre sur le site {text_input(f, :msg, value: Map.get(@current_breaking_news, :msg))}
     <% end %>
 
     <%= label class: "pt-12" do %>
-      Type de message <%= select(f, :level, Ecto.Enum.mappings(DB.BreakingNews, :level),
+      Type de message {select(f, :level, Ecto.Enum.mappings(DB.BreakingNews, :level),
         selected: Map.get(@current_breaking_news, :level, :info)
-      ) %>
+      )}
     <% end %>
-    <%= submit("Envoyer !") %>
+    {submit("Envoyer !")}
   <% end %>
 </div>

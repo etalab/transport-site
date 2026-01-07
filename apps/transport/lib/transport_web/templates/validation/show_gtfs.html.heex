@@ -1,16 +1,16 @@
 <section>
   <div class="container">
     <div class="validation-title">
-      <h2><%= dgettext("validations", "GTFS review report") %></h2>
+      <h2>{dgettext("validations", "GTFS review report")}</h2>
       <p>
-        <%= dgettext("validations", "explanations-gtfs") %>
+        {dgettext("validations", "explanations-gtfs")}
       </p>
       <p>
-        <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
-        <%= dgettext("validations", "during %{retention_days} days",
+        {dgettext("validations", "This report can be shared with")}
+        {link(dgettext("validations", "this permanent link"), to: current_url(@conn))}
+        {dgettext("validations", "during %{retention_days} days",
           retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
-        ) %>.
+        )}.
       </p>
     </div>
   </div>
@@ -19,12 +19,12 @@
     <div class="container">
       <%= unless is_nil(@metadata) do %>
         <div class="panel validation-metadata">
-          <%= render("_resources_details_gtfs.html", metadata: @metadata, conn: @conn, modes: @modes) %>
+          {render("_resources_details_gtfs.html", metadata: @metadata, conn: @conn, modes: @modes)}
         </div>
       <% end %>
 
       <%= if has_errors?(@validation_summary) do %>
-        <%= render("_validation_summary.html",
+        {render("_validation_summary.html",
           validation_summary: @validation_summary,
           severities_count: @severities_count,
           conn: @conn,
@@ -32,29 +32,29 @@
           data_vis: @data_vis,
           token: @token,
           results_adapter: @validator
-        ) %>
+        )}
       <% end %>
 
       <div class="validation-content-details">
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
-            <%= pagination_links(@conn, @issues, [@validation_id],
+            {pagination_links(@conn, @issues, [@validation_id],
               issue_type: @validator.issue_type(@issues.entries),
               token: @token,
               path: &validation_path/4,
               action: :show
-            ) %>
-            <%= render(gtfs_template(@issues), issues: @issues || [], conn: @conn) %>
+            )}
+            {render(gtfs_template(@issues), issues: @issues || [], conn: @conn)}
             <div class="pt-24">
-              <%= pagination_links(@conn, @issues, [@validation_id],
+              {pagination_links(@conn, @issues, [@validation_id],
                 issue_type: @validator.issue_type(@issues.entries),
                 token: @token,
                 path: &validation_path/4,
                 action: :show
-              ) %>
+              )}
             </div>
           <% else %>
-            <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>
+            <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
           <% end %>
         </div>
       </div>
@@ -63,5 +63,5 @@
 </section>
 
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"}) %>
+  {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"})}
 </section>
