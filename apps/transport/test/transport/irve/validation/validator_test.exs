@@ -28,4 +28,12 @@ defmodule Transport.IRVE.ValidatorTest do
       end
     end)
   end
+
+  test "a non-CSV file should raise an error" do
+    with_tmp_file("non-csv-content", fn path ->
+      assert_raise RuntimeError, "the content is likely not a CSV file (extension is .pdf)", fn ->
+        Transport.IRVE.Validator.validate(path, ".pdf")
+      end
+    end)
+  end
 end
