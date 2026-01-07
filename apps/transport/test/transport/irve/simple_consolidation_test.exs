@@ -16,6 +16,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       mock_datagouv_resources()
 
       # Mock HTTP requests for resource content, one is valid, the other is not
+      # Note: this consolidation only downloads resources published by orgs
+      # So it’s 2 calls here (see the mock)
       mock_resource_downloads()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
@@ -37,6 +39,15 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "resource_id" => "another-resource-id",
             "status" => "error_occurred",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+          },
+          %{
+            "dataset_id" => "individual-published-dataset-id",
+            "dataset_title" => "individual-published-dataset-title",
+            "error_message" => "producer is not an organization",
+            "error_type" => "RuntimeError",
+            "resource_id" => "individual-published-resource-id",
+            "status" => "error_occurred",
+            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
           },
           %{
             "dataset_id" => "the-dataset-id",
@@ -64,7 +75,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "66eb51e6e550f0999135a74498441aff9097f480cd0048112c0630475e7e741a"
+        file_content: "c2144823dcbf5d494054a006a9bf607b92ade03295c71dcbf1158df862cd87b3"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -114,13 +125,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert options[:url] ==
                "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=100"
 
-      # Start from factory payload but ensure all datasets have an organization
       payload =
         DB.Factory.IRVE.build_datagouv_page_payload()
-        |> update_in(["data", Access.all(), "organization"], fn
-          nil -> %{"id" => "fallback-org-id", "name" => "fallback-org", "page" => "http://fallback-org"}
-          org -> org
-        end)
 
       %Req.Response{
         status: 200,
