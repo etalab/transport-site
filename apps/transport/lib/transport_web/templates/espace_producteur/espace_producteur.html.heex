@@ -1,30 +1,30 @@
 <div class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :espace_producteur]) %>
+  {breadcrumbs([@conn, :espace_producteur])}
 </div>
 <section class="section section-grey reuser-space producer-space">
   <div class="container">
-    <h1><%= dgettext("espace-producteurs", "Producer space") %></h1>
+    <h1>{dgettext("espace-producteurs", "Producer space")}</h1>
 
-    <%= render("_urgent_issues.html", datasets: @datasets, checks: @checks, conn: @conn, mode: :producer) %>
+    {render("_urgent_issues.html", datasets: @datasets, checks: @checks, conn: @conn, mode: :producer)}
 
-    <h2><%= dgettext("espace-producteurs", "Actions") %></h2>
+    <h2>{dgettext("espace-producteurs", "Actions")}</h2>
     <div class="row">
       <div class="panel action-panel">
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Validate your datasets") %>
+            {dgettext("espace-producteurs", "Validate your datasets")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "Before publishing, you can test your data online and check its validity."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
-            <%= dgettext("espace-producteurs", "Validate a file or a feed") %>
+            {dgettext("espace-producteurs", "Validate a file or a feed")}
           </a>
         </div>
       </div>
@@ -32,18 +32,18 @@
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-publier.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Publish a dataset") %>
+            {dgettext("espace-producteurs", "Publish a dataset")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
-          ) %><a href="https://doc.transport.data.gouv.fr/administration-des-donnees"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
+          )}<a href="https://doc.transport.data.gouv.fr/administration-des-donnees"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
         </div>
         <div class="action-button">
           <a href={dataset_creation_url()} class="button primary">
-            <%= dgettext("espace-producteurs", "Publish a new dataset") %>
+            {dgettext("espace-producteurs", "Publish a new dataset")}
           </a>
         </div>
       </div>
@@ -51,18 +51,18 @@
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-bell.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Receive notifications") %>
+            {dgettext("espace-producteurs", "Receive notifications")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "Receive helpful notifications about the data you publish."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={espace_producteur_path(@conn, :notifications)} class="button primary">
-            <%= dgettext("espace-producteurs", "Manage notifications") %>
+            {dgettext("espace-producteurs", "Manage notifications")}
           </a>
         </div>
       </div>
@@ -70,18 +70,18 @@
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Your proxy statistics") %>
+            {dgettext("espace-producteurs", "Your proxy statistics")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
-            <%= dgettext("espace-producteurs", "See statistics") %>
+            {dgettext("espace-producteurs", "See statistics")}
           </a>
         </div>
       </div>
@@ -89,18 +89,18 @@
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-trend.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Your download statistics") %>
+            {dgettext("espace-producteurs", "Your download statistics")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "Get access to download statistics for your resources."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={espace_producteur_path(@conn, :download_statistics)} class="button primary">
-            <%= dgettext("espace-producteurs", "See statistics") %>
+            {dgettext("espace-producteurs", "See statistics")}
           </a>
         </div>
       </div>
@@ -108,34 +108,34 @@
         <div class="publish-header">
           <h4>
             <img class="picto" src={static_path(@conn, "/images/producteurs/picto-discussions.svg")} alt="" />
-            <%= dgettext("espace-producteurs", "Unanswered discussions") %>
+            {dgettext("espace-producteurs", "Unanswered discussions")}
           </h4>
         </div>
         <div class="action-text">
-          <%= dgettext(
+          {dgettext(
             "espace-producteurs",
             "See unanswered discussions on your datasets."
-          ) %>
+          )}
         </div>
         <div class="action-button">
           <a href={espace_producteur_path(@conn, :discussions)} class="button primary">
-            <%= dgettext("espace-producteurs", "See unanswered discussions") %>
+            {dgettext("espace-producteurs", "See unanswered discussions")}
           </a>
         </div>
       </div>
     </div>
 
-    <h2 class="pt-48"><%= dgettext("espace-producteurs", "Datasets of your organisation") %></h2>
-    <%= live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
+    <h2 class="pt-48">{dgettext("espace-producteurs", "Datasets of your organisation")}</h2>
+    {live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
       session: %{"dataset_ids" => Enum.map(@datasets, & &1.id), "mode" => :producer}
-    ) %>
+    )}
   </div>
   <div class="pt-48 tramway">
     <img src={static_path(@conn, "/images/producteurs/tramway.svg")} alt="" />
   </div>
   <section class="section">
     <div class="container">
-      <h2><%= dgettext("espace-producteurs", "Useful tools and content") %></h2>
+      <h2>{dgettext("espace-producteurs", "Useful tools and content")}</h2>
       <div class="producer-tools-content">
         <div class="panel">
           <div class="left-flex-image">
@@ -145,15 +145,15 @@
               alt=""
             />
             <div>
-              <h4><%= dgettext("espace-producteurs", "Publishing best practices") %></h4>
+              <h4>{dgettext("espace-producteurs", "Publishing best practices")}</h4>
               <p>
-                <%= raw(
+                {raw(
                   dgettext(
                     "espace-producteurs",
                     "Our team maintains a comprehensive documentation",
                     link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
                   )
-                ) %>
+                )}
               </p>
             </div>
           </div>
@@ -163,8 +163,8 @@
   </section>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>

@@ -1,25 +1,25 @@
 <div class="container dataset-page-top">
-  <h2><%= @page_title %></h2>
+  <h2>{@page_title}</h2>
   <p>
-    <%= raw(
+    {raw(
       dgettext("explore", "Consolidated GTFS stops map explanation",
         github_issue_link: ~s(<a href="https://github.com/etalab/transport-site/issues/3167">#3167</a>),
         gtfs_stops_dataset_path: dataset_path(@conn, :details, "arrets-de-transport-en-france"),
         swagger_doc_path: "/swaggerui#/gtfs/API.GTFSStopsController.index"
       )
-    ) %>
+    )}
   </p>
 
   <div class="form__group">
     <%= form_for @conn, explore_path(@conn, :gtfs_stops), [method: "get"], fn f -> %>
       <div class="searchBar">
-        <%= search_input(f, :q,
+        {search_input(f, :q,
           id: "autoComplete",
           class: "no_legend",
           autocomplete: "off",
           placeholder: dgettext("explore", "Search a city"),
           "aria-label": dgettext("explore", "Search a city")
-        ) %>
+        )}
         <div class="autoCompleteResultsField">
           <div id="autoCompleteResults"></div>
         </div>
@@ -31,7 +31,7 @@
 <div id="map" class="explore_map"></div>
 
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "gtfs_stops"}) %>
+  {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "gtfs_stops"})}
 </section>
 
 <script src={static_path(@conn, "/js/gtfs.js")}>

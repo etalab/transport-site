@@ -67,7 +67,7 @@ defmodule TransportWeb.LayoutView do
       class={class}
       aria-label={dngettext("default", "%{count} notification count", "%{count} notifications count", @count)}
     >
-      <%= @count %>
+      {@count}
     </span>
     """
   end

@@ -452,7 +452,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"div", [{"class", "pb-24"}],
                    [
                      {"a", [{"href", resource_path(conn, :details, resource.id) <> "#validation-report"}],
-                      [{"span", [{"class", "resource__summary--Success"}], ["\n\nPas d'erreur\n\n      "]}]},
+                      [{"span", [{"class", "resource__summary--Success"}], ["\n\n          Pas d'erreur\n\n      "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -509,7 +509,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                      {"a",
                       [
                         {"href", resource_path(conn, :details, resource.id) <> "#validation-report"}
-                      ], [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n1 erreur\n\n        "]}]},
+                      ],
+                      [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n            1 erreur\n\n        "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -1349,7 +1350,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"td", [{"rowspan", "1"}], [dataset.custom_title]},
                         {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
-                        {"td", [], ["\n2 000\n                "]}
+                        {"td", [], ["\n                  2 000\n                "]}
                       ]}
                    ]}
                 ]}
@@ -1408,7 +1409,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                         {"td", [{"rowspan", "1"}],
                          [
                            {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-                            [{"i", [{"class", "fa fa-external-link"}], []}, "\nHello\n                  "]}
+                            [
+                              {"i", [{"class", "fa fa-external-link"}], []},
+                              "\n                    Hello\n                  "
+                            ]}
                          ]},
                         {"td", [], ["Discussion title"]},
                         {"td", [],
@@ -1422,7 +1426,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                               {"data-tracking-category", "espace_producteur"},
                               {"data-tracking-action", "unanswered_discussion_button"}
                             ],
-                            [{"i", [{"class", "icon fas fa-comments"}], []}, "\nVoir la discussion\n                  "]}
+                            [
+                              {"i", [{"class", "icon fas fa-comments"}], []},
+                              "\n                    Voir la discussion\n                  "
+                            ]}
                          ]}
                       ]}
                    ]}

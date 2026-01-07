@@ -11,45 +11,45 @@
     show_mobilitydata_gtfs_validation
   ]) %>
 
-<h2 id="validation-report"><%= dgettext("validations", "Validation details") %></h2>
+<h2 id="validation-report">{dgettext("validations", "Validation details")}</h2>
 
 <%= if show_schema_validation do %>
-  <%= render("_validation_report_schema.html", resource: @resource, conn: @conn, validation: @validation) %>
+  {render("_validation_report_schema.html", resource: @resource, conn: @conn, validation: @validation)}
 <% end %>
 
 <%= if show_gtfs_rt_validation do %>
-  <%= render("_validation_report_gtfs_rt.html",
+  {render("_validation_report_gtfs_rt.html",
     resource: @resource,
     conn: @conn,
     validation: @validation,
     latest_validations_details: @latest_validations_details
-  ) %>
+  )}
 <% end %>
 
 <%= if show_gbfs_validation do %>
-  <%= render("_validation_report_gbfs.html", resource: @resource, conn: @conn, validation: @validation) %>
+  {render("_validation_report_gbfs.html", resource: @resource, conn: @conn, validation: @validation)}
 <% end %>
 
 <%= if show_mobilitydata_gtfs_validation do %>
-  <%= render("_validation_report_mobilitydata_gtfs.html",
+  {render("_validation_report_mobilitydata_gtfs.html",
     resource: @resource,
     conn: @conn,
     validation: @validation,
     file_url: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
     locale: get_session(@conn, :locale)
-  ) %>
+  )}
 <% end %>
 
 <%= if show_no_validation do %>
   <div class="panel">
     <div>
-      <%= dgettext("validations", "No validation available") %>
+      {dgettext("validations", "No validation available")}
     </div>
     <%= if DB.Resource.gtfs_rt?(@resource) do %>
-      <%= render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource, validation: @validation) %>
+      {render("_validate_gtfs_rt_now.html", conn: @conn, resource: @resource, validation: @validation)}
     <% end %>
     <%= if DB.Resource.gbfs?(@resource) do %>
-      <%= render("_validate_gbfs_now.html", conn: @conn, resource: @resource) %>
+      {render("_validate_gbfs_now.html", conn: @conn, resource: @resource)}
     <% end %>
   </div>
 <% end %>

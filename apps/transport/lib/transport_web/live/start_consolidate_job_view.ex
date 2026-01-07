@@ -6,7 +6,7 @@ defmodule TransportWeb.Live.SendConsolidateJobView do
   def render(assigns) do
     ~H"""
     <button class={@button_class} phx-click="dispatch_job" disabled={@button_disabled}>
-      <%= @button_text %>
+      {@button_text}
     </button>
     """
   end

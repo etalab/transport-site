@@ -36,7 +36,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
                 {"data-phx-active-refs", ""},
                 {"data-phx-done-refs", ""},
                 {"data-phx-preflighted-refs", ""},
-                {"data-phx-auto-upload", "data-phx-auto-upload"}
+                {"data-phx-auto-upload", ""}
               ], []}
            ] = render(view) |> Floki.parse_document!() |> Floki.find(~s|input[type="file"]|)
 
@@ -103,7 +103,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
 
     # Hidden inputs are present
     assert [
-             {"input", [{"name", "_csrf_token"}, {"type", "hidden"}, {"hidden", "hidden"}, {"value", _}], []},
+             {"input", [{"name", "_csrf_token"}, {"type", "hidden"}, {"hidden", ""}, {"value", _}], []},
              {"input", [{"type", "hidden"}, {"name", "resource_file[filename]"}, {"value", "gtfs.zip"}], []},
              {"input", [{"type", "hidden"}, {"name", "resource_file[path]"}, {"value", _}], []}
            ] = content |> Floki.find(~s|input[type="hidden"]|)
@@ -179,7 +179,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
     view |> element(~s|[phx-click="start_again"]|) |> render_click()
 
     refute view |> has_element?(".notification")
-    assert view |> has_element?(~s|input[type="file"|)
+    assert view |> has_element?(~s|input[type="file"]|)
   end
 
   test "validating a GTFS with a link", %{conn: conn} do
@@ -198,13 +198,13 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
     form = view |> element("form")
 
     render_change(form, %{_target: ["form[url]"], form: %{url: "https"}})
-    refute view |> has_element?(~s|a[phx-click="start-validation]|)
+    refute view |> has_element?(~s|a[phx-click="start-validation"]|)
 
     url = "https://example.com/file"
     render_change(form, %{_target: ["form[url]"], form: %{url: url}})
-    assert view |> has_element?(~s|a[phx-click="start-validation]|)
+    assert view |> has_element?(~s|a[phx-click="start-validation"]|)
 
-    view |> element(~s|a[phx-click="start-validation]|) |> render_click()
+    view |> element(~s|a[phx-click="start-validation"]|) |> render_click()
 
     content = render(view)
 
@@ -352,7 +352,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
                   {"data-phx-active-refs", ""},
                   {"data-phx-done-refs", ""},
                   {"data-phx-preflighted-refs", ""},
-                  {"data-phx-auto-upload", "data-phx-auto-upload"}
+                  {"data-phx-auto-upload", ""}
                 ], []}
              ] = render(view) |> Floki.parse_document!() |> Floki.find(~s|input[type="file"]|)
     end
@@ -374,7 +374,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
 
       view |> element("form") |> render_change(%{_target: ["form[url]"], form: %{url: "https://example.com/file"}})
 
-      assert view |> has_element?(~s|a[phx-click="start-validation]|)
+      assert view |> has_element?(~s|a[phx-click="start-validation"]|)
     end
   end
 

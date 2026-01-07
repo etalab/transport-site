@@ -1,5 +1,5 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :proxy_statistics]) %>
+  {breadcrumbs([@conn, :proxy_statistics])}
 </section>
 <section class="producer-actions">
   <div class="container">
@@ -19,7 +19,7 @@
     </div>
     <div class="panel">
       <p>
-        <%= dgettext(
+        {dgettext(
           "espace-producteurs",
           "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
         ) %>
@@ -31,12 +31,12 @@
             <%= link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug)) %>
           </h3>
           <%= for resource <- resources_served_by_proxy do %>
-            <%= render("_proxy_requests_stats.html",
+            {render("_proxy_requests_stats.html",
               conn: @conn,
               resource: resource,
               stats_per_day: Map.fetch!(@proxy_stats, resource.id),
               nb_days: @proxy_requests_stats_nb_days
-            ) %>
+            )}
           <% end %>
         <% end %>
       <% end %>
@@ -44,8 +44,8 @@
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>

@@ -30,9 +30,9 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
       )
       |> live()
 
-    assert view |> element(~s{[name="config[endpoint_url]"}) |> render() =~ ~s(value="#{endpoint_url}")
-    assert view |> element(~s{[name="config[requestor_ref]"}) |> render() =~ ~s(value="#{requestor_ref}")
-    assert view |> element(~s{[name="config[query_template]"}) |> render() =~ ~s(value="#{query_template}")
+    assert view |> element(~s{[name="config[endpoint_url]"]}) |> render() =~ ~s(value="#{endpoint_url}")
+    assert view |> element(~s{[name="config[requestor_ref]"]}) |> render() =~ ~s(value="#{requestor_ref}")
+    assert view |> element(~s{[name="config[query_template]"]}) |> render() =~ ~s(value="#{query_template}")
   end
 
   test "clicking on generate and then execute", %{conn: conn} do
@@ -57,12 +57,12 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     )
 
     # Form has the "Generate" button but not the "Execute" one
-    assert view |> has_element?(~s{button[phx-click="generate_query"})
-    refute view |> has_element?(~s{button[phx-click="execute_query"})
+    assert view |> has_element?(~s{button[phx-click="generate_query"]})
+    refute view |> has_element?(~s{button[phx-click="execute_query"]})
 
     # Clicking on "Generate" makes the "Execute" button show up
-    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
-    assert view |> has_element?(~s{button[phx-click="execute_query"})
+    view |> element(~s{button[phx-click="generate_query"]}) |> render_click()
+    assert view |> has_element?(~s{button[phx-click="execute_query"]})
 
     # SIRI query is displayed
     assert view |> has_element?("#query_code_wrapper")
@@ -105,7 +105,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
        }}
     end)
 
-    view |> element(~s{button[phx-click="execute_query"}) |> render_click()
+    view |> element(~s{button[phx-click="execute_query"]}) |> render_click()
     assert view |> has_element?("#response_code_wrapper")
     assert view |> render() =~ "HTTP status 200"
     assert view |> render() =~ "Content-Type: text/xml"
@@ -117,7 +117,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
       {:error, %HTTPoison.Error{reason: "Got an error"}}
     end)
 
-    view |> element(~s{button[phx-click="execute_query"}) |> render_click()
+    view |> element(~s{button[phx-click="execute_query"]}) |> render_click()
     refute view |> has_element?("#response_code_wrapper")
     assert view |> has_element?("#siri_response_error")
     assert view |> element("#siri_response_error") |> render() =~ "Got an error"
@@ -137,7 +137,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
        }}
     end)
 
-    view |> element(~s{button[phx-click="execute_query"}) |> render_click()
+    view |> element(~s{button[phx-click="execute_query"]}) |> render_click()
 
     assert view |> element("#siri_response_wrapper") |> render() =~
              ~s(<input type="hidden" value="#{expected_utf8_conversion}" data-code="response_code_id")
@@ -196,7 +196,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     end)
 
     # Clicking on "Generate" makes the "Execute" button show up
-    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+    view |> element(~s{button[phx-click="generate_query"]}) |> render_click()
 
     # The payload should come back
     assert view
@@ -261,7 +261,7 @@ defmodule TransportWeb.SIRIQuerierLiveTest do
     end)
 
     # Clicking on "Generate" makes the "Execute" button show up
-    view |> element(~s{button[phx-click="generate_query"}) |> render_click()
+    view |> element(~s{button[phx-click="generate_query"]}) |> render_click()
 
     # The payload should come back
     assert view
