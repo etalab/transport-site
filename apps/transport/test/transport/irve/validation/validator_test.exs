@@ -79,4 +79,20 @@ defmodule Transport.IRVE.ValidatorTest do
       end
     end)
   end
+
+  test "A file latin1 encoded should be validated correctly" do
+    simple_row =
+      DB.Factory.IRVE.generate_row(%{
+        # The € character can’t be transcoded in latin1
+        "tarification" => "2,50 EUR / 30min puis 0,025 EUR / minute"
+      })
+
+    csv_content = [simple_row] |> DB.Factory.IRVE.to_csv_body()
+    latin1_content = :unicode.characters_to_binary(csv_content, :utf8, :latin1)
+
+    with_tmp_file(latin1_content, fn path ->
+      result = Transport.IRVE.Validator.validate(path)
+      assert Transport.IRVE.Validator.full_file_valid?(result)
+    end)
+  end
 end
