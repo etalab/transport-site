@@ -95,4 +95,42 @@ defmodule Transport.IRVE.ValidatorTest do
       assert Transport.IRVE.Validator.full_file_valid?(result)
     end)
   end
+
+  test "A file with a semicolon as separator should be validated correctly" do
+    csv_content =
+      [DB.Factory.IRVE.generate_row()]
+      |> CSV.encode(separator: ?;, headers: true)
+      |> Enum.join()
+
+    with_tmp_file(csv_content, fn path ->
+      result = Transport.IRVE.Validator.validate(path)
+      assert Transport.IRVE.Validator.full_file_valid?(result)
+    end)
+  end
+
+  test "A file with a missing optional column should be validated correctly" do
+    csv_content =
+      [
+        DB.Factory.IRVE.generate_row() |> Map.delete("tarification")
+      ]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      result = Transport.IRVE.Validator.validate(path)
+      assert Transport.IRVE.Validator.full_file_valid?(result)
+    end)
+  end
+
+  test "A file with a faulty boolean should be validated correctly" do
+    csv_content =
+      [
+        DB.Factory.IRVE.generate_row(%{"prise_type_ef" => "VRAI"})
+      ]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      result = Transport.IRVE.Validator.validate(path)
+      assert Transport.IRVE.Validator.full_file_valid?(result)
+    end)
+  end
 end
