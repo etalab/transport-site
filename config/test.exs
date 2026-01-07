@@ -163,4 +163,4 @@ config :sentry,
   csp_url: ""
 
 config :phoenix_live_view,
- enable_expensive_runtime_checks: true
+  enable_expensive_runtime_checks: true
