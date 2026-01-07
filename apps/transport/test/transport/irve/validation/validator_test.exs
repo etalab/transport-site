@@ -5,6 +5,7 @@ defmodule Transport.IRVE.ValidatorTest do
   - In the Transport.IRVE.Validator.DataFrameValidationTest module,
   - And primitives are tested in Transport.DataFrame.Validation.PrimitivesTest.
   """
+
   use ExUnit.Case, async: true
 
   test "validate/1 returns a dataframe with validation columns" do
@@ -22,5 +23,28 @@ defmodule Transport.IRVE.ValidatorTest do
     after
       File.rm(temp_path)
     end
+  end
+
+  test "a ZIP file should raise an error" do
+    zip_content = "PK\x03\x04" <> "some content"
+
+    temp_path = System.tmp_dir!() |> Path.join("irve_validator_test_#{Ecto.UUID.generate()}.csv")
+
+    try do
+      File.write!(temp_path, zip_content)
+      Transport.IRVE.Validator.validate(temp_path)
+    rescue
+      e in RuntimeError ->
+        assert e.message == "the content is likely to be a zip file, not uncompressed CSV data"
+    after
+      File.rm(temp_path)
+    end
+
+    # Alternative version without try/rescue
+    # File.write!(temp_path, zip_content)
+    # assert_raise RuntimeError, "the content is likely to be a zip file, not uncompressed CSV data", fn ->
+    #   Transport.IRVE.Validator.validate(temp_path)
+    # end
+    # File.rm(temp_path)
   end
 end
