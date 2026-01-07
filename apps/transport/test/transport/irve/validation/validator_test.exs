@@ -37,7 +37,7 @@ defmodule Transport.IRVE.ValidatorTest do
     end)
   end
 
-  test "A schema V1 file should raise an error" do
+  test "A schema V1 file should raise an error" do
     v1_like_row =
       DB.Factory.IRVE.generate_row()
       |> Map.put("n_operateur", Map.get(DB.Factory.IRVE.generate_row(), "nom_operateur"))
@@ -47,6 +47,21 @@ defmodule Transport.IRVE.ValidatorTest do
 
     with_tmp_file(csv_content, fn path ->
       assert_raise RuntimeError, "looks like a v1 irve", fn ->
+        Transport.IRVE.Validator.validate(path)
+      end
+    end)
+  end
+
+  test "A schema without id_pdc_itinerance should raise an error" do
+    v1_like_row =
+      DB.Factory.IRVE.generate_row()
+      |> Map.put("id_pdc", Map.get(DB.Factory.IRVE.generate_row(), "id_pdc_itinerance"))
+      |> Map.delete("id_pdc_itinerance")
+
+    csv_content = [v1_like_row] |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      assert_raise RuntimeError, "content has no id_pdc_itinerance in first line", fn ->
         Transport.IRVE.Validator.validate(path)
       end
     end)
