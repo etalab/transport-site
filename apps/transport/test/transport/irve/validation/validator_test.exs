@@ -52,7 +52,7 @@ defmodule Transport.IRVE.ValidatorTest do
     end)
   end
 
-  test "A schema without id_pdc_itinerance should raise an error" do
+  test "A file without id_pdc_itinerance should raise an error" do
     v1_like_row =
       DB.Factory.IRVE.generate_row()
       |> Map.put("id_pdc", Map.get(DB.Factory.IRVE.generate_row(), "id_pdc_itinerance"))
@@ -62,6 +62,19 @@ defmodule Transport.IRVE.ValidatorTest do
 
     with_tmp_file(csv_content, fn path ->
       assert_raise RuntimeError, "content has no id_pdc_itinerance in first line", fn ->
+        Transport.IRVE.Validator.validate(path)
+      end
+    end)
+  end
+
+  test "A file with a tabulation as separator should raise an error" do
+    csv_content =
+      [DB.Factory.IRVE.generate_row()]
+      |> CSV.encode(separator: ?\t, delimiter: "\n", headers: true)
+      |> Enum.join()
+
+    with_tmp_file(csv_content, fn path ->
+      assert_raise RuntimeError, "unsupported column separator \t", fn ->
         Transport.IRVE.Validator.validate(path)
       end
     end)
