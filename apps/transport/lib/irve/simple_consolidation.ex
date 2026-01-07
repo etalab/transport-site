@@ -42,6 +42,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def maybe_log_items(stream) do
     if System.get_env("DEBUG") == "1" do
       stream
+      # credo:disable-for-next-line Credo.Check.Warning.IoInspect
       |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
     else
       stream
@@ -95,6 +96,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     if System.get_env("DEBUG") == "1" do
       report_df["status"]
       |> Explorer.Series.frequencies()
+      # credo:disable-for-next-line Credo.Check.Warning.IoInspect
       |> IO.inspect(IEx.inspect_opts())
     end
 
