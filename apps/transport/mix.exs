@@ -25,7 +25,8 @@ defmodule Transport.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      compilers: [:phoenix_live_view] ++ Mix.compilers()
     ]
   end
 
@@ -60,13 +61,13 @@ defmodule Transport.Mixfile do
       {:earmark, "~> 1.4"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 2.1"},
-      {:phoenix, "~> 1.7.0"},
+      {:phoenix, "~> 1.8.3"},
       {:phoenix_html, "~> 3.1"},
       # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
       {:phoenix_markdown,
        git: "https://github.com/pzingg/phoenix_markdown.git",
        ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
-      {:phoenix_live_view, "~> 0.20.14"},
+      {:phoenix_live_view, "~> 1.1.19"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0"},
       {:plug_cowboy, "~> 2.3"},
@@ -127,8 +128,7 @@ defmodule Transport.Mixfile do
       {:ecto_sql, "~> 3.12"},
       {:postgrex, "~> 0.20.0"},
       {:geo_postgis, "~> 3.4"},
-      {:ecto_interval, github: "AntoineAugusti/ecto_interval", branch: "patch-1"},
-      {:scrivener_ecto, "~> 2.7.0"},
+      {:scrivener_ecto, "~> 3.1.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
       {:ex_machina, "~> 2.4", only: :test},
@@ -157,7 +157,8 @@ defmodule Transport.Mixfile do
       {:mock, "~> 0.3.6", only: :test},
       {:vex, "~> 0.9"},
       {:oauth2, "~> 2.1"},
-      {:logger_backends, "~> 1.0"}
+      {:logger_backends, "~> 1.0"},
+      {:lazy_html, ">= 0.1.0", only: :test}
     ]
   end
 end

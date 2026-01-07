@@ -135,7 +135,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     assert [
              {"select", [{"id", "backoffice_search_container_type"}, {"name", "type"}],
               [
-                {"option", [{"selected", "selected"}, {"value", ""}], ["Tout"]},
+                {"option", [{"selected", ""}, {"value", ""}], ["Tout"]},
                 {"option", [{"value", "Aggregate"}], ["Aggregate"]},
                 {"option", [{"value", "HTTP"}], ["HTTP"]},
                 {"option", [{"value", "S3"}], ["S3"]},

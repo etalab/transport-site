@@ -1,24 +1,24 @@
 <table class="table netex_generic_issue">
   <tr>
-    <th><%= dgettext("validations-explanations", "Message") %></th>
-    <th><%= dgettext("validations-explanations", "Location") %></th>
+    <th>{dgettext("validations-explanations", "Message")}</th>
+    <th>{dgettext("validations-explanations", "Location")}</th>
   </tr>
 
   <%= for issue <- @issues do %>
     <tr class="message">
-      <td><%= issue["message"] %></td>
+      <td>{issue["message"]}</td>
       <td>
         <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
-          <%= dgettext("validations-explanations", "Unknown location") %>
+          {dgettext("validations-explanations", "Unknown location")}
         <% else %>
-          <%= issue["resource"]["filename"] %>:<%= issue["resource"]["line"] %>
+          {issue["resource"]["filename"]}:{issue["resource"]["line"]}
         <% end %>
       </td>
     </tr>
     <tr class="debug">
       <td colspan="2">
         <details>
-          <summary><%= dgettext("validations-explanations", "Details for debugging purposes") %></summary>
+          <summary>{dgettext("validations-explanations", "Details for debugging purposes")}</summary>
           <pre><code><%= to_string(Jason.encode!(issue, pretty: true)) %></code></pre>
         </details>
       </td>

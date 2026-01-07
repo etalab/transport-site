@@ -23,7 +23,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
   def espace_producteur(%Plug.Conn{} = conn, _params) do
     {conn, datasets} =
-      case conn.assigns.datasets_for_user do
+      case Map.get(conn.assigns, :datasets_for_user, []) do
         datasets when is_list(datasets) ->
           {conn, datasets}
 
@@ -45,13 +45,15 @@ defmodule TransportWeb.EspaceProducteurController do
     Enum.map(datasets_for_user, & &1.id) |> Enum.zip(datasets_checks) |> Map.new()
   end
 
+  defp datasets_checks(%Plug.Conn{}), do: %{}
+
   def edit_dataset(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset}} = conn, %{"dataset_id" => _}) do
     # Awkard page, but no real choice: some parts (logo…) are from the local database
     # While resources list is from the API
     # Producer wants to edit the dataset and has perhaps just done it: we need fresh info
     conn
     |> assign(:dataset, dataset |> DB.Repo.preload(reuser_improved_data: [:resource]))
-    |> assign(:checks, datasets_checks(conn) |> Map.filter(fn {dataset_id, _check} -> dataset_id == dataset.id end))
+    |> assign(:checks, dataset_check(conn, dataset))
     |> assign(
       :latest_validation,
       DB.MultiValidation.dataset_latest_validation(
@@ -60,6 +62,10 @@ defmodule TransportWeb.EspaceProducteurController do
       )
     )
     |> render("edit_dataset.html")
+  end
+
+  defp dataset_check(%Plug.Conn{} = conn, %DB.Dataset{} = dataset) do
+    datasets_checks(conn) |> Map.filter(fn {dataset_id, _check} -> dataset_id == dataset.id end)
   end
 
   def reuser_improved_data(%Plug.Conn{assigns: %{dataset: %DB.Dataset{id: dataset_id}}} = conn, %{

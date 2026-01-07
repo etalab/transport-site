@@ -1,22 +1,22 @@
 <% show_recent_features = Date.utc_today().day in 1..7 %>
 <div :if={show_urgent_issues?(@checks) or show_recent_features} data-name="urgent-issues">
-  <h2 :if={@mode == :producer}><%= dgettext("espace-producteurs", "Urgent issues on your resources") %></h2>
-  <h2 :if={@mode == :reuser}><%= dgettext("reuser-space", "Urgent issues on resources you follow") %></h2>
+  <h2 :if={@mode == :producer}>{dgettext("espace-producteurs", "Urgent issues on your resources")}</h2>
+  <h2 :if={@mode == :reuser}>{dgettext("reuser-space", "Urgent issues on resources you follow")}</h2>
   <div class="panel">
-    <p><%= dgettext("espace-producteurs", "The following urgent resource issues require your attention.") %></p>
+    <p>{dgettext("espace-producteurs", "The following urgent resource issues require your attention.")}</p>
     <table class="table small-padding sorted_table">
       <thead>
         <tr>
-          <th class="sort"><%= dgettext("espace-producteurs", "Dataset") %></th>
-          <th><%= dgettext("espace-producteurs", "Resource") %></th>
-          <th class="sort"><%= dgettext("espace-producteurs", "Issue") %></th>
-          <th class="action-column"><%= dgettext("espace-producteurs", "Actions") %></th>
+          <th class="sort">{dgettext("espace-producteurs", "Dataset")}</th>
+          <th>{dgettext("espace-producteurs", "Resource")}</th>
+          <th class="sort">{dgettext("espace-producteurs", "Issue")}</th>
+          <th class="action-column">{dgettext("espace-producteurs", "Actions")}</th>
         </tr>
       </thead>
       <tbody>
         <tr :if={show_recent_features}>
-          <td colspan="2"><%= dgettext("espace-producteurs", "New features available") %></td>
-          <td><%= dgettext("espace-producteurs", "recent_features") %></td>
+          <td colspan="2">{dgettext("espace-producteurs", "New features available")}</td>
+          <td>{dgettext("espace-producteurs", "recent_features")}</td>
           <td>
             <a
               href={page_path(@conn, :nouveautes)}
@@ -24,7 +24,7 @@
               data-tracking-category="espace_producteur"
               data-tracking-action="urgent_issues_see_recent_features_button"
             >
-              <i class="icon fas fa-star"></i><%= dgettext("espace-producteurs", "Discover new features") %>
+              <i class="icon fas fa-star"></i>{dgettext("espace-producteurs", "Discover new features")}
             </a>
           </td>
         </tr>

@@ -84,6 +84,11 @@ config :oauth2, Datagouvfr.Authentication,
 # Add a dev.secret.exs to use a real email provider
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Local
 
+config :phoenix_live_view,
+  debug_heex_annotations: true,
+  debug_attributes: true,
+  enable_expensive_runtime_checks: true
+
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do

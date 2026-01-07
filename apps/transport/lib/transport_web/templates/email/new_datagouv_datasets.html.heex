@@ -1,14 +1,14 @@
 <p>Bonjour,</p>
 
 <p>
-  Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières <%= @duration %>h et sont susceptibles d'avoir leur place sur le PAN :
+  Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières {@duration}h et sont susceptibles d'avoir leur place sur le PAN :
 </p>
 <ul>
-  <%= raw(@list) %>
+  {raw(@list)}
 </ul>
 <br />
 <hr />
-<%= @rule_explanation %>
+{raw(@rule_explanation)}
 <p>
   Vous pouvez modifier <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex">les règles de cette tâche</a>.
 </p>

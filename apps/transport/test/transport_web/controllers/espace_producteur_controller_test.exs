@@ -114,6 +114,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              ]
     end
 
+    test "when user is not a producer", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      conn
+      |> init_test_session(%{"is_producer" => false, "current_user" => %{"id" => contact.datagouv_user_id}})
+      |> get(espace_producteur_path(conn, :espace_producteur))
+      |> html_response(200)
+    end
+
     test "with an OAuth2 error", %{conn: conn} do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
@@ -443,7 +452,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"div", [{"class", "pb-24"}],
                    [
                      {"a", [{"href", resource_path(conn, :details, resource.id) <> "#validation-report"}],
-                      [{"span", [{"class", "resource__summary--Success"}], ["\n\nPas d'erreur\n\n      "]}]},
+                      [{"span", [{"class", "resource__summary--Success"}], ["\n\n          Pas d'erreur\n\n      "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -500,7 +509,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                      {"a",
                       [
                         {"href", resource_path(conn, :details, resource.id) <> "#validation-report"}
-                      ], [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n1 erreur\n\n        "]}]},
+                      ],
+                      [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n            1 erreur\n\n        "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -768,8 +778,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques du proxy Transport"])
 
       assert html =~ "Statistiques des requêtes gérées par le proxy"
-      assert html =~ "<strong>\n2\n    </strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
-      assert html =~ "<strong>\n1\n    </strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
+      assert html =~ "<strong>\n      2\n    </strong>\n    requêtes gérées par le proxy au cours des 15 derniers jours"
+
+      assert html =~
+               "<strong>\n      1\n    </strong>\n    requêtes transmises au serveur source au cours des 15 derniers jours"
     end
   end
 
@@ -1405,7 +1417,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                         {"td", [{"rowspan", "1"}],
                          [
                            {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-                            [{"i", [{"class", "fa fa-external-link"}], []}, "\nHello\n                  "]}
+                            [
+                              {"i", [{"class", "fa fa-external-link"}], []},
+                              "\n                    Hello\n                  "
+                            ]}
                          ]},
                         {"td", [], ["Discussion title"]},
                         {"td", [],
@@ -1419,7 +1434,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                               {"data-tracking-category", "espace_producteur"},
                               {"data-tracking-action", "unanswered_discussion_button"}
                             ],
-                            [{"i", [{"class", "icon fas fa-comments"}], []}, "\nVoir la discussion\n                  "]}
+                            [
+                              {"i", [{"class", "icon fas fa-comments"}], []},
+                              "\n                    Voir la discussion\n                  "
+                            ]}
                          ]}
                       ]}
                    ]}

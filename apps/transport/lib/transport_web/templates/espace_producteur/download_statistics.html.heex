@@ -1,15 +1,15 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :download_statistics]) %>
+  {breadcrumbs([@conn, :download_statistics])}
 </section>
 <section class="producer-actions">
   <div class="container">
-    <h2><%= dgettext("espace-producteurs", "Download statistics") %></h2>
+    <h2>{dgettext("espace-producteurs", "Download statistics")}</h2>
     <div class="panel">
       <p>
-        <%= dgettext(
+        {dgettext(
           "espace-producteurs",
           "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
-        ) %>
+        )}
       </p>
       <table class="table small-padding">
         <thead>
@@ -26,8 +26,8 @@
               dataset.resources |> Enum.filter(&DB.Resource.hosted_on_datagouv?/1) |> Enum.sort_by(& &1.title) %>
             <%= for {resource, index} <- Enum.with_index(resources) do %>
               <tr>
-                <td :if={index == 0} rowspan={Enum.count(resources)}><%= dataset.custom_title %></td>
-                <td><%= resource.title %> <span class="label"><%= resource.format %></span></td>
+                <td :if={index == 0} rowspan={Enum.count(resources)}>{dataset.custom_title}</td>
+                <td>{resource.title} <span class="label">{resource.format}</span></td>
                 <td>
                   <%= format_number(@download_stats_previous_year[resource.datagouv_id] || 0,
                     locale: get_session(@conn, :locale)
@@ -48,18 +48,18 @@
           data-tracking-category="espace_producteur"
           data-tracking-action="download_statistics_csv"
         >
-          <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+          <i class="icon icon--download" aria-hidden="true"></i>{dgettext(
             "espace-producteurs",
             "Download download statistics"
-          ) %>
+          )}
         </a>
       </div>
     </div>
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>

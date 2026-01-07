@@ -1,18 +1,18 @@
 <p :if={experimental?(@dataset)} class="notification warning mt-0">
-  ⚠️ <%= dgettext(
+  ⚠️ {dgettext(
     "page-dataset-details",
     "This unofficial dataset is provided experimentally. Do not use it for travel information purpose."
-  ) %>
+  )}
 </p>
 <p :if={seasonal_warning?(@dataset)} class="notification mt-0">
-  ℹ️ <%= dgettext(
+  ℹ️ {dgettext(
     "page-dataset-details",
     "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."
-  ) %>
+  )}
 </p>
 <p :if={authentication_required?(@dataset)} class="notification mt-0">
-  ℹ️ <%= dgettext(
+  ℹ️ {dgettext(
     "page-dataset-details",
     "The producer requires authentication to access the data. Consequently, some features on transport.data.gouv.fr, such as data availability, validations, and metadata, are unavailable for this dataset. Please follow the producer's instructions to gain access to the data."
-  ) %>
+  )}
 </p>

@@ -2,16 +2,16 @@
   <div class="container documentation">
     <nav :if={@menu_items} class="side-pane" role="navigation">
       <li class="side-pane__title">
-        <h3><%= @menu_title %></h3>
+        <h3>{@menu_title}</h3>
       </li>
       <ul class="side-pane__menu">
         <%= for {h2, index} <- Enum.with_index(@menu_items) do %>
           <% class = if index == 0, do: "side-pane__dropdown unfolded", else: "side-pane__dropdown folded" %>
           <li class={class}>
-            <a><%= h2.title %></a>
+            <a>{h2.title}</a>
             <ul :if={h2.sub_items != []} class="side-pane__submenu">
               <li :for={sub <- h2.sub_items}>
-                <a href={"##{sub.id}"}><%= sub.title %></a>
+                <a href={"##{sub.id}"}>{sub.title}</a>
               </li>
             </ul>
           </li>
@@ -20,9 +20,9 @@
     </nav>
     <article class="panel">
       <%= if @content do %>
-        <%= raw(@content) %>
+        {raw(@content)}
       <% else %>
-        <%= render(@page, assigns) %>
+        {render(@page, assigns)}
       <% end %>
     </article>
   </div>
