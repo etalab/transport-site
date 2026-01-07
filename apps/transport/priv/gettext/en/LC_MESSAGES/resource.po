@@ -84,27 +84,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Size:"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Proxy requests"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Requests served by the proxy"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Requests served by upstream"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Upstream requests"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "View detailed statistics"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "over the last %{nb} days"
-msgstr ""

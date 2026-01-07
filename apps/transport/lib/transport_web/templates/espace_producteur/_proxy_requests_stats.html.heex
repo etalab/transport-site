@@ -17,39 +17,39 @@
   <div class="proxy-stats-panel__metrics-grid">
     <div class="proxy-stats-panel__metric-card">
       <div class="proxy-stats-panel__metric-card-label">
-        <%= dgettext("resource", "Requests served by the proxy") %>
+        <%= dgettext("espace-producteurs", "Requests served by the proxy") %>
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-proxy">
         <%= format_number(total_proxy, locale: get_session(@conn, :locale)) %>
       </div>
       <div class="proxy-stats-panel__metric-card-period">
-        <%= dgettext("resource", "over the last %{nb} days", nb: @nb_days) %>
+        <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
       </div>
     </div>
 
     <div class="proxy-stats-panel__metric-card">
       <div class="proxy-stats-panel__metric-card-label">
-        <%= dgettext("resource", "Requests served by upstream") %>
+        <%= dgettext("espace-producteurs", "Requests served by upstream") %>
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-upstream">
         <%= format_number(total_upstream, locale: get_session(@conn, :locale)) %>
       </div>
       <div class="proxy-stats-panel__metric-card-period">
-        <%= dgettext("resource", "over the last %{nb} days", nb: @nb_days) %>
+        <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
       </div>
     </div>
   </div>
 
   <details class="proxy-stats-panel__details">
     <summary>
-      <%= dgettext("resource", "View detailed statistics") %>
+      <%= dgettext("espace-producteurs", "View detailed statistics") %>
     </summary>
     <table class="table small-padding">
       <thead>
         <tr>
           <th><%= dgettext("resource", "Date") %></th>
-          <th><%= dgettext("resource", "Proxy requests") %></th>
-          <th><%= dgettext("resource", "Upstream requests") %></th>
+          <th><%= dgettext("espace-producteurs", "Proxy requests") %></th>
+          <th><%= dgettext("espace-producteurs", "Upstream requests") %></th>
         </tr>
       </thead>
       <tbody>

@@ -84,27 +84,3 @@ msgstr "Ouvrir dans explore.data.gouv.fr"
 #, elixir-autogen, elixir-format
 msgid "Size:"
 msgstr "Taille :"
-
-#, elixir-autogen, elixir-format
-msgid "Proxy requests"
-msgstr "Requêtes proxy"
-
-#, elixir-autogen, elixir-format
-msgid "Requests served by the proxy"
-msgstr "Requêtes gérées par le proxy"
-
-#, elixir-autogen, elixir-format
-msgid "Requests served by upstream"
-msgstr "Requêtes transmises à la source"
-
-#, elixir-autogen, elixir-format
-msgid "Upstream requests"
-msgstr "Requêtes source"
-
-#, elixir-autogen, elixir-format
-msgid "View detailed statistics"
-msgstr "Voir les statistiques détaillées"
-
-#, elixir-autogen, elixir-format
-msgid "over the last %{nb} days"
-msgstr "sur les %{nb} derniers jours"
