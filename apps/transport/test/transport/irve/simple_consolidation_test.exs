@@ -80,7 +80,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       )
 
       # Run the consolidation process
-      :ok = Transport.IRVE.SimpleConsolidation.process()
+      %Explorer.DataFrame{} = Transport.IRVE.SimpleConsolidation.process()
 
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
