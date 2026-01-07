@@ -128,7 +128,7 @@ defmodule Transport.Mixfile do
       {:postgrex, "~> 0.20.0"},
       {:geo_postgis, "~> 3.4"},
       {:ecto_interval, github: "AntoineAugusti/ecto_interval", branch: "patch-1"},
-      {:scrivener_ecto, "~> 2.7.0"},
+      {:scrivener_ecto, "~> 3.1.0"},
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
       {:ex_machina, "~> 2.4", only: :test},

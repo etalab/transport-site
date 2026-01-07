@@ -114,6 +114,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              ]
     end
 
+    test "when user is not a producer", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
+      conn
+      |> init_test_session(%{"is_producer" => false, "current_user" => %{"id" => contact.datagouv_user_id}})
+      |> get(espace_producteur_path(conn, :espace_producteur))
+      |> html_response(200)
+    end
+
     test "with an OAuth2 error", %{conn: conn} do
       Datagouvfr.Client.User.Mock
       |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
