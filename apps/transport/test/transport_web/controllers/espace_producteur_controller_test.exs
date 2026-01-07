@@ -777,11 +777,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques du proxy Transport"])
 
-      assert html =~ "Statistiques des requêtes gérées par le proxy"
-      assert html =~ "<strong>\n      2\n    </strong>\n    requêtes gérées par le proxy au cours des 15 derniers jours"
-
-      assert html =~
-               "<strong>\n      1\n    </strong>\n    requêtes transmises au serveur source au cours des 15 derniers jours"
+      # Check that proxy statistics are displayed in metric cards
+      assert html =~ "Requêtes gérées par le proxy"
+      assert html =~ "Requêtes transmises à la source"
+      # Check that the metric values are displayed (formatted with spaces as thousand separator)
+      doc = html |> Floki.parse_document!()
+      assert doc |> Floki.find(~s|[data-name=total-proxy"]|) |> Floki.text() |> String.trim() == "2"
+      assert doc |> Floki.find(~s|[data-name=total-upstream"]|) |> Floki.text() |> String.trim() == "1"
+      # Check that the period is mentioned
+      assert html =~ "sur les 15 derniers jours"
     end
   end
 
