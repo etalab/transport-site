@@ -28,7 +28,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
   :string
   iex> Transport.IRVE.DataFrame.remap_schema_type(:number)
-  {:f, 32}
+  {:f, 64}
   iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean)
   :boolean
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
@@ -47,7 +47,7 @@ defmodule Transport.IRVE.DataFrame do
   def remap_schema_type(input_type, true = _strict) do
     case input_type do
       :geopoint -> :string
-      :number -> {:f, 32}
+      :number -> {:f, 64}
       type -> type
     end
   end
@@ -170,7 +170,7 @@ defmodule Transport.IRVE.DataFrame do
   In cases where we have mixed separators, an error is raised:
 
   iex> guess_delimiter!("hello;world,again")
-  ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
+  ** (Transport.IRVE.DataFrame.ColumnDelimiterGuessError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
 
   During unit tests, bodies with a single column (hence not column separator) are allowed.
   In that case "," is assumed:
@@ -341,7 +341,7 @@ defmodule Transport.IRVE.DataFrame do
       dataframe
     else
       dataframe
-      |> Explorer.DataFrame.mutate(%{^field_name => ""})
+      |> Explorer.DataFrame.mutate(%{^field_name => nil})
     end
   end
 end

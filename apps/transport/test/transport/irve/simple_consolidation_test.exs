@@ -30,8 +30,9 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           %{
             "dataset_id" => "another-dataset-id",
             "dataset_title" => "another-dataset-title",
+            # TODO rework to only compare the part of the message that matters
             "error_message" =>
-              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "paiement_acte", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "reservation", "adresse_station", "id_station_itinerance", "siren_amenageur", "paiement_cb", "prise_type_combo_ccs", "contact_operateur", "prise_type_ef", "implantation_station", "date_mise_en_service", "station_deux_roues", "cable_t2_attache", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "prise_type_autre", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "prise_type_2", "paiement_autre", "tarification", "prise_type_chademo", "gratuit", "condition_acces", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
             "error_type" => "ArgumentError",
             "resource_id" => "another-resource-id",
             "status" => "error_occurred",
@@ -63,7 +64,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "be09aa4a95907235c9e3a984c79a41fd943a0465a1b5d69025d1994ed1c99a16"
+        file_content: "66eb51e6e550f0999135a74498441aff9097f480cd0048112c0630475e7e741a"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -113,9 +114,17 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert options[:url] ==
                "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=100"
 
+      # Start from factory payload but ensure all datasets have an organization
+      payload =
+        DB.Factory.IRVE.build_datagouv_page_payload()
+        |> update_in(["data", Access.all(), "organization"], fn
+          nil -> %{"id" => "fallback-org-id", "name" => "fallback-org", "page" => "http://fallback-org"}
+          org -> org
+        end)
+
       %Req.Response{
         status: 200,
-        body: DB.Factory.IRVE.build_datagouv_page_payload()
+        body: payload
       }
     end)
   end
