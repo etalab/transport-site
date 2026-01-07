@@ -1,3 +1,4 @@
+<% locale = get_session(@conn, :locale) %>
 <div class="panel proxy-stats-panel">
   <div class="proxy-stats-panel__resource-header">
     <div>
@@ -20,7 +21,7 @@
         <%= dgettext("espace-producteurs", "Requests served by the proxy") %>
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-proxy">
-        <%= format_number(total_proxy, locale: get_session(@conn, :locale)) %>
+        <%= format_number(total_proxy, locale: locale) %>
       </div>
       <div class="proxy-stats-panel__metric-card-period">
         <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
@@ -32,7 +33,7 @@
         <%= dgettext("espace-producteurs", "Requests served by upstream") %>
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-upstream">
-        <%= format_number(total_upstream, locale: get_session(@conn, :locale)) %>
+        <%= format_number(total_upstream, locale: locale) %>
       </div>
       <div class="proxy-stats-panel__metric-card-period">
         <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
@@ -53,13 +54,11 @@
         </tr>
       </thead>
       <tbody>
-        <%= for stats_for_day <- @stats_per_day do %>
-          <tr>
-            <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, get_session(@conn, :locale)) %></td>
-            <td><%= format_number(stats_for_day.requests_external, locale: get_session(@conn, :locale)) %></td>
-            <td><%= format_number(stats_for_day.requests_internal, locale: get_session(@conn, :locale)) %></td>
-          </tr>
-        <% end %>
+        <tr :for={stats_for_day <- @stats_per_day}>
+          <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, locale) %></td>
+          <td><%= format_number(stats_for_day.requests_external, locale: locale) %></td>
+          <td><%= format_number(stats_for_day.requests_internal, locale: locale) %></td>
+        </tr>
       </tbody>
     </table>
   </details>
