@@ -161,3 +161,6 @@ config :os_mon,
 config :sentry,
   test_mode: true,
   csp_url: ""
+
+config :phoenix_live_view,
+ enable_expensive_runtime_checks: true
