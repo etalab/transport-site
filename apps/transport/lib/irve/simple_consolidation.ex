@@ -31,7 +31,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&Transport.IRVE.SimpleReportItem.from_result/1)
-      |> maybe_log_items()
+      # |> maybe_log_items()
       |> Enum.into([])
 
     generate_report(report_rows, destination: destination)
@@ -39,14 +39,14 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   # allow (quick at runtime, no config change/recompile) command-line `DEBUG=1` switch
   # essential to develop faster locally.
-  def maybe_log_items(stream) do
-    if System.get_env("DEBUG") == "1" do
-      stream
-      |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
-    else
-      stream
-    end
-  end
+  # def maybe_log_items(stream) do
+  #  if System.get_env("DEBUG") == "1" do
+  #    stream
+  #    |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
+  #  else
+  #    stream
+  #  end
+  # end
 
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
@@ -91,13 +91,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
       |> Explorer.DataFrame.new()
 
-    # Nicely displays what happened
-    if System.get_env("DEBUG") == "1" do
-      report_df["status"]
-      |> Explorer.Series.frequencies()
-      |> IO.inspect(IEx.inspect_opts())
-    end
-
     base_name = "irve_static_consolidation_v2_report"
 
     case destination do
@@ -120,6 +113,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
         Logger.info("Saving report to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
+
+    report_df
   end
 
   def storage_path(resource_id) do

@@ -17,7 +17,14 @@ DB.Repo.delete_all(DB.IRVEValidFile)
 #  )
 # )
 
-Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+report_df = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+
+# Nicely displays what happened
+if System.get_env("DEBUG") == "1" do
+  report_df["status"]
+  |> Explorer.Series.frequencies()
+  |> IO.inspect(IEx.inspect_opts())
+end
 
 IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
 IO.puts("Number of valid files now in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
