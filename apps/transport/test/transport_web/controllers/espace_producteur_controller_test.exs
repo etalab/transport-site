@@ -1357,8 +1357,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"td", [{"rowspan", "1"}], [dataset.custom_title]},
                         {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
-                        {"td", [], ["\n1 500\n                "]},
-                        {"td", [], ["\n2 000\n                "]}
+                        {"td", [], ["\n                  1 500\n                "]},
+                        {"td", [], ["\n                  2 000\n                "]}
                       ]}
                    ]}
                 ]}
