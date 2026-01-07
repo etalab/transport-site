@@ -3,11 +3,11 @@
   <div class="proxy-stats-panel__resource-header">
     <div>
       <div class="proxy-stats-panel__resource-header-name">
-        <%= dgettext("resource", "Feed name:") %>
-        <a href={resource_path(@conn, :details, @resource.id)}><strong><%= @resource.title %></strong></a>
+        {dgettext("resource", "Feed name:")}
+        <a href={resource_path(@conn, :details, @resource.id)}><strong>{@resource.title}</strong></a>
       </div>
       <div>
-        <%= dgettext("resource", "Format:") %> <span class="label"><%= @resource.format %></span>
+        {dgettext("resource", "Format:")} <span class="label">{@resource.format}</span>
       </div>
     </div>
   </div>
@@ -18,46 +18,46 @@
   <div class="proxy-stats-panel__metrics-grid">
     <div class="proxy-stats-panel__metric-card">
       <div class="proxy-stats-panel__metric-card-label">
-        <%= dgettext("espace-producteurs", "Requests served by the proxy") %>
+        {dgettext("espace-producteurs", "Requests served by the proxy")}
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-proxy">
-        <%= format_number(total_proxy, locale: locale) %>
+        {format_number(total_proxy, locale: locale)}
       </div>
       <div class="proxy-stats-panel__metric-card-period">
-        <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
+        {dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days)}
       </div>
     </div>
 
     <div class="proxy-stats-panel__metric-card">
       <div class="proxy-stats-panel__metric-card-label">
-        <%= dgettext("espace-producteurs", "Requests served by upstream") %>
+        {dgettext("espace-producteurs", "Requests served by upstream")}
       </div>
       <div class="proxy-stats-panel__metric-card-value" data-name="total-upstream">
-        <%= format_number(total_upstream, locale: locale) %>
+        {format_number(total_upstream, locale: locale)}
       </div>
       <div class="proxy-stats-panel__metric-card-period">
-        <%= dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days) %>
+        {dgettext("espace-producteurs", "over the last %{nb} days", nb: @nb_days)}
       </div>
     </div>
   </div>
 
   <details class="proxy-stats-panel__details">
     <summary>
-      <%= dgettext("espace-producteurs", "View detailed statistics") %>
+      {dgettext("espace-producteurs", "View detailed statistics")}
     </summary>
     <table class="table small-padding">
       <thead>
         <tr>
-          <th><%= dgettext("resource", "Date") %></th>
-          <th><%= dgettext("espace-producteurs", "Proxy requests") %></th>
-          <th><%= dgettext("espace-producteurs", "Upstream requests") %></th>
+          <th>{dgettext("resource", "Date")}</th>
+          <th>{dgettext("espace-producteurs", "Proxy requests")}</th>
+          <th>{dgettext("espace-producteurs", "Upstream requests")}</th>
         </tr>
       </thead>
       <tbody>
         <tr :for={stats_for_day <- @stats_per_day}>
-          <td><%= Shared.DateTimeDisplay.format_date(stats_for_day.date, locale) %></td>
-          <td><%= format_number(stats_for_day.requests_external, locale: locale) %></td>
-          <td><%= format_number(stats_for_day.requests_internal, locale: locale) %></td>
+          <td>{Shared.DateTimeDisplay.format_date(stats_for_day.date, locale)}</td>
+          <td>{format_number(stats_for_day.requests_external, locale: locale)}</td>
+          <td>{format_number(stats_for_day.requests_internal, locale: locale)}</td>
         </tr>
       </tbody>
     </table>

@@ -4,17 +4,17 @@
 <section class="producer-actions">
   <div class="container">
     <div class="proxy-statistics__header">
-      <h2><%= dgettext("espace-producteurs", "Transport proxy statistics") %></h2>
+      <h2>{dgettext("espace-producteurs", "Transport proxy statistics")}</h2>
       <a
         class="button-outline small secondary"
         href={espace_producteur_path(@conn, :proxy_statistics_csv)}
         data-tracking-category="espace_producteur"
         data-tracking-action="download_proxy_statistics_csv"
       >
-        <i class="icon icon--download" aria-hidden="true"></i><%= dgettext(
+        <i class="icon icon--download" aria-hidden="true"></i>{dgettext(
           "espace-producteurs",
           "Download proxy statistics"
-        ) %>
+        )}
       </a>
     </div>
     <div class="panel">
@@ -22,13 +22,13 @@
         {dgettext(
           "espace-producteurs",
           "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
-        ) %>
+        )}
       </p>
       <%= for dataset <- Enum.sort_by(@datasets, & &1.custom_title) do %>
         <% resources_served_by_proxy = Enum.filter(dataset.resources, &DB.Resource.served_by_proxy?/1) %>
         <%= unless Enum.empty?(resources_served_by_proxy) do %>
           <h3 class="proxy-statistics__dataset-title">
-            <%= link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug)) %>
+            {link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug))}
           </h3>
           <%= for resource <- resources_served_by_proxy do %>
             {render("_proxy_requests_stats.html",
