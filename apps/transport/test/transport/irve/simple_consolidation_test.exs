@@ -146,37 +146,22 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
     end)
   end
 
-  # A correct resource!
-  def resource_mock(
-        into: into,
-        decode_body: false,
-        compressed: false,
-        url: "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
-      ) do
-    path = into.path
-    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
-    File.write!(path, body)
+  @valid_url "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+  @invalid_url "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
 
-    %Req.Response{
-      status: 200,
-      body: File.stream!(path)
-    }
+  # A correct resource
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @valid_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 
-  # This one won’t be valid, we remove a required column
-  def resource_mock(
-        into: into,
-        decode_body: false,
-        compressed: false,
-        url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
-      ) do
-    path = into.path
-    body = [DB.Factory.IRVE.generate_row() |> Map.pop!("nom_station") |> elem(1)] |> DB.Factory.IRVE.to_csv_body()
-    File.write!(path, body)
+  # Invalid: missing required column nom_station
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @invalid_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
+  end
 
-    %Req.Response{
-      status: 200,
-      body: File.stream!(path)
-    }
+  defp build_resource_response(path, rows) do
+    body = DB.Factory.IRVE.to_csv_body(rows)
+    File.write!(path, body)
+    %Req.Response{status: 200, body: File.stream!(path)}
   end
 end
