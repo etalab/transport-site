@@ -1,4 +1,10 @@
 defmodule Transport.IRVE.ValidatorTest do
+  @moduledoc """
+  This modules does high-level tests of the IRVE Validator module.
+  There are more tests:
+  - In the Transport.IRVE.Validator.DataFrameValidationTest module,
+  - And primitives are tested in Transport.DataFrame.Validation.PrimitivesTest.
+  """
   use ExUnit.Case, async: true
 
   test "validate/1 returns a dataframe with validation columns" do
