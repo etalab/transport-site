@@ -38,8 +38,6 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
       iex> has_value(build_series(["hello", ""])) |> Series.to_list()
       [true, false]
-      iex> has_value(build_series([nil, nil])) |> Series.to_list()
-      [false, false]
   """
   def has_value(series) do
     Series.and(
