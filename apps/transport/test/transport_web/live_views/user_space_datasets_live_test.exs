@@ -27,7 +27,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLiveTest do
     assert [
              {"select", [{"id", "type"}, {"name", "type"}],
               [
-                {"option", [{"selected", "selected"}, {"value", ""}], ["Tout"]},
+                {"option", [{"selected", ""}, {"value", ""}], ["Tout"]},
                 {"option", [{"value", "public-transit"}], ["Transport public collectif"]},
                 {"option", [{"value", "vehicles-sharing"}], ["Véhicules en libre-service"]}
               ]}

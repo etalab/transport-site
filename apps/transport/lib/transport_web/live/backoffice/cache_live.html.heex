@@ -5,22 +5,22 @@
   <h3>Statistiques</h3>
 
   <ul>
-    <li>Taille du cache : <%= @stats.cache_size_binary %></li>
-    <li>Nombre de clés : <%= Helpers.format_number(@stats.nb_records) %></li>
-    <li>Nombre de clés expirées : <%= @stats.nb_expired_keys %></li>
+    <li>Taille du cache : {@stats.cache_size_binary}</li>
+    <li>Nombre de clés : {Helpers.format_number(@stats.nb_records)}</li>
+    <li>Nombre de clés expirées : {@stats.nb_expired_keys}</li>
     <li>
       Dernière exécution <a href="https://hexdocs.pm/cachex/ttl-implementation.html">du Janitor</a>
-      : <%= @stats.last_janitor_execution %>
+      : {@stats.last_janitor_execution}
     </li>
-    <li :if={Enum.count(@stats.expired_keys) > 0}>Clés expirées : <%= Enum.join(@stats.expired_keys, ", ") %></li>
+    <li :if={Enum.count(@stats.expired_keys) > 0}>Clés expirées : {Enum.join(@stats.expired_keys, ", ")}</li>
   </ul>
 
   <h3>Clés actives</h3>
 
   <div class="pb-24">
     <.form :let={f} for={%{}} as={@search_key_name} phx-change="filter" class="no-margin">
-      <%= label(f, "Filtrer par nom de clé") %>
-      <%= text_input(f, :filter_key_name, value: @filter_key_name) %>
+      {label(f, "Filtrer par nom de clé")}
+      {text_input(f, :filter_key_name, value: @filter_key_name)}
     </.form>
   </div>
 
@@ -35,8 +35,8 @@
     <tbody>
       <%= for item <- @stats.keys do %>
         <tr>
-          <td><%= item.name %></td>
-          <td><%= format_ttl(item.ttl) %></td>
+          <td>{item.name}</td>
+          <td>{format_ttl(item.ttl)}</td>
           <td>
             <a href="#" phx-click="delete_key" phx-value-key_name={item.name}>
               Supprimer
@@ -52,8 +52,8 @@
   </p>
 
   <p :if={nb_non_expired_keys - Enum.count(@stats.keys) >= 2}>
-    <%= Helpers.format_number(nb_non_expired_keys - Enum.count(@stats.keys)) %> clés sont masquées par le filtre courant.
+    {Helpers.format_number(nb_non_expired_keys - Enum.count(@stats.keys))} clés sont masquées par le filtre courant.
   </p>
 
-  <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+  <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 </section>

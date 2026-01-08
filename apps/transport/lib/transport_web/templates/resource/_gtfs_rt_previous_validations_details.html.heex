@@ -1,28 +1,28 @@
 <%= unless Enum.empty?(@latest_validations_details) do %>
-  <h3><%= dgettext("validations", "Previous validations") %></h3>
+  <h3>{dgettext("validations", "Previous validations")}</h3>
   <p>
-    <%= dgettext("validations", "Here is a recap of all the error types encountered over the last %{nb} days.",
+    {dgettext("validations", "Here is a recap of all the error types encountered over the last %{nb} days.",
       nb: latest_validations_nb_days()
-    ) %>
+    )}
   </p>
   <table class="table">
     <tr>
-      <th><%= dgettext("validations", "Error ID") %></th>
-      <th><%= dgettext("validations", "Description") %></th>
-      <th><%= dgettext("validations", "Errors count") %></th>
-      <th><%= dgettext("validations", "Number of occurences") %></th>
+      <th>{dgettext("validations", "Error ID")}</th>
+      <th>{dgettext("validations", "Description")}</th>
+      <th>{dgettext("validations", "Errors count")}</th>
+      <th>{dgettext("validations", "Number of occurences")}</th>
     </tr>
 
     <%= for {error_id, details} <- @latest_validations_details |> Enum.sort_by(fn {_, v} -> v["occurence"] end, &>=/2) do %>
       <tr>
-        <td><a href={gtfs_rt_validator_rule_url(error_id)} target="_blank"><%= error_id %></a></td>
-        <td lang="en"><%= details["description"] %></td>
-        <td><%= format_number(details["errors_count"], locale: @locale) %></td>
+        <td><a href={gtfs_rt_validator_rule_url(error_id)} target="_blank">{error_id}</a></td>
+        <td lang="en">{details["description"]}</td>
+        <td>{format_number(details["errors_count"], locale: @locale)}</td>
         <td>
-          <%= dgettext("validations", "%{count} times (%{percentage} % of validations)",
+          {dgettext("validations", "%{count} times (%{percentage} % of validations)",
             count: format_number(details["occurence"], locale: @locale),
             percentage: details["percentage"]
-          ) %>
+          )}
         </td>
       </tr>
     <% end %>

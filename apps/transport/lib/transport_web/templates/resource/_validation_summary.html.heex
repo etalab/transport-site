@@ -3,17 +3,17 @@
     <%= for %{"severity" => severity, "issues" => issues} <- @validation_summary do %>
       <%= if Map.get(@severities_count, severity, 0) > 0 do %>
         <div class="validation-issue">
-          <h4><%= @results_adapter.format_severity(severity, @severities_count[severity]) %></h4>
+          <h4>{@results_adapter.format_severity(severity, @severities_count[severity])}</h4>
           <ul>
             <%= for %{"key" => key, "issue" => issue} <- issues do %>
               <li>
                 <%= if issue["count"] > 0 do %>
-                  <%= link(
+                  {link(
                     "#{issue["title"]} (#{issue["count"]})",
                     to:
                       "#{current_url(@conn, %{"issue_type" => key, "token" => @token} |> Map.reject(fn {_, v} -> is_nil(v) end))}#issues",
                     class: if(key == @results_adapter.issue_type(@issues.entries), do: "active")
-                  ) %>
+                  )}
                 <% end %>
               </li>
             <% end %>

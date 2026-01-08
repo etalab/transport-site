@@ -6,56 +6,56 @@
 <div class="add-update-resource">
   <section class="container pt-48 pb-24">
     <%= if new_resource do %>
-      <%= breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id]) %>
+      {breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id])}
     <% else %>
-      <%= breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id]) %>
+      {breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id])}
     <% end %>
   </section>
   <section class="producer-actions choose-file">
     <div class="container">
       <strong>
-        <%= @dataset.custom_title %><span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
+        {@dataset.custom_title}<span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
       </strong>
       <div class="pt-24">
-        <h2><%= title(@conn) %></h2>
+        <h2>{title(@conn)}</h2>
       </div>
       <div class="validation-reminder">
         <div class="panel">
-          <%= raw(
+          {raw(
             dgettext(
               "resource",
               ~s|If you haven’t done it yet, think about <a href="%{link}">validating your data</a> before publishing it.|,
               link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
             )
-          ) %>
+          )}
         </div>
       </div>
       <div class="option-1 mt-48">
         <div class="panel">
           <div>
             <%= if new_resource do %>
-              <h4><%= dgettext("espace-producteurs", "Option 1: Directly add the resource") %></h4>
+              <h4>{dgettext("espace-producteurs", "Option 1: Directly add the resource")}</h4>
               <p>
-                <%= raw(
+                {raw(
                   dgettext(
                     "resource",
                     ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.),
                     url: espace_producteur_path(@conn, :edit_dataset, @dataset.id)
                   )
-                ) %>
+                )}
               </p>
             <% else %>
-              <h4><%= dgettext("espace-producteurs", "Option 1: Directly update the resource") %></h4>
+              <h4>{dgettext("espace-producteurs", "Option 1: Directly update the resource")}</h4>
               <p>
-                <%= dgettext(
+                {dgettext(
                   "resource",
                   "This option allows you to update the resource on data.gouv.fr, directly from here."
-                ) %>
+                )}
               </p>
             <% end %>
           </div>
           <div>
-            <%= live_render(@conn, TransportWeb.Live.ValidateResourceLive,
+            {live_render(@conn, TransportWeb.Live.ValidateResourceLive,
               session: %{
                 "action_path" => action_path(@conn),
                 "datagouv_resource" => @datagouv_resource,
@@ -63,7 +63,7 @@
                 "resource" => resource,
                 "formats" => @formats
               }
-            ) %>
+            )}
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
           <div>
             <%= if new_resource do %>
               <h4>
-                <%= dgettext("espace-producteurs", "Option 2: for more options, create the resource on data.gouv.fr") %>
+                {dgettext("espace-producteurs", "Option 2: for more options, create the resource on data.gouv.fr")}
               </h4>
               <div>
                 <a
@@ -82,12 +82,12 @@
                   target="_blank"
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("espace-producteurs", "Create it directly on data.gouv.fr") %>
+                  {dgettext("espace-producteurs", "Create it directly on data.gouv.fr")}
                 </a>
               </div>
             <% else %>
               <h4>
-                <%= dgettext("espace-producteurs", "Option 2: for more options, edit the resource on data.gouv.fr") %>
+                {dgettext("espace-producteurs", "Option 2: for more options, edit the resource on data.gouv.fr")}
               </h4>
               <div>
                 <a
@@ -102,7 +102,7 @@
                   target="_blank"
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
-                  <%= dgettext("espace-producteurs", "Edit directly on data.gouv.fr") %>
+                  {dgettext("espace-producteurs", "Edit directly on data.gouv.fr")}
                 </a>
               </div>
             <% end %>
@@ -111,18 +111,18 @@
       </div>
       <div class="pt-48">
         <p>
-          <%= link(
+          {link(
             dgettext("espace-producteurs", "I'm not sure. Learn more."),
             to: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
-          ) %>
+          )}
         </p>
       </div>
     </div>
   </section>
 </div>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>

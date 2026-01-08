@@ -7,27 +7,27 @@
 
   <table :if={Enum.count(@notifications) > 0} class="table dashboard-description">
     <tr>
-      <th><%= dgettext("backoffice", "Role") %></th>
-      <th><%= dgettext("backoffice", "Notification reason") %></th>
-      <th><%= dgettext("backoffice", "Dataset") %></th>
-      <th><%= dgettext("backoffice", "Datetime") %></th>
+      <th>{dgettext("backoffice", "Role")}</th>
+      <th>{dgettext("backoffice", "Notification reason")}</th>
+      <th>{dgettext("backoffice", "Dataset")}</th>
+      <th>{dgettext("backoffice", "Datetime")}</th>
     </tr>
     <%= for notification <- @notifications do %>
       <tr>
-        <td><span class={role_class(notification)}><%= notification.role %></span></td>
-        <td lang="en"><%= notification.reason %></td>
+        <td><span class={role_class(notification)}>{notification.role}</span></td>
+        <td lang="en">{notification.reason}</td>
         <td :if={is_nil(notification.dataset_id)}>-</td>
         <td :if={!is_nil(notification.dataset_id)}>
           <a href={dataset_path(@conn, :details, notification.dataset.slug)} target="_blank">
             <i class="fa fa-external-link-alt" aria-hidden="true"></i>
-            <%= notification.dataset.custom_title %>
+            {notification.dataset.custom_title}
           </a>
         </td>
-        <td><%= Shared.DateTimeDisplay.format_datetime_to_paris(notification.inserted_at, "fr") %></td>
+        <td>{Shared.DateTimeDisplay.format_datetime_to_paris(notification.inserted_at, "fr")}</td>
       </tr>
     <% end %>
   </table>
   <p class="small">
-    Liste les notifications reçues au cours des <%= @notifications_months_limit %> derniers mois.
+    Liste les notifications reçues au cours des {@notifications_months_limit} derniers mois.
   </p>
 </div>

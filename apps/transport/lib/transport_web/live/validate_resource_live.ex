@@ -48,12 +48,12 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   def render(assigns) do
     ~H"""
     <%= form_for @changeset, @action_path, [multipart: true, as: :form, phx_change: "change"], fn f -> %>
-      <%= text_input(f, :title,
+      {text_input(f, :title,
         label: dgettext("espace-producteurs", "title"),
         placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),
         required: true
-      ) %>
-      <%= select(f, :format, @formats, label: dgettext("espace-producteurs", "Format"), required: true) %>
+      )}
+      {select(f, :format, @formats, label: dgettext("espace-producteurs", "Format"), required: true)}
       <div class="pt-24">
         <%= if @new_resource do %>
           <%= if file_validation_enabled?(changeset_value(@changeset, :format)) do %>
@@ -70,7 +70,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
             <.upload_file :if={display_file_upload?(@changeset)} datagouv_resource={@datagouv_resource} f={f} />
           <% end %>
           <div :if={display_file_upload?(@changeset)} class="choose-or">
-            - <%= dgettext("espace-producteurs", "or") %> -
+            - {dgettext("espace-producteurs", "or")} -
           </div>
           <.specify_url
             datagouv_resource={@datagouv_resource}
@@ -83,7 +83,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
             socket={@socket}
           />
           <div class="choose-submit pt-24">
-            <%= submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary") %>
+            {submit(dgettext("espace-producteurs", "Add the resource"), class: "button primary")}
           </div>
         <% else %>
           <%= if TransportWeb.EspaceProducteurView.remote?(@datagouv_resource) do %>
@@ -113,7 +113,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
             <% end %>
           <% end %>
           <div class="choose-submit pt-24">
-            <%= submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary") %>
+            {submit(dgettext("espace-producteurs", "Update the resource"), class: "button primary")}
           </div>
         <% end %>
       </div>
@@ -135,10 +135,10 @@ defmodule TransportWeb.Live.ValidateResourceLive do
           <div class="entry-name">
             <.icon :if={entry.valid?} class="fa fa-square-check" title={dgettext("gtfs-diff", "Valid file")} />
             <.icon :if={not entry.valid?} class="fa fa-square-xmark" title={dgettext("gtfs-diff", "Invalid file")} />
-            <%= entry.client_name %>
+            {entry.client_name}
           </div>
           <div class="progress-bar">
-            <progress value={entry.progress} max="100"><%= entry.progress %>%</progress>
+            <progress value={entry.progress} max="100">{entry.progress}%</progress>
             <button
               type="button"
               phx-click="cancel-upload"
@@ -168,7 +168,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     ~H"""
     <div :if={@multi_validation}>
       <p :if={@uploaded_filename}>
-        <%= Phoenix.HTML.raw(dgettext("espace-producteurs", "File: <strong>%{name}</strong>", name: @uploaded_filename)) %>
+        {Phoenix.HTML.raw(dgettext("espace-producteurs", "File: <strong>%{name}</strong>", name: @uploaded_filename))}
       </p>
       <.validation_status multi_validation={@multi_validation} locale={@locale} />
       <a
@@ -176,7 +176,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
         target="_blank"
         href={validation_path(@socket, :show, @multi_validation.id, token: @multi_validation.oban_args["secret_url_token"])}
       >
-        <i class="icon fa fa-pen-to-square"></i><%= dgettext("espace-producteurs", "See the validation report") %>
+        <i class="icon fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "See the validation report")}
       </a>
     </div>
     """
@@ -185,15 +185,15 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   defp upload_file(%{f: _, datagouv_resource: _} = assigns) do
     ~H"""
     <div>
-      <%= dgettext("espace-producteurs", "Upload a file") %>
+      {dgettext("espace-producteurs", "Upload a file")}
       <%= unless is_nil(@datagouv_resource["url"]) do %>
         <p>
-          <%= dgettext("espace-producteurs", "Current file: %{current_file}",
+          {dgettext("espace-producteurs", "Current file: %{current_file}",
             current_file: Path.basename(@datagouv_resource["url"])
-          ) %>
+          )}
         </p>
       <% end %>
-      <%= file_input(@f, :resource_file) %>
+      {file_input(@f, :resource_file)}
     </div>
     """
   end
@@ -201,13 +201,13 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   defp specify_url(%{} = assigns) do
     ~H"""
     <div>
-      <%= dgettext("espace-producteurs", "Give a link for the resource") %>
-      <%= text_input(
+      {dgettext("espace-producteurs", "Give a link for the resource")}
+      {text_input(
         @f,
         :url,
         placeholder: "https://data.ville.fr/gtfs.zip",
         type: "url"
-      ) %>
+      )}
     </div>
     <a
       :if={display_url_validation?(@format) and is_nil(@multi_validation) and valid_url?(@url)}
@@ -216,7 +216,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       phx-value-url={@url}
       phx-value-format={@format}
     >
-      <i class="icon fa fa-check"></i><%= dgettext("espace-producteurs", "Start the validation") %>
+      <i class="icon fa fa-check"></i>{dgettext("espace-producteurs", "Start the validation")}
     </a>
     <.validation_report
       :if={valid_url?(@url)}
@@ -234,7 +234,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       <label for={@uploads.zip.ref}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         <span>
-          <%= dgettext("espace-producteurs", "Drop your file here or click to browse your local drive") %>
+          {dgettext("espace-producteurs", "Drop your file here or click to browse your local drive")}
         </span>
       </label>
       <.live_file_input upload={@uploads.zip} />
@@ -254,7 +254,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
        when max_error in ["Warning", "Information", "NoError"] do
     ~H"""
     <p class="notification success">
-      <%= dgettext("espace-producteurs", "No errors") %>
+      {dgettext("espace-producteurs", "No errors")}
     </p>
     <TransportWeb.DatasetView.validity_dates multi_validation={@multi_validation} locale={@locale} />
     """
@@ -266,11 +266,11 @@ defmodule TransportWeb.Live.ValidateResourceLive do
        when max_error in ["Fatal", "Error"] do
     ~H"""
     <p class="notification error">
-      <%= dgettext("espace-producteurs", "Invalid file") %>
+      {dgettext("espace-producteurs", "Invalid file")}
     </p>
     <a phx-click="start_again" class="button-outline warning small mr-24">
       <i class="icon fa fa-rotate"></i>
-      <%= dgettext("espace-producteurs", "Start again") %>
+      {dgettext("espace-producteurs", "Start again")}
     </a>
     """
   end

@@ -40,7 +40,7 @@ defmodule TransportWeb.EspaceProducteurView do
       <td>
         <a href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
           <i class="fa fa-external-link"></i>
-          <%= @dataset.custom_title %>
+          {@dataset.custom_title}
         </a>
       </td>
       <.issue_title issue={@issue} check_name={@check_name} multi_validation={@multi_validation} locale={@locale} />
@@ -52,20 +52,20 @@ defmodule TransportWeb.EspaceProducteurView do
 
   defp issue_title(%{issue: %DB.Resource{}, check_name: :expiring_resource} = assigns) do
     ~H"""
-    <td><%= @issue.title %> <span class="label"><%= @issue.format %></span>
+    <td>{@issue.title} <span class="label">{@issue.format}</span>
       <TransportWeb.DatasetView.validity_dates multi_validation={@multi_validation} locale={@locale} /></td>
     """
   end
 
   defp issue_title(%{issue: %DB.Resource{}} = assigns) do
     ~H"""
-    <td><%= @issue.title %> <span class="label"><%= @issue.format %></span></td>
+    <td>{@issue.title} <span class="label">{@issue.format}</span></td>
     """
   end
 
   defp issue_title(%{issue: _} = assigns) do
     ~H"""
-    <td><%= @issue["title"] %></td>
+    <td>{@issue["title"]}</td>
     """
   end
 
@@ -74,18 +74,18 @@ defmodule TransportWeb.EspaceProducteurView do
 
     if Date.compare(end_date, Date.utc_today()) in [:eq, :lt] do
       ~H"""
-      <td><%= dgettext("espace-producteurs", "Expired resource") %></td>
+      <td>{dgettext("espace-producteurs", "Expired resource")}</td>
       """
     else
       ~H"""
-      <td><%= Transport.DatasetChecks.issue_name(@check_name) %></td>
+      <td>{Transport.DatasetChecks.issue_name(@check_name)}</td>
       """
     end
   end
 
   defp issue_name(%{} = assigns) do
     ~H"""
-    <td><%= Transport.DatasetChecks.issue_name(@check_name) %></td>
+    <td>{Transport.DatasetChecks.issue_name(@check_name)}</td>
     """
   end
 
@@ -98,7 +98,7 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_see_discussion_button"
       >
-        <i class="icon fas fa-comments"></i><%= dgettext("espace-producteurs", "See the discussion") %>
+        <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
       </a>
     </td>
     """
@@ -113,7 +113,7 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_edit_resource_button"
       >
-        <i class="fa fa-edit"></i><%= dgettext("espace-producteurs", "Edit resource") %>
+        <i class="fa fa-edit"></i>{dgettext("espace-producteurs", "Edit resource")}
       </a>
     </td>
     """
@@ -129,7 +129,7 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-category="espace_reutilisateur"
         data-tracking-action="urgent_issues_see_resource_button"
       >
-        <%= dgettext("reuser-space", "See the resource") %>
+        {dgettext("reuser-space", "See the resource")}
       </a>
     </td>
     """
@@ -144,7 +144,7 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-category="espace_producteur"
         data-tracking-action="urgent_issues_see_discussion_button"
       >
-        <i class="icon fas fa-comments"></i><%= dgettext("espace-producteurs", "See the discussion") %>
+        <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
       </a>
     </td>
     """

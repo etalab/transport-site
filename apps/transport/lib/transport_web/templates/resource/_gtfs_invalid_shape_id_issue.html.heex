@@ -1,19 +1,19 @@
 <p>
-  <%= dgettext("validations-explanations", "Impacted file:") %> <tt>trips.txt</tt>
+  {dgettext("validations-explanations", "Impacted file:")} <tt>trips.txt</tt>
 </p>
 <p>
-  <%= dgettext("validations-explanations", "Some shape id used in trips.txt are not defined in shapes.txt") %>
+  {dgettext("validations-explanations", "Some shape id used in trips.txt are not defined in shapes.txt")}
 </p>
 <table class="table">
   <tr>
-    <th><%= dgettext("validations-explanations", "Trip ID") %></th>
-    <th><%= dgettext("validations-explanations", "Details") %></th>
+    <th>{dgettext("validations-explanations", "Trip ID")}</th>
+    <th>{dgettext("validations-explanations", "Details")}</th>
   </tr>
 
   <%= for issue <- @issues do %>
     <tr>
-      <td><%= issue["object_id"] %></td>
-      <td><%= issue["details"] %></td>
+      <td>{issue["object_id"]}</td>
+      <td>{issue["details"]}</td>
     </tr>
   <% end %>
 </table>

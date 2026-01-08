@@ -452,7 +452,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"div", [{"class", "pb-24"}],
                    [
                      {"a", [{"href", resource_path(conn, :details, resource.id) <> "#validation-report"}],
-                      [{"span", [{"class", "resource__summary--Success"}], ["\n\nPas d'erreur\n\n      "]}]},
+                      [{"span", [{"class", "resource__summary--Success"}], ["\n\n          Pas d'erreur\n\n      "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -509,7 +509,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                      {"a",
                       [
                         {"href", resource_path(conn, :details, resource.id) <> "#validation-report"}
-                      ], [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n1 erreur\n\n        "]}]},
+                      ],
+                      [{"span", [{"class", "resource__summary--Error"}], ["\n\n\n\n            1 erreur\n\n        "]}]},
                      {"span", [], ["lors de la validation"]}
                    ]}
                 ]}
@@ -776,9 +777,15 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques du proxy Transport"])
 
-      assert html =~ "Statistiques des requêtes gérées par le proxy"
-      assert html =~ "<strong>\n2\n    </strong>\nrequêtes gérées par le proxy au cours des 15 derniers jours"
-      assert html =~ "<strong>\n1\n    </strong>\nrequêtes transmises au serveur source au cours des 15 derniers jours"
+      # Check that proxy statistics are displayed in metric cards
+      assert html =~ "Requêtes gérées par le proxy"
+      assert html =~ "Requêtes transmises à la source"
+      # Check that the metric values are displayed (formatted with spaces as thousand separator)
+      doc = html |> Floki.parse_document!()
+      assert doc |> Floki.find(~s|[data-name=total-proxy"]|) |> Floki.text() |> String.trim() == "2"
+      assert doc |> Floki.find(~s|[data-name=total-upstream"]|) |> Floki.text() |> String.trim() == "1"
+      # Check that the period is mentioned
+      assert html =~ "sur les 15 derniers jours"
     end
   end
 
@@ -1306,13 +1313,23 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       mock_organization_and_discussion(dataset)
 
+      current_year = Date.utc_today().year
+      previous_year = current_year - 1
       year_month = Date.utc_today() |> Date.to_iso8601() |> String.slice(0..6)
+      previous_year_month = "#{previous_year}-01"
 
       insert(:resource_monthly_metric,
         resource_datagouv_id: resource.datagouv_id,
         metric_name: :downloads,
         count: 2_000,
         year_month: year_month
+      )
+
+      insert(:resource_monthly_metric,
+        resource_datagouv_id: resource.datagouv_id,
+        metric_name: :downloads,
+        count: 1_500,
+        year_month: previous_year_month
       )
 
       html =
@@ -1334,7 +1351,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"th", [], ["Jeu de données"]},
                         {"th", [], ["Ressource"]},
-                        {"th", [], ["Téléchargements de l'année #{Date.utc_today().year}"]}
+                        {"th", [], ["Téléchargements de l'année #{previous_year}"]},
+                        {"th", [], ["Téléchargements de l'année #{current_year}"]}
                       ]}
                    ]},
                   {"tbody", [],
@@ -1343,7 +1361,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       [
                         {"td", [{"rowspan", "1"}], [dataset.custom_title]},
                         {"td", [], [resource.title <> " ", {"span", [{"class", "label"}], [resource.format]}]},
-                        {"td", [], ["\n2 000\n                "]}
+                        {"td", [], ["\n                  1 500\n                "]},
+                        {"td", [], ["\n                  2 000\n                "]}
                       ]}
                    ]}
                 ]}
@@ -1402,7 +1421,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                         {"td", [{"rowspan", "1"}],
                          [
                            {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-                            [{"i", [{"class", "fa fa-external-link"}], []}, "\nHello\n                  "]}
+                            [
+                              {"i", [{"class", "fa fa-external-link"}], []},
+                              "\n                    Hello\n                  "
+                            ]}
                          ]},
                         {"td", [], ["Discussion title"]},
                         {"td", [],
@@ -1416,7 +1438,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                               {"data-tracking-category", "espace_producteur"},
                               {"data-tracking-action", "unanswered_discussion_button"}
                             ],
-                            [{"i", [{"class", "icon fas fa-comments"}], []}, "\nVoir la discussion\n                  "]}
+                            [
+                              {"i", [{"class", "icon fas fa-comments"}], []},
+                              "\n                    Voir la discussion\n                  "
+                            ]}
                          ]}
                       ]}
                    ]}

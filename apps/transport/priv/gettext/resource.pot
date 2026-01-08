@@ -42,26 +42,6 @@ msgid "Date"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Number of requests served by the upstream server"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Number of requests served by transport.data.gouv.fr"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "requests served by the proxy over the last %{nb} days"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "requests served by the upstream server over the last %{nb} days"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Proxy requests statistics"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Feed name:"
 msgstr ""
 

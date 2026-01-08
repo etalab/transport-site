@@ -2,13 +2,13 @@
   <div class="form__group">
     <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
       <div class="searchBar">
-        <%= search_input(f, :q,
+        {search_input(f, :q,
           id: "autoComplete",
           autocomplete: "off",
           value: assigns[:q] || "",
           placeholder: dgettext("page-index", "Find dataset"),
           "aria-label": dgettext("page-index", "Find dataset")
-        ) %>
+        )}
         <div class="autoCompleteResultsField">
           <div id="autoCompleteResults"></div>
         </div>
@@ -16,22 +16,22 @@
     <% end %>
     <div class="dataset-page-title">
       <%= if @conn.assigns[:page_title] do %>
-        <%= @page_title.type %>
-        <h1><%= @page_title.name %></h1>
+        {@page_title.type}
+        <h1>{@page_title.name}</h1>
       <% else %>
         <%= if @conn.assigns[:q] do %>
           <h1>
-            <%= dngettext(
+            {dngettext(
               "page-shortlist",
               "result",
               "results",
               @datasets.total_entries,
               value: format_number(@datasets.total_entries, locale: get_session(@conn, :locale)),
               q: @q
-            ) %>
+            )}
           </h1>
         <% else %>
-          <h1><%= dgettext("page-index", "Datasets") %></h1>
+          <h1>{dgettext("page-index", "Datasets")}</h1>
         <% end %>
       <% end %>
     </div>
@@ -39,7 +39,7 @@
 </div>
 
 <%= if not is_nil(@conn.assigns[:category_custom_message]) do %>
-  <%= render(TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @category_custom_message) %>
+  {render(TransportWeb.DatasetView, "_custom_message.html", conn: @conn, msg: @category_custom_message)}
 <% end %>
 
 <%= if is_nil(@conn.assigns[:q]) or @datasets.total_entries > 0  do %>
@@ -50,40 +50,40 @@
           <div class="pt-48">
             <ul class="side-pane__menu">
               <li class="side-pane__title">
-                <h3><%= dgettext("page-shortlist", "Data type") %></h3>
+                <h3>{dgettext("page-shortlist", "Data type")}</h3>
                 <li class="side-pane__dropdown unfolded">
                   <ul class="side-pane__submenu">
                     <li>
-                      <%= type_link(@conn, %{
+                      {type_link(@conn, %{
                         msg: dgettext("page-shortlist", "All"),
                         type: nil,
                         count: @types |> Enum.map(& &1.count) |> Enum.sum()
-                      }) %>
+                      })}
                     </li>
                     <%= for type <- @types do %>
-                      <li><%= type_link(@conn, type) %></li>
+                      <li>{type_link(@conn, type)}</li>
                     <% end %>
                   </ul>
                 </li>
               </li>
 
               <li class="side-pane__title">
-                <h3><%= dgettext("page-shortlist", "Real Time") %></h3>
+                <h3>{dgettext("page-shortlist", "Real Time")}</h3>
                 <li class="side-pane__dropdown unfolded">
                   <ul class="side-pane__submenu">
                     <li>
-                      <%= real_time_link(@conn, %{
+                      {real_time_link(@conn, %{
                         only_realtime: false,
                         msg: dgettext("page-shortlist", "Any"),
                         count: @number_realtime_datasets.all
-                      }) %>
+                      })}
                     </li>
                     <li>
-                      <%= real_time_link(@conn, %{
+                      {real_time_link(@conn, %{
                         only_realtime: true,
                         msg: dgettext("page-shortlist", "with real time"),
                         count: @number_realtime_datasets.true
-                      }) %>
+                      })}
                     </li>
                   </ul>
                 </li>
@@ -91,19 +91,19 @@
 
               <%= if assigns[:regions] do %>
                 <li class="side-pane__title">
-                  <h3><%= dgettext("page-shortlist", "Regions") %></h3>
+                  <h3>{dgettext("page-shortlist", "Regions")}</h3>
                   <li class="side-pane__dropdown unfolded">
                     <ul class="side-pane__submenu">
                       <li>
-                        <%= region_link(@conn, %{
+                        {region_link(@conn, %{
                           nom: dgettext("page-shortlist", "All"),
                           count: @regions |> Enum.map(& &1.count) |> Enum.sum(),
                           insee: nil
-                        }) %>
+                        })}
                       </li>
                       <%= for region <- @regions do %>
                         <%= unless region.count == 0 do %>
-                          <li><%= region_link(@conn, region) %></li>
+                          <li>{region_link(@conn, region)}</li>
                         <% end %>
                       <% end %>
                     </ul>
@@ -113,18 +113,18 @@
 
               <%= unless Enum.empty?(@licences) do %>
                 <li class="side-pane__title">
-                  <h3><%= dgettext("page-shortlist", "Licences") %></h3>
+                  <h3>{dgettext("page-shortlist", "Licences")}</h3>
                   <li class="side-pane__dropdown unfolded">
                     <ul class="side-pane__submenu">
                       <li>
-                        <%= licence_link(@conn, %{
+                        {licence_link(@conn, %{
                           licence: "all",
                           count: @licences |> Enum.map(& &1.count) |> Enum.sum()
-                        }) %>
+                        })}
                       </li>
                       <%= for licence <- @licences do %>
                         <%= unless licence.count == 0 do %>
-                          <li><%= licence_link(@conn, licence) %></li>
+                          <li>{licence_link(@conn, licence)}</li>
                         <% end %>
                       <% end %>
                     </ul>
@@ -133,19 +133,19 @@
               <% end %>
 
               <li class="side-pane__title">
-                <h3><%= dgettext("page-shortlist", "Resource format") %></h3>
+                <h3>{dgettext("page-shortlist", "Resource format")}</h3>
                 <li class="side-pane__dropdown unfolded">
                   <ul class="side-pane__submenu">
                     <li>
-                      <%= format_link(@conn, %{
+                      {format_link(@conn, %{
                         msg: dgettext("page-shortlist", "All"),
                         format: nil,
                         count:
                           Enum.find_value(@number_resource_format_datasets, fn {k, count} -> if k == :all, do: count end)
-                      }) %>
+                      })}
                     </li>
                     <%= for {format, count} <- Enum.reject(@number_resource_format_datasets, fn {k, _} -> k == :all end) do %>
-                      <li><%= format_link(@conn, %{format: format, msg: format, count: count}) %></li>
+                      <li>{format_link(@conn, %{format: format, msg: format, count: count})}</li>
                     <% end %>
                   </ul>
                 </li>
@@ -157,14 +157,14 @@
           <%= if @conn.assigns[:empty_message] do %>
             <div class="container pt-48">
               <div class="notification">
-                <%= @empty_message %>
+                {@empty_message}
               </div>
             </div>
           <% else %>
             <div class="order-by">
-              <span class="order-by__title"><%= dgettext("page-shortlist", "Order by") %></span>
-              <span class="order-by-option"><%= order_link(@conn, "alpha") %></span>
-              <span class="order-by-option"><%= order_link(@conn, "most_recent") %></span>
+              <span class="order-by__title">{dgettext("page-shortlist", "Order by")}</span>
+              <span class="order-by-option">{order_link(@conn, "alpha")}</span>
+              <span class="order-by-option">{order_link(@conn, "most_recent")}</span>
             </div>
 
             <%= for dataset <- @datasets do %>
@@ -172,29 +172,29 @@
                 <div class="panel__content">
                   <div class="dataset__description">
                     <div class="dataset__image" data-provider={dataset.custom_title}>
-                      <%= img_tag(DB.Dataset.logo(dataset), alt: dataset.custom_title) %>
+                      {img_tag(DB.Dataset.logo(dataset), alt: dataset.custom_title)}
                     </div>
                     <div class="dataset__infos">
                       <h3 class="dataset__title">
                         <a href={dataset_path(@conn, :details, dataset.slug)}>
-                          <%= dataset.custom_title %>
+                          {dataset.custom_title}
                         </a>
                         <%= if TransportWeb.Session.admin?(@conn) do %>
                           <span class="dataset-backoffice-link">
                             <i class="fa fa-external-link-alt"></i>
-                            <%= link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id)) %>
+                            {link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id))}
                           </span>
                         <% end %>
                       </h3>
                       <div class="dataset-localization">
-                        <i class="icon fa fa-map-marker-alt" /><%= Dataset.get_covered_area_or_nil(dataset) %>
+                        <i class="icon fa fa-map-marker-alt" />{Dataset.get_covered_area_or_nil(dataset)}
                       </div>
                     </div>
                   </div>
                   <div class="dataset__type">
                     <i :if={not is_nil(@current_user)} class={heart_class(@dataset_heart_values, dataset)}></i>
                     <%= unless is_nil(icon_type_path(dataset)) do %>
-                      <%= img_tag(icon_type_path(dataset), alt: dataset.type) %>
+                      {img_tag(icon_type_path(dataset), alt: dataset.type)}
                     <% end %>
                   </div>
                 </div>
@@ -202,21 +202,21 @@
                   <div class="dataset__info">
                     <div class="shortlist__notices">
                       <div class="dataset-udpate-date ml-1em">
-                        <%= dgettext("page-shortlist", "created on") %> <%= DateTimeDisplay.format_date(
+                        {dgettext("page-shortlist", "created on")} {DateTimeDisplay.format_date(
                           dataset.created_at,
                           get_session(@conn, :locale)
-                        ) %>
+                        )}
                       </div>
                       <dl class="dataset-format shortlist__notice">
                         <%= unless Dataset.formats(dataset) == [] do %>
-                          <dt class="shortlist__label"><%= dgettext("page-shortlist", "Format") %></dt>
+                          <dt class="shortlist__label">{dgettext("page-shortlist", "Format")}</dt>
                           <%= for format <- Dataset.formats(dataset) do %>
-                            <dd class="label"><%= format %></dd>
+                            <dd class="label">{format}</dd>
                           <% end %>
                         <% end %>
                       </dl>
                       <div class="dataset-type-text">
-                        <%= Dataset.type_to_str(dataset.type) %>
+                        {Dataset.type_to_str(dataset.type)}
                       </div>
                     </div>
                   </div>
@@ -224,7 +224,7 @@
               </div>
             <% end %>
             <div>
-              <%= pagination_links(@conn, @datasets) %>
+              {pagination_links(@conn, @datasets)}
             </div>
           <% end %>
         </div>
@@ -234,13 +234,13 @@
         <i class="fas fa-cogs"></i>
         <% # NOTE: the syntax_highlight flag is there just because otherwise we get a match error
         # due to how OpenAPISpex register routes (I think) %>
-        <%= link(
+        {link(
           dgettext("page-shortlist", "Get dataset list via an API"),
           to:
             "#{swagger_ui_path(@conn, path: "/api/openapi", syntax_highlight: false)}#/datasets/API.DatasetController.datasets"
-        ) %> -
+        )} -
       </div>
     </div>
   </section>
 <% end %>
-<%= render(TransportWeb.PageView, "_home_autocomplete.html", conn: @conn) %>
+{render(TransportWeb.PageView, "_home_autocomplete.html", conn: @conn)}

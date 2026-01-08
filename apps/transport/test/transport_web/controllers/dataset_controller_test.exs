@@ -729,7 +729,7 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
-             ~s{<i class="icon fa fa-link" aria-hidden="true"></i>\n<a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
+             ~s{<i class="icon fa fa-link" aria-hidden="true"></i><a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
   end
 
   test "dataset#details with notifications sent recently", %{conn: conn} do

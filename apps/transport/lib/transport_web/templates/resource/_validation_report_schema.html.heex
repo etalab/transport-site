@@ -1,35 +1,35 @@
 <div class="panel">
   <p>
-    <%= raw(
+    {raw(
       dgettext("validations", ~s(This resource should follow its schema %{link}.),
         link: safe_to_string(link(@resource.schema_name, to: documentation_url(@resource), target: "_blank"))
       )
-    ) %>
+    )}
   </p>
   <%= unless is_nil(@validation) do %>
     <% nb_errors = errors_count(@validation) %>
-    <%= render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0, locale: get_session(@conn, :locale)) %>
+    {render("_errors_warnings_count.html", nb_errors: nb_errors, nb_warnings: 0, locale: get_session(@conn, :locale))}
     <%= if nb_errors > 0 do %>
-      <%= render("_on_demand_validation_hint.html", conn: @conn, resource: @resource) %>
-      <p><%= dgettext("validations", "Errors:") %></p>
+      {render("_on_demand_validation_hint.html", conn: @conn, resource: @resource)}
+      <p>{dgettext("validations", "Errors:")}</p>
       <% validation_schema_name = @validation.resource_history.payload["schema_name"] %>
       <% schema_type = schema_type(validation_schema_name) %>
       <ul lang={if schema_type == "jsonschema", do: "en"}>
         <%= for error <- errors_sample(@validation) do %>
-          <li><%= error %></li>
+          <li>{error}</li>
         <% end %>
       </ul>
       <%= if nb_errors > max_display_errors() do %>
         <p class="notification">
-          <%= dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors()) %>
+          {dgettext("validations", "Showing only the first %{nb} errors.", nb: max_display_errors())}
           <%= if schema_type == "tableschema" do %>
-            <%= raw(
+            {raw(
               dgettext(
                 "validations",
                 ~s(See all your errors <a href="%{url}" target="_blank">using the web interface</a>.),
                 url: validata_web_url(validation_schema_name)
               )
-            ) %>
+            )}
           <% end %>
         </p>
       <% end %>

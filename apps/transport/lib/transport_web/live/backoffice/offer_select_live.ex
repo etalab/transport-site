@@ -7,27 +7,27 @@ defmodule TransportWeb.OfferSelectLive do
     ~H"""
     <div class="pt-24">
       <label>
-        Offre de transport <%= InputHelpers.text_input(@form, :offer_input,
+        Offre de transport {InputHelpers.text_input(@form, :offer_input,
           placeholder: "Astuce",
           list: "offers",
           phx_keydown: "add_offer",
           phx_target: @myself,
           id: "js-offer-input"
-        ) %>
+        )}
       </label>
       <datalist id="offers" phx-keydown="add_offer">
         <%= for offer <- @offers_list do %>
-          <option value={offer.id}><%= display(offer) %></option>
+          <option value={offer.id}>{display(offer)}</option>
         <% end %>
       </datalist>
       <div class="pt-6">
         <%= for {offer, index} <- @offers |> Enum.sort_by(& &1.label) |> Enum.with_index() do %>
           <span class="label custom-tag">
-            <%= display(offer) %>
+            {display(offer)}
             <span class="delete-tag" phx-click="remove_offer" phx-value-offer-id={offer.id} phx-target={@myself}></span>
           </span>
           <% {field_name, field_value} = field_info(offer, index) %>
-          <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
+          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
         <% end %>
       </div>
     </div>

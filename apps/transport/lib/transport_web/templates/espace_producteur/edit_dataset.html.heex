@@ -1,13 +1,13 @@
 <% datagouv_admin_url = "https://www.data.gouv.fr/admin/datasets/#{@dataset.datagouv_id}/files" %>
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id]) %>
+  {breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id])}
 </section>
 <section class="producer-space producer-actions">
   <div class="container">
-    <h2><%= @dataset.custom_title %></h2>
+    <h2>{@dataset.custom_title}</h2>
 
     <div class="panel">
-      <h3><%= dgettext("espace-producteurs", "Manage your resources") %></h3>
+      <h3>{dgettext("espace-producteurs", "Manage your resources")}</h3>
 
       <div class="panel">
         <div class="left-flex-image">
@@ -18,24 +18,24 @@
           />
           <div>
             <p>
-              <%= raw(
+              {raw(
                 dgettext(
                   "espace-producteurs",
                   "Our team maintains a comprehensive documentation",
                   link: "https://doc.transport.data.gouv.fr/producteurs/mettre-a-jour-des-donnees"
                 )
-              ) %>
+              )}
               <strong>
-                <%= dgettext(
+                {dgettext(
                   "espace-producteurs",
                   ~s(If you want to publish an update to your data, please update an existing resource in the following list rather than publish a new one.)
-                ) %>
+                )}
               </strong>
             </p>
           </div>
         </div>
       </div>
-      <%= render("_urgent_issues.html", datasets: [@dataset], checks: @checks, conn: @conn, mode: :producer) %>
+      {render("_urgent_issues.html", datasets: [@dataset], checks: @checks, conn: @conn, mode: :producer)}
       <div>
         <table class="table mt-24">
           <%= for resource <- @datagouv_dataset["resources"] do %>
@@ -54,7 +54,7 @@
               end %>
             <tr>
               <td>
-                <%= resource["title"] %> <span :if={db_resource} class="label"><%= db_resource.format %></span>
+                {resource["title"]} <span :if={db_resource} class="label">{db_resource.format}</span>
               </td>
               <td data-name="validity-dates">
                 <TransportWeb.DatasetView.validity_dates
@@ -65,28 +65,28 @@
               </td>
               <td data-name="validity" class="no-underline">
                 <%= if DB.Resource.gtfs?(db_resource) do %>
-                  <%= render(TransportWeb.DatasetView, "_resource_validation_summary_gtfs.html",
+                  {render(TransportWeb.DatasetView, "_resource_validation_summary_gtfs.html",
                     conn: @conn,
                     resource: db_resource,
                     validation: validation
-                  ) %>
+                  )}
                 <% end %>
 
                 <%= if DB.Resource.netex?(db_resource) do %>
-                  <%= render(TransportWeb.DatasetView, "_resource_validation_summary_netex.html",
+                  {render(TransportWeb.DatasetView, "_resource_validation_summary_netex.html",
                     conn: @conn,
                     resource: db_resource,
                     validation: validation
-                  ) %>
+                  )}
                 <% end %>
 
                 <%= unless DB.Resource.gtfs?(db_resource) or DB.Resource.netex?(db_resource) do %>
-                  <%= render(TransportWeb.DatasetView, "_resource_validation_summary.html",
+                  {render(TransportWeb.DatasetView, "_resource_validation_summary.html",
                     conn: @conn,
                     resource: db_resource,
                     validation: validation,
                     locale: get_session(@conn, :locale)
-                  ) %>
+                  )}
                 <% end %>
               </td>
               <td class="align-right">
@@ -96,15 +96,15 @@
                   data-tracking-action="update_resource_button"
                   class="button-outline primary small"
                 >
-                  <i class="icon fa fa-edit"></i><%= dgettext("espace-producteurs", "Edit resource") %>
+                  <i class="icon fa fa-edit"></i>{dgettext("espace-producteurs", "Edit resource")}
                 </a>
                 <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
-                  <%= link(dgettext("espace-producteurs", "Reuser GTFS"),
+                  {link(dgettext("espace-producteurs", "Reuser GTFS"),
                     to: espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id),
                     class: "button-outline reuser small",
                     "data-tracking-category": "espace_producteur",
                     "data-tracking-action": "see_reuser_improved_data"
-                  ) %>
+                  )}
                 <% end %>
                 <a
                   href={espace_producteur_path(@conn, :delete_resource_confirmation, @dataset.id, resource["id"])}
@@ -112,7 +112,7 @@
                   data-tracking-action="delete_resource_button"
                   class="button-outline warning small"
                 >
-                  <i class="icon fa fa-trash"></i><%= dgettext("espace-producteurs", "Delete resource") %>
+                  <i class="icon fa fa-trash"></i>{dgettext("espace-producteurs", "Delete resource")}
                 </a>
               </td>
             </tr>
@@ -125,50 +125,50 @@
           data-tracking-action="add_resource_button"
           class="button primary"
         >
-          <i class="icon fa fa-plus"></i><%= dgettext("espace-producteurs", "Add a resource") %>
+          <i class="icon fa fa-plus"></i>{dgettext("espace-producteurs", "Add a resource")}
         </a>
 
-        <p class="pt-24"><%= dgettext("espace-producteurs", "full-edition-on-data-gouv-fr") %></p>
-        <%= link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
+        <p class="pt-24">{dgettext("espace-producteurs", "full-edition-on-data-gouv-fr")}</p>
+        {link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
           to: datagouv_admin_url,
           class: "button-outline primary small",
           target: "_blank",
           "data-tracking-category": "espace_producteur",
           "data-tracking-action": "edit_on_data_gouv_fr_button"
-        ) %>
+        )}
       </div>
     </div>
 
     <div class="panel">
-      <h3><%= dgettext("espace-producteurs", "Update your logo") %></h3>
+      <h3>{dgettext("espace-producteurs", "Update your logo")}</h3>
       <div :if={is_nil(@dataset.custom_logo)}>
         <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>
           <div class="dataset__logo">
-            <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
-            <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
+            <p>{dgettext("espace-producteurs", "Your current logo")}</p>
+            {img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title)}
           </div>
           <p>
-            <%= dgettext("espace-producteurs", "Your custom logo") %>
+            {dgettext("espace-producteurs", "Your custom logo")}
           </p>
-          <%= file_input(f, :file, accept: "image/png, image/jpeg", required: true) %>
-          <%= submit(dgettext("espace-producteurs", "Upload")) %>
+          {file_input(f, :file, accept: "image/png, image/jpeg", required: true)}
+          {submit(dgettext("espace-producteurs", "Upload"))}
         <% end %>
       </div>
       <div :if={@dataset.custom_logo != nil}>
         <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete", class: "no-margin"], fn _ -> %>
           <div class="dataset__logo">
-            <p><%= dgettext("espace-producteurs", "Your current logo") %></p>
-            <%= img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title) %>
+            <p>{dgettext("espace-producteurs", "Your current logo")}</p>
+            {img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title)}
           </div>
-          <%= submit(dgettext("espace-producteurs", "Remove the custom logo"), class: "button warning") %>
+          {submit(dgettext("espace-producteurs", "Remove the custom logo"), class: "button warning")}
         <% end %>
       </div>
     </div>
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>

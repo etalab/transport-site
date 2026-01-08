@@ -24,20 +24,20 @@
         <%= for broken_url <- @broken_urls do %>
           <tr>
             <td>
-              <%= link(broken_url.dataset_custom_title, to: dataset_path(@conn, :details, broken_url.dataset_id)) %>
+              {link(broken_url.dataset_custom_title, to: dataset_path(@conn, :details, broken_url.dataset_id))}
             </td>
-            <td><%= format_datetime_to_paris(broken_url.inserted_at, "fr") %></td>
+            <td>{format_datetime_to_paris(broken_url.inserted_at, "fr")}</td>
             <td>
               <ul>
                 <%= for url <- broken_url.previous_urls -- broken_url.urls do %>
-                  <li><%= url %></li>
+                  <li>{url}</li>
                 <% end %>
               </ul>
             </td>
             <td>
               <ul>
                 <%= for url <- broken_url.urls -- broken_url.previous_urls do %>
-                  <li><%= url %></li>
+                  <li>{url}</li>
                 <% end %>
               </ul>
             </td>
