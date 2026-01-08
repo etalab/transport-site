@@ -1,5 +1,5 @@
 <section class="pt-48" id="community-resources">
-  <h2><%= dgettext("page-dataset-details", "Community resources") %></h2>
+  <h2>{dgettext("page-dataset-details", "Community resources")}</h2>
   <section class="dataset__resources">
     <div class="information-message">
       <% odbl_text =
@@ -13,20 +13,20 @@
         else
           ""
         end %>
-      <%= dgettext(
+      {dgettext(
         "page-dataset-details",
         "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>",
         datagouv_link: publish_community_resource_url(@dataset),
         doc_link: "https://doc.transport.data.gouv.fr/reutilisations-des-donnees/procedures-de-repartage-des-donnees",
         odbl_text: odbl_text
       )
-      |> raw() %>
+      |> raw()}
     </div>
   </section>
 
   <div class="ressources-list">
     <%= for community_resource <- community_resources(@dataset) do %>
-      <%= render("_community_ressource.html", resource: community_resource) %>
+      {render("_community_ressource.html", resource: community_resource)}
     <% end %>
   </div>
 </section>

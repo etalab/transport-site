@@ -6,26 +6,26 @@ feedback_feature = if is_producer, do: "producer_space", else: "reuser_space"
 display_error = is_producer and not is_nil(@error) %>
 <div class="pt-48">
   <div class="container pb-24">
-    <%= breadcrumbs([@socket, breadcrumb]) %>
+    {breadcrumbs([@socket, breadcrumb])}
   </div>
 </div>
 
 <section class="section producer-actions">
   <div class="container">
-    <h2><%= dgettext("espace-producteurs", "Manage my notifications") %></h2>
-    <div :if={display_error} class="notification error"><%= @error %></div>
+    <h2>{dgettext("espace-producteurs", "Manage my notifications")}</h2>
+    <div :if={display_error} class="notification error">{@error}</div>
 
     <div class="panel mb-24">
-      <p :if={is_producer}><%= dgettext("espace-producteurs", "notifications are good for you") %></p>
-      <p :if={is_reuser}><%= raw(dgettext("reuser-space", "notifications are good for you")) %></p>
+      <p :if={is_producer}>{dgettext("espace-producteurs", "notifications are good for you")}</p>
+      <p :if={is_reuser}>{raw(dgettext("reuser-space", "notifications are good for you"))}</p>
     </div>
 
     <div class="row">
       <%= for %{reason: reason, explanations: explanations} <- @available_reasons do %>
         <div class="card">
           <div class="card__content">
-            <h5><%= Transport.NotificationReason.reason_to_str(reason) %></h5>
-            <p><%= explanations %></p>
+            <h5>{Transport.NotificationReason.reason_to_str(reason)}</h5>
+            <p>{explanations}</p>
           </div>
         </div>
       <% end %>
@@ -33,31 +33,31 @@ display_error = is_producer and not is_nil(@error) %>
 
     <div :if={!display_error} class="panel mt-24">
       <div :if={is_reuser} data-content="platform-wide-notifications">
-        <h3><%= dgettext("reuser-space", "Global notifications") %></h3>
+        <h3>{dgettext("reuser-space", "Global notifications")}</h3>
         <.form :let={f} for={%{}} class="full-width">
           <table class="table">
             <%= for reason <- @platform_wide_reasons do %>
               <% subscribed = reason in @subscribed_platform_wide_reasons %>
               <tr>
-                <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
+                <td>{Transport.NotificationReason.reason_to_str(reason)}</td>
                 <td>
                   <div class="form__group">
                     <fieldset>
                       <span {if subscribed, do: [class: "is-grey"], else: []}>
-                        <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                        {dgettext("espace-producteurs", "Off")}&nbsp;
                       </span>
                       <label class="switch">
-                        <%= checkbox(
+                        {checkbox(
                           f,
                           reason,
                           checked: subscribed,
                           phx_value_reason: reason,
                           phx_value_action: if(subscribed, do: "turn_off", else: "turn_on"),
                           phx_click: "toggle"
-                        ) %>
+                        )}
                         <span class="slider"></span>
                         <span {if not subscribed, do: [class: "is-grey"], else: []}>
-                          &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                          &nbsp;{dgettext("espace-producteurs", "On")}
                         </span>
                       </label>
                     </fieldset>
@@ -69,27 +69,27 @@ display_error = is_producer and not is_nil(@error) %>
         </.form>
       </div>
 
-      <h3 :if={is_reuser}><%= dgettext("reuser-space", "Notifications by dataset") %></h3>
+      <h3 :if={is_reuser}>{dgettext("reuser-space", "Notifications by dataset")}</h3>
       <.form :let={f} for={%{}} class="full-width">
         <table class="table" data-content="dataset-notifications">
           <tr>
-            <td><strong><%= dgettext("espace-producteurs", "All notifications") %></strong></td>
+            <td><strong>{dgettext("espace-producteurs", "All notifications")}</strong></td>
             <td>
               <fieldset>
                 <span {if @all_notifications_enabled, do: [class: "is-grey"], else: []}>
-                  <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                  {dgettext("espace-producteurs", "Off")}&nbsp;
                 </span>
                 <label class="switch">
-                  <%= checkbox(
+                  {checkbox(
                     f,
                     "check_all",
                     checked: @all_notifications_enabled,
                     phx_value_action: if(@all_notifications_enabled, do: "turn_off", else: "turn_on"),
                     phx_click: "toggle-all"
-                  ) %>
+                  )}
                   <span class="slider"></span>
                   <span {if !@all_notifications_enabled, do: [class: "is-grey"], else: []}>
-                    &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                    &nbsp;{dgettext("espace-producteurs", "On")}
                   </span>
                 </label>
               </fieldset>
@@ -99,34 +99,35 @@ display_error = is_producer and not is_nil(@error) %>
           <%= for dataset <- @datasets do %>
             <tr>
               <th scope="row" colspan={colspan}>
-                <%= dataset.custom_title %>
+                {dataset.custom_title}
               </th>
             </tr>
 
             <%= for %{reason: reason} <- @available_reasons do %>
               <tr>
                 <% my_subscription = @subscriptions[dataset.id][reason][:user_subscription] %>
-                <td><%= Transport.NotificationReason.reason_to_str(reason) %></td>
+                <td>{Transport.NotificationReason.reason_to_str(reason)}</td>
                 <td>
                   <div class="form__group">
                     <fieldset>
                       <span {if my_subscription, do: [class: "is-grey"], else: []}>
-                        <%= dgettext("espace-producteurs", "Off") %>&nbsp;
+                        {dgettext("espace-producteurs", "Off")}&nbsp;
                       </span>
                       <label class="switch">
-                        <%= checkbox(
+                        {checkbox(
                           f,
                           reason,
+                          id: "#{reason}_#{dataset.id}",
                           checked: !is_nil(my_subscription),
                           phx_value_dataset_id: dataset.id,
                           phx_value_reason: reason,
                           phx_value_subscription_id: if(my_subscription, do: my_subscription.id, else: ""),
                           phx_value_action: if(my_subscription, do: "turn_off", else: "turn_on"),
                           phx_click: "toggle"
-                        ) %>
+                        )}
                         <span class="slider"></span>
                         <span {if !my_subscription, do: [class: "is-grey"], else: []}>
-                          &nbsp;<%= dgettext("espace-producteurs", "On") %>
+                          &nbsp;{dgettext("espace-producteurs", "On")}
                         </span>
                       </label>
                     </fieldset>
@@ -137,10 +138,10 @@ display_error = is_producer and not is_nil(@error) %>
                   <%= if team_subscriptions && team_subscriptions != [] do %>
                     <% other_subscribers_names =
                       Enum.map_join(team_subscriptions, ", ", &(&1.contact |> DB.Contact.display_name())) %>
-                    <%= dgettext("espace-producteurs", "other subscribed contacts", names: other_subscribers_names) %>
+                    {dgettext("espace-producteurs", "other subscribed contacts", names: other_subscribers_names)}
                   <% else %>
                     <i class="is-grey">
-                      <%= dgettext("espace-producteurs", "Nobody else is subscribed to this notification") %>
+                      {dgettext("espace-producteurs", "Nobody else is subscribed to this notification")}
                     </i>
                   <% end %>
                 </td>
@@ -153,8 +154,8 @@ display_error = is_producer and not is_nil(@error) %>
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@socket, TransportWeb.Live.FeedbackLive,
+  {live_render(@socket, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => feedback_feature}
-  ) %>
+  )}
 </section>

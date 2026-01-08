@@ -86,23 +86,23 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     <div id="gtfs-diff-results" class="container">
       <div :if={@diff_file_url} class="panel">
         <h4>
-          <%= dgettext("gtfs-diff", "GTFS Diff is available for") %>
-          <%= link(dgettext("gtfs-diff", "download"),
+          {dgettext("gtfs-diff", "GTFS Diff is available for")}
+          {link(dgettext("gtfs-diff", "download"),
             to: @diff_file_url,
             target: "_blank"
-          ) %>
+          )}
         </h4>
         <p>
-          <%= raw(
+          {raw(
             dgettext(
               "gtfs-diff",
               "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
               spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
             )
-          ) %>.
+          )}.
         </p>
         <%= if @diff_summary do %>
-          <p><%= display_context(@diff_summary, @context) |> raw() %></p>
+          <p>{display_context(@diff_summary, @context) |> raw()}</p>
           <.diff_summaries
             :if={@diff_summary != %{}}
             diff_explanations={@diff_explanations}
@@ -116,14 +116,14 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
           <%= if @error_msg do %>
             <.validation_error error_msg={@error_msg} />
           <% else %>
-            <p><%= dgettext("gtfs-diff", "Analyzing found differences…") %></p>
+            <p>{dgettext("gtfs-diff", "Analyzing found differences…")}</p>
           <% end %>
         <% end %>
       </div>
 
       <div class="actions">
         <button class="button-outline primary" type="button" phx-click="start-over">
-          <i class="fa fa-rotate-left"></i>&nbsp;<%= dgettext("gtfs-diff", "Start over") %>
+          <i class="fa fa-rotate-left"></i>&nbsp;{dgettext("gtfs-diff", "Start over")}
         </button>
       </div>
     </div>
@@ -177,7 +177,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
     ~H"""
     <li>
       <a class={@class} phx-click="select-file" phx-value-file={@file}>
-        <code><%= @file %></code>
+        <code>{@file}</code>
       </a>
     </li>
     """
@@ -241,10 +241,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   defp validation_error(%{error_msg: _} = assigns) do
     ~H"""
     <p>
-      <%= dgettext(
+      {dgettext(
         "gtfs-diff",
         "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
-      ) %>
+      )}
       <span class="red"><%= translate_error(@error_msg) %></span>.
     </p>
     """

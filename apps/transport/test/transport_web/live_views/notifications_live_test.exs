@@ -105,7 +105,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     switch_attr = Map.new(switch_attr)
 
-    assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
+    assert ["expiration_#{dataset_id}", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
 
     # Platform-wide subscriptions are not displayed
@@ -176,7 +176,7 @@ defmodule TransportWeb.Live.NotificationsLiveTest do
 
     switch_attr = Map.new(switch_attr)
 
-    assert ["expiration", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
+    assert ["expiration_#{dataset_id}", Integer.to_string(dataset_id), Integer.to_string(subscription_id)] ==
              [switch_attr["id"], switch_attr["phx-value-dataset-id"], switch_attr["phx-value-subscription-id"]]
 
     # Platform-wide subscription switches

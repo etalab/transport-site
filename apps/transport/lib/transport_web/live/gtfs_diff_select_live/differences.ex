@@ -27,7 +27,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
           |> Map.to_list()
           |> Enum.filter(fn {_, explanations} -> not Enum.empty?(explanations) end) %>
         <%= if not Enum.empty?(active_explanations) do %>
-          <h5><%= dgettext("gtfs-diff", "Notable changes:") %></h5>
+          <h5>{dgettext("gtfs-diff", "Notable changes:")}</h5>
           <.detailed_explanations
             :for={{explanation_type, explanations} <- active_explanations}
             file={@selected_file}
@@ -86,7 +86,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <p :if={@file_differences == [@file_criteria]}>
       <i class={pick_symbol(@file_criteria)}></i>
-      <%= pick_file_message(@file_criteria, count_column_differences(@column_differences, @column_criteria)) %>
+      {pick_file_message(@file_criteria, count_column_differences(@column_differences, @column_criteria))}
     </p>
     <.columns_list
       :if={@file_differences == [@file_criteria]}
@@ -130,7 +130,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <p :if={@file_differences == [] && @relevant_column_differences != []}>
       <i class={pick_symbol(@criteria)}></i>
-      <%= pick_column_message(@criteria, Enum.count(@relevant_column_differences)) %>
+      {pick_column_message(@criteria, Enum.count(@relevant_column_differences))}
     </p>
     <.columns_list
       :if={@file_differences == [] && @relevant_column_differences != []}
@@ -144,9 +144,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <ul>
       <li :for={column <- @column_differences}>
-        <code><%= column %></code>
+        <code>{column}</code>
         <span :if={not standard_column?(@selected_file, column)}>
-          <i class="symbol fa fa-warning orange"></i> <%= dgettext("gtfs-diff", "non standard column") %>
+          <i class="symbol fa fa-warning orange"></i> {dgettext("gtfs-diff", "non standard column")}
         </span>
       </li>
     </ul>
@@ -172,13 +172,13 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     cond do
       assigns[:selected_file] not in Transport.GTFSDiff.files_to_analyze(assigns[:profile]) ->
         ~H"""
-        <p><%= dgettext("gtfs-diff", "Row changes:") %></p>
+        <p>{dgettext("gtfs-diff", "Row changes:")}</p>
         <.partial_difference_warning />
         """
 
       row_changes?(assigns[:diff_summary], assigns[:selected_file]) ->
         ~H"""
-        <p><%= dgettext("gtfs-diff", "Row changes:") %></p>
+        <p>{dgettext("gtfs-diff", "Row changes:")}</p>
         <ul>
           <.diff_summary_for_file
             :for={{nature, translation, css_class} <- diff_natures()}
@@ -192,7 +192,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
       true ->
         ~H"""
-        <p><%= dgettext("gtfs-diff", "No row changes.") %></p>
+        <p>{dgettext("gtfs-diff", "No row changes.")}</p>
         """
     end
   end
@@ -213,7 +213,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <%= for {{file, _nature, target}, n} <- @summary || [] do %>
       <li :if={file == @selected_file && target == "row"}>
-        <span class={@class}><%= @translation %></span>&nbsp;<%= translate_target(target, n) %>
+        <span class={@class}><%= @translation %></span>&nbsp;{translate_target(target, n)}
       </li>
     <% end %>
     """
@@ -222,10 +222,10 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   defp partial_difference_warning(%{} = assigns) do
     ~H"""
     <div class="notification warning">
-      <%= dgettext(
+      {dgettext(
         "gtfs-diff",
         "Row changes have not been analyzed for this file. We suggest you dive into both GTFS files for more details."
-      ) %>
+      )}
     </div>
     """
   end
@@ -240,17 +240,17 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
   defp detailed_explanations(%{file: _, explanations: _, explanation_type: _} = assigns) do
     ~H"""
-    <h6><%= translate_explanation_type(@file, @explanation_type) %> (<%= length(@explanations) %>)</h6>
+    <h6>{translate_explanation_type(@file, @explanation_type)} ({length(@explanations)})</h6>
     <p :if={translate_explanation_details(@file, @explanation_type)}>
-      <%= translate_explanation_details(@file, @explanation_type) |> Enum.intersperse("\n\n") |> markdown_to_safe_html!() %>
+      {translate_explanation_details(@file, @explanation_type) |> Enum.intersperse("\n\n") |> markdown_to_safe_html!()}
     </p>
     <div class="scrollable-table">
       <table class="table">
         <thead>
           <tr>
-            <th><%= dgettext("gtfs-diff", "Comment") %></th>
-            <th><%= dgettext("gtfs-diff", "Original") %></th>
-            <th><%= dgettext("gtfs-diff", "Modified") %></th>
+            <th>{dgettext("gtfs-diff", "Comment")}</th>
+            <th>{dgettext("gtfs-diff", "Original")}</th>
+            <th>{dgettext("gtfs-diff", "Modified")}</th>
           </tr>
         </thead>
         <tbody>
@@ -258,7 +258,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
             %{message: message, type: type_, before: before, after: after_} <-
               Enum.sort_by(@explanations, fn %{sort_key: sort_key} -> sort_key end)
           }>
-            <td><%= message %></td>
+            <td>{message}</td>
             <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(before)} /></td>
             <td><.attribute_value type={attribute_type(@file, type_)} value={String.trim(after_)} /></td>
           </tr>
@@ -276,7 +276,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
 
   defp attribute_value(%{type: :color, value: "#"} = assigns) do
     ~H"""
-    <em><%= dgettext("gtfs-diff", "no color") %></em>
+    <em>{dgettext("gtfs-diff", "no color")}</em>
     """
   end
 
@@ -286,32 +286,32 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
         <rect x="0" y="0" width="16" height="16" stroke="black" stroke-width="2" fill={@value} />
       </svg>
-      <%= @value %>
+      {@value}
     </div>
     """
   end
 
   defp attribute_value(%{type: :route_type, value: _} = assigns) do
     ~H"""
-    <%= @value %> (<%= route_type_short_description(@value) %>)
+    {@value} ({route_type_short_description(@value)})
     """
   end
 
   defp attribute_value(%{type: :stop_location_type, value: _} = assigns) do
     ~H"""
-    <%= @value %> (<%= stop_location_type_short_description(@value) %>)
+    {@value} ({stop_location_type_short_description(@value)})
     """
   end
 
   defp attribute_value(%{type: _, value: ""} = assigns) do
     ~H"""
-    <em><%= dgettext("gtfs-diff", "no value") %></em>
+    <em>{dgettext("gtfs-diff", "no value")}</em>
     """
   end
 
   defp attribute_value(%{type: _, value: _} = assigns) do
     ~H"""
-    <%= @value %>
+    {@value}
     """
   end
 

@@ -46,7 +46,7 @@ defmodule Shared.MixProject do
       {:finch, "~> 0.8"},
       # Required for the ConditionalJSONEncoder shared component, but
       # there is probably a way to avoid that?
-      {:phoenix, "~> 1.7.0"},
+      {:phoenix, "~> 1.8.3"},
       # The global app config references Sentry.LoggerBackend. We add it in "shared"
       # as an implicit dependency, to ensure `Sentry.LoggerBackend` is always defined,
       # otherwise running tests for an individual umbrella sub-app will raise error.

@@ -340,10 +340,6 @@ msgid "Download proxy statistics"
 msgstr "Télécharger les statistiques du proxy"
 
 #, elixir-autogen, elixir-format
-msgid "You will find below proxy statistics for your resources. Statistics can be downloaded at the bottom of the page."
-msgstr "Vous trouverez ci-dessous les statistiques du proxy pour vos ressources. Les statistiques peuvent être téléchargées en bas de page."
-
-#, elixir-autogen, elixir-format
 msgid "Download download statistics"
 msgstr "Télécharger les statistiques de téléchargements"
 
@@ -458,3 +454,31 @@ msgstr "Nouvelles fonctionnalités disponibles"
 #, elixir-autogen, elixir-format
 msgid "recent_features"
 msgstr "Nouvelles fonctionnalités"
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
+msgstr "Vous trouverez ci-dessous les statistiques du proxy pour vos ressources. Vous pouvez télécharger les statistiques détaillées au format CSV en utilisant le bouton ci-dessus."
+
+#, elixir-autogen, elixir-format
+msgid "Proxy requests"
+msgstr "Requêtes proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by the proxy"
+msgstr "Requêtes gérées par le proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by upstream"
+msgstr "Requêtes transmises à la source"
+
+#, elixir-autogen, elixir-format
+msgid "Upstream requests"
+msgstr "Requêtes source"
+
+#, elixir-autogen, elixir-format
+msgid "View detailed statistics"
+msgstr "Voir les statistiques détaillées"
+
+#, elixir-autogen, elixir-format
+msgid "over the last %{nb} days"
+msgstr "sur les %{nb} derniers jours"

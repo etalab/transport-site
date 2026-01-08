@@ -1,11 +1,11 @@
 <section class="container pt-48 pb-48">
   <h1>Jobs Observation Center</h1>
-  <p class="small">Dernière mise à jour: <%= @last_updated_at %></p>
+  <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 
   <div class="pb-24">
     <.form :let={f} for={%{}} phx-change="filter" class="no-margin">
-      <%= label(f, "Filter by worker label") %>
-      <%= text_input(f, :worker, value: @worker) %>
+      {label(f, "Filter by worker label")}
+      {text_input(f, :worker, value: @worker)}
     </.form>
   </div>
 
@@ -24,11 +24,11 @@
           <tr>
             <%= if index == 0 do %>
               <td rowspan={Enum.count(rows)}>
-                <%= format_1_hour_range(hour) %>
+                {format_1_hour_range(hour)}
               </td>
             <% end %>
-            <td><%= row.worker %></td>
-            <td><%= Helpers.format_number(row.count) %></td>
+            <td>{row.worker}</td>
+            <td>{Helpers.format_number(row.count)}</td>
           </tr>
         <% end %>
       <% end %>
@@ -37,25 +37,25 @@
 
   <h2>Executing jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@executing_jobs} state="executing" id="executing_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_executing_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_executing_jobs, locale: "en")}</p>
 
   <h2>Completed jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@last_completed_jobs} state="completed" id="completed_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_completed_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_completed_jobs, locale: "en")}</p>
 
   <h2>Scheduled jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@scheduled_jobs} state="scheduled" id="scheduled_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_scheduled_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_scheduled_jobs, locale: "en")}</p>
 
   <h2>Retryable jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@retryable_jobs} state="retryable" id="retryable_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_retryable_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_retryable_jobs, locale: "en")}</p>
 
   <h2>Available jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@available_jobs} state="available" id="available_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_available_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_available_jobs, locale: "en")}</p>
 
   <h2>Discarded jobs</h2>
   <.live_component module={JobsTableComponent} jobs={@last_discarded_jobs} state="discarded" id="discarded_jobs" />
-  <p class="small">Total: <%= Helpers.format_number(@count_discarded_jobs, locale: "en") %></p>
+  <p class="small">Total: {Helpers.format_number(@count_discarded_jobs, locale: "en")}</p>
 </section>

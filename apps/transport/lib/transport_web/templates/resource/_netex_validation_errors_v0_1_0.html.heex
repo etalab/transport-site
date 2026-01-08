@@ -1,8 +1,8 @@
 <%= if @issues.total_entries == 0 do %>
-  <%= dgettext("validations", "No validation error") %>.
+  {dgettext("validations", "No validation error")}.
 <% else %>
   <nav class="issues-list validation" role="navigation">
-    <%= render("_validation_summary.html",
+    {render("_validation_summary.html",
       conn: @conn,
       data_vis: nil,
       issues: @issues,
@@ -10,15 +10,15 @@
       token: nil,
       validation_summary: @validation_summary,
       results_adapter: @results_adapter
-    ) %>
+    )}
   </nav>
   <% issue_type = @results_adapter.issue_type(@issues.entries) %>
   <div class="main-pane">
-    <%= pagination_links(@conn, @issues, [@resource.id],
+    {pagination_links(@conn, @issues, [@resource.id],
       issue_type: issue_type,
       path: &resource_path/4,
       action: :details
-    ) %>
-    <%= render(netex_template(), issues: @issues || [], conn: @conn) %>
+    )}
+    {render(netex_template(), issues: @issues || [], conn: @conn)}
   </div>
 <% end %>

@@ -1,25 +1,25 @@
 <section class="container pt-48 pb-24">
-  <%= breadcrumbs([@conn, :unanswered_discussions]) %>
+  {breadcrumbs([@conn, :unanswered_discussions])}
 </section>
 <section class="producer-actions">
   <div class="container">
-    <h2><%= dgettext("espace-producteurs", "Unanswered discussions") %></h2>
+    <h2>{dgettext("espace-producteurs", "Unanswered discussions")}</h2>
     <div class="panel">
       <p>
-        <%= dgettext(
+        {dgettext(
           "espace-producteurs",
           "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation."
-        ) %>
+        )}
       </p>
       <p :if={Enum.empty?(@unanswered_discussions)} class="notification">
-        <%= dgettext("espace-producteurs", "You have no unanswered discussions.") %>
+        {dgettext("espace-producteurs", "You have no unanswered discussions.")}
       </p>
       <table :if={not Enum.empty?(@unanswered_discussions)} class="table small-padding">
         <thead>
           <tr>
-            <th><%= dgettext("espace-producteurs", "Dataset") %></th>
-            <th><%= dgettext("espace-producteurs", "Discussion") %></th>
-            <th><%= dgettext("espace-producteurs", "Link") %></th>
+            <th>{dgettext("espace-producteurs", "Dataset")}</th>
+            <th>{dgettext("espace-producteurs", "Discussion")}</th>
+            <th>{dgettext("espace-producteurs", "Link")}</th>
           </tr>
         </thead>
         <tbody>
@@ -29,10 +29,10 @@
                 <td :if={index == 0} rowspan={Enum.count(discussions)}>
                   <a href={dataset_path(@conn, :details, dataset.slug)} target="_blank">
                     <i class="fa fa-external-link"></i>
-                    <%= dataset.custom_title %>
+                    {dataset.custom_title}
                   </a>
                 </td>
-                <td><%= discussion["title"] %></td>
+                <td>{discussion["title"]}</td>
                 <td>
                   <a
                     href={dataset_path(@conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|}
@@ -42,7 +42,7 @@
                     data-tracking-action="unanswered_discussion_button"
                   >
                     <i class="icon fas fa-comments"></i>
-                    <%= dgettext("espace-producteurs", "See the discussion") %>
+                    {dgettext("espace-producteurs", "See the discussion")}
                   </a>
                 </td>
               </tr>
@@ -54,8 +54,8 @@
   </div>
 </section>
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive,
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
     id: "feedback-form",
     session: %{"feature" => "producer_space"}
-  ) %>
+  )}
 </section>
