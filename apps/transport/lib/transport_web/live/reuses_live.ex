@@ -12,7 +12,12 @@ defmodule TransportWeb.ReusesLive do
       <%= unless @reuses == [] and !@fetch_reuses_error do %>
         <section class="white pt-48" id="dataset-reuses">
           <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
-          <p>{dgettext("page-dataset-details", "You will find below reuses created by individuals or organizations based on this dataset.")}</p>
+          <p>
+            {dgettext(
+              "page-dataset-details",
+              "You will find below reuses created by individuals or organizations based on this dataset."
+            )}
+          </p>
           <%= if @fetch_reuses_error do %>
             <div class="panel reuses_not_available">
               🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
