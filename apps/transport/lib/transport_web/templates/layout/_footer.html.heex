@@ -31,9 +31,10 @@
             f,
             :user_type,
             [
-              {gettext("Data producer"), "data-producer"},
-              {gettext("Data reuser"), "data-reuser"},
-              {gettext("Other"), "other"}
+              [key: gettext("Choose an option"), value: "", disabled: true, selected: true],
+              [key: gettext("Data producer"), value: "data-producer"],
+              [key: gettext("Data reuser"), value: "data-reuser"],
+              [key: gettext("Other"), value: "other"]
             ],
             required: true
           )}
@@ -44,11 +45,12 @@
             f,
             :question_type,
             [
-              {gettext("The website transport.data.gouv.fr"), "website"},
-              {gettext("Data I can't find"), "data-not-found"},
-              {gettext("Technical support"), "technical-support"},
-              {gettext("Legal requirements"), "legal-requirements"},
-              {gettext("Other"), "other"}
+              [key: gettext("Choose an option"), value: "", disabled: true, selected: true],
+              [key: gettext("The website transport.data.gouv.fr"), value: "website"],
+              [key: gettext("Data I can't find"), value: "data-not-found"],
+              [key: gettext("Technical support"), value: "technical-support"],
+              [key: gettext("Legal requirements"), value: "legal-requirements"],
+              [key: gettext("Other"), value: "other"]
             ],
             required: true
           )}

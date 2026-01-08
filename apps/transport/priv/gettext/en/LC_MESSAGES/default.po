@@ -220,3 +220,7 @@ msgstr[1] ""
 #, elixir-autogen, elixir-format
 msgid "New features"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Choose an option"
+msgstr ""
