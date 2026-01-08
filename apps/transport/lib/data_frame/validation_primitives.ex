@@ -42,17 +42,10 @@ defmodule Transport.DataFrame.Validation.Primitives do
       [false, false]
   """
   def has_value(series) do
-    # If the series has a :null dtype (e.g., when a column is missing),
-    # all values are nil, so return a series of false
-    if Series.dtype(series) == :null do
-      # All values are nil, so has_value is always false
-      Series.is_not_nil(series)
-    else
-      Series.and(
-        Series.is_not_nil(series),
-        Series.not_equal(series, "")
-      )
-    end
+    Series.and(
+      Series.is_not_nil(series),
+      Series.not_equal(series, "")
+    )
   end
 
   @doc """
