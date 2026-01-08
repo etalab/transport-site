@@ -96,7 +96,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
           {raw(
             dgettext(
               "gtfs-diff",
-              "<a href=\"%{spec}\">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed",
+              ~s|<a href="%{spec}">Read</a> the GTFS Diff specification to understand how differences between GTFS are expressed|,
               spec: "https://github.com/MobilityData/gtfs_diff/blob/main/specification.md"
             )
           )}.
