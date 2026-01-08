@@ -34,7 +34,7 @@ defmodule Transport.IRVE.Processing do
     # This allows non-comma delimiters, should have a warning accumulation later
     |> convert_to_uncasted_dataframe!()
     # Same as above, should exit a warning accumulation later
-    |> add_missing_optional_columns()
+    |> add_missing_optional_columns(true)
     # True means: keep as string, avoid type interpolation
     |> preprocess_boolean_fields(true)
   end
@@ -83,10 +83,10 @@ defmodule Transport.IRVE.Processing do
   Note: the field `cable_t2_attache` is added here, and then in the "raw static consolidation"
   path it is later removed again in `select_fields/1`.
   """
-  def add_missing_optional_columns(dataframe) do
+  def add_missing_optional_columns(dataframe, keep_as_string \\ false) do
     Transport.IRVE.StaticIRVESchema.optional_fields()
     |> Enum.reduce(dataframe, fn column, dataframe_acc ->
-      Transport.IRVE.DataFrame.add_empty_column_if_missing(dataframe_acc, column)
+      Transport.IRVE.DataFrame.add_empty_column_if_missing(dataframe_acc, column, keep_as_string)
     end)
   end
 
