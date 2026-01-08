@@ -52,7 +52,7 @@
 }
 
 // Proxy statistics styles
-.proxy-statistics {
+.proxy-statistics, .download-statistics {
   &__header {
     display: flex;
     justify-content: space-between;
