@@ -214,16 +214,6 @@ defmodule Unlock.Controller do
 
   defp process_resource(conn, %Unlock.Config.Item.Generic.HTTP{}), do: send_not_allowed(conn)
 
-  defp send_http_response(conn, response, %Unlock.Config.Item.Generic.HTTP{} = item) do
-    response.headers
-    |> prepare_response_headers()
-    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
-    # For now, we enforce the download. This will result in incorrect filenames
-    # if the content-type is incorrect, but is better than nothing.
-    |> put_resp_header("content-disposition", "attachment")
-    |> override_resp_headers_if_configured(item)
-  end
-
   # NOTE: this code is designed for private use for now. I have tracked
   # what is required or useful for public opening later here:
   # https://github.com/etalab/transport-site/issues/2476
@@ -286,6 +276,16 @@ defmodule Unlock.Controller do
   defp send_not_allowed(conn) do
     conn
     |> send_resp(405, "Method Not Allowed")
+  end
+
+  defp send_http_response(conn, response, %Unlock.Config.Item.Generic.HTTP{} = item) do
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    # For now, we enforce the download. This will result in incorrect filenames
+    # if the content-type is incorrect, but is better than nothing.
+    |> put_resp_header("content-disposition", "attachment")
+    |> override_resp_headers_if_configured(item)
   end
 
   @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()

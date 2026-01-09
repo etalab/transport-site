@@ -320,18 +320,18 @@ defmodule Unlock.ControllerTest do
                Shared.Proxy.forwarded_headers_allowlist() |> MapSet.new()
 
       Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn ^target_url, _headers, _options = [] ->
-        %Unlock.HTTP.Response{
-          body: "somebody-to-love",
-          status: 200,
-          headers:
-            expected_forwarded_response_headers ++
-              [
-                # unwanted headers
-                {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
-                {"x-cache", "Miss from cloudfront"}
-              ]
-        }
+      |> expect(:stream!, fn ^target_url, [] = _headers, path ->
+        File.write!(path, "somebody-to-love")
+
+        headers =
+          expected_forwarded_response_headers ++
+            [
+              # unwanted headers
+              {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
+              {"x-cache", "Miss from cloudfront"}
+            ]
+
+        %Unlock.HTTP.Response{body: nil, status: 200, headers: headers}
       end)
 
       resp = proxy_conn() |> get("/resource/an-existing-identifier")
@@ -359,7 +359,7 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
 
       # Data has been saved to disk
-      path = System.tmp_dir!() <> "/#{slug}"
+      path = System.tmp_dir!() |> Path.join(slug)
       assert File.exists?(path)
       assert File.read!(path) == "somebody-to-love"
 
