@@ -3,14 +3,12 @@
 
 Logger.configure(level: :info)
 
-# import Ecto.Query
-
 # delete everything
 DB.Repo.delete_all(DB.IRVEValidFile)
 
 # Delete a bit so that we can demonstrate "already imported"
 # IO.puts("deleting a bit of imported files")
-
+# import Ecto.Query
 # DB.Repo.delete_all(
 #  from(f in DB.IRVEValidFile,
 #    where: f.id in subquery(from(f2 in DB.IRVEValidFile, select: f2.id, limit: 100))
