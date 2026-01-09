@@ -264,7 +264,7 @@
       <div class="pt-12">
         <i class="fas fa-cogs"></i>
         {dgettext("page-dataset-details", "Get details about this dataset via an %{start_link}API call%{end_link}",
-          start_link: "<a href=\"/api/datasets/#{@dataset.datagouv_id}\">",
+          start_link: ~s|<a href="/api/datasets/#{@dataset.datagouv_id}">|,
           end_link: "</a>"
         )
         |> raw()}

@@ -76,7 +76,7 @@
         Vous pouvez forcer le format d'une ressource en utilisant ce formulaire.
       </p>
       <%= form_for @conn, backoffice_dataset_path(@conn, :resource_format_override, @dataset.id), [], fn f -> %>
-        {select(f, :resource_id, Enum.map(@dataset.resources, &[key: &1.title <> " - " <> &1.format, value: &1.id]))}
+        {select(f, :resource_id, Enum.map(@dataset.resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
         {select(f, :format_override, @resource_formats)}
         {submit("Changer le format")}
       <% end %>

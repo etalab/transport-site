@@ -15,7 +15,7 @@
         end %>
       {dgettext(
         "page-dataset-details",
-        "Reusers can share in this section edits made on resources%{odbl_text}. <a href=\"%{datagouv_link}\" target=\"_blank\">Publish your own ressource</a> on data.gouv.fr or <a href=\"%{doc_link}\" target=\"_blank\">browse our documentation.</a>",
+        ~s|Reusers can share in this section edits made on resources%{odbl_text}. <a href="%{datagouv_link}" target="_blank">Publish your own ressource</a> on data.gouv.fr or <a href="%{doc_link}" target="_blank">browse our documentation.</a>|,
         datagouv_link: publish_community_resource_url(@dataset),
         doc_link: "https://doc.transport.data.gouv.fr/reutilisations-des-donnees/procedures-de-repartage-des-donnees",
         odbl_text: odbl_text
