@@ -91,7 +91,7 @@ defmodule Transport.IRVE.ValidatorTest do
 
     latin1_content = [row] |> DB.Factory.IRVE.to_csv_body() |> :unicode.characters_to_binary(:utf8, :latin1)
     # sanity check that we actually have Latin-1 byte for the accent
-    assert latin1_content =~ << "Ma station accentu", 0xE9, "e" >>
+    assert latin1_content =~ <<"Ma station accentu", 0xE9, "e">>
 
     with_tmp_file(latin1_content, fn path ->
       result = Transport.IRVE.Validator.validate(path)
