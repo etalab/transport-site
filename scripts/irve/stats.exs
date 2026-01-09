@@ -4,8 +4,11 @@ Mix.install([
 ])
 
 sources = [
-  {"https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-statique", "consolidation-pan.csv"},
-  {"https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435", "consolidation-data-gouv.csv"}
+  {"https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-statique-brute-v1",
+   "consolidation-nationale-irve-statique-brute-v1.csv"},
+  {"https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435", "consolidation-data-gouv.csv"},
+  # generate with `mix run dump-simple-consolidation.exs`
+  {:on_disk, "simple-consolidation.csv"}
 ]
 
 defmodule Stats do
@@ -44,10 +47,11 @@ defmodule Stats do
 end
 
 sources
-|> Enum.each(fn {url, local_filename} ->
-  file = Path.join(__DIR__, "../../cache-dir/#{local_filename}")
-  Stats.cached_download!(url, file)
-  Stats.inspect(Stats.compute(file), file |> Path.basename())
+|> Enum.each(fn
+  {url, local_filename} ->
+    file = Path.join(__DIR__, "../../cache-dir/#{local_filename}")
+    if url != :on_disk, do: Stats.cached_download!(url, file)
+    Stats.inspect(Stats.compute(file), file |> Path.basename())
 end)
 
 # Variation useful when comparing files locally:

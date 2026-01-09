@@ -1,4 +1,4 @@
-defmodule Transport.DataFrame.Validation.DataFrameValidationTest do
+defmodule Transport.IRVE.Validator.DataFrameValidationTest do
   # all the test-cases, assuming the data has been trimmed from
   # leading & trailing whitespaces.
   @test_cases [

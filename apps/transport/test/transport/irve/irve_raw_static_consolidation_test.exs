@@ -26,7 +26,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
 
           # Verify data file was created and contains expected content
           assert File.exists?(data_file)
-          [headers, pdc_line] = data_file |> File.stream!() |> CSV.decode!() |> Enum.into([])
+          [headers, _another_pdc_line, pdc_line] = data_file |> File.stream!() |> CSV.decode!() |> Enum.into([])
 
           assert headers ==
                    (Transport.IRVE.StaticIRVESchema.field_names_list() -- ["coordonneesXY", "cable_t2_attache"]) ++
@@ -112,7 +112,7 @@ defmodule Transport.IRVE.RawStaticConsolidationTest do
 
   defp mock_resource_downloads do
     Transport.Req.Mock
-    |> expect(:get!, 2, fn _url, _options ->
+    |> expect(:get!, 3, fn _url, _options ->
       %Req.Response{
         status: 200,
         body: [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
