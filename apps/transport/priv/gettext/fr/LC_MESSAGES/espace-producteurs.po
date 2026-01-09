@@ -364,10 +364,6 @@ msgid "Start again"
 msgstr "Essayer à nouveau"
 
 #, elixir-autogen, elixir-format
-msgid "Issue"
-msgstr "Problème"
-
-#, elixir-autogen, elixir-format
 msgid "expiring_resource"
 msgstr "Ressource arrivant à expiration"
 
@@ -378,14 +374,6 @@ msgstr "Ressource invalide"
 #, elixir-autogen, elixir-format
 msgid "unavailable_resource"
 msgstr "Ressource indisponible"
-
-#, elixir-autogen, elixir-format
-msgid "The following urgent resource issues require your attention."
-msgstr "Les problèmes sur les ressources suivantes requièrent votre attention."
-
-#, elixir-autogen, elixir-format
-msgid "Urgent issues on your resources"
-msgstr "Problèmes urgents sur vos ressources"
 
 #, elixir-autogen, elixir-format
 msgid "See the discussion"
@@ -482,3 +470,19 @@ msgstr "Voir les statistiques détaillées"
 #, elixir-autogen, elixir-format
 msgid "over the last %{nb} days"
 msgstr "sur les %{nb} derniers jours"
+
+#, elixir-autogen, elixir-format
+msgid "Important information regarding your resources"
+msgstr "Informations importantes concernant vos ressources"
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgstr "Information"
+
+#, elixir-autogen, elixir-format
+msgid "The following information require your attention."
+msgstr "Les informations suivantes requièrent votre attention."
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr "Services disponibles"

@@ -30,11 +30,11 @@ defmodule TransportWeb.EspaceProducteurView do
     Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
   end
 
-  def show_urgent_issues?(checks) do
+  def show_important_information?(checks) do
     checks |> Map.values() |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
   end
 
-  def urgent_issue(%{} = assigns) do
+  def important_information(%{} = assigns) do
     ~H"""
     <tr>
       <td>
@@ -96,7 +96,7 @@ defmodule TransportWeb.EspaceProducteurView do
         href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
-        data-tracking-action="urgent_issues_see_discussion_button"
+        data-tracking-action="important_information_see_discussion_button"
       >
         <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
       </a>
@@ -111,7 +111,7 @@ defmodule TransportWeb.EspaceProducteurView do
         href={espace_producteur_path(TransportWeb.Endpoint, :edit_resource, @dataset.id, @issue.datagouv_id)}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
-        data-tracking-action="urgent_issues_edit_resource_button"
+        data-tracking-action="important_information_edit_resource_button"
       >
         <i class="fa fa-edit"></i>{dgettext("espace-producteurs", "Edit resource")}
       </a>
@@ -127,7 +127,7 @@ defmodule TransportWeb.EspaceProducteurView do
         class="button-outline primary small"
         target="_blank"
         data-tracking-category="espace_reutilisateur"
-        data-tracking-action="urgent_issues_see_resource_button"
+        data-tracking-action="important_information_see_resource_button"
       >
         {dgettext("reuser-space", "See the resource")}
       </a>
@@ -142,7 +142,7 @@ defmodule TransportWeb.EspaceProducteurView do
         href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
-        data-tracking-action="urgent_issues_see_discussion_button"
+        data-tracking-action="important_information_see_discussion_button"
       >
         <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
       </a>

@@ -50,11 +50,11 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
-               "Problèmes urgents sur les ressources que vous suivez"
+      assert doc |> Floki.find(~s|[data-name="important-information"] h2|) |> Floki.text() ==
+               "Informations importantes concernant les ressources que vous suivez"
 
       # Filter out recent_features row if present (during first 7 days of month)
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
 
       tbody_rows_without_recent_features =
         all_tbody_rows
@@ -81,7 +81,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
                  {"class", "button-outline primary small"},
                  {"target", "_blank"},
                  {"data-tracking-category", "espace_reutilisateur"},
-                 {"data-tracking-action", "urgent_issues_see_resource_button"}
+                 {"data-tracking-action", "important_information_see_resource_button"}
                ], ["\n    Voir la ressource\n  "]}
             ]}
          ]}
