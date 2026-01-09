@@ -8,7 +8,7 @@
       {dgettext("reuser-space", "reuser-space-intro")}
     </p>
 
-    {render(TransportWeb.EspaceProducteurView, "_urgent_issues.html",
+    {render(TransportWeb.EspaceProducteurView, "_important_information.html",
       datasets: @conn.assigns[:followed_datasets],
       checks: @checks,
       conn: @conn,

@@ -284,5 +284,5 @@ msgid "See the resource"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Urgent issues on resources you follow"
+msgid "Important information on resources you follow"
 msgstr ""

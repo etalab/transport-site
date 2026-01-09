@@ -53,6 +53,10 @@
     vertical-align: middle;
   }
 
+  h4 {
+    cursor: pointer;
+  }
+
   .action-text {
     flex-grow: 1;
     display: flex;
@@ -62,6 +66,9 @@
 
   .action-button {
     margin: var(--space-xs) auto 0 auto;
+  }
+  .action-panel-content.hide {
+    display: none;
   }
 }
 

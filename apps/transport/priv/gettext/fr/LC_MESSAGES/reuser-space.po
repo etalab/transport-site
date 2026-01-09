@@ -284,5 +284,5 @@ msgid "See the resource"
 msgstr "Voir la ressource"
 
 #, elixir-autogen, elixir-format
-msgid "Urgent issues on resources you follow"
-msgstr "Problèmes urgents sur les ressources que vous suivez"
+msgid "Important information on resources you follow"
+msgstr "Informations importantes concernant les ressources que vous suivez"

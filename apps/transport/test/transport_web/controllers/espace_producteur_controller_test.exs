@@ -139,7 +139,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                "Une erreur a eu lieu lors de la récupération de vos ressources"
     end
 
-    test "urgent issues panel", %{conn: conn} do
+    test "important information panel", %{conn: conn} do
       %DB.Dataset{organization_id: organization_id, datagouv_id: datagouv_id} = dataset = insert(:dataset)
       resource = insert(:resource, title: "GTFS Super", format: "GTFS", is_available: false, dataset: dataset)
 
@@ -169,7 +169,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> Floki.parse_document!()
 
       # Filter out recent_features row if present (during first 7 days of month)
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
 
       tbody_rows_without_recent_features =
         all_tbody_rows
@@ -195,7 +195,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                  {"href", dataset_path(conn, :details, dataset.slug) <> "#discussion-" <> discussion_id},
                  {"class", "button-outline primary small"},
                  {"data-tracking-category", "espace_producteur"},
-                 {"data-tracking-action", "urgent_issues_see_discussion_button"}
+                 {"data-tracking-action", "important_information_see_discussion_button"}
                ],
                [
                  {"i", [{"class", "icon fas fa-comments"}], []},
@@ -219,7 +219,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                  {"href", espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
                  {"class", "button-outline primary small"},
                  {"data-tracking-category", "espace_producteur"},
-                 {"data-tracking-action", "urgent_issues_edit_resource_button"}
+                 {"data-tracking-action", "important_information_edit_resource_button"}
                ],
                [
                  {"i", [{"class", "fa fa-edit"}], []},
@@ -232,18 +232,18 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
       assert tbody_rows_without_recent_features == expected_tbody_rows
 
       # Verify the complete structure with the filtered tbody
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> length() == 1
+      assert doc |> Floki.find(~s|[data-name="important-information"]|) |> length() == 1
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
-               "Problèmes urgents sur vos ressources"
+      assert doc |> Floki.find(~s|[data-name="important-information"] h2|) |> Floki.text() ==
+               "Informations importantes concernant vos ressources"
 
       assert doc
-             |> Floki.find(~s|[data-name="urgent-issues"] p|)
+             |> Floki.find(~s|[data-name="important-information"] p|)
              |> Floki.text() ==
-               "Les problèmes sur les ressources suivantes requièrent votre attention."
+               "Les informations suivantes requièrent votre attention."
 
       # Verify table structure
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"] table|) |> length() == 1
+      assert doc |> Floki.find(~s|[data-name="important-information"] table|) |> length() == 1
 
       # If we're in the first 7 days, recent_features row should be present
       if Date.utc_today().day in 1..7 do
@@ -258,7 +258,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
-  test "urgent_issues for expiring_resource" do
+  test "important_information for expiring_resource" do
     %{resource: resource, dataset: dataset, multi_validation: multi_validation} =
       insert_resource_and_friends(Date.utc_today())
 
@@ -270,7 +270,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end_date =
       DB.MultiValidation.get_metadata_info(multi_validation, "end_date") |> Shared.DateTimeDisplay.format_date("fr")
 
-    assert render_component(&TransportWeb.EspaceProducteurView.urgent_issue/1,
+    assert render_component(&TransportWeb.EspaceProducteurView.important_information/1,
              issue: resource,
              dataset: dataset,
              check_name: :expiring_resource,
@@ -311,7 +311,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                        espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)},
                       {"class", "button-outline primary small"},
                       {"data-tracking-category", "espace_producteur"},
-                      {"data-tracking-action", "urgent_issues_edit_resource_button"}
+                      {"data-tracking-action", "important_information_edit_resource_button"}
                     ], [{"i", [{"class", "fa fa-edit"}], []}, "Modifier la ressource\n  "]}
                  ]}
               ]}
@@ -407,7 +407,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              |> Floki.text() =~ "Supprimer le logo personnalisé"
     end
 
-    test "validity dates, validity and urgent issues for a GTFS", %{conn: conn} do
+    test "validity dates, validity and important information for a GTFS", %{conn: conn} do
       %DB.Dataset{
         id: dataset_id,
         datagouv_id: datagouv_id,
@@ -458,8 +458,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                 ]}
              ]
 
-      assert doc |> Floki.find(~s|[data-name="urgent-issues"] h2|) |> Floki.text() ==
-               "Problèmes urgents sur vos ressources"
+      assert doc |> Floki.find(~s|[data-name="important-information"] h2|) |> Floki.text() ==
+               "Informations importantes concernant vos ressources"
     end
 
     test "validity for a TableSchema", %{conn: conn} do
@@ -556,12 +556,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      # urgent-issues may be present if we're in first 7 days (recent_features banner)
+      # important-information may be present if we're in first 7 days (recent_features banner)
       # but should not contain any real issues (only recent_features if present)
-      urgent_issues_rows = doc |> Floki.find(~s|[data-name="urgent-issues"] tbody tr|)
+      important_information_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
 
       real_issues_rows =
-        urgent_issues_rows
+        important_information_rows
         |> Enum.reject(fn row ->
           row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
         end)
@@ -576,7 +576,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      refute doc |> Floki.find(~s|[data-name="urgent-issues"]|) |> Enum.empty?()
+      refute doc |> Floki.find(~s|[data-name="important-information"]|) |> Enum.empty?()
     end
   end
 
