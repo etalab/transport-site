@@ -80,19 +80,24 @@ defmodule Transport.IRVE.ValidatorTest do
     end)
   end
 
-  test "A file latin1 encoded should be validated correctly" do
-    simple_row =
+  test "A Latin-1-encoded file should be considered valid & its data transcoded to UTF-8" do
+    # `é` is encoded differently in UTF-8 vs Latin-1, allowing us to verify transcoding
+    # `€` doesn't exist in Latin-1, so we use `EUR` instead
+    row =
       DB.Factory.IRVE.generate_row(%{
-        # The € character can’t be transcoded in latin1
+        "nom_station" => "Ma station accentuée",
         "tarification" => "2,50 EUR / 30min puis 0,025 EUR / minute"
       })
 
-    csv_content = [simple_row] |> DB.Factory.IRVE.to_csv_body()
-    latin1_content = :unicode.characters_to_binary(csv_content, :utf8, :latin1)
+    latin1_content = [row] |> DB.Factory.IRVE.to_csv_body() |> :unicode.characters_to_binary(:utf8, :latin1)
+    # sanity check that we actually have Latin-1 byte for the accent
+    assert latin1_content =~ << "Ma station accentu", 0xE9, "e" >>
 
     with_tmp_file(latin1_content, fn path ->
       result = Transport.IRVE.Validator.validate(path)
       assert Transport.IRVE.Validator.full_file_valid?(result)
+      # and here we're back to UTF-8
+      assert result["nom_station"] |> Explorer.Series.to_list() == ["Ma station accentuée"]
     end)
   end
 
