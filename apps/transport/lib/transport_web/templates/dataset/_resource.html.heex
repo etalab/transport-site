@@ -60,7 +60,7 @@
           <% availability_ratio = unavailabilities[@resource.id] %>
           <span class={availability_ratio_class(availability_ratio)}>
             {link("#{availability_ratio}%",
-              to: resource_path(@conn, :details, @resource.id) <> "#download-availability"
+              to: "#{resource_path(@conn, :details, @resource.id)}#download-availability"
             )}
           </span>
           <span class="small">{dgettext("page-dataset-details", "Availability rate")}</span>

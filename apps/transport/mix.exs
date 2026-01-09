@@ -26,7 +26,8 @@ defmodule Transport.Mixfile do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      compilers: [:phoenix_live_view] ++ Mix.compilers()
+      compilers: [:phoenix_live_view] ++ Mix.compilers(),
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
@@ -121,12 +122,12 @@ defmodule Transport.Mixfile do
       {:unzip, "~> 0.8"},
       {:protobuf, "~> 0.11"},
       {:nimble_csv, "~> 1.3.0"},
-      {:explorer, "~> 0.10.0"},
+      {:explorer, "~> 0.11.0"},
       {:kino, "~> 0.6", only: :dev},
       # db
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
-      {:postgrex, "~> 0.20.0"},
+      {:postgrex, "~> 0.21.0"},
       {:geo_postgis, "~> 3.4"},
       {:scrivener_ecto, "~> 3.1.0"},
       {:typed_ecto_schema, ">= 0.1.1"},

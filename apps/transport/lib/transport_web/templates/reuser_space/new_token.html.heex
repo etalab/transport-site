@@ -25,7 +25,8 @@
       <div :if={Enum.count(@errors) > 0} class="notification error">
         <ul>
           <%= for {key, {message, _}} <- @errors do %>
-            <li>{to_string(key) <> ": " <> message}</li>
+            <% value = to_string(key) <> ": " <> message %>
+            <li>{value}</li>
           <% end %>
         </ul>
       </div>

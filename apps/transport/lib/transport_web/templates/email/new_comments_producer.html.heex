@@ -12,8 +12,7 @@
         "{comment["content"]}" <br />
         {link("voir la discussion",
           to:
-            dataset_url(TransportWeb.Endpoint, :details, datagouv_id) <>
-              "#comments-discussion-" <> comment["discussion_id"]
+            "#{dataset_url(TransportWeb.Endpoint, :details, datagouv_id)}#comments-discussion-#{comment["discussion_id"]}"
         )}
       </div>
     <% end %>

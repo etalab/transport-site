@@ -76,7 +76,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
-      %{order_by: ^order_by} -> ~H{<span class="activefilter">{@msg\}</span>}
+      %{order_by: ^order_by} -> ~H|<span class="activefilter">{@msg}</span>|
       _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
     end
   end
@@ -89,7 +89,7 @@ defmodule TransportWeb.DatasetView do
         to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
       )
     else
-      ~H{<span class="activefilter">{dgettext("page-shortlist", "All (feminine)")\} ({@count\})</span>}
+      ~H|<span class="activefilter">{dgettext("page-shortlist", "All (feminine)")} ({@count})</span>|
     end
   end
 
@@ -97,7 +97,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
-      ~H{<span class="activefilter">{@name\} ({@count\})</span>}
+      ~H|<span class="activefilter">{@name} ({@count})</span>|
     else
       link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
@@ -117,7 +117,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H{<span class="activefilter">{@nom\} ({@count\})</span>}
+      ^url -> ~H|<span class="activefilter">{@nom} ({@count})</span>|
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -157,7 +157,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-    active_filter_text = ~H{<span class="activefilter">{@msg\} ({@count\})</span>}
+    active_filter_text = ~H|<span class="activefilter">{@msg} ({@count})</span>|
 
     case conn.params do
       %{^key_name => ^key} ->
@@ -187,7 +187,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter">{@msg\} ({@count\})</span>}
+      _ -> ~H|<span class="activefilter">{@msg} ({@count})</span>|
     end
   end
 
