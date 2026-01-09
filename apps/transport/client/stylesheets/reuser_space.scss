@@ -45,6 +45,7 @@
 .action-panel {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 
   img.picto {
     height: 40px;
@@ -55,6 +56,7 @@
 
   h4 {
     cursor: pointer;
+    margin-bottom: 0;
   }
 
   .action-text {
@@ -64,9 +66,16 @@
     justify-content: center;
   }
 
+  .action-panel-content {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--space-s);
+  }
+
   .action-button {
     margin: var(--space-xs) auto 0 auto;
   }
+
   .action-panel-content.hide {
     display: none;
   }

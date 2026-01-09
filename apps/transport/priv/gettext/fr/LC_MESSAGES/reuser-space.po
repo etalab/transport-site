@@ -286,3 +286,7 @@ msgstr "Voir la ressource"
 #, elixir-autogen, elixir-format
 msgid "Important information on resources you follow"
 msgstr "Informations importantes concernant les ressources que vous suivez"
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr "Services disponibles"

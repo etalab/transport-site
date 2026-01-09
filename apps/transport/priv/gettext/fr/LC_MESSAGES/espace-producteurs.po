@@ -482,3 +482,7 @@ msgstr "Information"
 #, elixir-autogen, elixir-format
 msgid "The following information require your attention."
 msgstr "Les informations suivantes requièrent votre attention."
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr "Services disponibles"

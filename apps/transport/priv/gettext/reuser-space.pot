@@ -286,3 +286,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Important information on resources you follow"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr ""

@@ -6,7 +6,7 @@
     <h1>{dgettext("espace-producteurs", "Producer space")}</h1>
 
     <h2>{dgettext("espace-producteurs", "Available services")}</h2>
-    <div class="row">
+    <div class="row pb-48">
       <div class="panel action-panel">
         <h4>
           <img class="picto" src={static_path(@conn, "/images/producteurs/picto-check.svg")} alt="" />
@@ -168,3 +168,13 @@
     session: %{"feature" => "producer_space"}
   )}
 </section>
+<script nonce={get_session(@conn, :csp_nonce_value)}>
+  document.querySelectorAll('.action-panel h4').forEach(header => {
+    header.addEventListener('click', () => {
+      const allContents = document.querySelectorAll('.action-panel-content');
+      allContents.forEach(content => {
+        content.classList.toggle('hide');
+      });
+    });
+  });
+</script>

@@ -67,7 +67,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :espace_producteur))
         |> html_response(200)
         |> Floki.parse_document!()
-        |> Floki.find(".publish-header h4")
+        |> Floki.find(".action-panel h4")
         |> Floki.text(sep: "|")
         |> String.replace(~r/(\s)+/, " ")
         |> String.split("|")
