@@ -6,7 +6,11 @@ defmodule Transport.IRVE.ProcessingTest do
     row =
       DB.Factory.IRVE.generate_row(%{
         "prise_type_ef" => "FAUX",
-        "prise_type_2" => 1
+        "prise_type_2" => 1,
+        # NOTE: 22.1 has no exact representation in either
+        # f32 or f64 (see https://float.exposed/0.21),
+        # so use an exact `Decimal` for the input
+        "puissance_nominale" => Decimal.new("22.1")
       })
       |> Map.delete("tarification")
 
@@ -32,7 +36,9 @@ defmodule Transport.IRVE.ProcessingTest do
                "nbre_pdc" => 1,
                "id_pdc_itinerance" => "FRPAN99E12345678",
                "id_pdc_local" => "pdc_001",
-               "puissance_nominale" => 22,
+               # using f64, while the representation is not exact,
+               # the comparison works because it is close enough
+               "puissance_nominale" => 22.1,
                # This was converted
                "prise_type_ef" => false,
                # This was converted too

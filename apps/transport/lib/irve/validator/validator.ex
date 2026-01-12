@@ -11,19 +11,18 @@ defmodule Transport.IRVE.Validator do
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
   end
 
-  def validate(path) do
-    path
-    |> load_file_as_dataframe()
-    |> compute_validation()
-  end
+  def validate(path, extension \\ ".csv") do
+    # NOTE: for now, load the body in memory, because refactoring to get full streaming
+    # is too involved for the current sprint deadline.
+    body = File.read!(path)
+    Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, extension)
+    # TODO: accumulate warnings
+    body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
+    # TODO: accumulate warnings
 
-  # NOTE: will be refactored at next validator iteration
-  defp load_file_as_dataframe(path) do
-    # NOTE: `infer_schema_length: 0` enforces strings everywhere
-    case Explorer.DataFrame.from_csv(path, infer_schema_length: 0) do
-      {:ok, df} -> df
-      {:error, error} -> raise error
-    end
+    body
+    |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+    |> compute_validation()
   end
 
   @doc """
