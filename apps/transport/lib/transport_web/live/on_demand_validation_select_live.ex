@@ -34,8 +34,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
               %{
                 icon: static_path(socket, "/images/icons/vehicles-sharing.svg"),
                 title: dgettext("validations", "Vehicles sharing"),
-                subtitle: "GBFS",
-                sub_tiles: [{"GBFS", "gbfs"}]
+                subtitle: "GBFS, NeTEx",
+                sub_tiles: ["GBFS", "NeTEx"] |> Enum.map(&{&1, String.downcase(&1)})
               }},
              {"schemas",
               %{
