@@ -22,14 +22,6 @@ defmodule Transport.IRVE.Processing do
   """
 
   def read_as_uncasted_data_frame(body) do
-    # In raw static consolidation we use the following lines:
-    #  body
-    # |> convert_to_dataframe!() => can’t use it here, because it interpolates types from the schema
-    # |> add_missing_optional_columns() => This one is kept, see below
-    # |> preprocess_coordinates() => the validator already does something similar later
-    # |> preprocess_boolean_fields() => this is kept but with a flag to avoid type interpolation
-    # |> select_fields() => this one removes too much columns for "raw"
-
     body
     # This allows non-comma delimiters, should have a warning accumulation later
     |> convert_to_uncasted_dataframe!()
@@ -37,6 +29,8 @@ defmodule Transport.IRVE.Processing do
     |> add_missing_optional_columns(true)
     # True means: keep as string, avoid type interpolation
     |> preprocess_boolean_fields(true)
+
+    # TODO: take care of field / column selection
   end
 
   def convert_to_dataframe!(body) do
