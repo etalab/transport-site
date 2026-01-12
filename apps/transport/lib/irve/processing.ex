@@ -20,7 +20,6 @@ defmodule Transport.IRVE.Processing do
   Same as above, but prepares the DataFrame without any type casting, all columns remain strings.
   This is useful for validation purposes.
   """
-
   def read_as_uncasted_data_frame(body) do
     body
     # This allows non-comma delimiters, should have a warning accumulation later
