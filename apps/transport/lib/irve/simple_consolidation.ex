@@ -130,6 +130,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
   # the files do not stack up on the production disk.
   def with_maybe_cached_download_on_disk(resource, file_path, extension, false = _use_permanent_disk_cache, work_fn) do
     download!(resource.resource_id, resource.url, file_path)
+    # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
+    # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
+    # to keep the extension around)
     work_fn.(file_path, extension)
   after
     File.rm!(file_path)
