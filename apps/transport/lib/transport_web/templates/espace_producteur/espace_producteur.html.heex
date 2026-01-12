@@ -19,11 +19,9 @@
               "Before publishing, you can test your data online and check its validity."
             )}
           </div>
-          <div class="action-button">
-            <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
-              {dgettext("espace-producteurs", "Validate a file or a feed")}
-            </a>
-          </div>
+          <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
+            {dgettext("espace-producteurs", "Validate a file or a feed")}
+          </a>
         </div>
       </div>
       <div class="panel action-panel">
@@ -38,11 +36,9 @@
               "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
             )}<a href="https://doc.transport.data.gouv.fr/administration-des-donnees"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
           </div>
-          <div class="action-button">
-            <a href={dataset_creation_url()} class="button primary">
-              {dgettext("espace-producteurs", "Publish a new dataset")}
-            </a>
-          </div>
+          <a href={dataset_creation_url()} class="button primary">
+            {dgettext("espace-producteurs", "Publish a new dataset")}
+          </a>
         </div>
       </div>
       <div class="panel action-panel">
@@ -57,11 +53,9 @@
               "Receive helpful notifications about the data you publish."
             )}
           </div>
-          <div class="action-button">
-            <a href={espace_producteur_path(@conn, :notifications)} class="button primary">
-              {dgettext("espace-producteurs", "Manage notifications")}
-            </a>
-          </div>
+          <a href={espace_producteur_path(@conn, :notifications)} class="button primary">
+            {dgettext("espace-producteurs", "Manage notifications")}
+          </a>
         </div>
       </div>
       <div :if={show_proxy_stats_block?(@datasets)} class="panel action-panel">
@@ -76,11 +70,9 @@
               "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
             )}
           </div>
-          <div class="action-button">
-            <a href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
-              {dgettext("espace-producteurs", "See statistics")}
-            </a>
-          </div>
+          <a href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
+            {dgettext("espace-producteurs", "See statistics")}
+          </a>
         </div>
       </div>
       <div :if={show_downloads_stats?(@datasets)} class="panel action-panel">
@@ -95,11 +87,9 @@
               "Get access to download statistics for your resources."
             )}
           </div>
-          <div class="action-button">
-            <a href={espace_producteur_path(@conn, :download_statistics)} class="button primary">
-              {dgettext("espace-producteurs", "See statistics")}
-            </a>
-          </div>
+          <a href={espace_producteur_path(@conn, :download_statistics)} class="button primary">
+            {dgettext("espace-producteurs", "See statistics")}
+          </a>
         </div>
       </div>
       <div class="panel action-panel">
@@ -114,11 +104,9 @@
               "See unanswered discussions on your datasets."
             )}
           </div>
-          <div class="action-button">
-            <a href={espace_producteur_path(@conn, :discussions)} class="button primary">
-              {dgettext("espace-producteurs", "See unanswered discussions")}
-            </a>
-          </div>
+          <a href={espace_producteur_path(@conn, :discussions)} class="button primary">
+            {dgettext("espace-producteurs", "See unanswered discussions")}
+          </a>
         </div>
       </div>
     </div>
