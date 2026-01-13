@@ -81,13 +81,25 @@ defmodule Transport.IRVE.SimpleConsolidation do
     Logger.info("Processing resource #{resource.resource_id} (#{resource.url})")
 
     with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
-      validation_result = Transport.IRVE.Validator.validate(path, extension)
-      file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+      estimated_pdc_count = File.stream!(path) |> Enum.count()
+      resource = Map.put(resource, :estimated_pdc_count, estimated_pdc_count)
 
-      if file_valid? do
-        {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
-      else
-        {:not_compliant_with_schema, resource}
+      # The code is convoluted mostly because we didn't go far enough on the validator work.
+      # The validator will ultimately stop raising exceptions, and will instead return structures.
+      # But currently if a cheap check fails, an exception is thrown, and we would lose the estimated PDC count,
+      # something which is essential to report on for our current work.
+      try do
+        validation_result = Transport.IRVE.Validator.validate(path, extension)
+        file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+
+        if file_valid? do
+          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
+        else
+          {:not_compliant_with_schema, resource}
+        end
+      rescue
+        error ->
+          {:error_occurred, error, resource}
       end
     end)
   end
