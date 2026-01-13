@@ -71,10 +71,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
 
-    # Raise if the producer is not an organization. This check is not in the validator itself:
-    # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
-    Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
-
     path = storage_path(resource.resource_id)
     extension = Path.extname(resource.url)
 
@@ -89,6 +85,12 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # But currently if a cheap check fails, an exception is thrown, and we would lose the estimated PDC count,
       # something which is essential to report on for our current work.
       try do
+        # Raise if the producer is not an organization. This check is not in the validator itself:
+        # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+        # it is done after downloading the file in order to be able to report on the potential
+        # loss of PDC count.
+        Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+
         validation_result = Transport.IRVE.Validator.validate(path, extension)
         file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
