@@ -1,21 +1,32 @@
 # mix run scripts/irve/process-simple-consolidation.exs
 # Options:
-# --destination : either "local_disk" or "send_to_s3" (default: "send_to_s3")
+# --destination : values "local_disk" or "send_to_s3" (default: "send_to_s3")
+# --erase-existing-data: values "all", "partial", or "none" (default: "none")
 # --debug : if present, will print a summary of the report at the end and log each processed item
-# Advised dev use: mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --debug
+# Advised dev use:
+# mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --erase_existing_data all --debug
 
 import Ecto.Query
 Logger.configure(level: :info)
 
 {opts, _args, _} =
   OptionParser.parse(System.argv(),
-    switches: [destination: :string, debug: :boolean]
+    strict: [erase_existing_data: :string, debug: :boolean]
   )
+
+dbg(Opts: opts, System_argv: System.argv())
 
 destination =
   case opts[:destination] do
     "local_disk" -> :local_disk
     _ -> :send_to_s3
+  end
+
+erase_existing_data =
+  case opts[:erase_existing_data] do
+    "all" -> :all
+    "partial" -> :partial
+    _ -> :none
   end
 
 debug = opts[:debug]
@@ -30,21 +41,26 @@ IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggreg
 
 IO.puts("Using destination: #{destination}")
 
-# delete everything
-DB.Repo.delete_all(DB.IRVEValidFile)
+case erase_existing_data do
+  :all ->
+    IO.puts("Erasing all existing IRVE valid files and PDCs...")
+    DB.Repo.delete_all(DB.IRVEValidFile)
 
-# Delete a bit so that we can demonstrate "already imported"
-# IO.puts("deleting a bit of imported files")
-# import Ecto.Query
-# DB.Repo.delete_all(
-#  from(f in DB.IRVEValidFile,
-#    where: f.id in subquery(from(f2 in DB.IRVEValidFile, select: f2.id, limit: 100))
-#  )
-# )
+  :partial ->
+    IO.puts("Erasing some existing IRVE valid files and PDCs…")
+
+    DB.Repo.delete_all(
+      from(f in DB.IRVEValidFile,
+        where: f.id in subquery(from(f2 in DB.IRVEValidFile, select: f2.id, limit: 100))
+      )
+    )
+
+  :none ->
+    IO.puts("Keeping existing data...")
+end
 
 report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug)
 
-# Nicely displays what happened
 if debug do
   report_df["status"]
   |> Explorer.Series.frequencies()
