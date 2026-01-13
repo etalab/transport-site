@@ -17,7 +17,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
-    debug = Keyword.get(opts, :debug, false) || System.get_env("DEBUG") == "1"
+    debug = Keyword.get(opts, :debug, false)
 
     report_rows =
       resource_list()
