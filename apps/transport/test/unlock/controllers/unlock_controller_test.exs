@@ -138,18 +138,9 @@ defmodule Unlock.ControllerTest do
       # unzipped for now
       assert resp.resp_body == "<Everything></Everything>"
 
-      our_headers = [
-        "x-request-id",
-        "cache-control",
-        "content-disposition",
-        "access-control-allow-origin",
-        "access-control-expose-headers",
-        "access-control-allow-credentials"
-      ]
-
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
       assert remaining_headers == expected_forwarded_response_headers
     end
@@ -269,18 +260,9 @@ defmodule Unlock.ControllerTest do
       # due to incorrect content-type headers from the remote
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
 
-      our_headers = [
-        "x-request-id",
-        "cache-control",
-        "content-disposition",
-        "access-control-allow-origin",
-        "access-control-expose-headers",
-        "access-control-allow-credentials"
-      ]
-
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
       assert remaining_headers == expected_forwarded_response_headers
 
@@ -307,8 +289,92 @@ defmodule Unlock.ControllerTest do
       # NOTE: this whole test will have to be DRYed
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
+      assert remaining_headers == expected_forwarded_response_headers
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
+    test "handles GET /resource/:slug with disk caching" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Generic.HTTP{
+          identifier: slug,
+          target_url: target_url = "http://localhost/some-remote-resource",
+          ttl: ttl_in_seconds = 30,
+          caching: "disk"
+        }
+      })
+
+      expected_forwarded_response_headers = [
+        {"content-type", "application/json"},
+        {"content-length", "7350"},
+        {"date", "Thu, 10 Jun 2021 19:45:14 GMT"},
+        {"last-modified", "Thu, 10 Jun 2021 18:30:00 GMT"},
+        {"etag", "foobar"}
+      ]
+
+      assert expected_forwarded_response_headers |> Map.new() |> Map.keys() |> MapSet.new() ==
+               Shared.Proxy.forwarded_headers_allowlist() |> MapSet.new()
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:stream!, fn ^target_url, [] = _headers, path ->
+        File.write!(path, "somebody-to-love")
+
+        headers =
+          expected_forwarded_response_headers ++
+            [
+              # unwanted headers
+              {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
+              {"x-cache", "Miss from cloudfront"}
+            ]
+
+        %Unlock.HTTP.Response{body: nil, status: 200, headers: headers}
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-identifier")
+
+      assert resp.resp_body == "somebody-to-love"
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
+
+      # these ones are added by our pipeline for now
+      assert Plug.Conn.get_resp_header(resp, "x-request-id")
+      # we'll provide a finer grained algorithm later if useful, for now assume no cache is done
+      assert Plug.Conn.get_resp_header(resp, "cache-control") == [
+               "max-age=0, private, must-revalidate"
+             ]
+
+      # we enforce downloads for now, even if this results sometimes in incorrect filenames
+      # due to incorrect content-type headers from the remote
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
+
+      remaining_headers = Enum.reject(resp.resp_headers, fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
+      assert remaining_headers == expected_forwarded_response_headers
+
+      verify!(Unlock.HTTP.Client.Mock)
+
+      # Data has been saved to disk
+      path = System.tmp_dir!() |> Path.join(slug)
+      assert File.exists?(path)
+      assert File.read!(path) == "somebody-to-love"
+
+      # subsequent queries should work based on cache
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:#{slug}")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
+      resp = proxy_conn() |> get("/resource/#{slug}")
+      assert resp.resp_body == "somebody-to-love"
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
+
+      remaining_headers = Enum.reject(resp.resp_headers, fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
       assert remaining_headers == expected_forwarded_response_headers
 
       verify!(Unlock.HTTP.Client.Mock)
@@ -1126,5 +1192,16 @@ defmodule Unlock.ControllerTest do
       end,
       nil
     )
+  end
+
+  defp existing_proxy_headers do
+    [
+      "x-request-id",
+      "cache-control",
+      "content-disposition",
+      "access-control-allow-origin",
+      "access-control-expose-headers",
+      "access-control-allow-credentials"
+    ]
   end
 end

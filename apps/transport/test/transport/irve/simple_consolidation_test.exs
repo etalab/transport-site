@@ -16,6 +16,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       mock_datagouv_resources()
 
       # Mock HTTP requests for resource content, one is valid, the other is not
+      # Note: this consolidation only downloads resources published by orgs
+      # So it’s 2 calls here (see the mock)
       mock_resource_downloads()
 
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
@@ -30,12 +32,22 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           %{
             "dataset_id" => "another-dataset-id",
             "dataset_title" => "another-dataset-title",
+            # TODO rework to only compare the part of the message that matters
             "error_message" =>
-              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "paiement_acte", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "reservation", "adresse_station", "id_station_itinerance", "siren_amenageur", "paiement_cb", "prise_type_combo_ccs", "contact_operateur", "prise_type_ef", "implantation_station", "date_mise_en_service", "station_deux_roues", "cable_t2_attache", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "prise_type_autre", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "prise_type_2", "paiement_autre", "tarification", "prise_type_chademo", "gratuit", "condition_acces", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
             "error_type" => "ArgumentError",
             "resource_id" => "another-resource-id",
             "status" => "error_occurred",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+          },
+          %{
+            "dataset_id" => "individual-published-dataset-id",
+            "dataset_title" => "individual-published-dataset-title",
+            "error_message" => "producer is not an organization",
+            "error_type" => "RuntimeError",
+            "resource_id" => "individual-published-resource-id",
+            "status" => "error_occurred",
+            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
           },
           %{
             "dataset_id" => "the-dataset-id",
@@ -63,7 +75,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "be09aa4a95907235c9e3a984c79a41fd943a0465a1b5d69025d1994ed1c99a16"
+        file_content: "c2144823dcbf5d494054a006a9bf607b92ade03295c71dcbf1158df862cd87b3"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -79,7 +91,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       )
 
       # Run the consolidation process
-      :ok = Transport.IRVE.SimpleConsolidation.process()
+      %Explorer.DataFrame{} = Transport.IRVE.SimpleConsolidation.process()
 
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
@@ -113,9 +125,12 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       assert options[:url] ==
                "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=100"
 
+      payload =
+        DB.Factory.IRVE.build_datagouv_page_payload()
+
       %Req.Response{
         status: 200,
-        body: DB.Factory.IRVE.build_datagouv_page_payload()
+        body: payload
       }
     end)
   end
@@ -131,37 +146,22 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
     end)
   end
 
-  # A correct resource!
-  def resource_mock(
-        into: into,
-        decode_body: false,
-        compressed: false,
-        url: "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
-      ) do
-    path = into.path
-    body = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
-    File.write!(path, body)
+  @valid_url "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+  @invalid_url "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
 
-    %Req.Response{
-      status: 200,
-      body: File.stream!(path)
-    }
+  # A correct resource
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @valid_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 
-  # This one won’t be valid, we remove a required column
-  def resource_mock(
-        into: into,
-        decode_body: false,
-        compressed: false,
-        url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
-      ) do
-    path = into.path
-    body = [DB.Factory.IRVE.generate_row() |> Map.pop!("nom_station") |> elem(1)] |> DB.Factory.IRVE.to_csv_body()
-    File.write!(path, body)
+  # Invalid: missing required column nom_station
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @invalid_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
+  end
 
-    %Req.Response{
-      status: 200,
-      body: File.stream!(path)
-    }
+  defp build_resource_response(path, rows) do
+    body = DB.Factory.IRVE.to_csv_body(rows)
+    File.write!(path, body)
+    %Req.Response{status: 200, body: File.stream!(path)}
   end
 end

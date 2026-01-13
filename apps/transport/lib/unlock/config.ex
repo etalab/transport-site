@@ -12,6 +12,7 @@ defmodule Unlock.Config do
     It supports hardcoded request headers for e.g. simple authentication.
 
     Default subtype is "gtfs-rt" for historical reasons, see `convert_yaml_item_to_struct` in the code.
+    Default caching mecanism is "cachex" but can be set to "disk" for larger payload.
     """
     @enforce_keys [:identifier, :target_url, :ttl]
     defstruct [
@@ -19,6 +20,7 @@ defmodule Unlock.Config do
       :slug,
       :target_url,
       :ttl,
+      caching: "cachex",
       subtype: "gtfs-rt",
       request_headers: [],
       response_headers: []
@@ -116,6 +118,8 @@ defmodule Unlock.Config do
         target_url: Map.fetch!(item, "target_url"),
         # By default, no TTL
         ttl: Map.get(item, "ttl", 0),
+        # The caching mecanism, by default set to Cachex
+        caching: Map.get(item, "caching", "cachex"),
         # keep the subtype in case we need to do alternate processing later, without creating too many types too soon
         subtype: subtype,
         request_headers: parse_config_http_headers(Map.get(item, "request_headers", [])),

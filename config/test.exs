@@ -110,6 +110,7 @@ config :transport, DB.Repo,
   queue_target: 5000
 
 config :transport,
+  resource_unavailable_skip_resource_ids: [],
   datagouvfr_site: "https://demo.data.gouv.fr",
   datagouvfr_apikey: "fake-datagouv-api-key",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the

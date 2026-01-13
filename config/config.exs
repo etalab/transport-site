@@ -177,7 +177,12 @@ config :transport,
   contact_email: "contact@transport.data.gouv.fr",
   tech_email: "tech@transport.data.gouv.fr",
   security_email: "securite@transport.data.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/")
+  transport_tools_folder: Path.absname("transport-tools/"),
+  resource_unavailable_skip_resource_ids:
+    System.get_env("RESOURCE_UNAVAILABLE_SKIP_RESOURCE_IDS", "")
+    |> String.split(",")
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(&String.to_integer/1)
 
 # Disable sending events to Sentry by default.
 # Sentry events are only sent when `dsn` is not nil

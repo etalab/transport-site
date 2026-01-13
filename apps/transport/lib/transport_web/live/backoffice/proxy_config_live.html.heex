@@ -12,10 +12,15 @@
 
   <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
     {search_input(f, :search, value: @search, id: "backoffice_search")}
-    {select(f, :type, [{"Tout", ""}] ++ @select_options,
-      selected: @type,
-      label: "Type de flux"
-    )}
+    <div class="form__group ml-1em">
+      {select(f, :type, [{"Tout", ""}] ++ @select_options,
+        selected: @type,
+        label: "Type de flux"
+      )}
+    </div>
+    <div class="form__group ml-1em">
+      {label(f, :disk, "Cache sur disque")}{checkbox(f, :disk, value: @disk)}
+    </div>
   </.form>
 
   <table class="table mt-48">
@@ -25,14 +30,14 @@
         <th>Identifiant</th>
         <th>URL proxy</th>
         <th>Donnée cible</th>
-        <th title="Time To Live (durée en secondes de conservation dans le cache">TTL</th>
-        <th>Taille RAM</th>
+        <th title="Time To Live (durée en secondes de conservation dans le cache)">TTL</th>
+        <th>Taille cache</th>
         <th>Statut HTTP</th>
         <th><abbr title="Time to Live">TTL</abbr></th>
-        <th title="Requêtes reçues par le proxy sur les {@stats_days } derniers jours">
+        <th title={"Requêtes reçues par le proxy sur les #{@stats_days} derniers jours"}>
           Req ext {@stats_days}j
         </th>
-        <th title="Requêtes envoyées au serveur du producteur sur les { @stats_days } derniers jours">
+        <th title={"Requêtes envoyées au serveur du producteur sur les #{@stats_days} derniers jours"}>
           Req int {@stats_days}j
         </th>
       </tr>

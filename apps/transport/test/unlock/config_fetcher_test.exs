@@ -68,6 +68,35 @@ defmodule Unlock.ConfigFetcherTest do
         assert item.ttl == 0
       end
 
+      test "defaults to cachex caching if caching is unspecified" do
+        yaml_config = """
+        ---
+        feeds:
+          - identifier: "httpbin-get"
+            target_url: "https://httpbin.org/get"
+            type: #{unquote(config_type)}
+        """
+
+        [item] = parse_config(yaml_config)
+
+        assert item.caching == "cachex"
+      end
+
+      test "can specify the caching method" do
+        yaml_config = """
+        ---
+        feeds:
+          - identifier: "httpbin-get"
+            target_url: "https://httpbin.org/get"
+            type: #{unquote(config_type)}
+            caching: disk
+        """
+
+        [item] = parse_config(yaml_config)
+
+        assert item.caching == "disk"
+      end
+
       # This was the cleanest/most robust way I could find to express this in YAML
       test "supports requests headers as array of 2-element arrays, mapped into tuples" do
         yaml_config = """

@@ -660,6 +660,29 @@ defmodule TransportWeb.DatasetView do
     """
   end
 
+  def notification_sent_details(
+        %{
+          reason: :resource_unavailable,
+          payload: %{"resource_ids" => resource_ids, "hours_consecutive_downtime" => _}
+        } = assigns
+      ) do
+    assigns =
+      assign(
+        assigns,
+        :resources,
+        DB.Resource |> where([r], r.id in ^resource_ids) |> Ecto.Query.select([r], [:title, :id]) |> DB.Repo.all()
+      )
+
+    ~H"""
+    <td>
+      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+        {resource.title}
+      </a>
+      &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
+    </td>
+    """
+  end
+
   def notification_sent_details(%{reason: reason, payload: %{"resource_ids" => resource_ids}} = assigns)
       when reason in [:dataset_with_error, :resource_unavailable] do
     assigns =

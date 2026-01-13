@@ -310,7 +310,7 @@ defmodule TransportWeb.DatasetViewTest do
                locale: "fr",
                notification: %{
                  timestamp: ~U[2025-12-30 11:27:23.516350Z],
-                 payload: %{"resource_ids" => [resource.id]},
+                 payload: %{"resource_ids" => [resource.id], "hours_consecutive_downtime" => 48},
                  reason: :resource_unavailable
                }
              )
@@ -324,7 +324,8 @@ defmodule TransportWeb.DatasetViewTest do
                     [
                       {"a",
                        [{"href", resource_path(TransportWeb.Endpoint, :details, resource.id)}, {"target", "_blank"}],
-                       ["\n    GTFS\n  "]}
+                       ["\n    GTFS\n  "]},
+                      "\n  —\u00A048h\n"
                     ]},
                    {"td", [], ["30/12/2025 à 12h27 Europe/Paris"]}
                  ]

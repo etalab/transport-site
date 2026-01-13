@@ -23,7 +23,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
       slug => %Unlock.Config.Item.Generic.HTTP{
         identifier: slug,
         target_url: "http://localhost/some-remote-resource",
-        ttl: 10
+        ttl: 10,
+        caching: "disk"
       },
       siri_slug => %Unlock.Config.Item.SIRI{
         identifier: siri_slug,
@@ -149,23 +150,29 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
     assert ["s3-slug"] == form |> search_by_type("S3") |> slugs()
 
-    assert_patch(view, @url <> "?search=&type=S3")
+    assert_patch(view, @url <> "?search=&type=S3&disk=false")
 
     # Reset the form
     form |> search_by_type("")
 
     assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
-    assert_patch(view, @url <> "?search=siri&type=")
+    assert_patch(view, @url <> "?search=siri&type=&disk=false")
 
     form |> search_by_type("SIRI")
     assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
-    assert_patch(view, @url <> "?search=siri&type=SIRI")
+    assert_patch(view, @url <> "?search=siri&type=SIRI&disk=false")
 
     assert [] == form |> search_by_value("other") |> slugs()
     form |> search_by_type("")
 
     assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug", "siri-slug"] == form |> search_by_value("slug") |> slugs()
-    assert_patch(view, @url <> "?search=slug&type=")
+    assert_patch(view, @url <> "?search=slug&type=&disk=false")
+
+    # Search by disk using the checkbox
+    form |> search_by_value("")
+
+    assert ["gtfs-rt-slug"] == form |> search_by_disk(true) |> slugs()
+    assert_patch(view, @url <> "?search=&type=&disk=true")
   end
 
   defp search_by_value(%Phoenix.LiveViewTest.Element{} = el, value) do
@@ -174,6 +181,10 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   defp search_by_type(%Phoenix.LiveViewTest.Element{} = el, value) do
     render_change(el, %{_target: ["type"], type: value})
+  end
+
+  defp search_by_disk(%Phoenix.LiveViewTest.Element{} = el, value) do
+    render_change(el, %{_target: ["disk"], disk: value})
   end
 
   defp slugs(%Phoenix.LiveViewTest.View{} = view), do: view |> render() |> slugs()

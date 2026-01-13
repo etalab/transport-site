@@ -60,4 +60,21 @@ defmodule Transport.IRVE.StaticIRVESchema do
     |> Enum.filter(&(&1["type"] == "boolean"))
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
+
+  @doc """
+  Returns the list of optional fields in the schema.
+
+  iex> optional_fields()
+  ["nom_amenageur", "siren_amenageur", "contact_amenageur", "nom_operateur",
+  "telephone_operateur", "id_station_local", "code_insee_commune",
+  "id_pdc_local", "gratuit", "paiement_cb", "paiement_autre", "tarification",
+  "raccordement", "num_pdl", "date_mise_en_service", "observations",
+  "cable_t2_attache"]
+  """
+  def optional_fields do
+    schema_content()
+    |> Map.fetch!("fields")
+    |> Enum.filter(&(&1["constraints"]["required"] == false))
+    |> Enum.map(&Map.fetch!(&1, "name"))
+  end
 end
