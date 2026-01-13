@@ -75,7 +75,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
     path = storage_path(resource.resource_id)
     extension = Path.extname(resource.url)
 
-    Logger.info "Processing resource #{resource.resource_id} (#{resource.url})"
+    Logger.info("Processing resource #{resource.resource_id} (#{resource.url})")
 
     with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
       validation_result = Transport.IRVE.Validator.validate(path, extension)
