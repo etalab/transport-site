@@ -16,7 +16,12 @@ DB.Repo.delete_all(DB.IRVEValidFile)
 #  )
 # )
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+options = [
+  destination: :local_disk,
+  limit: if(limit = System.get_env("LIMIT"), do: String.to_integer(limit), else: nil)
+]
+
+report_df = Transport.IRVE.SimpleConsolidation.process(options)
 
 # Nicely displays what happened
 if System.get_env("DEBUG") == "1" do

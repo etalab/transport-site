@@ -20,7 +20,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     report_rows =
       resource_list()
-#      |> Stream.take(1)
+      |> maybe_limit(opts[:limit])
       |> Task.async_stream(
         &process_or_rescue/1,
         ordered: true,
@@ -49,6 +49,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
       stream
     end
   end
+
+  def maybe_limit(stream, limit) when is_integer(limit), do: stream |> Stream.take(limit)
+  def maybe_limit(stream, nil), do: stream
 
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
