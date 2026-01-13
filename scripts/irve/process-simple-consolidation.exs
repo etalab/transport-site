@@ -1,9 +1,24 @@
 # mix run scripts/irve/process-simple-consolidation.exs
-# For local dev use, with more debug options and without setting up MinIO:
-# DEBUG=1 DESTINATION=local_disk mix run scripts/irve/process-simple-consolidation.exs
+# Options:
+# --destination : either "local_disk" or "send_to_s3" (default: "send_to_s3")
+# --debug : if present, will print a summary of the report at the end and log each processed item
+# Advised dev use: mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --debug
 
 import Ecto.Query
 Logger.configure(level: :info)
+
+{opts, _args, _} =
+  OptionParser.parse(System.argv(),
+    switches: [destination: :string, debug: :boolean]
+  )
+
+destination =
+  case opts[:destination] do
+    "local_disk" -> :local_disk
+    _ -> :send_to_s3
+  end
+
+debug = opts[:debug]
 
 IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
 
@@ -12,8 +27,6 @@ IO.puts(
 )
 
 IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
-
-destination = if System.get_env("DESTINATION") == "local_disk", do: :local_disk, else: :send_to_s3
 
 IO.puts("Using destination: #{destination}")
 
@@ -29,10 +42,10 @@ DB.Repo.delete_all(DB.IRVEValidFile)
 #  )
 # )
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination)
+report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug)
 
 # Nicely displays what happened
-if System.get_env("DEBUG") == "1" do
+if debug do
   report_df["status"]
   |> Explorer.Series.frequencies()
   |> IO.inspect(IEx.inspect_opts())
