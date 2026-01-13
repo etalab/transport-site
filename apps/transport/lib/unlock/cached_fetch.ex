@@ -24,6 +24,12 @@ defmodule Unlock.CachedFetch do
   # defaults
   def fetch_data(_item, _http_client_options \\ [])
 
+  def fetch_data(%Unlock.Config.Item.Generic.HTTP{caching: "disk"} = item, _http_client_options) do
+    path = System.tmp_dir!() |> Path.join(item.identifier)
+    response = Unlock.HTTP.Client.impl().stream!(item.target_url, item.request_headers, path)
+    {:commit, %{response | body: path}, expire: :timer.seconds(item.ttl)}
+  end
+
   def fetch_data(%Unlock.Config.Item.Generic.HTTP{} = item, http_client_options) do
     response = Unlock.HTTP.Client.impl().get!(item.target_url, item.request_headers, http_client_options)
     size = byte_size(response.body)
