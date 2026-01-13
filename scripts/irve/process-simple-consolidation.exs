@@ -26,5 +26,6 @@ if System.get_env("DEBUG") == "1" do
 end
 
 IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
-IO.puts("Number of unique `id_pdc_itinerance` now in base: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}")
+unique_count = DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))
+IO.puts("Number of unique `id_pdc_itinerance` now in base: #{unique_count}")
 IO.puts("Number of valid files now in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
