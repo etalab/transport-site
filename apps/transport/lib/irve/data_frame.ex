@@ -28,7 +28,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
   :string
   iex> Transport.IRVE.DataFrame.remap_schema_type(:number)
-  {:f, 32}
+  {:f, 64}
   iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean)
   :boolean
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
@@ -47,7 +47,7 @@ defmodule Transport.IRVE.DataFrame do
   def remap_schema_type(input_type, true = _strict) do
     case input_type do
       :geopoint -> :string
-      :number -> {:f, 32}
+      :number -> {:f, 64}
       type -> type
     end
   end
@@ -137,6 +137,21 @@ defmodule Transport.IRVE.DataFrame do
     end
   end
 
+  defmodule ColumnDelimiterGuessError do
+    @moduledoc """
+    Raised when the code could not determine the proper delimiter.
+
+    Forwards the data that was used to make the guess, so that the caller
+    can provide more insight.
+    """
+    defexception col_seps_frequencies: %{}
+
+    @impl true
+    def message(%{col_seps_frequencies: frequencies}) do
+      "Could not guess column delimiter (frequencies: #{inspect(frequencies)})"
+    end
+  end
+
   @doc """
   Attempt to guess the column delimiter based on the provided body.
 
@@ -155,7 +170,7 @@ defmodule Transport.IRVE.DataFrame do
   In cases where we have mixed separators, an error is raised:
 
   iex> guess_delimiter!("hello;world,again")
-  ** (RuntimeError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
+  ** (Transport.IRVE.DataFrame.ColumnDelimiterGuessError) Could not guess column delimiter (frequencies: %{"," => 1, ";" => 1})
 
   During unit tests, bodies with a single column (hence not column separator) are allowed.
   In that case "," is assumed:
@@ -180,7 +195,8 @@ defmodule Transport.IRVE.DataFrame do
       [","] -> ","
       # for single column testing files, at this point
       [] -> ","
-      _ -> raise "Could not guess column delimiter (frequencies: #{col_seps_frequencies |> inspect})"
+      # otherwise raise, but provide data for reporting
+      _ -> raise ColumnDelimiterGuessError, col_seps_frequencies: col_seps_frequencies
     end
   end
 
@@ -283,11 +299,18 @@ defmodule Transport.IRVE.DataFrame do
   # experimental, I think Explorer lacks a feature to allow this operation within Polars.
   # For now, using `transform`, which is a costly operation comparatively
   # https://hexdocs.pm/explorer/Explorer.DataFrame.html#transform/3
-  def preprocess_boolean(df, field_name) do
+  def preprocess_boolean(df, field_name, keep_as_string \\ false) do
     df
     |> Explorer.DataFrame.transform([names: [field_name]], fn row ->
+      remapped =
+        if keep_as_string do
+          Map.fetch!(@boolean_mappings, row[field_name]) |> to_string()
+        else
+          Map.fetch!(@boolean_mappings, row[field_name])
+        end
+
       %{
-        (field_name <> "_remapped") => Map.fetch!(@boolean_mappings, row[field_name])
+        (field_name <> "_remapped") => remapped
       }
     end)
     |> Explorer.DataFrame.discard(field_name)
@@ -313,12 +336,17 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
   %{id_pdc_itinerance: ["value"]}
   """
-  def add_empty_column_if_missing(dataframe, field_name) do
+  def add_empty_column_if_missing(dataframe, field_name, keep_as_string \\ false) do
     if field_name in Explorer.DataFrame.names(dataframe) do
       dataframe
     else
-      dataframe
-      |> Explorer.DataFrame.mutate(%{^field_name => nil})
+      if keep_as_string do
+        dataframe
+        |> Explorer.DataFrame.mutate(%{^field_name => ""})
+      else
+        dataframe
+        |> Explorer.DataFrame.mutate(%{^field_name => nil})
+      end
     end
   end
 end

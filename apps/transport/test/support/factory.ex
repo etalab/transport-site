@@ -648,8 +648,11 @@ defmodule DB.Factory do
           %{
             "id" => "another-dataset-id",
             "title" => "another-dataset-title",
-            "organization" => nil,
-            "owner" => "Guy who loves IRVE",
+            "organization" => %{
+              "id" => "another-org-id",
+              "name" => "another-org",
+              "page" => "http://another-org"
+            },
             "resources" => [
               %{
                 "schema" => %{
@@ -665,6 +668,29 @@ defmodule DB.Factory do
                 "filetype" => "file",
                 "last_modified" => "2024-02-29T07:43:59.660000+00:00",
                 "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+              }
+            ]
+          },
+          %{
+            "id" => "individual-published-dataset-id",
+            "title" => "individual-published-dataset-title",
+            "organization" => nil,
+            "owner" => "Guy who loves IRVE",
+            "resources" => [
+              %{
+                "schema" => %{
+                  "name" => "etalab/schema-irve-statique",
+                  "version" => "2.3.0"
+                },
+                "id" => "individual-published-resource-id",
+                "title" => "individual-published-resource-title",
+                "extras" => %{
+                  "validation-report:valid_resource" => true,
+                  "validation-report:validation_date" => "2024-02-24"
+                },
+                "filetype" => "file",
+                "last_modified" => "2024-02-29T07:43:59.660000+00:00",
+                "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
               }
             ]
           }

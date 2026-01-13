@@ -31,9 +31,22 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&Transport.IRVE.SimpleReportItem.from_result/1)
+      |> maybe_log_items()
       |> Enum.into([])
 
     generate_report(report_rows, destination: destination)
+  end
+
+  # allow (quick at runtime, no config change/recompile) command-line `DEBUG=1` switch
+  # essential to develop faster locally.
+  def maybe_log_items(stream) do
+    if System.get_env("DEBUG") == "1" do
+      stream
+      # credo:disable-for-next-line Credo.Check.Warning.IoInspect
+      |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
+    else
+      stream
+    end
   end
 
   def resource_list do
@@ -53,10 +66,16 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def process_resource(resource) do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
-    path = storage_path(resource.resource_id)
 
-    with_maybe_cached_download_on_disk(resource, path, use_permanent_disk_cache, fn path ->
-      validation_result = path |> Transport.IRVE.Validator.validate()
+    # Raise if the producer is not an organization. This check is not in the validator itself:
+    # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+    Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+
+    path = storage_path(resource.resource_id)
+    extension = Path.extname(resource.url)
+
+    with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
+      validation_result = Transport.IRVE.Validator.validate(path, extension)
       file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
       if file_valid? do
@@ -95,6 +114,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
         Logger.info("Saving report to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
+
+    report_df
   end
 
   def storage_path(resource_id) do
@@ -107,17 +128,20 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   # regular workflow: process the file then delete it afterwards, no matter what, to ensure
   # the files do not stack up on the production disk.
-  def with_maybe_cached_download_on_disk(resource, file_path, false = _use_permanent_disk_cache, work_fn) do
+  def with_maybe_cached_download_on_disk(resource, file_path, extension, false = _use_permanent_disk_cache, work_fn) do
     download!(resource.resource_id, resource.url, file_path)
-    work_fn.(file_path)
+    # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
+    # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
+    # to keep the extension around)
+    work_fn.(file_path, extension)
   after
     File.rm!(file_path)
   end
 
   # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)
-  def with_maybe_cached_download_on_disk(resource, file_path, true = _use_permanent_disk_cache, work_fn) do
+  def with_maybe_cached_download_on_disk(resource, file_path, extension, true = _use_permanent_disk_cache, work_fn) do
     if !File.exists?(file_path), do: download!(resource.resource_id, resource.url, file_path)
-    work_fn.(file_path)
+    work_fn.(file_path, extension)
   end
 
   def download!(resource_id, url, file) do

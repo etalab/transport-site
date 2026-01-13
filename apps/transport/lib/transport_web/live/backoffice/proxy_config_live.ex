@@ -20,7 +20,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
-       socket |> assign(nonce: nonce, search: params["search"], type: params["type"]) |> init_state() |> update_data()
+
+       socket
+       |> assign(nonce: nonce, search: params["search"], type: params["type"], disk: params["disk"])
+       |> init_state()
+       |> update_data()
      end)}
   end
 
@@ -45,8 +49,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   @impl true
-  def handle_event("change", %{"search" => search, "type" => type}, %Phoenix.LiveView.Socket{} = socket) do
-    {:noreply, socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search, type: type))}
+  def handle_event("change", %{"search" => search, "type" => type, "disk" => disk}, %Phoenix.LiveView.Socket{} = socket) do
+    {:noreply,
+     socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search, type: type, disk: disk))}
   end
 
   @impl true
@@ -56,7 +61,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   @impl true
-  def handle_params(%{"search" => _, "type" => _} = params, _uri, socket) do
+  def handle_params(%{"search" => _, "type" => _, "disk" => _} = params, _uri, socket) do
     {:noreply, filter_config(socket, params)}
   end
 
@@ -72,14 +77,19 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   def filter_config(%Phoenix.LiveView.Socket{} = socket, %{"search" => search} = params) do
     type = Map.get(params, "type", "")
-    socket |> assign(%{search: search, type: type}) |> filter_config()
+    disk = Map.get(params, "disk", false)
+    socket |> assign(%{search: search, type: type, disk: disk}) |> filter_config()
   end
 
   defp filter_config(
-         %Phoenix.LiveView.Socket{assigns: %{proxy_configuration: proxy_configuration, search: search, type: type}} =
+         %Phoenix.LiveView.Socket{
+           assigns: %{proxy_configuration: proxy_configuration, search: search, type: type, disk: disk}
+         } =
            socket
        ) do
-    filtered_proxy_configuration = proxy_configuration |> filter_by_type(type) |> filter_by_search(search)
+    filtered_proxy_configuration =
+      proxy_configuration |> filter_by_type(type) |> filter_by_search(search) |> filter_by_disk(disk)
+
     socket |> assign(%{filtered_proxy_configuration: filtered_proxy_configuration})
   end
 
@@ -95,6 +105,12 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       String.contains?(normalize(unique_slug), normalize(value))
     end)
   end
+
+  defp filter_by_disk(config, "true") do
+    Enum.filter(config, fn map -> Map.get(map, :caching, false) == "disk" end)
+  end
+
+  defp filter_by_disk(config, _), do: config
 
   @doc """
   iex> normalize("Paris")
@@ -137,7 +153,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
       original_url: resource.target_url,
       ttl: resource.ttl,
-      type: "HTTP"
+      type: "HTTP",
+      caching: resource.caching
     }
   end
 
@@ -207,28 +224,44 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     })
   end
 
-  defp add_cache_state(item) do
+  defp add_cache_state(%{caching: "disk"} = item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
-    cache_ttl =
-      case cache_key |> Unlock.Shared.cache_ttl() do
-        {:ok, nil} ->
-          "no ttl"
+    if cache_entry do
+      Map.merge(item, %{
+        cache_size: (File.stat!(cache_entry.body).size |> Sizeable.filesize()) <> " sur disque",
+        cache_status: cache_entry.status,
+        cache_ttl: cache_ttl(cache_key)
+      })
+    else
+      item
+    end
+  end
 
-        {:ok, res_in_ms} ->
-          in_seconds = res_in_ms / 1000
-          "#{in_seconds |> Float.round() |> trunc()}s"
-      end
+  defp add_cache_state(item) do
+    cache_key = item.unique_slug |> Unlock.Shared.cache_key()
+    cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
     if cache_entry do
       Map.merge(item, %{
         cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
         cache_status: cache_entry.status,
-        cache_ttl: cache_ttl
+        cache_ttl: cache_ttl(cache_key)
       })
     else
       item
+    end
+  end
+
+  defp cache_ttl(cache_key) do
+    case Unlock.Shared.cache_ttl(cache_key) do
+      {:ok, nil} ->
+        "no ttl"
+
+      {:ok, res_in_ms} ->
+        in_seconds = res_in_ms / 1000
+        "#{in_seconds |> Float.round() |> trunc() |> Helpers.format_number()}s"
     end
   end
 end

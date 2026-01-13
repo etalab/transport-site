@@ -39,7 +39,8 @@ defmodule TransportWeb.ValidationControllerTest do
                {"h4", [], ["Transport public collectif"]},
                {"h4", [], ["Véhicules en libre-service"]},
                {"h4", [], ["Mobilités routières et vélo"]},
-               {"h4", [], ["GBFS"]}
+               {"h4", [], ["GBFS"]},
+               {"h4", [], ["NeTEx"]}
              ] == view |> render() |> Floki.parse_document!() |> Floki.find(".tile__text h4")
 
       view |> element(~s|[phx-value-tile="gbfs"]|) |> render_click()

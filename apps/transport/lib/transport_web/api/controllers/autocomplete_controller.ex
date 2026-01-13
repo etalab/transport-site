@@ -58,14 +58,14 @@ defmodule TransportWeb.API.AutocompleteController do
       DB.Autocomplete
       |> where([p], fragment("indexed_name ilike unaccent(?)", ^query))
       |> order_by(asc: fragment("CASE type
-          when 'dataset' then 1
-          when 'feature' then 2
-          when 'mode' then 3
-          when 'format' then 4
-          when 'offer' then 5
-          when 'region' then 6
-          when 'departement' then 7
-          when 'epci' then 8
+          when 'feature' then 1
+          when 'mode' then 2
+          when 'format' then 3
+          when 'offer' then 4
+          when 'region' then 5
+          when 'departement' then 6
+          when 'epci' then 7
+          when 'dataset' then 8
           else 9 END"))
       |> order_by(desc: fragment("similarity(indexed_name, unaccent(?))", ^query))
       |> limit(10)
