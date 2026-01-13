@@ -20,6 +20,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     report_rows =
       resource_list()
+#      |> Stream.take(1)
       |> Task.async_stream(
         &process_or_rescue/1,
         ordered: true,
