@@ -1,7 +1,21 @@
 # mix run scripts/irve/process-simple-consolidation.exs
-# Or with more debug info: DEBUG=1 mix run scripts/irve/process-simple-consolidation.exs
+# For local dev use, with more debug options and without setting up MinIO:
+# DEBUG=1 DESTINATION=local_disk mix run scripts/irve/process-simple-consolidation.exs
 
+import Ecto.Query
 Logger.configure(level: :info)
+
+IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+
+IO.puts(
+  "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
+)
+
+IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
+
+destination = if System.get_env("DESTINATION") == "local_disk", do: :local_disk, else: :send_to_s3
+
+IO.puts("Using destination: #{destination}")
 
 # delete everything
 DB.Repo.delete_all(DB.IRVEValidFile)
@@ -15,7 +29,7 @@ DB.Repo.delete_all(DB.IRVEValidFile)
 #  )
 # )
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination)
 
 # Nicely displays what happened
 if System.get_env("DEBUG") == "1" do
@@ -25,4 +39,9 @@ if System.get_env("DEBUG") == "1" do
 end
 
 IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+
+IO.puts(
+  "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
+)
+
 IO.puts("Number of valid files now in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
