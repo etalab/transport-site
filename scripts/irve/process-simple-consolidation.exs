@@ -14,8 +14,6 @@ Logger.configure(level: :info)
     strict: [erase_existing_data: :string, debug: :boolean]
   )
 
-dbg(Opts: opts, System_argv: System.argv())
-
 destination =
   case opts[:destination] do
     "local_disk" -> :local_disk
