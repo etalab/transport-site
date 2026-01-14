@@ -8,83 +8,84 @@
       {dgettext("reuser-space", "reuser-space-intro")}
     </p>
 
-    {render(TransportWeb.EspaceProducteurView, "_urgent_issues.html",
+    <h2>{dgettext("reuser-space", "Available services")}</h2>
+    <div class="row pb-48">
+      <div class="panel action-panel">
+        <h4>
+          <img
+            class="picto"
+            src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
+            alt={dgettext("reuser-space", "Notification bell")}
+          />
+          {dgettext("reuser-space", "Receive notifications")}
+        </h4>
+        <div class="action-panel-content">
+          <div class="action-text">
+            {dgettext(
+              "reuser-space",
+              "Receive helpful notifications about your favorite datasets."
+            )}
+          </div>
+          <div class="action-button">
+            <a href={reuser_space_path(@conn, :notifications)} class="button">
+              {dgettext("reuser-space", "Manage notifications")}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="panel action-panel">
+        <h4>
+          <img
+            class="picto"
+            src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+            alt={dgettext("reuser-space", "Reuses")}
+          />{dgettext("reuser-space", "Declare your reuses")}
+        </h4>
+        <div class="action-panel-content">
+          <div class="action-text">
+            {dgettext(
+              "reuser-space",
+              "Highlight your reuses and make yourself known."
+            )}
+          </div>
+          <div class="action-button">
+            <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
+              {dgettext("reuser-space", "Declare a reuse")}
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="panel action-panel">
+        <h4>
+          <img
+            class="picto"
+            src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
+            alt={dgettext("reuser-space", "Settings")}
+          />{dgettext("reuser-space", "API - Manage your tokens")}
+        </h4>
+        <div class="action-panel-content">
+          <div class="action-text">
+            {dgettext(
+              "reuser-space",
+              "Create and manage your tokens independently."
+            )}
+          </div>
+          <div class="action-button">
+            <a href={reuser_space_path(@conn, :settings)} class="button">
+              {dgettext("reuser-space", "Manage your tokens")}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {render(TransportWeb.EspaceProducteurView, "_important_information.html",
       datasets: @conn.assigns[:followed_datasets],
       checks: @checks,
       conn: @conn,
       mode: :reuser
     )}
 
-    <h2>{dgettext("reuser-space", "Actions")}</h2>
-    <div class="row">
-      <div class="panel action-panel">
-        <div class="publish-header">
-          <h4>
-            <img
-              class="picto"
-              src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
-              alt={dgettext("reuser-space", "Notification bell")}
-            />
-            {dgettext("reuser-space", "Receive notifications")}
-          </h4>
-        </div>
-        <div class="action-text">
-          {dgettext(
-            "reuser-space",
-            "Receive helpful notifications about your favorite datasets."
-          )}
-        </div>
-        <div class="action-button">
-          <a href={reuser_space_path(@conn, :notifications)} class="button">
-            {dgettext("reuser-space", "Manage notifications")}
-          </a>
-        </div>
-      </div>
-      <div class="panel action-panel">
-        <div class="publish-header">
-          <h4>
-            <img
-              class="picto"
-              src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
-              alt={dgettext("reuser-space", "Reuses")}
-            />{dgettext("reuser-space", "Declare your reuses")}
-          </h4>
-        </div>
-        <div class="action-text">
-          {dgettext(
-            "reuser-space",
-            "Highlight your reuses and make yourself known."
-          )}
-        </div>
-        <div class="action-button">
-          <a href="https://www.data.gouv.fr/admin/reuses/new/" target="_blank" class="button">
-            {dgettext("reuser-space", "Declare a reuse")}
-          </a>
-        </div>
-      </div>
-      <div class="panel action-panel">
-        <div class="publish-header">
-          <h4>
-            <img
-              class="picto"
-              src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
-              alt={dgettext("reuser-space", "Settings")}
-            />{dgettext("reuser-space", "API - Manage your tokens")}
-          </h4>
-        </div>
-        <div class="action-text">
-          {dgettext(
-            "reuser-space",
-            "Create and manage your tokens independently."
-          )}
-        </div>
-        <div class="action-button">
-          <a href={reuser_space_path(@conn, :settings)} class="button">
-            {dgettext("reuser-space", "Manage your tokens")}
-          </a>
-        </div>
-      </div>
-    </div>
     <h2 class="pt-48">{dgettext("reuser-space", "Favorite datasets")}</h2>
     {live_render(@conn, TransportWeb.Live.UserSpaceDatasetsLive,
       session: %{"dataset_ids" => @followed_datasets_ids, "mode" => :reuser}
@@ -100,3 +101,13 @@
     session: %{"feature" => "reuser_space"}
   )}
 </section>
+<script nonce={get_session(@conn, :csp_nonce_value)}>
+  document.querySelectorAll('.action-panel h4').forEach(header => {
+    header.addEventListener('click', () => {
+      const allContents = document.querySelectorAll('.action-panel-content');
+      allContents.forEach(content => {
+        content.classList.toggle('hide');
+      });
+    });
+  });
+</script>

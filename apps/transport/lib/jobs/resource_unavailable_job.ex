@@ -87,15 +87,26 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
     payload
   end
 
-  # We’ve just updated the URL by following it until we got a 200, so it’s available
+  # We've just updated the URL by following it until we got a 200, so it's available
   defp check_availability({:updated, %Resource{} = resource}) do
     {true, resource}
   end
 
-  defp check_availability({:no_op, %Resource{format: format} = resource}) do
-    download_url = Resource.download_url(resource)
-    is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
-    {is_available, resource}
+  defp check_availability({:no_op, %Resource{id: resource_id, format: format} = resource}) do
+    if resource_id in skip_resource_ids() do
+      {true, resource}
+    else
+      download_url = Resource.download_url(resource)
+      is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
+      {is_available, resource}
+    end
+  end
+
+  @doc """
+  Returns the list of resource IDs that should always be considered as available.
+  """
+  def skip_resource_ids do
+    Application.fetch_env!(:transport, :resource_unavailable_skip_resource_ids)
   end
 
   defp update_resource({is_available, %Resource{} = resource}) do
