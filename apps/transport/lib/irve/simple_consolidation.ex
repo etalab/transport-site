@@ -131,7 +131,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # TODO: tests should not go through this https://github.com/etalab/transport-site/issues/5109
       :local_disk ->
         report_file = base_name <> ".csv"
-        Logger.info("Saving report to #{report_file}...")
+        Logger.info("Saving report locally to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
 
