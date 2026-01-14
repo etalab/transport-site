@@ -9,25 +9,28 @@
 import Ecto.Query
 Logger.configure(level: :info)
 
-{opts, _args, _} =
-  OptionParser.parse(System.argv(),
-    strict: [erase_existing_data: :string, debug: :boolean]
+{opts, _args} =
+  OptionParser.parse!(System.argv(),
+    strict: [erase_existing_data: :string, destination: :string, debug: :boolean]
   )
 
-destination =
-  case opts[:destination] do
-    "local_disk" -> :local_disk
-    _ -> :send_to_s3
-  end
-
-erase_existing_data =
-  case opts[:erase_existing_data] do
-    "all" -> :all
-    "partial" -> :partial
-    _ -> :none
-  end
+# Set default options in case of missing option (won’t override provided ones even invalid, but strict matching later)
+opts =
+  Keyword.validate!(opts,
+    destination: "send_to_s3",
+    erase_existing_data: "none",
+    debug: false
+  )
 
 debug = opts[:debug]
+erase_existing_data = opts[:erase_existing_data]
+
+destination =
+  if opts[:destination] in ["local_disk", "send_to_s3"] do
+    String.to_atom(opts[:destination])
+  else
+    raise(ArgumentError, "Invalid destination option")
+  end
 
 IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
 
@@ -40,11 +43,11 @@ IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggreg
 IO.puts("Using destination: #{destination}")
 
 case erase_existing_data do
-  :all ->
+  "all" ->
     IO.puts("Erasing all existing IRVE valid files and PDCs...")
     DB.Repo.delete_all(DB.IRVEValidFile)
 
-  :partial ->
+  "partial" ->
     IO.puts("Erasing some existing IRVE valid files and PDCs…")
 
     DB.Repo.delete_all(
@@ -53,7 +56,7 @@ case erase_existing_data do
       )
     )
 
-  :none ->
+  "none" ->
     IO.puts("Keeping existing data...")
 end
 
