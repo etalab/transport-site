@@ -111,6 +111,20 @@ defmodule Transport.IRVE.SimpleConsolidation do
       report_rows
       |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
       |> Explorer.DataFrame.new()
+      # `select` orders columns in the provided order
+      # (https://github.com/elixir-explorer/explorer/issues/1126)
+      # sorted in a way that is more convenient when opening from
+      # LibreOffice et al. (keeping error_message, sometimes long, at the end)
+      |> Explorer.DataFrame.select([
+        "dataset_id",
+        "resource_id",
+        "status",
+        "error_type",
+        "estimated_pdc_count",
+        "url",
+        "dataset_title",
+        "error_message"
+      ])
 
     base_name = "irve_static_consolidation_v2_report"
 
