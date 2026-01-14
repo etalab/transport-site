@@ -23,11 +23,6 @@ options = [
 
 report_df = Transport.IRVE.SimpleConsolidation.process(options)
 
-# Note suite à mes travaux d'aujourd'hui, où j'ai du rollback car plus compliqué que ça à bien faire
-# - ajouter estimated_pdc_count mais wrappé "tout en haut" (actuellement les exceptions rendent cette remontée difficile)
-# - ajouter processing_time_in_seconds (idem)
-# - ordonner les colonnes dans le rapport "simple consolidation", sinon c'est pas pratique
-
 # Nicely displays what happened
 if System.get_env("DEBUG") == "1" do
   report_df["status"]
