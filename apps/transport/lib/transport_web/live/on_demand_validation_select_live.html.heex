@@ -17,22 +17,23 @@
         </a>
       </div>
 
-      <%= for {identifier, item} <- @tiles do %>
-        <div :if={@selected_tile == identifier} class="container available-data grid pt-24 pb-48">
-          <a
-            :for={{title, type} <- item.sub_tiles}
-            href="#form_anchor"
-            class={if @selected_subtile == type, do: "tile tile-colored", else: "tile sub_tile"}
-            phx-click="select_subtile"
-            phx-value-tile={type}
-          >
-            <img class="tile__icon" src={icon(type)} alt="" />
-            <div class="tile__text">
-              <h4>{title}</h4>
-            </div>
-          </a>
-        </div>
-      <% end %>
+      <div
+        :for={{identifier, item} <- @tiles}
+        :if={@selected_tile == identifier}
+        class="container available-data grid pt-24 pb-48"
+      >
+        <a
+          :for={{title, type} <- item.sub_tiles}
+          class={if @selected_subtile == type, do: "tile tile-colored", else: "tile sub_tile"}
+          phx-click="select_subtile"
+          phx-value-tile={type}
+        >
+          <img class="tile__icon" src={icon(type)} alt="" />
+          <div class="tile__text">
+            <h4>{title}</h4>
+          </div>
+        </a>
+      </div>
 
       <div id="form_anchor"></div>
       <.form

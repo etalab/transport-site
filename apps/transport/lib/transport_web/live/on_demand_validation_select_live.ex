@@ -91,7 +91,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   def handle_event("select_subtile", %{"tile" => tile}, socket) do
     socket = socket |> socket_data(type: tile, selected_subtile: tile)
-    {:noreply, socket |> push_patch(to: self_path(socket))}
+    {:noreply, socket |> push_patch(to: self_path(socket) <> "#form_anchor")}
   end
 
   def icon(type) do
