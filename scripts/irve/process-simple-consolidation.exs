@@ -32,15 +32,19 @@ destination =
     raise(ArgumentError, "Invalid destination option")
   end
 
-IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
-
-IO.puts(
-  "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
-)
-
-IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
-
 IO.puts("Using destination: #{destination}")
+
+display_counts = fn ->
+  IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+
+  IO.puts(
+    "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
+  )
+
+  IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
+end
+
+display_counts.()
 
 case erase_existing_data do
   "all" ->
@@ -68,10 +72,6 @@ if debug do
   |> IO.inspect(IEx.inspect_opts())
 end
 
-IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+IO.puts("End of processing. Final counts:")
 
-IO.puts(
-  "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
-)
-
-IO.puts("Number of valid files now in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
+display_counts.()
