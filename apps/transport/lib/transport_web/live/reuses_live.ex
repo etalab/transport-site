@@ -27,7 +27,7 @@ defmodule TransportWeb.ReusesLive do
             <%= for reuse <- @reuses do %>
               <div class="panel reuse">
                 <img src={reuse["image"]} alt={reuse["title"]} />
-                {dgettext("page-dataset-details", "By %{owner}", owner: owner(reuse))}
+                <div class="mt-12">{Phoenix.HTML.raw(owner(reuse))}</div>
                 <div class="reuse__links">
                   <.link href={reuse["url"]}>{dgettext("page-dataset-details", "Website")}</.link>
                   <.link href={reuse["page"]} target="_blank">
@@ -72,8 +72,8 @@ defmodule TransportWeb.ReusesLive do
     {:ok, socket}
   end
 
-  def owner(%{"organization" => %{"name" => name}}), do: name
-  def owner(%{"owner" => %{"name" => name}}), do: name
+  def owner(%{"organization" => %{"name" => name}}), do: ~s|<i class="fa fa-building icon"></i>| <> name
+  def owner(%{"owner" => %{"name" => name}}), do: ~s|<i class="fa fa-user icon"></i>| <> name
 
   def handle_info({:fetch_data_gouv_reuses, dataset_datagouv_id}, socket) do
     # in case data.gouv api is down, datasets pages should still be available on our site

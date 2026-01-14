@@ -731,9 +731,5 @@ msgid "This discussion is closed"
 msgstr "Cette discussion est fermée"
 
 #, elixir-autogen, elixir-format
-msgid "By %{owner}"
-msgstr "Par %{owner}"
-
-#, elixir-autogen, elixir-format
 msgid "You will find below reuses created by individuals or organizations based on this dataset."
 msgstr "Vous trouverez dessous les réutilisations créées par des personnes ou des organisations en utilisant ce jeu de données."
