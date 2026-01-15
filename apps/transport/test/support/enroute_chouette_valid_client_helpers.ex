@@ -4,10 +4,10 @@ defmodule Transport.Test.EnRouteChouetteValidClientHelpers do
   """
   import Mox
 
-  def expect_create_validation do
+  def expect_create_validation(ruleset) do
     validation_id = with_running_validation()
 
-    expect(Transport.EnRouteChouetteValidClient.Mock, :create_a_validation, fn _ -> validation_id end)
+    expect(Transport.EnRouteChouetteValidClient.Mock, :create_a_validation, fn _, ^ruleset -> validation_id end)
 
     validation_id
   end
