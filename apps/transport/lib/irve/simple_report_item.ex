@@ -4,8 +4,17 @@ defmodule Transport.IRVE.SimpleReportItem do
   IRVE file into a structure with all the same keys.
   (as expected by the `DataFrame` that we use to create the CSV file).
   """
-  @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status]
-  defstruct [:dataset_id, :resource_id, :url, :dataset_title, :status, :error_message, :error_type]
+  @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status, :estimated_pdc_count]
+  defstruct [
+    :dataset_id,
+    :resource_id,
+    :url,
+    :dataset_title,
+    :status,
+    :error_message,
+    :error_type,
+    :estimated_pdc_count
+  ]
 
   def from_result({:error_occurred, error, resource}) do
     new(resource, :error_occurred, error)
@@ -28,6 +37,7 @@ defmodule Transport.IRVE.SimpleReportItem do
       url: resource.url,
       dataset_title: resource.dataset_title,
       status: status,
+      estimated_pdc_count: resource[:estimated_pdc_count],
       error_message: maybe_error_message(error),
       error_type: maybe_error_type(error)
     }

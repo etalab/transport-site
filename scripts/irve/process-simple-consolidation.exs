@@ -2,6 +2,7 @@
 # Or with more debug info: DEBUG=1 mix run scripts/irve/process-simple-consolidation.exs
 
 Logger.configure(level: :info)
+import Ecto.Query
 
 # delete everything
 DB.Repo.delete_all(DB.IRVEValidFile)
@@ -15,7 +16,12 @@ DB.Repo.delete_all(DB.IRVEValidFile)
 #  )
 # )
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: :local_disk)
+options = [
+  destination: :local_disk,
+  limit: if(limit = System.get_env("LIMIT"), do: String.to_integer(limit), else: nil)
+]
+
+report_df = Transport.IRVE.SimpleConsolidation.process(options)
 
 # Nicely displays what happened
 if System.get_env("DEBUG") == "1" do
@@ -25,4 +31,6 @@ if System.get_env("DEBUG") == "1" do
 end
 
 IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+unique_count = DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))
+IO.puts("Number of unique `id_pdc_itinerance` now in base: #{unique_count}")
 IO.puts("Number of valid files now in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
