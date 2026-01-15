@@ -13,3 +13,10 @@ report_df
 |> DF.summarise(est_pdc_count: sum(estimated_pdc_count))
 |> DF.sort_by(desc: est_pdc_count)
 |> DF.print(limit: :infinity)
+
+# report for files considered as invalid
+report_df
+|> DF.filter(status == "not_compliant_with_schema")
+|> DF.select([:dataset_id, :resource_id, :dataset_title, :estimated_pdc_count, :status])
+|> DF.sort_by(desc: estimated_pdc_count)
+|> DF.print(limit: 20)
