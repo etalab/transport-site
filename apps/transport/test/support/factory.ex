@@ -325,6 +325,10 @@ defmodule DB.Factory do
     %DB.NotificationSubscription{}
   end
 
+  def hidden_reuser_alert_factory do
+    %DB.HiddenReuserAlert{}
+  end
+
   def resource_related_factory do
     %DB.ResourceRelated{}
   end

@@ -7,14 +7,16 @@ defmodule TransportWeb.ReuserSpaceController do
     when action in [:espace_reutilisateur, :settings, :new_token, :create_new_token, :delete_token, :default_token]
   )
 
-  plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data])
+  plug(:find_dataset_or_redirect when action in [:datasets_edit, :unfavorite, :add_improved_data, :hide_alert])
 
   def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
     followed_datasets_ids = contact |> Ecto.assoc(:followed_datasets) |> select([d], d.id) |> DB.Repo.all()
+    hidden_alerts = DB.HiddenReuserAlert.active_hidden_alerts(contact)
 
     conn
     |> assign(:contact, contact)
     |> assign(:followed_datasets_ids, followed_datasets_ids)
+    |> assign(:hidden_alerts, hidden_alerts)
     |> assign(
       :checks,
       Enum.map(conn.assigns.followed_datasets, & &1.id) |> Enum.zip(conn.assigns.followed_datasets_checks) |> Map.new()
@@ -168,6 +170,28 @@ defmodule TransportWeb.ReuserSpaceController do
     )
     |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
   end
+
+  def hide_alert(
+        %Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} = conn,
+        params
+      ) do
+    check_type = params |> Map.fetch!("check_type") |> String.to_existing_atom()
+    resource_id = params["resource_id"] |> parse_optional_integer()
+    discussion_id = params["discussion_id"]
+
+    DB.HiddenReuserAlert.hide!(contact, dataset, check_type,
+      resource_id: resource_id,
+      discussion_id: discussion_id
+    )
+
+    conn
+    |> put_flash(:info, dgettext("reuser-space", "Alert hidden for 7 days"))
+    |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
+  end
+
+  defp parse_optional_integer(nil), do: nil
+  defp parse_optional_integer(""), do: nil
+  defp parse_optional_integer(value) when is_binary(value), do: String.to_integer(value)
 
   defp delete_notification_subscriptions(%DB.Contact{id: contact_id}, %DB.Dataset{id: dataset_id}) do
     DB.NotificationSubscription.base_query()
