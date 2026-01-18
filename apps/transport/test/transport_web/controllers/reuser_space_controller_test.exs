@@ -53,18 +53,8 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert doc |> Floki.find(~s|[data-name="important-information"] h2|) |> Floki.text() ==
                "Informations importantes concernant les ressources que vous suivez"
 
-      # Filter out recent_features row if present (during first 7 days of month)
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
       # Check that one row is displayed with the expected content
-      assert length(tbody_rows_without_recent_features) == 1
-      [row] = tbody_rows_without_recent_features
+      assert [row] = important_info_rows_without_recent_features(doc)
 
       # Check dataset link
       assert row |> Floki.find("a[href='/datasets/#{dataset.slug}']") |> Enum.any?()
@@ -80,12 +70,11 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert row |> Floki.text() |> String.contains?("Ressource indisponible")
 
       # If we're in the first 7 days, recent_features row should be present
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
+
       if Date.utc_today().day in 1..7 do
         assert length(all_tbody_rows) == 2
-
-        assert Enum.any?(all_tbody_rows, fn row ->
-                 row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-               end)
+        assert Enum.any?(all_tbody_rows, &recent_features_row?/1)
       else
         assert length(all_tbody_rows) == 1
       end
@@ -590,15 +579,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     end
   end
 
-  def index_href_attributes(%Plug.Conn{} = conn) do
-    conn
-    |> get(reuser_space_path(conn, :espace_reutilisateur))
-    |> html_response(200)
-    |> Floki.parse_document!()
-    |> Floki.find(".action-panel a")
-    |> Floki.attribute("a", "href")
-  end
-
   describe "hide_alert" do
     test "hides an alert for a resource", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
@@ -618,15 +598,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
-      assert length(tbody_rows_without_recent_features) == 1
+      assert length(important_info_rows_without_recent_features(doc)) == 1
 
       # Now hide the alert
       conn =
@@ -647,7 +619,10 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert hidden_alert.check_type == "unavailable_resource"
       assert hidden_alert.resource_id == resource.id
       assert hidden_alert.discussion_id == nil
-      assert_in_delta hidden_alert.hidden_until |> DateTime.to_unix(), DateTime.add(DateTime.utc_now(), 7, :day) |> DateTime.to_unix(), 1
+
+      assert_in_delta hidden_alert.hidden_until |> DateTime.to_unix(),
+                      DateTime.add(DateTime.utc_now(), 7, :day) |> DateTime.to_unix(),
+                      1
 
       # Check that the alert is no longer visible
       doc =
@@ -658,15 +633,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
-      assert Enum.empty?(tbody_rows_without_recent_features)
+      assert Enum.empty?(important_info_rows_without_recent_features(doc))
     end
 
     test "hides an alert for a discussion", %{conn: conn} do
@@ -698,15 +665,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
-      assert length(tbody_rows_without_recent_features) == 1
+      assert length(important_info_rows_without_recent_features(doc)) == 1
 
       # Now hide the alert
       conn =
@@ -735,15 +694,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
-      assert Enum.empty?(tbody_rows_without_recent_features)
+      assert Enum.empty?(important_info_rows_without_recent_features(doc))
     end
 
     test "expired hidden alert reappears", %{conn: conn} do
@@ -771,15 +722,24 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
-
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
-
-      assert length(tbody_rows_without_recent_features) == 1
+      assert length(important_info_rows_without_recent_features(doc)) == 1
     end
   end
+
+  def index_href_attributes(%Plug.Conn{} = conn) do
+    conn
+    |> get(reuser_space_path(conn, :espace_reutilisateur))
+    |> html_response(200)
+    |> Floki.parse_document!()
+    |> Floki.find(".action-panel a")
+    |> Floki.attribute("a", "href")
+  end
+
+  defp important_info_rows_without_recent_features(doc) do
+    doc
+    |> Floki.find(~s|[data-name="important-information"] tbody tr|)
+    |> Enum.reject(&recent_features_row?/1)
+  end
+
+  defp recent_features_row?(row), do: row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
 end
