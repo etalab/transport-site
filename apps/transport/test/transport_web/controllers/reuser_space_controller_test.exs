@@ -590,7 +590,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       # We have 2 page loads (initial + after hide) + 1 redirect that also calls the plug
       Datagouvfr.Client.Discussions.Mock |> stub(:get, fn _datagouv_id -> [] end)
 
-      # First, check that the alert is visible
+      # First, check that the alert is visible and notification badge shows 1
       doc =
         conn
         |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
@@ -599,6 +599,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> Floki.parse_document!()
 
       assert length(important_info_rows_without_recent_features(doc)) == 1
+      assert doc |> Floki.find(".notification_badge") |> Floki.text() =~ "1"
 
       # Now hide the alert
       conn =
@@ -624,7 +625,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
                       DateTime.add(DateTime.utc_now(), 7, :day) |> DateTime.to_unix(),
                       1
 
-      # Check that the alert is no longer visible
+      # Check that the alert is no longer visible and notification badge is gone
       doc =
         conn
         |> recycle()
@@ -634,6 +635,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
         |> Floki.parse_document!()
 
       assert Enum.empty?(important_info_rows_without_recent_features(doc))
+      assert doc |> Floki.find(".notification_badge") |> Enum.empty?()
     end
 
     test "hides an alert for a discussion", %{conn: conn} do

@@ -11,12 +11,11 @@ defmodule TransportWeb.ReuserSpaceController do
 
   def espace_reutilisateur(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
     followed_datasets_ids = contact |> Ecto.assoc(:followed_datasets) |> select([d], d.id) |> DB.Repo.all()
-    hidden_alerts = DB.HiddenReuserAlert.active_hidden_alerts(contact)
 
     conn
     |> assign(:contact, contact)
     |> assign(:followed_datasets_ids, followed_datasets_ids)
-    |> assign(:hidden_alerts, hidden_alerts)
+    |> assign(:hidden_alerts, conn.assigns.hidden_reuser_alerts)
     |> assign(
       :checks,
       Enum.map(conn.assigns.followed_datasets, & &1.id) |> Enum.zip(conn.assigns.followed_datasets_checks) |> Map.new()
