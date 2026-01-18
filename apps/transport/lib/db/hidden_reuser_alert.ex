@@ -14,7 +14,11 @@ defmodule DB.HiddenReuserAlert do
   typed_schema "hidden_reuser_alerts" do
     belongs_to(:contact, DB.Contact)
     belongs_to(:dataset, DB.Dataset)
-    field(:check_type, :string)
+
+    field(:check_type, Ecto.Enum,
+      values: [:unavailable_resource, :expiring_resource, :invalid_resource, :recent_discussions]
+    )
+
     field(:resource_id, :integer)
     field(:discussion_id, :string)
     field(:hidden_until, :utc_datetime_usec)
@@ -49,7 +53,7 @@ defmodule DB.HiddenReuserAlert do
     |> changeset(%{
       contact_id: contact_id,
       dataset_id: dataset_id,
-      check_type: Atom.to_string(check_type),
+      check_type: check_type,
       resource_id: resource_id,
       discussion_id: discussion_id,
       hidden_until: hidden_until
@@ -79,11 +83,10 @@ defmodule DB.HiddenReuserAlert do
   def hidden?(hidden_alerts, dataset_id, check_type, opts \\ []) do
     resource_id = Keyword.get(opts, :resource_id)
     discussion_id = Keyword.get(opts, :discussion_id)
-    check_type_str = Atom.to_string(check_type)
 
     Enum.any?(hidden_alerts, fn alert ->
       alert.dataset_id == dataset_id and
-        alert.check_type == check_type_str and
+        alert.check_type == check_type and
         alert.resource_id == resource_id and
         alert.discussion_id == discussion_id
     end)

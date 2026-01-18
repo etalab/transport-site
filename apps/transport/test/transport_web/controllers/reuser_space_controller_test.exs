@@ -617,7 +617,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert [%DB.HiddenReuserAlert{} = hidden_alert] = DB.Repo.all(DB.HiddenReuserAlert)
       assert hidden_alert.contact_id == contact.id
       assert hidden_alert.dataset_id == dataset.id
-      assert hidden_alert.check_type == "unavailable_resource"
+      assert hidden_alert.check_type == :unavailable_resource
       assert hidden_alert.resource_id == resource.id
       assert hidden_alert.discussion_id == nil
 
@@ -683,7 +683,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       # Check the database
       assert [%DB.HiddenReuserAlert{} = hidden_alert] = DB.Repo.all(DB.HiddenReuserAlert)
-      assert hidden_alert.check_type == "recent_discussions"
+      assert hidden_alert.check_type == :recent_discussions
       assert hidden_alert.resource_id == nil
       assert hidden_alert.discussion_id == discussion_id
 
@@ -709,7 +709,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       insert(:hidden_reuser_alert,
         contact_id: contact.id,
         dataset_id: dataset.id,
-        check_type: "unavailable_resource",
+        check_type: :unavailable_resource,
         resource_id: resource.id,
         hidden_until: DateTime.utc_now() |> DateTime.add(-1, :day)
       )
