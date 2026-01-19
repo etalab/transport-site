@@ -8,9 +8,9 @@ defmodule Script do
   alias Transport.EnRoute.ChouetteValidRulesetsClient.Slugs
   alias Transport.EnRoute.ChouetteValidRulesetsClient.Wrapper
 
-  def document_rulesets do
-    with_file("chouette_ruleset.json", &ruleset/1)
-    with_file("chouette_ruleset.md", &markdown/1)
+  def document_rulesets(filename) do
+    with_file("#{filename}.json", &ruleset/1)
+    with_file("#{filename}.md", &markdown/1)
   end
 
   def list_rulesets do
@@ -98,7 +98,8 @@ defmodule CLI do
       ["list-revisions", slug] -> Script.list_revisions(slug)
       ["publish-ruleset", slug] -> Script.publish_ruleset(slug)
       ["list-rulesets"] -> Script.list_rulesets()
-      ["document-rulesets"] -> Script.document_rulesets()
+      ["document-rulesets", filename] -> Script.document_rulesets(filename)
+      ["document-rulesets"] -> Script.document_rulesets("chouette_ruleset")
       ["purge-rulesets"] -> Script.purge_rulesets()
       ["help"] -> help()
       _ -> help()
@@ -112,17 +113,17 @@ defmodule CLI do
       Helps us implement NeTEx French profile and custom checks.
 
     Commands:
-      publish-ruleset <slug>  # publish our ruleset to the given slug from the definition
-      list-rulesets           # list all published rulesets
-      get-ruleset <slug>      # inspect ruleset for a given slug
-      document-rulesets       # dump rulesets as json definition and markdown
+      publish-ruleset <slug>       # publish our ruleset to the given slug from the definition
+      list-rulesets                # list all published rulesets
+      get-ruleset <slug>           # inspect ruleset for a given slug
+      document-rulesets (filename) # dump rulesets as json definition and markdown (filename.md & filename.json)
 
-      find-ruleset-id <slug>  # find ruleset-id of a given slug (ruleset-id in Chouette Valid API)
-      list-revisions <slug>   # list revisions of a given slug
+      find-ruleset-id <slug>       # find ruleset-id of a given slug (ruleset-id in Chouette Valid API)
+      list-revisions <slug>        # list revisions of a given slug
 
-      purge-rulesets          # purge all published rulesets (DANGEROUS). This will break production.
+      purge-rulesets               # purge all published rulesets (DANGEROUS). This will break production.
 
-      help                    # this message
+      help                         # this message
     """)
   end
 end
