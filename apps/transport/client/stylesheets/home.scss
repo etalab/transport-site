@@ -110,6 +110,7 @@ a.tile {
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
+  gap: 1em;
 }
 
 a.tile:hover {
@@ -123,7 +124,6 @@ a.tile:hover {
 
 .tile__icon {
   height: 4em;
-  margin-right: 2em;
 }
 
 .tile-colored {
@@ -133,6 +133,13 @@ a.tile:hover {
     background: #fff;
     padding: 5px;
   }
+}
+
+a.tile.sub_tile {
+  background: var(--lightest-grey);
+  border: 1px solid var(--light-grey);
+  width: 85%;
+  overflow: clip;
 }
 
 .grid.available-data {

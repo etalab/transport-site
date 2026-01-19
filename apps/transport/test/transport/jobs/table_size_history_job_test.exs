@@ -3,6 +3,8 @@ defmodule Transport.Test.Transport.Jobs.TableSizeHistoryJobTest do
   use Oban.Testing, repo: DB.Repo
   alias Transport.Jobs.TableSizeHistoryJob
 
+  @moduletag :timescaledb
+
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end

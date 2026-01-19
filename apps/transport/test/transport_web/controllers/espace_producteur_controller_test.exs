@@ -258,7 +258,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
     end
   end
 
-  test "important_information for expiring_resource" do
+  test "important_information for expiring_resource", %{conn: conn} do
     %{resource: resource, dataset: dataset, multi_validation: multi_validation} =
       insert_resource_and_friends(Date.utc_today())
 
@@ -276,7 +276,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              check_name: :expiring_resource,
              multi_validation: multi_validation,
              locale: "fr",
-             mode: :producer
+             mode: :producer,
+             conn: conn
            )
            |> Floki.parse_document!() == [
              {"tr", [],
