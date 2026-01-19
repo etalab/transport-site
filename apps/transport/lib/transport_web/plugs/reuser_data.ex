@@ -20,7 +20,7 @@ defmodule TransportWeb.Plugs.ReuserData do
   def init(opts), do: opts
 
   def call(%Plug.Conn{} = conn, _opts) do
-    conn |> followed_datasets() |> followed_datasets_checks()
+    conn |> followed_datasets() |> followed_datasets_checks() |> hidden_reuser_alerts()
   end
 
   defp followed_datasets(%Plug.Conn{assigns: %{current_contact: %DB.Contact{} = contact}} = conn) do
@@ -61,4 +61,10 @@ defmodule TransportWeb.Plugs.ReuserData do
       @cache_delay
     )
   end
+
+  defp hidden_reuser_alerts(%Plug.Conn{assigns: %{current_contact: %DB.Contact{} = contact}} = conn) do
+    assign(conn, :hidden_reuser_alerts, DB.HiddenReuserAlert.active_hidden_alerts(contact))
+  end
+
+  defp hidden_reuser_alerts(%Plug.Conn{} = conn), do: assign(conn, :hidden_reuser_alerts, [])
 end

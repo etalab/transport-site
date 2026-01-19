@@ -11,7 +11,7 @@ extra_exclude =
       _ -> [:ci_only_on_mondays]
     end
   else
-    [:transport_tools, :ci_only_on_mondays, :external]
+    [:transport_tools, :ci_only_on_mondays, :external, :timescaledb]
   end
 
 ExUnit.configure(exclude: exclude ++ extra_exclude)

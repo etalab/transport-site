@@ -242,10 +242,3 @@ blockquote {
 @keyframes loader-animation {
   100% {background-position: 36.36%}
 }
-
-a.tile.sub_tile {
-  background: var(--lightest-grey);
-  border: 1px solid var(--light-grey);
-  width: 80%;
-  padding: .5em;
-}
