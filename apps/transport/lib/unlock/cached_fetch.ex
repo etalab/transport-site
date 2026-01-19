@@ -55,24 +55,38 @@ defmodule Unlock.CachedFetch do
     end
   end
 
-  # For S3 hosted files (which we control), which are currently larger, go a bit further
-  @max_allowed_s3_cached_byte_size 4 * 20 * 1024 * 1024
-
   def fetch_data(%Unlock.Config.Item.S3{} = item, _http_client_options) do
     bucket = item.bucket |> String.to_existing_atom()
     path = item.path
+    destination_path = System.tmp_dir!() |> Path.join(item.identifier)
 
-    response = Transport.S3.get_object!(bucket, path)
+    # Verify if the response cached is still valid by comparing ETags
+    etag_cache_key = Unlock.Shared.cache_key(item.identifier, "etag")
+    cached_reponse = Cachex.get(Unlock.Shared.cache_name(), etag_cache_key)
 
-    # create the same type of structure as `fetch_data(%Generic.HTTP{})` calls. See `http_client.ex`.
-    response = %Unlock.HTTP.Response{body: response.body, status: response.status_code, headers: []}
-    size = byte_size(response.body)
+    etag =
+      case cached_reponse do
+        {:ok, %Unlock.HTTP.Response{headers: headers}} -> etag_value(headers)
+        _ -> nil
+      end
 
-    if size > @max_allowed_s3_cached_byte_size do
-      Logger.warning("S3 Payload is too large (#{size} bytes > #{@max_allowed_s3_cached_byte_size}). Skipping cache.")
-      {:ignore, response}
+    %{headers: headers, status_code: status_code} = Transport.S3.head_object!(bucket, path)
+
+    # ETag are still the same, keep the cached response (and file) for the TTL duration
+    if etag_value(headers) == etag do
+      {:ok, response} = cached_reponse
+      {:commit, response, expire: :timer.seconds(item.ttl)}
+      # File changed or cache expired: download the file to disk again
     else
+      Transport.S3.download_file!(bucket, path, destination_path)
+      response = %Unlock.HTTP.Response{body: destination_path, status: status_code, headers: headers}
+      # Save a cache key without an expire, to check again the cache
+      Cachex.put(Unlock.Shared.cache_name(), etag_cache_key, response)
       {:commit, response, expire: :timer.seconds(item.ttl)}
     end
+  end
+
+  defp etag_value(headers) do
+    Enum.find_value(headers, fn {k, v} -> if String.downcase(k) == "etag", do: v end)
   end
 end
