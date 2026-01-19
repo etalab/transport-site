@@ -83,7 +83,8 @@
       datasets: @conn.assigns[:followed_datasets],
       checks: @checks,
       conn: @conn,
-      mode: :reuser
+      mode: :reuser,
+      hidden_alerts: @hidden_alerts
     )}
 
     <h2 class="pt-48">{dgettext("reuser-space", "Favorite datasets")}</h2>

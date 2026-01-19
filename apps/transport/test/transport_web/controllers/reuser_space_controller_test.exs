@@ -53,49 +53,28 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
       assert doc |> Floki.find(~s|[data-name="important-information"] h2|) |> Floki.text() ==
                "Informations importantes concernant les ressources que vous suivez"
 
-      # Filter out recent_features row if present (during first 7 days of month)
-      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
+      # Check that one row is displayed with the expected content
+      assert [row] = important_info_rows_without_recent_features(doc)
 
-      tbody_rows_without_recent_features =
-        all_tbody_rows
-        |> Enum.reject(fn row ->
-          row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-        end)
+      # Check dataset link
+      assert row |> Floki.find("a[href='/datasets/#{dataset.slug}']") |> Enum.any?()
 
-      # Expected tbody structure without recent_features
-      expected_tbody_rows = [
-        {"tr", [],
-         [
-           {"td", [],
-            [
-              {"a", [{"href", "/datasets/#{dataset.slug}"}, {"target", "_blank"}],
-               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
-            ]},
-           {"td", [], ["GTFS.zip ", {"span", [{"class", "label"}], []}]},
-           {"td", [], ["Ressource indisponible"]},
-           {"td", [],
-            [
-              {"a",
-               [
-                 {"href", "/resources/#{resource.id}"},
-                 {"class", "button-outline primary small"},
-                 {"target", "_blank"},
-                 {"data-tracking-category", "espace_reutilisateur"},
-                 {"data-tracking-action", "important_information_see_resource_button"}
-               ], ["\n    Voir la ressource\n  "]}
-            ]}
-         ]}
-      ]
+      # Check resource link
+      assert row |> Floki.find("a[href='/resources/#{resource.id}']") |> Enum.any?()
 
-      assert tbody_rows_without_recent_features == expected_tbody_rows
+      # Check hide button is present
+      assert row |> Floki.find("form.hide-alert-form") |> Enum.any?()
+      assert row |> Floki.find("input[name='check_type'][value='unavailable_resource']") |> Enum.any?()
+
+      # Check issue text
+      assert row |> Floki.text() |> String.contains?("Ressource indisponible")
 
       # If we're in the first 7 days, recent_features row should be present
+      all_tbody_rows = doc |> Floki.find(~s|[data-name="important-information"] tbody tr|)
+
       if Date.utc_today().day in 1..7 do
         assert length(all_tbody_rows) == 2
-
-        assert Enum.any?(all_tbody_rows, fn row ->
-                 row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
-               end)
+        assert Enum.any?(all_tbody_rows, &recent_features_row?/1)
       else
         assert length(all_tbody_rows) == 1
       end
@@ -600,6 +579,155 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     end
   end
 
+  describe "hide_alert" do
+    test "hides an alert for a resource", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      resource = insert(:resource, dataset: dataset, is_available: false)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      # The mock is called by ReuserData plug (1x) + controller checks (1x) = 2x per page load
+      # We have 2 page loads (initial + after hide) + 1 redirect that also calls the plug
+      Datagouvfr.Client.Discussions.Mock |> stub(:get, fn _datagouv_id -> [] end)
+
+      # First, check that the alert is visible and notification badge shows 1
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert length(important_info_rows_without_recent_features(doc)) == 1
+      assert doc |> Floki.find(".notification_badge") |> Floki.text() =~ "1"
+
+      # Now hide the alert
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> post(reuser_space_path(conn, :hide_alert, dataset.id), %{
+          "check_type" => "unavailable_resource",
+          "resource_id" => to_string(resource.id)
+        })
+
+      assert redirected_to(conn, 302) == @home_url
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Information masquée pendant 7 jours"
+
+      # Check the database
+      assert [%DB.HiddenReuserAlert{} = hidden_alert] = DB.Repo.all(DB.HiddenReuserAlert)
+      assert hidden_alert.contact_id == contact.id
+      assert hidden_alert.dataset_id == dataset.id
+      assert hidden_alert.check_type == :unavailable_resource
+      assert hidden_alert.resource_id == resource.id
+      assert hidden_alert.discussion_id == nil
+
+      assert_in_delta hidden_alert.hidden_until |> DateTime.to_unix(),
+                      DateTime.add(DateTime.utc_now(), 7, :day) |> DateTime.to_unix(),
+                      1
+
+      # Check that the alert is no longer visible and notification badge is gone
+      doc =
+        conn
+        |> recycle()
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert Enum.empty?(important_info_rows_without_recent_features(doc))
+      assert doc |> Floki.find(".notification_badge") |> Enum.empty?()
+    end
+
+    test "hides an alert for a discussion", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+      discussion_id = Ecto.UUID.generate()
+
+      Datagouvfr.Client.Discussions.Mock
+      |> stub(:get, fn _datagouv_id ->
+        [
+          %{
+            "id" => discussion_id,
+            "title" => "Test discussion",
+            "discussion" => [
+              %{
+                "posted_on" => DateTime.utc_now() |> DateTime.to_iso8601()
+              }
+            ]
+          }
+        ]
+      end)
+
+      # First, check that the alert is visible
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert length(important_info_rows_without_recent_features(doc)) == 1
+
+      # Now hide the alert
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> post(reuser_space_path(conn, :hide_alert, dataset.id), %{
+          "check_type" => "recent_discussions",
+          "discussion_id" => discussion_id
+        })
+
+      assert redirected_to(conn, 302) == @home_url
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Information masquée pendant 7 jours"
+
+      # Check the database
+      assert [%DB.HiddenReuserAlert{} = hidden_alert] = DB.Repo.all(DB.HiddenReuserAlert)
+      assert hidden_alert.check_type == :recent_discussions
+      assert hidden_alert.resource_id == nil
+      assert hidden_alert.discussion_id == discussion_id
+
+      # Check that the alert is no longer visible
+      doc =
+        conn
+        |> recycle()
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert Enum.empty?(important_info_rows_without_recent_features(doc))
+    end
+
+    test "expired hidden alert reappears", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      dataset = insert(:dataset)
+      resource = insert(:resource, dataset: dataset, is_available: false)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset.id, source: :follow_button)
+
+      # Insert an expired hidden alert
+      insert(:hidden_reuser_alert,
+        contact_id: contact.id,
+        dataset_id: dataset.id,
+        check_type: :unavailable_resource,
+        resource_id: resource.id,
+        hidden_until: DateTime.utc_now() |> DateTime.add(-1, :day)
+      )
+
+      Datagouvfr.Client.Discussions.Mock |> stub(:get, fn _datagouv_id -> [] end)
+
+      # Check that the alert is visible since it has expired
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert length(important_info_rows_without_recent_features(doc)) == 1
+    end
+  end
+
   def index_href_attributes(%Plug.Conn{} = conn) do
     conn
     |> get(reuser_space_path(conn, :espace_reutilisateur))
@@ -608,4 +736,12 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
     |> Floki.find(".action-panel a")
     |> Floki.attribute("a", "href")
   end
+
+  defp important_info_rows_without_recent_features(doc) do
+    doc
+    |> Floki.find(~s|[data-name="important-information"] tbody tr|)
+    |> Enum.reject(&recent_features_row?/1)
+  end
+
+  defp recent_features_row?(row), do: row |> Floki.text() |> String.contains?("Nouvelles fonctionnalités")
 end

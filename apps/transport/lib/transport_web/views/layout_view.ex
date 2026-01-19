@@ -54,10 +54,32 @@ defmodule TransportWeb.LayoutView do
   end
 
   def reuser_notifications_count(%Plug.Conn{} = conn) do
-    Enum.reduce(conn.assigns.followed_datasets_checks, 0, fn check, acc ->
-      Transport.DatasetChecks.count_issues(check) + acc
+    hidden_alerts = conn.assigns.hidden_reuser_alerts
+    datasets = conn.assigns.followed_datasets
+    checks = conn.assigns.followed_datasets_checks
+
+    datasets
+    |> Enum.zip(checks)
+    |> Enum.reduce(0, fn {dataset, check}, acc ->
+      count_visible_issues(check, dataset.id, hidden_alerts) + acc
     end)
   end
+
+  defp count_visible_issues(check, dataset_id, hidden_alerts) do
+    Enum.reduce(check, 0, fn {check_name, issues}, acc ->
+      visible_count =
+        Enum.count(issues, fn issue ->
+          not DB.HiddenReuserAlert.hidden?(hidden_alerts, dataset_id, check_name, issue_opts(issue))
+        end)
+
+      visible_count + acc
+    end)
+  end
+
+  defp issue_opts(%DB.Resource{id: resource_id}), do: [resource_id: resource_id]
+  defp issue_opts({%DB.Resource{id: resource_id}, _}), do: [resource_id: resource_id]
+  defp issue_opts(%{"id" => discussion_id}), do: [discussion_id: discussion_id]
+  defp issue_opts(_), do: []
 
   def notification_count(%{count: _, static: _} = assigns) do
     ~H"""
