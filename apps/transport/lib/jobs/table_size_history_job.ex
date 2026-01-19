@@ -42,12 +42,18 @@ defmodule Transport.Jobs.TableSizeHistoryJob do
                  WHERE relkind IN ('r', 'p')
               ) c
               LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
-              WHERE nspname = 'public'
+              WHERE nspname = 'public' AND relname not in (select hypertable_name FROM timescaledb_information.hypertables)
     ) a
     WHERE oid = parent
     ) a
-    ORDER BY total_bytes DESC
 
+    UNION
+
+    SELECT
+        hypertable_name as table_name,
+        hypertable_size(format('%I.%I', hypertable_schema, hypertable_name)) as size,
+        current_date as date
+    FROM timescaledb_information.hypertables
     """
 
     %{columns: columns, rows: rows} = Ecto.Adapters.SQL.query!(DB.Repo, query)
