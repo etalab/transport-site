@@ -106,22 +106,24 @@ defmodule CLI do
   end
 
   def help do
-    IO.puts("chouette-valid-rulesets")
-    IO.puts("  CLI to manage custom rulesets for Chouette Valid.")
-    IO.puts("  Helps us implement NeTEx French profile and custom checks.")
-    IO.puts("")
-    IO.puts("Commands:")
-    IO.puts("  publish-ruleset <slug>  # publish our ruleset to the given slug from the definition")
-    IO.puts("  list-rulesets           # list all published rulesets")
-    IO.puts("  get-ruleset <slug>      # inspect ruleset for a given slug")
-    IO.puts("  document-rulesets       # dump rulesets as json definition and markdown")
-    IO.puts("")
-    IO.puts("  find-ruleset-id <slug>  # find ruleset-id of a given slug (ruleset-id in Chouette Valid API)")
-    IO.puts("  list-revisions <slug>   # list revisions of a given slug")
-    IO.puts("")
-    IO.puts("  purge-rulesets          # purge all published rulesets (DANGEROUS). This will break production.")
-    IO.puts("")
-    IO.puts("  help                    # this message")
+    IO.puts("""
+    chouette-valid-rulesets
+      CLI to manage custom rulesets for Chouette Valid.
+      Helps us implement NeTEx French profile and custom checks.
+
+    Commands:
+      publish-ruleset <slug>  # publish our ruleset to the given slug from the definition
+      list-rulesets           # list all published rulesets
+      get-ruleset <slug>      # inspect ruleset for a given slug
+      document-rulesets       # dump rulesets as json definition and markdown
+
+      find-ruleset-id <slug>  # find ruleset-id of a given slug (ruleset-id in Chouette Valid API)
+      list-revisions <slug>   # list revisions of a given slug
+
+      purge-rulesets          # purge all published rulesets (DANGEROUS). This will break production.
+
+      help                    # this message
+    """)
   end
 end
 
