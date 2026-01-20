@@ -13,7 +13,7 @@ defmodule Transport.IRVE.DatabaseImporter do
   # the default timeout on `insert_all` is not enough when importing large files (e.g. Qualicharge)
   # with this module, so we override it. It is important, as a consequence, to avoid calling this
   # too many times in parallel, since it would exhaust the Ecto connection pool.
-  @import_timeout 60_000
+  @import_timeout 90_000
 
   # return:
   # - `:import_successful` if the import went fine
