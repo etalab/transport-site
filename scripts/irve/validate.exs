@@ -21,8 +21,13 @@ test_resources
     IO.puts("#{path} already there")
   end
 
-  Transport.LogTimeTaken.log_time_taken("Validating downloaded copy of #{url} (#{path})", fn ->
+  Transport.LogTimeTaken.log_time_taken("Validating #{path}", fn ->
+    IO.puts("Starting validating downloaded copy of #{url} (#{path})…")
     df = Transport.IRVE.Validator.validate(path)
+
+    IO.puts("Is the full file valid? #{df |> Transport.IRVE.Validator.full_file_valid?()}")
+
+    IO.puts("Validation summary (how many rows are valid or invalid):")
 
     df["check_row_valid"]
     |> Explorer.Series.frequencies()
