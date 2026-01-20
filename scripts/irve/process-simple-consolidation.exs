@@ -4,7 +4,7 @@
 # --erase-existing-data: values "all", "partial", or "none" (default: "none")
 # --debug : if present, will print a summary of the report at the end and log each processed item
 # Advised dev use:
-# mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --erase_existing_data all --debug
+# mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --erase-existing-data all --debug
 
 import Ecto.Query
 Logger.configure(level: :info)
