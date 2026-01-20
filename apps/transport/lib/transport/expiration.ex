@@ -6,8 +6,7 @@ defmodule Transport.Expiration do
   and French delay string formatting.
 
   Used by:
-  - `Transport.Jobs.ExpirationNotificationJob` (reuser digests)
-  - `Transport.Jobs.ExpirationAdminProducerNotificationJob` (producer/admin notifications)
+  - `Transport.Jobs.ExpirationNotificationJob` (all expiration notifications)
   - `Transport.AdminNotifier` and `Transport.UserNotifier` (email formatting)
   """
   import Ecto.Query
@@ -139,7 +138,7 @@ defmodule Transport.Expiration do
   @doc """
   Returns datasets and their resources expiring on a specific date.
 
-  Used by `ExpirationAdminProducerNotificationJob` for producer/admin notifications.
+  Used by `ExpirationNotificationJob` for producer/admin notifications.
 
   Returns a list of tuples `{dataset, [resources]}` sorted by dataset ID.
   """
