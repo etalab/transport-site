@@ -2,56 +2,26 @@ defmodule Transport.Jobs.ExpirationAdminProducerNotificationJob do
   @moduledoc """
   This module is in charge of sending notifications to admins and producers when data is outdated.
   It is similar to `Transport.Jobs.ExpirationNotificationJob`, dedicated to reusers.
-  Both could be merged in the future.
   """
-
   use Oban.Worker, max_attempts: 3, tags: ["notifications"]
-  import Ecto.Query
 
   @type delay_and_records :: {integer(), [{DB.Dataset.t(), [DB.Resource.t()]}]}
   @expiration_reason Transport.NotificationReason.reason(:expiration)
-  # If delay < 0, the resource is already expired
-  @default_outdated_data_delays [-90, -60, -30, -45, -15, -7, -3, 0, 7, 14]
 
   @impl Oban.Worker
-
   def perform(%Oban.Job{id: job_id}) do
     outdated_data(job_id)
     :ok
   end
 
   def outdated_data(job_id) do
-    for delay <- possible_delays(),
+    for delay <- Transport.Expiration.producer_admin_delays(),
         date = Date.add(Date.utc_today(), delay) do
-      {delay, gtfs_datasets_expiring_on(date)}
+      {delay, Transport.Expiration.datasets_with_resources_expiring_on(date)}
     end
     |> Enum.reject(fn {_, records} -> Enum.empty?(records) end)
     |> send_outdated_data_admin_mail()
     |> Enum.map(&send_outdated_data_producer_notifications(&1, job_id))
-  end
-
-  @spec gtfs_datasets_expiring_on(Date.t()) :: [{DB.Dataset.t(), [DB.Resource.t()]}]
-  def gtfs_datasets_expiring_on(%Date{} = date) do
-    DB.Dataset.base_query()
-    |> DB.Dataset.join_from_dataset_to_metadata(
-      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:expiration_notification), & &1.validator_name())
-    )
-    |> where(
-      [metadata: m, resource: r],
-      fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date and r.format == "GTFS"
-    )
-    |> select([dataset: d, resource: r], {d, r})
-    |> distinct(true)
-    |> DB.Repo.all()
-    |> Enum.group_by(fn {%DB.Dataset{} = d, _} -> d end, fn {_, %DB.Resource{} = r} -> r end)
-    |> Enum.to_list()
-    |> Enum.sort_by(&elem(&1, 0).id)
-  end
-
-  def possible_delays do
-    @default_outdated_data_delays
-    |> Enum.uniq()
-    |> Enum.sort()
   end
 
   # A different email is sent to producers for every delay, containing all datasets expiring on this given delay
