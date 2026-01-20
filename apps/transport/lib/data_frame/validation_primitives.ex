@@ -214,7 +214,7 @@ defmodule Transport.DataFrame.Validation.Primitives do
     )
   end
 
-  @geopoint_array_pattern ~S/\A\[\-?\d+(\.\d+)?,\s?\-?\d+(\.\d+)?\]\z/
+  @geopoint_array_pattern ~S/\A\s?\[\-?\d+(\.\d+)?\s?,\s?\-?\d+(\.\d+)?\]\s?\z/
 
   @doc """
   Check if values are valid geopoint arrays (TableSchema format).
@@ -226,8 +226,8 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> geopoint?(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]"]), "array") |> Series.to_list()
-      [true, true, true, true, true]
+      iex> geopoint?(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]", " [1.2 , 3.4] "]), "array") |> Series.to_list()
+      [true, true, true, true, true, true]
 
       iex> geopoint?(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
       [false, false, false, false, false, false]
