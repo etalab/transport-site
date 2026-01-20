@@ -6,7 +6,9 @@ test_resources = [
   # https://www.data.gouv.fr/datasets/fichier-irve-gireve
   %{url: "https://www.data.gouv.fr/api/1/datasets/r/61387a4e-22f7-4662-b241-d5cac4dd91fd"},
   # Froth https://www.data.gouv.fr/datasets/bornes-de-recharges-reseau-froth
-  %{url: "https://www.data.gouv.fr/api/1/datasets/r/20e9f13e-a3d4-470a-a356-5714b91cddce"}
+  %{url: "https://www.data.gouv.fr/api/1/datasets/r/20e9f13e-a3d4-470a-a356-5714b91cddce"},
+  # Total energies https://www.data.gouv.fr/datasets/bornes-de-recharge-pour-vehicules-electriques-7
+  %{url: "https://www.data.gouv.fr/api/1/datasets/r/17bdbce9-8a82-4322-a5e5-675c78a33281"}
 ]
 
 cache_dir = Path.join(__DIR__, "../../cache-dir")
