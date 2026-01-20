@@ -28,10 +28,20 @@ test_resources
     |> Explorer.Series.frequencies()
     |> IO.inspect(IEx.inspect_opts())
 
-    if Transport.IRVE.Validator.full_file_valid?(df) do
-      IO.puts("All rows are valid!")
-    else
-      IO.puts("Some rows are invalid.")
-    end
+    report_columns = Transport.IRVE.StaticIRVESchema.field_names_list() |> Enum.map(&"check_column_#{&1}_valid")
+
+    columns_with_false =
+      report_columns
+      |> Enum.reject(fn col ->
+        df[col]
+        |> Explorer.Series.all?()
+      end)
+
+    IO.puts("Columns with at least one invalid value: #{inspect(columns_with_false)}")
+
+    report_path = Path.rootname(path) <> "-validation-report.csv"
+    IO.puts("Writing validation report to #{report_path}")
+
+    df |> Explorer.DataFrame.to_csv!(report_path)
   end)
 end)
