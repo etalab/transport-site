@@ -20,29 +20,7 @@ test_resources
   end
 
   Transport.LogTimeTaken.log_time_taken("Validating downloaded copy of #{url} (#{path})", fn ->
-    df = Explorer.DataFrame.from_csv!(path, infer_schema_length: 0)
-
-    schema = Transport.IRVE.StaticIRVESchema.schema_content()
-
-    # example of pre-processing to ensure Qualicharge resource follows the
-    # exact requirement (`true` or `false`, no other strings)
-    df =
-      Explorer.DataFrame.mutate_with(df, fn df ->
-        schema
-        |> Map.fetch!("fields")
-        |> Enum.filter(fn %{"type" => type} -> type == "boolean" end)
-        |> Enum.map(fn %{"name" => name} ->
-          {
-            name,
-            df[name]
-            |> Explorer.Series.re_replace(~S/\ATrue\z/, "true")
-            |> Explorer.Series.re_replace(~S/\AFalse\z/, "false")
-          }
-        end)
-        |> Enum.into(%{})
-      end)
-
-    df = Transport.IRVE.Validator.compute_validation(df)
+    df = Transport.IRVE.Validator.validate(path)
 
     df["check_row_valid"]
     |> Explorer.Series.frequencies()
