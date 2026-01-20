@@ -33,7 +33,9 @@ defmodule Transport.IRVE.DatabaseImporter do
   end
 
   def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
-    content = File.read!(file_path)
+    content =
+      File.read!(file_path)
+      |> Transport.IRVE.RawStaticConsolidation.ensure_utf8()
 
     rows_stream =
       content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows_stream()
