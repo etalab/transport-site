@@ -1,5 +1,9 @@
 <% show_recent_features = Date.utc_today().day in 1..7 %>
-<div :if={show_important_information?(@checks) or show_recent_features} data-name="important-information">
+<% hidden_alerts = Map.get(assigns, :hidden_alerts, []) %>
+<div
+  :if={show_important_information?(@checks, @mode, hidden_alerts) or show_recent_features}
+  data-name="important-information"
+>
   <h2 :if={@mode == :producer}>{dgettext("espace-producteurs", "Important information regarding your resources")}</h2>
   <h2 :if={@mode == :reuser}>{dgettext("reuser-space", "Important information on resources you follow")}</h2>
   <div class="panel">
@@ -38,14 +42,18 @@
                   {%DB.Resource{} = resource, [mv | _]} -> {resource, mv}
                   discussion -> {discussion, nil}
                 end %>
-              <.important_information
-                issue={issue}
-                dataset={dataset}
-                check_name={check_name}
-                multi_validation={multi_validation}
-                locale={get_session(@conn, :locale)}
-                mode={@mode}
-              />
+              <% is_hidden = @mode == :reuser and issue_hidden?(hidden_alerts, dataset, check_name, issue) %>
+              <%= unless is_hidden do %>
+                <.important_information
+                  issue={issue}
+                  dataset={dataset}
+                  check_name={check_name}
+                  multi_validation={multi_validation}
+                  locale={get_session(@conn, :locale)}
+                  mode={@mode}
+                  conn={@conn}
+                />
+              <% end %>
             <% end %>
           <% end %>
         <% end %>

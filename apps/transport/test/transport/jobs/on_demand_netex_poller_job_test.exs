@@ -5,7 +5,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   import ExUnit.CaptureLog
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup :verify_on_exit!
@@ -58,7 +58,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
                       digest: nil,
                       validation_timestamp: date,
                       validator: "enroute-chouette-netex-validator",
-                      validator_version: "0.2.0"
+                      validator_version: "0.2.1"
                     } = validation |> reload_validation()
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
@@ -82,7 +82,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              digest: digest,
              validation_timestamp: date,
              validator: "enroute-chouette-netex-validator",
-             validator_version: "0.2.0"
+             validator_version: "0.2.1"
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1

@@ -17,6 +17,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
+    debug = Keyword.get(opts, :debug, false)
 
     report_rows =
       resource_list()
@@ -25,14 +26,16 @@ defmodule Transport.IRVE.SimpleConsolidation do
         &process_or_rescue/1,
         ordered: true,
         on_timeout: :kill_task,
-        timeout: :timer.seconds(60),
-        max_concurrency: 10
+        # Underlying DB operation has 90 seconds timeout, see DatabaseImporter
+        # Let’s get some room here for downloading, validating, etc.
+        timeout: :timer.seconds(120),
+        max_concurrency: 5
       )
       # If a task times out, we get {:exit, :timeout} instead of {:ok, result} and the following line will crash.
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&Transport.IRVE.SimpleReportItem.from_result/1)
-      |> maybe_log_items()
+      |> maybe_log_items(debug)
       |> Enum.into([])
 
     generate_report(report_rows, destination: destination)
@@ -40,8 +43,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   # allow (quick at runtime, no config change/recompile) command-line `DEBUG=1` switch
   # essential to develop faster locally.
-  def maybe_log_items(stream) do
-    if System.get_env("DEBUG") == "1" do
+  def maybe_log_items(stream, debug) do
+    if debug do
       stream
       # credo:disable-for-next-line Credo.Check.Warning.IoInspect
       |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
