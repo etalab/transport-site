@@ -3,6 +3,7 @@ defmodule Transport.AdminNotifier do
   Module in charge of building emails sent to the admin team (bizdev, tech, etc.)
   """
   use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
+  import Transport.Expiration, only: [delay_str: 2]
 
   def contact(email, user_type, question_type, subject, question) do
     notify_contact("PAN, Formulaire Contact", email)
@@ -191,36 +192,6 @@ defmodule Transport.AdminNotifier do
     TransportWeb.Router.Helpers.backoffice_page_url(TransportWeb.Endpoint, :index, %{"filter" => "archived"}) <>
       "#list_datasets"
   end
-
-  @doc """
-  Common to both notifiers. If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
-  iex> delay_str(0, :périmant)
-  "périmant demain"
-  iex> delay_str(0, :périment)
-  "périment demain"
-  iex> delay_str(2, :périmant)
-  "périmant dans 2 jours"
-  iex> delay_str(2, :périment)
-  "périment dans 2 jours"
-  iex> delay_str(-1, :périmant)
-  "périmé depuis hier"
-  iex> delay_str(-1, :périment)
-  "sont périmées depuis hier"
-  iex> delay_str(-2, :périmant)
-  "périmés depuis 2 jours"
-  iex> delay_str(-2, :périment)
-  "sont périmées depuis 2 jours"
-  iex> delay_str(-60, :périment)
-  "sont périmées depuis 60 jours"
-  """
-  @spec delay_str(integer(), :périment | :périmant) :: binary()
-  def delay_str(0, verb), do: "#{verb} demain"
-  def delay_str(1, verb), do: "#{verb} dans 1 jour"
-  def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
-  def delay_str(-1, :périmant), do: "périmé depuis hier"
-  def delay_str(-1, :périment), do: "sont périmées depuis hier"
-  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
-  def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
     link = Phoenix.HTML.Link.link(title, to: page) |> Phoenix.HTML.safe_to_string()
