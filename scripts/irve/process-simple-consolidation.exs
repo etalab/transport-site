@@ -8,10 +8,16 @@
 
 import Ecto.Query
 Logger.configure(level: :info)
+import Ecto.Query
 
 {opts, _args} =
   OptionParser.parse!(System.argv(),
-    strict: [erase_existing_data: :string, destination: :string, debug: :boolean]
+    strict: [
+      debug: :boolean,
+      destination: :string,
+      erase_existing_data: :string,
+      limit: :integer
+    ]
   )
 
 # Set default options in case of missing option (won’t override provided ones even invalid, but strict matching later)
@@ -19,27 +25,31 @@ opts =
   Keyword.validate!(opts,
     destination: "send_to_s3",
     erase_existing_data: "none",
+    limit: nil,
     debug: false
   )
 
-debug = opts[:debug]
 erase_existing_data = opts[:erase_existing_data]
+debug = opts[:debug]
+limit = opts[:limit]
+destination = opts[:destination]
+
+IO.inspect(opts, label: "options")
 
 destination =
-  if opts[:destination] in ["local_disk", "send_to_s3"] do
-    String.to_atom(opts[:destination])
+  if destination in ["local_disk", "send_to_s3"] do
+    String.to_atom(destination)
   else
     raise(ArgumentError, "Invalid destination option")
   end
 
-IO.puts("Using destination: #{destination}")
+IO.puts("========= counts before import =========")
 
+# reusable function that we call before + after the processing
 display_counts = fn ->
-  IO.puts("Number of valid PDCs in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
-
-  IO.puts(
-    "Number of distinct id_pdc_itinerance in these PDCs: #{DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))}"
-  )
+  IO.puts("Number of valid PDCs now in database: #{DB.IRVEValidPDC |> DB.Repo.aggregate(:count)}")
+  unique_count = DB.Repo.one(from(p in DB.IRVEValidPDC, select: count(p.id_pdc_itinerance, :distinct)))
+  IO.puts("Number of unique `id_pdc_itinerance` now in base: #{unique_count}")
 
   IO.puts("Number of valid files in database: #{DB.IRVEValidFile |> DB.Repo.aggregate(:count)}")
 end
@@ -64,7 +74,7 @@ case erase_existing_data do
     IO.puts("Keeping existing data...")
 end
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug)
+report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug, limit: limit)
 
 if debug do
   report_df["status"]
@@ -72,6 +82,6 @@ if debug do
   |> IO.inspect(IEx.inspect_opts())
 end
 
-IO.puts("End of processing. Final counts:")
+IO.puts("========= processing done - counts after import =========")
 
 display_counts.()

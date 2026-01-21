@@ -21,6 +21,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     report_rows =
       resource_list()
+      |> maybe_limit(opts[:limit])
       |> Task.async_stream(
         &process_or_rescue/1,
         ordered: true,
@@ -52,6 +53,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
     end
   end
 
+  def maybe_limit(stream, limit) when is_integer(limit), do: stream |> Stream.take(limit)
+  def maybe_limit(stream, nil), do: stream
+
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
     |> Transport.IRVE.RawStaticConsolidation.exclude_irrelevant_resources()
@@ -70,21 +74,38 @@ defmodule Transport.IRVE.SimpleConsolidation do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
 
-    # Raise if the producer is not an organization. This check is not in the validator itself:
-    # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
-    Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
-
     path = storage_path(resource.resource_id)
     extension = Path.extname(resource.url)
 
-    with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
-      validation_result = Transport.IRVE.Validator.validate(path, extension)
-      file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+    Logger.info("Processing resource #{resource.resource_id} (#{resource.url})")
 
-      if file_valid? do
-        {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
-      else
-        {:not_compliant_with_schema, resource}
+    with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
+      # minus header line
+      estimated_pdc_count = (File.stream!(path) |> Enum.count()) - 1
+      resource = Map.put(resource, :estimated_pdc_count, estimated_pdc_count)
+
+      # The code is convoluted mostly because we didn't go far enough on the validator work.
+      # The validator will ultimately stop raising exceptions, and will instead return structures.
+      # But currently if a cheap check fails, an exception is thrown, and we would lose the estimated PDC count,
+      # something which is essential to report on for our current work.
+      try do
+        # Raise if the producer is not an organization. This check is not in the validator itself:
+        # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+        # it is done after downloading the file in order to be able to report on the potential
+        # loss of PDC count.
+        Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+
+        validation_result = Transport.IRVE.Validator.validate(path, extension)
+        file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
+
+        if file_valid? do
+          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
+        else
+          {:not_compliant_with_schema, resource}
+        end
+      rescue
+        error ->
+          {:error_occurred, error, resource}
       end
     end)
   end
@@ -94,6 +115,20 @@ defmodule Transport.IRVE.SimpleConsolidation do
       report_rows
       |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
       |> Explorer.DataFrame.new()
+      # `select` orders columns in the provided order
+      # (https://github.com/elixir-explorer/explorer/issues/1126)
+      # sorted in a way that is more convenient when opening from
+      # LibreOffice et al. (keeping error_message, sometimes long, at the end)
+      |> Explorer.DataFrame.select([
+        "dataset_id",
+        "resource_id",
+        "status",
+        "error_type",
+        "estimated_pdc_count",
+        "url",
+        "dataset_title",
+        "error_message"
+      ])
 
     base_name = "irve_static_consolidation_v2_report"
 
@@ -114,7 +149,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # TODO: tests should not go through this https://github.com/etalab/transport-site/issues/5109
       :local_disk ->
         report_file = base_name <> ".csv"
-        Logger.info("Saving report to #{report_file}...")
+        Logger.info("Saving report locally to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
 
