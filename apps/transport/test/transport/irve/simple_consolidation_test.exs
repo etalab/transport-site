@@ -56,11 +56,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "dataset_id" => "the-dataset-id",
             "resource_id" => "the-resource-id",
             "status" => "import_successful",
-            "error_type" => "",
+            "error_type" => nil,
             "estimated_pdc_count" => "2",
             "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
             "dataset_title" => "the-dataset-title",
-            "error_message" => ""
+            "error_message" => nil
           }
         ]
         |> Explorer.DataFrame.new()
@@ -89,7 +89,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "c2144823dcbf5d494054a006a9bf607b92ade03295c71dcbf1158df862cd87b3"
+        file_content: "45e47fe9ca6fe6f43efe00bec3bd1ed189ca63f924616d89c06068ced15f1197"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -154,13 +154,14 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
     # We need to have a single call with single expect to work properly
     # because Mox matches in order of definition
     #  and task process order is not deterministic
-    |> expect(:get!, 2, fn _url, options ->
+    |> expect(:get!, 3, fn _url, options ->
       # We deal with different cases with a pattern match inside the function
       resource_mock(options)
     end)
   end
 
   @valid_url "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+  @individual_published_url "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
   @invalid_url "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
 
   # A correct resource
@@ -170,6 +171,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
   # Invalid: missing required column nom_station
   defp resource_mock(into: into, decode_body: false, compressed: false, url: @invalid_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
+  end
+
+  # Published by individual, should be skipped
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @individual_published_url) do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
   end
 
