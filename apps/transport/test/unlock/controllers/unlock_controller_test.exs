@@ -359,7 +359,7 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
 
       # Data has been saved to disk
-      path = System.tmp_dir!() |> Path.join(slug)
+      path = System.tmp_dir!() |> Path.join("unlock_disk_cache:" <> slug)
       assert File.exists?(path)
       assert File.read!(path) == "somebody-to-love"
 
