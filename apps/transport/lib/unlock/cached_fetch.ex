@@ -25,7 +25,7 @@ defmodule Unlock.CachedFetch do
   def fetch_data(_item, _http_client_options \\ [])
 
   def fetch_data(%Unlock.Config.Item.Generic.HTTP{caching: "disk"} = item, _http_client_options) do
-    path = System.tmp_dir!() |> Path.join(item.identifier)
+    path = disk_path(item)
     response = Unlock.HTTP.Client.impl().stream!(item.target_url, item.request_headers, path)
     {:commit, %{response | body: path}, expire: :timer.seconds(item.ttl)}
   end
@@ -58,7 +58,7 @@ defmodule Unlock.CachedFetch do
   def fetch_data(%Unlock.Config.Item.S3{} = item, _http_client_options) do
     bucket = item.bucket |> String.to_existing_atom()
     path = item.path
-    destination_path = System.tmp_dir!() |> Path.join(item.identifier)
+    destination_path = disk_path(item)
 
     # Verify if the response cached is still valid by comparing ETags
     etag_cache_key = Unlock.Shared.cache_key(item.identifier, "etag")
@@ -85,6 +85,10 @@ defmodule Unlock.CachedFetch do
       Cachex.put(Unlock.Shared.cache_name(), etag_cache_key, response)
       {:commit, response, expire: :timer.seconds(item.ttl)}
     end
+  end
+
+  defp disk_path(item) do
+    System.tmp_dir!() |> Path.join("unlock_disk_cache:" <> item.identifier)
   end
 
   defp etag_value(headers) do
