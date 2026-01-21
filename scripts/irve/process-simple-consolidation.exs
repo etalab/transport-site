@@ -16,7 +16,7 @@ import Ecto.Query
       debug: :boolean,
       destination: :string,
       erase_existing_data: :string,
-      limit: :integer,
+      limit: :integer
     ]
   )
 
@@ -43,7 +43,7 @@ destination =
     raise(ArgumentError, "Invalid destination option")
   end
 
-IO.puts "========= counts before import ========="
+IO.puts("========= counts before import =========")
 
 # reusable function that we call before + after the processing
 display_counts = fn ->
@@ -82,7 +82,6 @@ if debug do
   |> IO.inspect(IEx.inspect_opts())
 end
 
-
-IO.puts "========= processing done - counts after import ========="
+IO.puts("========= processing done - counts after import =========")
 
 display_counts.()

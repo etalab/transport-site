@@ -27,41 +27,55 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       bucket_name = "transport-data-gouv-fr-aggregates-test"
       date = Calendar.strftime(Date.utc_today(), "%Y%m%d")
 
+      # Create a DataFrame and select columns in the same order as the actual implementation
       report_content =
         [
           %{
             "dataset_id" => "another-dataset-id",
+            "resource_id" => "another-resource-id",
+            "status" => "error_occurred",
+            "error_type" => "ArgumentError",
+            "estimated_pdc_count" => "2",
+            "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             # TODO rework to only compare the part of the message that matters
             "error_message" =>
-              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
-            "error_type" => "ArgumentError",
-            "resource_id" => "another-resource-id",
-            "status" => "error_occurred",
-            "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
           },
           %{
             "dataset_id" => "individual-published-dataset-id",
-            "dataset_title" => "individual-published-dataset-title",
-            "error_message" => "producer is not an organization",
-            "error_type" => "RuntimeError",
             "resource_id" => "individual-published-resource-id",
             "status" => "error_occurred",
-            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
+            "error_type" => "RuntimeError",
+            "estimated_pdc_count" => "2",
+            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
+            "dataset_title" => "individual-published-dataset-title",
+            "error_message" => "producer is not an organization"
           },
           %{
             "dataset_id" => "the-dataset-id",
-            "dataset_title" => "the-dataset-title",
-            "error_message" => "",
-            "error_type" => "",
             "resource_id" => "the-resource-id",
             "status" => "import_successful",
-            "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+            "error_type" => "",
+            "estimated_pdc_count" => "2",
+            "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
+            "dataset_title" => "the-dataset-title",
+            "error_message" => ""
           }
         ]
-        |> CSV.encode(headers: true)
-        |> Enum.to_list()
-        |> to_string()
+        |> Explorer.DataFrame.new()
+        # Use the same column order as in the actual implementation
+        |> Explorer.DataFrame.select([
+          "dataset_id",
+          "resource_id",
+          "status",
+          "error_type",
+          "estimated_pdc_count",
+          "url",
+          "dataset_title",
+          "error_message"
+        ])
+        |> Explorer.DataFrame.dump_csv!()
         |> String.replace("\r\n", "\n")
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
