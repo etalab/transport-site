@@ -174,9 +174,9 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
   end
 
-  # Published by individual, should be skipped
+  # Published by individual, valid but should be skipped. Downloaded for line count.
   defp resource_mock(into: into, decode_body: false, compressed: false, url: @individual_published_url) do
-    build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 
   defp build_resource_response(path, rows) do
