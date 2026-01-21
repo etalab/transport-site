@@ -35,7 +35,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "resource_id" => "another-resource-id",
             "status" => "error_occurred",
             "error_type" => "ArgumentError",
-            "estimated_pdc_count" => "2",
+            "estimated_pdc_count" => "1",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             # TODO rework to only compare the part of the message that matters
@@ -47,7 +47,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "resource_id" => "individual-published-resource-id",
             "status" => "error_occurred",
             "error_type" => "RuntimeError",
-            "estimated_pdc_count" => "2",
+            "estimated_pdc_count" => "1",
             "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
             "dataset_title" => "individual-published-dataset-title",
             "error_message" => "producer is not an organization"
@@ -57,7 +57,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "resource_id" => "the-resource-id",
             "status" => "import_successful",
             "error_type" => nil,
-            "estimated_pdc_count" => "2",
+            "estimated_pdc_count" => "1",
             "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
             "dataset_title" => "the-dataset-title",
             "error_message" => nil
@@ -89,7 +89,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "45e47fe9ca6fe6f43efe00bec3bd1ed189ca63f924616d89c06068ced15f1197"
+        file_content: "fec929446c9c5b606997527a789a416512ddf06ffd39fc627a422050f23fa9db"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(

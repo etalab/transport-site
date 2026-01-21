@@ -80,7 +80,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
     Logger.info("Processing resource #{resource.resource_id} (#{resource.url})")
 
     with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
-      estimated_pdc_count = File.stream!(path) |> Enum.count()
+      # minus header line
+      estimated_pdc_count = (File.stream!(path) |> Enum.count()) - 1
       resource = Map.put(resource, :estimated_pdc_count, estimated_pdc_count)
 
       # The code is convoluted mostly because we didn't go far enough on the validator work.
