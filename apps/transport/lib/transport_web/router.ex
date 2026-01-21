@@ -149,6 +149,7 @@ defmodule TransportWeb.Router do
       get("/datasets/:dataset_id", ReuserSpaceController, :datasets_edit)
       post("/datasets/:dataset_id/add_improved_data", ReuserSpaceController, :add_improved_data)
       post("/datasets/:dataset_id/unfavorite", ReuserSpaceController, :unfavorite)
+      post("/datasets/:dataset_id/hide_alert", ReuserSpaceController, :hide_alert)
       get("/settings", ReuserSpaceController, :settings)
       get("/settings/new_token", ReuserSpaceController, :new_token)
       post("/settings/new_token", ReuserSpaceController, :create_new_token)

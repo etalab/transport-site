@@ -143,3 +143,8 @@ defmodule Transport.EnRoute.ChouetteValidRulesetsClientTest do
     assert @base_url == request.options.base_url
   end
 end
+
+defmodule Transport.EnRoute.ChouetteValidRulesetsClient.SlugsTest do
+  use ExUnit.Case, async: true
+  doctest Transport.EnRoute.ChouetteValidRulesetsClient.Slugs, import: true
+end

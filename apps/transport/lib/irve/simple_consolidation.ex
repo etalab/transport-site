@@ -25,8 +25,10 @@ defmodule Transport.IRVE.SimpleConsolidation do
         &process_or_rescue/1,
         ordered: true,
         on_timeout: :kill_task,
-        timeout: :timer.seconds(60),
-        max_concurrency: 10
+        # Underlying DB operation has 90 seconds timeout, see DatabaseImporter
+        # Let’s get some room here for downloading, validating, etc.
+        timeout: :timer.seconds(120),
+        max_concurrency: 5
       )
       # If a task times out, we get {:exit, :timeout} instead of {:ok, result} and the following line will crash.
       # This is intentional, we want to be aware of such timeouts.

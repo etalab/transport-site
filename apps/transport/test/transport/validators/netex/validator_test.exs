@@ -5,7 +5,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -46,7 +46,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "valid NeTEx" do
       resource_history = mk_netex_resource()
 
-      validation_id = expect_create_validation() |> expect_successful_validation(12)
+      validation_id = expect_create_validation("pan:french_profile:1") |> expect_successful_validation(12)
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -54,7 +54,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.0"
+      assert multi_validation.validator_version == "0.2.1"
       assert multi_validation.result == %{}
       assert multi_validation.digest == ResultsAdapter.digest(%{})
       assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
@@ -64,7 +64,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "pending validation" do
       resource_history = mk_netex_resource()
 
-      validation_id = expect_create_validation() |> expect_pending_validation()
+      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -82,7 +82,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "invalid NeTEx" do
       resource_history = mk_netex_resource()
 
-      validation_id = expect_create_validation() |> expect_failed_validation(31)
+      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -92,7 +92,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.0"
+      assert multi_validation.validator_version == "0.2.1"
       assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 31}
 
       assert multi_validation.result == %{
@@ -142,7 +142,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "valid NeTEx" do
       resource_url = mk_raw_netex_resource()
 
-      expect_create_validation() |> expect_successful_validation(9)
+      expect_create_validation("pan:french_profile:1") |> expect_successful_validation(9)
 
       assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0, elapsed_seconds: 9}}} ==
                Validator.validate(resource_url)
@@ -151,7 +151,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "invalid NeTEx" do
       resource_url = mk_raw_netex_resource()
 
-      validation_id = expect_create_validation() |> expect_failed_validation(25)
+      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -194,7 +194,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "pending" do
       resource_url = mk_raw_netex_resource()
 
-      validation_id = expect_create_validation() |> expect_pending_validation()
+      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
       assert {:pending, validation_id} == Validator.validate(resource_url)
     end
