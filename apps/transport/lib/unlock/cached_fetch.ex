@@ -71,9 +71,10 @@ defmodule Unlock.CachedFetch do
       end
 
     %{headers: headers, status_code: status_code} = Transport.S3.head_object!(bucket, path)
+    object_etag = etag_value(headers)
 
-    # ETag are still the same, keep the cached response (and file) for the TTL duration
-    if etag_value(headers) == etag do
+    # ETags are still the same, keep the cached response (and file) for the TTL duration
+    if not is_nil(object_etag) and object_etag == etag do
       {:ok, response} = cached_reponse
       {:commit, response, expire: :timer.seconds(item.ttl)}
       # File changed or cache expired: download the file to disk again
