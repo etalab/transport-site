@@ -6,7 +6,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
 
   @behaviour Transport.Validators.Validator
 
@@ -32,7 +32,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validator_name, do: "enroute-chouette-netex-validator"
 
   # This will change with an actual versioning of the validator
-  def validator_version, do: "0.2.0"
+  def validator_version, do: "0.2.1"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do
@@ -224,7 +224,7 @@ defmodule Transport.Validators.NeTEx.Validator do
     setup_validation(filepath) |> poll_validation_results(0)
   end
 
-  defp setup_validation(filepath), do: client().create_a_validation(filepath)
+  defp setup_validation(filepath), do: client().create_a_validation(filepath, "pan:french_profile:1")
 
   def poll_validation_results(validation_id, retries) do
     case client().get_a_validation(validation_id) do

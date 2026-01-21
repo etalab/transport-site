@@ -27,41 +27,55 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       bucket_name = "transport-data-gouv-fr-aggregates-test"
       date = Calendar.strftime(Date.utc_today(), "%Y%m%d")
 
+      # Create a DataFrame and select columns in the same order as the actual implementation
       report_content =
         [
           %{
             "dataset_id" => "another-dataset-id",
+            "resource_id" => "another-resource-id",
+            "status" => "error_occurred",
+            "error_type" => "ArgumentError",
+            "estimated_pdc_count" => "1",
+            "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             # TODO rework to only compare the part of the message that matters
             "error_message" =>
-              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|,
-            "error_type" => "ArgumentError",
-            "resource_id" => "another-resource-id",
-            "status" => "error_occurred",
-            "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
           },
           %{
             "dataset_id" => "individual-published-dataset-id",
-            "dataset_title" => "individual-published-dataset-title",
-            "error_message" => "producer is not an organization",
-            "error_type" => "RuntimeError",
             "resource_id" => "individual-published-resource-id",
             "status" => "error_occurred",
-            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
+            "error_type" => "RuntimeError",
+            "estimated_pdc_count" => "1",
+            "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
+            "dataset_title" => "individual-published-dataset-title",
+            "error_message" => "producer is not an organization"
           },
           %{
             "dataset_id" => "the-dataset-id",
-            "dataset_title" => "the-dataset-title",
-            "error_message" => "",
-            "error_type" => "",
             "resource_id" => "the-resource-id",
             "status" => "import_successful",
-            "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+            "error_type" => nil,
+            "estimated_pdc_count" => "1",
+            "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
+            "dataset_title" => "the-dataset-title",
+            "error_message" => nil
           }
         ]
-        |> CSV.encode(headers: true)
-        |> Enum.to_list()
-        |> to_string()
+        |> Explorer.DataFrame.new()
+        # Use the same column order as in the actual implementation
+        |> Explorer.DataFrame.select([
+          "dataset_id",
+          "resource_id",
+          "status",
+          "error_type",
+          "estimated_pdc_count",
+          "url",
+          "dataset_title",
+          "error_message"
+        ])
+        |> Explorer.DataFrame.dump_csv!()
         |> String.replace("\r\n", "\n")
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
@@ -75,7 +89,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "irve_static_consolidation_v2_report_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "c2144823dcbf5d494054a006a9bf607b92ade03295c71dcbf1158df862cd87b3"
+        file_content: "fec929446c9c5b606997527a789a416512ddf06ffd39fc627a422050f23fa9db"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -140,13 +154,14 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
     # We need to have a single call with single expect to work properly
     # because Mox matches in order of definition
     #  and task process order is not deterministic
-    |> expect(:get!, 2, fn _url, options ->
+    |> expect(:get!, 3, fn _url, options ->
       # We deal with different cases with a pattern match inside the function
       resource_mock(options)
     end)
   end
 
   @valid_url "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv"
+  @individual_published_url "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
   @invalid_url "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
 
   # A correct resource
@@ -157,6 +172,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
   # Invalid: missing required column nom_station
   defp resource_mock(into: into, decode_body: false, compressed: false, url: @invalid_url) do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
+  end
+
+  # Published by individual, valid but should be skipped. Downloaded for line count.
+  defp resource_mock(into: into, decode_body: false, compressed: false, url: @individual_published_url) do
+    build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 
   defp build_resource_response(path, rows) do

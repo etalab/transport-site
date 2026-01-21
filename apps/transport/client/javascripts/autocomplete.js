@@ -69,7 +69,27 @@ const autoCompletejs = new AutoComplete({
             return match.join('')
         }
     },
-    submit: false,
+    events: {
+        input: {
+            keydown (event) {
+                switch (event.keyCode) {
+                // Down/Up arrow
+                case 40:
+                case 38:
+                    event.preventDefault()
+                    event.keyCode === 40 ? autoCompletejs.next() : autoCompletejs.previous()
+                    break
+                // Enter
+                case 13:
+                    if (autoCompletejs.cursor >= 0) {
+                        event.preventDefault()
+                        autoCompletejs.select(event)
+                    }
+                    break
+                }
+            }
+        }
+    },
     resultsList: {
         maxResults: 7,
         id: 'autoComplete_list',

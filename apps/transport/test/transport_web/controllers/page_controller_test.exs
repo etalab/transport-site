@@ -326,6 +326,46 @@ defmodule TransportWeb.PageControllerTest do
              "Espace réutilisateur 1"
   end
 
+  test "notifications count for a reuser with hidden reuser alerts", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, is_available: false)
+    insert(:dataset_follower, contact: contact, dataset: dataset)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _dataset_datagouv_id -> [] end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    # Now hide the alert
+    insert(:hidden_reuser_alert,
+      contact: contact,
+      dataset: dataset,
+      check_type: :unavailable_resource,
+      resource_id: resource.id,
+      hidden_until: DateTime.utc_now() |> DateTime.add(7, :day)
+    )
+
+    # Badges should be gone
+    doc =
+      conn
+      |> init_test_session(current_user: %{"id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == []
+  end
+
   def sublist?(list, sublist) do
     list
     |> Enum.chunk_every(length(sublist), 1, :discard)

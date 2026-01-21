@@ -30,8 +30,39 @@ defmodule TransportWeb.EspaceProducteurView do
     Enum.any?(resources, &DB.Resource.hosted_on_datagouv?/1)
   end
 
-  def show_important_information?(checks) do
+  def show_important_information?(checks), do: show_important_information?(checks, :producer, [])
+
+  def show_important_information?(checks, :producer, _hidden_alerts) do
     checks |> Map.values() |> Enum.any?(&Transport.DatasetChecks.has_issues?/1)
+  end
+
+  def show_important_information?(checks, :reuser, hidden_alerts) do
+    Enum.any?(checks, &has_visible_issues?(&1, hidden_alerts))
+  end
+
+  defp has_visible_issues?({dataset_id, dataset_checks}, hidden_alerts) do
+    Enum.any?(dataset_checks, &has_visible_issue?(&1, dataset_id, hidden_alerts))
+  end
+
+  defp has_visible_issue?({check_name, issues}, dataset_id, hidden_alerts) do
+    Enum.any?(issues, fn issue ->
+      issue = extract_issue(issue)
+      not issue_hidden?(hidden_alerts, %{id: dataset_id}, check_name, issue)
+    end)
+  end
+
+  defp extract_issue(%DB.Resource{} = resource), do: resource
+  defp extract_issue({%DB.Resource{} = resource, [mv | _]}), do: resource
+  defp extract_issue(discussion), do: discussion
+
+  def issue_hidden?(hidden_alerts, dataset, check_name, issue) do
+    resource_id = if is_struct(issue, DB.Resource), do: issue.id, else: nil
+    discussion_id = if is_map(issue) and Map.has_key?(issue, "id"), do: issue["id"], else: nil
+
+    DB.HiddenReuserAlert.hidden?(hidden_alerts, dataset.id, check_name,
+      resource_id: resource_id,
+      discussion_id: discussion_id
+    )
   end
 
   def important_information(%{} = assigns) do
@@ -45,7 +76,7 @@ defmodule TransportWeb.EspaceProducteurView do
       </td>
       <.issue_title issue={@issue} check_name={@check_name} multi_validation={@multi_validation} locale={@locale} />
       <.issue_name issue={@issue} check_name={@check_name} multi_validation={@multi_validation} />
-      <.issue_link mode={@mode} issue={@issue} check_name={@check_name} dataset={@dataset} />
+      <.issue_link mode={@mode} issue={@issue} check_name={@check_name} dataset={@dataset} conn={@conn} />
     </tr>
     """
   end
@@ -122,15 +153,18 @@ defmodule TransportWeb.EspaceProducteurView do
   defp issue_link(%{mode: :reuser, issue: %DB.Resource{}} = assigns) do
     ~H"""
     <td>
-      <a
-        href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
-        class="button-outline primary small"
-        target="_blank"
-        data-tracking-category="espace_reutilisateur"
-        data-tracking-action="important_information_see_resource_button"
-      >
-        {dgettext("reuser-space", "See the resource")}
-      </a>
+      <div class="action-buttons">
+        <a
+          href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
+          class="button-outline primary small"
+          target="_blank"
+          data-tracking-category="espace_reutilisateur"
+          data-tracking-action="important_information_see_resource_button"
+        >
+          {dgettext("reuser-space", "See the resource")}
+        </a>
+        <.hide_button dataset={@dataset} check_name={@check_name} resource_id={@issue.id} conn={@conn} />
+      </div>
     </td>
     """
   end
@@ -138,15 +172,39 @@ defmodule TransportWeb.EspaceProducteurView do
   defp issue_link(%{mode: :reuser, check_name: :recent_discussions} = assigns) do
     ~H"""
     <td>
-      <a
-        href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
-        class="button-outline primary small"
-        data-tracking-category="espace_producteur"
-        data-tracking-action="important_information_see_discussion_button"
-      >
-        <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
-      </a>
+      <div class="action-buttons">
+        <a
+          href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
+          class="button-outline primary small"
+          data-tracking-category="espace_producteur"
+          data-tracking-action="important_information_see_discussion_button"
+        >
+          <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
+        </a>
+        <.hide_button dataset={@dataset} check_name={@check_name} discussion_id={@issue["id"]} conn={@conn} />
+      </div>
     </td>
+    """
+  end
+
+  defp hide_button(%{} = assigns) do
+    assigns = assigns |> Map.put_new(:resource_id, nil) |> Map.put_new(:discussion_id, nil)
+
+    ~H"""
+    <.form :let={f} for={%{}} action={reuser_space_path(@conn, :hide_alert, @dataset.id)} class="hide-alert-form">
+      {hidden_input(f, :check_type, value: @check_name)}
+      {hidden_input(f, :resource_id, value: @resource_id)}
+      {hidden_input(f, :discussion_id, value: @discussion_id)}
+      <button
+        type="submit"
+        class="button-outline secondary small"
+        title={dgettext("reuser-space", "Hide for 7 days")}
+        data-tracking-category="espace_reutilisateur"
+        data-tracking-action="important_information_hide_alert_button"
+      >
+        <i class="fa fa-eye-slash"></i>
+      </button>
+    </.form>
     """
   end
 

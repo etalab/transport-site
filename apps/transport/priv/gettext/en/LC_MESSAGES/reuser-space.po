@@ -290,3 +290,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Available services"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Alert hidden for 7 days"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Hide for 7 days"
+msgstr ""
