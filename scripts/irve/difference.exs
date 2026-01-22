@@ -1,12 +1,10 @@
 # mix run scripts/irve/difference.exs
 
 require Explorer.DataFrame
-import Ecto.Query
 
-# datagouv_source = "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
+datagouv_source = "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
 local_datagouv_path = "datagouv-consolidation.csv"
-# %{status: 200} = Req.get!(datagouv_source, into: File.stream!(local_datagouv_path))
-# generate with `mix run dump-simple-consolidation.exs`
+%{status: 200} = Req.get!(datagouv_source, into: File.stream!(local_datagouv_path))
 
 datagouv_df = Explorer.DataFrame.from_csv!(local_datagouv_path, infer_schema_length: nil)
 
@@ -27,7 +25,6 @@ only_in_datagouv = MapSet.difference(list_of_datagouv_ids, list_of_simple_consol
 
 IO.inspect(MapSet.size(only_in_datagouv), label: "Only in datagouv consolidation")
 
-# Not working from there
 # Filter the dataframe with only the resource_datagouv_id found in only_in_datagouv
 filtered_df =
   datagouv_df
