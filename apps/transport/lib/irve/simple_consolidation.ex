@@ -15,6 +15,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
   require Logger
   import Transport.S3.AggregatesUploader
 
+  @report_output_base_name "irve_static_consolidation_v2_report"
+  @consolidated_file_no_dedup_base_name "consolidation-transport-avec-doublons-irve-statique"
+
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
@@ -133,24 +136,22 @@ defmodule Transport.IRVE.SimpleConsolidation do
         "error_message"
       ])
 
-    base_name = "irve_static_consolidation_v2_report"
-
     case destination do
       :send_to_s3 ->
-        Logger.info("Uploading report file (#{base_name}.csv) to S3...")
+        Logger.info("Uploading report file (#{@report_output_base_name}.csv) to S3...")
 
         with_tmp_file(fn report_file ->
           Explorer.DataFrame.to_csv!(report_df, report_file)
 
           upload_aggregate!(
             report_file,
-            "#{base_name}_#{timestamp()}.csv",
-            "#{base_name}.csv"
+            "#{@report_output_base_name}_#{timestamp()}.csv",
+            "#{@report_output_base_name}.csv"
           )
         end)
 
       :local_disk ->
-        report_file = base_name <> ".csv"
+        report_file = @report_output_base_name <> ".csv"
         Logger.info("Saving report locally to #{report_file}...")
         Explorer.DataFrame.to_csv!(report_df, report_file)
     end
@@ -158,28 +159,24 @@ defmodule Transport.IRVE.SimpleConsolidation do
     report_df
   end
 
-  def write_consolidated_file(destination) do
-    base_name = "consolidation-transport-avec-doublons-irve-statique"
+  def write_consolidated_file(:send_to_s3) do
+    Logger.info("Creating and uploading consolidated file (#{@consolidated_file_no_dedup_base_name}.csv) to S3...")
 
-    case destination do
-      :send_to_s3 ->
-        Logger.info("Creating and uploading consolidated file (#{base_name}.csv) to S3...")
+    with_tmp_file(fn consolidation_file ->
+      Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
 
-        with_tmp_file(fn consolidation_file ->
-          Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+      upload_aggregate!(
+        consolidation_file,
+        "#{@consolidated_file_no_dedup_base_name}_#{timestamp()}.csv",
+        "#{@consolidated_file_no_dedup_base_name}.csv"
+      )
+    end)
+  end
 
-          upload_aggregate!(
-            consolidation_file,
-            "#{base_name}_#{timestamp()}.csv",
-            "#{base_name}.csv"
-          )
-        end)
-
-      :local_disk ->
-        consolidation_file = base_name <> ".csv"
-        Logger.info("Creating and saving consolidated file locally to #{consolidation_file}...")
-        Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
-    end
+  def write_consolidated_file(:local_disk) do
+    consolidation_file = @consolidated_file_no_dedup_base_name <> ".csv"
+    Logger.info("Creating and saving consolidated file locally to #{consolidation_file}...")
+    Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
   end
 
   def storage_path(resource_id) do
