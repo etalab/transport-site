@@ -135,8 +135,7 @@ oban_prod_crontab = [
   {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-  {"30 6 * * *", Transport.Jobs.ExpirationAdminProducerNotificationJob},
-  {"45 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
