@@ -76,7 +76,6 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           "error_message"
         ])
         |> Explorer.DataFrame.dump_csv!()
-        |> String.replace("\r\n", "\n")
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
         start_path: "irve_static_consolidation_v2_report_#{date}",
@@ -104,8 +103,54 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         "irve_static_consolidation_v2_report.csv.sha256sum"
       )
 
+      consolidation_content =
+        [
+          DB.Factory.IRVE.generate_row()
+          |> Map.delete("coordonneesXY")
+          |> Map.put("puissance_nominale", "22.0")
+          |> Map.put("longitude", "-0.799141")
+          |> Map.put("latitude", "45.91914")
+          |> Map.put("cable_t2_attache", nil)
+          |> Map.put("dataset_datagouv_id", "the-dataset-id")
+          |> Map.put("resource_datagouv_id", "the-resource-id")
+        ]
+        |> Explorer.DataFrame.new()
+        # Use the same column order as in the actual implementation
+        |> Explorer.DataFrame.select(
+          Transport.IRVE.StaticIRVESchema.field_names_list()
+          |> Enum.reject(&(&1 == "coordonneesXY"))
+          |> Enum.concat(["longitude", "latitude", "dataset_datagouv_id", "resource_datagouv_id"])
+        )
+        |> Explorer.DataFrame.dump_csv!()
+
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "consolidation-transport-avec-doublons-irve-statique_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: consolidation_content
+      )
+
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "consolidation-transport-avec-doublons-irve-statique_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: "7196b3d1e98ae001c5d734d886cb95a75605d5f77c2354004adadee4643198b2"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "consolidation-transport-avec-doublons-irve-statique_#{date}",
+        "consolidation-transport-avec-doublons-irve-statique.csv"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "consolidation-transport-avec-doublons-irve-statique_#{date}",
+        "consolidation-transport-avec-doublons-irve-statique.csv.sha256sum"
+      )
+
       # Run the consolidation process
-      {:ok, %Explorer.DataFrame{} = report_df} = Transport.IRVE.SimpleConsolidation.process()
+      {:ok, %Explorer.DataFrame{}} = Transport.IRVE.SimpleConsolidation.process()
 
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
