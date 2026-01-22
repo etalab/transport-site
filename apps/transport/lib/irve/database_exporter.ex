@@ -6,18 +6,15 @@ defmodule Transport.IRVE.DatabaseExporter do
 
   import Ecto.Query
 
+  @export_timeout 90_000
+
   def export_to_csv(path) do
     build_data_frame() |> Explorer.DataFrame.to_csv!(path)
   end
 
   def build_data_frame do
-    fields =
-      Transport.IRVE.StaticIRVESchema.field_names_list()
-      |> Enum.reject(&(&1 == "coordonneesXY"))
-      |> Enum.concat(["longitude", "latitude"])
-      |> Enum.map(&String.to_atom/1)
-
-    additionnal_file_fields = [:dataset_datagouv_id, :resource_datagouv_id]
+    fields = main_schema_field_list() |> Enum.map(&String.to_atom/1)
+    additionnal_file_fields = additional_file_field_list() |> Enum.map(&String.to_atom/1)
 
     stream =
       DB.IRVEValidPDC
@@ -26,16 +23,30 @@ defmodule Transport.IRVE.DatabaseExporter do
       |> DB.Repo.stream()
 
     {:ok, df} =
-      DB.Repo.transact(fn ->
-        result =
-          stream
-          |> Stream.map(&Map.merge(elem(&1, 0), elem(&1, 1)))
-          |> Enum.into([])
-          |> Explorer.DataFrame.new()
+      DB.Repo.transact(
+        fn ->
+          result =
+            stream
+            |> Stream.map(&Map.merge(elem(&1, 0), elem(&1, 1)))
+            |> Enum.into([])
+            |> Explorer.DataFrame.new()
 
-        {:ok, result}
-      end)
+          {:ok, result}
+        end,
+        timeout: @export_timeout
+      )
 
-    df
+    # Reorder columns (Map merge got them alphabeltically ordered)
+    df |> Explorer.DataFrame.select(main_schema_field_list() ++ additional_file_field_list())
+  end
+
+  def main_schema_field_list do
+    Transport.IRVE.StaticIRVESchema.field_names_list()
+    |> Enum.reject(&(&1 == "coordonneesXY"))
+    |> Enum.concat(["longitude", "latitude"])
+  end
+
+  def additional_file_field_list do
+    ["dataset_datagouv_id", "resource_datagouv_id"]
   end
 end
