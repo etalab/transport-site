@@ -38,7 +38,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> maybe_log_items(debug)
       |> Enum.into([])
 
-    generate_report(report_rows, destination: destination)
+    report = generate_report(report_rows, destination: destination)
+
+    {:ok, report}
   end
 
   # allow (quick at runtime, no config change/recompile) command-line `DEBUG=1` switch
