@@ -39,7 +39,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.into([])
 
     report = generate_report(report_rows, destination: destination)
-
+    write_consolidated_file(destination)
+    Logger.info("IRVE simple consolidation process completed.")
     {:ok, report}
   end
 
@@ -148,7 +149,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
           )
         end)
 
-      # TODO: tests should not go through this https://github.com/etalab/transport-site/issues/5109
       :local_disk ->
         report_file = base_name <> ".csv"
         Logger.info("Saving report locally to #{report_file}...")
@@ -156,6 +156,30 @@ defmodule Transport.IRVE.SimpleConsolidation do
     end
 
     report_df
+  end
+
+  def write_consolidated_file(destination) do
+    base_name = "consolidation-transport-avec-doublons-irve-statique"
+
+    case destination do
+      :send_to_s3 ->
+        Logger.info("Creating and uploading consolidated file (#{base_name}.csv) to S3...")
+
+        with_tmp_file(fn consolidation_file ->
+          Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+
+          upload_aggregate!(
+            consolidation_file,
+            "#{base_name}_#{timestamp()}.csv",
+            "#{base_name}.csv"
+          )
+        end)
+
+      :local_disk ->
+        consolidation_file = base_name <> ".csv"
+        Logger.info("Creating and saving consolidated file locally to #{consolidation_file}...")
+        Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+    end
   end
 
   def storage_path(resource_id) do
