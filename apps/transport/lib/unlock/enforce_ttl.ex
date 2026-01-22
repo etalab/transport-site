@@ -29,7 +29,11 @@ defmodule Unlock.EnforceTTL do
 
   @impl true
   def handle_info(:work, state) do
-    cache_keys() |> Enum.each(fn key -> enforce_ttl(key, cache_ttl(key)) end)
+    cache_keys()
+    # For S3 items we store another key ending with `:etag` without a TTL
+    |> Enum.reject(&String.ends_with?(&1, ":etag"))
+    |> Enum.each(fn key -> enforce_ttl(key, cache_ttl(key)) end)
+
     schedule_work()
     {:noreply, state}
   end

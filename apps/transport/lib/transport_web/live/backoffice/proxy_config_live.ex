@@ -227,6 +227,14 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp add_cache_state(%{caching: "disk"} = item) do
+    add_cache_state_for_disk(item)
+  end
+
+  defp add_cache_state(%{type: "S3"} = item) do
+    add_cache_state_for_disk(item)
+  end
+
+  defp add_cache_state_for_disk(item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
