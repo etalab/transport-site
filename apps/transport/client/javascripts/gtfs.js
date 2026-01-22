@@ -35,6 +35,31 @@ const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([lat, lng
 
 Leaflet.tileLayer(IGN.url, IGN.config).addTo(map)
 
+let currentPopup = null
+
+function showPopup (info) {
+    if (currentPopup) {
+        currentPopup.remove()
+        currentPopup = null
+    }
+    if (info.picked && info.object) {
+        let content = ''
+        if (info.object.count !== undefined) {
+            content = `${info.object.count.toString()} stops`
+        } else if (info.object.properties) {
+            content = `${info.object.properties.d_title} - ${info.object.properties.stop_id} <pre><code>${JSON.stringify(info.object, null, 4)}</code></pre>`
+        }
+        if (content) {
+            setTimeout(() => {
+                currentPopup = Leaflet.popup()
+                    .setLatLng([info.coordinate[1], info.coordinate[0]])
+                    .setContent(content)
+                    .openOn(map)
+            }, 0)
+        }
+    }
+}
+
 const deckGLLayer = new LeafletLayer({
     views: [new MapView({ repeat: true })],
     layers: []
@@ -43,8 +68,7 @@ map.addLayer(deckGLLayer)
 
 map.on('movestart', function (event) {
     deckGLLayer.setProps({
-        // eslint-disable-next-line no-return-assign
-        layers: deckGLLayer.props.layers.map(l => l.visible = false)
+        layers: deckGLLayer.props.layers.map(l => l.clone({ visible: false }))
     })
 })
 
@@ -97,7 +121,8 @@ map.on('moveend', function (event) {
                     getPosition: d => [d.lon, d.lat],
                     getRadius: d => 2,
                     getFillColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount),
-                    getLineColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount)
+                    getLineColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount),
+                    onClick: showPopup
                 })
                 layer = scatterplotLayer
                 tooltip = function (d) {
@@ -125,7 +150,8 @@ map.on('moveend', function (event) {
                     pointRadiusMinPixels: 1,
                     pointRadiusMaxPixels: 3,
                     getLineWidth: 1,
-                    getElevation: 30
+                    getElevation: 30,
+                    onClick: showPopup
                 })
                 layer = geoJsonLayer
                 tooltip = function (d) {

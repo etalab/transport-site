@@ -1,0 +1,271 @@
+[
+  {
+    "rule_context": "resource/kind_of",
+    "resource_classes": [
+      "StopPlace",
+      "Line",
+      "Operator",
+      "Network"
+    ],
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "name",
+        "criticity": "error",
+        "code": "name-mandatory",
+        "message": "A StopPlace, Line, Operator, Network, GroupOfLines has a Name"
+      }
+    ]
+  },
+  {
+    "rule": "attribute/match",
+    "name": "short_name",
+    "value": "/^.{0,12}$/",
+    "criticity": "error",
+    "code": "shortname-length",
+    "message": "A ShortName have 12 or less than characters"
+  },
+  {
+    "rule": "attribute/match",
+    "name": "public_code",
+    "value": "/^.{0,12}$/",
+    "criticity": "error",
+    "code": "public-code-length",
+    "message": "A Public Code have 12 or less than characters"
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_classes": [
+      "Quay",
+      "StopPlace",
+      "StopPlaceEntrance"
+    ],
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "longitude",
+        "criticity": "error",
+        "code": "longitude-mandatory",
+        "message": "Quay, StopPlace and StopPlaceEntrance have a Longitude"
+      },
+      {
+        "rule": "attribute/mandatory",
+        "name": "latitude",
+        "criticity": "error",
+        "code": "latitude-mandatory",
+        "message": "Quay, StopPlace and StopPlaceEntrance have a Latitude"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "Line",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "transport_mode",
+        "criticity": "error",
+        "code": "line-transport-mode-mandatory",
+        "message": "A Line has a Transport Mode"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "Line",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "presentation",
+        "criticity": "warning",
+        "code": "line-presentation-mandatory",
+        "message": "A Line has a Presentation"
+      },
+      {
+        "rule_context": "reduce/element",
+        "element": "presentation",
+        "rules": [
+          {
+            "rule": "attribute/mandatory",
+            "name": "colour",
+            "criticity": "warning",
+            "code": "line-presentation-colour-mandatory",
+            "message": "A Line has a Presentation color"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "Line",
+    "rules": [
+      {
+        "rule": "attribute/blank",
+        "name": "routes",
+        "code": "line-no-inner-routes",
+        "message": "A Line doesn’t define its own routes"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "Route",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "line_ref",
+        "code": "route-line-ref-mandatory",
+        "message": "A Route has a LineRef"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "JourneyPattern",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "route_ref",
+        "code": "journey-pattern-route-ref-mandatory",
+        "message": "A ServiceJourneyPattern has a RouteRef"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "ServiceJourney",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "journey_pattern_ref",
+        "code": "service-journey-journey-pattern-ref-mandatory",
+        "message": "A ServiceJourney has a JourneyPatternRef"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "JourneyPattern",
+    "rules": [
+      {
+        "rule": "collection/count",
+        "collection": "points_in_sequence",
+        "minimum_count": 2,
+        "code": "service-journey-pattern-many-points-in-sequence",
+        "message": "A (Service)JourneyPattern has two or more pointsInSequence"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "ServiceJourney",
+    "rules": [
+      {
+        "rule": "collection/count",
+        "collection": "day_types",
+        "minimum_count": 1,
+        "code": "service-journey-day-types-mandatory",
+        "message": "A ServiceJourney has one or more dayTypes"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "ServiceJourney",
+    "rules": [
+      {
+        "rule": "collection/count",
+        "collection": "passing_times",
+        "minimum_count": 2,
+        "code": "service-journey-passing-times-mandatory",
+        "message": "A ServiceJourney has two or more passingTimes"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "DestinationDisplay",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "front_text",
+        "code": "destination-display-front-text",
+        "message": "A Destination Display have a FrontText attribute"
+      }
+    ]
+  },
+  {
+    "rule_context": "resource/kind_of",
+    "resource_class": "PassengerStopAssignment",
+    "rules": [
+      {
+        "rule": "attribute/mandatory",
+        "name": "scheduled_stop_point_ref",
+        "code": "passenger-stop-assignment-scheduled-stop-point-ref",
+        "message": "A PassengerStopAssignment has a ScheduledStopPointRef"
+      }
+    ]
+  },
+  {
+    "rule": "attribute/match",
+    "name": "id",
+    "value": "/^.{0,255}$/",
+    "criticity": "warning",
+    "code": "id-length",
+    "message": "Any NeTEx id uses less than 256 characters"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "ScheduledStopPoint",
+    "code": "scheduled-stop-point-refs-exist",
+    "message": "Referenced ScheduledStopPoints are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "Operator",
+    "code": "operator-refs-exist",
+    "message": "Referenced Operators are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "DayType",
+    "code": "day-type-refs-exist",
+    "message": "Referenced DayTypes are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "Route",
+    "code": "route-refs-exist",
+    "message": "Referenced Routes are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "JourneyPattern",
+    "code": "journey-pattern-refs-exist",
+    "message": "Referenced (Service)JourneyPattern are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "DestinationDisplay",
+    "code": "destination-display-refs-exist",
+    "message": "Referenced DestinationDisplays are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "Direction",
+    "code": "direction-refs-exist",
+    "message": "Referenced Directions are present"
+  },
+  {
+    "rule": "reference/exist",
+    "referenced_class": "RoutePoint",
+    "code": "route-point-refs-exist",
+    "message": "Referenced RoutePoints are present"
+  },
+  {
+    "rule": "service_journey/passing_times_chronology",
+    "code": "service-journey-passing-times-chronology",
+    "message": "TimedPassingTimes use chronological passing times"
+  }
+]
