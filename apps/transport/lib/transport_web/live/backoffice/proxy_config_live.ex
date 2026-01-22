@@ -107,7 +107,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp filter_by_disk(config, "true") do
-    Enum.filter(config, fn map -> Map.get(map, :caching, false) == "disk" end)
+    Enum.filter(config, fn map ->
+      Map.get(map, :caching, false) == "disk" or map.type == "S3"
+    end)
   end
 
   defp filter_by_disk(config, _), do: config
