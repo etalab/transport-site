@@ -74,7 +74,7 @@ case erase_existing_data do
     IO.puts("Keeping existing data...")
 end
 
-report_df = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug, limit: limit)
+{:ok, report_df} = Transport.IRVE.SimpleConsolidation.process(destination: destination, debug: debug, limit: limit)
 
 if debug do
   report_df["status"]
