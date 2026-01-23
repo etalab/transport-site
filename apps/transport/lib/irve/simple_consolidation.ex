@@ -15,8 +15,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
   require Logger
   import Transport.S3.AggregatesUploader
 
-  @report_output_base_name "irve_static_consolidation_v2_report"
-  @consolidated_file_no_dedup_base_name "consolidation-transport-avec-doublons-irve-statique"
+  @report_output_base_name "consolidation_transport_avec_doublons_irve_statique_rapport"
+  @consolidated_file_no_dedup_base_name "consolidation_transport_avec_doublons_irve_statique"
 
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)

@@ -1,7 +1,7 @@
 require Explorer.DataFrame, as: DF
 
 report_df =
-  Path.join(__DIR__, "../../irve_static_consolidation_v2_report.csv")
+  Path.join(__DIR__, "../../consolidation_transport_avec_doublons_irve_statique_rapport.csv")
   |> DF.from_csv!()
 
 # general report
