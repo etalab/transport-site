@@ -235,11 +235,11 @@ defmodule Transport.IRVE.DataFrame do
 
   The `preprocess_xy_coordinates` method attempts to remap that to 2 separate `x`, `y` fields, properly parsed.
 
-  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
+  iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,-0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
     Polars[1 x 2]
     longitude f64 [47.39]
-    latitude f64 [0.8]
+    latitude f64 [-0.8]
   >
 
   We must also support cases where there are extra spaces.
@@ -259,6 +259,15 @@ defmodule Transport.IRVE.DataFrame do
     longitude f64 [6.128405]
     latitude f64 [48.658737]
   >
+
+  And tabs too. Please note in the following example (from real data) longitude and latitude are swapped.
+
+    iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.306241,\t-0.332879]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
+    #Explorer.DataFrame<
+      Polars[1 x 2]
+      longitude f64 [43.306241]
+      latitude f64 [-0.332879]
+    >
   """
   def preprocess_xy_coordinates(df) do
     df
@@ -270,7 +279,7 @@ defmodule Transport.IRVE.DataFrame do
     end)
     |> Explorer.DataFrame.unnest(:coords)
     # required or we'll get `nil` values
-    |> Explorer.DataFrame.mutate(longitude: longitude |> strip(" "), latitude: latitude |> strip(" "))
+    |> Explorer.DataFrame.mutate(longitude: longitude |> strip(), latitude: latitude |> strip())
     |> Explorer.DataFrame.mutate_with(fn df ->
       [
         longitude: Explorer.Series.cast(df[:longitude], {:f, 64}),
