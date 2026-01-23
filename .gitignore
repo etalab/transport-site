@@ -56,4 +56,6 @@ livebook/cache-dir
 apps/transport/priv/repo/structure.sql
 
 pg.list
-irve_static_consolidation_v2_report.csv
+
+# Any CSV file put at the root level
+/*.csv
