@@ -89,6 +89,28 @@ defmodule TransportWeb.BuildTest do
     "Your javascript package for #{dep} is out of date.\nPlease update it with:\n\ncd apps/transport/client && yarn upgrade #{dep}"
   end
 
+  test "make sure configured _impl and _client modules exist in config.exs" do
+    # Read config.exs directly to get the production modules (not the test mocks)
+    config_content = File.read!("../../config/config.exs")
+
+    # Extract all _impl and _client configurations with their module values
+    # Pattern matches lines like: key_impl: Module.Name or key_client: Module.Name,
+    modules =
+      Regex.scan(~r/(\w+(?:_impl|_client)):\s+([A-Z][\w.]+)/, config_content)
+      |> Enum.map(fn [_, config_key, module_string] ->
+        {config_key, String.to_atom("Elixir." <> module_string)}
+      end)
+
+    # Sanity check: ensure we found some configurations
+    assert length(modules) > 15,
+           "Expected to find more than 15 _impl/_client configurations, found #{length(modules)}"
+
+    for {config_key, module} <- modules do
+      assert Code.ensure_loaded?(module),
+             "Module #{inspect(module)} configured for #{config_key} in config.exs does not exist"
+    end
+  end
+
   # figuring out you have forgotten to upgrade the assets can be tricky, so we add a little reminder here
   test "make sure LiveView client assets are up to date" do
     {output, 0} = System.cmd("yarn", ["list", "--pattern", "phoenix_live_view"], cd: "client")
