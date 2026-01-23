@@ -262,7 +262,7 @@ defmodule Transport.IRVE.DataFrame do
 
   And tabs too. Please note in the following example (from real data) longitude and latitude are swapped.
 
-    iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.306241,	-0.332879]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
+    iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.306241,\t-0.332879]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
     #Explorer.DataFrame<
       Polars[1 x 2]
       longitude f64 [43.306241]
