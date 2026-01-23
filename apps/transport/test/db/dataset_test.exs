@@ -686,6 +686,20 @@ defmodule DB.DatasetDBTest do
     assert [%DB.Offer{id: ^offer_id}] = dataset.offers
   end
 
+  test "changeset with dataset_subtype" do
+    %DB.DatasetSubtype{id: id} =
+      dataset_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+
+    dataset = insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate(), dataset_subtypes: [dataset_subtype])
+    assert [dataset_subtype] == dataset.dataset_subtypes
+
+    {:ok, changeset} = DB.Dataset.changeset(%{"datagouv_id" => datagouv_id, "custom_title" => "Nouveau titre"})
+    DB.Repo.update!(changeset)
+
+    dataset = DB.Dataset |> preload(:dataset_subtypes) |> DB.Repo.get!(dataset.id)
+    assert [%DB.DatasetSubtype{id: ^id}] = dataset.dataset_subtypes
+  end
+
   test "cannot insert a dataset with a nil organization_id" do
     message = ~r|null value in column "organization_id" of relation "dataset" violates not-null constraint|
 
