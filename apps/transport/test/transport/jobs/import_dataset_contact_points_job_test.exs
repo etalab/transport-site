@@ -186,6 +186,22 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
       assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, john)
       assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, jane)
     end
+
+    test "it does not crash when email is nil" do
+      %DB.Dataset{datagouv_id: datagouv_id} = insert(:dataset)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, 1, fn ^datagouv_id ->
+        {:ok,
+         %{
+           "contact_points" => [
+             %{"email" => nil, "name" => "John DOE"}
+           ]
+         }}
+      end)
+
+      ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
+    end
   end
 
   test "perform" do

@@ -91,13 +91,17 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
 
   defp update_contact_points(%DB.Dataset{} = dataset, contact_points) do
     contacts = Enum.map(contact_points, &update_contact_point(dataset, &1))
-    contact_ids = Enum.map(contacts, & &1.id)
+    contact_ids = contacts |> Enum.reject(&is_nil/1) |> Enum.map(& &1.id)
 
     DB.NotificationSubscription.delete_other_producers_subscriptions(
       dataset,
       contact_ids,
       @notification_subscription_source
     )
+  end
+
+  defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => nil} = _contact_point) do
+    nil
   end
 
   defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => _, "name" => _} = contact_point) do
