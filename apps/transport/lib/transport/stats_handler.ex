@@ -83,6 +83,22 @@ defmodule Transport.StatsHandler do
       reuses: reuses_stats()
     }
     |> Map.merge(gbfs_stats())
+    |> Map.merge(count_resources_stats())
+  end
+
+  def count_resources_stats do
+    DB.Resource.base_query()
+    |> group_by([r], r.format)
+    |> having([r], count(r.id) >= 5)
+    |> where([r], not is_nil(r.format))
+    |> select([r], %{format: r.format, count: count(r.id)})
+    |> DB.Repo.all()
+    |> Map.new(&{&1.format, &1.count})
+    |> Map.new(fn {k, v} ->
+      k = String.downcase(k) |> String.replace(["-", "_", " "], "_")
+      key = "nb_#{k}_resources"
+      {String.to_atom(key), v}
+    end)
   end
 
   def gbfs_stats do

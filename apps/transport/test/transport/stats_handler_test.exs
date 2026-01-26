@@ -274,4 +274,12 @@ defmodule Transport.StatsHandlerTest do
 
     assert %{reuses: ^reuses_stats} = compute_stats()
   end
+
+  test "count_resources_stats" do
+    insert_list(4, :resource, format: "gbfs")
+    insert_list(5, :resource, format: "GTFS")
+    insert_list(10, :resource, format: "gtfs-rt")
+
+    assert %{nb_gtfs_rt_resources: 10, nb_gtfs_resources: 5} = compute_stats()
+  end
 end
