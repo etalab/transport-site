@@ -2,10 +2,10 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
   @moduledoc """
   Import dataset contact points coming from the data.gouv.fr's API.
 
-  Producers can specify a contact point for a dataset on their open data
+  Producers can specify contact points for a dataset on their open data
   platform or directly on data.gouv.fr.
 
-  We reuse this data to find or create a contact and subscribe this contact
+  We reuse this data to find or create contacts and subscribe these contacts
   to producer subscriptions for this dataset.
 
   When a contact point was previously set and has been removed,
@@ -42,8 +42,8 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
     dataset = DB.Repo.get_by!(DB.Dataset, datagouv_id: datagouv_id)
 
     case Datagouvfr.Client.Datasets.get(datagouv_id) do
-      {:ok, %{"contact_point" => contact_point}} ->
-        update_contact_point(dataset, contact_point)
+      {:ok, %{"contact_points" => contact_points}} ->
+        update_contact_points(dataset, contact_points)
 
       other ->
         Logger.error("#{inspect(__MODULE__)} unexpected HTTP response for dataset##{datagouv_id}: #{inspect(other)}")
@@ -80,7 +80,7 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
     end
   end
 
-  defp update_contact_point(%DB.Dataset{id: dataset_id}, nil = _contact_points) do
+  defp update_contact_points(%DB.Dataset{id: dataset_id}, []) do
     DB.NotificationSubscription.base_query()
     |> where(
       [notification_subscription: ns],
@@ -89,15 +89,21 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
     |> DB.Repo.delete_all()
   end
 
-  defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => _, "name" => _} = contact_point) do
-    contact = find_or_create_contact(contact_point)
-    DB.NotificationSubscription.create_producer_subscriptions(dataset, contact, @notification_subscription_source)
+  defp update_contact_points(%DB.Dataset{} = dataset, contact_points) do
+    contacts = Enum.map(contact_points, &update_contact_point(dataset, &1))
+    contact_ids = Enum.map(contacts, & &1.id)
 
     DB.NotificationSubscription.delete_other_producers_subscriptions(
       dataset,
-      contact,
+      contact_ids,
       @notification_subscription_source
     )
+  end
+
+  defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => _, "name" => _} = contact_point) do
+    contact = find_or_create_contact(contact_point)
+    DB.NotificationSubscription.create_producer_subscriptions(dataset, contact, @notification_subscription_source)
+    contact
   end
 
   defp find_or_create_contact(%{"email" => email, "name" => name}) do
