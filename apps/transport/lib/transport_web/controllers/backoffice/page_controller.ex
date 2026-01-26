@@ -188,6 +188,7 @@ defmodule TransportWeb.Backoffice.PageController do
       :legal_owners_region,
       :declarative_spatial_areas,
       :offers,
+      :dataset_subtypes,
       :resources
     ])
     |> Repo.get(dataset_id)

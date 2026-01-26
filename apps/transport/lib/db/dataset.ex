@@ -95,6 +95,7 @@ defmodule DB.Dataset do
     has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
     belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
+    many_to_many(:dataset_subtypes, DB.DatasetSubtype, join_through: "dataset_dataset_subtype", on_replace: :delete)
   end
 
   def base_query do
@@ -601,6 +602,7 @@ defmodule DB.Dataset do
         :legal_owners_region,
         :declarative_spatial_areas,
         :offers,
+        :dataset_subtypes,
         :resources,
         :organization_object
       ])
@@ -609,6 +611,7 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
     declarative_spatial_areas = get_administrative_divisions(dataset, params)
     offers = get_offers(dataset, params)
+    dataset_subtypes = get_dataset_subtypes(dataset, params)
 
     dataset
     |> cast(params, [
@@ -652,6 +655,7 @@ defmodule DB.Dataset do
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
     |> put_assoc(:offers, offers)
+    |> put_assoc(:dataset_subtypes, dataset_subtypes)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -772,6 +776,20 @@ defmodule DB.Dataset do
     end
   end
 
+  defp get_dataset_subtypes(dataset, params) do
+    case params["dataset_subtypes"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.dataset_subtypes) do
+          dataset.dataset_subtypes
+        else
+          []
+        end
+
+      slugs ->
+        Repo.all(from(ds in DB.DatasetSubtype, where: ds.slug in ^slugs))
+    end
+  end
+
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
@@ -842,6 +860,7 @@ defmodule DB.Dataset do
     |> preload([
       :declarative_spatial_areas,
       offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
+      dataset_subtypes: ^from(ds in DB.DatasetSubtype, select: [:slug]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()
@@ -1133,5 +1152,9 @@ defmodule DB.Dataset do
 
   def reject_experimental_datasets(queryable) do
     queryable |> where([d], @experimental_tag not in d.custom_tags)
+  end
+
+  def has_subtype?(%DB.Dataset{} = dataset, slug) do
+    slug in Enum.map(dataset.dataset_subtypes, & &1.slug)
   end
 end

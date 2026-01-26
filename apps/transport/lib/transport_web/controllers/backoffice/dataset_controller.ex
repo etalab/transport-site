@@ -36,6 +36,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
       |> transform_legal_owners_region_to_list()
       |> transform_declarative_spatial_areas_to_list()
       |> transform_offers_to_list()
+      |> transform_dataset_subtypes_to_list()
 
     with datagouv_id when not is_nil(datagouv_id) <- dataset_datagouv_id,
          {:ok, dg_dataset} <- ImportData.import_from_data_gouv(datagouv_id, form_params["type"]),
@@ -97,6 +98,11 @@ defmodule TransportWeb.Backoffice.DatasetController do
   defp transform_offers_to_list(form_params) do
     offers = for {"offers" <> _, offer_id} <- form_params, do: offer_id |> String.to_integer()
     Map.put(form_params, "offers", offers)
+  end
+
+  defp transform_dataset_subtypes_to_list(form_params) do
+    dataset_subtypes = for {"dataset_subtypes" <> _, slug} <- form_params, do: slug
+    Map.put(form_params, "dataset_subtypes", dataset_subtypes)
   end
 
   @spec insert_dataset(Ecto.Changeset.t()) :: {:ok, Dataset.t()} | {:error, binary}

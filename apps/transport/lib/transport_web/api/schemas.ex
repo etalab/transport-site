@@ -714,6 +714,10 @@ defmodule TransportWeb.API.Schemas do
         slug: %Schema{type: :string, description: "unique dataset slug"},
         title: %Schema{type: :string},
         type: %Schema{type: :string},
+        sub_types: %Schema{
+          type: :array,
+          items: %Schema{type: :string}
+        },
         licence: %Schema{
           type: :string,
           description: "The licence of the dataset"

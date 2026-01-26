@@ -53,17 +53,25 @@
         <% end %>
       </div>
     <% end %>
-    {InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name"))}
+    {InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name"), label: "Titre")}
     {InputHelpers.select(f, :type, @dataset_types,
       selected:
         if not is_nil(@dataset) do
           @dataset.type
         else
           "public-transit"
-        end
+        end,
+      label: "Type"
     )}
   </div>
 
+  <.live_component
+    module={TransportWeb.DatasetSubtypeLive}
+    id="dataset_subtypes"
+    form={f}
+    dataset_subtypes={@dataset_subtypes}
+    form_params={@form_params}
+  />
   <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
 
   <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">

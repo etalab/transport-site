@@ -833,7 +833,8 @@ defmodule TransportWeb.DatasetControllerTest do
 
   describe "information & warning banners are displayed" do
     test "a seasonal dataset", %{conn: conn} do
-      dataset = insert(:dataset, is_active: true, custom_tags: ["saisonnier", "foo"])
+      ds = insert(:dataset_subtype, parent_type: "public-transit", slug: "seasonal")
+      dataset = insert(:dataset, is_active: true, dataset_subtypes: [ds])
       assert TransportWeb.DatasetView.seasonal_warning?(dataset)
 
       dataset_has_banner_with_text(

@@ -20,6 +20,7 @@ defmodule TransportWeb.API.DatasetController do
     :legal_owners_region,
     :declarative_spatial_areas,
     offers: from(o in DB.Offer, select: ^@offers_columns),
+    dataset_subtypes: from(ds in DB.DatasetSubtype, select: [:slug]),
     resources: [:dataset]
   ]
 
@@ -194,6 +195,7 @@ defmodule TransportWeb.API.DatasetController do
       "covered_area" => covered_area(dataset),
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
+      "sub_types" => Enum.map(dataset.dataset_subtypes, & &1.slug),
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset),
       "tags" => dataset.custom_tags,
