@@ -129,6 +129,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
   test "GET /api/datasets then /api/datasets/:id *with* history, multi_validation and resource_metadata",
        %{conn: conn} do
+    ds1 = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+
     dataset =
       insert(:dataset,
         custom_title: "title",
@@ -151,7 +153,8 @@ defmodule TransportWeb.API.DatasetControllerTest do
             nom_aom: "Super AOM",
             type_transport: "Transport urbain"
           )
-        ]
+        ],
+        dataset_subtypes: [ds1]
       )
 
     resource_1 =
@@ -271,6 +274,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "slug" => "slug-1",
       "title" => "title",
       "type" => "public-transit",
+      "sub_types" => ["urban"],
       "updated" =>
         [resource_1, gbfs_resource, resource_2]
         |> Enum.map(& &1.last_update)
@@ -361,6 +365,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
                "slug" => "slug-1",
                "title" => "title",
                "type" => "public-transit",
+               "sub_types" => [],
                "updated" => resource.last_update |> DateTime.to_iso8601(),
                "tags" => [],
                "offers" => []
@@ -512,6 +517,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
+             "sub_types" => [],
              "licence" => "lov2",
              "updated" => [last_update_gtfs, last_update_geojson] |> Enum.max(DateTime) |> DateTime.to_iso8601(),
              "tags" => [],
@@ -642,6 +648,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
              "slug" => "slug-1",
              "title" => "title",
              "type" => "public-transit",
+             "sub_types" => [],
              "updated" =>
                [resource, gbfs_resource] |> Enum.map(& &1.last_update) |> Enum.max(DateTime) |> DateTime.to_iso8601(),
              "tags" => [],
