@@ -167,6 +167,14 @@ defmodule DB.NotificationSubscription do
     |> DB.Repo.delete_all()
   end
 
+  def delete_other_producers_subscriptions(%DB.Dataset{id: dataset_id}, contact_ids, source)
+      when is_list(contact_ids) do
+    DB.NotificationSubscription.base_query()
+    |> where([notification_subscription: ns], ns.dataset_id == ^dataset_id and ns.contact_id not in ^contact_ids)
+    |> where([notification_subscription: ns], ns.role == :producer and ns.source == ^source)
+    |> DB.Repo.delete_all()
+  end
+
   defp validate_reason_is_allowed_for_subscriptions(changeset) do
     reason = get_field(changeset, :reason)
 
