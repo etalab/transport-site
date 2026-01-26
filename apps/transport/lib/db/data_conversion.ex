@@ -10,7 +10,7 @@ defmodule DB.DataConversion do
     field(:status, Ecto.Enum, values: [:created, :pending, :success, :failed, :timeout])
     field(:converter, :string)
     field(:converter_version, :string)
-    field(:convert_from, Ecto.Enum, values: [:GTFS])
+    field(:convert_from, Ecto.Enum, values: [:GTFS, :NeTEx])
     field(:convert_to, Ecto.Enum, values: [:GeoJSON, :NeTEx])
     field(:resource_history_uuid, Ecto.UUID)
     field(:payload, :map)
@@ -51,12 +51,14 @@ defmodule DB.DataConversion do
   def join_resource_history_with_data_conversion(%Ecto.Query{} = query, convert_tos, converters \\ nil) do
     converters = converters || Enum.map(convert_tos, &converter_to_use/1)
 
+    convert_from = [:GTFS, :NeTEx]
+
     query
     |> join(:left, [resource_history: rh], dc in DB.DataConversion,
       on: fragment("(?->>'uuid')::uuid = ?", rh.payload, dc.resource_history_uuid),
       as: :data_conversion
     )
-    |> where([data_conversion: dc], dc.convert_from == :GTFS and dc.convert_to in ^convert_tos)
+    |> where([data_conversion: dc], dc.convert_from in ^convert_from and dc.convert_to in ^convert_tos)
     |> where([data_conversion: dc], dc.status == :success and dc.converter in ^converters)
   end
 
