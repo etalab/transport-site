@@ -860,6 +860,7 @@ defmodule DB.Dataset do
     |> preload([
       :declarative_spatial_areas,
       offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
+      dataset_subtypes: ^from(ds in DB.DatasetSubtype, select: [:slug]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()
@@ -1151,5 +1152,9 @@ defmodule DB.Dataset do
 
   def reject_experimental_datasets(queryable) do
     queryable |> where([d], @experimental_tag not in d.custom_tags)
+  end
+
+  def has_subtype?(%DB.Dataset{} = dataset, slug) do
+    slug in Enum.map(dataset.dataset_subtypes, & &1.slug)
   end
 end
