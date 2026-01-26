@@ -1,7 +1,7 @@
 import L from 'leaflet'
 import { IGN } from './map-config'
 
-function initilizeMap (id) {
+function initializeMap (id) {
     const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
     L.tileLayer(IGN.url, IGN.config).addTo(map)
 
@@ -10,7 +10,7 @@ function initilizeMap (id) {
     return { map, markersfg, linesfg }
 }
 
-function GTFSLinesStyle (feature) {
+function TransitLinesStyle (feature) {
     if (feature.geometry.type !== 'Point') {
         return { color: feature.properties.route_color, weight: 5 }
     } else {
@@ -55,21 +55,21 @@ function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize,
     }
 }
 
-function GTFSMap (mapDivId, geojsonUrl) {
-    const { map, markersfg, linesfg } = initilizeMap(mapDivId)
+function TransitMap (mapDivId, geojsonUrl) {
+    const { map, markersfg, linesfg } = initializeMap(mapDivId)
     fetch(geojsonUrl)
         .then(data => data.json())
         .then(geojson => {
             const stops = L.geoJSON(geojson, {
                 pointToLayer: createStopsMarkers,
-                style: GTFSLinesStyle,
+                style: TransitLinesStyle,
                 filter: (feature) => feature.geometry.type === 'Point'
             }).addTo(markersfg)
 
             stops.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
 
             const lines = L.geoJSON(geojson, {
-                style: GTFSLinesStyle,
+                style: TransitLinesStyle,
                 filter: (feature) => feature.geometry.type !== 'Point',
                 onEachFeature: (_feature, layer) => {
                     layer.on('mouseover', () => {
@@ -112,7 +112,7 @@ function formatPopupContent (content) {
 }
 
 function GenericMap (mapDivId, geojsonUrl) {
-    const { map, markersfg, linesfg } = initilizeMap(mapDivId)
+    const { map, markersfg, linesfg } = initializeMap(mapDivId)
     fetch(geojsonUrl)
         .then(data => data.json())
         .then(geojson => {
@@ -142,13 +142,13 @@ function GenericMap (mapDivId, geojsonUrl) {
         .catch(_ => console.log('invalid geojson'))
 }
 
-function GTFSGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
-    GeojsonMap(GTFSMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
+function TransitGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+    GeojsonMap(TransitMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
 function GenericGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
     GeojsonMap(GenericMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
-window.GTFSGeojsonMap = GTFSGeojsonMap
+window.TransitGeojsonMap = TransitGeojsonMap
 window.GenericGeojsonMap = GenericGeojsonMap
