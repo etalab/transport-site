@@ -18,7 +18,7 @@ function GTFSLinesStyle (feature) {
     }
 }
 
-function createStopsMarkers (geoJsonPoint, latlng) {
+function createStopsMarkers (_geoJsonPoint, latlng) {
     return L.circleMarker(latlng, { fillColor: 'white', color: 'black', fillOpacity: 1, weight: 3, radius: 5 })
 }
 
@@ -71,7 +71,7 @@ function GTFSMap (mapDivId, geojsonUrl) {
             const lines = L.geoJSON(geojson, {
                 style: GTFSLinesStyle,
                 filter: (feature) => feature.geometry.type !== 'Point',
-                onEachFeature: (feature, layer) => {
+                onEachFeature: (_feature, layer) => {
                     layer.on('mouseover', () => {
                         layer.bringToFront()
                         stops.bringToFront()
@@ -99,11 +99,11 @@ function GTFSMap (mapDivId, geojsonUrl) {
         .catch(_ => console.log('invalid geojson'))
 }
 
-function GenericLinesStyle (feature) {
+function GenericLinesStyle (_feature) {
     return { weight: 3 }
 }
 
-function createPointsMarkers (geoJsonPoint, latlng) {
+function createPointsMarkers (_geoJsonPoint, latlng) {
     return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
 }
 
