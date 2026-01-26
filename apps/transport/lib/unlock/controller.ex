@@ -181,16 +181,19 @@ defmodule Unlock.Controller do
   end
 
   # `process_resource` variant for `Item.S3` items.
-  # leverages `fetch_remote` with pattern matching as well.
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
-    response = fetch_remote(item)
 
     displayed_filename = Path.basename(item.path)
+    conn = conn |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
 
-    conn
-    |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
-    |> send_resp(response.status, response.body)
+    case fetch_remote(item) do
+      %Unlock.HTTP.Response{status: 200} = response ->
+        conn |> send_file(response.status, response.body)
+
+      response ->
+        conn |> send_resp(response.status, response.body)
+    end
   end
 
   # `process_resource` for larger HTTP feeds which are cached to disk.
