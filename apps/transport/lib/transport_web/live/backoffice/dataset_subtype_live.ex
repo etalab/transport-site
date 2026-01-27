@@ -44,7 +44,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
       |> Enum.map(&serialize/1)
       |> Enum.filter(&(&1.parent_type == dataset_type))
 
-    dataset_subtypes = Enum.filter(assigns.dataset_subtypes, & &1 in dataset_subtypes_list)
+    dataset_subtypes = Enum.filter(assigns.dataset_subtypes, &(&1 in dataset_subtypes_list))
 
     {:ok,
      socket
