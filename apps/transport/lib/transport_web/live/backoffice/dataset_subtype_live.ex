@@ -38,16 +38,19 @@ defmodule TransportWeb.DatasetSubtypeLive do
   def update(assigns, socket) do
     dataset_type = get_in(assigns.form_params.source["type"])
 
-    dataset_subtypes =
+    dataset_subtypes_list =
       DB.DatasetSubtype
       |> DB.Repo.all()
       |> Enum.map(&serialize/1)
       |> Enum.filter(&(&1.parent_type == dataset_type))
 
+    dataset_subtypes = Enum.filter(assigns.dataset_subtypes, & &1 in dataset_subtypes_list)
+
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:dataset_subtypes_list, dataset_subtypes)
+     |> assign(:dataset_subtypes, dataset_subtypes)
+     |> assign(:dataset_subtypes_list, dataset_subtypes_list)
      |> assign(:dataset_type, dataset_type)}
   end
 
