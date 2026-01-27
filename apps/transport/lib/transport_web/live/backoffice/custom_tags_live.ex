@@ -60,7 +60,6 @@ defmodule TransportWeb.CustomTagsLive do
           "Ce jeu de données est soumis à l'obligation de réutilisation selon l'article 122 de la loi climat et résilience"
       },
       %{name: "requestor_ref:<valeur>", doc: "Renseigne le requestor_ref des ressources SIRI pour ce jeu de données"},
-      %{name: "saisonnier", doc: "Indique sur la page du JDD que ce jeu de données n'opère qu'une partie de l'année"},
       %{name: "skip_history", doc: "Désactive l'historisation des ressources pour ce jeu de données"},
       %{
         name: "masqué",
