@@ -32,21 +32,15 @@ defmodule DB.DatasetSubtype do
       iex> DB.DatasetSubtype.slug_to_str("urban")
       "Urbain"
   """
-  @spec slug_to_str(binary()) :: binary() | nil
-  def slug_to_str(slug) when is_binary(slug) do
-    case slug do
-      "urban" -> dgettext("page-shortlist", "Urban")
-      "intercity" -> dgettext("page-shortlist", "Intercity")
-      "school" -> dgettext("page-shortlist", "School transport")
-      "seasonal" -> dgettext("page-shortlist", "Seasonal")
-      "zonal_drt" -> dgettext("page-shortlist", "Demand responsive transport")
-      "bicycle" -> dgettext("page-shortlist", "Bicycle")
-      "scooter" -> dgettext("page-shortlist", "Scooter")
-      "carsharing" -> dgettext("page-shortlist", "Carsharing")
-      "moped" -> dgettext("page-shortlist", "Moped")
-      "freefloating" -> dgettext("page-shortlist", "Free-floating")
-    end
-  end
-
-  def slug_to_str(_), do: nil
+  @spec slug_to_str(binary()) :: binary()
+  def slug_to_str("urban"), do: dgettext("page-shortlist", "Urban")
+  def slug_to_str("intercity"), do: dgettext("page-shortlist", "Intercity")
+  def slug_to_str("school"), do: dgettext("page-shortlist", "School transport")
+  def slug_to_str("seasonal"), do: dgettext("page-shortlist", "Seasonal")
+  def slug_to_str("zonal_drt"), do: dgettext("page-shortlist", "Demand responsive transport")
+  def slug_to_str("bicycle"), do: dgettext("page-shortlist", "Bicycle")
+  def slug_to_str("scooter"), do: dgettext("page-shortlist", "Scooter")
+  def slug_to_str("carsharing"), do: dgettext("page-shortlist", "Carsharing")
+  def slug_to_str("moped"), do: dgettext("page-shortlist", "Moped")
+  def slug_to_str("freefloating"), do: dgettext("page-shortlist", "Free-floating")
 end
