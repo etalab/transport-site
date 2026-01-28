@@ -776,7 +776,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :proxy_statistics))
         |> html_response(200)
 
-      assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques du proxy Transport"])
+      assert_breadcrumb_content(html, ["Espace producteur", "Statistiques du proxy Transport"])
 
       # Check that proxy statistics are displayed in metric cards
       assert html =~ "Requêtes gérées par le proxy"
@@ -968,7 +968,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
 
       doc = html |> Floki.parse_document!()
-      assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Modifier une ressource"])
+      assert_breadcrumb_content(html, ["Espace producteur", custom_title, "Modifier une ressource"])
 
       # Title
       assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == "Modification d’une ressource|Laissez-nous votre avis"
@@ -1025,7 +1025,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert_breadcrumb_content(doc, ["Votre espace producteur", custom_title, "Nouvelle ressource"])
+      assert_breadcrumb_content(doc, ["Espace producteur", custom_title, "Nouvelle ressource"])
       # Title
       assert doc |> Floki.find("h2") |> Floki.text(sep: "|") == "Ajouter une nouvelle ressource|Laissez-nous votre avis"
     end
@@ -1156,7 +1156,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :delete_resource_confirmation, dataset_id, resource_datagouv_id))
         |> html_response(200)
 
-      assert_breadcrumb_content(html, ["Votre espace producteur", custom_title, "Supprimer une ressource"])
+      assert_breadcrumb_content(html, ["Espace producteur", custom_title, "Supprimer une ressource"])
 
       assert html =~ "bnlc.csv"
       assert html =~ "Souhaitez-vous mettre à jour la ressource ou la supprimer définitivement ?"
@@ -1245,7 +1245,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert_breadcrumb_content(html, ["Votre espace producteur", dataset.custom_title, resource.title])
+      assert_breadcrumb_content(html, ["Espace producteur", dataset.custom_title, resource.title])
 
       assert html |> Floki.find("h2") |> Floki.text() =~ "Repartage des données améliorées"
       assert html |> Floki.find("table") |> Floki.text() =~ reuser_improved_data.organization.name
@@ -1339,7 +1339,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> get(espace_producteur_path(conn, :download_statistics))
         |> html_response(200)
 
-      assert_breadcrumb_content(html, ["Votre espace producteur", "Statistiques de téléchargements"])
+      assert_breadcrumb_content(html, ["Espace producteur", "Statistiques de téléchargements"])
 
       assert html =~ "<h2>Statistiques de téléchargements</h2>"
 
@@ -1451,7 +1451,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert doc |> Floki.find(".notification") |> Enum.empty?()
 
-      assert_breadcrumb_content(html, ["Votre espace producteur", "Discussions sans réponse"])
+      assert_breadcrumb_content(html, ["Espace producteur", "Discussions sans réponse"])
     end
   end
 

@@ -43,10 +43,6 @@ msgid "Validate your datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Your producer space"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "New resource"
 msgstr ""
 
