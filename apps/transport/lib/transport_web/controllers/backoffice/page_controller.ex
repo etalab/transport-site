@@ -355,6 +355,7 @@ defmodule TransportWeb.Backoffice.PageController do
       'https://transport.data.gouv.fr/datasets/' || d.slug dataset_url,
       d.licence licence,
       d.type dataset_type,
+      ds.dataset_sub_types,
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       re.nom nom_region,
@@ -424,6 +425,15 @@ defmodule TransportWeb.Backoffice.PageController do
     ) administrative_division on administrative_division.dataset_id = d.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(ds.slug, ',' order by ds.slug) dataset_sub_types
+      from dataset d
+      left join dataset_dataset_subtype dds on dds.dataset_id = d.id
+      left join dataset_subtype ds on ds.id = dds.dataset_subtype_id
+      group by d.id
+    ) ds on ds.dataset_id = d.id
     -- FIXME: we should be able to do a single query for `dataset_score`
     left join (
       select
