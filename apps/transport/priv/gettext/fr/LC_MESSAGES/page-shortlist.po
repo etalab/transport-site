@@ -247,3 +247,47 @@ msgstr "offre de transport"
 #, elixir-autogen, elixir-format
 msgid "data format"
 msgstr "format de données"
+
+#, elixir-autogen, elixir-format
+msgid "Data subtype"
+msgstr "Sous-type de données"
+
+#, elixir-autogen, elixir-format
+msgid "Urban"
+msgstr "Urbain"
+
+#, elixir-autogen, elixir-format
+msgid "Intercity"
+msgstr "Interurbain"
+
+#, elixir-autogen, elixir-format
+msgid "School transport"
+msgstr "Scolaire"
+
+#, elixir-autogen, elixir-format
+msgid "Seasonal"
+msgstr "Saisonnier"
+
+#, elixir-autogen, elixir-format
+msgid "Demand responsive transport"
+msgstr "Transport à la demande zonal"
+
+#, elixir-autogen, elixir-format
+msgid "Bicycle"
+msgstr "Vélo"
+
+#, elixir-autogen, elixir-format
+msgid "Scooter"
+msgstr "Trottinette"
+
+#, elixir-autogen, elixir-format
+msgid "Carsharing"
+msgstr "Autopartage"
+
+#, elixir-autogen, elixir-format
+msgid "Moped"
+msgstr "Cyclomoteur"
+
+#, elixir-autogen, elixir-format
+msgid "Free-floating"
+msgstr "Libre-service"
