@@ -44,7 +44,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
       |> Enum.map(&serialize/1)
       |> Enum.filter(&(&1.parent_type == dataset_type))
 
-    dataset_subtypes = Enum.filter(assigns.dataset_subtypes, &(&1 in dataset_subtypes_list))
+    dataset_subtypes = assigns.dataset_subtypes |> Enum.map(&serialize/1) |> Enum.filter(&(&1 in dataset_subtypes_list))
 
     {:ok,
      socket
@@ -91,6 +91,8 @@ defmodule TransportWeb.DatasetSubtypeLive do
       slug: subtype.slug
     }
   end
+
+  def serialize(%{parent_type: _, slug: _} = map), do: map
 
   def display(%{slug: slug}), do: slug
   def field_info(subtype, index), do: {"dataset_subtypes[#{index}]", subtype.slug}
