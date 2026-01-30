@@ -322,24 +322,39 @@ defmodule TransportWeb.DatasetController do
   @doc """
   Returns subtypes filtered by the currently selected type.
   Only returns subtypes if a type is selected in the params.
+  Returns a map with :subtypes (list of subtypes with counts) and :total (distinct dataset count).
   """
-  @spec get_subtypes(map()) :: [%{subtype: binary(), msg: binary(), count: non_neg_integer()}]
+  @spec get_subtypes(map()) :: %{
+          subtypes: [%{subtype: binary(), msg: binary(), count: non_neg_integer()}],
+          total: non_neg_integer()
+        }
   def get_subtypes(%{"type" => type} = params) when is_binary(type) do
-    params
-    |> clean_datasets_query("subtype")
-    |> exclude(:order_by)
-    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtype)
-    |> where([dataset_subtype: ds], ds.parent_type == ^type)
-    |> group_by([dataset_subtype: ds], ds.slug)
-    |> select([dataset: d, dataset_subtype: ds], %{subtype: ds.slug, count: count(d.id, :distinct)})
-    |> Repo.all()
-    |> Enum.map(fn res ->
-      %{subtype: res.subtype, count: res.count, msg: DatasetSubtype.slug_to_str(res.subtype)}
-    end)
-    |> add_current_subtype(params["subtype"])
+    base_query =
+      params
+      |> clean_datasets_query("subtype")
+      |> exclude(:order_by)
+      |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtype)
+      |> where([dataset_subtype: ds], ds.parent_type == ^type)
+
+    subtypes =
+      base_query
+      |> group_by([dataset_subtype: ds], ds.slug)
+      |> select([dataset: d, dataset_subtype: ds], %{subtype: ds.slug, count: count(d.id, :distinct)})
+      |> Repo.all()
+      |> Enum.map(fn res ->
+        %{subtype: res.subtype, count: res.count, msg: DatasetSubtype.slug_to_str(res.subtype)}
+      end)
+      |> add_current_subtype(params["subtype"])
+
+    total =
+      base_query
+      |> select([dataset: d], count(d.id, :distinct))
+      |> Repo.one()
+
+    %{subtypes: subtypes, total: total}
   end
 
-  def get_subtypes(_params), do: []
+  def get_subtypes(_params), do: %{subtypes: [], total: 0}
 
   defp add_current_subtype(results, nil), do: results
 

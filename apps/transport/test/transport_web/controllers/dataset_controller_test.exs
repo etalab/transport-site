@@ -964,9 +964,9 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   describe "get_subtypes" do
-    test "returns empty list when no type is selected" do
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{})
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{"q" => "test"})
+    test "returns empty map when no type is selected" do
+      assert %{subtypes: [], total: 0} == TransportWeb.DatasetController.get_subtypes(%{})
+      assert %{subtypes: [], total: 0} == TransportWeb.DatasetController.get_subtypes(%{"q" => "test"})
     end
 
     test "returns subtypes for selected type" do
@@ -978,35 +978,39 @@ defmodule TransportWeb.DatasetControllerTest do
       insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype, intercity_subtype])
       insert(:dataset, type: "public-transit", dataset_subtypes: [intercity_subtype])
 
-      result = TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit"})
+      %{subtypes: subtypes, total: total} = TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit"})
 
-      assert length(result) == 2
+      assert length(subtypes) == 2
+      # Total should be 3 (distinct datasets), not 4 (sum of individual counts)
+      assert total == 3
 
-      urban_result = Enum.find(result, &(&1.subtype == "urban"))
+      urban_result = Enum.find(subtypes, &(&1.subtype == "urban"))
       assert urban_result.count == 2
       assert urban_result.msg == "Urbain"
 
-      intercity_result = Enum.find(result, &(&1.subtype == "intercity"))
+      intercity_result = Enum.find(subtypes, &(&1.subtype == "intercity"))
       assert intercity_result.count == 2
       assert intercity_result.msg == "Interurbain"
     end
 
-    test "returns empty list when type has no subtypes" do
+    test "returns empty map when type has no subtypes" do
       urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
       insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
 
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{"type" => "road-data"})
+      assert %{subtypes: [], total: 0} == TransportWeb.DatasetController.get_subtypes(%{"type" => "road-data"})
     end
 
     test "adds current subtype even if count is 0" do
       urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
       insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
 
-      result = TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit", "subtype" => "intercity"})
+      %{subtypes: subtypes, total: total} =
+        TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit", "subtype" => "intercity"})
 
+      assert total == 1
       # urban has count > 0, intercity has count 0 but is added because it's selected
-      assert Enum.any?(result, &(&1.subtype == "urban" and &1.count == 1))
-      assert Enum.any?(result, &(&1.subtype == "intercity" and &1.count == 0))
+      assert Enum.any?(subtypes, &(&1.subtype == "urban" and &1.count == 1))
+      assert Enum.any?(subtypes, &(&1.subtype == "intercity" and &1.count == 0))
     end
   end
 
