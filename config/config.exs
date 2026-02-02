@@ -23,7 +23,8 @@ config :transport,
     "https://raw.githubusercontent.com/transportdatagouvfr/proxy-config/refs/heads/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
   unlock_siri_public_requestor_ref: "transport-data-gouv-fr",
-  unlock_event_incrementer: Unlock.BatchMetrics
+  unlock_event_incrementer: Unlock.BatchMetrics,
+  unlock_token_auth_enabled: false
 
 config :transport, Unlock.Endpoint, []
 
