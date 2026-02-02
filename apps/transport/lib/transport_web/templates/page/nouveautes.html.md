@@ -23,9 +23,11 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ### 📊 Statistiques et Reporting
 * **Visualisation** : Affichage des statistiques de téléchargement sur l'année courante et précédente avec ajout de boutons d'accès rapide en haut de page.
 
+### 🇪🇺 Validation NeTEx
+* Quelques règles spécifiques au profil France sont désormais implémentées.
+
 ### ⚙️ Technique et Backend
 * **Proxy S3/HTTP** : Mise en place d'un cache sur disque avec vérification ETag pour optimiser les performances de téléchargement.
-* **Validation NeTEx** : Intégration du générateur de règles pour Chouette Valid.
 * **Maintenance** : Correction de la gestion de la taille des hypertables TimescaleDB et mises à jour majeures des dépendances (Phoenix, LiveView, Explorer).
 * **Tâches asynchrones** : Refactorisation des jobs d'expiration de données et de notification d'indisponibilité des ressources (avec gestion des tentatives).
 
