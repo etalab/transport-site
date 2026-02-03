@@ -72,5 +72,3 @@ sources
 |> Explorer.DataFrame.new()
 |> Explorer.DataFrame.select([:path, :count, :distinct_count, :duplicates])
 |> Explorer.DataFrame.print()
-
-# TODO: UpSet diagram.
