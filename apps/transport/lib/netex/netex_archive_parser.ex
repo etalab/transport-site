@@ -100,6 +100,34 @@ defmodule Transport.NeTEx do
     read_all(zip_file_name, &read_calendars!/2)
   end
 
+  @doc """
+  Inside a zip archive opened with `Unzip`, parse a given file (pointed by
+  `file_name`) and extract the type of frames. The file is read in streaming
+  fashion to save memory, but the stop places are stacked in a list (all in
+  memory at once).
+  """
+  def read_types_of_frames(%Unzip{} = unzip, file_name) do
+    parse_stream(unzip, file_name, Transport.NeTEx.TypesOfFrameStreamingParser)
+  end
+
+  @doc """
+  Like read_types_of_frames/2 but raises on errors.
+  """
+  def read_types_of_frames!(%Unzip{} = unzip, file_name) do
+    case read_types_of_frames(unzip, file_name) do
+      {:ok, types_of_frames} -> types_of_frames
+      {:error, message} -> raise message
+    end
+  end
+
+  def read_all_types_of_frames(zip_file_name) do
+    read_all(zip_file_name, &read_types_of_frames/2)
+  end
+
+  def read_all_types_of_frames!(zip_file_name) do
+    read_all(zip_file_name, &read_types_of_frames!/2)
+  end
+
   defp parse_stream(unzip, file_name, parser) do
     extension = Path.extname(file_name)
 
