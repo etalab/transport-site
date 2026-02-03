@@ -148,6 +148,10 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end
 
+  def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
+    link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
+  end
+
   defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
     full_url =
       case key do
@@ -612,12 +616,12 @@ defmodule TransportWeb.DatasetView do
   def related_gtfs_resource(%Resource{}), do: nil
 
   @doc """
-  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["saisonnier", "foo"]})
+  iex> seasonal_warning?(%DB.Dataset{dataset_subtypes: [%DB.DatasetSubtype{slug: "seasonal"}]})
   true
-  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["foo"]})
+  iex> seasonal_warning?(%DB.Dataset{dataset_subtypes: [%DB.DatasetSubtype{slug: "urban"}]})
   false
   """
-  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_subtype?(dataset, "seasonal")
 
   def authentication_required?(%DB.Dataset{} = dataset),
     do: DB.Dataset.has_custom_tag?(dataset, "authentification_requise")

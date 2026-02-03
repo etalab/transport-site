@@ -402,6 +402,10 @@ defmodule DB.Factory do
     }
   end
 
+  def dataset_subtype_factory do
+    %DB.DatasetSubtype{}
+  end
+
   def insert_token(%{} = args \\ %{}) do
     args =
       %{

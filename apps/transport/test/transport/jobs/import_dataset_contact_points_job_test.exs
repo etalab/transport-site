@@ -41,7 +41,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
         )
 
       Datagouvfr.Client.Datasets.Mock
-      |> expect(:get, 1, fn ^datagouv_id -> {:ok, %{"contact_point" => nil}} end)
+      |> expect(:get, 1, fn ^datagouv_id -> {:ok, %{"contact_points" => []}} end)
 
       ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
 
@@ -67,7 +67,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
         )
 
       Datagouvfr.Client.Datasets.Mock
-      |> expect(:get, 1, fn ^datagouv_id -> {:ok, %{"contact_point" => nil}} end)
+      |> expect(:get, 1, fn ^datagouv_id -> {:ok, %{"contact_points" => []}} end)
 
       ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
 
@@ -88,7 +88,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^datagouv_id ->
-        {:ok, %{"contact_point" => %{"email" => contact_point.email, "name" => DB.Contact.display_name(contact_point)}}}
+        {:ok,
+         %{"contact_points" => [%{"email" => contact_point.email, "name" => DB.Contact.display_name(contact_point)}]}}
       end)
 
       ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
@@ -134,7 +135,7 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
       Datagouvfr.Client.Datasets.Mock
       |> expect(:get, 1, fn ^datagouv_id ->
-        {:ok, %{"contact_point" => %{"email" => email, "name" => "John DOE"}}}
+        {:ok, %{"contact_points" => [%{"email" => email, "name" => "John DOE"}]}}
       end)
 
       ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
@@ -144,6 +145,62 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
       assert nil == DB.Repo.reload(previous_contact_point_ns)
       assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, contact)
+    end
+
+    test "creates subscriptions for 2 contact points, deletes the previous contact point subscription" do
+      %DB.Dataset{datagouv_id: datagouv_id} = dataset = insert(:dataset)
+      previous_contact_point = insert_contact()
+
+      previous_contact_point_ns =
+        insert(:notification_subscription,
+          dataset_id: dataset.id,
+          contact_id: previous_contact_point.id,
+          role: :producer,
+          reason: :expiration,
+          source: :"automation:import_contact_point"
+        )
+
+      john_email = "john@example.fr"
+      jane_email = "jane@example.fr"
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, 1, fn ^datagouv_id ->
+        {:ok,
+         %{
+           "contact_points" => [
+             %{"email" => john_email, "name" => "John DOE"},
+             %{"email" => jane_email, "name" => "Jane FOO"}
+           ]
+         }}
+      end)
+
+      ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
+
+      %DB.Contact{first_name: "John", email: ^john_email, creation_source: :"automation:import_contact_point"} =
+        john = DB.Repo.get_by(DB.Contact, last_name: "DOE")
+
+      %DB.Contact{first_name: "Jane", email: ^jane_email, creation_source: :"automation:import_contact_point"} =
+        jane = DB.Repo.get_by(DB.Contact, last_name: "FOO")
+
+      assert nil == DB.Repo.reload(previous_contact_point_ns)
+      assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, john)
+      assert MapSet.new(@producer_reasons) == subscribed_reasons(dataset, jane)
+    end
+
+    test "it does not crash when email is nil" do
+      %DB.Dataset{datagouv_id: datagouv_id} = insert(:dataset)
+
+      Datagouvfr.Client.Datasets.Mock
+      |> expect(:get, 1, fn ^datagouv_id ->
+        {:ok,
+         %{
+           "contact_points" => [
+             %{"email" => nil, "name" => "John DOE"}
+           ]
+         }}
+      end)
+
+      ImportDatasetContactPointsJob.import_contact_point(datagouv_id)
     end
   end
 
@@ -160,8 +217,8 @@ defmodule Transport.Test.Transport.Jobs.ImportDatasetContactPointsJobTest do
 
     setup_http_responses([
       {d1_datagouv_id,
-       %{"contact_point" => %{"email" => contact_point.email, "name" => DB.Contact.display_name(contact_point)}}},
-      {d2_datagouv_id, %{"contact_point" => %{"email" => email, "name" => "DOE John"}}}
+       %{"contact_points" => [%{"email" => contact_point.email, "name" => DB.Contact.display_name(contact_point)}]}},
+      {d2_datagouv_id, %{"contact_points" => [%{"email" => email, "name" => "DOE John"}]}}
     ])
 
     assert :ok == perform_job(ImportDatasetContactPointsJob, %{})

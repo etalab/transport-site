@@ -171,7 +171,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     # Search by disk using the checkbox
     form |> search_by_value("")
 
-    assert ["gtfs-rt-slug"] == form |> search_by_disk(true) |> slugs()
+    assert ["gtfs-rt-slug", "s3-slug"] == form |> search_by_disk(true) |> slugs()
     assert_patch(view, @url <> "?search=&type=&disk=true")
   end
 

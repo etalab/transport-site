@@ -359,7 +359,7 @@ defmodule Unlock.ControllerTest do
       verify!(Unlock.HTTP.Client.Mock)
 
       # Data has been saved to disk
-      path = System.tmp_dir!() |> Path.join(slug)
+      path = System.tmp_dir!() |> Path.join("unlock_disk_cache:" <> slug)
       assert File.exists?(path)
       assert File.read!(path) == "somebody-to-love"
 
@@ -909,27 +909,226 @@ defmodule Unlock.ControllerTest do
       })
 
       content = "CONTENT"
+      etag = Ecto.UUID.generate()
 
       Transport.ExAWS.Mock
       |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
         assert %ExAws.Operation.S3{
                  bucket: ^expected_bucket,
                  path: ^path,
-                 http_method: :get,
+                 http_method: :head,
                  service: :s3
                } = operation
 
-        %{body: content, status_code: 200}
+        %{headers: [{"x-header", "foo"}, {"etag", etag}], status_code: 200}
       end)
 
-      resp =
-        proxy_conn()
-        |> get("/resource/an-existing-s3-identifier")
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
 
       assert resp.resp_body == content
       assert resp.status == 200
+      # original headers are not forwarded
+      assert Plug.Conn.get_resp_header(resp, "x-header") == []
       # enforce the filename provided via the config (especially to get its extension passed to clients)
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again, should hit the cache
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug - checks ETag and skips download if it stayed the same" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = -1
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+      etag = Ecto.UUID.generate()
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again, should hit the cache
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug - checks ETag and downloads again if ETag changed" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = -1
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+      etag = Ecto.UUID.generate()
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again
+      # But this time the ETag changed! We should download again.
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag <> Ecto.UUID.generate()}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-s3-identifier"}}

@@ -2,6 +2,35 @@
 
 Retrouvez sur cette page les principales nouveautés chaque mois.
 
+## Janvier 2026
+
+### ⚡️ Consolidation IRVE (Infrastructures de Recharge de Véhicules Électriques)
+* **Amélioration du processus PAN** : Optimisation du script de consolidation pour la production, incluant un pré-processing des fichiers avant validation.
+* **Qualité des données** : Transformation systématique en UTF-8, gestion des tabulations dans les coordonnées et autorisation des espaces pour les coordonnées XY.
+* **Monitoring et Reporting** : Mise en place d'un reporting actionnable pour identifier les points de charge (PDC) manquants et ajout de logs détaillés au début des jobs.
+* **Export et Performance** : Possibilité d'exporter la base de données IRVE et ajustement des paramètres de parallélisation et de timeout.
+
+### 🔍 Recherche et Navigation
+* **Recherche par sous-types** : Nouveau filtre permettant de chercher par sous-type de données dans le catalogue.
+* **Autocomplete** : Amélioration de l'ordre des résultats et du comportement de la touche "Entrée".
+* **Fil d'ariane** : Mise à jour de la navigation dans l'Espace Producteur pour une meilleure expérience utilisateur.
+
+### 👤 Espaces Utilisateurs (Producteur & Réutilisateur)
+* **Gestion des problèmes urgents** : Affichage des problèmes dans l'espace réutilisateur, ajout de dates de validité et possibilité de trier les colonnes.
+* **UX/UI** : Ajustement de l'affichage des informations importantes et ajout d'un menu interactif pour les nouveautés.
+* **Discussions** : Amélioration du scroll lors du chargement et liens directs vers les discussions sans réponse.
+
+### 📊 Statistiques et Reporting
+* **Visualisation** : Affichage des statistiques de téléchargement sur l'année courante et précédente avec ajout de boutons d'accès rapide en haut de page.
+
+### 🇪🇺 Validation NeTEx
+* Quelques règles spécifiques au profil France sont désormais implémentées.
+
+### ⚙️ Technique et Backend
+* **Proxy S3/HTTP** : Mise en place d'un cache sur disque avec vérification ETag pour optimiser les performances de téléchargement.
+* **Maintenance** : Correction de la gestion de la taille des hypertables TimescaleDB et mises à jour majeures des dépendances (Phoenix, LiveView, Explorer).
+* **Tâches asynchrones** : Refactorisation des jobs d'expiration de données et de notification d'indisponibilité des ressources (avec gestion des tentatives).
+
 ## Décembre 2025
 
 ### ⚡️ IRVE
