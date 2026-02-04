@@ -226,13 +226,11 @@ defmodule Transport.DataFrame.Validation.Primitives do
 
   ## Examples
 
-      iex> geopoint?(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]", " [1.2 , 3.4] ", "[ 1.2, 3.4 ]"]), "array") |> Series.to_list()
-      [true, true, true, true, true, true, true]
+      iex> geopoint?(build_series(["[1,2]", "[-3,4.5]", "[0.0, -0.99]", "[-123.456,789]", "[42, 0]", " [1.2 , 3.4] ", "[ 1.2, 3.4 ]", "[43.901514,  -0.480207]"]), "array") |> Series.to_list()
+      [true, true, true, true, true, true, true, true]
 
       iex> geopoint?(build_series(["1,2", "[1,2,3]", "[1;2]", "[1. ,2]", "[a, b]", "[,]"]), "array") |> Series.to_list()
       [false, false, false, false, false, false]
-
-      iex> geopoint?(build_series(["[43.901514,  -0.480207]"]), "array") |> Series.to_list()
   """
   def geopoint?(series, "array" = _format) do
     Series.re_contains(series, @geopoint_array_pattern)
