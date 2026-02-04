@@ -23,17 +23,20 @@ defmodule Transport.NeTEx.StopPlacesStreamingParser do
 
   @behaviour Saxy.Handler
 
-  def get_attribute!(attributes, attr_name) do
-    [value] = for {attr, value} <- attributes, attr == attr_name, do: value
-    value
+  import Transport.NeTEx.SaxyHelpers
+
+  def initial_state do
+    %{
+      capture: false,
+      current_tree: [],
+      stop_places: [],
+      callback: fn state ->
+        state |> update_in([:stop_places], &(&1 ++ [state.current_stop_place]))
+      end
+    }
   end
 
-  # NOTE: currently parsing as floats, which are limited in terms of precision,
-  # but more work on precision will be done later.
-  def parse_float!(binary) do
-    {value, ""} = Float.parse(binary)
-    value
-  end
+  def unwrap_result(final_state), do: final_state.stop_places
 
   # A `StopPlace` is declared, we will start capturing subsequent events
   def handle_event(:start_element, {"StopPlace" = element, attributes}, state) do
