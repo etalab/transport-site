@@ -159,6 +159,31 @@ defmodule Transport.NeTEx.ArchiveParserTest do
              }
            ] == data
 
+    calendar_content = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri" version="1.1:FR-NETEX_CALENDRIER-2.2">
+        <PublicationTimestamp>2025-07-29T09:34:55Z</PublicationTimestamp>
+        <ParticipantRef>DIGO</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame version="any" id="DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC">
+            <ValidBetween>
+              <FromDate>2025-07-05T00:00:00</FromDate>
+              <ToDate>2025-08-31T23:59:59</ToDate>
+            </ValidBetween>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+
+    assert [
+             %{
+               id: "DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC",
+               start_date: Date.from_iso8601!("2025-07-05"),
+               end_date: Date.from_iso8601!("2025-08-31")
+             }
+           ] == data
+
     idfm_calendar_content = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
         <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>

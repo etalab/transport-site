@@ -26,10 +26,6 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
           id = get_attribute!(attributes, "id")
           state |> reset_tree() |> start_capture() |> init_calendar(%{id: id})
 
-        {"TypeOfFrameRef", true} ->
-          type_of_frame = get_attribute!(attributes, "ref")
-          state |> set_is_calendar(calendar_frame?(type_of_frame))
-
         {"UicOperatingPeriod", true} ->
           id = get_attribute!(attributes, "id")
           state |> init_operating_period(%{id: id})
@@ -87,8 +83,6 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
     update_in(state, [:current_operating_period], &(&1 |> Map.put(field, value)))
   end
 
-  defp set_is_calendar(state, bool), do: update_calendar(state, :is_calendar, bool)
-
   defp push(state, element), do: state |> update_in([:current_tree], &(&1 ++ [element]))
 
   defp pop(state), do: update_in(state, [:current_tree], &(&1 |> List.delete_at(-1)))
@@ -105,13 +99,13 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
     if valid_calendar?(current) do
       state
       |> init_calendar()
-      |> update_in([:calendars], &(&1 ++ [Map.delete(current, :is_calendar)]))
+      |> update_in([:calendars], &(&1 ++ [current]))
     else
       init_calendar(state)
     end
   end
 
-  defp valid_calendar?(%{is_calendar: true, id: id, start_date: %Date{}, end_date: %Date{}}) do
+  defp valid_calendar?(%{id: id, start_date: %Date{}, end_date: %Date{}}) do
     is_binary(id)
   end
 
