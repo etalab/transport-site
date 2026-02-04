@@ -54,14 +54,22 @@ defmodule Unlock.Plugs.TokenAuth do
     if conn.request_path |> String.starts_with?("/resource/") do
       slug = conn.request_path |> String.trim_leading("/resource/")
 
-      Ecto.Changeset.change(%DB.ProxyRequest{}, %{
-        time: DateTime.utc_now(),
-        token_id: token.id,
-        proxy_id: slug
-      })
-      |> DB.Repo.insert!()
+      DB.Repo.insert!(
+        %DB.ProxyRequest{
+          time: DateTime.utc_now() |> truncate_to_hour(),
+          token_id: token.id,
+          proxy_id: slug,
+          count: 1
+        },
+        conflict_target: [:time, :token_id, :proxy_id],
+        on_conflict: [inc: [count: 1]]
+      )
     end
   end
 
   defp log_request(%Plug.Conn{}, nil), do: :ok
+
+  defp truncate_to_hour(%DateTime{} = dt) do
+    %{dt | minute: 0, second: 0, microsecond: {0, 6}}
+  end
 end
