@@ -36,7 +36,7 @@ filtered_df =
 # Group by resource_datagouv_id and count the number of lines for each id
 lines_per_id =
   filtered_df
-  |> Explorer.DataFrame.group_by(["datagouv_resource_id", "datagouv_dataset_id"])
+  |> Explorer.DataFrame.group_by(["datagouv_resource_id", "datagouv_dataset_id", "datagouv_organization_or_owner"])
   |> Explorer.DataFrame.summarise(line_count: Explorer.Series.size(datagouv_resource_id))
   |> Explorer.DataFrame.sort_by(desc: line_count)
 
