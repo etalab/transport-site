@@ -90,9 +90,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"resource.xml", service_calendar_content}])
-
-    [{"resource.xml", data}] = Transport.NeTEx.read_all_service_calendars!(tmp_file)
+    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, service_calendar_content)
 
     assert [
              %{
@@ -129,9 +127,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"resource.xml", empty_service_calendar_content}])
-
-    [{"resource.xml", data}] = Transport.NeTEx.read_all_service_calendars!(tmp_file)
+    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, empty_service_calendar_content)
 
     assert [] == data
   end
@@ -153,9 +149,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"calendar.xml", calendar_content}])
-
-    [{"calendar.xml", data}] = Transport.NeTEx.read_all_calendars!(tmp_file)
+    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
 
     assert [
              %{
@@ -181,9 +175,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"calendar.xml", idfm_calendar_content}])
-
-    [{"calendar.xml", data}] = Transport.NeTEx.read_all_calendars!(tmp_file)
+    data = extract(&Transport.NeTEx.read_all_calendars!/1, idfm_calendar_content)
 
     assert [
              %{
@@ -207,9 +199,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </GeneralFrame>
     """
 
-    tmp_file = create_tmp_netex([{"resource.xml", operating_periods}])
-
-    [{"resource.xml", data}] = Transport.NeTEx.read_all_calendars!(tmp_file)
+    data = extract(&Transport.NeTEx.read_all_calendars!/1, operating_periods)
 
     assert [
              %{
@@ -233,11 +223,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"resource.xml", general_frame}])
-
-    [{"resource.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
-
-    assert ["NETEX_CALENDRIER"] == types
+    assert ["NETEX_CALENDRIER"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, general_frame)
 
     composite_frames = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -257,11 +243,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"offre_6201.xml", composite_frames}])
-
-    [{"offre_6201.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
-
-    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == types
+    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, composite_frames)
 
     non_standard_types = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -281,11 +263,17 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    tmp_file = create_tmp_netex([{"offre_6201.xml", non_standard_types}])
-
-    [{"offre_6201.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
+    types = extract(&Transport.NeTEx.read_all_types_of_frames!/1, non_standard_types)
 
     assert [] == types
+  end
+
+  defp extract(extractor, xml) do
+    tmp_file = create_tmp_netex([{"file.xml", xml}])
+
+    [{"file.xml", types}] = extractor.(tmp_file)
+
+    types
   end
 
   defp create_tmp_netex(files) do
