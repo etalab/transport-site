@@ -1,10 +1,11 @@
 # mix run scripts/irve/difference.exs
 
 require Explorer.DataFrame
+require Ecto.Query
 
-datagouv_source = "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
-local_datagouv_path = "datagouv-consolidation.csv"
-%{status: 200} = Req.get!(datagouv_source, into: File.stream!(local_datagouv_path))
+local_datagouv_path = "cache-dir/consolidation-data-gouv.csv"
+# datagouv_source = "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
+# %{status: 200} = Req.get!(datagouv_source, into: File.stream!(local_datagouv_path))
 
 datagouv_df = Explorer.DataFrame.from_csv!(local_datagouv_path, infer_schema_length: nil)
 
@@ -41,4 +42,4 @@ lines_per_id =
 
 IO.puts("\nNumber of lines per resource_datagouv_id (only those in datagouv but not in simple consolidation):")
 
-Explorer.DataFrame.print(lines_per_id, max_rows: 100)
+Explorer.DataFrame.print(lines_per_id, limit: :infinity)
