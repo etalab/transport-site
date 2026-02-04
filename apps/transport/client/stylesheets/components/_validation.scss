@@ -163,7 +163,7 @@ table.netex_generic_issue tr.debug td code {
     li {
       display: grid;
       gap: var(--space-s) var(--space-m);
-      grid-template-columns: [icon-start] 1.5rem [icon-end content-start] 50rem [content-end];
+      grid-template-columns: [icon-start] 1.5rem [icon-end content-start] 45rem [content-end];
       padding-bottom: var(--space-m);
       padding-left: var(--space-s);
       margin-bottom: var(--space-m);
