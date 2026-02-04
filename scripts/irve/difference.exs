@@ -1,13 +1,13 @@
 # mix run scripts/irve/difference.exs
 
 require Explorer.DataFrame
-require Ecto.Query
 
 local_datagouv_path = "cache-dir/consolidation-data-gouv.csv"
-# datagouv_source = "https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
-# %{status: 200} = Req.get!(datagouv_source, into: File.stream!(local_datagouv_path))
+local_transport_consolidation_path = "consolidation_transport_avec_doublons_irve_statique.csv"
 
 datagouv_df = Explorer.DataFrame.from_csv!(local_datagouv_path, infer_schema_length: nil)
+
+transport_df = Explorer.DataFrame.from_csv!(local_transport_consolidation_path, infer_schema_length: nil)
 
 list_of_datagouv_ids =
   datagouv_df["datagouv_resource_id"]
@@ -16,10 +16,9 @@ list_of_datagouv_ids =
   |> MapSet.new()
 
 list_of_simple_consolidation_ids =
-  DB.IRVEValidFile
-  |> Ecto.Query.select([:resource_datagouv_id])
-  |> DB.Repo.all()
-  |> Enum.map(& &1.resource_datagouv_id)
+  transport_df["resource_datagouv_id"]
+  |> Explorer.Series.distinct()
+  |> Explorer.Series.to_list()
   |> MapSet.new()
 
 only_in_datagouv = MapSet.difference(list_of_datagouv_ids, list_of_simple_consolidation_ids)
