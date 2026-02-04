@@ -27,6 +27,10 @@ defmodule Transport.NeTEx.NeTExHelpers do
     @n_line_frame
   ]
 
+  @doc """
+  Strict parser of TypeOfFrameRef compatible with the French Profile.
+  Non standard types are discarded.
+  """
   def parse_type_of_frame(type_of_frame) do
     case type_of_frame |> String.split(":") |> Enum.take(3) do
       [_prefix, "TypeOfFrame", sub_profile] when sub_profile in @valid_type_of_frames ->

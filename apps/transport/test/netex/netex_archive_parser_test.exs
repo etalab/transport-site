@@ -220,6 +220,74 @@ defmodule Transport.NeTEx.ArchiveParserTest do
            ] == data
   end
 
+  test "extract TypeOfFrames" do
+    general_frame = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_CALENDRIER:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <TypeOfFrameRef ref="FR:TypeOfFrame:NETEX_CALENDRIER:"/>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    tmp_file = create_tmp_netex([{"resource.xml", general_frame}])
+
+    [{"resource.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
+
+    assert ["NETEX_CALENDRIER"] == types
+
+    composite_frames = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <CompositeFrame id="FR1:CompositeFrame:NETEX_OFFRE_LIGNE-20260202T154504Z:LOC" version="1.8" dataSourceRef="FR1-OFFRE_AUTO">
+            <Name>6201</Name>
+            <TypeOfFrameRef ref="FR1:TypeOfFrame:NETEX_N_LIGNE:"/>
+            <frames>
+              <GeneralFrame id="FR1:GeneralFrame:NETEX_STRUCTURE-20260202T154504Z:LOC" version="1.8" dataSourceRef="FR1-OFFRE_AUTO">
+                <TypeOfFrameRef ref="FR1:TypeOfFrame:NETEX_LIGNE:"/>
+              </GeneralFrame>
+            </frames>
+          </CompositeFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    tmp_file = create_tmp_netex([{"offre_6201.xml", composite_frames}])
+
+    [{"offre_6201.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
+
+    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == types
+
+    non_standard_types = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <CompositeFrame id="FR1:CompositeFrame:NETEX_OFFRE_LIGNE-20260202T154504Z:LOC" version="1.8" dataSourceRef="FR1-OFFRE_AUTO">
+            <Name>6201</Name>
+            <TypeOfFrameRef ref="FR1:TypeOfFrame:NETEX_OFFRE_LIGNE:"/>
+            <frames>
+              <GeneralFrame id="FR1:GeneralFrame:NETEX_STRUCTURE-20260202T154504Z:LOC" version="1.8" dataSourceRef="FR1-OFFRE_AUTO">
+                <TypeOfFrameRef ref="FR1:TypeOfFrame:NETEX_STRUCTURE:"/>
+              </GeneralFrame>
+            </frames>
+          </CompositeFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    tmp_file = create_tmp_netex([{"offre_6201.xml", non_standard_types}])
+
+    [{"offre_6201.xml", types}] = Transport.NeTEx.read_all_types_of_frames!(tmp_file)
+
+    assert [] == types
+  end
+
   defp create_tmp_netex(files) do
     tmp_file = System.tmp_dir!() |> Path.join("temp-netex-#{Ecto.UUID.generate()}.zip")
     ZipCreator.create!(tmp_file, files)
