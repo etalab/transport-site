@@ -45,7 +45,7 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
     {:ok, state |> register_calendar() |> reset_tree() |> stop_capture()}
   end
 
-  def handle_event(:end_element, "UicOperatingPeriod", state) do
+  def handle_event(:end_element, "UicOperatingPeriod", state) when state.capture do
     {:ok, state |> register_operating_period() |> pop()}
   end
 
