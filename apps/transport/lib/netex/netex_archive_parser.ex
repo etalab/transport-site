@@ -21,10 +21,7 @@ defmodule Transport.NeTEx do
   Like read_stop_places/2 but raises on errors.
   """
   def read_stop_places!(%Unzip{} = unzip, file_name) do
-    case read_stop_places(unzip, file_name) do
-      {:ok, stop_places} -> stop_places
-      {:error, message} -> raise message
-    end
+    parse_stream!(unzip, file_name, Transport.NeTEx.StopPlacesStreamingParser)
   end
 
   @doc """
@@ -58,10 +55,7 @@ defmodule Transport.NeTEx do
   Like read_service_calendars/2 but raises on errors.
   """
   def read_service_calendars!(%Unzip{} = unzip, file_name) do
-    case read_service_calendars(unzip, file_name) do
-      {:ok, service_calendars} -> service_calendars
-      {:error, message} -> raise message
-    end
+    parse_stream!(unzip, file_name, Transport.NeTEx.ServiceCalendarsStreamingParser)
   end
 
   def read_all_service_calendars(zip_file_name) do
@@ -86,10 +80,7 @@ defmodule Transport.NeTEx do
   Like read_calendars/2 but raises on errors.
   """
   def read_calendars!(%Unzip{} = unzip, file_name) do
-    case read_calendars(unzip, file_name) do
-      {:ok, service_calendars} -> service_calendars
-      {:error, message} -> raise message
-    end
+    parse_stream!(unzip, file_name, Transport.NeTEx.CalendarsStreamingParser)
   end
 
   def read_all_calendars(zip_file_name) do
@@ -114,10 +105,7 @@ defmodule Transport.NeTEx do
   Like read_types_of_frames/2 but raises on errors.
   """
   def read_types_of_frames!(%Unzip{} = unzip, file_name) do
-    case read_types_of_frames(unzip, file_name) do
-      {:ok, types_of_frames} -> types_of_frames
-      {:error, message} -> raise message
-    end
+    parse_stream!(unzip, file_name, Transport.NeTEx.TypesOfFrameStreamingParser)
   end
 
   def read_all_types_of_frames(zip_file_name) do
@@ -155,6 +143,13 @@ defmodule Transport.NeTEx do
           {:error, exception} -> {:error, Exception.message(exception)}
           {:halt, _state, _rest} -> {:error, "SAX parsing interrupted unexpectedly."}
         end
+    end
+  end
+
+  defp parse_stream!(unzip, file_name, parser) do
+    case parse_stream(unzip, file_name, parser) do
+      {:ok, result} -> result
+      {:error, message} -> raise message
     end
   end
 
