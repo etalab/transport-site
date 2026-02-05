@@ -72,7 +72,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         worker: Transport.Jobs.NeTExPollerJob,
         args: %{
           "validation_id" => validation_id,
-          "resource_history_id" => resource_history.id
+          "resource_history_id" => resource_history.id,
+          "metadata" => %{}
         }
       )
 
@@ -211,11 +212,18 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   defp mk_raw_netex_resource do
     resource_url = generate_resource_url()
 
-    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, _}] ->
-      {:ok, %Req.Response{status: 200, body: %{"data" => "some_zip_file"}}}
+    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, into}] ->
+      content = empty_zip_file(into.path)
+
+      {:ok, %Req.Response{status: 200, body: %{"data" => content}}}
     end)
 
     resource_url
+  end
+
+  defp empty_zip_file(path) do
+    ZipCreator.create!(path, [])
+    File.read!(path)
   end
 
   defp generate_resource_url do
