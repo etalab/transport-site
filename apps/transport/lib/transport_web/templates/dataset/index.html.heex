@@ -67,7 +67,7 @@
                 </li>
               </li>
 
-              <%= unless Enum.empty?(@subtypes) do %>
+              <%= unless Enum.empty?(@subtypes.subtypes) do %>
                 <li class="side-pane__title">
                   <h3>{dgettext("page-shortlist", "Data subtype")}</h3>
                   <li class="side-pane__dropdown unfolded">
@@ -76,10 +76,10 @@
                         {subtype_link(@conn, %{
                           msg: dgettext("page-shortlist", "All"),
                           subtype: nil,
-                          count: @subtypes |> Enum.map(& &1.count) |> Enum.sum()
+                          count: @subtypes.total
                         })}
                       </li>
-                      <%= for subtype <- @subtypes do %>
+                      <%= for subtype <- @subtypes.subtypes do %>
                         <li>{subtype_link(@conn, subtype)}</li>
                       <% end %>
                     </ul>
