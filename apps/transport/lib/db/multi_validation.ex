@@ -223,4 +223,33 @@ defmodule DB.MultiValidation do
   def get_metadata_modes(multi_validation, default \\ nil)
   def get_metadata_modes(%__MODULE__{metadata: %DB.ResourceMetadata{modes: modes}}, _), do: modes
   def get_metadata_modes(_, default), do: default
+
+  @doc """
+  - true if the resource associated with the validation is outdated.
+  - false if not.
+  - nil if we don't know.
+
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "1900-01-01"}}}
+  iex> outdated?(validation)
+  true
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "2900-01-01"}}}
+  iex> outdated?(validation)
+  false
+  iex> outdated?(%DB.MultiValidation{})
+  nil
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
+  iex> outdated?(validation)
+  true
+  """
+  def outdated?(%DB.MultiValidation{} = multi_validation) do
+    case DB.MultiValidation.get_metadata_info(multi_validation, "end_date") do
+      nil ->
+        nil
+
+      end_date ->
+        end_date |> Date.from_iso8601!() |> Date.compare(Date.utc_today()) !== :gt
+    end
+  end
+
+  def outdated?(_), do: nil
 end

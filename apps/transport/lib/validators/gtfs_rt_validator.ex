@@ -196,7 +196,7 @@ defmodule Transport.Validators.GTFSRT do
     )
     |> ResourceMetadata.join_validation_with_metadata()
     |> where([resource: r], r.format == "GTFS" and not r.is_community_resource and r.dataset_id == ^dataset_id)
-    |> ResourceMetadata.where_gtfs_up_to_date()
+    |> ResourceMetadata.where_up_to_date()
     |> preload([resource_history: rh], resource_history: rh)
     |> Repo.all()
   end
