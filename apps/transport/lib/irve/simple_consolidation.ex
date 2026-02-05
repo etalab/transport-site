@@ -139,6 +139,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         "url",
         "dataset_title",
         "datagouv_organization_or_owner",
+        "datagouv_last_modified",
         "error_message"
       ])
 

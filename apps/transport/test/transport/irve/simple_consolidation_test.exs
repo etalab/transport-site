@@ -40,6 +40,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             "datagouv_organization_or_owner" => "another-org",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             # TODO rework to only compare the part of the message that matters
             "error_message" =>
               ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
@@ -54,6 +55,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
             "dataset_title" => "individual-published-dataset-title",
             "datagouv_organization_or_owner" => "Guy Who loves IRVE",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             "error_message" => "producer is not an organization"
           },
           %{
@@ -66,6 +68,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
             "dataset_title" => "the-dataset-title",
             "datagouv_organization_or_owner" => "the-org",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             "error_message" => nil
           }
         ]
@@ -81,6 +84,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           "url",
           "dataset_title",
           "datagouv_organization_or_owner",
+          "datagouv_last_modified",
           "error_message"
         ])
         |> Explorer.DataFrame.dump_csv!()
@@ -96,7 +100,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "92616f101a9fff6054719d5707ceb41388db66c2ee8f954fb1bbf06a2f08b196"
+        file_content: "f06fd15d5afcd8be10880b049dc45424c6c9475b8ee2071c5ab1b9880638f3d9"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(

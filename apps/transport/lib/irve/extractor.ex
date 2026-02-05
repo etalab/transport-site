@@ -58,6 +58,7 @@ defmodule Transport.IRVE.Extractor do
       |> Map.put(:dataset_organisation_name, get_in(dataset, ["organization", "name"]) || "???")
       |> Map.put(:dataset_organisation_url, get_in(dataset, ["organization", "page"]) || "???")
       |> Map.put(:datagouv_organization_or_owner, extract_organization_or_owner_name(dataset))
+      |> Map.put(:datagouv_last_modified, fetch_in!(x, ["last_modified"]))
     end)
   end
 
@@ -84,6 +85,7 @@ defmodule Transport.IRVE.Extractor do
       dataset_organisation_name: fetch_in!(resource, [:dataset_organisation_name]),
       dataset_organisation_url: fetch_in!(resource, [:dataset_organisation_url]),
       datagouv_organization_or_owner: fetch_in!(resource, [:datagouv_organization_or_owner]),
+      datagouv_last_modified: fetch_in!(resource, [:datagouv_last_modified]),
       valid: get_in(resource, ["extras", "validation-report:valid_resource"]),
       validation_date: get_in(resource, ["extras", "validation-report:validation_date"]),
       schema_name: get_in(resource, ["schema", "name"]),
