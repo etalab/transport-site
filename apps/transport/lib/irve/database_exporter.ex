@@ -47,6 +47,6 @@ defmodule Transport.IRVE.DatabaseExporter do
   end
 
   def additional_file_field_list do
-    ["dataset_datagouv_id", "resource_datagouv_id"]
+    ["datagouv_dataset_id", "datagouv_resource_id"]
   end
 end

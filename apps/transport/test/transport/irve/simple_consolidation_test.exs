@@ -115,15 +115,15 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           |> Map.put("longitude", "-0.799141")
           |> Map.put("latitude", "45.91914")
           |> Map.put("cable_t2_attache", nil)
-          |> Map.put("dataset_datagouv_id", "the-dataset-id")
-          |> Map.put("resource_datagouv_id", "the-resource-id")
+          |> Map.put("datagouv_dataset_id", "the-dataset-id")
+          |> Map.put("datagouv_resource_id", "the-resource-id")
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
         |> Explorer.DataFrame.select(
           Transport.IRVE.StaticIRVESchema.field_names_list()
           |> Enum.reject(&(&1 == "coordonneesXY"))
-          |> Enum.concat(["longitude", "latitude", "dataset_datagouv_id", "resource_datagouv_id"])
+          |> Enum.concat(["longitude", "latitude", "datagouv_dataset_id", "datagouv_resource_id"])
         )
         |> Explorer.DataFrame.dump_csv!()
 
@@ -138,7 +138,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "7196b3d1e98ae001c5d734d886cb95a75605d5f77c2354004adadee4643198b2"
+        file_content: "16c8e76e13649efa7841b79c2eda9f4c5e898f8e5943e4d21f06818ad6a340b7"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -159,11 +159,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
         DB.IRVEValidFile
-        |> order_by([f], asc: f.dataset_datagouv_id)
+        |> order_by([f], asc: f.datagouv_dataset_id)
         |> DB.Repo.all()
 
-      assert first_import_file.dataset_datagouv_id == "the-dataset-id"
-      assert first_import_file.resource_datagouv_id == "the-resource-id"
+      assert first_import_file.datagouv_dataset_id == "the-dataset-id"
+      assert first_import_file.datagouv_resource_id == "the-resource-id"
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
 
