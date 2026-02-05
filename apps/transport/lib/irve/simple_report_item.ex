@@ -13,7 +13,8 @@ defmodule Transport.IRVE.SimpleReportItem do
     :status,
     :error_message,
     :error_type,
-    :estimated_pdc_count
+    :estimated_pdc_count,
+    :file_extension
   ]
 
   def from_result({:error_occurred, error, resource}) do
@@ -39,7 +40,8 @@ defmodule Transport.IRVE.SimpleReportItem do
       status: status,
       estimated_pdc_count: resource[:estimated_pdc_count],
       error_message: maybe_error_message(error),
-      error_type: maybe_error_type(error)
+      error_type: maybe_error_type(error),
+      file_extension: resource[:file_extension]
     }
   end
 

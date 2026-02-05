@@ -36,6 +36,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "error_occurred",
             "error_type" => "ArgumentError",
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             # TODO rework to only compare the part of the message that matters
@@ -48,6 +49,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "error_occurred",
             "error_type" => "RuntimeError",
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
             "dataset_title" => "individual-published-dataset-title",
             "error_message" => "producer is not an organization"
@@ -58,6 +60,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "import_successful",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
             "dataset_title" => "the-dataset-title",
             "error_message" => nil
@@ -71,6 +74,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           "status",
           "error_type",
           "estimated_pdc_count",
+          "file_extension",
           "url",
           "dataset_title",
           "error_message"
@@ -88,7 +92,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "fec929446c9c5b606997527a789a416512ddf06ffd39fc627a422050f23fa9db"
+        file_content: "95a2e3e8a58b401dacf34ff28e7301936adf2d2777b8660fd2100bf101c6fa4f"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(

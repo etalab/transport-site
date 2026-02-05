@@ -88,7 +88,11 @@ defmodule Transport.IRVE.SimpleConsolidation do
     with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
       # minus header line
       estimated_pdc_count = (File.stream!(path) |> Enum.count()) - 1
-      resource = Map.put(resource, :estimated_pdc_count, estimated_pdc_count)
+
+      resource =
+        resource
+        |> Map.put(:estimated_pdc_count, estimated_pdc_count)
+        |> Map.put(:file_extension, extension)
 
       # The code is convoluted mostly because we didn't go far enough on the validator work.
       # The validator will ultimately stop raising exceptions, and will instead return structures.
@@ -131,6 +135,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         "status",
         "error_type",
         "estimated_pdc_count",
+        "file_extension",
         "url",
         "dataset_title",
         "error_message"
