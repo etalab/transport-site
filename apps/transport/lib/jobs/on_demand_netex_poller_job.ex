@@ -45,12 +45,16 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     Helpers.delegated_state()
   end
 
-  def check_result(%{"permanent_url" => url, "validation_id" => validation_id}, attempt) do
-    case Validator.poll_validation(validation_id, attempt) do
+  def check_result(%{"permanent_url" => url, "validation_id" => validation_id, "metadata" => metadata}, attempt) do
+    case Validator.poll_validation(validation_id, metadata, attempt) do
       {:error, error_result} -> handle_error(error_result)
       {:ok, ok_result} -> handle_success(ok_result, url)
       {:pending, _validation_id} -> handle_pending(attempt)
     end
+  end
+
+  def check_result(%{"permanent_url" => _, "validation_id" => _} = args, attempt) do
+    check_result(%{args | "metadata" => %{}}, attempt)
   end
 
   def handle_error(error_result) do
