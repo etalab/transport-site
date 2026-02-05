@@ -388,11 +388,13 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+    content =
+      conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> extract_resource_details()
 
-    assert content |> extract_resource_details() =~ "1 erreur"
+    assert content =~ "1 erreur"
     assert content =~ "01/12/2025"
     assert content =~ "31/12/2025"
+    assert content =~ "Périmé"
   end
 
   test "displays no error when validated with the MobilityData validator", %{conn: conn} do

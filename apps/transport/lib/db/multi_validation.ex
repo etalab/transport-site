@@ -237,6 +237,9 @@ defmodule DB.MultiValidation do
   false
   iex> outdated?(%DB.MultiValidation{})
   nil
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => ""}}}
+  iex> outdated?(validation)
+  nil
   iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
   iex> outdated?(validation)
   true
@@ -244,6 +247,9 @@ defmodule DB.MultiValidation do
   def outdated?(%DB.MultiValidation{} = multi_validation) do
     case DB.MultiValidation.get_metadata_info(multi_validation, "end_date") do
       nil ->
+        nil
+
+      "" ->
         nil
 
       end_date ->
