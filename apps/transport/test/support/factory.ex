@@ -683,7 +683,12 @@ defmodule DB.Factory do
             "id" => "individual-published-dataset-id",
             "title" => "individual-published-dataset-title",
             "organization" => nil,
-            "owner" => "Guy who loves IRVE",
+            "owner" => %{
+              "class" => "User",
+              "first_name" => "Guy",
+              "id" => "test-user-id",
+              "last_name" => "Who loves IRVE"
+            },
             "resources" => [
               %{
                 "schema" => %{
