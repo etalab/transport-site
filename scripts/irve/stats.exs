@@ -5,7 +5,7 @@ Mix.install([
 
 sources = [
   {"https://proxy.transport.data.gouv.fr/resource/consolidation-transport-avec-doublons-irve-statique",
-   "consolidation-transport-avec-doublons-irve-statique.csv", :resource_datagouv_id},
+   "consolidation-transport-avec-doublons-irve-statique.csv", :datagouv_resource_id},
   {"https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-statique-brute-v1",
    "consolidation-nationale-irve-statique-brute-v1.csv", :original_resource_id},
   {"https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435", "consolidation-data-gouv.csv",

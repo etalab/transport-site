@@ -20,19 +20,19 @@ defmodule Transport.IRVE.DatabaseImporter do
   # - `:already_in_db` if the same content (based on file checksum) is in db for
   #     the provided combination of ids
   # (else raise an error)
-  def try_write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
-    write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id)
+  def try_write_to_db(file_path, datagouv_dataset_id, datagouv_resource_id) do
+    write_to_db(file_path, datagouv_dataset_id, datagouv_resource_id)
     :import_successful
   rescue
     e in [Ecto.ConstraintError] ->
-      if e.type == :unique && e.constraint == "irve_valid_file_resource_datagouv_id_checksum_index" do
+      if e.type == :unique && e.constraint == "irve_valid_file_datagouv_resource_id_checksum_index" do
         :already_in_db
       else
         reraise(e, __STACKTRACE__)
       end
   end
 
-  def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
+  def write_to_db(file_path, datagouv_dataset_id, datagouv_resource_id) do
     content =
       File.read!(file_path)
       |> Transport.IRVE.RawStaticConsolidation.ensure_utf8()
@@ -44,23 +44,23 @@ defmodule Transport.IRVE.DatabaseImporter do
 
     DB.Repo.transaction(
       fn ->
-        # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
+        # This may raise an error if we try to insert a duplicate (same datagouv_resource_id and checksum)
         # which is fine, the caller should handle it.
-        %DB.IRVEValidFile{id: file_id} = write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum)
+        %DB.IRVEValidFile{id: file_id} = write_new_file!(datagouv_dataset_id, datagouv_resource_id, checksum)
         write_pdcs(rows_stream, file_id)
         # Eventually try to erase previous file, which cascades on delete on PDCs.
-        delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
+        delete_previous_file_and_pdcs(datagouv_dataset_id, datagouv_resource_id, checksum)
       end,
       timeout: @import_timeout
     )
   end
 
-  defp write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum) do
+  defp write_new_file!(datagouv_dataset_id, datagouv_resource_id, checksum) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     file_data = %DB.IRVEValidFile{
-      dataset_datagouv_id: dataset_datagouv_id,
-      resource_datagouv_id: resource_datagouv_id,
+      datagouv_dataset_id: datagouv_dataset_id,
+      datagouv_resource_id: datagouv_resource_id,
       checksum: checksum,
       inserted_at: now,
       updated_at: now
@@ -81,10 +81,10 @@ defmodule Transport.IRVE.DatabaseImporter do
     |> Stream.run()
   end
 
-  defp delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum) do
+  defp delete_previous_file_and_pdcs(datagouv_dataset_id, datagouv_resource_id, checksum) do
     from(f in DB.IRVEValidFile,
       where:
-        f.dataset_datagouv_id == ^dataset_datagouv_id and f.resource_datagouv_id == ^resource_datagouv_id and
+        f.datagouv_dataset_id == ^datagouv_dataset_id and f.datagouv_resource_id == ^datagouv_resource_id and
           f.checksum != ^checksum
     )
     # The PDCs are deleted by the foreign key constraint with on_delete: :delete_all
