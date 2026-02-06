@@ -296,9 +296,13 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   defp extract(extractor, xml) do
     tmp_file = create_tmp_netex([{"file.xml", xml}])
 
-    [{"file.xml", types}] = extractor.(tmp_file)
+    try do
+      [{"file.xml", types}] = extractor.(tmp_file)
 
-    types
+      types
+    after
+      File.rm(tmp_file)
+    end
   end
 
   defp create_tmp_netex(files) do
