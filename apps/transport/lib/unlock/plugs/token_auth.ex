@@ -8,12 +8,24 @@ defmodule Unlock.Plugs.TokenAuth do
   - Otherwise, respond with a 401 response.
 
   If the request does not contain a token, the request can go through.
+
+  This plug is only active when the config value `:unlock_token_auth_enabled` is set to `true`.
   """
   import Plug.Conn
 
   def init(default), do: default
 
   def call(%Plug.Conn{} = conn, _) do
+    if enabled?() do
+      do_call(conn)
+    else
+      conn
+    end
+  end
+
+  defp enabled?, do: Application.fetch_env!(:transport, :unlock_token_auth_enabled)
+
+  defp do_call(%Plug.Conn{} = conn) do
     conn = fetch_query_params(conn)
 
     case find_client(Map.get(conn.query_params, "token")) do
