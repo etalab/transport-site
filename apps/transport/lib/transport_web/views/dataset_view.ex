@@ -148,10 +148,6 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end
 
-  def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
-    link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
-  end
-
   defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
     full_url =
       case key do
