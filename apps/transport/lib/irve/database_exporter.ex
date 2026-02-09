@@ -37,7 +37,10 @@ defmodule Transport.IRVE.DatabaseExporter do
       )
 
     # Reorder columns (Map merge got them alphabeltically ordered)
-    df |> Explorer.DataFrame.select(main_schema_field_list() ++ additional_file_field_list())
+    # Add coordonneesXY computed from longitude and latitude
+    df
+    |> add_coordonnees_xy()
+    |> Explorer.DataFrame.select(output_field_list())
   end
 
   def main_schema_field_list do
@@ -48,5 +51,19 @@ defmodule Transport.IRVE.DatabaseExporter do
 
   def additional_file_field_list do
     ["dataset_datagouv_id", "resource_datagouv_id"]
+  end
+
+  defp output_field_list do
+    Transport.IRVE.StaticIRVESchema.field_names_list()
+    |> Enum.concat(["longitude", "latitude"])
+    |> Enum.concat(additional_file_field_list())
+  end
+
+  defp add_coordonnees_xy(df) do
+    Explorer.DataFrame.mutate_with(df, fn ldf ->
+      lon = Explorer.Series.cast(ldf[:longitude], :string)
+      lat = Explorer.Series.cast(ldf[:latitude], :string)
+      %{coordonneesXY: Explorer.Series.format(["[", lon, ",", lat, "]"])}
+    end)
   end
 end

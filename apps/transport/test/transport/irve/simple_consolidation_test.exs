@@ -113,12 +113,12 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           |> Map.put("cable_t2_attache", nil)
           |> Map.put("dataset_datagouv_id", "the-dataset-id")
           |> Map.put("resource_datagouv_id", "the-resource-id")
+          |> Map.put("coordonneesXY", "[-0.799141,45.91914]")
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
         |> Explorer.DataFrame.select(
           Transport.IRVE.StaticIRVESchema.field_names_list()
-          |> Enum.reject(&(&1 == "coordonneesXY"))
           |> Enum.concat(["longitude", "latitude", "dataset_datagouv_id", "resource_datagouv_id"])
         )
         |> Explorer.DataFrame.dump_csv!()
@@ -134,7 +134,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "7196b3d1e98ae001c5d734d886cb95a75605d5f77c2354004adadee4643198b2"
+        file_content: "be30a5a4a737ab5c02bc83170c3f12135b2368edb140348928c8a2942c25915d"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
