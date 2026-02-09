@@ -2,7 +2,7 @@
 locale = get_session(@conn, :locale) %>
 <div class="dataset-page">
   <div class="dataset-menu-container">
-    <div class="dataset-menu">
+    <nav class="dataset-menu">
       <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
       <div class="menu-item">
         <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
@@ -14,7 +14,7 @@ locale = get_session(@conn, :locale) %>
       <div :if={length(@other_resources) > 0} class="menu-item">
         <a href="#other-resources">{dgettext("validations", "Other resources")}</a>
       </div>
-    </div>
+    </nav>
   </div>
   <div class="dataset-infos">
     <h2 id="details">{dgettext("validations", "Resource details")}</h2>

@@ -1,6 +1,6 @@
 <div class="dataset-page">
   <div class="dataset-menu-container">
-    <div class="dataset-menu">
+    <nav class="dataset-menu">
       <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
       <div class="menu-item">
         <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
@@ -14,7 +14,7 @@
       <div :if={DB.Resource.gtfs_rt?(@resource)} class="menu-item">
         <a href="#gtfs-rt">{dgettext("page-dataset-details", "GTFS-RT feed content")}</a>
       </div>
-    </div>
+    </nav>
   </div>
   <div class="dataset-infos">
     <h2 id="details">{dgettext("validations", "Resource details")}</h2>
