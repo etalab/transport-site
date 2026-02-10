@@ -51,7 +51,7 @@ defmodule Transport.Jobs.NeTExPollerJob do
   end
 
   defp proceed(validation_id, resource_history_id, attempt, metadata) do
-    Validator.poll_validation_results(validation_id, attempt)
+    Validator.poll_validation_results(validation_id, metadata, attempt)
     |> Validator.handle_validation_results(resource_history_id, metadata, fn ^validation_id ->
       snooze_poller(attempt)
     end)

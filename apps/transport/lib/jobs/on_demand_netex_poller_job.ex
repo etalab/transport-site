@@ -37,8 +37,8 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     |> Helpers.handle_validation_result(multivalidation_id)
   end
 
-  def later(validation_id, multivalidation_id, url) do
-    %{validation_id: validation_id, id: multivalidation_id, permanent_url: url}
+  def later(validation_id, multivalidation_id, metadata, url) do
+    %{validation_id: validation_id, id: multivalidation_id, permanent_url: url, metadata: metadata}
     |> new(schedule_in: {20, :seconds})
     |> Oban.insert()
 
@@ -54,7 +54,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   end
 
   def check_result(%{"permanent_url" => _, "validation_id" => _} = args, attempt) do
-    check_result(%{args | "metadata" => %{}}, attempt)
+    check_result(Map.merge(%{"metadata" => %{}}, args), attempt)
   end
 
   def handle_error(error_result) do
