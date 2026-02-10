@@ -6,6 +6,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
+  alias Transport.Validators.NeTEx.MetadataExtractor
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
 
   @behaviour Transport.Validators.Validator
@@ -42,19 +43,25 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   def validate_resource_history(resource_history, filepath) do
-    validate_with_enroute(filepath)
-    |> handle_validation_results(resource_history.id, &enqueue_poller(resource_history.id, &1))
+    metadata = MetadataExtractor.extract(filepath)
+
+    validate_with_enroute(filepath, metadata)
+    |> handle_validation_results(resource_history.id, metadata, &enqueue_poller(resource_history.id, &1, metadata))
   end
 
-  def enqueue_poller(resource_history_id, validation_id, attempt \\ 0) do
+  def enqueue_poller(resource_history_id, validation_id, metadata, attempt \\ 0) do
     {:ok, _job} =
-      Poller.new(%{"validation_id" => validation_id, "resource_history_id" => resource_history_id})
+      Poller.new(%{
+        "validation_id" => validation_id,
+        "resource_history_id" => resource_history_id,
+        "metadata" => metadata
+      })
       |> Oban.insert(schedule_in: _seconds = poll_interval(attempt))
 
     :ok
   end
 
-  def handle_validation_results(validation_results, resource_history_id, on_pending) do
+  def handle_validation_results(validation_results, resource_history_id, metadata, on_pending) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
@@ -62,7 +69,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         insert_validation_results(
           resource_history_id,
           result_url,
-          %{elapsed_seconds: elapsed_seconds, retries: retries}
+          Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
         )
 
         :ok
@@ -73,7 +80,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         insert_validation_results(
           resource_history_id,
           result_url,
-          %{elapsed_seconds: elapsed_seconds, retries: retries},
+          Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries}),
           errors
         )
 
@@ -95,12 +102,14 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         :ok
 
-      {:pending, validation_id} ->
+      {:pending, {validation_id, _metatada}} ->
         on_pending.(validation_id)
     end
   end
 
-  @type error_details :: %{:message => String.t(), optional(:retries) => integer()}
+  @type metadata :: map()
+
+  @type error_details :: %{:metata => metadata(), :message => String.t(), optional(:retries) => integer()}
 
   @type validation_id :: binary()
 
@@ -114,7 +123,9 @@ defmodule Transport.Validators.NeTEx.Validator do
   @spec validate(binary()) :: validation_results()
   def validate(url) do
     with_url(url, fn filepath ->
-      validate_with_enroute(filepath) |> handle_validation_results_on_demand()
+      metadata = MetadataExtractor.extract(filepath)
+
+      validate_with_enroute(filepath, metadata) |> handle_validation_results_on_demand(metadata)
     end)
   end
 
@@ -123,12 +134,12 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   Let the OnDemand job yield while waiting for results without having the OnDemand implementation leak here.
   """
-  @spec poll_validation(validation_id(), non_neg_integer()) :: validation_results()
-  def poll_validation(validation_id, retries) do
-    poll_validation_results(validation_id, retries) |> handle_validation_results_on_demand()
+  @spec poll_validation(validation_id(), map(), non_neg_integer()) :: validation_results()
+  def poll_validation(validation_id, metadata, retries) do
+    poll_validation_results(validation_id, metadata, retries) |> handle_validation_results_on_demand(metadata)
   end
 
-  defp handle_validation_results_on_demand(validation_results) do
+  defp handle_validation_results_on_demand(validation_results, metadata) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
@@ -138,7 +149,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         {:ok,
          %{
            "validations" => ResultsAdapter.index_messages([]),
-           "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
@@ -149,7 +160,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         {:ok,
          %{
            "validations" => errors |> ResultsAdapter.index_messages(),
-           "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, :unexpected_validation_status} ->
@@ -166,8 +177,8 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
 
-      {:pending, validation_id} ->
-        {:pending, validation_id}
+      {:pending, {validation_id, metadata}} ->
+        {:pending, {validation_id, metadata}}
     end
   end
 
@@ -220,19 +231,19 @@ defmodule Transport.Validators.NeTEx.Validator do
     |> DB.Repo.insert!()
   end
 
-  defp validate_with_enroute(filepath) do
-    setup_validation(filepath) |> poll_validation_results(0)
+  defp validate_with_enroute(filepath, metadata) do
+    setup_validation(filepath) |> poll_validation_results(metadata, 0)
   end
 
   defp setup_validation(filepath), do: client().create_a_validation(filepath, "pan:french_profile:1")
 
-  def poll_validation_results(validation_id, retries) do
+  def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do
       :pending when too_many_attempts(retries) ->
         {:error, %{message: :timeout, retries: retries}}
 
       :pending ->
-        {:pending, validation_id}
+        {:pending, {validation_id, metadata}}
 
       {:successful, url, elapsed_seconds} ->
         {:ok, %{url: url, elapsed_seconds: elapsed_seconds, retries: retries}}
