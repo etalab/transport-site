@@ -1,6 +1,7 @@
 defmodule Transport.EnRouteChouetteValidClientTest do
   use ExUnit.Case, async: true
   import Mox
+  import Transport.TmpFile
 
   alias Transport.EnRouteChouetteValidClient
 
@@ -25,21 +26,22 @@ defmodule Transport.EnRouteChouetteValidClientTest do
 
     url = "https://chouette-valid.enroute.mobi/api/validations"
 
-    tmp_file = System.tmp_dir!() |> Path.join("enroute_validation_netex_#{Ecto.UUID.generate()}")
+    with_tmp_file("", fn tmp_file ->
+      expect(Transport.HTTPoison.Mock, :post!, fn ^url, {:multipart, parts}, headers ->
+        assert @expected_headers == headers
 
-    expect(Transport.HTTPoison.Mock, :post!, fn ^url, {:multipart, parts}, headers ->
-      assert @expected_headers == headers
+        assert [
+                 {"validation[rule_set]", "enroute:starter-kit"},
+                 {"validation[include_schema]", "true"},
+                 {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]},
+                  []}
+               ] == parts
 
-      assert [
-               {"validation[rule_set]", "enroute:starter-kit"},
-               {"validation[include_schema]", "true"},
-               {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]}, []}
-             ] == parts
+        %HTTPoison.Response{status_code: 201, body: response_body}
+      end)
 
-      %HTTPoison.Response{status_code: 201, body: response_body}
+      assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" == EnRouteChouetteValidClient.create_a_validation(tmp_file)
     end)
-
-    assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" == EnRouteChouetteValidClient.create_a_validation(tmp_file)
   end
 
   describe "get a validation" do

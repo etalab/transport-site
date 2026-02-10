@@ -148,10 +148,6 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end
 
-  def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
-    link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
-  end
-
   defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
     full_url =
       case key do
@@ -331,18 +327,20 @@ defmodule TransportWeb.DatasetView do
 
   def validity_dates(assigns) do
     ~H"""
-    <% start_date = @multi_validation |> DB.MultiValidation.get_metadata_info("start_date") |> empty_to_nil() %>
-    <% end_date = @multi_validation |> DB.MultiValidation.get_metadata_info("end_date") |> empty_to_nil() %>
-    <%= if start_date && end_date do %>
+    <% start_date = get_validity_date(@multi_validation, "start_date") %>
+    <% end_date = get_validity_date(@multi_validation, "end_date") %>
+    <div :if={start_date && end_date} title={dgettext("page-dataset-details", "Validity period")}>
+      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+      <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
+      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
       <% end_date_date = end_date |> Date.from_iso8601!() %>
-      <div title={dgettext("page-dataset-details", "Validity period")}>
-        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-        <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
-        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-        <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
-      </div>
-    <% end %>
+      <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
+    </div>
     """
+  end
+
+  def get_validity_date(multi_validation, key) do
+    multi_validation |> DB.MultiValidation.get_metadata_info(key) |> empty_to_nil()
   end
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"

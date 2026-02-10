@@ -1,74 +1,87 @@
-<section class="netex">
-  <div class="grey-background">
-    <div class="container">
-      <h2 class="mt-48">
-        {dgettext("validations", "Resource details")}
-      </h2>
-      <div class="panel">
-        {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
+<div class="dataset-page netex">
+  <div class="dataset-menu-container">
+    <nav class="dataset-menu">
+      <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
+      <div class="menu-item">
+        <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
       </div>
+      <div :if={not DB.Resource.documentation?(@resource)} class="menu-item">
+        <a href="#validation-report">{dgettext("validations", "Validation report")}</a>
+      </div>
+      <div :if={length(@other_resources) > 0} class="menu-item">
+        <a href="#other-resources">{dgettext("validations", "Other resources")}</a>
+      </div>
+    </nav>
+  </div>
+  <div class="dataset-infos">
+    <h2 id="details">
+      {dgettext("validations", "Resource details")}
+    </h2>
+    <div class="panel">
+      {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
+    </div>
 
-      <%= unless Enum.empty?(@resource.resources_related) do %>
-        {render("_related_resources.html", resource: @resource, conn: @conn)}
+    <%= unless Enum.empty?(@resource.resources_related) do %>
+      {render("_related_resources.html", resource: @resource, conn: @conn)}
+    <% end %>
+
+    <h2 id="download-availability">{dgettext("page-dataset-details", "Download availability")}</h2>
+    {render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn)}
+
+    <h2 id="validation-report" class="mt-48">{dgettext("validations", "Validation report")}</h2>
+    <div class="panel" id="issues">
+      <%= if is_nil(@validation_summary) do %>
+        {dgettext("validations", "No validation available")}
       <% end %>
-
-      <h2 id="download-availability">{dgettext("page-dataset-details", "Download availability")}</h2>
-      {render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn)}
-
-      <h2 id="validation-report" class="mt-48">{dgettext("validations", "Validation report")}</h2>
-      <div class="panel" id="issues">
-        <%= if is_nil(@validation_summary) do %>
-          {dgettext("validations", "No validation available")}
+      <%= unless is_nil(@validation_summary) do %>
+        {render(@errors_template,
+          conn: @conn,
+          issues: @issues,
+          metadata: @metadata,
+          resource: @resource,
+          severities_count: @severities_count,
+          validation_summary: @validation_summary,
+          results_adapter: @results_adapter,
+          max_severity: @max_severity,
+          filter: @filter
+        )}
+        <%= unless is_nil(@metadata) or @metadata == %{} do %>
+          {render("_resources_details_netex.html", conn: @conn, metadata: @metadata)}
         <% end %>
-        <%= unless is_nil(@validation_summary) do %>
-          {render(@errors_template,
-            conn: @conn,
-            issues: @issues,
-            metadata: @metadata,
-            resource: @resource,
-            severities_count: @severities_count,
-            validation_summary: @validation_summary,
-            results_adapter: @results_adapter,
-            max_severity: @max_severity,
-            filter: @filter
+        <p>
+          {raw(
+            dgettext(
+              "validations",
+              ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
+              link: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
+              format: "NeTEx",
+              date:
+                DateTimeDisplay.format_datetime_to_paris(
+                  @validation.validation_timestamp,
+                  get_session(@conn, :locale)
+                ),
+              validator_url: netex_validator_url(),
+              validator_name: dgettext("validations", "enRoute Chouette Valid")
+            )
           )}
-          <%= unless is_nil(@metadata) or @metadata == %{} do %>
-            {render("_resources_details_netex.html", conn: @conn, metadata: @metadata)}
-          <% end %>
-          <p>
-            {raw(
-              dgettext(
-                "validations",
-                ~s(Validation carried out using the <a href="%{link}">current %{format} file</a> the %{date} using the <a href="%{validator_url}" target="_blank">%{validator_name}</a>.),
-                link: Map.fetch!(@validation.resource_history.payload, "permanent_url"),
-                format: "NeTEx",
-                date:
-                  DateTimeDisplay.format_datetime_to_paris(
-                    @validation.validation_timestamp,
-                    get_session(@conn, :locale)
-                  ),
-                validator_url: netex_validator_url(),
-                validator_name: dgettext("validations", "enRoute Chouette Valid")
-              )
-            )}
-          </p>
-        <% end %>
-      </div>
-      <%= if length(@other_resources) > 0 do %>
-        <h2>{dgettext("validations", "Other resources")}</h2>
-        <div class="panel">
-          <ul>
-            <%= for resource <- @other_resources do %>
-              <li>
-                {link(resource.title,
-                  to: resource_path(@conn, :details, resource.id)
-                )}
-              </li>
-            <% end %>
-          </ul>
-        </div>
+        </p>
       <% end %>
     </div>
+    <%= if length(@other_resources) > 0 do %>
+      <h2>{dgettext("validations", "Other resources")}</h2>
+      <div class="panel">
+        <ul>
+          <%= for resource <- @other_resources do %>
+            <li>
+              {link(resource.title,
+                to: resource_path(@conn, :details, resource.id)
+              )}
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
   </div>
-</section>
+  <div class="dataset-metas"></div>
+</div>
 <script src={static_path(@conn, "/js/utils.js")} />
