@@ -650,7 +650,11 @@ defmodule TransportWeb.DatasetView do
   end
 
   def pick_validator(%DB.MultiValidation{} = validation) do
-    [Transport.Validators.GTFSTransport, Transport.Validators.NeTEx.Validator]
+    [
+      Transport.Validators.GTFSTransport,
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
+    ]
     |> Enum.find(fn validator -> validator.validator_name() == validation.validator end)
   end
 
