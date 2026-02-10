@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
+  alias DB.{Dataset, Region, Repo}
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -263,47 +263,36 @@ defmodule TransportWeb.DatasetController do
   defp clean_datasets_query(params, key_to_delete),
     do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
 
-  @spec get_regions(map()) :: [Region.t()]
-  def get_regions(params) do
-    sub =
-      params
-      |> clean_datasets_query("region")
-      |> exclude(:order_by)
-      |> join(:left, [dataset: d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id, as: :geo_view)
-      |> select([dataset: d, geo_view: d_geo], %{id: d.id, region_id: d_geo.region_id})
+  @spec matching_dataset_ids(map(), String.t()) :: [integer()]
+  defp matching_dataset_ids(params, exclude_key) do
+    params
+    |> clean_datasets_query(exclude_key)
+    |> exclude(:order_by)
+    |> select([dataset: d], d.id)
+    |> DB.Repo.all()
+  end
 
-    Region
-    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> group_by([r], [r.insee, r.nom])
-    |> select([r, d], %{nom: r.nom, insee: r.insee, count: count(d.id, :distinct)})
-    |> order_by([r], r.nom)
-    |> Repo.all()
+  @spec get_regions(map()) :: [%{nom: binary(), insee: binary(), count: non_neg_integer()}]
+  def get_regions(params) do
+    index = Transport.DatasetIndex.get()
+    dataset_ids = matching_dataset_ids(params, "region")
+    Transport.DatasetIndex.regions(index, dataset_ids)
   end
 
   @spec get_licences(map()) :: [%{licence: binary(), count: non_neg_integer()}]
   def get_licences(params) do
-    params
-    |> clean_datasets_query("licence")
-    |> exclude(:order_by)
-    |> group_by([d], fragment("cleaned_licence"))
-    |> select([d], %{
-      licence:
-        fragment("case when licence in ('fr-lo', 'lov2') then 'licence-ouverte' else licence end as cleaned_licence"),
-      count: count(d.id)
-    })
-    |> Repo.all()
-    # Licence ouverte should be first
-    |> Enum.sort_by(&Map.get(%{"licence-ouverte" => 1}, &1.licence, 0), &>=/2)
+    index = Transport.DatasetIndex.get()
+    dataset_ids = matching_dataset_ids(params, "licence")
+    Transport.DatasetIndex.licences(index, dataset_ids)
   end
 
   @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: non_neg_integer()}]
   def get_types(params) do
-    params
-    |> clean_datasets_query("type")
-    |> exclude(:order_by)
-    |> group_by([d], [d.type])
-    |> select([d], %{type: d.type, count: count(d.id, :distinct)})
-    |> Repo.all()
+    index = Transport.DatasetIndex.get()
+    dataset_ids = matching_dataset_ids(params, "type")
+
+    index
+    |> Transport.DatasetIndex.types(dataset_ids)
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn res ->
       %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)}
@@ -396,39 +385,18 @@ defmodule TransportWeb.DatasetController do
     end
   end
 
-  @spec resource_format_count(map()) :: %{binary() => non_neg_integer()}
+  @spec resource_format_count(map()) :: [{atom() | binary(), non_neg_integer()}]
   defp resource_format_count(params) do
-    result =
-      params
-      |> clean_datasets_query("format")
-      |> exclude(:order_by)
-      |> DB.Resource.join_dataset_with_resource()
-      |> where([resource: r], not is_nil(r.format))
-      |> select([resource: r], %{
-        dataset_id: r.dataset_id,
-        format: r.format
-      })
-      |> distinct(true)
-      |> DB.Repo.all()
-
-    %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
-    |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
-    |> Enum.sort_by(fn {_, count} -> count end, :desc)
+    index = Transport.DatasetIndex.get()
+    dataset_ids = matching_dataset_ids(params, "format")
+    Transport.DatasetIndex.resource_format_count(index, dataset_ids)
   end
 
   @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
   defp get_realtime_count(params) do
-    result =
-      params
-      |> clean_datasets_query("filter")
-      |> exclude(:order_by)
-      |> group_by([d], d.has_realtime)
-      |> select([d], %{has_realtime: d.has_realtime, count: count(d.id, :distinct)})
-      |> Repo.all()
-      |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
-
-    # return the total number of datasets (all) and the number of real time datasets (true)
-    %{all: Map.get(result, true, 0) + Map.get(result, false, 0), true: Map.get(result, true, 0)}
+    index = Transport.DatasetIndex.get()
+    dataset_ids = matching_dataset_ids(params, "filter")
+    Transport.DatasetIndex.realtime_count(index, dataset_ids)
   end
 
   @spec redirect_to_slug_or_404(Plug.Conn.t(), binary()) :: Plug.Conn.t()

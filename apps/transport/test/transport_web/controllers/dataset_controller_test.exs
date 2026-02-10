@@ -956,6 +956,8 @@ defmodule TransportWeb.DatasetControllerTest do
     insert(:dataset, licence: "odc-odbl", type: "road-data")
     insert(:dataset, licence: "odc-odbl", type: "public-transit")
 
+    Transport.DatasetIndex.refresh()
+
     assert [%{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
 

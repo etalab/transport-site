@@ -49,6 +49,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       ]
     )
 
+    Transport.DatasetIndex.refresh()
+
     :ok
   end
 
@@ -130,6 +132,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %{id: dataset_id_3} = insert(:dataset, type: "public-transit", declarative_spatial_areas: [ad])
       %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
       insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
+
+      Transport.DatasetIndex.refresh()
 
       assert [%{id: ^dataset_id}] =
                %{"features" => ["vehicle_positions"]}
