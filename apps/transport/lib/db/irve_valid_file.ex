@@ -10,6 +10,9 @@ defmodule DB.IRVEValidFile do
     field(:datagouv_dataset_id, :string, null: false)
     field(:datagouv_resource_id, :string, null: false)
     field(:checksum, :string, null: false)
+    field(:dataset_title, :string)
+    field(:datagouv_organization_or_owner, :string)
+    field(:datagouv_last_modified, :utc_datetime)
     has_many(:irve_valid_pdcs, DB.IRVEValidPDC, foreign_key: :irve_valid_file_id)
     timestamps(type: :utc_datetime_usec)
   end

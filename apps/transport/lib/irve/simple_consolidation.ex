@@ -109,7 +109,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
         if file_valid? do
-          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
+          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
         else
           {:not_compliant_with_schema, resource}
         end
