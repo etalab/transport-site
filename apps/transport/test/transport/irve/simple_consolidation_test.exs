@@ -125,13 +125,24 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           |> Map.put("cable_t2_attache", nil)
           |> Map.put("datagouv_dataset_id", "the-dataset-id")
           |> Map.put("datagouv_resource_id", "the-resource-id")
+          |> Map.put("dataset_title", "the-dataset-title")
+          |> Map.put("datagouv_organization_or_owner", "the-org")
+          |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
         |> Explorer.DataFrame.select(
           Transport.IRVE.StaticIRVESchema.field_names_list()
           |> Enum.reject(&(&1 == "coordonneesXY"))
-          |> Enum.concat(["longitude", "latitude", "datagouv_dataset_id", "datagouv_resource_id"])
+          |> Enum.concat([
+            "longitude",
+            "latitude",
+            "datagouv_dataset_id",
+            "datagouv_resource_id",
+            "dataset_title",
+            "datagouv_organization_or_owner",
+            "datagouv_last_modified"
+          ])
         )
         |> Explorer.DataFrame.dump_csv!()
 
@@ -146,7 +157,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "16c8e76e13649efa7841b79c2eda9f4c5e898f8e5943e4d21f06818ad6a340b7"
+        file_content: "b3b482f87ced68d9fb7bf90f1980a81e002810e36900f4d198dd4a8292ec9e14"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
