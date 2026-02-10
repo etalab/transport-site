@@ -346,7 +346,7 @@ defmodule TransportWeb.DatasetView do
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
   def valid_panel_class(%DB.Resource{} = r, is_outdated) do
-    if Resource.gtfs?(r) && is_outdated do
+    if (Resource.gtfs?(r) or Resource.netex?(r)) && is_outdated do
       "invalid-resource-panel"
     else
       ""
@@ -648,6 +648,13 @@ defmodule TransportWeb.DatasetView do
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
     end
   end
+
+  def pick_validator(%DB.MultiValidation{} = validation) do
+    [Transport.Validators.GTFSTransport, Transport.Validators.NeTEx.Validator]
+    |> Enum.find(fn validator -> validator.validator_name() == validation.validator end)
+  end
+
+  def pick_validator(_), do: nil
 
   def empty_to_nil(""), do: nil
   def empty_to_nil(value), do: value

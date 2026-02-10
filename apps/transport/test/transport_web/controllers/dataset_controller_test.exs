@@ -527,7 +527,7 @@ defmodule TransportWeb.DatasetControllerTest do
     for version <- ["0.1.0", "0.2.0", "0.2.1"] do
       dataset = insert(:dataset)
 
-      resource = insert(:resource, dataset: dataset, format: "NeTEx", url: "url")
+      resource = insert(:resource, title: "NeTEx.zip", dataset: dataset, format: "NeTEx", url: "url")
 
       resource_history = insert(:resource_history, resource: resource)
 
@@ -548,7 +548,7 @@ defmodule TransportWeb.DatasetControllerTest do
         result: result,
         digest: digest,
         metadata: %DB.ResourceMetadata{
-          metadata: %{"elapsed_seconds" => 42},
+          metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},
           modes: [],
           features: []
         }
@@ -557,7 +557,11 @@ defmodule TransportWeb.DatasetControllerTest do
       mock_empty_history_resources()
 
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+      content = conn |> html_response(200) |> extract_resource_details()
+      assert content =~ "1 erreur"
+      assert content =~ "01/12/2025"
+      assert content =~ "31/12/2025"
+      assert content =~ "Périmé"
     end
   end
 

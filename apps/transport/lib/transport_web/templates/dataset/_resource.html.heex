@@ -2,11 +2,16 @@
 <% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% validation = latest_validation(@resource, @resources_infos) %>
-<% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
+<% validator = pick_validator(validation) %>
+<% tc? = Resource.gtfs?(@resource) or Resource.netex?(@resource) %>
+<% outdated? =
+  if validator do
+    validator.outdated?(validation)
+  end %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
 
 <div
-  class={"panel resource #{valid_panel_class(@resource, gtfs_outdated?)}"}
+  class={"panel resource #{valid_panel_class(@resource, outdated?)}"}
   title={resource_tooltip_content(@resource)}
 >
   <h4>{@resource.title}</h4>
@@ -16,7 +21,7 @@
     {link(schema_label(@resource), to: documentation_url(@resource), target: "_blank")}
   </div>
 
-  <.validity_dates :if={Resource.gtfs?(@resource)} multi_validation={validation} locale={locale} />
+  <.validity_dates :if={tc?} multi_validation={validation} locale={locale} />
 
   <div class="pb-24 light-gry">
     <.resource_last_update_span
@@ -65,18 +70,18 @@
   </div>
 
   <div
-    :if={Resource.gtfs?(@resource) or not @resource.is_available}
-    class={"resource-status-corner #{resource_class(@resource.is_available, gtfs_outdated?)}"}
+    :if={tc? or not @resource.is_available}
+    class={"resource-status-corner #{resource_class(@resource.is_available, outdated?)}"}
   >
     <span class={resource_span_class(@resource)}>
       <%= unless @resource.is_available do %>
         {dgettext("page-dataset-details", "Not")} <br />
         {dgettext("page-dataset-details", "available")}
       <% else %>
-        <%= if gtfs_outdated? == true do %>
+        <%= if outdated? == true do %>
           {dgettext("page-dataset-details", "Outdated")}
         <% end %>
-        <%= if gtfs_outdated? == false do %>
+        <%= if outdated? == false do %>
           {dgettext("page-dataset-details", "Up to date")}
         <% end %>
       <% end %>
@@ -99,7 +104,7 @@
     )}
   <% end %>
 
-  <%= unless Resource.gtfs?(@resource) or Resource.netex?(@resource) do %>
+  <%= unless tc? do %>
     {render(TransportWeb.DatasetView, "_resource_validation_summary.html",
       conn: @conn,
       resource: @resource,
