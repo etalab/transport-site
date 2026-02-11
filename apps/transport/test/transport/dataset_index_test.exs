@@ -60,14 +60,14 @@ defmodule Transport.DatasetIndexTest do
     test "types" do
       d1 = insert(:dataset, type: "public-transit")
       d2 = insert(:dataset, type: "public-transit")
-      d3 = insert(:dataset, type: "carpooling")
+      d3 = insert(:dataset, type: "road-data")
 
       index = Transport.DatasetIndex.build_index()
       result = Transport.DatasetIndex.types(index, [d1.id, d2.id, d3.id])
 
       assert Enum.sort_by(result, & &1.type) == [
-               %{type: "carpooling", count: 1},
-               %{type: "public-transit", count: 2}
+               %{type: "public-transit", count: 2, msg: "Transport public collectif"},
+               %{type: "road-data", count: 1, msg: "Données routières"}
              ]
     end
 
@@ -113,12 +113,12 @@ defmodule Transport.DatasetIndexTest do
 
     test "facets only count requested dataset IDs" do
       d1 = insert(:dataset, type: "public-transit")
-      _d2 = insert(:dataset, type: "carpooling")
+      _d2 = insert(:dataset, type: "road-data")
 
       index = Transport.DatasetIndex.build_index()
       result = Transport.DatasetIndex.types(index, [d1.id])
 
-      assert result == [%{type: "public-transit", count: 1}]
+      assert result == [%{type: "public-transit", count: 1, msg: "Transport public collectif"}]
     end
   end
 end

@@ -35,7 +35,7 @@ defmodule TransportWeb.DatasetController do
     conn
     |> maybe_assign_regions(count_by_region, index, dataset_ids)
     |> assign(:datasets, datasets)
-    |> assign(:types, compute_types(index, dataset_ids, params["type"]))
+    |> assign(:types, Transport.DatasetIndex.types(index, dataset_ids))
     |> assign(:licences, Transport.DatasetIndex.licences(index, dataset_ids))
     |> assign(:number_realtime_datasets, Transport.DatasetIndex.realtime_count(index, dataset_ids))
     |> assign(:number_resource_format_datasets, Transport.DatasetIndex.resource_format_count(index, dataset_ids))
@@ -264,18 +264,6 @@ defmodule TransportWeb.DatasetController do
     |> then(&preload(query, declarative_spatial_areas: ^&1))
   end
 
-  @spec compute_types(map(), [integer()], binary() | nil) :: [
-          %{type: binary(), msg: binary(), count: non_neg_integer()}
-        ]
-  defp compute_types(index, dataset_ids, current_type) do
-    index
-    |> Transport.DatasetIndex.types(dataset_ids)
-    |> Enum.map(fn res ->
-      %{type: res.type, count: res.count, msg: DB.Dataset.type_to_str(res.type)}
-    end)
-    |> add_current_type(current_type)
-  end
-
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
     dataset_id = String.to_integer(dataset_id)
 
@@ -351,13 +339,6 @@ defmodule TransportWeb.DatasetController do
 
     # Build a row following same order as the CSV header
     Enum.map(csv_header, &Map.fetch!(row, &1))
-  end
-
-  defp add_current_type(results, type) do
-    case Enum.any?(results, &(&1.type == type)) do
-      true -> results
-      false -> results ++ [%{type: type, count: 0, msg: DB.Dataset.type_to_str(type)}]
-    end
   end
 
   @spec redirect_to_slug_or_404(Plug.Conn.t(), binary()) :: Plug.Conn.t()

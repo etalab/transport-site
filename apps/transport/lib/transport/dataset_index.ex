@@ -60,12 +60,12 @@ defmodule Transport.DatasetIndex do
 
   Returns a list of `%{type: type, count: count}` maps.
   """
-  @spec types(map(), [integer()]) :: [%{type: binary(), count: non_neg_integer()}]
+  @spec types(map(), [integer()]) :: [%{type: binary(), count: non_neg_integer(), msg: binary()}]
   def types(index, dataset_ids) do
     index
     |> entries_for(dataset_ids)
     |> Enum.group_by(& &1.type)
-    |> Enum.map(fn {type, entries} -> %{type: type, count: length(entries)} end)
+    |> Enum.map(fn {type, entries} -> %{type: type, count: length(entries), msg: DB.Dataset.type_to_str(type)} end)
   end
 
   @doc """
