@@ -1,4 +1,4 @@
-defmodule Transport.NeTEx do
+defmodule Transport.NeTEx.ArchiveParser do
   @moduledoc """
   A first implementation of on-the-fly NeTEx (zip) archive traversal.
 

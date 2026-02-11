@@ -1,6 +1,8 @@
 defmodule Transport.NeTEx.ArchiveParserTest do
   use ExUnit.Case, async: true
 
+  alias Transport.NeTEx.ArchiveParser
+
   # not fully correct XML, but close enough for what we want to test
   def some_netex_content do
     """
@@ -24,7 +26,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     tmp_file = create_tmp_netex([{"arrets.xml", some_netex_content()}])
 
     # given a zip netex archive containing 1 file, I want the output I expected
-    [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places(tmp_file)
+    [{"arrets.xml", data}] = ArchiveParser.read_all_stop_places(tmp_file)
 
     assert data ==
              {:ok,
@@ -33,7 +35,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
               ]}
 
     # given a zip netex archive containing 1 file, I want the output I expected
-    [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places!(tmp_file)
+    [{"arrets.xml", data}] = ArchiveParser.read_all_stop_places!(tmp_file)
 
     assert data == [
              %{id: "FR:HELLO:POYARTIN:001", latitude: 43.669, longitude: -0.919, name: "Poyartin"}
@@ -74,7 +76,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, service_calendar_content)
+    data = extract(&ArchiveParser.read_all_service_calendars!/1, service_calendar_content)
 
     assert [
              %{
@@ -111,7 +113,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, empty_service_calendar_content)
+    data = extract(&ArchiveParser.read_all_service_calendars!/1, empty_service_calendar_content)
 
     assert [] == data
   end
@@ -133,7 +135,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, calendar_content)
 
     assert [
              %{
@@ -158,7 +160,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, calendar_content)
 
     assert [
              %{
@@ -184,7 +186,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, idfm_calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, idfm_calendar_content)
 
     assert [
              %{
@@ -208,7 +210,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </GeneralFrame>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, operating_periods)
+    data = extract(&ArchiveParser.read_all_calendars!/1, operating_periods)
 
     assert [
              %{
@@ -232,7 +234,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["NETEX_CALENDRIER"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, general_frame)
+    assert ["NETEX_CALENDRIER"] == extract(&ArchiveParser.read_all_types_of_frames!/1, general_frame)
 
     composite_frames = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -252,7 +254,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, composite_frames)
+    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == extract(&ArchiveParser.read_all_types_of_frames!/1, composite_frames)
 
     non_standard_types = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -272,7 +274,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    types = extract(&Transport.NeTEx.read_all_types_of_frames!/1, non_standard_types)
+    types = extract(&ArchiveParser.read_all_types_of_frames!/1, non_standard_types)
 
     assert [] == types
   end
