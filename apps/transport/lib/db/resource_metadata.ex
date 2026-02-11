@@ -30,7 +30,7 @@ defmodule DB.ResourceMetadata do
     |> join(:left, [resource: r], m in DB.ResourceMetadata, on: r.id == m.resource_id, as: :metadata)
   end
 
-  def where_gtfs_up_to_date(query) do
+  def where_up_to_date(query) do
     today = Date.utc_today()
 
     query

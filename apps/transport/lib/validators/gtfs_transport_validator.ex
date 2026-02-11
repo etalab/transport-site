@@ -312,37 +312,17 @@ defmodule Transport.Validators.GTFSTransport do
       "MissingAgencyId" => dgettext("gtfs-transport-validator", "Field agency_id should not be empty.")
     }
 
-  @spec gtfs_outdated?(any()) :: boolean | nil
+  @impl Transport.Validators.Validator
   @doc """
   true if the gtfs is outdated
   false if not
   nil if we don't know
-
-  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "1900-01-01"}}}
-  iex> gtfs_outdated?(validation)
-  true
-  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "2900-01-01"}}}
-  iex> gtfs_outdated?(validation)
-  false
-  iex> gtfs_outdated?(%DB.MultiValidation{})
-  nil
-  iex> validation = %DB.MultiValidation{validator: validator_name(), metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
-  iex> gtfs_outdated?(validation)
-  true
   """
-  def gtfs_outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
-    multi_validation
-    |> DB.MultiValidation.get_metadata_info("end_date")
-    |> case do
-      nil ->
-        nil
-
-      end_date ->
-        end_date |> Date.from_iso8601!() |> Date.compare(Date.utc_today()) !== :gt
-    end
+  def outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+    DB.MultiValidation.outdated?(multi_validation)
   end
 
-  def gtfs_outdated?(_), do: nil
+  def outdated?(_), do: nil
 
   @spec find_tags(map()) :: [binary()]
   def find_tags(metadata) do

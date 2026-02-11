@@ -16,8 +16,16 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
 
   @behaviour Transport.Validators.Validator
 
+  @validator_name "MobilityData GTFS Validator"
+
   @impl Transport.Validators.Validator
-  def validator_name, do: "MobilityData GTFS Validator"
+  def validator_name, do: @validator_name
+
+  @impl Transport.Validators.Validator
+  def outdated?(%DB.MultiValidation{validator: @validator_name} = mv),
+    do: DB.MultiValidation.outdated?(mv)
+
+  def outdated?(_), do: nil
 
   @impl Transport.Validators.Validator
   @spec validate_and_save(DB.ResourceHistory.t() | binary()) :: :ok | map()

@@ -29,8 +29,10 @@ defmodule Transport.Validators.NeTEx.Validator do
   def poll_interval(nb_tries) when nb_tries < 6, do: 10
   def poll_interval(_), do: 20
 
+  @validator_name "enroute-chouette-netex-validator"
+
   @impl Transport.Validators.Validator
-  def validator_name, do: "enroute-chouette-netex-validator"
+  def validator_name, do: @validator_name
 
   # This will change with an actual versioning of the validator
   def validator_version, do: "0.2.1"
@@ -255,6 +257,18 @@ defmodule Transport.Validators.NeTEx.Validator do
         {:error, :unexpected_validation_status}
     end
   end
+
+  @impl Transport.Validators.Validator
+  @doc """
+  - true if the NeTEx is outdated.
+  - false if not.
+  - nil if we don't know.
+  """
+  def outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+    DB.MultiValidation.outdated?(multi_validation)
+  end
+
+  def outdated?(_), do: nil
 
   defp client do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()

@@ -7,6 +7,13 @@ defmodule Transport.Validators.Validator do
 
   @callback validate_and_save(any()) :: :ok | {:error, any()}
   @callback validator_name() :: binary()
+
+  @doc """
+  - true if the validated resource is outdated.
+  - false if not.
+  - nil if we don't know.
+  """
+  @callback outdated?(%DB.MultiValidation{}) :: boolean | nil
 end
 
 defmodule Transport.Validators.Dummy do
@@ -23,4 +30,7 @@ defmodule Transport.Validators.Dummy do
 
   @impl Transport.Validators.Validator
   def validator_name, do: "dummy validator"
+
+  @impl Transport.Validators.Validator
+  def outdated?(_multi_validation), do: nil
 end
