@@ -5,6 +5,7 @@ defmodule Transport.IRVE.DatabaseExporter do
   """
 
   import Ecto.Query
+  require Explorer.DataFrame
 
   @export_timeout 90_000
 
@@ -13,7 +14,7 @@ defmodule Transport.IRVE.DatabaseExporter do
   end
 
   def build_data_frame do
-    fields = main_schema_field_list() |> Enum.map(&String.to_atom/1)
+    fields = database_field_list() |> Enum.map(&String.to_atom/1)
     additionnal_file_fields = additional_file_field_list() |> Enum.map(&String.to_atom/1)
 
     stream =
@@ -36,17 +37,43 @@ defmodule Transport.IRVE.DatabaseExporter do
         timeout: @export_timeout
       )
 
+    df
+    |> mutate_coordinates_columns()
     # Reorder columns (Map merge got them alphabeltically ordered)
-    df |> Explorer.DataFrame.select(main_schema_field_list() ++ additional_file_field_list())
+    |> Explorer.DataFrame.select(export_field_list())
   end
 
-  def main_schema_field_list do
+  def mutate_coordinates_columns(df) do
+    df
+    |> Explorer.DataFrame.mutate(
+      consolidated_longitude: cast(longitude, {:decimal, 10, 5}),
+      consolidated_latitude: cast(latitude, {:decimal, 10, 5})
+    )
+    |> Explorer.DataFrame.discard(["longitude", "latitude"])
+    |> Explorer.DataFrame.mutate(
+      coordonneesXY: "[" <> cast(consolidated_longitude, :string) <> ", " <> cast(consolidated_latitude, :string) <> "]"
+    )
+  end
+
+  def database_field_list do
     Transport.IRVE.StaticIRVESchema.field_names_list()
     |> Enum.reject(&(&1 == "coordonneesXY"))
     |> Enum.concat(["longitude", "latitude"])
   end
 
   def additional_file_field_list do
-    ["dataset_datagouv_id", "resource_datagouv_id"]
+    [
+      "datagouv_dataset_id",
+      "datagouv_resource_id",
+      "dataset_title",
+      "datagouv_organization_or_owner",
+      "datagouv_last_modified"
+    ]
+  end
+
+  def export_field_list do
+    Transport.IRVE.StaticIRVESchema.field_names_list()
+    |> Enum.concat(["consolidated_longitude", "consolidated_latitude"])
+    |> Enum.concat(additional_file_field_list())
   end
 end

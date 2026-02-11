@@ -52,7 +52,7 @@ Transport.LogTimeTaken.log_time_taken("Validating #{file_path}", fn ->
 
   file =
     DB.IRVEValidFile
-    |> DB.Repo.get_by!(dataset_datagouv_id: "test-dataset-id", resource_datagouv_id: "test-resource-id")
+    |> DB.Repo.get_by!(datagouv_dataset_id: "test-dataset-id", datagouv_resource_id: "test-resource-id")
 
   file_id = file.id
 

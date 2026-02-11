@@ -36,8 +36,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "error_occurred",
             "error_type" => "ArgumentError",
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
+            "datagouv_organization_or_owner" => "another-org",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             # TODO rework to only compare the part of the message that matters
             "error_message" =>
               ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
@@ -48,8 +51,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "error_occurred",
             "error_type" => "RuntimeError",
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
             "dataset_title" => "individual-published-dataset-title",
+            "datagouv_organization_or_owner" => "Guy Who loves IRVE",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             "error_message" => "producer is not an organization"
           },
           %{
@@ -58,8 +64,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "status" => "import_successful",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
+            "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/some-irve-url-2024/data.csv",
             "dataset_title" => "the-dataset-title",
+            "datagouv_organization_or_owner" => "the-org",
+            "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             "error_message" => nil
           }
         ]
@@ -71,8 +80,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           "status",
           "error_type",
           "estimated_pdc_count",
+          "file_extension",
           "url",
           "dataset_title",
+          "datagouv_organization_or_owner",
+          "datagouv_last_modified",
           "error_message"
         ])
         |> Explorer.DataFrame.dump_csv!()
@@ -88,7 +100,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "fec929446c9c5b606997527a789a416512ddf06ffd39fc627a422050f23fa9db"
+        file_content: "f06fd15d5afcd8be10880b049dc45424c6c9475b8ee2071c5ab1b9880638f3d9"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -106,20 +118,30 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       consolidation_content =
         [
           DB.Factory.IRVE.generate_row()
-          |> Map.delete("coordonneesXY")
           |> Map.put("puissance_nominale", "22.0")
-          |> Map.put("longitude", "-0.799141")
-          |> Map.put("latitude", "45.91914")
+          |> Map.put("consolidated_longitude", "-0.79914")
+          |> Map.put("consolidated_latitude", "45.91914")
+          |> Map.put("coordonneesXY", "[-0.79914, 45.91914]")
           |> Map.put("cable_t2_attache", nil)
-          |> Map.put("dataset_datagouv_id", "the-dataset-id")
-          |> Map.put("resource_datagouv_id", "the-resource-id")
+          |> Map.put("datagouv_dataset_id", "the-dataset-id")
+          |> Map.put("datagouv_resource_id", "the-resource-id")
+          |> Map.put("dataset_title", "the-dataset-title")
+          |> Map.put("datagouv_organization_or_owner", "the-org")
+          |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
         |> Explorer.DataFrame.select(
           Transport.IRVE.StaticIRVESchema.field_names_list()
-          |> Enum.reject(&(&1 == "coordonneesXY"))
-          |> Enum.concat(["longitude", "latitude", "dataset_datagouv_id", "resource_datagouv_id"])
+          |> Enum.concat([
+            "consolidated_longitude",
+            "consolidated_latitude",
+            "datagouv_dataset_id",
+            "datagouv_resource_id",
+            "dataset_title",
+            "datagouv_organization_or_owner",
+            "datagouv_last_modified"
+          ])
         )
         |> Explorer.DataFrame.dump_csv!()
 
@@ -134,7 +156,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "7196b3d1e98ae001c5d734d886cb95a75605d5f77c2354004adadee4643198b2"
+        file_content: "3ceb6945b6a6f61c934872fef1c0a250ef9460a75d2e5eb19b1c167b816d8d90"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -155,11 +177,11 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
         DB.IRVEValidFile
-        |> order_by([f], asc: f.dataset_datagouv_id)
+        |> order_by([f], asc: f.datagouv_dataset_id)
         |> DB.Repo.all()
 
-      assert first_import_file.dataset_datagouv_id == "the-dataset-id"
-      assert first_import_file.resource_datagouv_id == "the-resource-id"
+      assert first_import_file.datagouv_dataset_id == "the-dataset-id"
+      assert first_import_file.datagouv_resource_id == "the-resource-id"
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
 

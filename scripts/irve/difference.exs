@@ -16,7 +16,7 @@ list_of_datagouv_ids =
   |> MapSet.new()
 
 list_of_simple_consolidation_ids =
-  transport_df["resource_datagouv_id"]
+  transport_df["datagouv_resource_id"]
   |> Explorer.Series.distinct()
   |> Explorer.Series.to_list()
   |> MapSet.new()
@@ -25,20 +25,20 @@ only_in_datagouv = MapSet.difference(list_of_datagouv_ids, list_of_simple_consol
 
 IO.inspect(MapSet.size(only_in_datagouv), label: "Only in datagouv consolidation")
 
-# Filter the dataframe with only the resource_datagouv_id found in only_in_datagouv
+# Filter the dataframe with only the datagouv_resource_id found in only_in_datagouv
 filtered_df =
   datagouv_df
   |> Explorer.DataFrame.filter(
     Explorer.Series.in(datagouv_resource_id, Explorer.Series.from_list(MapSet.to_list(^only_in_datagouv)))
   )
 
-# Group by resource_datagouv_id and count the number of lines for each id
+# Group by datagouv_resource_id and count the number of lines for each id
 lines_per_id =
   filtered_df
   |> Explorer.DataFrame.group_by(["datagouv_resource_id", "datagouv_dataset_id", "datagouv_organization_or_owner"])
   |> Explorer.DataFrame.summarise(line_count: Explorer.Series.size(datagouv_resource_id))
   |> Explorer.DataFrame.sort_by(desc: line_count)
 
-IO.puts("\nNumber of lines per resource_datagouv_id (only those in datagouv but not in simple consolidation):")
+IO.puts("\nNumber of lines per datagouv_resource_id (only those in datagouv but not in simple consolidation):")
 
 Explorer.DataFrame.print(lines_per_id, limit: :infinity)

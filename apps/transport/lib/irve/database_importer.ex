@@ -20,19 +20,40 @@ defmodule Transport.IRVE.DatabaseImporter do
   # - `:already_in_db` if the same content (based on file checksum) is in db for
   #     the provided combination of ids
   # (else raise an error)
-  def try_write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
-    write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id)
+  def try_write_to_db(file_path, %{
+        dataset_id: datagouv_dataset_id,
+        resource_id: datagouv_resource_id,
+        dataset_title: dataset_title,
+        datagouv_organization_or_owner: datagouv_organization_or_owner,
+        datagouv_last_modified: datagouv_last_modified
+      }) do
+    write_to_db(
+      file_path,
+      datagouv_dataset_id,
+      datagouv_resource_id,
+      dataset_title,
+      datagouv_organization_or_owner,
+      datagouv_last_modified
+    )
+
     :import_successful
   rescue
     e in [Ecto.ConstraintError] ->
-      if e.type == :unique && e.constraint == "irve_valid_file_resource_datagouv_id_checksum_index" do
+      if e.type == :unique && e.constraint == "irve_valid_file_datagouv_resource_id_checksum_index" do
         :already_in_db
       else
         reraise(e, __STACKTRACE__)
       end
   end
 
-  def write_to_db(file_path, dataset_datagouv_id, resource_datagouv_id) do
+  def write_to_db(
+        file_path,
+        datagouv_dataset_id,
+        datagouv_resource_id,
+        dataset_title,
+        datagouv_organization_or_owner,
+        datagouv_last_modified
+      ) do
     content =
       File.read!(file_path)
       |> Transport.IRVE.RawStaticConsolidation.ensure_utf8()
@@ -44,29 +65,62 @@ defmodule Transport.IRVE.DatabaseImporter do
 
     DB.Repo.transaction(
       fn ->
-        # This may raise an error if we try to insert a duplicate (same resource_datagouv_id and checksum)
+        # This may raise an error if we try to insert a duplicate (same datagouv_resource_id and checksum)
         # which is fine, the caller should handle it.
-        %DB.IRVEValidFile{id: file_id} = write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum)
+        %DB.IRVEValidFile{id: file_id} =
+          write_new_file!(
+            datagouv_dataset_id,
+            datagouv_resource_id,
+            checksum,
+            dataset_title,
+            datagouv_organization_or_owner,
+            datagouv_last_modified
+          )
+
         write_pdcs(rows_stream, file_id)
         # Eventually try to erase previous file, which cascades on delete on PDCs.
-        delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum)
+        delete_previous_file_and_pdcs(datagouv_dataset_id, datagouv_resource_id, checksum)
       end,
       timeout: @import_timeout
     )
   end
 
-  defp write_new_file!(dataset_datagouv_id, resource_datagouv_id, checksum) do
+  defp write_new_file!(
+         datagouv_dataset_id,
+         datagouv_resource_id,
+         checksum,
+         dataset_title,
+         datagouv_organization_or_owner,
+         datagouv_last_modified
+       ) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     file_data = %DB.IRVEValidFile{
-      dataset_datagouv_id: dataset_datagouv_id,
-      resource_datagouv_id: resource_datagouv_id,
+      datagouv_dataset_id: datagouv_dataset_id,
+      datagouv_resource_id: datagouv_resource_id,
       checksum: checksum,
+      dataset_title: dataset_title,
+      datagouv_organization_or_owner: datagouv_organization_or_owner,
+      datagouv_last_modified: parse_datetime(datagouv_last_modified),
       inserted_at: now,
       updated_at: now
     }
 
     DB.Repo.insert!(file_data, returning: [:id])
+  end
+
+  # Similar implementation than Transport.ImportData.parse_datetime/1
+  defp parse_datetime(date) when is_binary(date) do
+    {:ok, datetime, _offset} = DateTime.from_iso8601(date)
+
+    # Can’t use :utc_datetime_usec in the schema
+    # because some datagouv resources do not have ms precision in the last_modified field,
+    # which would make the import fail with errors like:
+    # :utc_datetime_usec expects microsecond precision, got: ~U[2026-01-01 03:01:19Z]"
+    # It works fine working with changesets (aka all good on DB.Resource/Dataset)
+    # but we’re directly inserting with `insert_all` here.
+    # See https://elixirforum.com/t/upgrading-to-ecto-3-anyway-to-easily-deal-with-usec-it-complains-with-or-without-usec/22137/7
+    DateTime.truncate(datetime, :second)
   end
 
   defp write_pdcs(rows_stream, file_id) do
@@ -81,10 +135,10 @@ defmodule Transport.IRVE.DatabaseImporter do
     |> Stream.run()
   end
 
-  defp delete_previous_file_and_pdcs(dataset_datagouv_id, resource_datagouv_id, checksum) do
+  defp delete_previous_file_and_pdcs(datagouv_dataset_id, datagouv_resource_id, checksum) do
     from(f in DB.IRVEValidFile,
       where:
-        f.dataset_datagouv_id == ^dataset_datagouv_id and f.resource_datagouv_id == ^resource_datagouv_id and
+        f.datagouv_dataset_id == ^datagouv_dataset_id and f.datagouv_resource_id == ^datagouv_resource_id and
           f.checksum != ^checksum
     )
     # The PDCs are deleted by the foreign key constraint with on_delete: :delete_all
