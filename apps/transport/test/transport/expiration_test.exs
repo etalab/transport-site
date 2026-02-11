@@ -10,21 +10,28 @@ defmodule Transport.ExpirationTest do
   end
 
   describe "datasets_with_resources_expiring_on/1" do
-    test "returns datasets with resources expiring on a specific date" do
+    test "returns datasets with resources expiring on a specific date - GTFS",
+      do: test_case("GTFS", Transport.Validators.GTFSTransport)
+
+    test "returns datasets with resources expiring on a specific date - GTFS flex",
+      do: test_case("GTFS", Transport.Validators.MobilityDataGTFSValidator)
+
+    test "returns datasets with resources expiring on a specific date - NeTEx",
+      do: test_case("NeTEx", Transport.Validators.NeTEx.Validator)
+
+    defp test_case(format, validator) do
       {today, tomorrow, yesterday} = {Date.utc_today(), Date.add(Date.utc_today(), 1), Date.add(Date.utc_today(), -1)}
       assert [] == today |> Transport.Expiration.datasets_with_resources_expiring_on()
 
       insert_fn = fn %Date{} = expiration_date, %DB.Dataset{} = dataset ->
-        multi_validation =
-          insert(:multi_validation,
-            validator: Transport.Validators.GTFSTransport.validator_name(),
-            resource_history: insert(:resource_history, resource: insert(:resource, dataset: dataset, format: "GTFS"))
-          )
+        resource = insert(:resource, dataset: dataset, format: format)
+        resource_history = insert(:resource_history, resource: resource)
 
-        insert(:resource_metadata,
-          multi_validation_id: multi_validation.id,
-          metadata: %{"end_date" => expiration_date}
-        )
+        multi_validation =
+          insert(:multi_validation, validator: validator.validator_name(), resource_history: resource_history)
+
+        metadata = %{"end_date" => expiration_date}
+        insert(:resource_metadata, multi_validation: multi_validation, metadata: metadata)
       end
 
       # Ignores hidden or inactive datasets
@@ -68,29 +75,6 @@ defmodule Transport.ExpirationTest do
                 [%DB.Resource{dataset_id: ^dataset_id}, %DB.Resource{dataset_id: ^dataset_id}]},
                {%DB.Dataset{id: ^d2_id}, [%DB.Resource{dataset_id: ^d2_id}]}
              ] = today |> Transport.Expiration.datasets_with_resources_expiring_on()
-    end
-
-    test "works with both GTFS validators" do
-      today = Date.utc_today()
-      a_week_ago = Date.add(today, -7)
-
-      %{dataset: %DB.Dataset{id: d1_id}} = insert_resource_and_friends(today)
-
-      %DB.Dataset{id: d2_id} = insert(:dataset)
-      resource = insert(:resource, dataset_id: d2_id, format: "GTFS")
-      resource_history = insert(:resource_history, resource: resource)
-
-      insert(:multi_validation,
-        resource_history: resource_history,
-        validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
-        metadata: %DB.ResourceMetadata{metadata: %{"start_date" => a_week_ago, "end_date" => a_week_ago}}
-      )
-
-      assert [{%DB.Dataset{id: ^d1_id}, _}] =
-               Transport.Expiration.datasets_with_resources_expiring_on(today)
-
-      assert [{%DB.Dataset{id: ^d2_id}, _}] =
-               Transport.Expiration.datasets_with_resources_expiring_on(a_week_ago)
     end
   end
 end
