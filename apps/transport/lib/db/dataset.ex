@@ -370,15 +370,6 @@ defmodule DB.Dataset do
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
-  @spec filter_by_subtype(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_subtype(query, %{"subtype" => subtype}) do
-    query
-    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtype)
-    |> where([dataset_subtype: ds], ds.slug == ^subtype)
-  end
-
-  defp filter_by_subtype(query, _), do: query
-
   @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_epci(query, %{"epci" => epci}) do
     query
@@ -534,7 +525,6 @@ defmodule DB.Dataset do
       |> filter_by_mode(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
-      |> filter_by_subtype(params)
       |> filter_by_licence(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
@@ -569,9 +559,7 @@ defmodule DB.Dataset do
           "case when organization_id = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
         ),
-      # Gotcha, population can be null for datasets covering France/Europe
-      # https://github.com/etalab/transport-site/issues/3848
-      desc: fragment("coalesce(population, 100000000)"),
+      desc: :population,
       asc: :custom_title
     )
   end

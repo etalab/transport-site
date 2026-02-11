@@ -12,6 +12,8 @@ defmodule Transport.NeTEx.NeTExHelpers do
   @fares_frame "NETEX_TARIF"
   @france_frame "NETEX_FRANCE"
   @n_line_frame "NETEX_N_LIGNE"
+  @parking_frame "NETEX_PARKING"
+  @accessibility_frame "NETEX_ACCESSIBILITE"
 
   @valid_type_of_frames [
     # for GeneralFrame
@@ -22,6 +24,8 @@ defmodule Transport.NeTEx.NeTExHelpers do
     @timetable_frame,
     @calendar_frame,
     @fares_frame,
+    @parking_frame,
+    @accessibility_frame,
     # for CompositeFrame
     @france_frame,
     @n_line_frame
