@@ -61,7 +61,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.result == %{}
     assert multi_validation.digest == ResultsAdapter.digest(%{})
     assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
-    assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
+
+    assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
+             multi_validation.metadata.metadata
   end
 
   test "invalid NeTEx" do
@@ -81,7 +83,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
     assert multi_validation.validator_version == "0.2.1"
-    assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
+
+    assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
+             multi_validation.metadata.metadata
 
     assert multi_validation.result == %{
              "xsd-schema" => [
@@ -163,11 +167,14 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
   end
 
+  defp sample_metadata, do: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}
+
   defp run_polling_job(%DB.ResourceHistory{} = resource_history, validation_id, attempt) do
     payload =
       %{
         "resource_history_id" => resource_history.id,
-        "validation_id" => validation_id
+        "validation_id" => validation_id,
+        "metadata" => sample_metadata()
       }
 
     perform_job(Transport.Jobs.NeTExPollerJob, payload, attempt: attempt)

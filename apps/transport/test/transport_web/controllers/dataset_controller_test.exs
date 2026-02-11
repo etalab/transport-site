@@ -388,11 +388,13 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+    content =
+      conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> extract_resource_details()
 
-    assert content |> extract_resource_details() =~ "1 erreur"
+    assert content =~ "1 erreur"
     assert content =~ "01/12/2025"
     assert content =~ "31/12/2025"
+    assert content =~ "Périmé"
   end
 
   test "displays no error when validated with the MobilityData validator", %{conn: conn} do
@@ -527,7 +529,7 @@ defmodule TransportWeb.DatasetControllerTest do
     for version <- ["0.1.0", "0.2.0", "0.2.1"] do
       dataset = insert(:dataset)
 
-      resource = insert(:resource, dataset: dataset, format: "NeTEx", url: "url")
+      resource = insert(:resource, title: "NeTEx.zip", dataset: dataset, format: "NeTEx", url: "url")
 
       resource_history = insert(:resource_history, resource: resource)
 
@@ -548,7 +550,7 @@ defmodule TransportWeb.DatasetControllerTest do
         result: result,
         digest: digest,
         metadata: %DB.ResourceMetadata{
-          metadata: %{"elapsed_seconds" => 42},
+          metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},
           modes: [],
           features: []
         }
@@ -557,7 +559,11 @@ defmodule TransportWeb.DatasetControllerTest do
       mock_empty_history_resources()
 
       conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+      content = conn |> html_response(200) |> extract_resource_details()
+      assert content =~ "1 erreur"
+      assert content =~ "01/12/2025"
+      assert content =~ "31/12/2025"
+      assert content =~ "Périmé"
     end
   end
 
@@ -961,111 +967,6 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert [%{count: 2, licence: "licence-ouverte"}, %{count: 1, licence: "odc-odbl"}] ==
              TransportWeb.DatasetController.get_licences(%{"type" => "road-data"})
-  end
-
-  describe "get_subtypes" do
-    test "returns empty list when no type is selected" do
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{})
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{"q" => "test"})
-    end
-
-    test "returns subtypes for selected type" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      intercity_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
-      _bicycle_subtype = insert(:dataset_subtype, parent_type: "vehicles-sharing", slug: "bicycle")
-
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype, intercity_subtype])
-      insert(:dataset, type: "public-transit", dataset_subtypes: [intercity_subtype])
-
-      result = TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit"})
-
-      assert length(result) == 2
-
-      urban_result = Enum.find(result, &(&1.subtype == "urban"))
-      assert urban_result.count == 2
-      assert urban_result.msg == "Urbain"
-
-      intercity_result = Enum.find(result, &(&1.subtype == "intercity"))
-      assert intercity_result.count == 2
-      assert intercity_result.msg == "Interurbain"
-    end
-
-    test "returns empty list when type has no subtypes" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-
-      assert [] == TransportWeb.DatasetController.get_subtypes(%{"type" => "road-data"})
-    end
-
-    test "adds current subtype even if count is 0" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-
-      result = TransportWeb.DatasetController.get_subtypes(%{"type" => "public-transit", "subtype" => "intercity"})
-
-      # urban has count > 0, intercity has count 0 but is added because it's selected
-      assert Enum.any?(result, &(&1.subtype == "urban" and &1.count == 1))
-      assert Enum.any?(result, &(&1.subtype == "intercity" and &1.count == 0))
-    end
-  end
-
-  describe "subtype filter display" do
-    test "subtype filter section is not displayed when no type selected", %{conn: conn} do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-
-      doc =
-        conn
-        |> get(dataset_path(conn, :index))
-        |> html_response(200)
-        |> Floki.parse_document!()
-
-      # The subtype section should not be present
-      refute Floki.text(doc) =~ "Sous-type de données"
-    end
-
-    test "subtype filter section is displayed when type is selected and has subtypes", %{conn: conn} do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-
-      doc =
-        conn
-        |> get(dataset_path(conn, :index, type: "public-transit"))
-        |> html_response(200)
-        |> Floki.parse_document!()
-
-      assert Floki.text(doc) =~ "Sous-type de données"
-      assert Floki.text(doc) =~ "Urbain"
-    end
-
-    test "subtype filter section is not displayed when type has no datasets with subtypes", %{conn: conn} do
-      insert(:dataset, type: "road-data", dataset_subtypes: [])
-
-      doc =
-        conn
-        |> get(dataset_path(conn, :index, type: "road-data"))
-        |> html_response(200)
-        |> Floki.parse_document!()
-
-      refute Floki.text(doc) =~ "Sous-type de données"
-    end
-
-    test "filtering by subtype shows correct datasets", %{conn: conn} do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      intercity_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
-
-      insert(:dataset, type: "public-transit", custom_title: "Urban Dataset", dataset_subtypes: [urban_subtype])
-      insert(:dataset, type: "public-transit", custom_title: "Intercity Dataset", dataset_subtypes: [intercity_subtype])
-
-      html =
-        conn
-        |> get(dataset_path(conn, :index, type: "public-transit", subtype: "urban"))
-        |> html_response(200)
-
-      assert html =~ "Urban Dataset"
-      refute html =~ "Intercity Dataset"
-    end
   end
 
   test "hidden datasets", %{conn: conn} do

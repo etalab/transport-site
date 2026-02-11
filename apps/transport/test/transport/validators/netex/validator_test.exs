@@ -44,7 +44,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
   describe "existing resource" do
     test "valid NeTEx" do
-      resource_history = mk_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_successful_validation(12)
 
@@ -58,11 +61,20 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.result == %{}
       assert multi_validation.digest == ResultsAdapter.digest(%{})
       assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
-      assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 12}
+
+      assert multi_validation.metadata.metadata == %{
+               "retries" => 0,
+               "elapsed_seconds" => 12,
+               "start_date" => start_date,
+               "end_date" => end_date
+             }
     end
 
     test "pending validation" do
-      resource_history = mk_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
@@ -72,7 +84,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         worker: Transport.Jobs.NeTExPollerJob,
         args: %{
           "validation_id" => validation_id,
-          "resource_history_id" => resource_history.id
+          "resource_history_id" => resource_history.id,
+          "metadata" => %{"start_date" => start_date, "end_date" => end_date}
         }
       )
 
@@ -80,7 +93,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     end
 
     test "invalid NeTEx" do
-      resource_history = mk_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(31)
 
@@ -93,7 +109,13 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "0.2.1"
-      assert multi_validation.metadata.metadata == %{"retries" => 0, "elapsed_seconds" => 31}
+
+      assert multi_validation.metadata.metadata == %{
+               "retries" => 0,
+               "elapsed_seconds" => 31,
+               "start_date" => start_date,
+               "end_date" => end_date
+             }
 
       assert multi_validation.result == %{
                "xsd-schema" => [
@@ -140,16 +162,31 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
   describe "raw URL" do
     test "valid NeTEx" do
-      resource_url = mk_raw_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+
+      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
 
       expect_create_validation("pan:french_profile:1") |> expect_successful_validation(9)
 
-      assert {:ok, %{"validations" => %{}, "metadata" => %{retries: 0, elapsed_seconds: 9}}} ==
+      assert {:ok,
+              %{
+                "validations" => %{},
+                "metadata" => %{
+                  :retries => 0,
+                  :elapsed_seconds => 9,
+                  "start_date" => start_date,
+                  "end_date" => end_date
+                }
+              }} ==
                Validator.validate(resource_url)
     end
 
     test "invalid NeTEx" do
-      resource_url = mk_raw_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+
+      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(25)
 
@@ -187,38 +224,81 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         ]
       }
 
-      assert {:ok, %{"validations" => validation_result, "metadata" => %{retries: 0, elapsed_seconds: 25}}} ==
+      assert {:ok,
+              %{
+                "validations" => validation_result,
+                "metadata" => %{
+                  :retries => 0,
+                  :elapsed_seconds => 25,
+                  "start_date" => start_date,
+                  "end_date" => end_date
+                }
+              }} ==
                Validator.validate(resource_url)
     end
 
     test "pending" do
-      resource_url = mk_raw_netex_resource()
+      start_date = "2025-11-03"
+      end_date = "2025-11-15"
+      metadata = %{"start_date" => start_date, "end_date" => end_date}
+
+      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
-      assert {:pending, validation_id} == Validator.validate(resource_url)
+      assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end
   end
 
-  defp mk_netex_resource do
+  defp mk_netex_resource_with_calendar(start_date, end_date) do
     dataset = insert(:dataset)
 
     resource = insert(:resource, dataset_id: dataset.id, format: "NeTEx")
 
-    insert(:resource_history, resource_id: resource.id, payload: %{"permanent_url" => mk_raw_netex_resource()})
+    insert(:resource_history,
+      resource_id: resource.id,
+      payload: %{"permanent_url" => mk_raw_netex_with_calendar(start_date, end_date)}
+    )
   end
 
-  defp mk_raw_netex_resource do
+  defp mk_raw_netex_with_calendar(start_date, end_date),
+    do: mk_raw_netex_resource([{"resource.xml", calendar_content(start_date, end_date)}])
+
+  defp mk_raw_netex_resource(content) do
     resource_url = generate_resource_url()
 
-    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, _}] ->
-      {:ok, %Req.Response{status: 200, body: %{"data" => "some_zip_file"}}}
+    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, into}] ->
+      content = zip_file(into.path, content)
+
+      {:ok, %Req.Response{status: 200, body: %{"data" => content}}}
     end)
 
     resource_url
   end
 
+  defp zip_file(path, content) do
+    ZipCreator.create!(path, content)
+    File.read!(path)
+  end
+
   defp generate_resource_url do
     "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
+  end
+
+  defp calendar_content(start_date, end_date) do
+    """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri" version="1.1:FR-NETEX_CALENDRIER-2.2">
+        <PublicationTimestamp>2025-07-29T09:34:55Z</PublicationTimestamp>
+        <ParticipantRef>DIGO</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame version="any" id="DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC">
+            <ValidBetween>
+              <FromDate>#{start_date}T00:00:00</FromDate>
+              <ToDate>#{end_date}T23:59:59</ToDate>
+            </ValidBetween>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
   end
 end

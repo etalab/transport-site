@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias DB.{Dataset, DatasetGeographicView, DatasetSubtype, Region, Repo}
+  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -26,7 +26,6 @@ defmodule TransportWeb.DatasetController do
     conn
     |> assign(:datasets, datasets)
     |> assign(:types, get_types(params))
-    |> assign(:subtypes, get_subtypes(params))
     |> assign(:licences, get_licences(params))
     |> assign(:number_realtime_datasets, get_realtime_count(params))
     |> assign(:number_resource_format_datasets, resource_format_count(params))
@@ -250,18 +249,12 @@ defmodule TransportWeb.DatasetController do
 
     params
     |> Dataset.list_datasets()
-    |> preload_spatial_areas(params)
+    |> preload_spatial_areas()
     |> Repo.paginate(page: config.page_number)
   end
 
-  # pre-optimisation version kept, in order to allow side-by-side prod benchmark
-  defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
-    query |> preload([:declarative_spatial_areas])
-  end
-
-  defp preload_spatial_areas(query, _params) do
+  defp preload_spatial_areas(query) do
     DB.AdministrativeDivision
-    # avoid loading `:geom` (total for `/datasets` can be several MB)
     |> select([a], struct(a, [:type, :nom]))
     |> then(&preload(query, declarative_spatial_areas: ^&1))
   end
@@ -317,37 +310,6 @@ defmodule TransportWeb.DatasetController do
     end)
     |> add_current_type(params["type"])
     |> Enum.reject(fn t -> is_nil(t.msg) end)
-  end
-
-  @doc """
-  Returns subtypes filtered by the currently selected type.
-  Only returns subtypes if a type is selected in the params.
-  """
-  @spec get_subtypes(map()) :: [%{subtype: binary(), msg: binary(), count: non_neg_integer()}]
-  def get_subtypes(%{"type" => type} = params) when is_binary(type) do
-    params
-    |> clean_datasets_query("subtype")
-    |> exclude(:order_by)
-    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtype)
-    |> where([dataset_subtype: ds], ds.parent_type == ^type)
-    |> group_by([dataset_subtype: ds], ds.slug)
-    |> select([dataset: d, dataset_subtype: ds], %{subtype: ds.slug, count: count(d.id, :distinct)})
-    |> Repo.all()
-    |> Enum.map(fn res ->
-      %{subtype: res.subtype, count: res.count, msg: DatasetSubtype.slug_to_str(res.subtype)}
-    end)
-    |> add_current_subtype(params["subtype"])
-  end
-
-  def get_subtypes(_params), do: []
-
-  defp add_current_subtype(results, nil), do: results
-
-  defp add_current_subtype(results, subtype) do
-    case Enum.any?(results, &(&1.subtype == subtype)) do
-      true -> results
-      false -> results ++ [%{subtype: subtype, count: 0, msg: DatasetSubtype.slug_to_str(subtype)}]
-    end
   end
 
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do

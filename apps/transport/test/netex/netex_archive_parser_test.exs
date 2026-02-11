@@ -1,22 +1,6 @@
 defmodule Transport.NeTEx.ArchiveParserTest do
   use ExUnit.Case, async: true
 
-  defmodule ZipCreator do
-    @moduledoc """
-    A light wrapper around OTP `:zip` features. Does not support streaming here,
-    but massages the string <-> charlist differences.
-    """
-    @spec create!(String.t(), [{String.t(), binary()}]) :: no_return()
-    def create!(zip_filename, file_data) do
-      {:ok, ^zip_filename} =
-        :zip.create(
-          zip_filename,
-          file_data
-          |> Enum.map(fn {name, content} -> {name |> to_charlist(), content} end)
-        )
-    end
-  end
-
   # not fully correct XML, but close enough for what we want to test
   def some_netex_content do
     """
@@ -159,6 +143,31 @@ defmodule Transport.NeTEx.ArchiveParserTest do
              }
            ] == data
 
+    calendar_content = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri" version="1.1:FR-NETEX_CALENDRIER-2.2">
+        <PublicationTimestamp>2025-07-29T09:34:55Z</PublicationTimestamp>
+        <ParticipantRef>DIGO</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame version="any" id="DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC">
+            <ValidBetween>
+              <FromDate>2025-07-05T00:00:00</FromDate>
+              <ToDate>2025-08-31T23:59:59</ToDate>
+            </ValidBetween>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+
+    assert [
+             %{
+               id: "DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC",
+               start_date: Date.from_iso8601!("2025-07-05"),
+               end_date: Date.from_iso8601!("2025-08-31")
+             }
+           ] == data
+
     idfm_calendar_content = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
         <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
@@ -271,9 +280,13 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   defp extract(extractor, xml) do
     tmp_file = create_tmp_netex([{"file.xml", xml}])
 
-    [{"file.xml", types}] = extractor.(tmp_file)
+    try do
+      [{"file.xml", types}] = extractor.(tmp_file)
 
-    types
+      types
+    after
+      File.rm(tmp_file)
+    end
   end
 
   defp create_tmp_netex(files) do
