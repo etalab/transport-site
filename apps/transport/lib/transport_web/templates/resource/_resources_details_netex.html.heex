@@ -1,10 +1,8 @@
 <% locale = get_session(@conn, :locale) %>
-<% duration =
-  if @metadata["elapsed_seconds"] < 1 do
-    dgettext("validations", "less than 1 second")
-  else
-    format_duration(@metadata["elapsed_seconds"], locale)
-  end %>
-<div>
-  {dgettext("validations", "Elapsed time: %{duration}.", duration: duration)}
-</div>
+<p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
+  {dgettext("validations", "It is valid from")}
+  <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
+    "validations",
+    "to"
+  )} <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.
+</p>
