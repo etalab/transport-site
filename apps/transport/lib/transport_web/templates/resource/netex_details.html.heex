@@ -19,6 +19,9 @@
     </h2>
     <div class="panel">
       {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
+      <%= unless is_nil(@metadata) or @metadata == %{} do %>
+        {render("_resources_details_netex.html", conn: @conn, metadata: @metadata)}
+      <% end %>
     </div>
 
     <%= unless Enum.empty?(@resource.resources_related) do %>
@@ -46,7 +49,7 @@
           filter: @filter
         )}
         <%= unless is_nil(@metadata) or @metadata == %{} do %>
-          {render("_resources_details_netex.html", conn: @conn, metadata: @metadata)}
+          {render("_resources_netex_validation_details.html", conn: @conn, metadata: @metadata)}
         <% end %>
         <p>
           {raw(
