@@ -39,6 +39,7 @@ defmodule TransportWeb.DatasetController do
     |> assign(:licences, Transport.DatasetIndex.licences(index, dataset_ids))
     |> assign(:number_realtime_datasets, Transport.DatasetIndex.realtime_count(index, dataset_ids))
     |> assign(:number_resource_format_datasets, Transport.DatasetIndex.resource_format_count(index, dataset_ids))
+    |> assign(:subtypes, subtypes_facet(index, dataset_ids, params))
     |> assign(:order_by, params["order_by"])
     |> assign(:q, Map.get(params, "q"))
     |> put_dataset_heart_values(datasets)
@@ -52,6 +53,12 @@ defmodule TransportWeb.DatasetController do
 
   defp maybe_assign_regions(conn, true, index, dataset_ids),
     do: assign(conn, :regions, Transport.DatasetIndex.regions(index, dataset_ids))
+
+  defp subtypes_facet(index, dataset_ids, %{"type" => type} = _params) do
+    Transport.DatasetIndex.subtypes(index, dataset_ids, type)
+  end
+
+  defp subtypes_facet(_index, _dataset_ids, _params), do: %{all: 0, subtypes: []}
 
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do

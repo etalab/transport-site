@@ -233,6 +233,10 @@ msgid "Resource format"
 msgstr "Format de ressource"
 
 #, elixir-autogen, elixir-format
+msgid "Sub type"
+msgstr "Sous-type"
+
+#, elixir-autogen, elixir-format
 msgid "department"
 msgstr "département"
 

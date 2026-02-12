@@ -144,6 +144,10 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "type", %{key: type, msg: msg, count: count})
   end
 
+  def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
+    link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
+  end
+
   def format_link(conn, %{format: format, msg: msg, count: count}) do
     link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end

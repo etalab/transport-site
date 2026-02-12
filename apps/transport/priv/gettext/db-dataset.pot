@@ -57,3 +57,43 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Vehicles sharing"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Urban"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Intercity"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "School"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Seasonal"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Zonal DRT"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Bicycle"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Scooter"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Carsharing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Moped"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Freefloating"
+msgstr ""
