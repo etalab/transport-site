@@ -24,6 +24,7 @@ defmodule Script do
     |> where([_mv, _rh, r, _rm], r.format == "NeTEx")
     |> where([mv, _rh, _r, _rm], mv.validator == "enroute-chouette-netex-validator")
     |> where([_mv, _rh, _r, rm], fragment("?->>'start_date' is null", rm.metadata))
+    |> where([_mv, _rh, _r, rm], not fragment("coalesce((?->>'no_validity_dates')::boolean, false)", rm.metadata))
     |> select([_mv, rh, _r, rm], [rh.id, rm.id])
     |> order_by([_mv, _rh, _r, rm], {:asc, rm.updated_at})
     |> filter(resource_ids)
@@ -32,16 +33,15 @@ defmodule Script do
   end
 
   defp filter(query, resource_ids) do
+    intro = "Backfilling metadata for NeTEx resources without validity dates"
+
     case resource_ids || [] do
       [] ->
-        Logger.info("Backfilling metadata for NeTEx resources without validity dates")
+        Logger.info(intro)
         query
 
       _ ->
-        Logger.info(
-          "Backfilling metadata for NeTEx resources without validity dates, limited to resources #{inspect(resource_ids)}"
-        )
-
+        Logger.info("#{intro}, limited to resources #{inspect(resource_ids)}")
         query |> where([_mv, _rh, r, _rm], r.id in ^resource_ids)
     end
   end

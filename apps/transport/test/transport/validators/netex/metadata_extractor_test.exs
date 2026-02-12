@@ -9,7 +9,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       {true, logs} =
         ExUnit.CaptureLog.with_log(fn ->
           with_tmp_file(content, fn filepath ->
-            assert %{} == MetadataExtractor.extract(filepath)
+            assert %{"no_validity_dates" => true} == MetadataExtractor.extract(filepath)
           end)
         end)
 
@@ -19,7 +19,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
 
   test "empty valid ZIP archive" do
     ZipCreator.with_tmp_zip([], fn filepath ->
-      assert %{} == MetadataExtractor.extract(filepath)
+      assert %{"no_validity_dates" => true} == MetadataExtractor.extract(filepath)
     end)
   end
 
