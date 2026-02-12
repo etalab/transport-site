@@ -234,13 +234,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     add_cache_state_for_disk(item)
   end
 
-  defp add_cache_state_for_disk(item) do
+  defp add_cache_state(item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
     if cache_entry do
       Map.merge(item, %{
-        cache_size: (File.stat!(cache_entry.body).size |> Sizeable.filesize()) <> " sur disque",
+        cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
         cache_status: cache_entry.status,
         cache_ttl: cache_ttl(cache_key)
       })
@@ -249,13 +249,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     end
   end
 
-  defp add_cache_state(item) do
+  defp add_cache_state_for_disk(item) do
     cache_key = item.unique_slug |> Unlock.Shared.cache_key()
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
     if cache_entry do
       Map.merge(item, %{
-        cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
+        cache_size: (File.stat!(cache_entry.body).size |> Sizeable.filesize()) <> " sur disque",
         cache_status: cache_entry.status,
         cache_ttl: cache_ttl(cache_key)
       })
