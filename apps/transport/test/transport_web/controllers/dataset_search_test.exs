@@ -49,6 +49,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       ]
     )
 
+    Transport.DatasetIndex.refresh()
+
     :ok
   end
 
@@ -131,15 +133,20 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
       insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
 
-      assert [%{id: ^dataset_id}] =
-               %{"features" => ["vehicle_positions"]}
-               |> TransportWeb.DatasetController.get_datasets()
-               |> Map.fetch!(:entries)
+      index = Transport.DatasetIndex.build_index()
+
+      dataset_ids =
+        %{"features" => ["vehicle_positions"]}
+        |> DB.Dataset.list_datasets()
+        |> DB.Repo.all()
+        |> Enum.map(& &1.id)
+
+      assert [dataset_id] == dataset_ids
 
       assert [%{count: 1, type: "public-transit"}] =
-               %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_types()
+               Transport.DatasetIndex.types(index, dataset_ids)
 
-      regions_count = %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_regions()
+      regions_count = Transport.DatasetIndex.regions(index, dataset_ids)
       assert [%{count: 1, insee: ^region_insee}] = regions_count |> Enum.filter(&(&1.insee == region_insee))
     end
   end

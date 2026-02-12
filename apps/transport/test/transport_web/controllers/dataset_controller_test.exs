@@ -956,17 +956,25 @@ defmodule TransportWeb.DatasetControllerTest do
              dataset |> TransportWeb.DatasetController.gtfs_rt_entities()
   end
 
-  test "get_licences" do
+  test "licences facet" do
     insert(:dataset, licence: "lov2", type: "road-data")
     insert(:dataset, licence: "fr-lo", type: "road-data")
     insert(:dataset, licence: "odc-odbl", type: "road-data")
     insert(:dataset, licence: "odc-odbl", type: "public-transit")
 
+    index = Transport.DatasetIndex.build_index()
+
+    public_transit_ids =
+      %{"type" => "public-transit"} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
+
     assert [%{count: 1, licence: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licences(%{"type" => "public-transit"})
+             Transport.DatasetIndex.licences(index, public_transit_ids)
+
+    road_data_ids =
+      %{"type" => "road-data"} |> DB.Dataset.list_datasets() |> DB.Repo.all() |> Enum.map(& &1.id)
 
     assert [%{count: 2, licence: "licence-ouverte"}, %{count: 1, licence: "odc-odbl"}] ==
-             TransportWeb.DatasetController.get_licences(%{"type" => "road-data"})
+             Transport.DatasetIndex.licences(index, road_data_ids)
   end
 
   test "hidden datasets", %{conn: conn} do
