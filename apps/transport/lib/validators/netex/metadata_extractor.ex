@@ -31,13 +31,13 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
 
   defp validity_dates_from_calendars(filepath) do
     filepath
-    |> Transport.NeTEx.read_all_calendars()
+    |> Transport.NeTEx.ArchiveParser.read_all_calendars()
     |> flatten()
   end
 
   defp validity_dates_from_service_calendars(filepath) do
     filepath
-    |> Transport.NeTEx.read_all_service_calendars()
+    |> Transport.NeTEx.ArchiveParser.read_all_service_calendars()
     |> flatten()
   end
 

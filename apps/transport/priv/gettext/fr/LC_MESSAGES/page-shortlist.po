@@ -152,7 +152,7 @@ msgstr "Aucun jeu de données trouvé"
 
 #, elixir-autogen, elixir-format
 msgid "Alphabetical"
-msgstr "Ordre alphabetique"
+msgstr "Ordre alphabétique"
 
 #, elixir-autogen, elixir-format
 msgid "Most recently added"
