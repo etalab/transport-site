@@ -56,6 +56,33 @@ defmodule Transport.DatasetIndex do
   end
 
   @doc """
+  Compute subtypes facet counts from the index for the given dataset IDs,
+  filtered to entries matching `parent_type`.
+
+  Returns `%{all: total, subtypes: [%{subtype: slug, count: count, msg: label}]}`.
+  `all` is the number of datasets matching `parent_type` (not the sum of per-subtype counts,
+  since a dataset can have multiple subtypes).
+  """
+  @spec subtypes(map(), [integer()], binary()) :: %{
+          all: non_neg_integer(),
+          subtypes: [%{subtype: binary(), count: non_neg_integer(), msg: binary()}]
+        }
+  def subtypes(index, dataset_ids, parent_type) do
+    entries =
+      index
+      |> entries_for(dataset_ids)
+      |> Enum.filter(&(&1.type == parent_type))
+
+    subtypes =
+      entries
+      |> Enum.flat_map(& &1.subtypes)
+      |> Enum.frequencies()
+      |> Enum.map(fn {slug, count} -> %{subtype: slug, count: count, msg: DB.Dataset.subtype_to_str(slug)} end)
+
+    %{all: length(entries), subtypes: subtypes}
+  end
+
+  @doc """
   Compute type facet counts from the index for the given dataset IDs.
 
   Returns a list of `%{type: type, count: count}` maps.
@@ -158,7 +185,7 @@ defmodule Transport.DatasetIndex do
   def build_index do
     datasets =
       DB.Dataset.base_query()
-      |> preload(:resources)
+      |> preload([:resources, :dataset_subtypes])
       |> DB.Repo.all()
 
     region_mapping = build_region_mapping()
@@ -174,7 +201,8 @@ defmodule Transport.DatasetIndex do
          region_id: if(region, do: region.id),
          region_name: if(region, do: region.nom),
          region_insee: if(region, do: region.insee),
-         formats: DB.Dataset.formats(dataset)
+         formats: DB.Dataset.formats(dataset),
+         subtypes: Enum.map(dataset.dataset_subtypes, & &1.slug)
        }}
     end)
   end

@@ -956,6 +956,55 @@ defmodule TransportWeb.DatasetControllerTest do
              dataset |> TransportWeb.DatasetController.gtfs_rt_entities()
   end
 
+  describe "subtypes facet" do
+    test "appears when filtering by type=public-transit", %{conn: conn} do
+      ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+      insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban])
+      Transport.DatasetIndex.refresh()
+
+      html = conn |> get(dataset_path(conn, :index, type: "public-transit")) |> html_response(200)
+      assert html =~ "Sous-type"
+      assert html =~ DB.Dataset.subtype_to_str("urban")
+    end
+
+    test "does not appear when no type filter is selected", %{conn: conn} do
+      ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+      insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban])
+      Transport.DatasetIndex.refresh()
+
+      html = conn |> get(dataset_path(conn, :index)) |> html_response(200)
+      refute html =~ "Sous-type"
+    end
+
+    test "does not appear when type without subtypes is selected", %{conn: conn} do
+      insert(:dataset, type: "road-data")
+      Transport.DatasetIndex.refresh()
+
+      html = conn |> get(dataset_path(conn, :index, type: "road-data")) |> html_response(200)
+      refute html =~ "Sous-type"
+    end
+
+    test "filtering by subtype returns correct results", %{conn: conn} do
+      ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+      ds_intercity = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
+
+      urban_dataset = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban], custom_title: "Urban JDD")
+
+      intercity_dataset =
+        insert(:dataset, type: "public-transit", dataset_subtypes: [ds_intercity], custom_title: "Intercity JDD")
+
+      Transport.DatasetIndex.refresh()
+
+      html =
+        conn
+        |> get(dataset_path(conn, :index, type: "public-transit", subtype: "urban"))
+        |> html_response(200)
+
+      assert html =~ urban_dataset.custom_title
+      refute html =~ intercity_dataset.custom_title
+    end
+  end
+
   test "licences facet" do
     insert(:dataset, licence: "lov2", type: "road-data")
     insert(:dataset, licence: "fr-lo", type: "road-data")

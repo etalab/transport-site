@@ -54,6 +54,24 @@ defmodule Transport.DatasetIndexTest do
 
       assert Map.fetch!(index, dataset.id).formats == ["GTFS"]
     end
+
+    test "indexes dataset subtypes" do
+      ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+      ds_intercity = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
+
+      dataset =
+        insert(:dataset,
+          type: "public-transit",
+          is_active: true,
+          is_hidden: false,
+          dataset_subtypes: [ds_urban, ds_intercity]
+        )
+
+      index = Transport.DatasetIndex.build_index()
+
+      entry = Map.fetch!(index, dataset.id)
+      assert Enum.sort(entry.subtypes) == ["intercity", "urban"]
+    end
   end
 
   describe "facet computation" do
@@ -119,6 +137,35 @@ defmodule Transport.DatasetIndexTest do
       result = Transport.DatasetIndex.types(index, [d1.id])
 
       assert result == [%{type: "public-transit", count: 1, msg: "Transport public collectif"}]
+    end
+
+    test "subtypes counts correctly filtered by parent_type" do
+      ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+      ds_intercity = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
+      ds_bicycle = insert(:dataset_subtype, parent_type: "vehicles-sharing", slug: "bicycle")
+
+      d1 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban])
+      d2 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban, ds_intercity])
+      d3 = insert(:dataset, type: "vehicles-sharing", dataset_subtypes: [ds_bicycle])
+
+      index = Transport.DatasetIndex.build_index()
+
+      # d2 has both urban and intercity: all count should be 2 (distinct datasets), not 3
+      pt_result = Transport.DatasetIndex.subtypes(index, [d1.id, d2.id, d3.id], "public-transit")
+
+      assert pt_result.all == 2
+
+      assert Enum.sort_by(pt_result.subtypes, & &1.subtype) == [
+               %{subtype: "intercity", count: 1, msg: DB.Dataset.subtype_to_str("intercity")},
+               %{subtype: "urban", count: 2, msg: DB.Dataset.subtype_to_str("urban")}
+             ]
+
+      vs_result = Transport.DatasetIndex.subtypes(index, [d1.id, d2.id, d3.id], "vehicles-sharing")
+
+      assert vs_result == %{
+               all: 1,
+               subtypes: [%{subtype: "bicycle", count: 1, msg: DB.Dataset.subtype_to_str("bicycle")}]
+             }
     end
   end
 end

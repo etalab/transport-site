@@ -427,6 +427,27 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> Enum.map(& &1.id)
   end
 
+  test "search by subtype" do
+    ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+    ds_intercity = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
+
+    d1 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban])
+    d2 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_intercity])
+    _d3 = insert(:dataset, type: "public-transit", dataset_subtypes: [])
+
+    assert [d1.id] ==
+             %{"type" => "public-transit", "subtype" => "urban"}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+
+    assert [d2.id] ==
+             %{"type" => "public-transit", "subtype" => "intercity"}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
   test "search by transport offer" do
     o1 = insert(:offer)
     o2 = insert(:offer)

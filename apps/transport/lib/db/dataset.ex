@@ -169,6 +169,24 @@ defmodule DB.Dataset do
   @spec type_to_str(binary()) :: binary()
   def type_to_str(type), do: type_to_str_map()[type]
 
+  @spec subtype_to_str(binary()) :: binary()
+  def subtype_to_str(subtype) do
+    subtypes_map = %{
+      "urban" => dgettext("db-dataset", "Urban"),
+      "intercity" => dgettext("db-dataset", "Intercity"),
+      "school" => dgettext("db-dataset", "School"),
+      "seasonal" => dgettext("db-dataset", "Seasonal"),
+      "zonal_drt" => dgettext("db-dataset", "Zonal DRT"),
+      "bicycle" => dgettext("db-dataset", "Bicycle"),
+      "scooter" => dgettext("db-dataset", "Scooter"),
+      "carsharing" => dgettext("db-dataset", "Carsharing"),
+      "moped" => dgettext("db-dataset", "Moped"),
+      "freefloating" => dgettext("db-dataset", "Freefloating")
+    }
+
+    Map.fetch!(subtypes_map, subtype)
+  end
+
   @spec types() :: [binary()]
   def types, do: Map.keys(type_to_str_map())
 
@@ -370,6 +388,15 @@ defmodule DB.Dataset do
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
+  @spec filter_by_subtype(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_subtype(query, %{"subtype" => subtype}) do
+    query
+    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtypes)
+    |> where([dataset_subtypes: ds], ds.slug == ^subtype)
+  end
+
+  defp filter_by_subtype(query, _), do: query
+
   @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_epci(query, %{"epci" => epci}) do
     query
@@ -525,6 +552,7 @@ defmodule DB.Dataset do
       |> filter_by_mode(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
+      |> filter_by_subtype(params)
       |> filter_by_licence(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
