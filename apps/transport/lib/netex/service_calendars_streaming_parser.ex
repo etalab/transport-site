@@ -91,16 +91,6 @@ defmodule Transport.NeTEx.ServiceCalendarsStreamingParser do
     update_in(state, [:current_service_calendar], &(&1 |> Map.put(field, value)))
   end
 
-  defp push(state, element), do: state |> update_in([:current_tree], &(&1 ++ [element]))
-
-  defp pop(state), do: update_in(state, [:current_tree], &(&1 |> List.delete_at(-1)))
-
-  defp reset_tree(state), do: %{state | current_tree: []}
-
-  defp start_capture(state), do: %{state | capture: true}
-
-  defp stop_capture(state), do: %{state | capture: false}
-
   defp register_service_calendar(state) do
     current = state.current_service_calendar
 

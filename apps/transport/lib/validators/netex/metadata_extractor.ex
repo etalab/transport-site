@@ -4,7 +4,13 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
   - start_date and end_date (from calendar and service calendars)
   """
 
+  alias Transport.NeTEx.ArchiveParser
+
   def extract(filepath) do
+    Map.merge(extract_validity_dates(filepath), extract_networks(filepath))
+  end
+
+  def extract_validity_dates(filepath) do
     case validity_dates(filepath) do
       {start_date, end_date} ->
         %{
@@ -19,6 +25,12 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
     _ -> no_validity_dates()
   end
 
+  def extract_networks(filepath) do
+    %{"networks" => run_parser(filepath, &ArchiveParser.read_all_networks/1)}
+  rescue
+    _ -> %{"networks" => []}
+  end
+
   defp no_validity_dates, do: %{"no_validity_dates" => true}
 
   defp validity_dates(filepath) do
@@ -30,14 +42,16 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
   end
 
   defp validity_dates_from_calendars(filepath) do
-    filepath
-    |> Transport.NeTEx.ArchiveParser.read_all_calendars()
-    |> flatten()
+    run_parser(filepath, &ArchiveParser.read_all_calendars/1)
   end
 
   defp validity_dates_from_service_calendars(filepath) do
+    run_parser(filepath, &ArchiveParser.read_all_service_calendars/1)
+  end
+
+  defp run_parser(filepath, parser) do
     filepath
-    |> Transport.NeTEx.ArchiveParser.read_all_service_calendars()
+    |> parser.()
     |> flatten()
   end
 

@@ -37,4 +37,21 @@ defmodule Transport.NeTEx.SaxyHelpers do
         end
     end
   end
+
+  def capturing_initial_state(initial_state) do
+    Map.merge(initial_state, %{
+      capture: false,
+      current_tree: []
+    })
+  end
+
+  def push(state, element), do: state |> update_in([:current_tree], &(&1 ++ [element]))
+
+  def pop(state), do: update_in(state, [:current_tree], &(&1 |> List.delete_at(-1)))
+
+  def reset_tree(state), do: %{state | current_tree: []}
+
+  def start_capture(state), do: %{state | capture: true}
+
+  def stop_capture(state), do: %{state | capture: false}
 end

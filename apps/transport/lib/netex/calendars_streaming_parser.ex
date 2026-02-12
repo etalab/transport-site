@@ -5,16 +5,13 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
 
   @behaviour Saxy.Handler
 
-  import Transport.NeTEx.NeTExHelpers
   import Transport.NeTEx.SaxyHelpers
 
   def initial_state do
-    %{
-      capture: false,
-      current_tree: [],
+    capturing_initial_state(%{
       calendars: [],
       operating_periods: []
-    }
+    })
   end
 
   def unwrap_result(final_state), do: final_state.calendars ++ final_state.operating_periods
@@ -82,16 +79,6 @@ defmodule Transport.NeTEx.CalendarsStreamingParser do
   defp update_operating_period(state, field, value) do
     update_in(state, [:current_operating_period], &(&1 |> Map.put(field, value)))
   end
-
-  defp push(state, element), do: state |> update_in([:current_tree], &(&1 ++ [element]))
-
-  defp pop(state), do: update_in(state, [:current_tree], &(&1 |> List.delete_at(-1)))
-
-  defp reset_tree(state), do: %{state | current_tree: []}
-
-  defp start_capture(state), do: %{state | capture: true}
-
-  defp stop_capture(state), do: %{state | capture: false}
 
   defp register_calendar(state) do
     current = state.current_calendar
