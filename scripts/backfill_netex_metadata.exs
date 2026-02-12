@@ -33,16 +33,15 @@ defmodule Script do
   end
 
   defp filter(query, resource_ids) do
+    intro = "Backfilling metadata for NeTEx resources without validity dates"
+
     case resource_ids || [] do
       [] ->
-        Logger.info("Backfilling metadata for NeTEx resources without validity dates")
+        Logger.info(intro)
         query
 
       _ ->
-        Logger.info(
-          "Backfilling metadata for NeTEx resources without validity dates, limited to resources #{inspect(resource_ids)}"
-        )
-
+        Logger.info("#{intro}, limited to resources #{inspect(resource_ids)}")
         query |> where([_mv, _rh, r, _rm], r.id in ^resource_ids)
     end
   end
