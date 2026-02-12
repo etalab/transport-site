@@ -66,7 +66,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "retries" => 0,
                "elapsed_seconds" => 12,
                "start_date" => start_date,
-               "end_date" => end_date
+               "end_date" => end_date,
+               "networks" => []
              }
     end
 
@@ -85,7 +86,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         args: %{
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
-          "metadata" => %{"start_date" => start_date, "end_date" => end_date}
+          "metadata" => %{"start_date" => start_date, "end_date" => end_date, "networks" => []}
         }
       )
 
@@ -114,7 +115,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "retries" => 0,
                "elapsed_seconds" => 31,
                "start_date" => start_date,
-               "end_date" => end_date
+               "end_date" => end_date,
+               "networks" => []
              }
 
       assert multi_validation.result == %{
@@ -176,7 +178,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   :retries => 0,
                   :elapsed_seconds => 9,
                   "start_date" => start_date,
-                  "end_date" => end_date
+                  "end_date" => end_date,
+                  "networks" => []
                 }
               }} ==
                Validator.validate(resource_url)
@@ -231,7 +234,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   :retries => 0,
                   :elapsed_seconds => 25,
                   "start_date" => start_date,
-                  "end_date" => end_date
+                  "end_date" => end_date,
+                  "networks" => []
                 }
               }} ==
                Validator.validate(resource_url)
@@ -240,7 +244,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "pending" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
-      metadata = %{"start_date" => start_date, "end_date" => end_date}
+      metadata = %{"start_date" => start_date, "end_date" => end_date, "networks" => []}
 
       resource_url = mk_raw_netex_with_calendar(start_date, end_date)
 

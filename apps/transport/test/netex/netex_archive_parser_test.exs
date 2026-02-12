@@ -279,6 +279,50 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     assert [] == types
   end
 
+  test "extract Network(s)" do
+    general_frame = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>Réseau Urbain</Name>
+              </Network>
+              <Line>
+                <Name>Alberville - Besançon</Name>
+              </Line>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["Réseau Urbain"] == extract(&ArchiveParser.read_all_networks!/1, general_frame)
+
+    multiple_networks = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>Réseau Urbain</Name>
+              </Network>
+              <Network>
+                <Name>Réseau Régional</Name>
+              </Network>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["Réseau Urbain", "Réseau Régional"] == extract(&ArchiveParser.read_all_networks!/1, multiple_networks)
+  end
+
   defp extract(extractor, xml) do
     tmp_file = create_tmp_netex([{"file.xml", xml}])
 
