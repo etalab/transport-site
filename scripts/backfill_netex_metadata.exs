@@ -24,6 +24,7 @@ defmodule Script do
     |> where([_mv, _rh, r, _rm], r.format == "NeTEx")
     |> where([mv, _rh, _r, _rm], mv.validator == "enroute-chouette-netex-validator")
     |> where([_mv, _rh, _r, rm], fragment("?->>'start_date' is null", rm.metadata))
+    |> where([_mv, _rh, _r, rm], not fragment("coalesce((?->>'no_validity_dates')::boolean, false)", rm.metadata))
     |> select([_mv, rh, _r, rm], [rh.id, rm.id])
     |> order_by([_mv, _rh, _r, rm], {:asc, rm.updated_at})
     |> filter(resource_ids)

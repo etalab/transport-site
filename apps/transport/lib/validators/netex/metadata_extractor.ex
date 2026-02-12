@@ -13,11 +13,13 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
         }
 
       _ ->
-        %{}
+        no_validity_dates()
     end
   rescue
-    _ -> %{}
+    _ -> no_validity_dates()
   end
+
+  defp no_validity_dates, do: %{"no_validity_dates" => true}
 
   defp validity_dates(filepath) do
     all_dates =
