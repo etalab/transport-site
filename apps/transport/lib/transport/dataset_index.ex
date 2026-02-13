@@ -167,6 +167,122 @@ defmodule Transport.DatasetIndex do
     |> Enum.sort_by(& &1.nom)
   end
 
+  @doc """
+  Filter dataset IDs from the index based on the given params.
+
+  Supported filters: type, subtype, licence, filter (has_realtime), format, region, custom_tag, organization_id.
+  """
+  @spec filter_dataset_ids(map(), map()) :: [integer()]
+  def filter_dataset_ids(index, params) do
+    index
+    |> Enum.filter(fn {_id, entry} -> matches_filters?(entry, params) end)
+    |> Enum.map(fn {id, _entry} -> id end)
+  end
+
+  defp matches_filters?(entry, params) do
+    match_type?(entry, params) and
+      match_subtype?(entry, params) and
+      match_licence?(entry, params) and
+      match_has_realtime?(entry, params) and
+      match_format?(entry, params) and
+      match_region?(entry, params) and
+      match_custom_tag?(entry, params) and
+      match_organization_id?(entry, params)
+  end
+
+  defp match_type?(_entry, %{"type" => type}) when type in [nil, ""], do: true
+  defp match_type?(entry, %{"type" => type}), do: entry.type == type
+  defp match_type?(_entry, _params), do: true
+
+  defp match_subtype?(_entry, %{"subtype" => subtype}) when subtype in [nil, ""], do: true
+  defp match_subtype?(entry, %{"subtype" => subtype}), do: subtype in entry.subtypes
+  defp match_subtype?(_entry, _params), do: true
+
+  defp match_licence?(_entry, %{"licence" => licence}) when licence in [nil, ""], do: true
+
+  defp match_licence?(entry, %{"licence" => "licence-ouverte"}),
+    do: entry.licence in ~w(fr-lo lov2)
+
+  defp match_licence?(entry, %{"licence" => licence}), do: normalize_licence(entry.licence) == licence
+  defp match_licence?(_entry, _params), do: true
+
+  defp match_has_realtime?(entry, %{"filter" => "has_realtime"}), do: entry.has_realtime == true
+  defp match_has_realtime?(_entry, _params), do: true
+
+  defp match_format?(_entry, %{"format" => format}) when format in [nil, ""], do: true
+  defp match_format?(entry, %{"format" => format}), do: format in entry.formats
+  defp match_format?(_entry, _params), do: true
+
+  defp match_region?(_entry, %{"region" => region}) when region in [nil, ""], do: true
+  defp match_region?(entry, %{"region" => region}), do: entry.region_insee == region
+  defp match_region?(_entry, _params), do: true
+
+  defp match_custom_tag?(_entry, %{"custom_tag" => tag}) when tag in [nil, ""], do: true
+  defp match_custom_tag?(entry, %{"custom_tag" => tag}), do: tag in entry.custom_tags
+  defp match_custom_tag?(_entry, _params), do: true
+
+  defp match_organization_id?(_entry, %{"organization_id" => org_id}) when org_id in [nil, ""], do: true
+
+  defp match_organization_id?(entry, %{"organization_id" => org_id}) do
+    to_string(entry.organization_id) == to_string(org_id)
+  end
+
+  defp match_organization_id?(_entry, _params), do: true
+
+  @doc """
+  Sort dataset IDs in memory based on the given params.
+
+  - `order_by=alpha`: sort by custom_title ASC
+  - `order_by=most_recent`: sort by inserted_at DESC (nulls last)
+  - No `q` param: sort by "base nationale" priority, then population DESC, then custom_title ASC
+  - With `q` param: no in-memory sort (fulltext ranking stays in DB)
+  """
+  @spec order_dataset_ids([integer()], map(), map()) :: [integer()]
+  def order_dataset_ids(dataset_ids, index, %{"order_by" => "alpha"}) do
+    dataset_ids
+    |> Enum.sort_by(fn id -> (index[id].custom_title || "") |> String.downcase() end)
+  end
+
+  def order_dataset_ids(dataset_ids, index, %{"order_by" => "most_recent"}) do
+    dataset_ids
+    |> Enum.sort_by(
+      fn id ->
+        case index[id].inserted_at do
+          nil -> {0, nil}
+          dt -> {1, dt}
+        end
+      end,
+      :desc
+    )
+  end
+
+  def order_dataset_ids(dataset_ids, _index, %{"q" => _q}), do: dataset_ids
+
+  def order_dataset_ids(dataset_ids, index, _params) do
+    pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
+
+    dataset_ids
+    |> Enum.sort_by(
+      fn id ->
+        entry = index[id]
+
+        base_nationale_priority =
+          if to_string(entry.organization_id) == pan_publisher and
+               is_binary(entry.custom_title) and
+               String.starts_with?(String.downcase(entry.custom_title), "base nationale") do
+            0
+          else
+            1
+          end
+
+        population = -(entry.population || 0)
+        title = (entry.custom_title || "") |> String.downcase()
+
+        {base_nationale_priority, population, title}
+      end
+    )
+  end
+
   defp all_regions do
     DB.Region
     |> select([r], %{id: r.id, nom: r.nom, insee: r.insee})
@@ -185,6 +301,7 @@ defmodule Transport.DatasetIndex do
   def build_index do
     datasets =
       DB.Dataset.base_query()
+      |> DB.Dataset.reject_archived_datasets()
       |> preload([:resources, :dataset_subtypes])
       |> DB.Repo.all()
 
@@ -202,7 +319,13 @@ defmodule Transport.DatasetIndex do
          region_name: if(region, do: region.nom),
          region_insee: if(region, do: region.insee),
          formats: DB.Dataset.formats(dataset),
-         subtypes: Enum.map(dataset.dataset_subtypes, & &1.slug)
+         subtypes: Enum.map(dataset.dataset_subtypes, & &1.slug),
+         custom_tags: dataset.custom_tags || [],
+         organization_id: dataset.organization_id,
+         population: dataset.population,
+         custom_title: dataset.custom_title,
+         inserted_at: dataset.inserted_at,
+         datagouv_title: dataset.datagouv_title
        }}
     end)
   end

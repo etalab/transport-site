@@ -237,9 +237,9 @@ defmodule DB.Dataset do
   end
 
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_fulltext(query, %{"q" => ""}), do: query
+  def filter_by_fulltext(query, %{"q" => ""}), do: query
 
-  defp filter_by_fulltext(query, %{"q" => q}) do
+  def filter_by_fulltext(query, %{"q" => q}) do
     where(
       query,
       [d],
@@ -247,7 +247,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_fulltext(query, _), do: query
+  def filter_by_fulltext(query, _), do: query
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_region(query, %{"region" => region}) do
@@ -261,7 +261,7 @@ defmodule DB.Dataset do
   defp filter_by_region(query, _), do: query
 
   @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_departement(query, %{"departement" => insee}) do
+  def filter_by_departement(query, %{"departement" => insee}) do
     query
     |> where(
       [dataset: d],
@@ -314,7 +314,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_departement(query, _), do: query
+  def filter_by_departement(query, _), do: query
 
   @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
@@ -337,8 +337,8 @@ defmodule DB.Dataset do
   def filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_feature(query, %{"features" => [feature]})
-       when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
+  def filter_by_feature(query, %{"features" => [feature]})
+      when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     query
@@ -358,22 +358,22 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_feature(query, %{"features" => feature}) do
+  def filter_by_feature(query, %{"features" => feature}) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_features)
     |> where([resource_for_features: r], fragment("?->'gtfs_features' @> ?", r.counter_cache, ^feature))
   end
 
-  defp filter_by_feature(query, _), do: query
+  def filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
+  def filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
-  defp filter_by_mode(query, _), do: query
+  def filter_by_mode(query, _), do: query
 
   @spec filter_by_resource_format(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_resource_format(query, %{"format" => format}) do
@@ -398,7 +398,7 @@ defmodule DB.Dataset do
   defp filter_by_subtype(query, _), do: query
 
   @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_epci(query, %{"epci" => epci}) do
+  def filter_by_epci(query, %{"epci" => epci}) do
     query
     |> where(
       [dataset: d],
@@ -453,10 +453,10 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_epci(query, _), do: query
+  def filter_by_epci(query, _), do: query
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_commune(query, %{"commune" => commune}) do
+  def filter_by_commune(query, %{"commune" => commune}) do
     query
     |> where(
       [dataset: d],
@@ -508,15 +508,15 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_commune(query, _), do: query
+  def filter_by_commune(query, _), do: query
 
-  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+  def filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
     |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
   end
 
-  defp filter_by_offer(query, _), do: query
+  def filter_by_offer(query, _), do: query
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),

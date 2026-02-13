@@ -12,13 +12,13 @@ defmodule TransportWeb.DatasetController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
+  @db_only_filters ~w(departement epci commune q features modes identifiant_offre)
+
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
-    dataset_ids =
-      DB.Dataset.list_datasets(params)
-      |> exclude(:preload)
-      |> select([dataset: d], d.id)
-      |> DB.Repo.all()
+    index = Transport.DatasetIndex.get()
+    memory_ids = Transport.DatasetIndex.filter_dataset_ids(index, params)
+    dataset_ids = filtered_dataset_ids(memory_ids, index, params)
 
     config = make_pagination_config(params)
 
@@ -29,8 +29,6 @@ defmodule TransportWeb.DatasetController do
       |> order_by([d], fragment("array_position(?, ?)", ^dataset_ids, d.id))
       |> preload_spatial_areas()
       |> DB.Repo.paginate(page: config.page_number)
-
-    index = Transport.DatasetIndex.get()
 
     conn
     |> maybe_assign_regions(count_by_region, index, dataset_ids)
@@ -264,6 +262,58 @@ defmodule TransportWeb.DatasetController do
     |> assign(:custom_message, msg)
     |> render("404.html")
   end
+
+  defp filtered_dataset_ids(memory_ids, index, params) do
+    filtered_dataset_ids(memory_ids, index, params, Map.take(params, @db_only_filters))
+  end
+
+  # When the search does not include "db params" we can filter and order using only the memory index
+  defp filtered_dataset_ids(memory_ids, index, params, db_only_params) when db_only_params == %{} do
+    Transport.DatasetIndex.order_dataset_ids(memory_ids, index, params)
+  end
+
+  defp filtered_dataset_ids(memory_ids, _index, params, db_only_params) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id in ^memory_ids)
+    |> apply_db_only_filters(db_only_params)
+    |> DB.Dataset.order_datasets(params)
+    |> select([dataset: d], d.id)
+    |> DB.Repo.all()
+  end
+
+  defp apply_db_only_filters(query, db_only_params) do
+    query
+    |> maybe_filter(:departement, db_only_params)
+    |> maybe_filter(:epci, db_only_params)
+    |> maybe_filter(:commune, db_only_params)
+    |> maybe_filter(:q, db_only_params)
+    |> maybe_filter(:features, db_only_params)
+    |> maybe_filter(:modes, db_only_params)
+    |> maybe_filter(:identifiant_offre, db_only_params)
+  end
+
+  defp maybe_filter(query, :departement, %{"departement" => _} = params),
+    do: DB.Dataset.filter_by_departement(query, params)
+
+  defp maybe_filter(query, :epci, %{"epci" => _} = params),
+    do: DB.Dataset.filter_by_epci(query, params)
+
+  defp maybe_filter(query, :commune, %{"commune" => _} = params),
+    do: DB.Dataset.filter_by_commune(query, params)
+
+  defp maybe_filter(query, :q, %{"q" => _} = params),
+    do: DB.Dataset.filter_by_fulltext(query, params)
+
+  defp maybe_filter(query, :features, %{"features" => _} = params),
+    do: DB.Dataset.filter_by_feature(query, params)
+
+  defp maybe_filter(query, :modes, %{"modes" => _} = params),
+    do: DB.Dataset.filter_by_mode(query, params)
+
+  defp maybe_filter(query, :identifiant_offre, %{"identifiant_offre" => _} = params),
+    do: DB.Dataset.filter_by_offer(query, params)
+
+  defp maybe_filter(query, _key, _params), do: query
 
   defp preload_spatial_areas(query) do
     DB.AdministrativeDivision
