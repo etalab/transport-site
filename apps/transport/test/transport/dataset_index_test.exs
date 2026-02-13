@@ -83,6 +83,28 @@ defmodule Transport.DatasetIndexTest do
       assert entry.inserted_at == dataset.inserted_at
     end
 
+    test "indexes modes from resource counter_cache" do
+      dataset = insert(:dataset)
+      insert(:resource, dataset: dataset, counter_cache: %{gtfs_modes: ["bus", "tramway"]})
+      insert(:resource, dataset: dataset, counter_cache: %{gtfs_modes: ["bus", "ferry"]})
+
+      index = Transport.DatasetIndex.build_index()
+      entry = Map.fetch!(index, dataset.id)
+
+      assert Enum.sort(entry.modes) == ["bus", "ferry", "tramway"]
+    end
+
+    test "indexes offer identifiers" do
+      offer1 = insert(:offer)
+      offer2 = insert(:offer)
+      dataset = insert(:dataset, offers: [offer1, offer2])
+
+      index = Transport.DatasetIndex.build_index()
+      entry = Map.fetch!(index, dataset.id)
+
+      assert Enum.sort(entry.offer_ids) == Enum.sort([offer1.identifiant_offre, offer2.identifiant_offre])
+    end
+
     test "excludes archived datasets" do
       insert(:dataset, is_active: true, archived_at: DateTime.utc_now())
 
@@ -256,6 +278,31 @@ defmodule Transport.DatasetIndexTest do
           "filter" => "has_realtime"
         })
 
+      assert ids == [d1.id]
+    end
+
+    test "filter_dataset_ids by modes" do
+      d1 = insert(:dataset)
+      insert(:resource, dataset: d1, counter_cache: %{gtfs_modes: ["bus", "tramway"]})
+      d2 = insert(:dataset)
+      insert(:resource, dataset: d2, counter_cache: %{gtfs_modes: ["bus"]})
+      _d3 = insert(:dataset)
+
+      index = Transport.DatasetIndex.build_index()
+      ids = Transport.DatasetIndex.filter_dataset_ids(index, %{"modes" => ["bus"]})
+      assert Enum.sort(ids) == Enum.sort([d1.id, d2.id])
+
+      ids = Transport.DatasetIndex.filter_dataset_ids(index, %{"modes" => ["tramway"]})
+      assert ids == [d1.id]
+    end
+
+    test "filter_dataset_ids by identifiant_offre" do
+      offer = insert(:offer)
+      d1 = insert(:dataset, offers: [offer])
+      _d2 = insert(:dataset)
+
+      index = Transport.DatasetIndex.build_index()
+      ids = Transport.DatasetIndex.filter_dataset_ids(index, %{"identifiant_offre" => to_string(offer.identifiant_offre)})
       assert ids == [d1.id]
     end
 

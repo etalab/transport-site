@@ -17,9 +17,7 @@ defmodule TransportWeb.DatasetController do
     "epci" => &DB.Dataset.filter_by_epci/2,
     "commune" => &DB.Dataset.filter_by_commune/2,
     "q" => &DB.Dataset.filter_by_fulltext/2,
-    "features" => &DB.Dataset.filter_by_feature/2,
-    "modes" => &DB.Dataset.filter_by_mode/2,
-    "identifiant_offre" => &DB.Dataset.filter_by_offer/2
+    "features" => &DB.Dataset.filter_by_feature/2
   }
   @db_only_filters Map.keys(@db_filter_fns)
 

@@ -187,7 +187,9 @@ defmodule Transport.DatasetIndex do
       match_format?(entry, params) and
       match_region?(entry, params) and
       match_custom_tag?(entry, params) and
-      match_organization_id?(entry, params)
+      match_organization_id?(entry, params) and
+      match_modes?(entry, params) and
+      match_offer?(entry, params)
   end
 
   defp match_type?(_entry, %{"type" => type}) when type in [nil, ""], do: true
@@ -228,6 +230,22 @@ defmodule Transport.DatasetIndex do
   end
 
   defp match_organization_id?(_entry, _params), do: true
+
+  defp match_modes?(_entry, %{"modes" => modes}) when modes in [nil, []], do: true
+
+  defp match_modes?(entry, %{"modes" => modes}) when is_list(modes),
+    do: Enum.all?(modes, &(&1 in entry.modes))
+
+  defp match_modes?(_entry, _params), do: true
+
+  defp match_offer?(_entry, %{"identifiant_offre" => id}) when id in [nil, ""], do: true
+
+  defp match_offer?(entry, %{"identifiant_offre" => id}) do
+    parsed = if is_binary(id), do: String.to_integer(id), else: id
+    parsed in entry.offer_ids
+  end
+
+  defp match_offer?(_entry, _params), do: true
 
   @doc """
   Sort dataset IDs in memory based on the given params.
@@ -302,7 +320,7 @@ defmodule Transport.DatasetIndex do
     datasets =
       DB.Dataset.base_query()
       |> DB.Dataset.reject_archived_datasets()
-      |> preload([:resources, :dataset_subtypes])
+      |> preload([:resources, :dataset_subtypes, :offers])
       |> DB.Repo.all()
 
     region_mapping = build_region_mapping()
@@ -325,9 +343,18 @@ defmodule Transport.DatasetIndex do
          population: dataset.population,
          custom_title: dataset.custom_title,
          inserted_at: dataset.inserted_at,
-         datagouv_title: dataset.datagouv_title
+         datagouv_title: dataset.datagouv_title,
+         modes: extract_modes(dataset),
+         offer_ids: Enum.map(dataset.offers, & &1.identifiant_offre)
        }}
     end)
+  end
+
+  defp extract_modes(%DB.Dataset{} = dataset) do
+    dataset
+    |> DB.Dataset.official_resources()
+    |> Enum.flat_map(fn r -> get_in(r, [Access.key(:counter_cache), Access.key("gtfs_modes")]) || [] end)
+    |> Enum.uniq()
   end
 
   @spec build_region_mapping :: map()
