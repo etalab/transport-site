@@ -302,7 +302,10 @@ defmodule Transport.DatasetIndexTest do
       _d2 = insert(:dataset)
 
       index = Transport.DatasetIndex.build_index()
-      ids = Transport.DatasetIndex.filter_dataset_ids(index, %{"identifiant_offre" => to_string(offer.identifiant_offre)})
+
+      ids =
+        Transport.DatasetIndex.filter_dataset_ids(index, %{"identifiant_offre" => to_string(offer.identifiant_offre)})
+
       assert ids == [d1.id]
     end
 

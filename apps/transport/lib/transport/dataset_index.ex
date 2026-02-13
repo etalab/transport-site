@@ -180,16 +180,22 @@ defmodule Transport.DatasetIndex do
   end
 
   defp matches_filters?(entry, params) do
+    matches_dataset_filters?(entry, params) and matches_resource_filters?(entry, params)
+  end
+
+  defp matches_dataset_filters?(entry, params) do
     match_type?(entry, params) and
       match_subtype?(entry, params) and
       match_licence?(entry, params) and
       match_has_realtime?(entry, params) and
-      match_format?(entry, params) and
       match_region?(entry, params) and
       match_custom_tag?(entry, params) and
       match_organization_id?(entry, params) and
-      match_modes?(entry, params) and
       match_offer?(entry, params)
+  end
+
+  defp matches_resource_filters?(entry, params) do
+    match_format?(entry, params) and match_modes?(entry, params)
   end
 
   defp match_type?(_entry, %{"type" => type}) when type in [nil, ""], do: true
@@ -280,25 +286,23 @@ defmodule Transport.DatasetIndex do
     pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
 
     dataset_ids
-    |> Enum.sort_by(
-      fn id ->
-        entry = index[id]
+    |> Enum.sort_by(fn id ->
+      entry = index[id]
 
-        base_nationale_priority =
-          if to_string(entry.organization_id) == pan_publisher and
-               is_binary(entry.custom_title) and
-               String.starts_with?(String.downcase(entry.custom_title), "base nationale") do
-            0
-          else
-            1
-          end
+      base_nationale_priority =
+        if to_string(entry.organization_id) == pan_publisher and
+             is_binary(entry.custom_title) and
+             String.starts_with?(String.downcase(entry.custom_title), "base nationale") do
+          0
+        else
+          1
+        end
 
-        population = -(entry.population || 0)
-        title = (entry.custom_title || "") |> String.downcase()
+      population = -(entry.population || 0)
+      title = (entry.custom_title || "") |> String.downcase()
 
-        {base_nationale_priority, population, title}
-      end
-    )
+      {base_nationale_priority, population, title}
+    end)
   end
 
   defp all_regions do
