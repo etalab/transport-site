@@ -1,7 +1,9 @@
 defmodule Transport.DatasetIndex do
   @moduledoc """
-  A GenServer that builds and maintains an in-memory index of dataset facets
-  (type, licence, real-time, region, resource formats).
+  A GenServer that builds and maintains an in-memory index of datasets.
+
+  Used for filtering, sorting and computing facets (type, licence, real-time,
+  region, resource formats, subtypes, modes, offers) without hitting the database.
 
   The index is refreshed every 30 minutes.
   """
@@ -9,6 +11,9 @@ defmodule Transport.DatasetIndex do
   import Ecto.Query
 
   @refresh_interval :timer.minutes(30)
+
+  @licences_ouvertes ~w(fr-lo lov2)
+  @param_filter_keys ~w(type subtype licence filter format region custom_tag organization_id modes identifiant_offre)
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -54,6 +59,8 @@ defmodule Transport.DatasetIndex do
   defp schedule_refresh(delay \\ @refresh_interval) do
     Process.send_after(self(), :tick, delay)
   end
+
+  # --- Facet computation ---
 
   @doc """
   Compute subtypes facet counts from the index for the given dataset IDs,
@@ -167,91 +174,53 @@ defmodule Transport.DatasetIndex do
     |> Enum.sort_by(& &1.nom)
   end
 
+  # --- Filtering ---
+
   @doc """
   Filter dataset IDs from the index based on the given params.
 
-  Supported filters: type, subtype, licence, filter (has_realtime), format, region, custom_tag, organization_id.
+  Supported filters: type, subtype, licence, filter (has_realtime), format,
+  region, custom_tag, organization_id, modes, identifiant_offre.
   """
   @spec filter_dataset_ids(map(), map()) :: [integer()]
   def filter_dataset_ids(index, params) do
+    # Pre-select only the filter keys whose param is present and non-empty,
+    # so we don't check every filter for every entry.
+    active_filters =
+      for key <- @param_filter_keys,
+          (val = Map.get(params, key)) not in [nil, ""],
+          do: {key, val}
+
     index
-    |> Enum.filter(fn {_id, entry} -> matches_filters?(entry, params) end)
+    |> Enum.filter(fn {_id, entry} ->
+      Enum.all?(active_filters, fn {key, val} -> match_param?(key, entry, val) end)
+    end)
     |> Enum.map(fn {id, _entry} -> id end)
   end
 
-  defp matches_filters?(entry, params) do
-    matches_dataset_filters?(entry, params) and matches_resource_filters?(entry, params)
-  end
+  defp match_param?("type", entry, type), do: entry.type == type
+  defp match_param?("subtype", entry, subtype), do: subtype in entry.subtypes
 
-  defp matches_dataset_filters?(entry, params) do
-    match_type?(entry, params) and
-      match_subtype?(entry, params) and
-      match_licence?(entry, params) and
-      match_has_realtime?(entry, params) and
-      match_region?(entry, params) and
-      match_custom_tag?(entry, params) and
-      match_organization_id?(entry, params) and
-      match_offer?(entry, params)
-  end
+  defp match_param?("licence", entry, "licence-ouverte"), do: entry.licence in @licences_ouvertes
+  defp match_param?("licence", entry, licence), do: entry.licence == licence
 
-  defp matches_resource_filters?(entry, params) do
-    match_format?(entry, params) and match_modes?(entry, params)
-  end
+  defp match_param?("filter", entry, "has_realtime"), do: entry.has_realtime
+  defp match_param?("filter", _entry, _other), do: true
 
-  defp match_type?(_entry, %{"type" => type}) when type in [nil, ""], do: true
-  defp match_type?(entry, %{"type" => type}), do: entry.type == type
-  defp match_type?(_entry, _params), do: true
+  defp match_param?("format", entry, format), do: format in entry.formats
+  defp match_param?("region", entry, region), do: entry.region_insee == region
+  defp match_param?("custom_tag", entry, tag), do: tag in entry.custom_tags
+  defp match_param?("organization_id", entry, org_id), do: to_string(entry.organization_id) == to_string(org_id)
 
-  defp match_subtype?(_entry, %{"subtype" => subtype}) when subtype in [nil, ""], do: true
-  defp match_subtype?(entry, %{"subtype" => subtype}), do: subtype in entry.subtypes
-  defp match_subtype?(_entry, _params), do: true
+  defp match_param?("modes", _entry, modes) when not is_list(modes) or modes == [], do: true
+  defp match_param?("modes", entry, modes), do: Enum.all?(modes, &(&1 in entry.modes))
 
-  defp match_licence?(_entry, %{"licence" => licence}) when licence in [nil, ""], do: true
-
-  defp match_licence?(entry, %{"licence" => "licence-ouverte"}),
-    do: entry.licence in ~w(fr-lo lov2)
-
-  defp match_licence?(entry, %{"licence" => licence}), do: normalize_licence(entry.licence) == licence
-  defp match_licence?(_entry, _params), do: true
-
-  defp match_has_realtime?(entry, %{"filter" => "has_realtime"}), do: entry.has_realtime == true
-  defp match_has_realtime?(_entry, _params), do: true
-
-  defp match_format?(_entry, %{"format" => format}) when format in [nil, ""], do: true
-  defp match_format?(entry, %{"format" => format}), do: format in entry.formats
-  defp match_format?(_entry, _params), do: true
-
-  defp match_region?(_entry, %{"region" => region}) when region in [nil, ""], do: true
-  defp match_region?(entry, %{"region" => region}), do: entry.region_insee == region
-  defp match_region?(_entry, _params), do: true
-
-  defp match_custom_tag?(_entry, %{"custom_tag" => tag}) when tag in [nil, ""], do: true
-  defp match_custom_tag?(entry, %{"custom_tag" => tag}), do: tag in entry.custom_tags
-  defp match_custom_tag?(_entry, _params), do: true
-
-  defp match_organization_id?(_entry, %{"organization_id" => org_id}) when org_id in [nil, ""], do: true
-
-  defp match_organization_id?(entry, %{"organization_id" => org_id}) do
-    to_string(entry.organization_id) == to_string(org_id)
-  end
-
-  defp match_organization_id?(_entry, _params), do: true
-
-  defp match_modes?(_entry, %{"modes" => modes}) when modes in [nil, []], do: true
-
-  defp match_modes?(entry, %{"modes" => modes}) when is_list(modes),
-    do: Enum.all?(modes, &(&1 in entry.modes))
-
-  defp match_modes?(_entry, _params), do: true
-
-  defp match_offer?(_entry, %{"identifiant_offre" => id}) when id in [nil, ""], do: true
-
-  defp match_offer?(entry, %{"identifiant_offre" => id}) do
+  defp match_param?("identifiant_offre", entry, id) do
     parsed = if is_binary(id), do: String.to_integer(id), else: id
     parsed in entry.offer_ids
   end
 
-  defp match_offer?(_entry, _params), do: true
+  # --- Sorting ---
 
   @doc """
   Sort dataset IDs in memory based on the given params.
@@ -263,13 +232,12 @@ defmodule Transport.DatasetIndex do
   """
   @spec order_dataset_ids([integer()], map(), map()) :: [integer()]
   def order_dataset_ids(dataset_ids, index, %{"order_by" => "alpha"}) do
-    dataset_ids
-    |> Enum.sort_by(fn id -> (index[id].custom_title || "") |> String.downcase() end)
+    Enum.sort_by(dataset_ids, fn id -> (index[id].custom_title || "") |> String.downcase() end)
   end
 
   def order_dataset_ids(dataset_ids, index, %{"order_by" => "most_recent"}) do
-    dataset_ids
-    |> Enum.sort_by(
+    Enum.sort_by(
+      dataset_ids,
       fn id ->
         case index[id].inserted_at do
           nil -> {0, nil}
@@ -285,38 +253,23 @@ defmodule Transport.DatasetIndex do
   def order_dataset_ids(dataset_ids, index, _params) do
     pan_publisher = Application.fetch_env!(:transport, :datagouvfr_transport_publisher_id)
 
-    dataset_ids
-    |> Enum.sort_by(fn id ->
-      entry = index[id]
-
-      base_nationale_priority =
-        if to_string(entry.organization_id) == pan_publisher and
-             is_binary(entry.custom_title) and
-             String.starts_with?(String.downcase(entry.custom_title), "base nationale") do
-          0
-        else
-          1
-        end
-
-      population = -(entry.population || 0)
-      title = (entry.custom_title || "") |> String.downcase()
-
-      {base_nationale_priority, population, title}
-    end)
+    Enum.sort_by(dataset_ids, fn id -> default_sort_key(index[id], pan_publisher) end)
   end
 
-  defp all_regions do
-    DB.Region
-    |> select([r], %{id: r.id, nom: r.nom, insee: r.insee})
-    |> DB.Repo.all()
+  defp default_sort_key(entry, pan_publisher) do
+    base_nationale =
+      if to_string(entry.organization_id) == pan_publisher and
+           is_binary(entry.custom_title) and
+           entry.custom_title |> String.downcase() |> String.starts_with?("base nationale") do
+        0
+      else
+        1
+      end
+
+    {base_nationale, -(entry.population || 0), (entry.custom_title || "") |> String.downcase()}
   end
 
-  defp entries_for(index, dataset_ids) do
-    index |> Map.take(dataset_ids) |> Map.values()
-  end
-
-  defp normalize_licence(licence) when licence in ~w(fr-lo lov2), do: "licence-ouverte"
-  defp normalize_licence(licence), do: licence
+  # --- Index building ---
 
   @doc false
   @spec build_index :: map()
@@ -329,29 +282,30 @@ defmodule Transport.DatasetIndex do
 
     region_mapping = build_region_mapping()
 
-    Map.new(datasets, fn dataset ->
-      region = Map.get(region_mapping, dataset.id)
+    Map.new(datasets, fn dataset -> {dataset.id, build_entry(dataset, region_mapping)} end)
+  end
 
-      {dataset.id,
-       %{
-         type: dataset.type,
-         licence: dataset.licence,
-         has_realtime: dataset.has_realtime,
-         region_id: if(region, do: region.id),
-         region_name: if(region, do: region.nom),
-         region_insee: if(region, do: region.insee),
-         formats: DB.Dataset.formats(dataset),
-         subtypes: Enum.map(dataset.dataset_subtypes, & &1.slug),
-         custom_tags: dataset.custom_tags || [],
-         organization_id: dataset.organization_id,
-         population: dataset.population,
-         custom_title: dataset.custom_title,
-         inserted_at: dataset.inserted_at,
-         datagouv_title: dataset.datagouv_title,
-         modes: extract_modes(dataset),
-         offer_ids: Enum.map(dataset.offers, & &1.identifiant_offre)
-       }}
-    end)
+  defp build_entry(dataset, region_mapping) do
+    region = Map.get(region_mapping, dataset.id)
+
+    %{
+      type: dataset.type,
+      licence: dataset.licence,
+      has_realtime: dataset.has_realtime,
+      region_id: if(region, do: region.id),
+      region_name: if(region, do: region.nom),
+      region_insee: if(region, do: region.insee),
+      formats: DB.Dataset.formats(dataset),
+      subtypes: Enum.map(dataset.dataset_subtypes, & &1.slug),
+      custom_tags: dataset.custom_tags || [],
+      organization_id: dataset.organization_id,
+      population: dataset.population,
+      custom_title: dataset.custom_title,
+      inserted_at: dataset.inserted_at,
+      datagouv_title: dataset.datagouv_title,
+      modes: extract_modes(dataset),
+      offer_ids: Enum.map(dataset.offers, & &1.identifiant_offre)
+    }
   end
 
   defp extract_modes(%DB.Dataset{} = dataset) do
@@ -359,6 +313,22 @@ defmodule Transport.DatasetIndex do
     |> DB.Dataset.official_resources()
     |> Enum.flat_map(fn r -> get_in(r, [Access.key(:counter_cache), Access.key("gtfs_modes")]) || [] end)
     |> Enum.uniq()
+  end
+
+  # --- Helpers ---
+
+  defp all_regions do
+    DB.Region
+    |> select([r], %{id: r.id, nom: r.nom, insee: r.insee})
+    |> DB.Repo.all()
+  end
+
+  defp entries_for(index, dataset_ids) do
+    index |> Map.take(dataset_ids) |> Map.values()
+  end
+
+  defp normalize_licence(licence) do
+    if licence in @licences_ouvertes, do: "licence-ouverte", else: licence
   end
 
   @spec build_region_mapping :: map()
