@@ -26,10 +26,10 @@ defmodule Transport.IRVE.Deduplicator do
             "unique"
 
           datagouv_last_modified == max_datagouv_last_modified ->
-            "kept_because_more_recent"
+            "kept_because_resource_more_recent"
 
           true ->
-            "removed_because_not_more_recent"
+            "removed_because_resource_not_more_recent"
         end
     )
     |> Explorer.DataFrame.discard("similar_pdc_count")
