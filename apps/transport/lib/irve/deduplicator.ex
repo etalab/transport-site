@@ -36,4 +36,10 @@ defmodule Transport.IRVE.Deduplicator do
     |> Explorer.DataFrame.discard("max_datagouv_last_modified")
     |> Explorer.DataFrame.ungroup()
   end
+
+  def discard_duplicates(df) do
+    df
+    |> Explorer.DataFrame.filter(deduplication_status in ["unique", "kept_because_more_recent"])
+    |> Explorer.DataFrame.discard("deduplication_status")
+  end
 end
