@@ -511,10 +511,6 @@ msgid "Static data"
 msgstr "Données statiques"
 
 #, elixir-autogen, elixir-format
-msgid "Automatic conversions"
-msgstr "Conversions automatiques"
-
-#, elixir-autogen, elixir-format
 msgid "Accessibility issue"
 msgstr "Problème d'accessibilité"
 
@@ -733,3 +729,7 @@ msgstr "Cette discussion est fermée"
 #, elixir-autogen, elixir-format
 msgid "You will find below reuses created by individuals or organizations based on this dataset."
 msgstr "Vous trouverez dessous les réutilisations créées par des personnes ou des organisations en utilisant ce jeu de données."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download as GeoJSON"
+msgstr "Télécharger au format GeoJSON"

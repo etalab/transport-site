@@ -21,28 +21,6 @@ locale = get_session(@conn, :locale) %>
     <div class="panel">
       {render("_resource_description.html", conn: @conn, resource: @resource, resource_history: @resource_history)}
       {render("_resources_details_gtfs.html", conn: @conn, metadata: @metadata, modes: @modes)}
-      <%= if !is_nil(associated_geojson) do %>
-        <div id="other-formats">
-          {dgettext("validations", "This resource is also available in the following formats:")}
-          <ul>
-            <%= unless is_nil(associated_geojson) do %>
-              <li>
-                <a rel="nofollow" href={associated_geojson.stable_url}>GeoJSON</a>*
-              </li>
-            <% end %>
-          </ul>
-          * {dgettext(
-            "validations",
-            "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)
-              It corresponds to the data you can see on the map below."
-          )}
-          <%= unless is_nil(associated_geojson) or is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
-            {dgettext("validations", "This GeoJSON was up-to-date with the GTFS resource %{hours} ago.",
-              hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
-            )}
-          <% end %>
-        </div>
-      <% end %>
     </div>
 
     <%= unless Enum.empty?(@resource.resources_related) do %>
@@ -74,13 +52,19 @@ locale = get_session(@conn, :locale) %>
             })
         </script>
       </div>
-      <%= unless is_nil(associated_geojson.resource_history_last_up_to_date_at) do %>
-        <div class="is-centered no-margin">
-          {dgettext("validations", "Visualization up-to-date %{hours} ago.",
-            hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
-          )}
-        </div>
-      <% end %>
+      <div :if={not is_nil(associated_geojson.resource_history_last_up_to_date_at)} class="is-centered mt-12">
+        {dgettext("validations", "Visualization up-to-date %{hours} ago.",
+          hours: hours_ago(associated_geojson.resource_history_last_up_to_date_at, locale)
+        )}
+        <a class="download-button" rel="nofollow" href={associated_geojson.stable_url}>
+          <button class="button-outline secondary no-border small">
+            <i class="icon icon--download" aria-hidden="true"></i>{dgettext(
+              "page-dataset-details",
+              "Download as GeoJSON"
+            )}
+          </button>
+        </a>
+      </div>
     <% end %>
     <h2 id="validation-report" class="mt-48">{dgettext("validations", "Validation report")}</h2>
     <div class="panel" id="issues">

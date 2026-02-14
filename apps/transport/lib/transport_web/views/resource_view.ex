@@ -64,20 +64,6 @@ defmodule TransportWeb.ResourceView do
     "_netex#{template}"
   end
 
-  def has_associated_files(%{} = resources_related_files, resource_id) do
-    # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
-    resource_ids =
-      resources_related_files
-      |> Enum.reject(fn {_resource_id, conversions} ->
-        conversions |> Map.values() |> Enum.reject(&is_nil/1) |> Enum.empty?()
-      end)
-      |> Enum.map(fn {resource_id, _} -> resource_id end)
-
-    resource_id in resource_ids
-  end
-
-  def has_associated_files(_, _), do: false
-
   def get_associated_geojson(%{GeoJSON: geojson_details}), do: geojson_details
   def get_associated_geojson(_), do: nil
 

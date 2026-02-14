@@ -96,14 +96,6 @@ msgstr ""
 msgid "Stops and routes visualization of the GTFS file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "This resource is also available in the following formats:"
-msgstr ""
-
 #, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
@@ -129,10 +121,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "No error detected"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
 msgstr ""
 
 #, elixir-autogen, elixir-format
