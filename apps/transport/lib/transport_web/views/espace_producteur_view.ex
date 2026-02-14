@@ -52,7 +52,7 @@ defmodule TransportWeb.EspaceProducteurView do
   end
 
   defp extract_issue(%DB.Resource{} = resource), do: resource
-  defp extract_issue({%DB.Resource{} = resource, [mv | _]}), do: resource
+  defp extract_issue({%DB.Resource{} = resource, [_mv | _]}), do: resource
   defp extract_issue(discussion), do: discussion
 
   def issue_hidden?(hidden_alerts, dataset, check_name, issue) do

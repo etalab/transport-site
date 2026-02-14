@@ -373,4 +373,7 @@ defmodule Transport.Validators.GTFSRT do
   def digest(%{} = validation_result) do
     Map.intersect(%{"warnings_count" => 0, "errors_count" => 0}, validation_result)
   end
+
+  @impl Transport.Validators.Validator
+  def outdated?(_multi_validation), do: nil
 end
