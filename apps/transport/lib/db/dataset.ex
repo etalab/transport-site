@@ -367,13 +367,13 @@ defmodule DB.Dataset do
   def filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  def filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
+  defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_mode)
     |> where([resource_for_mode: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^modes))
   end
 
-  def filter_by_mode(query, _), do: query
+  defp filter_by_mode(query, _), do: query
 
   @spec filter_by_resource_format(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_resource_format(query, %{"format" => format}) do
@@ -510,13 +510,13 @@ defmodule DB.Dataset do
 
   def filter_by_commune(query, _), do: query
 
-  def filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
     |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
   end
 
-  def filter_by_offer(query, _), do: query
+  defp filter_by_offer(query, _), do: query
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
