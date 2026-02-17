@@ -4,8 +4,6 @@ defmodule Transport.IRVE.DeduplicatorTest do
   test "calculates duplicate statuses correctly" do
     test_df = create_test_dataframe()
 
-    # IO.inspect(test_df)
-
     result_df = Transport.IRVE.Deduplicator.add_duplicates_column(test_df)
 
     result_list =
@@ -75,9 +73,39 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              }
            ]
+  end
 
-    # IO.inspect(result_df)
-    # Explorer.DataFrame.print(result_df, limit: :infinity)
+  test "we can generate a deduplicated dataframe" do
+    test_df = create_test_dataframe()
+
+    result_df =
+      test_df
+      |> Transport.IRVE.Deduplicator.add_duplicates_column()
+      |> Transport.IRVE.Deduplicator.discard_duplicates()
+
+    result_list =
+      result_df
+      |> Explorer.DataFrame.select(["id_pdc_itinerance", "datagouv_resource_id"])
+      |> Explorer.DataFrame.to_rows()
+
+    assert result_list == [
+             %{
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "id_pdc_itinerance" => "FRS31UNIQUE1"
+             },
+             %{
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "id_pdc_itinerance" => "FRS31DUPLICATE2"
+             },
+             %{
+               "datagouv_resource_id" => "resource-2026-02-17",
+               "id_pdc_itinerance" => "FRS31DUPLICATE1"
+             },
+             %{
+               "datagouv_resource_id" => "gireve-resource",
+               "id_pdc_itinerance" => "FRS31DUPLICATE3"
+             }
+           ]
   end
 
   defp create_test_dataframe do
