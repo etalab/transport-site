@@ -10,57 +10,67 @@ defmodule Transport.IRVE.DeduplicatorTest do
 
     result_list =
       result_df
-      |> Explorer.DataFrame.select(["id_pdc_itinerance", "datagouv_resource_id", "deduplication_status"])
+      |> Explorer.DataFrame.select(["id_pdc_itinerance", "datagouv_resource_id", "date_maj", "deduplication_status"])
       |> Explorer.DataFrame.to_rows()
 
     assert result_list == [
              %{
-               "datagouv_resource_id" => "resource-1",
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "unique",
                "id_pdc_itinerance" => "FRS31UNIQUE1"
              },
              %{
-               "datagouv_resource_id" => "resource-1",
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "removed_because_resource_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
-               "datagouv_resource_id" => "resource-1",
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "kept_because_date_maj_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE2"
              },
              %{
-               "datagouv_resource_id" => "resource-1",
+               "datagouv_resource_id" => "resource-2026-02-15",
+               "date_maj" => ~D[2026-02-02],
                "deduplication_status" => "removed_because_not_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{
-               "datagouv_resource_id" => "resource-2",
+               "datagouv_resource_id" => "resource-2026-02-01",
+               "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "kept_because_resource_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
-               "datagouv_resource_id" => "resource-2",
+               "datagouv_resource_id" => "resource-2026-02-01",
+               "date_maj" => ~D[2026-01-01],
                "deduplication_status" => "removed_because_date_maj_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE2"
              },
              %{
-               "datagouv_resource_id" => "resource-3",
+               "datagouv_resource_id" => "resource-2026-02-01",
+               "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "removed_because_resource_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
-               "datagouv_resource_id" => "resource-4",
+               "datagouv_resource_id" => "resource-2026-02-18",
+               "date_maj" => ~D[2025-12-01],
                "deduplication_status" => "removed_because_date_maj_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
                "datagouv_resource_id" => "gireve-resource",
+               "date_maj" => ~D[2025-10-01],
                "deduplication_status" => "kept_because_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{
                "datagouv_resource_id" => "qualicharge-resource",
+               "date_maj" => ~D[2025-10-01],
                "deduplication_status" => "removed_because_not_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              }
@@ -73,13 +83,13 @@ defmodule Transport.IRVE.DeduplicatorTest do
   defp create_test_dataframe do
     # First resource - 3 entries, one unique PDC
 
-    first_resource = %{
-      "datagouv_dataset_id" => "dataset-1",
-      "datagouv_resource_id" => "resource-1",
+    resource_2026_02_15 = %{
+      "datagouv_dataset_id" => "dataset-2026-02-15",
+      "datagouv_resource_id" => "resource-2026-02-15",
       "datagouv_last_modified" => DateTime.new!(~D[2026-02-15], ~T[10:30:00.000], "Etc/UTC")
     }
 
-    first_resource_content =
+    resource_2026_02_15_content =
       [
         %{
           "id_pdc_itinerance" => "FRS31UNIQUE1",
@@ -98,18 +108,18 @@ defmodule Transport.IRVE.DeduplicatorTest do
           "date_maj" => ~D[2026-02-02]
         }
       ]
-      |> Enum.map(&Map.merge(&1, first_resource))
+      |> Enum.map(&Map.merge(&1, resource_2026_02_15))
 
     # Second resource - 2 entries, duplicates of the first resource.
     # File is more recent but one of the date_maj is older.
 
-    second_resource = %{
-      "datagouv_dataset_id" => "dataset-2",
-      "datagouv_resource_id" => "resource-2",
+    resource_2026_02_17 = %{
+      "datagouv_dataset_id" => "dataset-2026-02-01",
+      "datagouv_resource_id" => "resource-2026-02-01",
       "datagouv_last_modified" => DateTime.new!(~D[2026-02-17], ~T[14:15:00.000], "Etc/UTC")
     }
 
-    second_resource_content =
+    resource_2026_02_17_content =
       [
         %{
           "id_pdc_itinerance" => "FRS31DUPLICATE1",
@@ -120,41 +130,43 @@ defmodule Transport.IRVE.DeduplicatorTest do
           "date_maj" => ~D[2026-01-01]
         }
       ]
-      |> Enum.map(&Map.merge(&1, second_resource))
+      |> Enum.map(&Map.merge(&1, resource_2026_02_17))
 
     # Third resource - 1 entry, same date_maj than first resource, but has an older datagouv_last_modified.
     # Should be removed.
 
-    third_resource = %{
-      "datagouv_dataset_id" => "dataset-3",
-      "datagouv_resource_id" => "resource-3",
+    resource_2026_02_01 = %{
+      "datagouv_dataset_id" => "dataset-2026-02-01",
+      "datagouv_resource_id" => "resource-2026-02-01",
       "datagouv_last_modified" => DateTime.new!(~D[2026-02-02], ~T[09:00:00.000], "Etc/UTC")
     }
 
-    third_resource_content =
+    resource_2026_02_01_content =
       [
         %{
           "id_pdc_itinerance" => "FRS31DUPLICATE1",
           "date_maj" => ~D[2026-02-01]
         }
       ]
-      |> Enum.map(&Map.merge(&1, third_resource))
+      |> Enum.map(&Map.merge(&1, resource_2026_02_01))
 
     # Tricky case! Has been published the most recently, but the date_maj is older. Should be removed.
-    fourth_resource = %{
-      "datagouv_dataset_id" => "dataset-4",
-      "datagouv_resource_id" => "resource-4",
+    reource_2026_02_18 = %{
+      "datagouv_dataset_id" => "dataset-2026-02-18",
+      "datagouv_resource_id" => "resource-2026-02-18",
       "datagouv_last_modified" => DateTime.new!(~D[2026-02-18], ~T[10:00:00.000], "Etc/UTC")
     }
 
-    fourth_resource_content =
+    reource_2026_02_18_content =
       [
         %{
           "id_pdc_itinerance" => "FRS31DUPLICATE1",
           "date_maj" => ~D[2025-12-01]
         }
       ]
-      |> Enum.map(&Map.merge(&1, fourth_resource))
+      |> Enum.map(&Map.merge(&1, reource_2026_02_18))
+
+    # Last resources for testing the prioritary list filter. Both are quite old but they should take the lead.
 
     gireve_resource = %{
       "datagouv_dataset_id" => "63dccb1307e9b2f213a5130c",
@@ -187,10 +199,10 @@ defmodule Transport.IRVE.DeduplicatorTest do
       |> Enum.map(&Map.merge(&1, qualicharge_resource))
 
     data =
-      first_resource_content ++
-        second_resource_content ++
-        third_resource_content ++
-        fourth_resource_content ++
+      resource_2026_02_15_content ++
+        resource_2026_02_17_content ++
+        resource_2026_02_01_content ++
+        reource_2026_02_18_content ++
         gireve_resource_content ++
         qualicharge_resource_content
 
