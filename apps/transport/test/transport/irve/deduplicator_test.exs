@@ -30,6 +30,11 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "id_pdc_itinerance" => "FRS31DUPLICATE2"
              },
              %{
+               "datagouv_resource_id" => "resource-1",
+               "deduplication_status" => "removed_because_not_in_prioritary_dataset",
+               "id_pdc_itinerance" => "FRS31DUPLICATE3"
+             },
+             %{
                "datagouv_resource_id" => "resource-2",
                "deduplication_status" => "kept_because_resource_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
@@ -48,6 +53,16 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "datagouv_resource_id" => "resource-4",
                "deduplication_status" => "removed_because_date_maj_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
+             },
+             %{
+               "datagouv_resource_id" => "gireve-resource",
+               "deduplication_status" => "kept_because_in_prioritary_dataset",
+               "id_pdc_itinerance" => "FRS31DUPLICATE3"
+             },
+             %{
+               "datagouv_resource_id" => "qualicharge-resource",
+               "deduplication_status" => "removed_because_not_in_prioritary_dataset",
+               "id_pdc_itinerance" => "FRS31DUPLICATE3"
              }
            ]
 
@@ -77,6 +92,10 @@ defmodule Transport.IRVE.DeduplicatorTest do
         %{
           "id_pdc_itinerance" => "FRS31DUPLICATE2",
           "date_maj" => ~D[2026-02-01]
+        },
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE3",
+          "date_maj" => ~D[2026-02-02]
         }
       ]
       |> Enum.map(&Map.merge(&1, first_resource))
@@ -137,7 +156,43 @@ defmodule Transport.IRVE.DeduplicatorTest do
       ]
       |> Enum.map(&Map.merge(&1, fourth_resource))
 
-    data = first_resource_content ++ second_resource_content ++ third_resource_content ++ fourth_resource_content
+    gireve_resource = %{
+      "datagouv_dataset_id" => "63dccb1307e9b2f213a5130c",
+      "datagouv_resource_id" => "gireve-resource",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    gireve_resource_content =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE3",
+          "date_maj" => ~D[2025-10-01]
+        }
+      ]
+      |> Enum.map(&Map.merge(&1, gireve_resource))
+
+    qualicharge_resource = %{
+      "datagouv_dataset_id" => "6818bce2d9af175f6e01a1b2",
+      "datagouv_resource_id" => "qualicharge-resource",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    qualicharge_resource_content =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE3",
+          "date_maj" => ~D[2025-10-01]
+        }
+      ]
+      |> Enum.map(&Map.merge(&1, qualicharge_resource))
+
+    data =
+      first_resource_content ++
+        second_resource_content ++
+        third_resource_content ++
+        fourth_resource_content ++
+        gireve_resource_content ++
+        qualicharge_resource_content
 
     Explorer.DataFrame.new(data)
   end
