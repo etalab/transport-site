@@ -14,7 +14,9 @@ defmodule Transport.IRVE.Deduplicator do
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
   - Date_maj: for the non uniques one, we look at the max date_maj for each group of duplicates.
     - If there is only one most recent date_maj, we keep it and mark others as duplicates.
-  - Datagouv_last_modified: if we cannot decide, then for dups that have the max date_maj,
+    - If there are multiple with the same max date_maj, then we cannot decide for these entries,
+      but we mark the eventual older ones as duplicates.
+  - Datagouv_last_modified: then for the last undecided entries (that are dups that have the same and max date_maj…),
     we mark as kept the one with the most recent datagouv_last_modified, and the others as duplicates.
 
   Values of the additional column:
@@ -60,14 +62,14 @@ defmodule Transport.IRVE.Deduplicator do
           is_not_nil(deduplication_status) ->
             deduplication_status
 
-          count_is_max_date_maj > 1 ->
-            nil
-
           is_max_date_maj and count_is_max_date_maj == 1 ->
             "kept_because_date_maj_more_recent"
 
-          not is_max_date_maj and count_is_max_date_maj == 1 ->
+          not is_max_date_maj ->
             "removed_because_date_maj_not_more_recent"
+
+          true ->
+            nil
         end
     )
     |> Explorer.DataFrame.discard("max_date_maj")

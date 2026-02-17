@@ -43,6 +43,11 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "datagouv_resource_id" => "resource-3",
                "deduplication_status" => "removed_because_resource_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
+             },
+             %{
+               "datagouv_resource_id" => "resource-4",
+               "deduplication_status" => "removed_because_date_maj_not_more_recent",
+               "id_pdc_itinerance" => "FRS31DUPLICATE1"
              }
            ]
 
@@ -116,7 +121,23 @@ defmodule Transport.IRVE.DeduplicatorTest do
       ]
       |> Enum.map(&Map.merge(&1, third_resource))
 
-    data = first_resource_content ++ second_resource_content ++ third_resource_content
+    # Tricky case! Has been published the most recently, but the date_maj is older. Should be removed.
+    fourth_resource = %{
+      "datagouv_dataset_id" => "dataset-4",
+      "datagouv_resource_id" => "resource-4",
+      "datagouv_last_modified" => DateTime.new!(~D[2026-02-18], ~T[10:00:00.000], "Etc/UTC")
+    }
+
+    fourth_resource_content =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE1",
+          "date_maj" => ~D[2025-12-01]
+        }
+      ]
+      |> Enum.map(&Map.merge(&1, fourth_resource))
+
+    data = first_resource_content ++ second_resource_content ++ third_resource_content ++ fourth_resource_content
 
     Explorer.DataFrame.new(data)
   end
