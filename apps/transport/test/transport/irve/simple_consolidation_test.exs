@@ -173,6 +173,33 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         "consolidation_transport_avec_doublons_irve_statique.csv.sha256sum"
       )
 
+      # Dedup file is the same here as there is only one PDC.
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "consolidation_transport_irve_statique_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: consolidation_content
+      )
+
+      Transport.Test.S3TestUtils.s3_mock_stream_file(
+        start_path: "consolidation_transport_irve_statique_#{date}",
+        bucket: bucket_name,
+        acl: :private,
+        file_content: "6c76cfc5918ead5a10e36f39e34995370184c47801c7568e5b7b2dc2a2a75714"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "consolidation_transport_irve_statique_#{date}",
+        "consolidation_transport_irve_statique.csv"
+      )
+
+      Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
+        bucket_name,
+        "consolidation_transport_irve_statique_#{date}",
+        "consolidation_transport_irve_statique.csv.sha256sum"
+      )
+
       # Run the consolidation process
       {:ok, %Explorer.DataFrame{}} = Transport.IRVE.SimpleConsolidation.process()
 

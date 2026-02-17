@@ -62,7 +62,6 @@ defmodule Transport.IRVE.Deduplicator do
         "kept_because_in_prioritary_dataset"
       ]
     )
-    |> Explorer.DataFrame.discard("deduplication_status")
   end
 
   defp unique_rule(df) do
