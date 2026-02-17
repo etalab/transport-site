@@ -21,18 +21,19 @@ defmodule Transport.IRVE.Deduplicator do
   Takes in entry a dataframe of IRVE valid PDCs,
   and returns a dataframe with an additional column "deduplication_status" with information about the duplicates.
   Deduplication is done on the "id_pdc_itinerance" column.
+  We group the dataframe by this column, and then can use Explorer «group aware" aggregation functions.
   There are multiple filters applied, once a filter has written a deduplication_status, this won’t be overwritten by next filters.
   How every filter works in detail:
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
   - In_prioritary_datasets: we check the min value of the priority for each group of duplicates.
       if no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
-      Else, we keep the one corresponding to this min (kept_because_in_prioritary_dataset) and we mark as duplicates the other ones.
-  - Date_maj: for the non uniques one, we look at the max date_maj for each group of duplicates.
+      Else, we keep the one corresponding to this min (kept_because_in_prioritary_dataset) and we mark as duplicates all the other ones.
+  - Date_maj: we look at the max date_maj for each group of duplicates.
     - If there is only one most recent date_maj, we keep it and mark others as duplicates.
     - If there are multiple with the same max date_maj, then we cannot decide for these entries (no status written),
       but we mark the eventual older ones as duplicates.
   - Datagouv_last_modified: then for the last undecided entries (that are dups that have the same and max date_maj…),
-    we mark as kept the one with the most recent datagouv_last_modified, and the others as duplicates.
+    we mark as kept the one(s) with the most recent datagouv_last_modified, and the others as duplicates.
 
   Values of the additional column:
   - unique
@@ -124,9 +125,12 @@ defmodule Transport.IRVE.Deduplicator do
   end
 
   defp datagouv_last_modified_rule(df) do
-    # TODO: this only works if we keep the previous grouping,
-    # aka only apply the rule inside is_max_date_maj + id_pdc_itinerance groups.
-    # Should think about above rules too.
+    # Please note the dataframe received here is still grouped both by id_pdc_itinerance and is_max_date_maj
+    # from the date_maj_rule.
+    # This is quite important because in the date_maj_rule, we may have "incomplete" groups:
+    # some entries are already discarded (because older date_maj),
+    # So we only want to compare the datagouv_last_modified of the entries that are still "in competition"
+    # (that have is_max_date_maj true)
     df
     |> Explorer.DataFrame.mutate(max_datagouv_last_modified: max(datagouv_last_modified))
     |> Explorer.DataFrame.mutate(
