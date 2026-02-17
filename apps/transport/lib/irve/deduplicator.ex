@@ -95,6 +95,8 @@ defmodule Transport.IRVE.Deduplicator do
             nil
         end
     )
+    |> Explorer.DataFrame.discard("priority")
+    |> Explorer.DataFrame.discard("min_priority")
   end
 
   defp date_maj_rule(df) do
@@ -120,6 +122,7 @@ defmodule Transport.IRVE.Deduplicator do
         end
     )
     |> Explorer.DataFrame.discard("max_date_maj")
+    |> Explorer.DataFrame.discard("is_max_date_maj")
     |> Explorer.DataFrame.discard("count_is_max_date_maj")
     |> Explorer.DataFrame.group_by("id_pdc_itinerance")
   end
