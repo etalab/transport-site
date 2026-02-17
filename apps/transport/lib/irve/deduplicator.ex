@@ -121,10 +121,10 @@ defmodule Transport.IRVE.Deduplicator do
             nil
         end
     )
+    |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> Explorer.DataFrame.discard("max_date_maj")
     |> Explorer.DataFrame.discard("is_max_date_maj")
     |> Explorer.DataFrame.discard("count_is_max_date_maj")
-    |> Explorer.DataFrame.group_by("id_pdc_itinerance")
   end
 
   defp datagouv_last_modified_rule(df) do
