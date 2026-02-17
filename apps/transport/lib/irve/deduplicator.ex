@@ -21,11 +21,15 @@ defmodule Transport.IRVE.Deduplicator do
   Takes in entry a dataframe of IRVE valid PDCs,
   and returns a dataframe with an additional column "deduplication_status" with information about the duplicates.
   Deduplication is done on the "id_pdc_itinerance" column.
-  There are multiple filters applied, and how a filter works is tricky (and depends of the previous filter):
+  There are multiple filters applied, once a filter has written a deduplication_status, this won’t be overwritten by next filters.
+  How every filter works in detail:
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
+  - In_prioritary_datasets: we check the min value of the priority for each group of duplicates.
+      if no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
+      Else, we keep the one corresponding to this min (kept_because_in_prioritary_dataset) and we mark as duplicates the other ones.
   - Date_maj: for the non uniques one, we look at the max date_maj for each group of duplicates.
     - If there is only one most recent date_maj, we keep it and mark others as duplicates.
-    - If there are multiple with the same max date_maj, then we cannot decide for these entries,
+    - If there are multiple with the same max date_maj, then we cannot decide for these entries (no status written),
       but we mark the eventual older ones as duplicates.
   - Datagouv_last_modified: then for the last undecided entries (that are dups that have the same and max date_maj…),
     we mark as kept the one with the most recent datagouv_last_modified, and the others as duplicates.
