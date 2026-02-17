@@ -39,13 +39,13 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{
-               "datagouv_resource_id" => "resource-2026-02-01",
+               "datagouv_resource_id" => "resource-2026-02-17",
                "date_maj" => ~D[2026-02-01],
                "deduplication_status" => "kept_because_resource_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
-               "datagouv_resource_id" => "resource-2026-02-01",
+               "datagouv_resource_id" => "resource-2026-02-17",
                "date_maj" => ~D[2026-01-01],
                "deduplication_status" => "removed_because_date_maj_not_more_recent",
                "id_pdc_itinerance" => "FRS31DUPLICATE2"
@@ -114,8 +114,8 @@ defmodule Transport.IRVE.DeduplicatorTest do
     # File is more recent but one of the date_maj is older.
 
     resource_2026_02_17 = %{
-      "datagouv_dataset_id" => "dataset-2026-02-01",
-      "datagouv_resource_id" => "resource-2026-02-01",
+      "datagouv_dataset_id" => "dataset-2026-02-17",
+      "datagouv_resource_id" => "resource-2026-02-17",
       "datagouv_last_modified" => DateTime.new!(~D[2026-02-17], ~T[14:15:00.000], "Etc/UTC")
     }
 

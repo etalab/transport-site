@@ -50,7 +50,6 @@ defmodule Transport.IRVE.Deduplicator do
     |> in_prioritary_datasets_rule()
     |> date_maj_rule()
     |> datagouv_last_modified_rule()
-    |> Explorer.DataFrame.ungroup()
   end
 
   def discard_duplicates(df) do
@@ -121,13 +120,14 @@ defmodule Transport.IRVE.Deduplicator do
             nil
         end
     )
-    |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> Explorer.DataFrame.discard("max_date_maj")
-    |> Explorer.DataFrame.discard("is_max_date_maj")
     |> Explorer.DataFrame.discard("count_is_max_date_maj")
   end
 
   defp datagouv_last_modified_rule(df) do
+    # TODO: this only works if we keep the previous grouping,
+    # aka only apply the rule inside is_max_date_maj + id_pdc_itinerance groups.
+    # Should think about above rules too.
     df
     |> Explorer.DataFrame.mutate(max_datagouv_last_modified: max(datagouv_last_modified))
     |> Explorer.DataFrame.mutate(
@@ -144,5 +144,7 @@ defmodule Transport.IRVE.Deduplicator do
         end
     )
     |> Explorer.DataFrame.discard("max_datagouv_last_modified")
+    |> Explorer.DataFrame.ungroup()
+    |> Explorer.DataFrame.discard("is_max_date_maj")
   end
 end
