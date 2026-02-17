@@ -11,19 +11,35 @@ defmodule Transport.IRVE.Deduplicator do
   and returns a dataframe with an additional column "deduplication_status" with information about the duplicates.
   Values of the additional column:
   - unique
-  - kept_because_more_recent
-  - removed_because_not_more_recent
+  - kept_because_resource_more_recent
+  - removed_because_resource_not_more_recent
   """
   def add_duplicates_column(df) do
     # TODO at one point: deal with non_concerné and such.
     Explorer.DataFrame.group_by(df, "id_pdc_itinerance")
+    # writes "unique" if unique, nil otherwise
+    |> unique_filter()
+    # last chance filter based on datagouv_last_modified, only for the non-unique ones
+    |> datagouv_last_modified_filter()
+    |> Explorer.DataFrame.discard("similar_pdc_count")
+    |> Explorer.DataFrame.discard("max_datagouv_last_modified")
+    |> Explorer.DataFrame.ungroup()
+  end
+
+  def unique_filter(df) do
+    df
     |> Explorer.DataFrame.mutate(similar_pdc_count: count(datagouv_resource_id))
+    |> Explorer.DataFrame.mutate(deduplication_status: if(similar_pdc_count == 1, do: "unique"))
+  end
+
+  def datagouv_last_modified_filter(df) do
+    df
     |> Explorer.DataFrame.mutate(max_datagouv_last_modified: max(datagouv_last_modified))
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
-          similar_pdc_count == 1 ->
-            "unique"
+          is_not_nil(deduplication_status) ->
+            deduplication_status
 
           datagouv_last_modified == max_datagouv_last_modified ->
             "kept_because_resource_more_recent"
@@ -32,9 +48,6 @@ defmodule Transport.IRVE.Deduplicator do
             "removed_because_resource_not_more_recent"
         end
     )
-    |> Explorer.DataFrame.discard("similar_pdc_count")
-    |> Explorer.DataFrame.discard("max_datagouv_last_modified")
-    |> Explorer.DataFrame.ungroup()
   end
 
   def discard_duplicates(df) do
