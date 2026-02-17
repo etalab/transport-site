@@ -128,6 +128,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
           |> Map.put("dataset_title", "the-dataset-title")
           |> Map.put("datagouv_organization_or_owner", "the-org")
           |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
+          |> Map.put("deduplication_status", "unique")
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
@@ -140,7 +141,8 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
             "datagouv_resource_id",
             "dataset_title",
             "datagouv_organization_or_owner",
-            "datagouv_last_modified"
+            "datagouv_last_modified",
+            "deduplication_status"
           ])
         )
         |> Explorer.DataFrame.dump_csv!()
@@ -156,7 +158,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "3ceb6945b6a6f61c934872fef1c0a250ef9460a75d2e5eb19b1c167b816d8d90"
+        file_content: "6c76cfc5918ead5a10e36f39e34995370184c47801c7568e5b7b2dc2a2a75714"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(

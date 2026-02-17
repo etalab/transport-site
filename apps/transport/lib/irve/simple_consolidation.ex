@@ -42,7 +42,12 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.into([])
 
     report = generate_report(report_rows, destination: destination)
-    write_consolidated_file(destination)
+
+    consolidated_with_dedup_info_df =
+      Transport.IRVE.DatabaseExporter.build_data_frame()
+      |> Transport.IRVE.Deduplicator.add_duplicates_column()
+
+    write_consolidated_file(consolidated_with_dedup_info_df, destination)
     Logger.info("IRVE simple consolidation process completed.")
     {:ok, report}
   end
@@ -166,11 +171,11 @@ defmodule Transport.IRVE.SimpleConsolidation do
     report_df
   end
 
-  def write_consolidated_file(:send_to_s3) do
+  def write_consolidated_file(df, :send_to_s3) do
     Logger.info("Creating and uploading consolidated file (#{@consolidated_file_no_dedup_base_name}.csv) to S3...")
 
     with_tmp_file(fn consolidation_file ->
-      Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+      Explorer.DataFrame.to_csv!(df, consolidation_file)
 
       upload_aggregate!(
         consolidation_file,
@@ -180,10 +185,10 @@ defmodule Transport.IRVE.SimpleConsolidation do
     end)
   end
 
-  def write_consolidated_file(:local_disk) do
+  def write_consolidated_file(df, :local_disk) do
     consolidation_file = @consolidated_file_no_dedup_base_name <> ".csv"
     Logger.info("Creating and saving consolidated file locally to #{consolidation_file}...")
-    Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+    Explorer.DataFrame.to_csv!(df, consolidation_file)
   end
 
   def storage_path(resource_id) do
