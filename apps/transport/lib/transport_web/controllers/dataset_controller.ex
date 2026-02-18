@@ -73,7 +73,6 @@ defmodule TransportWeb.DatasetController do
       {:ok, %DB.Dataset{} = dataset} ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:resources_infos, resources_infos(dataset))
         |> assign(
