@@ -76,6 +76,8 @@ defmodule TransportWeb.DatasetControllerTest do
 
     assert DB.Dataset.logo(dataset) == custom_logo
 
+    Transport.DatasetIndex.refresh()
+
     assert [
              {"div", [{"class", "dataset__image"}, {"data-provider", _}],
               [{"img", [{"alt", ^custom_title}, {"src", ^custom_logo}], []}]}
@@ -90,6 +92,7 @@ defmodule TransportWeb.DatasetControllerTest do
   describe "heart icons" do
     test "not displayed when logged out", %{conn: conn} do
       insert(:dataset, type: "public-transit", is_active: true)
+      Transport.DatasetIndex.refresh()
 
       assert [
                {"div", [{"class", "dataset__type"}],
@@ -108,6 +111,7 @@ defmodule TransportWeb.DatasetControllerTest do
       insert(:dataset, custom_title: "A")
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
+      Transport.DatasetIndex.refresh()
 
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
@@ -139,6 +143,7 @@ defmodule TransportWeb.DatasetControllerTest do
       followed_dataset = insert(:dataset, custom_title: "B")
       insert(:dataset_follower, contact_id: contact.id, dataset_id: followed_dataset.id)
       insert(:dataset, custom_title: "C")
+      Transport.DatasetIndex.refresh()
 
       Datagouvfr.Client.Discussions.Mock |> expect(:get, fn _datagouv_id -> [] end)
 
@@ -1391,6 +1396,7 @@ defmodule TransportWeb.DatasetControllerTest do
     offer = insert(:offer)
     dataset = insert(:dataset, offers: [offer])
     other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
+    Transport.DatasetIndex.refresh()
 
     content = conn |> get(dataset_path(conn, :by_offer, offer.identifiant_offre)) |> html_response(200)
 
@@ -1406,6 +1412,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     other_dataset = insert(:dataset, custom_title: Ecto.UUID.generate())
     insert(:resource, format: "NeTEx", dataset: other_dataset)
+    Transport.DatasetIndex.refresh()
 
     content = conn |> get(dataset_path(conn, :index, format: "GTFS")) |> html_response(200)
 
