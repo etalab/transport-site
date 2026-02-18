@@ -100,7 +100,7 @@ defmodule Transport.Jobs.ImportDatasetContactPointsJob do
     )
   end
 
-  defp update_contact_point(%DB.Dataset{} = dataset, %{"email" => nil} = _contact_point) do
+  defp update_contact_point(%DB.Dataset{} = _dataset, %{"email" => nil} = _contact_point) do
     nil
   end
 
