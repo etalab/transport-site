@@ -19,7 +19,8 @@ defmodule Shared.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ]
+      ],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
