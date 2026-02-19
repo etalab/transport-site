@@ -381,7 +381,8 @@ defmodule TransportWeb.ResourceController do
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, resource, %DB.MultiValidation{
         id: mv_id,
         binary_result: binary_result
-      }) do
+      })
+      when is_binary(binary_result) do
     case binary_result
          |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
          |> Explorer.DataFrame.dump_csv() do
@@ -397,7 +398,7 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def download_validation_report(%Plug.Conn{method: "GET"} = conn, nil, nil) do
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
     not_found(conn)
   end
 

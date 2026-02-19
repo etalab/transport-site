@@ -1327,6 +1327,81 @@ defmodule TransportWeb.ResourceControllerTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :error) == "La ressource n'est pas disponible sur le serveur distant"
   end
 
+  describe "validation report download" do
+    test "NeTEx validation report", %{conn: conn} do
+      for version <- ["0.1.0", "0.2.0", "0.2.1"] do
+        resource = setup_netex_validation_report(version, true)
+
+        content =
+          conn
+          |> get(resource_path(conn, :download_validation_report, resource.id))
+          |> csv_response(200)
+
+        if version == "0.1.0" do
+          assert content ==
+                   "code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
+        else
+          assert content ==
+                   "category,code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-schema,xsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
+        end
+      end
+    end
+
+    test "NeTEx validation report without binary_result", %{conn: conn} do
+      for version <- ["0.1.0", "0.2.0", "0.2.1"] do
+        resource = setup_netex_validation_report(version, false)
+
+        conn
+        |> get(resource_path(conn, :download_validation_report, resource.id))
+        |> html_response(404)
+      end
+    end
+  end
+
+  defp setup_netex_validation_report(version, with_binary_result) do
+    issues =
+      [
+        %{
+          "code" => "xsd-1871",
+          "message" =>
+            "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
+          "criticity" => "error"
+        }
+      ]
+
+    %{id: dataset_id} = insert(:dataset)
+
+    resource =
+      insert(:resource, %{
+        dataset_id: dataset_id,
+        format: "NeTEx",
+        url: "https://example.com/file"
+      })
+
+    resource_history =
+      insert(:resource_history, %{
+        resource: resource,
+        payload: %{"permanent_url" => "https://example.com/#{Ecto.UUID.generate()}"}
+      })
+
+    result = %{"xsd-schema" => issues}
+
+    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
+    binary_result = if with_binary_result, do: results_adapter.to_binary_result(result)
+
+    insert(:multi_validation, %{
+      resource_history: resource_history,
+      validator: Transport.Validators.NeTEx.Validator.validator_name(),
+      validator_version: version,
+      digest: results_adapter.digest(result),
+      binary_result: binary_result,
+      max_error: "error"
+    })
+
+    resource
+  end
+
   def resource_href_download_button(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
     conn
     |> get(resource_path(conn, :details, resource.id))
@@ -1370,5 +1445,12 @@ defmodule TransportWeb.ResourceControllerTest do
 
   defp page_size do
     TransportWeb.PaginationHelpers.make_pagination_config(%{}).page_size
+  end
+
+  defp csv_response(conn, status) do
+    body = response(conn, status)
+    _ = response_content_type(conn, :csv)
+
+    body
   end
 end
