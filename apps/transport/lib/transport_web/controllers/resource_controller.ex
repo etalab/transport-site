@@ -387,6 +387,12 @@ defmodule TransportWeb.ResourceController do
          |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
          |> Explorer.DataFrame.dump_csv() do
       {:ok, validation_report} ->
+        DB.FeatureUsage.insert!(
+          :download_validation_report,
+          get_in(conn.assigns.current_contact.id),
+          %{resource_id: resource.id}
+        )
+
         send_download(conn, {:binary, validation_report},
           disposition: :attachment,
           content_type: "text/csv",

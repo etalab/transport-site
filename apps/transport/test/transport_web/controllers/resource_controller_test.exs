@@ -1329,8 +1329,17 @@ defmodule TransportWeb.ResourceControllerTest do
 
   describe "validation report download" do
     test "NeTEx validation report", %{conn: conn} do
+      {conn, contact_id} = connected_user(conn)
+
+      resource =
+        insert(:resource, %{
+          dataset: insert(:dataset),
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
       for version <- ["0.1.0", "0.2.0", "0.2.1"] do
-        resource = setup_netex_validation_report(version, true)
+        setup_netex_validation_report(resource, version, true)
 
         content =
           conn
@@ -1345,20 +1354,49 @@ defmodule TransportWeb.ResourceControllerTest do
                    "category,code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-schema,xsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
         end
       end
+
+      resource_id = resource.id
+
+      assert [
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id}
+               }
+             ] = DB.FeatureUsage |> DB.Repo.all()
     end
 
     test "NeTEx validation report without binary_result", %{conn: conn} do
+      resource =
+        insert(:resource, %{
+          dataset: insert(:dataset),
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
       for version <- ["0.1.0", "0.2.0", "0.2.1"] do
-        resource = setup_netex_validation_report(version, false)
+        setup_netex_validation_report(resource, version, false)
 
         conn
         |> get(resource_path(conn, :download_validation_report, resource.id))
         |> html_response(404)
+
+        assert [] = DB.FeatureUsage |> DB.Repo.all()
       end
     end
   end
 
-  defp setup_netex_validation_report(version, with_binary_result) do
+  defp setup_netex_validation_report(resource, version, with_binary_result) do
     issues =
       [
         %{
@@ -1368,15 +1406,6 @@ defmodule TransportWeb.ResourceControllerTest do
           "criticity" => "error"
         }
       ]
-
-    %{id: dataset_id} = insert(:dataset)
-
-    resource =
-      insert(:resource, %{
-        dataset_id: dataset_id,
-        format: "NeTEx",
-        url: "https://example.com/file"
-      })
 
     resource_history =
       insert(:resource_history, %{
@@ -1398,8 +1427,13 @@ defmodule TransportWeb.ResourceControllerTest do
       binary_result: binary_result,
       max_error: "error"
     })
+  end
 
-    resource
+  defp connected_user(conn) do
+    %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
+    conn = conn |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
+
+    {conn, contact_id}
   end
 
   def resource_href_download_button(%Plug.Conn{} = conn, %DB.Resource{} = resource) do
