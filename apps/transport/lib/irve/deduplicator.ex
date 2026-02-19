@@ -6,8 +6,9 @@ defmodule Transport.IRVE.Deduplicator do
 
   require Explorer.DataFrame
 
-  # Don’t put two datasets on the same priority
-  # Also only datasets with a single resource tagged at static IRVE schema
+  # Lowest priority number = highest priority, 1 = main priority, 2 = second priority, etc.
+  # Don’t put two datasets on the same priority level
+  # Prioritary datasets must have only a single resource tagged at static IRVE schema
   @prioritary_datasets [
     # Gireve
     %{datagouv_dataset_id: "63dccb1307e9b2f213a5130c", priority: 1},
@@ -18,16 +19,19 @@ defmodule Transport.IRVE.Deduplicator do
   ]
 
   @doc """
-  Takes in entry a dataframe of IRVE valid PDCs,
-  and returns a dataframe with an additional column "deduplication_status" with information about the duplicates.
+  Main method of deduplication.
+  Takes a dataframe of IRVE valid PDCs,
+  returns the same dataframe with an additional column "deduplication_status" with information about the duplicates.
   Deduplication is done on the "id_pdc_itinerance" column.
-  We group the dataframe by this column, and then can use Explorer «group aware" aggregation functions.
+  For each group of lines sharing the same "id_pdc_itinerance", only one entry should have a "kept_because_reason" status.
+  (It’s nearly the case, but there are edge cases.)
+  We group the dataframe by this column, and then can use Explorer "group aware" aggregation functions.
   There are multiple filters applied, once a filter has written a deduplication_status, this won’t be overwritten by next filters.
   How every filter works in detail:
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
   - In_prioritary_datasets: we check the min value of the priority for each group of duplicates.
-      if no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
-      Else, we keep the one corresponding to this min (kept_because_in_prioritary_dataset) and we mark as duplicates all the other ones.
+      - If no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
+      - Else, we keep the one corresponding to this min (kept_because_in_prioritary_dataset) and we mark as duplicates all the other ones.
   - Date_maj: we look at the max date_maj for each group of duplicates.
     - If there is only one most recent date_maj, we keep it and mark others as duplicates.
     - If there are multiple with the same max date_maj, then we cannot decide for these entries (no status written),
@@ -44,7 +48,7 @@ defmodule Transport.IRVE.Deduplicator do
   - kept_because_resource_more_recent
   - removed_because_resource_not_more_recent
   """
-  def add_duplicates_column(df) do
+  def add_duplicates_column(%Explorer.DataFrame{} = df) do
     # TODO at one point: deal with non_concerné and such.
     Explorer.DataFrame.group_by(df, "id_pdc_itinerance")
     |> unique_rule()
