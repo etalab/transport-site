@@ -356,6 +356,33 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     assert ["bus", "ferry", "bus"] == extract(&ArchiveParser.read_all_description!/1, general_frame).transport_modes
   end
 
+  test "extract statistics" do
+    general_frame = """
+      <GeneralFrame>
+        <members>
+          <Route id="FR:Route:Route1:" version="any">
+          </Route>
+          <Quay id="FR:Quay:Quay1:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay2:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay3:" version="any">
+          </Quay>
+          <StopPlace id="FR:StopPlace:StopPlace1:" version="any">
+          </StopPlace>
+          <StopPlace id="FR:StopPlace:StopPlace2:" version="any">
+          </StopPlace>
+        </members>
+      </GeneralFrame>
+    """
+
+    statistics = extract(&ArchiveParser.read_all_description!/1, general_frame)
+
+    assert 1 == statistics.routes
+    assert 3 == statistics.quays
+    assert 2 == statistics.stop_places
+  end
+
   defp extract(extractor, xml) do
     tmp_file = create_tmp_netex([{"file.xml", xml}])
 

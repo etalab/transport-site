@@ -7,7 +7,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
   alias Transport.NeTEx.ArchiveParser
 
   def extract(filepath) do
-    Map.merge(extract_validity_dates(filepath), extract_networks(filepath))
+    Map.merge(extract_validity_dates(filepath), describe_content(filepath))
   end
 
   def extract_validity_dates(filepath) do
@@ -25,15 +25,32 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
     _ -> no_validity_dates()
   end
 
-  def extract_networks(filepath) do
-    empty = %{"networks" => [], "modes" => []}
+  def describe_content(filepath) do
+    empty = %{
+      "networks" => [],
+      "modes" => [],
+      "stats" => %{
+        "routes_count" => 0,
+        "quays_count" => 0,
+        "stop_places_count" => 0
+      }
+    }
 
     try do
       run_parser(filepath, &ArchiveParser.read_all_description/1, empty, fn elem, acc ->
-        %{
-          "networks" => acc["networks"] ++ elem.networks,
-          "modes" => uniq(acc["modes"] ++ elem.transport_modes)
-        }
+        if is_map(elem) do
+          %{
+            "networks" => acc["networks"] ++ elem.networks,
+            "modes" => uniq(acc["modes"] ++ elem.transport_modes),
+            "stats" => %{
+              "routes_count" => acc["stats"]["routes_count"] + elem.routes,
+              "quays_count" => acc["stats"]["quays_count"] + elem.quays,
+              "stop_places_count" => acc["stats"]["stop_places_count"] + elem.stop_places
+            }
+          }
+        else
+          acc
+        end
       end)
     rescue
       _ -> empty

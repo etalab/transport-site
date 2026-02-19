@@ -413,3 +413,11 @@ msgstr "IRVE, ZFE, covoiturage, données cyclables etc."
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
 msgstr "Mobilités routières et vélo"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "number of quays:"
+msgstr "nombre de quais :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "number of stop places:"
+msgstr "nombre de lieux d’arrêt :"

@@ -70,7 +70,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
-               "modes" => modes
+               "modes" => modes,
+               "stats" => %{
+                 "routes_count" => 0,
+                 "quays_count" => 0,
+                 "stop_places_count" => 0
+               }
              }
 
       assert multi_validation.metadata.modes == modes
@@ -93,7 +98,17 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         args: %{
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
-          "metadata" => %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
+          "metadata" => %{
+            "start_date" => start_date,
+            "end_date" => end_date,
+            "networks" => [network],
+            "modes" => modes,
+            "stats" => %{
+              "routes_count" => 0,
+              "quays_count" => 0,
+              "stop_places_count" => 0
+            }
+          }
         }
       )
 
@@ -126,7 +141,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
-               "modes" => modes
+               "modes" => modes,
+               "stats" => %{
+                 "routes_count" => 0,
+                 "quays_count" => 0,
+                 "stop_places_count" => 0
+               }
              }
 
       assert multi_validation.metadata.modes == modes
@@ -194,7 +214,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
-                  "modes" => modes
+                  "modes" => modes,
+                  "stats" => %{
+                    "routes_count" => 0,
+                    "quays_count" => 0,
+                    "stop_places_count" => 0
+                  }
                 }
               }} ==
                Validator.validate(resource_url)
@@ -253,7 +278,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
-                  "modes" => modes
+                  "modes" => modes,
+                  "stats" => %{
+                    "routes_count" => 0,
+                    "quays_count" => 0,
+                    "stop_places_count" => 0
+                  }
                 }
               }} ==
                Validator.validate(resource_url)
@@ -265,7 +295,17 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       network = "Réseau Urbain"
       modes = ["bus", "ferry"]
 
-      metadata = %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
+      metadata = %{
+        "start_date" => start_date,
+        "end_date" => end_date,
+        "networks" => [network],
+        "modes" => modes,
+        "stats" => %{
+          "routes_count" => 0,
+          "quays_count" => 0,
+          "stop_places_count" => 0
+        }
+      }
 
       resource_url = mk_netex(start_date, end_date, network, modes)
 
