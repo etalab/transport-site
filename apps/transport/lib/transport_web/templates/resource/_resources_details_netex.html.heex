@@ -1,6 +1,10 @@
 <% locale = get_session(@conn, :locale) %>
 <% networks = Map.get(@metadata, "networks", []) %>
 <% modes = Map.get(@metadata, "modes", []) %>
+<% stats = Map.get(@metadata, "stats", %{}) %>
+<% routes_count = Map.get(stats, "routes_count", 0) %>
+<% quays_count = Map.get(stats, "quays_count", 0) %>
+<% stop_places_count = Map.get(stats, "stop_places_count", 0) %>
 <p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
   {dgettext("validations", "It is valid from")}
   <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
@@ -20,5 +24,17 @@
   <li :if={modes != []}>
     {dngettext("validations", "transport mode", "transport modes", length(modes))} :
     <strong>{Enum.join(modes, ", ")}</strong>
+  </li>
+  <li :if={routes_count > 0}>
+    {dgettext("validations", "number of routes:")}
+    <strong>{format_nil_or_number(routes_count, locale)}</strong>
+  </li>
+  <li :if={quays_count > 0}>
+    {dgettext("validations", "number of quays:")}
+    <strong>{format_nil_or_number(quays_count, locale)}</strong>
+  </li>
+  <li :if={stop_places_count > 0}>
+    {dgettext("validations", "number of stop places:")}
+    <strong>{format_nil_or_number(stop_places_count, locale)}</strong>
   </li>
 </ul>
