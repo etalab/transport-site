@@ -727,6 +727,9 @@ defmodule TransportWeb.ResourceControllerTest do
 
       results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
 
+      networks = ["Réseau urbain", "Réseau inter-urbain"]
+      modes = ["bus", "ferry"]
+
       insert(:multi_validation, %{
         resource_history_id: resource_history_id,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
@@ -735,8 +738,8 @@ defmodule TransportWeb.ResourceControllerTest do
         binary_result: results_adapter.to_binary_result(result),
         max_error: "error",
         metadata: %DB.ResourceMetadata{
-          metadata: %{"elapsed_seconds" => 42},
-          modes: [],
+          metadata: %{"elapsed_seconds" => 42, "networks" => networks, "modes" => modes},
+          modes: modes,
           features: []
         },
         validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
@@ -752,6 +755,12 @@ defmodule TransportWeb.ResourceControllerTest do
       rows = content |> Floki.parse_document!() |> Floki.find("table tr.message")
 
       assert page_size() == Enum.count(rows)
+
+      assert content =~ "réseaux"
+      assert content =~ "Réseau urbain, Réseau inter-urbain"
+
+      assert content =~ "modes de transport"
+      assert content =~ "bus, ferry"
     end
   end
 
