@@ -1,5 +1,4 @@
 <% locale = get_session(@conn, :locale) %>
-<% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% validation = latest_validation(@resource, @resources_infos) %>
 <% validator = pick_validator(validation) %>
@@ -168,10 +167,5 @@
         <% end %>
       </div>
     </div>
-    <%= if has_conversions do %>
-      {render(TransportWeb.DatasetView, "_conversions.html",
-        conversions_details: Map.fetch!(@resources_related_files, @resource.id)
-      )}
-    <% end %>
   </div>
 </div>

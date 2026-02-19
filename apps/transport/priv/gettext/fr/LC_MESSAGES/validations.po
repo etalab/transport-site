@@ -96,14 +96,6 @@ msgstr "La visualisation des arrêts est volumineuse"
 msgid "Stops and routes visualization of the GTFS file"
 msgstr "Aperçu des arrêts et lignes de la ressource GTFS"
 
-#, elixir-autogen, elixir-format
-msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
-msgstr "Le format GeoJSON ne contient que les informations géographiques de la ressource (position des arrêts, éventuellement tracé des lignes), telles que vous les visualisez sur la carte ci-dessous."
-
-#, elixir-autogen, elixir-format
-msgid "This resource is also available in the following formats:"
-msgstr "Cette ressource est également disponible dans les formats suivants :"
-
 #, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
@@ -130,10 +122,6 @@ msgstr "Rapport de validation"
 #, elixir-autogen, elixir-format
 msgid "No error detected"
 msgstr "Pas d'erreur"
-
-#, elixir-autogen, elixir-format
-msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
-msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
 
 #, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."

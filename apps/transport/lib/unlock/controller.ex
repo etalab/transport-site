@@ -12,7 +12,7 @@ defmodule Unlock.Controller do
   - https://www.mnot.net/blog/2011/07/11/what_proxies_must_do
   """
 
-  use Phoenix.Controller
+  use Phoenix.Controller, formats: [html: "View", json: "View"]
   require Logger
   import Unlock.GunzipTools
 

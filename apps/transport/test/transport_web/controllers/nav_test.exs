@@ -1,6 +1,7 @@
 defmodule TransportWeb.NavTest do
   # NOTE: temporarily set to false, until it doesn't use with_mock anymore
   use TransportWeb.ConnCase, async: false
+  use TransportWeb.DatabaseCase, cleanup: [:datasets]
   import DB.Factory
   import Mock
   import Mox
@@ -8,8 +9,6 @@ defmodule TransportWeb.NavTest do
   setup :verify_on_exit!
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-
     insert(:dataset,
       description: "Un jeu de données",
       custom_title: "Horaires Angers",
@@ -22,6 +21,8 @@ defmodule TransportWeb.NavTest do
     Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses.Dummy)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions.Dummy)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
+
+    Transport.DatasetIndex.refresh()
 
     :ok
   end

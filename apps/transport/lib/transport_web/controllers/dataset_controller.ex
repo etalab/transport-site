@@ -12,15 +12,19 @@ defmodule TransportWeb.DatasetController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
+  @db_filter_fns %{
+    "departement" => &DB.Dataset.filter_by_departement/2,
+    "epci" => &DB.Dataset.filter_by_epci/2,
+    "commune" => &DB.Dataset.filter_by_commune/2,
+    "q" => &DB.Dataset.filter_by_fulltext/2,
+    "features" => &DB.Dataset.filter_by_feature/2
+  }
+  @db_only_filters Map.keys(@db_filter_fns)
+
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
-    dataset_ids =
-      DB.Dataset.list_datasets(params)
-      |> exclude(:preload)
-      |> select([dataset: d], d.id)
-      |> DB.Repo.all()
-
-    config = make_pagination_config(params)
+    index = Transport.DatasetIndex.get()
+    dataset_ids = dataset_ids_for(index, params)
 
     datasets =
       DB.Dataset.base_query()
@@ -28,25 +32,28 @@ defmodule TransportWeb.DatasetController do
       |> where([d], d.id in ^dataset_ids)
       |> order_by([d], fragment("array_position(?, ?)", ^dataset_ids, d.id))
       |> preload_spatial_areas()
-      |> DB.Repo.paginate(page: config.page_number)
-
-    index = Transport.DatasetIndex.get()
+      |> DB.Repo.paginate(page: make_pagination_config(params).page_number)
 
     conn
     |> maybe_assign_regions(count_by_region, index, dataset_ids)
     |> assign(:datasets, datasets)
+    |> assign_facets(index, dataset_ids, params)
+    |> put_dataset_heart_values(datasets)
+    |> put_empty_message(params)
+    |> put_category_custom_message(params)
+    |> put_page_title(params)
+    |> render("index.html")
+  end
+
+  defp assign_facets(conn, index, dataset_ids, params) do
+    conn
     |> assign(:types, Transport.DatasetIndex.types(index, dataset_ids))
     |> assign(:licences, Transport.DatasetIndex.licences(index, dataset_ids))
     |> assign(:number_realtime_datasets, Transport.DatasetIndex.realtime_count(index, dataset_ids))
     |> assign(:number_resource_format_datasets, Transport.DatasetIndex.resource_format_count(index, dataset_ids))
     |> assign(:subtypes, subtypes_facet(index, dataset_ids, params))
     |> assign(:order_by, params["order_by"])
-    |> assign(:q, Map.get(params, "q"))
-    |> put_dataset_heart_values(datasets)
-    |> put_empty_message(params)
-    |> put_category_custom_message(params)
-    |> put_page_title(params)
-    |> render("index.html")
+    |> assign(:q, params["q"])
   end
 
   defp maybe_assign_regions(conn, false, _index, _dataset_ids), do: conn
@@ -66,7 +73,6 @@ defmodule TransportWeb.DatasetController do
       {:ok, %DB.Dataset{} = dataset} ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:resources_infos, resources_infos(dataset))
         |> assign(
@@ -263,6 +269,35 @@ defmodule TransportWeb.DatasetController do
     |> put_view(ErrorView)
     |> assign(:custom_message, msg)
     |> render("404.html")
+  end
+
+  defp dataset_ids_for(index, params) do
+    memory_ids = Transport.DatasetIndex.filter_dataset_ids(index, params)
+    db_only_params = Map.take(params, @db_only_filters)
+    order_and_refine(memory_ids, index, params, db_only_params)
+  end
+
+  # When the search does not include "db params" we can filter and order using only the memory index
+  defp order_and_refine(memory_ids, index, params, db_only_params) when db_only_params == %{} do
+    Transport.DatasetIndex.order_dataset_ids(memory_ids, index, params)
+  end
+
+  defp order_and_refine(memory_ids, _index, params, db_only_params) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id in ^memory_ids)
+    |> apply_db_only_filters(db_only_params)
+    |> DB.Dataset.order_datasets(params)
+    |> select([dataset: d], d.id)
+    |> DB.Repo.all()
+  end
+
+  defp apply_db_only_filters(%Ecto.Query{} = query, db_only_params) do
+    Enum.reduce(db_only_params, query, fn {key, _value}, acc ->
+      case Map.fetch(@db_filter_fns, key) do
+        {:ok, filter_fn} -> filter_fn.(acc, db_only_params)
+        :error -> acc
+      end
+    end)
   end
 
   defp preload_spatial_areas(query) do

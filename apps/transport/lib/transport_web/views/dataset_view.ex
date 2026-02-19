@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
   import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
