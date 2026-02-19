@@ -84,3 +84,7 @@ msgstr "Ouvrir dans explore.data.gouv.fr"
 #, elixir-autogen, elixir-format
 msgid "Size:"
 msgstr "Taille :"
+
+#, elixir-autogen, elixir-format
+msgid "CSV report"
+msgstr "Rapport CSV"

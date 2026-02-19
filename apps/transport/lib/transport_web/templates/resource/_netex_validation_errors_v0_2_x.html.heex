@@ -1,7 +1,11 @@
 <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
 <% current_category = @filter["issues_category"] || "" %>
 
-<h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
+<div class="header_with_action_bar">
+  <h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
+  <.netex_validation_report_download validation_report_url={@validation_report_url} />
+</div>
+
 <.netex_validation_summary
   conn={@conn}
   token={nil}

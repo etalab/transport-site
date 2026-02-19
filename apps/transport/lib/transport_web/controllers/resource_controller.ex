@@ -198,8 +198,14 @@ defmodule TransportWeb.ResourceController do
 
     {filter, pagination} = issues
 
+    validation_report_url =
+      if download_validation_report?(validation, max_severity) do
+        DB.Resource.download_validation_report_url(conn, resource)
+      end
+
     conn
     |> assign_base_resource_details(resource, validation_details)
+    |> assign(:validation_report_url, validation_report_url)
     |> assign(:filter, filter)
     |> assign(:issues, paginate_netex_results(pagination, config))
     |> assign(:errors_template, errors_template)
@@ -208,6 +214,10 @@ defmodule TransportWeb.ResourceController do
     |> assign(:data_vis, nil)
     |> render("netex_details.html")
   end
+
+  defp download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
+  defp download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
+  defp download_validation_report?(_binary_result, _max_severity), do: true
 
   # For NeTEx results we avoid loading every entries. We emulate
   # Scrivener.paginate based on the total count.
@@ -346,11 +356,56 @@ defmodule TransportWeb.ResourceController do
           _ ->
             conn
             |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
-            |> put_status(:not_found)
-            |> put_view(ErrorView)
-            |> render("404.html")
+            |> not_found()
         end
     end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
+    resource = get_with_dataset(id)
+
+    cond do
+      is_nil(resource) ->
+        not_found(conn)
+
+      Resource.netex?(resource) ->
+        resource_history = DB.ResourceHistory.latest_resource_history(id)
+        validation = latest_validation(resource, resource_history)
+        download_validation_report(conn, resource, validation)
+
+      true ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, resource, %DB.MultiValidation{
+        id: mv_id,
+        binary_result: binary_result
+      })
+      when is_binary(binary_result) do
+    case binary_result
+         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
+         |> Explorer.DataFrame.dump_csv() do
+      {:ok, validation_report} ->
+        DB.FeatureUsage.insert!(
+          :download_validation_report,
+          get_in(conn.assigns.current_contact.id),
+          %{resource_id: resource.id}
+        )
+
+        send_download(conn, {:binary, validation_report},
+          disposition: :attachment,
+          content_type: "text/csv",
+          filename: "report-#{resource.id}-#{mv_id}.csv"
+        )
+
+      _ ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
+    not_found(conn)
   end
 
   defp get_with_dataset(resource_id) do
