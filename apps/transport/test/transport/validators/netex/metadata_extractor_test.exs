@@ -10,7 +10,8 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         {true, logs} =
           ExUnit.CaptureLog.with_log(fn ->
             with_tmp_file(content, fn filepath ->
-              assert %{"no_validity_dates" => true, "networks" => []} == MetadataExtractor.extract(filepath)
+              assert %{"no_validity_dates" => true, "networks" => [], "modes" => []} ==
+                       MetadataExtractor.extract(filepath)
             end)
           end)
 
@@ -20,7 +21,8 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
 
     test "empty valid ZIP archive" do
       ZipCreator.with_tmp_zip([], fn filepath ->
-        assert %{"no_validity_dates" => true, "networks" => []} == MetadataExtractor.extract(filepath)
+        assert %{"no_validity_dates" => true, "networks" => [], "modes" => []} ==
+                 MetadataExtractor.extract(filepath)
       end)
     end
   end
@@ -43,7 +45,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       """
 
       ZipCreator.with_tmp_zip([{"resource.xml", calendar_content}], fn filepath ->
-        assert %{"start_date" => "2025-07-05", "end_date" => "2025-08-31", "networks" => []} ==
+        assert %{"start_date" => "2025-07-05", "end_date" => "2025-08-31", "networks" => [], "modes" => []} ==
                  MetadataExtractor.extract(filepath)
       end)
     end
@@ -76,7 +78,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       """
 
       ZipCreator.with_tmp_zip([{"resource.xml", service_calendar_content}], fn filepath ->
-        assert %{"start_date" => "2025-11-03", "end_date" => "2025-11-28", "networks" => []} ==
+        assert %{"start_date" => "2025-11-03", "end_date" => "2025-11-28", "networks" => [], "modes" => []} ==
                  MetadataExtractor.extract(filepath)
       end)
     end
@@ -97,6 +99,15 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                 <Network>
                   <Name>Réseau Régional</Name>
                 </Network>
+                <Line>
+                  <TransportMode>bus</TransportMode>
+                </Line>
+                <Line>
+                  <TransportMode>ferry</TransportMode>
+                </Line>
+                <Line>
+                  <TransportMode>bus</TransportMode>
+                </Line>
               </members>
             </GeneralFrame>
           </dataObjects>
@@ -104,7 +115,11 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       """
 
       ZipCreator.with_tmp_zip([{"network.xml", multiple_networks}], fn filepath ->
-        assert %{"no_validity_dates" => true, "networks" => ["Réseau Urbain", "Réseau Régional"]} ==
+        assert %{
+                 "no_validity_dates" => true,
+                 "networks" => ["Réseau Urbain", "Réseau Régional"],
+                 "modes" => ["bus", "ferry"]
+               } ==
                  MetadataExtractor.extract(filepath)
       end)
     end

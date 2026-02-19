@@ -77,8 +77,11 @@ defmodule Script do
       Logger.info("ResourceHistory##{resource_history.id} - ResourceMetadata##{resource_metadata.id} - #{filepath}")
       metadata = MetadataExtractor.extract(filepath)
 
+      modes = metadata["modes"] || []
+      metadata = Map.merge(resource_metadata.metadata, metadata)
+
       resource_metadata
-      |> Ecto.Changeset.change(metadata: Map.merge(resource_metadata.metadata, metadata))
+      |> Ecto.Changeset.change(metadata: metadata, modes: modes)
       |> DB.Repo.update!()
     end)
   end

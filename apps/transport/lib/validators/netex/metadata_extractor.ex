@@ -26,9 +26,18 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
   end
 
   def extract_networks(filepath) do
-    %{"networks" => run_parser(filepath, &ArchiveParser.read_all_networks/1)}
-  rescue
-    _ -> %{"networks" => []}
+    empty = %{"networks" => [], "modes" => []}
+
+    try do
+      run_parser(filepath, &ArchiveParser.read_all_description/1, empty, fn elem, acc ->
+        %{
+          "networks" => acc["networks"] ++ elem.networks,
+          "modes" => uniq(acc["modes"] ++ elem.transport_modes)
+        }
+      end)
+    rescue
+      _ -> empty
+    end
   end
 
   defp no_validity_dates, do: %{"no_validity_dates" => true}
@@ -49,10 +58,10 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
     run_parser(filepath, &ArchiveParser.read_all_service_calendars/1)
   end
 
-  defp run_parser(filepath, parser) do
+  defp run_parser(filepath, parser, empty \\ [], msum \\ &Kernel.++/2) do
     filepath
     |> parser.()
-    |> flatten()
+    |> flatten(empty, msum)
   end
 
   defp dates_range([], _, _), do: nil
@@ -64,17 +73,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
     }
   end
 
-  defp flatten(per_files) do
-    per_files
-    |> Enum.map(fn {_filename, found} ->
+  defp flatten(per_files, empty, msum) do
+    Enum.reduce(per_files, empty, fn {_filename, found}, acc ->
       case found do
-        {:ok, values} ->
-          values
-
-        _ ->
-          []
+        {:ok, values} -> msum.(values, acc)
+        _ -> acc
       end
     end)
-    |> List.flatten()
   end
+
+  defp uniq(list), do: list |> MapSet.new() |> MapSet.to_list()
 end

@@ -118,27 +118,27 @@ defmodule Transport.NeTEx.ArchiveParser do
 
   @doc """
   Inside a zip archive opened with `Unzip`, parse a given file (pointed by
-  `file_name`) and extract the networks. The file is read in streaming
-  fashion to save memory, but the stop places are stacked in a list (all in
-  memory at once).
+  `file_name`) and extract various descriptive information. The file is read in
+  streaming fashion to save memory, but the stop places are stacked in a list
+  (all in memory at once).
   """
-  def read_networks(%Unzip{} = unzip, file_name) do
-    parse_stream(unzip, file_name, Transport.NeTEx.NetworkParser)
+  def read_description(%Unzip{} = unzip, file_name) do
+    parse_stream(unzip, file_name, Transport.NeTEx.DescriptionParser)
   end
 
   @doc """
-  Like read_networks/2 but raises on errors.
+  Like read_description/2 but raises on errors.
   """
-  def read_networks!(%Unzip{} = unzip, file_name) do
-    parse_stream!(unzip, file_name, Transport.NeTEx.NetworkParser)
+  def read_description!(%Unzip{} = unzip, file_name) do
+    parse_stream!(unzip, file_name, Transport.NeTEx.DescriptionParser)
   end
 
-  def read_all_networks(zip_file_name) do
-    read_all(zip_file_name, &read_networks/2)
+  def read_all_description(zip_file_name) do
+    read_all(zip_file_name, &read_description/2)
   end
 
-  def read_all_networks!(zip_file_name) do
-    read_all(zip_file_name, &read_networks!/2)
+  def read_all_description!(zip_file_name) do
+    read_all(zip_file_name, &read_description!/2)
   end
 
   defp parse_stream(unzip, file_name, parser) do
