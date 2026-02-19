@@ -702,20 +702,20 @@ defmodule TransportWeb.ResourceControllerTest do
         params <- netex_params_for(version) do
       %{id: dataset_id} = insert(:dataset)
 
-      %{id: resource_id} =
+      resource =
         insert(:resource, %{
           dataset_id: dataset_id,
           format: "NeTEx",
           url: "https://example.com/file"
         })
 
-      url = resource_path(conn, :details, resource_id)
+      url = resource_path(conn, :details, resource.id)
       conn1 = conn |> get(url, params)
       assert conn1 |> html_response(200) =~ "Pas de validation disponible"
 
       %{id: resource_history_id} =
         insert(:resource_history, %{
-          resource_id: resource_id,
+          resource: resource,
           payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
         })
 
@@ -745,7 +745,7 @@ defmodule TransportWeb.ResourceControllerTest do
         validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
       })
 
-      url = resource_path(conn, :details, resource_id)
+      url = resource_path(conn, :details, resource.id)
       content = conn |> get(url, params) |> html_response(200)
       assert content =~ "Rapport de validation"
 
@@ -761,6 +761,10 @@ defmodule TransportWeb.ResourceControllerTest do
 
       assert content =~ "modes de transport"
       assert content =~ "bus, ferry"
+
+      if version in ["0.2.0", "0.2.1"] do
+        assert content =~ "Rapport CSV"
+      end
     end
   end
 
