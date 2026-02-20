@@ -384,10 +384,10 @@ defmodule Transport.NeTEx.ArchiveParserTest do
   end
 
   defp extract(extractor, xml) do
-    tmp_file = create_tmp_netex([{"file.xml", xml}])
+    tmp_file = create_tmp_netex([{"directory/", ""}, {"directory/file.xml", xml}])
 
     try do
-      [{"file.xml", types}] = extractor.(tmp_file)
+      [{"directory/", _}, {"directory/file.xml", types}] = extractor.(tmp_file)
 
       types
     after

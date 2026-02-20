@@ -199,18 +199,26 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       </PublicationDelivery>
     """
 
-    ZipCreator.with_tmp_zip([{"network.xml", routes}, {"stops.xml", stops}], fn filepath ->
-      assert %{
-               "no_validity_dates" => true,
-               "networks" => [],
-               "modes" => [],
-               "stats" => %{
-                 "routes_count" => 1,
-                 "quays_count" => 3,
-                 "stop_places_count" => 2
-               }
-             } ==
-               MetadataExtractor.extract(filepath)
-    end)
+    ZipCreator.with_tmp_zip(
+      in_sub_directory("directory", [{"network.xml", routes}, {"stops.xml", stops}]),
+      fn filepath ->
+        assert %{
+                 "no_validity_dates" => true,
+                 "networks" => [],
+                 "modes" => [],
+                 "stats" => %{
+                   "routes_count" => 1,
+                   "quays_count" => 3,
+                   "stop_places_count" => 2
+                 }
+               } ==
+                 MetadataExtractor.extract(filepath)
+      end
+    )
+  end
+
+  defp in_sub_directory(directory, filespecs) do
+    [{"#{directory}/", ""}] ++
+      Enum.map(filespecs, fn {filename, content} -> {Path.join(directory, filename), content} end)
   end
 end

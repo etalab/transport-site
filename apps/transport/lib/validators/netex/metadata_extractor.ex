@@ -38,19 +38,15 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
 
     try do
       run_parser(filepath, &ArchiveParser.read_all_description/1, empty, fn elem, acc ->
-        if is_map(elem) do
-          %{
-            "networks" => acc["networks"] ++ elem.networks,
-            "modes" => uniq(acc["modes"] ++ elem.transport_modes),
-            "stats" => %{
-              "routes_count" => acc["stats"]["routes_count"] + elem.routes,
-              "quays_count" => acc["stats"]["quays_count"] + elem.quays,
-              "stop_places_count" => acc["stats"]["stop_places_count"] + elem.stop_places
-            }
+        %{
+          "networks" => acc["networks"] ++ elem.networks,
+          "modes" => uniq(acc["modes"] ++ elem.transport_modes),
+          "stats" => %{
+            "routes_count" => acc["stats"]["routes_count"] + elem.routes,
+            "quays_count" => acc["stats"]["quays_count"] + elem.quays,
+            "stop_places_count" => acc["stats"]["stop_places_count"] + elem.stop_places
           }
-        else
-          acc
-        end
+        }
       end)
     rescue
       _ -> empty
