@@ -411,3 +411,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of quays:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of stop places:"
+msgstr ""
