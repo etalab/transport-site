@@ -44,7 +44,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         </PublicationDelivery>
       """
 
-      ZipCreator.with_tmp_zip([{"resource.xml", calendar_content}], fn filepath ->
+      ZipCreator.with_tmp_zip([{"resource.xml", calendar_content}] |> in_sub_directory(), fn filepath ->
         assert %{"start_date" => "2025-07-05", "end_date" => "2025-08-31", "networks" => [], "modes" => []} ==
                  MetadataExtractor.extract(filepath)
       end)
@@ -77,7 +77,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         </PublicationDelivery>
       """
 
-      ZipCreator.with_tmp_zip([{"resource.xml", service_calendar_content}], fn filepath ->
+      ZipCreator.with_tmp_zip([{"resource.xml", service_calendar_content}] |> in_sub_directory(), fn filepath ->
         assert %{"start_date" => "2025-11-03", "end_date" => "2025-11-28", "networks" => [], "modes" => []} ==
                  MetadataExtractor.extract(filepath)
       end)
@@ -114,7 +114,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         </PublicationDelivery>
       """
 
-      ZipCreator.with_tmp_zip([{"network.xml", multiple_networks}], fn filepath ->
+      ZipCreator.with_tmp_zip([{"network.xml", multiple_networks}] |> in_sub_directory(), fn filepath ->
         assert %{
                  "no_validity_dates" => true,
                  "networks" => ["Réseau Urbain", "Réseau Régional"],
@@ -123,5 +123,10 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                  MetadataExtractor.extract(filepath)
       end)
     end
+  end
+
+  defp in_sub_directory(filespecs) do
+    [{"directory/", ""}] ++
+      Enum.map(filespecs, fn {filename, content} -> {Path.join("directory", filename), content} end)
   end
 end

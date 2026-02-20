@@ -148,7 +148,7 @@ defmodule Transport.NeTEx.ArchiveParser do
       # Entry names ending with a slash `/` are directories. Skip them.
       # https://github.com/akash-akya/unzip/blob/689a1ca7a134ab2aeb79c8c4f8492d61fa3e09a0/lib/unzip.ex#L69
       String.ends_with?(file_name, "/") ->
-        {:ok, []}
+        {:ok, parser.initial_state() |> parser.unwrap_result()}
 
       extension |> String.downcase() == ".zip" ->
         {:error, "Insupported zip inside zip for file #{file_name}"}
