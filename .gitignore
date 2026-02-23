@@ -59,3 +59,4 @@ pg.list
 
 # Any CSV file put at the root level
 /*.csv
+/*~lock.*.csv#
