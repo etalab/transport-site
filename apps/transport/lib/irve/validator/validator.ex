@@ -48,7 +48,7 @@ defmodule Transport.IRVE.Validator do
   iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["FRPAN99E87654321", "FRPAN99E87654321", "Non concerné", nil]})
   iex> Transport.IRVE.Validator.ensure_uniqueness_of_id_pdc_itinerance(df)
   ** (RuntimeError) the id_pdc_itinerance column contains duplicates.
-  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["FRPAN99E87654321", "FRPAN99E87654322", "Non concerné", "Non concerné", nil]})
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["FRPAN99E87654321", "FRPAN99E87654322", "Non concerné", "Non concerné", nil, nil]})
   iex> Transport.IRVE.Validator.ensure_uniqueness_of_id_pdc_itinerance(df)
   df
   """
@@ -66,7 +66,7 @@ defmodule Transport.IRVE.Validator do
       |> Explorer.Series.count()
 
     if distinct_count != raw_count do
-      raise "the id_pdc_itinerance column contains duplicates."
+      raise "the id_pdc_itinerance column contains duplicates, number of duplicates: #{raw_count - distinct_count}. "
     else
       df
     end
