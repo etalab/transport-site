@@ -193,6 +193,7 @@ defmodule TransportWeb.Router do
     scope "/resources" do
       get("/:id", ResourceController, :details)
       get("/:id/download", ResourceController, :download)
+      get("/:id/download-validation-report", ResourceController, :download_validation_report)
 
       scope "/conversions" do
         get("/:resource_id/:convert_to", ConversionController, :get)

@@ -299,7 +299,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["Réseau Urbain"] == extract(&ArchiveParser.read_all_networks!/1, general_frame)
+    assert ["Réseau Urbain"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
 
     multiple_networks = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -320,14 +320,47 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["Réseau Urbain", "Réseau Régional"] == extract(&ArchiveParser.read_all_networks!/1, multiple_networks)
+    assert ["Réseau Urbain", "Réseau Régional"] ==
+             extract(&ArchiveParser.read_all_description!/1, multiple_networks).networks
+  end
+
+  test "extract TransportMode(s)" do
+    general_frame = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>Réseau Urbain</Name>
+              </Network>
+              <Line>
+                <Name>Alberville - Besançon</Name>
+                <TransportMode>bus</TransportMode>
+              </Line>
+              <Line>
+                <Name>Cherbourg - Deauville</Name>
+                <TransportMode>ferry</TransportMode>
+              </Line>
+              <Line>
+                <Name>Écully - Francheville</Name>
+                <TransportMode>bus</TransportMode>
+              </Line>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["bus", "ferry", "bus"] == extract(&ArchiveParser.read_all_description!/1, general_frame).transport_modes
   end
 
   defp extract(extractor, xml) do
-    tmp_file = create_tmp_netex([{"file.xml", xml}])
+    tmp_file = create_tmp_netex([{"directory/", ""}, {"directory/file.xml", xml}])
 
     try do
-      [{"file.xml", types}] = extractor.(tmp_file)
+      [{"directory/", _}, {"directory/file.xml", types}] = extractor.(tmp_file)
 
       types
     after

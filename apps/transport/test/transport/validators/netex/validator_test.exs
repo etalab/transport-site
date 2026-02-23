@@ -46,8 +46,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "valid NeTEx" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_successful_validation(12)
 
@@ -67,15 +69,20 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "elapsed_seconds" => 12,
                "start_date" => start_date,
                "end_date" => end_date,
-               "networks" => []
+               "networks" => [network],
+               "modes" => modes
              }
+
+      assert multi_validation.metadata.modes == modes
     end
 
     test "pending validation" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
@@ -86,7 +93,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         args: %{
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
-          "metadata" => %{"start_date" => start_date, "end_date" => end_date, "networks" => []}
+          "metadata" => %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
         }
       )
 
@@ -96,8 +103,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "invalid NeTEx" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date)
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(31)
 
@@ -116,8 +125,11 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "elapsed_seconds" => 31,
                "start_date" => start_date,
                "end_date" => end_date,
-               "networks" => []
+               "networks" => [network],
+               "modes" => modes
              }
+
+      assert multi_validation.metadata.modes == modes
 
       assert multi_validation.result == %{
                "xsd-schema" => [
@@ -166,8 +178,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "valid NeTEx" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
+      resource_url = mk_netex(start_date, end_date, network, modes)
 
       expect_create_validation("pan:french_profile:1") |> expect_successful_validation(9)
 
@@ -179,7 +193,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   :elapsed_seconds => 9,
                   "start_date" => start_date,
                   "end_date" => end_date,
-                  "networks" => []
+                  "networks" => [network],
+                  "modes" => modes
                 }
               }} ==
                Validator.validate(resource_url)
@@ -188,8 +203,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "invalid NeTEx" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
+      resource_url = mk_netex(start_date, end_date, network, modes)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(25)
 
@@ -235,7 +252,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   :elapsed_seconds => 25,
                   "start_date" => start_date,
                   "end_date" => end_date,
-                  "networks" => []
+                  "networks" => [network],
+                  "modes" => modes
                 }
               }} ==
                Validator.validate(resource_url)
@@ -244,9 +262,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     test "pending" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
-      metadata = %{"start_date" => start_date, "end_date" => end_date, "networks" => []}
+      network = "Réseau Urbain"
+      modes = ["bus", "ferry"]
 
-      resource_url = mk_raw_netex_with_calendar(start_date, end_date)
+      metadata = %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
+
+      resource_url = mk_netex(start_date, end_date, network, modes)
 
       validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
 
@@ -254,19 +275,23 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     end
   end
 
-  defp mk_netex_resource_with_calendar(start_date, end_date) do
+  defp mk_netex_resource_with_calendar(start_date, end_date, network, modes) do
     dataset = insert(:dataset)
 
     resource = insert(:resource, dataset_id: dataset.id, format: "NeTEx")
 
     insert(:resource_history,
       resource_id: resource.id,
-      payload: %{"permanent_url" => mk_raw_netex_with_calendar(start_date, end_date)}
+      payload: %{"permanent_url" => mk_netex(start_date, end_date, network, modes)}
     )
   end
 
-  defp mk_raw_netex_with_calendar(start_date, end_date),
-    do: mk_raw_netex_resource([{"resource.xml", calendar_content(start_date, end_date)}])
+  defp mk_netex(start_date, end_date, network, modes),
+    do:
+      mk_raw_netex_resource([
+        {"resource.xml", calendar_content(start_date, end_date)},
+        {"network.xml", network_content(network, modes)}
+      ])
 
   defp mk_raw_netex_resource(content) do
     resource_url = generate_resource_url()
@@ -300,6 +325,37 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
               <FromDate>#{start_date}T00:00:00</FromDate>
               <ToDate>#{end_date}T23:59:59</ToDate>
             </ValidBetween>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+  end
+
+  defp network_content(network_name, transport_modes) do
+    lines =
+      Enum.map(transport_modes, fn mode ->
+        """
+          <Line>
+            <TransportMode>#{mode}</TransportMode>
+          </Line>
+          <Line>
+            <TransportMode>#{mode}</TransportMode>
+          </Line>
+        """
+      end)
+
+    """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" xmlns:gis="http://www.opengis.net/gml/3.2" xmlns:siri="http://www.siri.org.uk/siri" version="1.1:FR-NETEX_CALENDRIER-2.2">
+        <PublicationTimestamp>2025-07-29T09:34:55Z</PublicationTimestamp>
+        <ParticipantRef>DIGO</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame version="any" id="DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC">
+            <members>
+              <Network>
+                <Name>#{network_name}</Name>
+              </Network>
+              #{lines}
+            </members>
           </GeneralFrame>
         </dataObjects>
       </PublicationDelivery>

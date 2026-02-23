@@ -1,4 +1,6 @@
 <% locale = get_session(@conn, :locale) %>
+<% networks = Map.get(@metadata, "networks", []) %>
+<% modes = Map.get(@metadata, "modes", []) %>
 <p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
   {dgettext("validations", "It is valid from")}
   <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
@@ -6,3 +8,17 @@
     "to"
   )} <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.
 </p>
+<ul>
+  <li :if={networks != []}>
+    <div>
+      <div class="networks-list">
+        {dngettext("validations", "network", "networks", length(networks))} :
+        <strong>{Enum.join(networks, ", ")}</strong>
+      </div>
+    </div>
+  </li>
+  <li :if={modes != []}>
+    {dngettext("validations", "transport mode", "transport modes", length(modes))} :
+    <strong>{Enum.join(modes, ", ")}</strong>
+  </li>
+</ul>

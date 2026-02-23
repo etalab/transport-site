@@ -118,27 +118,27 @@ defmodule Transport.NeTEx.ArchiveParser do
 
   @doc """
   Inside a zip archive opened with `Unzip`, parse a given file (pointed by
-  `file_name`) and extract the networks. The file is read in streaming
-  fashion to save memory, but the stop places are stacked in a list (all in
-  memory at once).
+  `file_name`) and extract various descriptive information. The file is read in
+  streaming fashion to save memory, but the stop places are stacked in a list
+  (all in memory at once).
   """
-  def read_networks(%Unzip{} = unzip, file_name) do
-    parse_stream(unzip, file_name, Transport.NeTEx.NetworkParser)
+  def read_description(%Unzip{} = unzip, file_name) do
+    parse_stream(unzip, file_name, Transport.NeTEx.DescriptionParser)
   end
 
   @doc """
-  Like read_networks/2 but raises on errors.
+  Like read_description/2 but raises on errors.
   """
-  def read_networks!(%Unzip{} = unzip, file_name) do
-    parse_stream!(unzip, file_name, Transport.NeTEx.NetworkParser)
+  def read_description!(%Unzip{} = unzip, file_name) do
+    parse_stream!(unzip, file_name, Transport.NeTEx.DescriptionParser)
   end
 
-  def read_all_networks(zip_file_name) do
-    read_all(zip_file_name, &read_networks/2)
+  def read_all_description(zip_file_name) do
+    read_all(zip_file_name, &read_description/2)
   end
 
-  def read_all_networks!(zip_file_name) do
-    read_all(zip_file_name, &read_networks!/2)
+  def read_all_description!(zip_file_name) do
+    read_all(zip_file_name, &read_description!/2)
   end
 
   defp parse_stream(unzip, file_name, parser) do
@@ -148,7 +148,7 @@ defmodule Transport.NeTEx.ArchiveParser do
       # Entry names ending with a slash `/` are directories. Skip them.
       # https://github.com/akash-akya/unzip/blob/689a1ca7a134ab2aeb79c8c4f8492d61fa3e09a0/lib/unzip.ex#L69
       String.ends_with?(file_name, "/") ->
-        {:ok, []}
+        {:ok, parser.initial_state() |> parser.unwrap_result()}
 
       extension |> String.downcase() == ".zip" ->
         {:error, "Insupported zip inside zip for file #{file_name}"}

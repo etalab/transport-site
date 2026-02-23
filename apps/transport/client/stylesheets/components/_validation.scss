@@ -156,6 +156,12 @@ table.netex_generic_issue tr.debug td code {
 }
 
 .netex {
+  div.header_with_action_bar {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    align-items: baseline;
+  }
+
   ul.summary {
     list-style: none;
     padding-inline: var(--space-xs);

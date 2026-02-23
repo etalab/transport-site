@@ -218,6 +218,12 @@ defmodule Transport.Validators.NeTEx.Validator do
   def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
     result = ResultsAdapter.index_messages(errors)
 
+    resource_metadata =
+      %DB.ResourceMetadata{
+        metadata: metadata,
+        modes: metadata["modes"] || []
+      }
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
@@ -228,7 +234,7 @@ defmodule Transport.Validators.NeTEx.Validator do
       validator_version: validator_version(),
       command: result_url,
       max_error: ResultsAdapter.get_max_severity_error(result),
-      metadata: %DB.ResourceMetadata{metadata: metadata}
+      metadata: resource_metadata
     }
     |> DB.Repo.insert!()
   end

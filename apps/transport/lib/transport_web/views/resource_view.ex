@@ -327,6 +327,19 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
+  def netex_validation_report_download(%{validation_report_url: nil} = assigns) do
+    ~H"""
+    """
+  end
+
+  def netex_validation_report_download(%{validation_report_url: _} = assigns) do
+    ~H"""
+    <a class="button-outline small secondary" href={@validation_report_url} target="_blank">
+      <i class="icon icon--download" aria-hidden="true"></i>{dgettext("resource", "CSV report")}
+    </a>
+    """
+  end
+
   defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
     ~H"""
     """
