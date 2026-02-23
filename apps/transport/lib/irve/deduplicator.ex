@@ -12,7 +12,7 @@ defmodule Transport.IRVE.Deduplicator do
   @prioritary_datasets [
     # Gireve
     %{datagouv_dataset_id: "63dccb1307e9b2f213a5130c", priority: 1},
-    # Ecomovment
+    # Eco-movement
     %{datagouv_dataset_id: "64060c2ac773dcf3fabbe5d2", priority: 2},
     # Qualicharge
     %{datagouv_dataset_id: "6818bce2d9af175f6e01a1b2", priority: 3}
