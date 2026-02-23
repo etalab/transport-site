@@ -90,14 +90,14 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
         |> Explorer.DataFrame.dump_csv!()
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
-        start_path: "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
+        start_path: "consolidation_transport_irve_statique_rapport_#{date}",
         bucket: bucket_name,
         acl: :private,
         file_content: report_content
       )
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
-        start_path: "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
+        start_path: "consolidation_transport_irve_statique_rapport_#{date}",
         bucket: bucket_name,
         acl: :private,
         file_content: "f06fd15d5afcd8be10880b049dc45424c6c9475b8ee2071c5ab1b9880638f3d9"
@@ -105,14 +105,14 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
         bucket_name,
-        "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
-        "consolidation_transport_avec_doublons_irve_statique_rapport.csv"
+        "consolidation_transport_irve_statique_rapport_#{date}",
+        "consolidation_transport_irve_statique_rapport.csv"
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
         bucket_name,
-        "consolidation_transport_avec_doublons_irve_statique_rapport_#{date}",
-        "consolidation_transport_avec_doublons_irve_statique_rapport.csv.sha256sum"
+        "consolidation_transport_irve_statique_rapport_#{date}",
+        "consolidation_transport_irve_statique_rapport.csv.sha256sum"
       )
 
       consolidation_content =
