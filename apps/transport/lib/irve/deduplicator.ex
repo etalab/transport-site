@@ -51,7 +51,7 @@ defmodule Transport.IRVE.Deduplicator do
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
     # TODO at one point: deal with non_concerné and such.
     Explorer.DataFrame.group_by(df, "id_pdc_itinerance")
-    |> remove_non_concerne()
+    |> remove_non_concerne_rule()
     |> unique_rule()
     |> in_prioritary_datasets_rule()
     |> date_maj_rule()
@@ -70,7 +70,7 @@ defmodule Transport.IRVE.Deduplicator do
     )
   end
 
-  defp remove_non_concerne(df) do
+  defp remove_non_concerne_rule(df) do
     df
     |> Explorer.DataFrame.mutate(
       deduplication_status: if(id_pdc_itinerance == "Non concerné", do: "removed_because_non_concerne")
