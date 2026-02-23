@@ -15,7 +15,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   require Logger
   import Transport.S3.AggregatesUploader
 
-  @report_output_base_name "consolidation_transport_avec_doublons_irve_statique_rapport"
+  @report_output_base_name "consolidation_transport_irve_statique_rapport"
   @consolidated_file_no_dedup_base_name "consolidation_transport_avec_doublons_irve_statique"
   @consolidated_file_base_name "consolidation_transport_irve_statique"
 
