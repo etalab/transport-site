@@ -3,6 +3,8 @@ defmodule Transport.IRVE.Validator do
   Central entry point for IRVE file validation (currently working on `DataFrame`).
   """
 
+  require Explorer.Series
+
   def compute_validation(%Explorer.DataFrame{} = df) do
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
@@ -30,6 +32,7 @@ defmodule Transport.IRVE.Validator do
 
     body
     |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+    |> ensure_uniqueness_of_id_pdc_itinerance()
     |> compute_validation()
   end
 
@@ -39,5 +42,33 @@ defmodule Transport.IRVE.Validator do
   def full_file_valid?(%Explorer.DataFrame{} = df) do
     df["check_row_valid"]
     |> Explorer.Series.all?()
+  end
+
+  @doc """
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["FRPAN99E87654321", "FRPAN99E87654321", "Non concerné", nil]})
+  iex> Transport.IRVE.Validator.ensure_uniqueness_of_id_pdc_itinerance(df)
+  ** (RuntimeError) the id_pdc_itinerance column contains duplicates.
+  iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["FRPAN99E87654321", "FRPAN99E87654322", "Non concerné", "Non concerné", nil]})
+  iex> Transport.IRVE.Validator.ensure_uniqueness_of_id_pdc_itinerance(df)
+  df
+  """
+  def ensure_uniqueness_of_id_pdc_itinerance(%Explorer.DataFrame{} = df) do
+    # Using count (only on not nil values) and not size, we want the validator to pick nil values afterwards.
+    raw_count =
+      df["id_pdc_itinerance"]
+      |> Explorer.Series.filter(_ != "Non concerné")
+      |> Explorer.Series.count()
+
+    distinct_count =
+      df["id_pdc_itinerance"]
+      |> Explorer.Series.filter(_ != "Non concerné")
+      |> Explorer.Series.distinct()
+      |> Explorer.Series.count()
+
+    if distinct_count != raw_count do
+      raise "the id_pdc_itinerance column contains duplicates."
+    else
+      df
+    end
   end
 end

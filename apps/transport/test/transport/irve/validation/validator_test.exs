@@ -8,6 +8,7 @@ defmodule Transport.IRVE.ValidatorTest do
 
   use ExUnit.Case, async: true
   import Transport.TmpFile
+  doctest Transport.IRVE.Validator, import: true
 
   test "validate/1 returns a dataframe with validation columns" do
     csv_content = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
