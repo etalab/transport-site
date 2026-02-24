@@ -77,6 +77,18 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "date_maj" => ~D[2025-10-01],
                "deduplication_status" => "removed_because_non_concerne",
                "id_pdc_itinerance" => "Non concerné"
+             },
+             %{
+               "datagouv_resource_id" => "with-exact-duplicates-resource",
+               "date_maj" => ~D[2025-10-01],
+               "deduplication_status" => "kept_because_exact_duplicate_in_same_file",
+               "id_pdc_itinerance" => "FRS31DUPLICATE5"
+             },
+             %{
+               "datagouv_resource_id" => "with-exact-duplicates-resource",
+               "date_maj" => ~D[2025-10-01],
+               "deduplication_status" => "removed_because_exact_duplicate_in_same_file",
+               "id_pdc_itinerance" => "FRS31DUPLICATE5"
              }
            ]
   end
@@ -110,6 +122,10 @@ defmodule Transport.IRVE.DeduplicatorTest do
              %{
                "datagouv_resource_id" => "gireve-resource",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
+             },
+             %{
+               "datagouv_resource_id" => "with-exact-duplicates-resource",
+               "id_pdc_itinerance" => "FRS31DUPLICATE5"
              }
            ]
   end
@@ -247,6 +263,25 @@ defmodule Transport.IRVE.DeduplicatorTest do
       ]
       |> Enum.map(&Map.merge(&1, non_itinerance_resource))
 
+    resource_with_exact_duplicates = %{
+      "datagouv_dataset_id" => "with-exact-duplicates-dataset",
+      "datagouv_resource_id" => "with-exact-duplicates-resource",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    resource_with_exact_duplicates_content =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE5",
+          "date_maj" => ~D[2025-10-01]
+        },
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE5",
+          "date_maj" => ~D[2025-10-01]
+        }
+      ]
+      |> Enum.map(&Map.merge(&1, resource_with_exact_duplicates))
+
     data =
       resource_2026_02_15_content ++
         resource_2026_02_17_content ++
@@ -254,7 +289,8 @@ defmodule Transport.IRVE.DeduplicatorTest do
         reource_2026_02_18_content ++
         gireve_resource_content ++
         qualicharge_resource_content ++
-        non_itinerance_resource_content
+        non_itinerance_resource_content ++
+        resource_with_exact_duplicates_content
 
     Explorer.DataFrame.new(data)
   end
