@@ -40,13 +40,17 @@ defmodule Transport.IRVE.Deduplicator do
     we mark as kept the one(s) with the most recent datagouv_last_modified, and the others as duplicates.
 
   Values of the additional column:
+  - kept_because_exact_duplicate_in_same_file
+  - removed_because_exact_duplicate_in_same_file
   - unique
+  - removed_because_non_concerne
   - kept_because_in_prioritary_dataset
   - removed_because_not_in_prioritary_dataset
   - kept_because_date_maj_more_recent
   - removed_because_date_maj_not_more_recent
   - kept_because_resource_more_recent
   - removed_because_resource_not_more_recent
+  - removed_because_no_rule_applies
   """
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
     # TODO at one point: deal with non_concerné and such.
@@ -58,6 +62,7 @@ defmodule Transport.IRVE.Deduplicator do
     |> in_prioritary_datasets_rule()
     |> date_maj_rule()
     |> datagouv_last_modified_rule()
+    |> remove_undecided_duplicates_rule()
   end
 
   def discard_duplicates(df) do
@@ -183,21 +188,41 @@ defmodule Transport.IRVE.Deduplicator do
     # (that have is_max_date_maj true)
     df
     |> Explorer.DataFrame.mutate(max_datagouv_last_modified: max(datagouv_last_modified))
+    |> Explorer.DataFrame.mutate(is_max_datagouv_last_modified: datagouv_last_modified == max_datagouv_last_modified)
+    |> Explorer.DataFrame.group_by(["id_pdc_itinerance", "is_max_date_maj", "is_max_datagouv_last_modified"])
+    |> Explorer.DataFrame.mutate(count_max_datagouv_last_modified: count(is_max_datagouv_last_modified))
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
           is_not_nil(deduplication_status) ->
             deduplication_status
 
-          datagouv_last_modified == max_datagouv_last_modified ->
+          datagouv_last_modified == max_datagouv_last_modified and count_max_datagouv_last_modified == 1 ->
             "kept_because_resource_more_recent"
 
-          true ->
+          not is_max_datagouv_last_modified ->
             "removed_because_resource_not_more_recent"
+
+          true ->
+            nil
         end
     )
     |> Explorer.DataFrame.discard("max_datagouv_last_modified")
+    |> Explorer.DataFrame.discard("count_max_datagouv_last_modified")
     |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.discard("is_max_date_maj")
+    |> Explorer.DataFrame.discard("is_max_datagouv_last_modified")
+  end
+
+  defp remove_undecided_duplicates_rule(df) do
+    df
+    |> Explorer.DataFrame.mutate(
+      deduplication_status:
+        if(
+          is_nil(deduplication_status),
+          do: "removed_because_no_rule_applies",
+          else: deduplication_status
+        )
+    )
   end
 end

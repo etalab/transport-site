@@ -89,6 +89,18 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "date_maj" => ~D[2025-10-01],
                "deduplication_status" => "removed_because_exact_duplicate_in_same_file",
                "id_pdc_itinerance" => "FRS31DUPLICATE5"
+             },
+             %{
+               "datagouv_resource_id" => "similar-resource-1",
+               "date_maj" => ~D[2025-10-01],
+               "deduplication_status" => "removed_because_no_rule_applies",
+               "id_pdc_itinerance" => "FRS31DUPLICATE5"
+             },
+             %{
+               "datagouv_resource_id" => "similar-resource-2",
+               "date_maj" => ~D[2025-10-01],
+               "deduplication_status" => "removed_because_no_rule_applies",
+               "id_pdc_itinerance" => "FRS31DUPLICATE5"
              }
            ]
   end
@@ -282,6 +294,26 @@ defmodule Transport.IRVE.DeduplicatorTest do
       ]
       |> Enum.map(&Map.merge(&1, resource_with_exact_duplicates))
 
+    similar_resource_published_at_same_timestamp_1 = %{
+      "datagouv_dataset_id" => "similar-resource-dataset-1",
+      "datagouv_resource_id" => "similar-resource-1",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    similar_resource_published_at_same_timestamp_2 = %{
+      "datagouv_dataset_id" => "similar-resource-dataset-2",
+      "datagouv_resource_id" => "similar-resource-2",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    similar_resource_content =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE5",
+          "date_maj" => ~D[2025-10-01]
+        }
+      ]
+
     data =
       resource_2026_02_15_content ++
         resource_2026_02_17_content ++
@@ -290,7 +322,9 @@ defmodule Transport.IRVE.DeduplicatorTest do
         gireve_resource_content ++
         qualicharge_resource_content ++
         non_itinerance_resource_content ++
-        resource_with_exact_duplicates_content
+        resource_with_exact_duplicates_content ++
+        Enum.map(similar_resource_content, &Map.merge(&1, similar_resource_published_at_same_timestamp_1)) ++
+        Enum.map(similar_resource_content, &Map.merge(&1, similar_resource_published_at_same_timestamp_2))
 
     Explorer.DataFrame.new(data)
   end
