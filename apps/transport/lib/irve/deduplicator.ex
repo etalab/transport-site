@@ -40,8 +40,6 @@ defmodule Transport.IRVE.Deduplicator do
     we mark as kept the one(s) with the most recent datagouv_last_modified, and the others as duplicates.
 
   Values of the additional column:
-  - kept_because_exact_duplicate_in_same_file
-  - removed_because_exact_duplicate_in_same_file
   - unique
   - removed_because_non_concerne
   - kept_because_in_prioritary_dataset
@@ -50,18 +48,19 @@ defmodule Transport.IRVE.Deduplicator do
   - removed_because_date_maj_not_more_recent
   - kept_because_resource_more_recent
   - removed_because_resource_not_more_recent
+  - kept_because_exact_duplicate_in_same_file
+  - removed_because_exact_duplicate_in_same_file
   - removed_because_no_rule_applies
   """
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
-    # TODO at one point: deal with non_concerné and such.
     df
-    |> exact_duplicate_in_same_file_rule()
     |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> remove_non_concerne_rule()
     |> unique_rule()
     |> in_prioritary_datasets_rule()
     |> date_maj_rule()
     |> datagouv_last_modified_rule()
+    |> exact_duplicate_in_same_file_rule()
     |> remove_undecided_duplicates_rule()
   end
 
@@ -78,42 +77,13 @@ defmodule Transport.IRVE.Deduplicator do
     )
   end
 
-  defp exact_duplicate_in_same_file_rule(df) do
-    df
-    # This is grouping by all columns, thus grouping identical entries (with same file ids) together
-    |> Explorer.DataFrame.group_by(fn _col -> true end)
-    |> Explorer.DataFrame.mutate(count_dups: count(id_pdc_itinerance))
-    |> Explorer.DataFrame.mutate(
-      deduplication_status:
-        cond do
-          count_dups > 1 and row_index(id_pdc_itinerance) == 0 ->
-            "kept_because_exact_duplicate_in_same_file"
-
-          count_dups > 1 ->
-            "removed_because_exact_duplicate_in_same_file"
-
-          true ->
-            nil
-        end
-    )
-    |> Explorer.DataFrame.discard("count_dups")
-    |> Explorer.DataFrame.ungroup()
-  end
-
   defp remove_non_concerne_rule(df) do
     df
     |> Explorer.DataFrame.mutate(
       deduplication_status:
-        cond do
-          is_not_nil(deduplication_status) ->
-            deduplication_status
-
-          id_pdc_itinerance == "Non concerné" ->
-            "removed_because_non_concerne"
-
-          true ->
-            nil
-        end
+        if(id_pdc_itinerance == "Non concerné",
+          do: "removed_because_non_concerne"
+        )
     )
   end
 
@@ -212,6 +182,33 @@ defmodule Transport.IRVE.Deduplicator do
     |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.discard("is_max_date_maj")
     |> Explorer.DataFrame.discard("is_max_datagouv_last_modified")
+  end
+
+  defp exact_duplicate_in_same_file_rule(df) do
+    df
+    # This is grouping by all columns, thus grouping identical entries (with same file ids) together
+    |> Explorer.DataFrame.group_by(fn _col -> true end)
+    |> Explorer.DataFrame.mutate(count_dups: count(id_pdc_itinerance))
+    |> Explorer.DataFrame.mutate(min_row_index: min(row_index(id_pdc_itinerance)))
+    |> Explorer.DataFrame.mutate(
+      deduplication_status:
+        cond do
+          is_not_nil(deduplication_status) ->
+            deduplication_status
+
+          count_dups > 1 and row_index(id_pdc_itinerance) == min_row_index ->
+            "kept_because_exact_duplicate_in_same_file"
+
+          count_dups > 1 ->
+            "removed_because_exact_duplicate_in_same_file"
+
+          true ->
+            nil
+        end
+    )
+    |> Explorer.DataFrame.discard("count_dups")
+    |> Explorer.DataFrame.discard("min_row_index")
+    |> Explorer.DataFrame.ungroup()
   end
 
   defp remove_undecided_duplicates_rule(df) do
