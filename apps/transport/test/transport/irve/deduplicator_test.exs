@@ -71,6 +71,12 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "date_maj" => ~D[2025-10-01],
                "deduplication_status" => "removed_because_not_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
+             },
+             %{
+               "datagouv_resource_id" => "non-itinerance-resource",
+               "date_maj" => ~D[2025-10-01],
+               "deduplication_status" => "removed_because_non_concerne",
+               "id_pdc_itinerance" => "Non concerné"
              }
            ]
   end
@@ -226,13 +232,29 @@ defmodule Transport.IRVE.DeduplicatorTest do
       ]
       |> Enum.map(&Map.merge(&1, qualicharge_resource))
 
+    non_itinerance_resource = %{
+      "datagouv_dataset_id" => "non-itinerance-dataset",
+      "datagouv_resource_id" => "non-itinerance-resource",
+      "datagouv_last_modified" => DateTime.new!(~D[2025-11-01], ~T[12:00:00.000], "Etc/UTC")
+    }
+
+    non_itinerance_resource_content =
+      [
+        %{
+          "id_pdc_itinerance" => "Non concerné",
+          "date_maj" => ~D[2025-10-01]
+        }
+      ]
+      |> Enum.map(&Map.merge(&1, non_itinerance_resource))
+
     data =
       resource_2026_02_15_content ++
         resource_2026_02_17_content ++
         resource_2026_02_01_content ++
         reource_2026_02_18_content ++
         gireve_resource_content ++
-        qualicharge_resource_content
+        qualicharge_resource_content ++
+        non_itinerance_resource_content
 
     Explorer.DataFrame.new(data)
   end
