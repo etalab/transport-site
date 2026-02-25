@@ -420,6 +420,23 @@ defmodule TransportWeb.ValidationControllerTest do
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
       assert body =~ ~r{XSD NeTEx\s+\(1 erreur\)}
+
+      assert body =~ "Rapport CSV"
+
+      assert url =
+               conn
+               |> get(validation_url(conn, :download_validation_report, multi_validation.id, token: token))
+               |> redirected_to(:moved_permanently)
+
+      assert csv_report_content =
+               conn
+               |> get(url)
+               |> csv_response(200)
+               |> then(&[&1])
+               |> CSV.decode!(headers: true)
+               |> Enum.to_list()
+
+      assert 1 == length(csv_report_content)
     end
 
     test "with a schema", %{conn: conn} do
@@ -819,5 +836,12 @@ defmodule TransportWeb.ValidationControllerTest do
                metadata: %{"type" => "netex"}
              }
            ] = DB.FeatureUsage |> DB.Repo.all()
+  end
+
+  defp csv_response(conn, status) do
+    body = response(conn, status)
+    _ = response_content_type(conn, :csv)
+
+    body
   end
 end

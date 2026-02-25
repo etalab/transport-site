@@ -1,7 +1,11 @@
 <section class="netex">
   <div class="container">
     <div class="validation-title">
-      <h2>{dgettext("validations", "NeTEx review report")}</h2>
+      <div class="header_with_action_bar">
+        <h2>{dgettext("validations", "NeTEx review report")}</h2>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+
       <p>
         {dgettext("validations", "explanations-netex")}
       </p>
