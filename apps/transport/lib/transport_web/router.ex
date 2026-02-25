@@ -294,6 +294,7 @@ defmodule TransportWeb.Router do
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
+      get("/:id/download-validation-report", ValidationController, :download_validation_report)
     end
 
     scope "/tools" do

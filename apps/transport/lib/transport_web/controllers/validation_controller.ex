@@ -136,6 +136,8 @@ defmodule TransportWeb.ValidationController do
         pagination_config = make_pagination_config(params)
         {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
 
+        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
@@ -145,6 +147,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:max_severity, validation.digest["max_severity"])
         |> assign(:validation_summary, validation.digest["summary"])
         |> assign(:severities_count, validation.digest["stats"])
+        |> assign(:validation_report_url, validation_report_url)
         |> render(template)
 
       # Handles waiting for validation to complete, errors and
@@ -158,6 +161,59 @@ defmodule TransportWeb.ValidationController do
           }
         )
     end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %DB.MultiValidation{
+        id: mv_id,
+        binary_result: binary_result
+      })
+      when is_binary(binary_result) do
+    case binary_result
+         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
+         |> Explorer.DataFrame.dump_csv() do
+      {:ok, validation_report} ->
+        DB.FeatureUsage.insert!(
+          :download_validation_report,
+          get_in(conn.assigns.current_contact.id),
+          %{validation_id: mv_id}
+        )
+
+        send_download(conn, {:binary, validation_report},
+          disposition: :attachment,
+          content_type: "text/csv",
+          filename: "report-#{mv_id}.csv"
+        )
+
+      _ ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{} = params) do
+    token = params["token"]
+
+    validation =
+      MultiValidation.base_query(include_binary_result: true)
+      |> Repo.get(params["id"])
+
+    case validation do
+      nil ->
+        not_found(conn)
+
+      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
+      when expected_token != token ->
+        unauthorized(conn)
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
+        download_validation_report(conn, validation)
+
+      true ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _) do
+    not_found(conn)
   end
 
   defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
