@@ -26,7 +26,7 @@
   <div class="validation-content">
     <div id="issues" class="container">
       <% %{"worst_occurrences" => worst_occurrences} = @max_severity %>
-      <% current_category = @filter["issues_category"] || "" %>
+      <% current_category = @filter["issues_category"] || "xsd-schema" %>
       <div id="issues" class="validation-navigation">
         <nav class="issues-list validation" role="navigation">
           <.netex_validation_summary
@@ -41,18 +41,26 @@
       <div class="validation-content-details">
         <div class="panel">
           <%= if worst_occurrences > 0 do %>
-            <% pagination =
-              pagination_links(@conn, @issues, [@validation_id],
-                issues_category: current_category,
-                token: @token,
-                path: &validation_path/4,
-                action: :show
-              ) %>
-            {pagination}
-            {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
-            <div class="pt-24">
+            <%= if current_category == "xsd-schema" do %>
+              {render(netex_template(current_category),
+                xsd_errors: @xsd_errors || [],
+                validation_report_url: @validation_report_url,
+                conn: @conn
+              )}
+            <% else %>
+              <% pagination =
+                pagination_links(@conn, @issues, [@validation_id],
+                  issues_category: current_category,
+                  token: @token,
+                  path: &validation_path/4,
+                  action: :show
+                ) %>
               {pagination}
-            </div>
+              {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
+              <div class="pt-24">
+                {pagination}
+              </div>
+            <% end %>
           <% else %>
             <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
           <% end %>

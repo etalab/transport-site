@@ -47,7 +47,8 @@
           results_adapter: @results_adapter,
           max_severity: @max_severity,
           filter: @filter,
-          validation_report_url: @validation_report_url
+          validation_report_url: @validation_report_url,
+          xsd_errors: @xsd_errors
         )}
         <%= unless is_nil(@metadata) or @metadata == %{} do %>
           {render("_resources_netex_validation_details.html", conn: @conn, metadata: @metadata)}

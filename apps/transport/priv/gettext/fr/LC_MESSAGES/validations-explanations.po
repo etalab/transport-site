@@ -154,3 +154,11 @@ msgstr "Un trajet doit passer par plus d’un arrêt dans stop_times.txt pour ê
 #, elixir-autogen, elixir-format
 msgid "NoCalendar"
 msgstr "<code>calendar.txt</code> et <code>calendar_dates.txt</code> sont vides. Le service n'est jamais en exploitation."
+
+#, elixir-autogen, elixir-format
+msgid "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>."
+msgstr "Voici un résumé des erreurs de validation XSD. Le détail de ces erreurs est disponible dans le <a href=\"%{validation_report_url}\" target=\"_blank\">rapport complet</a>. Ces erreurs sont le résultat de la validation par <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Occurrences"
+msgstr ""

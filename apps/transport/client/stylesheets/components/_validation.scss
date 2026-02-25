@@ -130,8 +130,12 @@ table.netex_generic_issue, table.netex_xsd_schema {
   }
 }
 
-table.netex_generic_issue th:nth-child(1), table.netex_xsd_schema th:nth-child(2) {
+table.netex_generic_issue th:nth-child(1) {
   width: 60%;
+}
+
+table.netex_xsd_schema th:nth-child(1) {
+  width: 80%;
 }
 
 table.netex_generic_issue tr.debug:hover {

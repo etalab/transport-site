@@ -193,7 +193,7 @@ defmodule TransportWeb.ResourceController do
   defp render_netex_details(conn, params, resource, validation) do
     config = make_pagination_config(params)
 
-    {results_adapter, validation_details, issues, errors_template, max_severity} =
+    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
       build_netex_validation_details(validation, params)
 
     {filter, pagination} = issues
@@ -208,6 +208,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:validation_report_url, validation_report_url)
     |> assign(:filter, filter)
     |> assign(:issues, paginate_netex_results(pagination, config))
+    |> assign(:xsd_errors, xsd_errors)
     |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
@@ -240,7 +241,7 @@ defmodule TransportWeb.ResourceController do
     }
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil}
+  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
 
   defp build_netex_validation_details(
          %{
@@ -259,8 +260,10 @@ defmodule TransportWeb.ResourceController do
 
     pagination_config = make_pagination_config(params)
     issues = results_adapter.get_issues(binary_result, params, pagination_config)
+    xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
 
-    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity}
+    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity,
+     xsd_errors}
   end
 
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
