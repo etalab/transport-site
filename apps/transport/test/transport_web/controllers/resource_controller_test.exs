@@ -1341,18 +1341,11 @@ defmodule TransportWeb.ResourceControllerTest do
       for version <- ["0.1.0", "0.2.0", "0.2.1"] do
         setup_netex_validation_report(resource, version, true)
 
-        content =
-          conn
-          |> get(resource_path(conn, :download_validation_report, resource.id))
-          |> csv_response(200)
-
-        if version == "0.1.0" do
-          assert content ==
-                   "code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
-        else
-          assert content ==
-                   "category,code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-schema,xsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
-        end
+        assert expected_netex_report_content(version) ==
+                 conn
+                 |> get(resource_path(conn, :download_validation_report, resource.id))
+                 |> csv_response(200)
+                 |> parse_csv()
       end
 
       resource_id = resource.id
@@ -1429,6 +1422,28 @@ defmodule TransportWeb.ResourceControllerTest do
     })
   end
 
+  def expected_netex_report_content("0.1.0") do
+    expected_netex_report_content("0.2.1")
+    |> Enum.map(&Map.delete(&1, "category"))
+  end
+
+  def expected_netex_report_content(_) do
+    [
+      %{
+        "category" => "xsd-schema",
+        "code" => "xsd-1871",
+        "criticity" => "error",
+        "message" =>
+          "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
+        "resource.class" => "",
+        "resource.column" => "",
+        "resource.filename" => "",
+        "resource.id" => "",
+        "resource.line" => ""
+      }
+    ]
+  end
+
   defp connected_user(conn) do
     %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
     conn = conn |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -1486,5 +1501,11 @@ defmodule TransportWeb.ResourceControllerTest do
     _ = response_content_type(conn, :csv)
 
     body
+  end
+
+  defp parse_csv(body) do
+    [body]
+    |> CSV.decode!(headers: true)
+    |> Enum.to_list()
   end
 end
