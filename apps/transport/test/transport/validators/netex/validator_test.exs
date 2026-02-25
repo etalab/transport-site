@@ -60,7 +60,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "0.2.1"
-      assert multi_validation.result == %{}
+      assert multi_validation.result == nil
       assert multi_validation.digest == ResultsAdapter.digest(%{})
       assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
 
@@ -131,44 +131,46 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.metadata.modes == modes
 
-      assert multi_validation.result == %{
-               "xsd-schema" => [
-                 %{
-                   "code" => "xsd-1871",
-                   "criticity" => "error",
-                   "message" =>
-                     "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-                 }
-               ],
-               "base-rules" => [
-                 %{
-                   "code" => "uic-operating-period",
-                   "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-                   "criticity" => "error"
-                 },
-                 %{
-                   "code" => "valid-day-bits",
-                   "message" => "Mandatory attribute valid_day_bits not found",
-                   "criticity" => "error"
-                 },
-                 %{
-                   "code" => "frame-arret-resources",
-                   "message" => "Tag frame_id doesn't match ''",
-                   "criticity" => "warning"
-                 },
-                 %{
-                   "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-                   "criticity" => "error"
-                 }
-               ]
-             }
+      result = %{
+        "xsd-schema" => [
+          %{
+            "code" => "xsd-1871",
+            "criticity" => "error",
+            "message" =>
+              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+          }
+        ],
+        "base-rules" => [
+          %{
+            "code" => "uic-operating-period",
+            "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
+            "criticity" => "error"
+          },
+          %{
+            "code" => "valid-day-bits",
+            "message" => "Mandatory attribute valid_day_bits not found",
+            "criticity" => "error"
+          },
+          %{
+            "code" => "frame-arret-resources",
+            "message" => "Tag frame_id doesn't match ''",
+            "criticity" => "warning"
+          },
+          %{
+            "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
+            "criticity" => "error"
+          }
+        ]
+      }
 
-      assert multi_validation.digest == ResultsAdapter.digest(multi_validation.result)
-      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(multi_validation.result)
+      assert multi_validation.result == nil
+
+      assert multi_validation.digest == ResultsAdapter.digest(result)
+      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
     end
 
     defp load_multi_validation(resource_history_id) do
-      DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
+      DB.MultiValidation.base_query(include_binary_result: true)
       |> DB.Repo.get_by(resource_history_id: resource_history_id)
       |> DB.Repo.preload(:metadata)
     end
