@@ -140,7 +140,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     if has_column?(df, "category") do
       df
       |> DF.frequencies(["message"])
-      |> DF.sort_by(message)
+      |> DF.sort_by(desc: counts)
       |> DF.to_rows()
     else
       []

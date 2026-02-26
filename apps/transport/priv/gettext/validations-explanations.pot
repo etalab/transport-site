@@ -143,10 +143,6 @@ msgid "Unknown location"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Details for debugging purposes"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "UnusableTrip"
 msgstr ""
 
@@ -160,4 +156,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Occurrences"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following errors are only available in English."
 msgstr ""

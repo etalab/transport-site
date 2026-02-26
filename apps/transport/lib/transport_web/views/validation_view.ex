@@ -6,9 +6,8 @@ defmodule TransportWeb.ValidationView do
     only: [
       gtfs_template: 1,
       netex_template: 0,
-      netex_template: 1,
-      netex_validation_summary: 1,
-      netex_validation_report_download: 1
+      netex_validation_report_title: 1,
+      netex_validation_report_content: 1
     ]
 
   import TransportWeb.PaginationHelpers
@@ -19,4 +18,17 @@ defmodule TransportWeb.ValidationView do
 
   def has_errors?([]), do: false
   def has_errors?(summary) when is_list(summary), do: true
+
+  def netex_pagination_links(conn, issues, validation_id, current_category) do
+    pagination_links(conn, issues, [validation_id],
+      issues_category: current_category,
+      token: conn.params["token"],
+      path: &netex_issues_path/4,
+      action: :show
+    )
+  end
+
+  defp netex_issues_path(conn, action, validation_id, params) do
+    validation_path(conn, action, validation_id, params) <> "#validation-report"
+  end
 end

@@ -144,10 +144,6 @@ msgid "Unknown location"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Details for debugging purposes"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "UnusableTrip"
 msgstr "A trip must visit more than one stop in stop_times.txt to be usable by passengers for boarding and alighting."
 
@@ -161,4 +157,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Occurrences"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following errors are only available in English."
 msgstr ""

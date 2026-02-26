@@ -354,19 +354,154 @@ defmodule TransportWeb.ResourceView do
     "<code>&lt;#{element_name}&gt;</code>"
   end
 
-  def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
+  def netex_validation_report_title(
+        %{level: _, max_severity: _, results_adapter: _, validation_report_url: _} = assigns
+      ) do
     ~H"""
-    <ul class="summary">
+    <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
+    <div class="header_with_action_bar">
+      <.title level={@level}>
+        {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
+      </.title>
+      <.netex_validation_report_download validation_report_url={@validation_report_url} />
+    </div>
+    """
+  end
+
+  def netex_validation_report_title(%{validation_report_url: _} = assigns) do
+    ~H"""
+    <div class="header_with_action_bar">
+      <h2>{dgettext("validations", "NeTEx review report")}</h2>
+      <.netex_validation_report_download validation_report_url={@validation_report_url} />
+    </div>
+    """
+  end
+
+  defp title(%{level: 2} = assigns) do
+    ~H"""
+    <h2>{render_slot(@inner_block)}</h2>
+    """
+  end
+
+  defp title(%{level: 4} = assigns) do
+    ~H"""
+    <h4>{render_slot(@inner_block)}</h4>
+    """
+  end
+
+  def netex_validation_report_content(
+        %{
+          conn: _,
+          current_category: _,
+          issues: _,
+          results_adapter: _,
+          validation_report_url: _,
+          validation_summary: _,
+          xsd_errors: _,
+          pagination: _
+        } = assigns
+      ) do
+    ~H"""
+    <% compliance_check = @results_adapter.french_profile_compliance_check() %>
+    <% errors =
+      if @current_category == "xsd-schema" do
+        @xsd_errors
+      else
+        @issues
+      end %>
+
+    <.netex_validation_categories
+      conn={@conn}
+      results_adapter={@results_adapter}
+      validation_summary={@validation_summary}
+      current_category={@current_category}
+    />
+
+    <.netex_validation_selected_category
+      conn={@conn}
+      compliance_check={compliance_check}
+      current_category={@current_category}
+      errors={errors}
+      validation_report_url={@validation_report_url}
+      pagination={@pagination}
+    />
+    """
+  end
+
+  def netex_validation_categories(%{conn: _, results_adapter: _, validation_summary: _, current_category: _} = assigns) do
+    ~H"""
+    <div id="categories">
       <.netex_errors_category
-        :for={%{"category" => category, "stats" => stats} <- @validation_summary}
+        :for={%{"category" => category, "stats" => stats} <- sort_categories(@validation_summary)}
         conn={@conn}
         results_adapter={@results_adapter}
         category={category}
+        current_category={@current_category}
         stats={stats}
-        token={@token}
       />
-      <.netex_validations_layers compliance_check={@results_adapter.french_profile_compliance_check()} />
-    </ul>
+    </div>
+    """
+  end
+
+  defp sort_categories(summary) do
+    category_position = fn category ->
+      case category do
+        "xsd-schema" -> 1
+        "base-rules" -> 2
+        _ -> 3
+      end
+    end
+
+    summary
+    |> Enum.sort_by(fn %{"category" => category} -> {category_position.(category), category} end)
+  end
+
+  def netex_validation_selected_category(
+        %{conn: _, compliance_check: _, current_category: _, errors: _, validation_report_url: _, pagination: _} =
+          assigns
+      ) do
+    ~H"""
+    <% locale = get_session(@conn, :locale) %>
+    <div class="selected-category">
+      <.netex_category_description category={@current_category} compliance_check={@compliance_check} conn={@conn} />
+      <.netex_category_comment count={Enum.count(@errors)} category={@current_category} />
+
+      <div :if={@current_category == "xsd-schema" and Enum.count(@errors) > 0} id="issues-list">
+        <p>
+          {dgettext(
+            "validations-explanations",
+            "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
+            validation_report_url: @validation_report_url
+          )
+          |> raw()}
+        </p>
+        <.non_translated_messages locale={locale} />
+        <table class="table netex_xsd_schema">
+          <tr>
+            <th>{dgettext("validations-explanations", "Occurrences")}</th>
+            <th>{dgettext("validations-explanations", "Message")}</th>
+          </tr>
+
+          <tr :for={xsd_error <- @errors} class="message">
+            <td>{Helpers.format_number(xsd_error["counts"], locale: locale)}</td>
+            <td lang="en">{xsd_error["message"]}</td>
+          </tr>
+        </table>
+      </div>
+      <div :if={@current_category != "xsd-schema" and Enum.count(@errors) > 0} id="issues-list">
+        <.non_translated_messages locale={locale} />
+        {render(netex_template(@current_category), issues: @errors, conn: @conn)}
+        {@pagination}
+      </div>
+    </div>
+    """
+  end
+
+  defp non_translated_messages(%{locale: _} = assigns) do
+    ~H"""
+    <p :if={@locale != "en"}>
+      {dgettext("validations-explanations", "The following errors are only available in English.")}
+    </p>
     """
   end
 
@@ -443,20 +578,16 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
-  defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
+  def netex_category_tooltip(%{category: _, compliance_check: _} = assigns) do
     ~H"""
+    <p :if={@category == "french-profile"}>
+      <.info_icon /> {french_profile_comment(@compliance_check)}
+    </p>
     """
   end
 
-  defp netex_validations_layers(%{compliance_check: _} = assigns) do
+  def netex_category_tooltip(%{} = assigns) do
     ~H"""
-    <li class="comment">
-      <.info_icon />
-      <div>
-        {dgettext("validations", "netex-validations-layers") |> raw()}
-        {french_profile_comment(@compliance_check)}
-      </div>
-    </li>
     """
   end
 
@@ -464,64 +595,112 @@ defmodule TransportWeb.ResourceView do
   defp french_profile_comment(:partial), do: dgettext("validations", "netex-french-profile-partial-compliance") |> raw()
   defp french_profile_comment(:good_enough), do: ""
 
-  defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
+  defp netex_errors_category(%{conn: _, category: _, stats: _, results_adapter: _, current_category: _} = assigns) do
     ~H"""
-    <li>
+    <.link
+      class={
+        netex_errors_category_classnames(
+          @category,
+          @current_category,
+          @stats["count"],
+          @results_adapter.french_profile_compliance_check()
+        )
+      }
+      href={netex_link_to_category(@conn, @category)}
+    >
       <.validity_icon errors={@stats["count"]} />
-      <div class="selector">
-        {compatibility_filter(@conn, @category, @token, @stats["count"])}
+      <span>
+        <span class="category">
+          {netex_category_label(@category)}
+        </span>
         <.stats :if={@stats["count"] > 0} stats={@stats} results_adapter={@results_adapter} />
-      </div>
-      <p :if={netex_category_description(@category)}>
-        {netex_category_description(@category)}
-      </p>
-      <.category_hints :if={netex_category_hints(@category) && @stats["count"] > 0} category={@category} />
-    </li>
+      </span>
+    </.link>
     """
   end
 
-  defp category_hints(%{category: _} = assigns) do
+  defp netex_link_to_category(conn, category) do
+    query_params =
+      drop_empty_query_params(%{"issues_category" => category, "token" => conn.params["token"]})
+
+    conn
+    |> current_url(query_params)
+    |> to_netex_validation_report()
+  end
+
+  defp drop_empty_query_params(query_params) do
+    Map.reject(query_params, fn {_, v} -> is_nil(v) end)
+  end
+
+  defp netex_errors_category_classnames(category, current_category, errors, compliance_check) do
+    validity =
+      if errors == 0 do
+        ["valid"]
+      else
+        ["invalid"]
+      end
+
+    variant =
+      if category == "french-profile" and compliance_check == :partial do
+        ["striped"]
+      else
+        []
+      end
+
+    selected =
+      if current_category == category do
+        ["selected"]
+      else
+        []
+      end
+
+    Enum.join(["colorful"] ++ validity ++ variant ++ selected, " ")
+  end
+
+  def netex_category_description(%{category: _, compliance_check: _, conn: _} = assigns) do
     ~H"""
-    <.info_icon />
-    <p>{netex_category_hints(@category)}</p>
+    <% url = netex_link_to_category(@conn, "french-profile") %>
+    <% description = netex_category_description_html(@category, url) %>
+    <p :if={description}>
+      {raw(description)}
+    </p>
+    <.netex_category_tooltip category={@category} compliance_check={@compliance_check} />
+    """
+  end
+
+  def netex_category_comment(%{count: _, category: _} = assigns) do
+    ~H"""
+    <.netex_category_hints :if={@count > 0} category={@category} />
+    <p :if={@count == 0}>
+      <i class="fa fa-check"></i>
+      {dgettext("validations", "All rules of this category are respected.")}
+    </p>
+    """
+  end
+
+  defp netex_category_hints(%{category: _} = assigns) do
+    ~H"""
+    <p :if={netex_category_hints_html(@category)}>
+      <.info_icon /> {netex_category_hints_html(@category) |> raw()}
+    </p>
     """
   end
 
   defp stats(%{stats: _, results_adapter: _} = assigns) do
     ~H"""
-    ({@results_adapter.format_severity(@stats["criticity"], @stats["count"])})
+    – {@results_adapter.format_severity(@stats["criticity"], @stats["count"])}
     """
   end
 
-  defp compatibility_filter(conn, category, token, count) when count > 0 do
-    query_params =
-      %{"token" => token, "issues_category" => category}
-      |> drop_empty_query_params()
-
-    url = current_url(conn, query_params)
-
-    category
-    |> netex_category_label()
-    |> link(class: "compatibility_filter", to: "#{url}#issues")
-  end
-
-  defp compatibility_filter(_conn, category, _token, _count) do
-    category
-    |> netex_category_label()
-    |> strong()
-  end
-
-  defp strong(text), do: raw("<strong>#{text}</strong>")
-
   def validity_icon(%{errors: errors} = assigns) when errors > 0 do
     ~H"""
-    <i class="fa fa-xmark"></i>
+    <i class="fa fa-xmark fa-lg"></i>
     """
   end
 
   def validity_icon(assigns) do
     ~H"""
-    <i class="fa fa-check"></i>
+    <i class="fa fa-check fa-lg"></i>
     """
   end
 
@@ -531,22 +710,34 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
-  def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
+  def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD")
   def netex_category_label("french-profile"), do: dgettext("validations", "French profile")
   def netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
   def netex_category_label(_), do: dgettext("validations", "Other errors")
 
-  def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
-  def netex_category_description("french-profile"), do: dgettext("validations", "french-profile-description") |> raw()
-  def netex_category_description("base-rules"), do: dgettext("validations", "base-rules-description") |> raw()
-  def netex_category_description(_), do: nil
+  def netex_category_description_html("xsd-schema", category_french_profile),
+    do: dgettext("validations", "xsd-schema-description", category_french_profile: category_french_profile)
 
-  def netex_category_hints("xsd-schema"), do: dgettext("validations", "xsd-schema-hints") |> raw()
-  def netex_category_hints(_), do: nil
+  def netex_category_description_html("french-profile", _), do: dgettext("validations", "french-profile-description")
+  def netex_category_description_html("base-rules", _), do: dgettext("validations", "base-rules-description")
+  def netex_category_description_html(_, _), do: nil
 
-  defp drop_empty_query_params(query_params) do
-    Map.reject(query_params, fn {_, v} -> is_nil(v) end)
+  def netex_category_hints_html("xsd-schema"), do: dgettext("validations", "xsd-schema-hints")
+  def netex_category_hints_html(_), do: nil
+
+  def netex_pagination_links(conn, issues, resource, current_category) do
+    pagination_links(conn, issues, [resource.id],
+      issues_category: current_category,
+      path: &netex_issues_path/4,
+      action: :details
+    )
   end
+
+  defp netex_issues_path(conn, action, resource_id, params) do
+    resource_path(conn, action, resource_id, params) |> to_netex_validation_report()
+  end
+
+  defp to_netex_validation_report(url), do: url <> "#validation-report"
 
   def error_label(severity) do
     case severity do
