@@ -183,4 +183,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
     |> to_dataframe()
     |> Commons.to_binary()
   end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate summarize_xsd_errors(binary_result), to: V0_2_0
 end

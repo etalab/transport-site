@@ -763,7 +763,11 @@ defmodule TransportWeb.ResourceControllerTest do
 
         rows = content |> Floki.parse_document!() |> Floki.find("table tr.message")
 
-        assert page_size() == Enum.count(rows)
+        if version in ["0.2.0", "0.2.1"] do
+          assert distinct_xsd_errors(issues) == Enum.count(rows)
+        else
+          assert page_size() == Enum.count(rows)
+        end
 
         assert content =~ "réseaux"
         assert content =~ "Réseau urbain, Réseau inter-urbain"
@@ -1507,5 +1511,13 @@ defmodule TransportWeb.ResourceControllerTest do
     [body]
     |> CSV.decode!(headers: true)
     |> Enum.to_list()
+  end
+
+  defp distinct_xsd_errors(issues) do
+    issues
+    |> Enum.filter(&String.starts_with?(&1["code"], "xsd-"))
+    |> Enum.map(& &1["message"])
+    |> MapSet.new()
+    |> MapSet.size()
   end
 end

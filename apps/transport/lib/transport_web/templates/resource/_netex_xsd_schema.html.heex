@@ -1,19 +1,20 @@
+<p>
+  {dgettext(
+    "validations-explanations",
+    "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
+    validation_report_url: @validation_report_url
+  )
+  |> raw()}
+</p>
+
 <table class="table netex_xsd_schema">
   <tr>
-    <th>{dgettext("validations-explanations", "Location")}</th>
     <th>{dgettext("validations-explanations", "Message")}</th>
+    <th>{dgettext("validations-explanations", "Occurrences")}</th>
   </tr>
 
-  <%= for issue <- @issues do %>
-    <tr class="message">
-      <td>
-        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
-          {dgettext("validations-explanations", "Unknown location")}
-        <% else %>
-          {issue["resource"]["filename"]}:{issue["resource"]["line"]}
-        <% end %>
-      </td>
-      <td>{issue["message"]}</td>
-    </tr>
-  <% end %>
+  <tr :for={xsd_error <- @xsd_errors} class="message">
+    <td>{xsd_error["message"]}</td>
+    <td>{xsd_error["counts"]}</td>
+  </tr>
 </table>

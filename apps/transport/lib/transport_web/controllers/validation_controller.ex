@@ -138,6 +138,8 @@ defmodule TransportWeb.ValidationController do
 
         validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
 
+        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
+
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
@@ -148,6 +150,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_summary, validation.digest["summary"])
         |> assign(:severities_count, validation.digest["stats"])
         |> assign(:validation_report_url, validation_report_url)
+        |> assign(:xsd_errors, xsd_errors)
         |> render(template)
 
       # Handles waiting for validation to complete, errors and

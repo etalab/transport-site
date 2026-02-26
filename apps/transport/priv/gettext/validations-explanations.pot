@@ -153,3 +153,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "NoCalendar"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Occurrences"
+msgstr ""
