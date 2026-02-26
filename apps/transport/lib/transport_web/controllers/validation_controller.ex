@@ -206,17 +206,8 @@ defmodule TransportWeb.ValidationController do
          |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
          |> Explorer.DataFrame.dump_csv() do
       {:ok, validation_report} ->
-        DB.FeatureUsage.insert!(
-          :download_validation_report,
-          get_in(conn.assigns.current_contact.id),
-          %{validation_id: mv_id, format: format}
-        )
-
-        send_download(conn, {:binary, validation_report},
-          disposition: :attachment,
-          content_type: "text/csv",
-          filename: "report-#{mv_id}.csv"
-        )
+        log_download(conn, mv_id, format)
+        download_binary(conn, validation_report, "text/csv", "report-#{mv_id}.csv")
 
       _ ->
         not_found(conn)
@@ -232,21 +223,28 @@ defmodule TransportWeb.ValidationController do
         "parquet" = format
       )
       when is_binary(binary_result) do
-    DB.FeatureUsage.insert!(
-      :download_validation_report,
-      get_in(conn.assigns.current_contact.id),
-      %{validation_id: mv_id, format: format}
-    )
-
-    send_download(conn, {:binary, binary_result},
-      disposition: :attachment,
-      content_type: "application/vnd.apache.parquet",
-      filename: "report-#{mv_id}.parquet"
-    )
+    log_download(conn, mv_id, format)
+    download_binary(conn, binary_result, "application/vnd.apache.parquet", "report-#{mv_id}.parquet")
   end
 
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
     not_found(conn)
+  end
+
+  defp log_download(conn, validation_id, format) do
+    DB.FeatureUsage.insert!(
+      :download_validation_report,
+      get_in(conn.assigns.current_contact.id),
+      %{validation_id: validation_id, format: format}
+    )
+  end
+
+  defp download_binary(conn, binary, content_type, filename) do
+    send_download(conn, {:binary, binary},
+      disposition: :attachment,
+      content_type: content_type,
+      filename: filename
+    )
   end
 
   defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
