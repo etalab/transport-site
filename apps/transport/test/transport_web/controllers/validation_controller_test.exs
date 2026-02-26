@@ -4,6 +4,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import DB.Factory
   import Ecto.Query
   import Mox
+  import NeTExValidationReportHelpers
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
   alias Transport.Validators.NeTEx.ResultsAdapter
@@ -432,11 +433,26 @@ defmodule TransportWeb.ValidationControllerTest do
                conn
                |> get(url)
                |> csv_response(200)
-               |> then(&[&1])
-               |> CSV.decode!(headers: true)
-               |> Enum.to_list()
+               |> parse_csv()
 
       assert 1 == length(csv_report_content)
+
+      assert body =~ "Rapport parquet"
+
+      assert url =
+               conn
+               |> get(
+                 validation_url(conn, :download_validation_report, multi_validation.id, token: token, format: "parquet")
+               )
+               |> redirected_to(:moved_permanently)
+
+      assert parquet_report_content =
+               conn
+               |> get(url)
+               |> parquet_response(200)
+               |> parse_parquet()
+
+      assert 1 == length(parquet_report_content)
     end
 
     test "with a schema", %{conn: conn} do
@@ -836,12 +852,5 @@ defmodule TransportWeb.ValidationControllerTest do
                metadata: %{"type" => "netex"}
              }
            ] = DB.FeatureUsage |> DB.Repo.all()
-  end
-
-  defp csv_response(conn, status) do
-    body = response(conn, status)
-    _ = response_content_type(conn, :csv)
-
-    body
   end
 end

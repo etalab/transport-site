@@ -88,3 +88,7 @@ msgstr "Taille :"
 #, elixir-autogen, elixir-format
 msgid "CSV report"
 msgstr "Rapport CSV"
+
+#, elixir-autogen, elixir-format
+msgid "Parquet report"
+msgstr "Rapport parquet"

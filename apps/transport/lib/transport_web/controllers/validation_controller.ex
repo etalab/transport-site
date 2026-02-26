@@ -166,32 +166,6 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %DB.MultiValidation{
-        id: mv_id,
-        binary_result: binary_result
-      })
-      when is_binary(binary_result) do
-    case binary_result
-         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
-         |> Explorer.DataFrame.dump_csv() do
-      {:ok, validation_report} ->
-        DB.FeatureUsage.insert!(
-          :download_validation_report,
-          get_in(conn.assigns.current_contact.id),
-          %{validation_id: mv_id}
-        )
-
-        send_download(conn, {:binary, validation_report},
-          disposition: :attachment,
-          content_type: "text/csv",
-          filename: "report-#{mv_id}.csv"
-        )
-
-      _ ->
-        not_found(conn)
-    end
-  end
-
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{} = params) do
     token = params["token"]
 
@@ -208,7 +182,7 @@ defmodule TransportWeb.ValidationController do
         unauthorized(conn)
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        download_validation_report(conn, validation)
+        download_validation_report(conn, validation, params["format"] || "csv")
 
       true ->
         not_found(conn)
@@ -216,6 +190,62 @@ defmodule TransportWeb.ValidationController do
   end
 
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, _) do
+    not_found(conn)
+  end
+
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "csv" = format
+      )
+      when is_binary(binary_result) do
+    case binary_result
+         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
+         |> Explorer.DataFrame.dump_csv() do
+      {:ok, validation_report} ->
+        DB.FeatureUsage.insert!(
+          :download_validation_report,
+          get_in(conn.assigns.current_contact.id),
+          %{validation_id: mv_id, format: format}
+        )
+
+        send_download(conn, {:binary, validation_report},
+          disposition: :attachment,
+          content_type: "text/csv",
+          filename: "report-#{mv_id}.csv"
+        )
+
+      _ ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "parquet" = format
+      )
+      when is_binary(binary_result) do
+    DB.FeatureUsage.insert!(
+      :download_validation_report,
+      get_in(conn.assigns.current_contact.id),
+      %{validation_id: mv_id, format: format}
+    )
+
+    send_download(conn, {:binary, binary_result},
+      disposition: :attachment,
+      content_type: "application/vnd.apache.parquet",
+      filename: "report-#{mv_id}.parquet"
+    )
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
     not_found(conn)
   end
 
