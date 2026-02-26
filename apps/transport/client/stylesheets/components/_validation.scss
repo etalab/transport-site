@@ -159,6 +159,13 @@ table.netex_generic_issue tr.debug td code {
   width: 100%;
 }
 
+.download-button {
+  text-decoration: none;
+  &:hover {
+    background-color: unset;
+  }
+}
+
 .netex {
   div.header_with_action_bar {
     display: grid;
