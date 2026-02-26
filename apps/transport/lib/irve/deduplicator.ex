@@ -41,27 +41,34 @@ defmodule Transport.IRVE.Deduplicator do
 
   Values of the additional column:
   - unique
+  - removed_because_non_concerne
   - kept_because_in_prioritary_dataset
   - removed_because_not_in_prioritary_dataset
   - kept_because_date_maj_more_recent
   - removed_because_date_maj_not_more_recent
   - kept_because_resource_more_recent
   - removed_because_resource_not_more_recent
+  - kept_because_exact_duplicate_in_same_file
+  - removed_because_exact_duplicate_in_same_file
+  - removed_because_no_rule_applies
   """
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
-    # TODO at one point: deal with non_concerné and such.
-    Explorer.DataFrame.group_by(df, "id_pdc_itinerance")
+    df
+    |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> remove_non_concerne_rule()
     |> unique_rule()
     |> in_prioritary_datasets_rule()
     |> date_maj_rule()
     |> datagouv_last_modified_rule()
+    |> exact_duplicate_in_same_file_rule()
+    |> remove_undecided_duplicates_rule()
   end
 
   def discard_duplicates(df) do
     df
     |> Explorer.DataFrame.filter(
       deduplication_status in [
+        "kept_because_exact_duplicate_in_same_file",
         "unique",
         "kept_because_date_maj_more_recent",
         "kept_because_resource_more_recent",
@@ -73,7 +80,10 @@ defmodule Transport.IRVE.Deduplicator do
   defp remove_non_concerne_rule(df) do
     df
     |> Explorer.DataFrame.mutate(
-      deduplication_status: if(id_pdc_itinerance == "Non concerné", do: "removed_because_non_concerne")
+      deduplication_status:
+        if(id_pdc_itinerance == "Non concerné",
+          do: "removed_because_non_concerne"
+        )
     )
   end
 
@@ -148,21 +158,68 @@ defmodule Transport.IRVE.Deduplicator do
     # (that have is_max_date_maj true)
     df
     |> Explorer.DataFrame.mutate(max_datagouv_last_modified: max(datagouv_last_modified))
+    |> Explorer.DataFrame.mutate(is_max_datagouv_last_modified: datagouv_last_modified == max_datagouv_last_modified)
+    |> Explorer.DataFrame.group_by(["id_pdc_itinerance", "is_max_date_maj", "is_max_datagouv_last_modified"])
+    |> Explorer.DataFrame.mutate(count_max_datagouv_last_modified: count(is_max_datagouv_last_modified))
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
           is_not_nil(deduplication_status) ->
             deduplication_status
 
-          datagouv_last_modified == max_datagouv_last_modified ->
+          datagouv_last_modified == max_datagouv_last_modified and count_max_datagouv_last_modified == 1 ->
             "kept_because_resource_more_recent"
 
-          true ->
+          not is_max_datagouv_last_modified ->
             "removed_because_resource_not_more_recent"
+
+          true ->
+            nil
         end
     )
     |> Explorer.DataFrame.discard("max_datagouv_last_modified")
+    |> Explorer.DataFrame.discard("count_max_datagouv_last_modified")
     |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.discard("is_max_date_maj")
+    |> Explorer.DataFrame.discard("is_max_datagouv_last_modified")
+  end
+
+  defp exact_duplicate_in_same_file_rule(df) do
+    df
+    # This is grouping by all columns, thus grouping identical entries (with same file ids) together
+    |> Explorer.DataFrame.group_by(fn _col -> true end)
+    |> Explorer.DataFrame.mutate(count_dups: count(id_pdc_itinerance))
+    |> Explorer.DataFrame.mutate(min_row_index: min(row_index(id_pdc_itinerance)))
+    |> Explorer.DataFrame.mutate(
+      deduplication_status:
+        cond do
+          is_not_nil(deduplication_status) ->
+            deduplication_status
+
+          count_dups > 1 and row_index(id_pdc_itinerance) == min_row_index ->
+            "kept_because_exact_duplicate_in_same_file"
+
+          count_dups > 1 ->
+            "removed_because_exact_duplicate_in_same_file"
+
+          true ->
+            nil
+        end
+    )
+    |> Explorer.DataFrame.discard("count_dups")
+    |> Explorer.DataFrame.discard("min_row_index")
+    |> Explorer.DataFrame.ungroup()
+  end
+
+  defp remove_undecided_duplicates_rule(df) do
+    df
+    |> Explorer.DataFrame.mutate(
+      deduplication_status:
+        if(
+          is_nil(deduplication_status),
+          do: "removed_because_no_rule_applies",
+          else: deduplication_status
+        )
+    )
   end
 end
