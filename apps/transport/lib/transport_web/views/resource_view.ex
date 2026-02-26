@@ -329,9 +329,14 @@ defmodule TransportWeb.ResourceView do
 
   def netex_validation_report_download(%{validation_report_url: _} = assigns) do
     ~H"""
-    <.download_button url={@validation_report_url}>
-      <.netex_csv_report />
-    </.download_button>
+    <div>
+      <.download_button url={@validation_report_url} format="csv">
+        <.netex_csv_report />
+      </.download_button>
+      <.download_button url={@validation_report_url} format="parquet">
+        <.netex_parquet_report />
+      </.download_button>
+    </div>
     """
   end
 
@@ -343,9 +348,9 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
-  def download_button(%{url: _} = assigns) do
+  def download_button(%{url: _, format: _} = assigns) do
     ~H"""
-    <a class="download-button" href={@url} target="_blank">
+    <a class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
       <button class="button-outline small secondary">
         {render_slot(@inner_block)}
       </button>
@@ -356,6 +361,12 @@ defmodule TransportWeb.ResourceView do
   defp netex_csv_report(%{} = assigns) do
     ~H"""
     <i class="icon icon--download" aria-hidden="true"></i>{dgettext("resource", "CSV report")}
+    """
+  end
+
+  defp netex_parquet_report(%{} = assigns) do
+    ~H"""
+    <i class="icon icon--download" aria-hidden="true"></i>{dgettext("resource", "Parquet report")}
     """
   end
 

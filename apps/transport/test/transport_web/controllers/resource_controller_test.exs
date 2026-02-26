@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import NeTExValidationReportHelpers
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
   import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
@@ -1345,11 +1346,17 @@ defmodule TransportWeb.ResourceControllerTest do
       for version <- ["0.1.0", "0.2.0", "0.2.1"] do
         setup_netex_validation_report(resource, version, true)
 
-        assert expected_netex_report_content(version) ==
+        assert expected_netex_report_content(version, nils_as_empty_string: true) ==
                  conn
                  |> get(resource_path(conn, :download_validation_report, resource.id))
                  |> csv_response(200)
                  |> parse_csv()
+
+        assert expected_netex_report_content(version) ==
+                 conn
+                 |> get(resource_path(conn, :download_validation_report, resource.id, format: "parquet"))
+                 |> parquet_response(200)
+                 |> parse_parquet()
       end
 
       resource_id = resource.id
@@ -1358,17 +1365,32 @@ defmodule TransportWeb.ResourceControllerTest do
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
                },
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
                },
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
                }
              ] = DB.FeatureUsage |> DB.Repo.all()
     end
@@ -1426,12 +1448,23 @@ defmodule TransportWeb.ResourceControllerTest do
     })
   end
 
-  def expected_netex_report_content("0.1.0") do
-    expected_netex_report_content("0.2.1")
+  def expected_netex_report_content(version, opts \\ [])
+
+  def expected_netex_report_content("0.1.0", opts) do
+    expected_netex_report_content("0.2.1", opts)
     |> Enum.map(&Map.delete(&1, "category"))
   end
 
-  def expected_netex_report_content(_) do
+  def expected_netex_report_content(_, opts) do
+    nils_as_empty_string = Keyword.get(opts, :nils_as_empty_string, false)
+
+    empty =
+      if nils_as_empty_string do
+        ""
+      else
+        nil
+      end
+
     [
       %{
         "category" => "xsd-schema",
@@ -1439,11 +1472,11 @@ defmodule TransportWeb.ResourceControllerTest do
         "criticity" => "error",
         "message" =>
           "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
-        "resource.class" => "",
-        "resource.column" => "",
-        "resource.filename" => "",
-        "resource.id" => "",
-        "resource.line" => ""
+        "resource.class" => empty,
+        "resource.column" => empty,
+        "resource.filename" => empty,
+        "resource.id" => empty,
+        "resource.line" => empty
       }
     ]
   end
@@ -1498,19 +1531,6 @@ defmodule TransportWeb.ResourceControllerTest do
 
   defp page_size do
     TransportWeb.PaginationHelpers.make_pagination_config(%{}).page_size
-  end
-
-  defp csv_response(conn, status) do
-    body = response(conn, status)
-    _ = response_content_type(conn, :csv)
-
-    body
-  end
-
-  defp parse_csv(body) do
-    [body]
-    |> CSV.decode!(headers: true)
-    |> Enum.to_list()
   end
 
   defp distinct_xsd_errors(issues) do
