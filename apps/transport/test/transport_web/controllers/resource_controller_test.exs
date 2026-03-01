@@ -747,7 +747,16 @@ defmodule TransportWeb.ResourceControllerTest do
           binary_result: results_adapter.to_binary_result(result),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
-            metadata: %{"elapsed_seconds" => 42, "networks" => networks, "modes" => modes},
+            metadata: %{
+              "elapsed_seconds" => 42,
+              "networks" => networks,
+              "modes" => modes,
+              "stats" => %{
+                "routes_count" => 1,
+                "quays_count" => 1002,
+                "stop_places_count" => 103
+              }
+            },
             modes: modes,
             features: []
           },
@@ -774,6 +783,9 @@ defmodule TransportWeb.ResourceControllerTest do
 
         assert content =~ "modes de transport"
         assert content =~ "bus, ferry"
+        assert content =~ ~r"nombre de lignes :(\s*)<strong>1</strong>"
+        assert content =~ ~r"nombre de quais :(\s*)<strong>1 002</strong>"
+        assert content =~ ~r"nombre de lieux d’arrêt :(\s*)<strong>103</strong>"
 
         if version in ["0.2.0", "0.2.1"] do
           assert content =~ "Rapport CSV"

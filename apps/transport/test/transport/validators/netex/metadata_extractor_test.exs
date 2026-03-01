@@ -10,7 +10,16 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         {true, logs} =
           ExUnit.CaptureLog.with_log(fn ->
             with_tmp_file(content, fn filepath ->
-              assert %{"no_validity_dates" => true, "networks" => [], "modes" => []} ==
+              assert %{
+                       "no_validity_dates" => true,
+                       "networks" => [],
+                       "modes" => [],
+                       "stats" => %{
+                         "routes_count" => 0,
+                         "quays_count" => 0,
+                         "stop_places_count" => 0
+                       }
+                     } ==
                        MetadataExtractor.extract(filepath)
             end)
           end)
@@ -21,7 +30,16 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
 
     test "empty valid ZIP archive" do
       ZipCreator.with_tmp_zip([], fn filepath ->
-        assert %{"no_validity_dates" => true, "networks" => [], "modes" => []} ==
+        assert %{
+                 "no_validity_dates" => true,
+                 "networks" => [],
+                 "modes" => [],
+                 "stats" => %{
+                   "routes_count" => 0,
+                   "quays_count" => 0,
+                   "stop_places_count" => 0
+                 }
+               } ==
                  MetadataExtractor.extract(filepath)
       end)
     end
@@ -45,7 +63,17 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       """
 
       ZipCreator.with_tmp_zip([{"resource.xml", calendar_content}] |> in_sub_directory(), fn filepath ->
-        assert %{"start_date" => "2025-07-05", "end_date" => "2025-08-31", "networks" => [], "modes" => []} ==
+        assert %{
+                 "start_date" => "2025-07-05",
+                 "end_date" => "2025-08-31",
+                 "networks" => [],
+                 "modes" => [],
+                 "stats" => %{
+                   "routes_count" => 0,
+                   "quays_count" => 0,
+                   "stop_places_count" => 0
+                 }
+               } ==
                  MetadataExtractor.extract(filepath)
       end)
     end
@@ -78,7 +106,17 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       """
 
       ZipCreator.with_tmp_zip([{"resource.xml", service_calendar_content}] |> in_sub_directory(), fn filepath ->
-        assert %{"start_date" => "2025-11-03", "end_date" => "2025-11-28", "networks" => [], "modes" => []} ==
+        assert %{
+                 "start_date" => "2025-11-03",
+                 "end_date" => "2025-11-28",
+                 "networks" => [],
+                 "modes" => [],
+                 "stats" => %{
+                   "routes_count" => 0,
+                   "quays_count" => 0,
+                   "stop_places_count" => 0
+                 }
+               } ==
                  MetadataExtractor.extract(filepath)
       end)
     end
@@ -118,11 +156,65 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         assert %{
                  "no_validity_dates" => true,
                  "networks" => ["Réseau Urbain", "Réseau Régional"],
-                 "modes" => ["bus", "ferry"]
+                 "modes" => ["bus", "ferry"],
+                 "stats" => %{
+                   "routes_count" => 0,
+                   "quays_count" => 0,
+                   "stop_places_count" => 0
+                 }
                } ==
                  MetadataExtractor.extract(filepath)
       end)
     end
+  end
+
+  test "statistics" do
+    routes = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <dataObjects>
+          <GeneralFrame>
+            <Route id="FR:Route:Route1:" version="any">
+            </Route>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    stops = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <dataObjects>
+          <GeneralFrame>
+            <Quay id="FR:Quay:Quay1:" version="any">
+            </Quay>
+            <Quay id="FR:Quay:Quay2:" version="any">
+            </Quay>
+            <Quay id="FR:Quay:Quay3:" version="any">
+            </Quay>
+            <StopPlace id="FR:StopPlace:StopPlace1:" version="any">
+            </StopPlace>
+            <StopPlace id="FR:StopPlace:StopPlace2:" version="any">
+            </StopPlace>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    ZipCreator.with_tmp_zip(
+      [{"network.xml", routes}, {"stops.xml", stops}] |> in_sub_directory(),
+      fn filepath ->
+        assert %{
+                 "no_validity_dates" => true,
+                 "networks" => [],
+                 "modes" => [],
+                 "stats" => %{
+                   "routes_count" => 1,
+                   "quays_count" => 3,
+                   "stop_places_count" => 2
+                 }
+               } ==
+                 MetadataExtractor.extract(filepath)
+      end
+    )
   end
 
   defp in_sub_directory(filespecs) do
