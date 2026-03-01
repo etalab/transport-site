@@ -10,6 +10,7 @@ defmodule DB.ProxyRequest do
   typed_schema "proxy_request" do
     field(:time, :utc_datetime_usec)
     field(:proxy_id, :string)
+    field(:count, :integer, default: 1)
     belongs_to(:token, DB.Token)
   end
 end

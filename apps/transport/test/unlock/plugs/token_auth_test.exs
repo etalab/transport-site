@@ -16,7 +16,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
       setup_token_auth_enabled(true)
     end
 
-    test "valid token passed: request is logged" do
+    test "valid token passed: request is logged with time truncated to the hour" do
       slug = "an-existing-identifier"
       %DB.Token{id: token_id} = token = insert_token()
 
@@ -40,7 +40,41 @@ defmodule Unlock.Plugs.TokenAuthTest do
       assert %DB.Token{id: ^token_id} = resp.assigns[:token]
 
       assert [
-               %DB.ProxyRequest{proxy_id: ^slug, token_id: ^token_id}
+               %DB.ProxyRequest{proxy_id: ^slug, token_id: ^token_id, count: 1, time: time}
+             ] = DB.ProxyRequest |> DB.Repo.all()
+
+      # Time should be truncated to the hour
+      assert time.minute == 0
+      assert time.second == 0
+      assert time.microsecond == {0, 6}
+    end
+
+    test "multiple requests within the same hour increment count" do
+      slug = "counting-identifier"
+      %DB.Token{id: token_id} = token = insert_token()
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Generic.HTTP{
+          identifier: slug,
+          target_url: target_url = "http://localhost/some-remote-resource",
+          ttl: 30
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn url, _headers = [], _options = [] ->
+        assert url == target_url
+        %Unlock.HTTP.Response{body: "somebody-to-love", status: 200, headers: []}
+      end)
+
+      # Make 3 requests
+      for _ <- 1..3 do
+        proxy_conn() |> get("/resource/#{slug}?token=#{token.secret}")
+      end
+
+      # Should have only one row with count = 3
+      assert [
+               %DB.ProxyRequest{proxy_id: ^slug, token_id: ^token_id, count: 3}
              ] = DB.ProxyRequest |> DB.Repo.all()
     end
 
