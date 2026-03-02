@@ -437,7 +437,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert 1 == length(csv_report_content)
 
-      assert body =~ "Rapport parquet"
+      assert body =~ "Rapport Parquet"
 
       assert url =
                conn

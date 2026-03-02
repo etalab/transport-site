@@ -91,4 +91,4 @@ msgstr "Rapport CSV"
 
 #, elixir-autogen, elixir-format
 msgid "Parquet report"
-msgstr "Rapport parquet"
+msgstr "Rapport Parquet"
