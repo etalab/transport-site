@@ -2,6 +2,51 @@
 
 Retrouvez sur cette page les principales nouveautés chaque mois.
 
+## Février 2026
+
+### 🚌 NeTEx
+- Dates de validité : affichage dans le cartouche et notification de ressources expirées
+- Métadonnées :
+  - Extraire les metadata NeTEx à la validation
+  - Modes de transports et réseaux
+- Rapport de validation: erreurs XSD regroupées par message
+- Téléchargement du rapport de validation
+- Corrections & maintenance
+
+### ⚡ IRVE
+- Validateur IRVE : autoriser plusieurs espaces dans les coordonnées
+- Consolidation :
+  - Consolidation IRVE : création et publication du fichier dédoublonné
+  - Renommage du rapport de consolidation IRVE
+  - Suppression des pdc avec id_pdc_itinerance "non concerné" de la consolidation IRVE dédoublonnée
+  - Consolidation IRVE Remontée d’informations supplémentaires
+  - Identification des datasets présents dans le consolidé datagouv et non chez nous
+
+### 🔍 Recherche
+- Optimisation : recherche en mémoire
+- Recherche par sous-type avec index en mémoire
+
+### 📦 Produit
+- Page nouveautés : janvier 2026
+- Rapport opérationnel (suivi global + détaillé)
+- Resource#details : ajoute menu de navigation
+- Conversion GeoJSON moins mise en avant
+- GTFS Flex: flag "Périmé" sur cartouche
+
+### ⚙️ Ops
+- Montée de version PostgreSQL (de 14 à 18)
+- Actualise configuration ZFE
+- Ajout de la Suisse dans administrative_division
+
+### 🛠️ Maintenance
+- Nettoyage de warnings de compilation
+- Nettoyage routinier
+- URL de ressource mal encodée (workaround)
+- Unlock : désactive le log de requêtes dans plug TokenAuth
+- Dataset order_datasets : population n'est plus null
+- DatasetController : suppression code mort
+- Divers refactorings et corrections
+
 ## Janvier 2026
 
 ### ⚡️ Consolidation IRVE (Infrastructures de Recharge de Véhicules Électriques)
