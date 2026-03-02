@@ -836,6 +836,38 @@ defmodule TransportWeb.ResourceControllerTest do
       refute conn2 |> html_response(200) =~ "Pas de validation disponible"
     end
 
+    test "GTFS-RT validation when result is nil", %{conn: conn} do
+      %{id: dataset_id} = insert(:dataset)
+      %{id: gtfs_id} = insert(:resource, format: "GTFS", dataset_id: dataset_id)
+
+      %{id: resource_id} =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "gtfs-rt",
+          url: "https://example.com/file"
+        })
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _, _, _ -> {:ok, %HTTPoison.Response{status_code: 200, body: ""}} end)
+
+      %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        result: nil,
+        digest: %{"errors_count" => 1, "warnings_count" => 0},
+        secondary_resource_id: gtfs_id,
+        metadata: %DB.ResourceMetadata{metadata: %{}}
+      })
+
+      {response, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+      assert response |> html_response(200) =~ "Rapport de validation"
+      assert response |> html_response(200) =~ "1 erreur"
+      assert response |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
+      refute response |> html_response(200) =~ "Pas de validation disponible"
+    end
+
     test "Table Schema validation is shown", %{conn: conn} do
       %{id: dataset_id} = insert(:dataset)
 
