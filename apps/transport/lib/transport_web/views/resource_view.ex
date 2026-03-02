@@ -329,33 +329,32 @@ defmodule TransportWeb.ResourceView do
 
   def netex_validation_report_download(%{validation_report_url: _} = assigns) do
     ~H"""
-    <.download_button url={@validation_report_url}>
-      <.netex_csv_report />
-    </.download_button>
+    <div>
+      <.download_button url={@validation_report_url} format="csv">
+        {dgettext("resource", "CSV report")}
+      </.download_button>
+      <.download_button url={@validation_report_url} format="parquet">
+        {dgettext("resource", "Parquet report")}
+      </.download_button>
+    </div>
     """
   end
 
   def download_button(%{url: nil} = assigns) do
     ~H"""
     <button class="button-outline small secondary" disabled title={dgettext("validations", "No validation error")}>
-      {render_slot(@inner_block)}
+      <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
     </button>
     """
   end
 
-  def download_button(%{url: _} = assigns) do
+  def download_button(%{url: _, format: _} = assigns) do
     ~H"""
-    <a class="download-button" href={@url} target="_blank">
+    <a class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
       <button class="button-outline small secondary">
-        {render_slot(@inner_block)}
+        <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
       </button>
     </a>
-    """
-  end
-
-  defp netex_csv_report(%{} = assigns) do
-    ~H"""
-    <i class="icon icon--download" aria-hidden="true"></i>{dgettext("resource", "CSV report")}
     """
   end
 
