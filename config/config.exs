@@ -19,9 +19,12 @@ config :os_mon,
 config :transport,
   unlock_config_fetcher: Unlock.Config.GitHub,
   unlock_http_client: Unlock.HTTP.FinchImpl,
-  unlock_github_config_url: "https://raw.githubusercontent.com/etalab/transport-proxy-config/master/proxy-config.yml",
+  unlock_github_config_url:
+    "https://raw.githubusercontent.com/transportdatagouvfr/proxy-config/refs/heads/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
-  unlock_siri_public_requestor_ref: "transport-data-gouv-fr"
+  unlock_siri_public_requestor_ref: "transport-data-gouv-fr",
+  unlock_event_incrementer: Unlock.BatchMetrics,
+  unlock_token_auth_enabled: false
 
 config :transport, Unlock.Endpoint, []
 
@@ -36,7 +39,7 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: {TransportWeb.LayoutView, "app.html"},
+    layout: [html: {TransportWeb.LayoutView, :app}],
     accepts: ~w(html json)
   ],
   pubsub_server: TransportWeb.PubSub
@@ -51,15 +54,7 @@ config :phoenix, :json_library, Jason
 #
 config :phoenix, :format_encoders, json: Transport.Shared.ConditionalJSONEncoder
 
-# Configures Elixir's Logger
-config :logger,
-  backends: [
-    :console,
-    # Error logs are also sent to Sentry
-    Sentry.LoggerBackend
-  ]
-
-config :logger, :console,
+config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   # :remote_ip is set by the dependency `remote_ip`
   # `:(method|path|user_agent)` are set by TransportWeb.Plugs.RateLimiter only
@@ -84,9 +79,9 @@ config :transport,
   rambo_impl: Transport.Rambo,
   gbfs_metadata_impl: Transport.GBFSMetadata,
   availability_checker_impl: Transport.AvailabilityChecker,
-  jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator,
-  tableschema_validator_impl: Shared.Validation.TableSchemaValidator,
-  schemas_impl: Transport.Shared.Schemas,
+  jsonschema_validator_impl: Transport.Validators.JSONSchema,
+  tableschema_validator_impl: Transport.Validators.TableSchema,
+  schemas_impl: Transport.Schemas,
   hasher_impl: Hasher,
   validator_selection: Transport.ValidatorsSelection.Impl,
   data_visualization: Transport.DataVisualization.Impl,
@@ -101,10 +96,10 @@ config :transport,
 config :transport,
   consolidation: %{
     zfe: %{
-      dataset_id: "624ff4b1bbb449a550264040",
+      dataset_id: "625438b890bf88454b283a55",
       resource_ids: %{
-        "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
-        "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
+        "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
+        "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
       }
     },
     # These are production IDs
@@ -121,7 +116,8 @@ config :transport,
   datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"
 
-config :datagouvfr,
+# data.gouv.fr
+config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
@@ -171,6 +167,7 @@ config :gettext, :default_locale, "fr"
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   export_secret_key: System.get_env("EXPORT_SECRET_KEY"),
+  proxy_config_secret_key: System.get_env("PROXY_CONFIG_SECRET_KEY"),
   # Expected format: `client1:secret_token;client2:other_token`
   api_auth_clients: System.get_env("API_AUTH_CLIENTS"),
   enroute_token: System.get_env("ENROUTE_TOKEN"),
@@ -181,7 +178,12 @@ config :transport,
   contact_email: "contact@transport.data.gouv.fr",
   tech_email: "tech@transport.data.gouv.fr",
   security_email: "securite@transport.data.gouv.fr",
-  transport_tools_folder: Path.absname("transport-tools/")
+  transport_tools_folder: Path.absname("transport-tools/"),
+  resource_unavailable_skip_resource_ids:
+    System.get_env("RESOURCE_UNAVAILABLE_SKIP_RESOURCE_IDS", "")
+    |> String.split(",")
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(&String.to_integer/1)
 
 # Disable sending events to Sentry by default.
 # Sentry events are only sent when `dsn` is not nil

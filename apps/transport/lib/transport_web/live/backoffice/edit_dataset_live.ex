@@ -43,6 +43,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:custom_tags, get_custom_tags(dataset))
       |> assign(:offers, get_offers(dataset))
       |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
+      |> assign(:dataset_subtypes, get_dataset_subtypes(dataset))
       |> assign(:matches, [])
 
     {:ok, socket}
@@ -52,7 +53,8 @@ defmodule TransportWeb.EditDatasetLive do
     %{
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
-      "legal_owner_company_siren" => dataset.legal_owner_company_siren
+      "legal_owner_company_siren" => dataset.legal_owner_company_siren,
+      "type" => dataset.type
     }
     |> to_form()
   end
@@ -61,7 +63,8 @@ defmodule TransportWeb.EditDatasetLive do
     %{
       "url" => "",
       "custom_title" => "",
-      "legal_owner_company_siren" => ""
+      "legal_owner_company_siren" => "",
+      "type" => ""
     }
     |> to_form()
   end
@@ -97,6 +100,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_declarative_spatial_areas(_), do: []
+
+  def get_dataset_subtypes(%Dataset{} = dataset) do
+    dataset.dataset_subtypes || []
+  end
+
+  def get_dataset_subtypes(_), do: []
 
   def organization_types,
     do: [
@@ -158,6 +167,10 @@ defmodule TransportWeb.EditDatasetLive do
 
   def handle_info({:updated_custom_tags, custom_tags}, socket) do
     {:noreply, socket |> assign(:custom_tags, custom_tags)}
+  end
+
+  def handle_info({:updated_dataset_subtypes, dataset_subtypes}, socket) do
+    {:noreply, socket |> assign(:dataset_subtypes, dataset_subtypes)}
   end
 
   def handle_info({:updated_offers, offers}, socket) do

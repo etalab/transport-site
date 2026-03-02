@@ -6,9 +6,9 @@
         <% uptime = day_data["uptime"] * 100 %>
         <div class={"day tooltip  #{download_availability_class(uptime)}"}>
           <span class="tooltiptext">
-            <div><%= DateTimeDisplay.format_date(day_data["day"], locale) %></div>
+            <div>{DateTimeDisplay.format_date(day_data["day"], locale)}</div>
             <div class={download_availability_class_text(uptime)}>
-              <strong><%= floor_float(uptime, 1) %>%</strong>
+              <strong>{floor_float(uptime, 1)}%</strong>
             </div>
           </span>
         </div>
@@ -16,7 +16,7 @@
     </div>
   </div>
   <details class="pt-24">
-    <summary><%= dgettext("page-dataset-details", "Learn more") %></summary>
-    <div><%= raw(dgettext("page-dataset-details", "availability-test-explanations")) %></div>
+    <summary>{dgettext("page-dataset-details", "Learn more")}</summary>
+    <div>{raw(dgettext("page-dataset-details", "availability-test-explanations"))}</div>
   </details>
 </div>

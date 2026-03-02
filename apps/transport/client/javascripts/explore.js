@@ -15,8 +15,33 @@ channel.join()
 
 let gtfsChannelRef
 
-const metropolitanFranceBounds = [[51.1, -4.9], [41.2, 9.8]]
-const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).fitBounds(metropolitanFranceBounds)
+// Default location is Paris
+const DEFAULT_LAT = 48.8575
+const DEFAULT_LNG = 2.3514
+const DEFAULT_ZOOM = 6
+
+function getMapParamsFromUrlPath () {
+    // Example Path: /explore?@34.0522,-118.2437,10
+    const path = decodeURIComponent(window.location.search)
+    const parts = path.split('@')
+
+    // If there is no '@' segment, return defaults
+    if (parts.length < 2) {
+        return { lat: DEFAULT_LAT, lng: DEFAULT_LNG, zoom: DEFAULT_ZOOM }
+    }
+
+    const coordsStr = parts[1]
+    const [latStr, lngStr, zoomStr] = coordsStr.split(',')
+
+    const lat = parseFloat(latStr) || DEFAULT_LAT
+    const lng = parseFloat(lngStr) || DEFAULT_LNG
+
+    const zoom = parseInt(zoomStr, 10) || DEFAULT_ZOOM
+    return { lat, lng, zoom }
+}
+
+const { lat, lng, zoom } = getMapParamsFromUrlPath()
+const map = Leaflet.map('map', { renderer: Leaflet.canvas() }).setView([lat, lng], zoom)
 
 Leaflet.tileLayer(Mapbox.url, {
     accessToken: Mapbox.accessToken,
@@ -28,9 +53,9 @@ Leaflet.tileLayer(Mapbox.url, {
 
 const visibility = { gtfsrt: document.getElementById('gtfs-rt-check').checked }
 
-function prepareLayer (layerId, layerData) {
+function prepareGTFSRTLayer (layerData) {
     return new ScatterplotLayer({
-        id: layerId,
+        id: 'gtfs-rt',
         data: layerData,
         pickable: true,
         opacity: 1,
@@ -84,16 +109,18 @@ function getTooltip ({ object, layer }) {
     }
 }
 // internal dictionary were all layers are stored
-const layers = { gtfsrt: {}, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
+let GTFSRTData = {}
+const layers = { gtfsrt: undefined, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
 
 function getLayers (layers) {
-    const layersArray = Object.values(layers.gtfsrt)
-    layersArray.push(layers.bnlc)
-    layersArray.push(layers.parkings_relais)
-    layersArray.push(layers.zfe)
-    layersArray.push(layers.irve)
-    layersArray.push(layers.gbfs_stations)
-    return layersArray
+    return [
+        layers.gtfsrt,
+        layers.zfe,
+        layers.bnlc,
+        layers.parkings_relais,
+        layers.irve,
+        layers.gbfs_stations
+    ]
 }
 
 function withQueryParams (alter) {
@@ -105,6 +132,10 @@ function withQueryParams (alter) {
 
 function setQueryFlag (key) {
     withQueryParams(params => params.set(key, 'yes'))
+}
+
+function setQueryParam (key, value) {
+    withQueryParams(params => params.set(key, value))
 }
 
 function unsetQueryFlag (key) {
@@ -130,7 +161,8 @@ function startGTFSRT () {
         if (payload.error) {
             console.log(`Resource ${payload.resource_id} failed to load`)
         } else {
-            layers.gtfsrt[payload.resource_id] = prepareLayer(payload.resource_id, payload.vehicle_positions)
+            GTFSRTData[payload.resource_id] = payload.vehicle_positions
+            layers.gtfsrt = prepareGTFSRTLayer(Object.values(GTFSRTData).flatMap(array => array))
             deckGLLayer.setProps({ layers: getLayers(layers) })
         }
     })
@@ -139,9 +171,8 @@ function startGTFSRT () {
 function stopGTFSRT () {
     visibility.gtfsrt = false
     channel.off('vehicle-positions', gtfsChannelRef)
-    for (const key in layers.gtfsrt) {
-        layers.gtfsrt[key] = prepareLayer(key, [])
-    }
+    GTFSRTData = {}
+    layers.gtfsrt = prepareGTFSRTLayer([])
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
 
@@ -303,5 +334,25 @@ function createPointsLayer (geojson, id) {
         visible: geojson !== null
     })
 }
+
+function updateUrl () {
+    const center = map.getCenter()
+    const zoom = map.getZoom()
+
+    const lat = center.lat.toFixed(5)
+    const lng = center.lng.toFixed(5)
+    const z = zoom
+
+    const params = `${lat},${lng},${z}`
+    setQueryParam('@', params)
+}
+
+map.on('moveend', updateUrl)
+
+// Autocomplete
+document.querySelector('#autoComplete').addEventListener('selection', function (event) {
+    event.preventDefault()
+    map.flyTo([event.detail.selection.value.y, event.detail.selection.value.x], 12)
+})
 
 export default socket

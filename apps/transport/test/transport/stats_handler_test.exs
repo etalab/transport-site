@@ -7,6 +7,7 @@ defmodule Transport.StatsHandlerTest do
   doctest Transport.StatsHandler, import: true
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     insert_bnlc_dataset()
     insert_irve_dataset()
@@ -272,5 +273,13 @@ defmodule Transport.StatsHandlerTest do
            } = reuses_stats = reuses_stats()
 
     assert %{reuses: ^reuses_stats} = compute_stats()
+  end
+
+  test "count_resources_stats" do
+    insert_list(4, :resource, format: "gbfs")
+    insert_list(5, :resource, format: "GTFS")
+    insert_list(10, :resource, format: "gtfs-rt")
+
+    assert %{nb_gtfs_rt_resources: 10, nb_gtfs_resources: 5} = compute_stats()
   end
 end

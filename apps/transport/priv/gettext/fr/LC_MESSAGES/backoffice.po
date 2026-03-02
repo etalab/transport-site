@@ -295,3 +295,7 @@ msgstr "Offres"
 #, elixir-autogen, elixir-format
 msgid "Spatial area"
 msgstr "Territoire couvert déclaré"
+
+#, elixir-autogen, elixir-format
+msgid "Email preview"
+msgstr "Prévisualisation d'e-mails"

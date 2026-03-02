@@ -278,3 +278,23 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Manage your tokens"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Important information on resources you follow"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Alert hidden for 7 days"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Hide for 7 days"
+msgstr ""

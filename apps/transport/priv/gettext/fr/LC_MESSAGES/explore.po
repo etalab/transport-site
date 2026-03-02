@@ -126,3 +126,7 @@ msgstr "Stations pour véhicules en libre-service (VLS)"
 #, elixir-autogen, elixir-format
 msgid "gbfs-stations-explanation"
 msgstr "Cette carte rassemble toutes les stations pour <a href=\"%{vehicles_sharing_datasets_link}\">les véhicules partagés</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Search a city"
+msgstr "Rechercher une ville"

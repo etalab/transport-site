@@ -9,6 +9,7 @@ defmodule TransportWeb.PageControllerTest do
   doctest TransportWeb.PageController
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -65,125 +66,6 @@ defmodule TransportWeb.PageControllerTest do
     assert html =~ "Nous contacter"
   end
 
-  describe "GET /espace_producteur" do
-    test "requires authentication", %{conn: conn} do
-      conn = conn |> get(page_path(conn, :espace_producteur))
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Vous devez être préalablement connecté"
-      assert redirected_to(conn, 302) == page_path(conn, :infos_producteurs)
-    end
-
-    test "renders successfully and finds datasets using organization IDs", %{conn: conn} do
-      %DB.Dataset{organization_id: organization_id} =
-        dataset = insert(:dataset, datagouv_title: datagouv_title = "Foobar")
-
-      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
-      assert DB.Resource.hosted_on_datagouv?(resource)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-      last_year = Date.utc_today().year - 1
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-12",
-        metric_name: :downloads,
-        count: 120_250
-      )
-
-      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-
-      conn =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-
-      # `is_producer` attribute has been set for the current user
-      assert %{"is_producer" => true} = conn |> get_session(:current_user)
-
-      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
-      assert Floki.find(doc, ".message--error") == []
-
-      assert doc |> Floki.find(".dataset-item h5") |> Enum.map(&(&1 |> Floki.text() |> String.trim())) == [
-               datagouv_title
-             ]
-    end
-
-    test "download stats are displayed", %{conn: conn} do
-      # A dataset with a resource hosted on data.gouv.fr
-      %DB.Dataset{organization_id: organization_id} = dataset = insert(:dataset, datagouv_title: "A")
-      resource = insert(:resource, url: "https://static.data.gouv.fr/file", dataset: dataset)
-
-      # Another dataset but the resource is not hosted on data.gouv.fr
-      %DB.Dataset{} = other_dataset = insert(:dataset, datagouv_title: "B", organization_id: organization_id)
-      other_resource = insert(:resource, url: "https://example.com/file", dataset: other_dataset)
-
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:ok, %{"organizations" => [%{"id" => organization_id}]}} end)
-
-      last_year = Date.utc_today().year - 1
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-12",
-        metric_name: :downloads,
-        count: 50_250
-      )
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: dataset.datagouv_id,
-        year_month: "#{last_year}-11",
-        metric_name: :downloads,
-        count: 70_000
-      )
-
-      insert(:dataset_monthly_metric,
-        dataset_datagouv_id: other_dataset.datagouv_id,
-        year_month: "#{last_year}-11",
-        metric_name: :downloads,
-        count: 100_000
-      )
-
-      parsed_document =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-        |> html_response(200)
-        |> Floki.parse_document!()
-
-      # Download stats for last year are displayed only for the dataset
-      # with at least a resource hosted on data.gouv.fr
-      assert DB.Resource.hosted_on_datagouv?(resource)
-      refute DB.Resource.hosted_on_datagouv?(other_resource)
-
-      assert dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-      refute other_dataset |> DB.Repo.preload(:resources) |> TransportWeb.PageView.show_downloads_stats?()
-
-      assert %{dataset.datagouv_id => 50_250 + 70_000} ==
-               DB.DatasetMonthlyMetric.downloads_for_year([dataset], last_year)
-
-      [first_dataset, second_dataset] = parsed_document |> Floki.find(".dataset-item")
-      assert first_dataset |> Floki.text() =~ "120 k téléchargements en #{last_year}"
-      refute second_dataset |> Floki.text() =~ "téléchargements"
-    end
-
-    test "with an OAuth2 error", %{conn: conn} do
-      Datagouvfr.Client.User.Mock
-      |> expect(:me, fn %Plug.Conn{} -> {:error, "its broken"} end)
-
-      conn =
-        conn
-        |> init_test_session(current_user: %{})
-        |> get(page_path(conn, :espace_producteur))
-
-      {:ok, doc} = conn |> html_response(200) |> Floki.parse_document()
-      assert doc |> Floki.find(".dataset-item") |> length == 0
-
-      assert doc |> Floki.find(".message--error") |> Floki.text() ==
-               "Une erreur a eu lieu lors de la récupération de vos ressources"
-    end
-  end
-
   describe "infos_producteurs" do
     test "for logged-out users", %{conn: conn} do
       conn = conn |> get(page_path(conn, :infos_producteurs))
@@ -198,9 +80,12 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "for logged-in users", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
+
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => true})
+        |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
         |> get(page_path(conn, :infos_producteurs))
 
       body = html_response(conn, 200)
@@ -228,9 +113,11 @@ defmodule TransportWeb.PageControllerTest do
     end
 
     test "for logged-in users", %{conn: conn} do
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
       conn =
         conn
-        |> init_test_session(current_user: %{"is_producer" => false})
+        |> init_test_session(current_user: %{"is_producer" => false, "id" => contact.datagouv_user_id})
         |> get(page_path(conn, :infos_reutilisateurs))
 
       body = html_response(conn, 200)
@@ -252,6 +139,28 @@ defmodule TransportWeb.PageControllerTest do
 
   test "security.txt page", %{conn: conn} do
     conn |> get(~p"/.well-known/security.txt") |> text_response(200)
+  end
+
+  test "nouveautés", %{conn: conn} do
+    content = conn |> get(~p"/nouveautes") |> html_response(200)
+
+    doc = content |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".side-pane__dropdown.unfolded") |> Enum.count() == 1
+    assert doc |> Floki.find(".side-pane__dropdown.folded") |> Enum.count() >= 1
+
+    tags = doc |> Floki.find("h2, h3") |> Floki.text(sep: "|") |> String.replace("#| \n", "") |> String.split("|")
+
+    assert sublist?(tags, [
+             "Décembre 2025",
+             "⚡️ IRVE",
+             "🚀 Espace Producteur & Expérience Utilisateur",
+             "🔍 Recherche",
+             "🛠 Validation & Qualité des Données",
+             "🔌 Proxy & Flux Temps Réel",
+             "📧 Notifications & Backoffice",
+             "⚙️ Technique & Infrastructure"
+           ])
   end
 
   describe "robots.txt" do
@@ -313,23 +222,153 @@ defmodule TransportWeb.PageControllerTest do
   end
 
   test "menu has a link to producer space when the user is a producer", %{conn: conn} do
-    espace_producteur_path = page_path(conn, :espace_producteur, utm_campaign: "menu_dropdown")
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
 
     has_menu_item? = fn %Plug.Conn{} = conn ->
-      conn
-      |> get(page_path(conn, :index))
-      |> html_response(200)
-      |> Floki.parse_document!()
-      |> Floki.find("nav .dropdown-content a")
-      |> Enum.any?(&(&1 == {"a", [{"href", espace_producteur_path}], ["Espace producteur"]}))
+      not (conn
+           |> get(page_path(conn, :index))
+           |> html_response(200)
+           |> Floki.parse_document!()
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Enum.empty?())
     end
 
     refute conn
-           |> init_test_session(current_user: %{"is_producer" => false})
+           |> init_test_session(current_user: %{"is_producer" => false, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
 
+    Datagouvfr.Client.User.Mock |> expect(:me, fn _conn -> [] end)
+
     assert conn
-           |> init_test_session(current_user: %{"is_producer" => true})
+           |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
            |> has_menu_item?.()
+  end
+
+  test "menu has notification count if producer has issues to tackle", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    %DB.Dataset{organization_id: organization_id, datagouv_id: dataset_datagouv_id} = dataset = insert(:dataset)
+    insert(:resource, dataset: dataset, is_available: false)
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn ^organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, fn ^dataset_datagouv_id -> [] end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace producteur 1"
+  end
+
+  test "notifications count for a producer and reuser", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    dataset = insert(:dataset)
+    insert(:resource, dataset: dataset, is_available: false)
+
+    other_dataset = insert(:dataset)
+    insert(:resource, dataset: other_dataset, is_available: false)
+    insert(:dataset_follower, contact: contact, dataset: dataset)
+
+    Datagouvfr.Client.User.Mock
+    |> expect(:me, fn _conn -> {:ok, %{"organizations" => [%{"id" => dataset.organization_id}]}} end)
+
+    Datagouvfr.Client.Organization.Mock
+    |> expect(:get, fn _organization_id, [restrict_fields: true] ->
+      {:ok, %{"members" => []}}
+    end)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _dataset_datagouv_id -> [] end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"is_producer" => true, "id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "2 notifications"}], ["\n  2\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="producer-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace producteur 1"
+
+    assert doc
+           |> Floki.find(~s|nav .dropdown-content a[data-link-name="reuser-space"]|)
+           |> Floki.text()
+           |> String.trim()
+           |> String.replace(~r/(\s)+/, " ") ==
+             "Espace réutilisateur 1"
+  end
+
+  test "notifications count for a reuser with hidden reuser alerts", %{conn: conn} do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+    dataset = insert(:dataset)
+    resource = insert(:resource, dataset: dataset, is_available: false)
+    insert(:dataset_follower, contact: contact, dataset: dataset)
+
+    Datagouvfr.Client.Discussions.Mock |> expect(:get, 2, fn _dataset_datagouv_id -> [] end)
+
+    doc =
+      conn
+      |> init_test_session(current_user: %{"id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == [
+             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
+           ]
+
+    # Now hide the alert
+    insert(:hidden_reuser_alert,
+      contact: contact,
+      dataset: dataset,
+      check_type: :unavailable_resource,
+      resource_id: resource.id,
+      hidden_until: DateTime.utc_now() |> DateTime.add(7, :day)
+    )
+
+    # Badges should be gone
+    doc =
+      conn
+      |> init_test_session(current_user: %{"id" => contact.datagouv_user_id})
+      |> get(page_path(conn, :index))
+      |> html_response(200)
+      |> Floki.parse_document!()
+
+    assert doc |> Floki.find(".notification_badge") == []
+  end
+
+  def sublist?(list, sublist) do
+    list
+    |> Enum.chunk_every(length(sublist), 1, :discard)
+    |> Enum.member?(sublist)
   end
 end

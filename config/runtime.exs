@@ -135,8 +135,7 @@ oban_prod_crontab = [
   {"0 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob, args: %{check_rules: true}},
   {"5 6 * * 1-5", Transport.Jobs.NewDatagouvDatasetsJob},
   {"0 6 * * *", Transport.Jobs.NewDatasetNotificationsJob},
-  {"30 6 * * *", Transport.Jobs.ExpirationAdminProducerNotificationJob},
-  {"45 6 * * *", Transport.Jobs.ExpirationNotificationJob},
+  {"30 6 * * *", Transport.Jobs.ExpirationNotificationJob},
   {"0 8 * * 1-5", Transport.Jobs.NewCommentsNotificationJob},
   {"0 21 * * *", Transport.Jobs.DatasetHistoryDispatcherJob},
   # Should be executed after all `DatasetHistoryJob` have been executed
@@ -169,10 +168,16 @@ oban_prod_crontab = [
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
   {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
   {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob},
-  {"30 2 * * *", Transport.Jobs.IRVEConsolidationJob},
+  {"30 2 * * *", Transport.Jobs.IRVERawConsolidationJob},
+  {"45 4 * * *", Transport.Jobs.IRVESimpleConsolidationJob},
   {"10 * * * *", Transport.Jobs.DefaultTokensJob},
   {"0 2 * * *", Transport.Jobs.CleanOnDemandValidationJob},
-  {"10 2 * * *", Transport.Jobs.CleanMultiValidationJob}
+  {"10 2 * * *", Transport.Jobs.CleanMultiValidationJob},
+  {"20 2 * * *", Transport.Jobs.TableSizeHistoryJob},
+  {"40 * * * *", Transport.Jobs.RefreshAutocompleteJob},
+  # End of year, 29th of December
+  {"0 8 29 12 *", Transport.Jobs.VisitProxyStatisticsJob},
+  {"0 8 29 12 *", Transport.Jobs.VisitDownloadStatisticsJob}
 ]
 
 # Make sure that all modules exist

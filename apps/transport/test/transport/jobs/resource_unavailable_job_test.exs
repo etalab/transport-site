@@ -273,6 +273,54 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
       assert 0 == count_resource_unavailabilities()
       assert %DB.Resource{is_available: true} = Repo.reload(resource)
     end
+
+    test "resource in skip list is always marked as available even if unavailable" do
+      resource = unavailable_resource()
+      resource_id = resource.id
+      start = 2 |> hours_ago()
+      insert(:resource_unavailability, resource: resource, start: start)
+      assert 1 == count_resource_unavailabilities()
+
+      # Configure this resource to be skipped
+      Application.put_env(:transport, :resource_unavailable_skip_resource_ids, [resource_id])
+
+      on_exit(fn ->
+        Application.put_env(:transport, :resource_unavailable_skip_resource_ids, [])
+      end)
+
+      # No mock for AvailabilityChecker - it should not be called
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource_id})
+
+      # The unavailability should be closed
+      %ResourceUnavailability{resource_id: ^resource_id, start: ^start, end: date_end} =
+        ResourceUnavailability |> Repo.one!()
+
+      assert DateTime.diff(DateTime.utc_now(), date_end) <= 1
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
+    end
+
+    test "resource not in skip list is checked normally" do
+      resource = available_resource()
+      resource_id = resource.id
+      other_resource_id = resource_id + 1000
+
+      # Configure a different resource to be skipped
+      Application.put_env(:transport, :resource_unavailable_skip_resource_ids, [other_resource_id])
+
+      on_exit(fn ->
+        Application.put_env(:transport, :resource_unavailable_skip_resource_ids, [])
+      end)
+
+      # The availability checker should be called for this resource
+      setup_mock_unavailable()
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource_id})
+
+      # Resource should be marked as unavailable
+      assert 1 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: false} = Repo.reload(resource)
+    end
   end
 
   defp unavailable_resource, do: new_resource(false)

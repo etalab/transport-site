@@ -19,7 +19,8 @@ defmodule TransportWeb.CustomTagsLiveTest do
         legal_owners_region: [],
         # again
         declarative_spatial_areas: [],
-        offers: []
+        offers: [],
+        dataset_subtypes: []
       )
 
     {:ok, view, _html} =

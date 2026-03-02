@@ -1,20 +1,20 @@
 <p>
-  <%= dgettext("validations-explanations", "Impacted file:") %> <tt>stop_times.txt</tt>
+  {dgettext("validations-explanations", "Impacted file:")} <tt>stop_times.txt</tt>
 </p>
 <p>
-  <%= dgettext("validations-explanations", "DuplicateStopSequence") %>
+  {dgettext("validations-explanations", "DuplicateStopSequence")}
 </p>
 <table class="table">
   <tr>
-    <th><%= dgettext("validations-explanations", "Trip ID") %></th>
-    <th><%= dgettext("validations-explanations", "Related stops") %></th>
+    <th>{dgettext("validations-explanations", "Trip ID")}</th>
+    <th>{dgettext("validations-explanations", "Related stops")}</th>
   </tr>
 
   <%= for issue <- @issues do %>
     <tr>
-      <td><%= issue["object_id"] %></td>
+      <td>{issue["object_id"]}</td>
       <td>
-        <ul><%= format_related_objects(issue["related_objects"]) %></ul>
+        <ul>{format_related_objects(issue["related_objects"])}</ul>
       </td>
     </tr>
   <% end %>

@@ -274,7 +274,10 @@ defmodule DB.Factory do
       insert(:multi_validation,
         validator: Transport.Validators.GTFSTransport.validator_name(),
         resource_history_id: resource_history.id,
-        max_error: Keyword.get(opts, :max_error)
+        max_error: Keyword.get(opts, :max_error, "NoError"),
+        digest: %{
+          "max_severity" => %{"max_level" => Keyword.get(opts, :max_error, "NoError"), "worst_occurrences" => 0}
+        }
       )
 
     resource_metadata =
@@ -320,6 +323,10 @@ defmodule DB.Factory do
 
   def notification_subscription_factory do
     %DB.NotificationSubscription{}
+  end
+
+  def hidden_reuser_alert_factory do
+    %DB.HiddenReuserAlert{}
   end
 
   def resource_related_factory do
@@ -393,6 +400,10 @@ defmodule DB.Factory do
       type_contrat: "",
       territoire: sequence(:territoire, &"territoire-#{&1}")
     }
+  end
+
+  def dataset_subtype_factory do
+    %DB.DatasetSubtype{}
   end
 
   def insert_token(%{} = args \\ %{}) do
@@ -645,8 +656,11 @@ defmodule DB.Factory do
           %{
             "id" => "another-dataset-id",
             "title" => "another-dataset-title",
-            "organization" => nil,
-            "owner" => "Guy who loves IRVE",
+            "organization" => %{
+              "id" => "another-org-id",
+              "name" => "another-org",
+              "page" => "http://another-org"
+            },
             "resources" => [
               %{
                 "schema" => %{
@@ -662,6 +676,34 @@ defmodule DB.Factory do
                 "filetype" => "file",
                 "last_modified" => "2024-02-29T07:43:59.660000+00:00",
                 "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
+              }
+            ]
+          },
+          %{
+            "id" => "individual-published-dataset-id",
+            "title" => "individual-published-dataset-title",
+            "organization" => nil,
+            "owner" => %{
+              "class" => "User",
+              "first_name" => "Guy",
+              "id" => "test-user-id",
+              "last_name" => "Who loves IRVE"
+            },
+            "resources" => [
+              %{
+                "schema" => %{
+                  "name" => "etalab/schema-irve-statique",
+                  "version" => "2.3.0"
+                },
+                "id" => "individual-published-resource-id",
+                "title" => "individual-published-resource-title",
+                "extras" => %{
+                  "validation-report:valid_resource" => true,
+                  "validation-report:validation_date" => "2024-02-24"
+                },
+                "filetype" => "file",
+                "last_modified" => "2024-02-29T07:43:59.660000+00:00",
+                "url" => "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv"
               }
             ]
           }

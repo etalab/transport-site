@@ -1,15 +1,15 @@
 <p>
-  <%= dgettext("validations-explanations", "CoordinatesIssue") %>
+  {dgettext("validations-explanations", "CoordinatesIssue")}
 </p>
 <table class="table">
   <tr>
-    <th><%= dgettext("validations-explanations", "Object type") %></th>
-    <th><%= dgettext("validations-explanations", "Object ID") %></th>
+    <th>{dgettext("validations-explanations", "Object type")}</th>
+    <th>{dgettext("validations-explanations", "Object ID")}</th>
   </tr>
   <%= for issue <- @issues |> Enum.sort_by(& &1["object_type"]) do %>
     <tr>
-      <td><%= issue["object_type"] %></td>
-      <td><%= issue["object_id"] %></td>
+      <td>{issue["object_type"]}</td>
+      <td>{issue["object_id"]}</td>
     </tr>
   <% end %>
 </table>

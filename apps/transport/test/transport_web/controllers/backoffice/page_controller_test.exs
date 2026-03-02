@@ -8,6 +8,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -150,7 +151,7 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert text_for_cell.(3, 1) =~ "expiration"
     assert text_for_cell.(3, 2) =~ "admin"
 
-    assert doc |> Floki.find("#reuser_subscriptions") |> Floki.text() |> String.replace(~r/\s/, " ") =~
+    assert doc |> Floki.find("#reuser_subscriptions") |> Floki.text() |> String.replace(~r/(\s)+/, " ") =~
              "Ainsi que 2 abonnements de 1 réutilisateur."
   end
 
@@ -293,6 +294,27 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
       assert Enum.all?(subscriptions_by_producer, fn {_, subscriptions} ->
                Enum.map(subscriptions, & &1.reason) == [:dataset_with_error, :expiration]
              end)
+    end
+  end
+
+  describe "clear_proxy_config" do
+    test "requires auth", %{conn: conn} do
+      assert conn
+             |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
+             |> text_response(401) == "Unauthorized"
+    end
+
+    test "success case", %{conn: conn} do
+      Unlock.Config.Fetcher.Mock
+      |> expect(:clear_config_cache!, fn -> :ok end)
+
+      assert "fake_proxy_config_secret_key" == Application.fetch_env!(:transport, :proxy_config_secret_key)
+
+      assert conn
+             |> put_req_header("x-key", "fake_proxy_config_secret_key")
+             |> put_private(:plug_skip_csrf_protection, false)
+             |> post(Routes.backoffice_page_path(conn, :clear_proxy_config))
+             |> text_response(200) == "OK"
     end
   end
 

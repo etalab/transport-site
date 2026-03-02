@@ -9,6 +9,7 @@ defmodule DB.Dataset do
   alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
   alias Phoenix.HTML.Link
   import Ecto.{Changeset, Query}
+  import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext
   require Logger
   use Ecto.Schema
@@ -94,6 +95,7 @@ defmodule DB.Dataset do
     has_many(:reuser_improved_data, DB.ReuserImprovedData, on_delete: :delete_all)
     belongs_to(:organization_object, DB.Organization, foreign_key: :organization_id, type: :string, on_replace: :nilify)
     many_to_many(:followers, DB.Contact, join_through: "dataset_followers", on_replace: :delete)
+    many_to_many(:dataset_subtypes, DB.DatasetSubtype, join_through: "dataset_dataset_subtype", on_replace: :delete)
   end
 
   def base_query do
@@ -106,6 +108,7 @@ defmodule DB.Dataset do
   def hidden, do: from(d in DB.Dataset, as: :dataset, where: d.is_active and d.is_hidden)
   def include_hidden_datasets(%Ecto.Query{} = query), do: or_where(query, [dataset: d], d.is_hidden)
   def base_with_hidden_datasets, do: base_query() |> include_hidden_datasets()
+  def reject_archived_datasets(%Ecto.Query{} = query), do: where(query, [dataset: d], is_nil(d.archived_at))
 
   @spec archived?(__MODULE__.t()) :: boolean()
   def archived?(%__MODULE__{archived_at: nil}), do: false
@@ -118,6 +121,7 @@ defmodule DB.Dataset do
   Creates a query with the following inner joins:
   datasets <> Resource <> ResourceHistory <> MultiValidation <> ResourceMetadata
   """
+  @spec join_from_dataset_to_metadata(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   def join_from_dataset_to_metadata(query, validator_name) do
     query
     |> DB.Resource.join_dataset_with_resource()
@@ -164,6 +168,24 @@ defmodule DB.Dataset do
 
   @spec type_to_str(binary()) :: binary()
   def type_to_str(type), do: type_to_str_map()[type]
+
+  @spec subtype_to_str(binary()) :: binary()
+  def subtype_to_str(subtype) do
+    subtypes_map = %{
+      "urban" => dgettext("db-dataset", "Urban"),
+      "intercity" => dgettext("db-dataset", "Intercity"),
+      "school" => dgettext("db-dataset", "School"),
+      "seasonal" => dgettext("db-dataset", "Seasonal"),
+      "zonal_drt" => dgettext("db-dataset", "Zonal DRT"),
+      "bicycle" => dgettext("db-dataset", "Bicycle"),
+      "scooter" => dgettext("db-dataset", "Scooter"),
+      "carsharing" => dgettext("db-dataset", "Carsharing"),
+      "moped" => dgettext("db-dataset", "Moped"),
+      "freefloating" => dgettext("db-dataset", "Freefloating")
+    }
+
+    Map.fetch!(subtypes_map, subtype)
+  end
 
   @spec types() :: [binary()]
   def types, do: Map.keys(type_to_str_map())
@@ -215,9 +237,9 @@ defmodule DB.Dataset do
   end
 
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_fulltext(query, %{"q" => ""}), do: query
+  def filter_by_fulltext(query, %{"q" => ""}), do: query
 
-  defp filter_by_fulltext(query, %{"q" => q}) do
+  def filter_by_fulltext(query, %{"q" => q}) do
     where(
       query,
       [d],
@@ -225,7 +247,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_fulltext(query, _), do: query
+  def filter_by_fulltext(query, _), do: query
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_region(query, %{"region" => region}) do
@@ -239,7 +261,7 @@ defmodule DB.Dataset do
   defp filter_by_region(query, _), do: query
 
   @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_departement(query, %{"departement" => insee}) do
+  def filter_by_departement(query, %{"departement" => insee}) do
     query
     |> where(
       [dataset: d],
@@ -292,7 +314,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_departement(query, _), do: query
+  def filter_by_departement(query, _), do: query
 
   @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
@@ -315,8 +337,8 @@ defmodule DB.Dataset do
   def filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_feature(query, %{"features" => [feature]})
-       when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
+  def filter_by_feature(query, %{"features" => [feature]})
+      when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     query
@@ -336,13 +358,13 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_feature(query, %{"features" => feature}) do
+  def filter_by_feature(query, %{"features" => feature}) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_features)
     |> where([resource_for_features: r], fragment("?->'gtfs_features' @> ?", r.counter_cache, ^feature))
   end
 
-  defp filter_by_feature(query, _), do: query
+  def filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
@@ -366,8 +388,17 @@ defmodule DB.Dataset do
   defp filter_by_type(query, %{"type" => type}), do: where(query, [d], d.type == ^type)
   defp filter_by_type(query, _), do: query
 
+  @spec filter_by_subtype(Ecto.Query.t(), map()) :: Ecto.Query.t()
+  defp filter_by_subtype(query, %{"subtype" => subtype}) do
+    query
+    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtypes)
+    |> where([dataset_subtypes: ds], ds.slug == ^subtype)
+  end
+
+  defp filter_by_subtype(query, _), do: query
+
   @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_epci(query, %{"epci" => epci}) do
+  def filter_by_epci(query, %{"epci" => epci}) do
     query
     |> where(
       [dataset: d],
@@ -422,10 +453,10 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_epci(query, _), do: query
+  def filter_by_epci(query, _), do: query
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_commune(query, %{"commune" => commune}) do
+  def filter_by_commune(query, %{"commune" => commune}) do
     query
     |> where(
       [dataset: d],
@@ -477,7 +508,15 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_commune(query, _), do: query
+  def filter_by_commune(query, _), do: query
+
+  defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
+    query
+    |> join(:inner, [dataset: d], r in assoc(d, :offers), as: :offer)
+    |> where([offer: o], o.identifiant_offre == ^identifiant_offre)
+  end
+
+  defp filter_by_offer(query, _), do: query
 
   @spec filter_by_licence(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_licence(query, %{"licence" => "licence-ouverte"}),
@@ -513,13 +552,15 @@ defmodule DB.Dataset do
       |> filter_by_mode(params)
       |> filter_by_category(params)
       |> filter_by_type(params)
+      |> filter_by_subtype(params)
       |> filter_by_licence(params)
       |> filter_by_custom_tag(params)
       |> filter_by_organization(params)
       |> filter_by_resource_format(params)
       |> filter_by_fulltext(params)
+      |> filter_by_offer(params)
+      |> reject_archived_datasets()
       |> select([dataset: d], d.id)
-      |> where([dataset: d], is_nil(d.archived_at))
 
     base_query()
     |> where([dataset: d], d.id in subquery(q))
@@ -546,9 +587,7 @@ defmodule DB.Dataset do
           "case when organization_id = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
         ),
-      # Gotcha, population can be null for datasets covering France/Europe
-      # https://github.com/etalab/transport-site/issues/3848
-      desc: fragment("coalesce(population, 100000000)"),
+      desc: :population,
       asc: :custom_title
     )
   end
@@ -589,6 +628,7 @@ defmodule DB.Dataset do
         :legal_owners_region,
         :declarative_spatial_areas,
         :offers,
+        :dataset_subtypes,
         :resources,
         :organization_object
       ])
@@ -597,6 +637,7 @@ defmodule DB.Dataset do
     legal_owners_region = get_legal_owners_region(dataset, params)
     declarative_spatial_areas = get_administrative_divisions(dataset, params)
     offers = get_offers(dataset, params)
+    dataset_subtypes = get_dataset_subtypes(dataset, params)
 
     dataset
     |> cast(params, [
@@ -631,6 +672,7 @@ defmodule DB.Dataset do
     |> maybe_overwrite_licence()
     |> has_real_time()
     |> set_is_hidden()
+    |> validate_spatial_area_overlap(declarative_spatial_areas)
     |> set_population(declarative_spatial_areas)
     |> validate_organization_type()
     |> add_organization(params)
@@ -639,6 +681,7 @@ defmodule DB.Dataset do
     |> put_assoc(:legal_owners_region, legal_owners_region)
     |> put_assoc(:declarative_spatial_areas, declarative_spatial_areas)
     |> put_assoc(:offers, offers)
+    |> put_assoc(:dataset_subtypes, dataset_subtypes)
     |> validate_required([
       :datagouv_id,
       :custom_title,
@@ -659,6 +702,22 @@ defmodule DB.Dataset do
       %{valid?: false} = errors ->
         Logger.warning("error while importing dataset: #{format_error(errors)}")
         {:error, format_error(errors)}
+    end
+  end
+
+  defp validate_spatial_area_overlap(%Ecto.Changeset{} = changeset, administrative_divisions) do
+    ids = Enum.map(administrative_divisions, & &1.id)
+
+    overlaps =
+      DB.AdministrativeDivision
+      |> join(:inner, [ad], ad2 in DB.AdministrativeDivision, on: ad2.id < ad.id and ad2.id in ^ids)
+      |> where([ad, ad2], ad.id in ^ids and st_overlaps(ad.geom, ad2.geom))
+      |> DB.Repo.exists?()
+
+    if overlaps do
+      add_error(changeset, :declarative_spatial_areas, "Spatial areas overlap")
+    else
+      changeset
     end
   end
 
@@ -743,6 +802,20 @@ defmodule DB.Dataset do
     end
   end
 
+  defp get_dataset_subtypes(dataset, params) do
+    case params["dataset_subtypes"] do
+      nil ->
+        if Ecto.assoc_loaded?(dataset.dataset_subtypes) do
+          dataset.dataset_subtypes
+        else
+          []
+        end
+
+      slugs ->
+        Repo.all(from(ds in DB.DatasetSubtype, where: ds.slug in ^slugs))
+    end
+  end
+
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
 
@@ -777,6 +850,7 @@ defmodule DB.Dataset do
 
   defp count_by_mode_query(mode) do
     base_query()
+    |> reject_archived_datasets()
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource)
     |> where([resource: r], fragment("?->'gtfs_modes' @> ?", r.counter_cache, ^mode))
   end
@@ -784,6 +858,7 @@ defmodule DB.Dataset do
   @spec count_by_type(binary()) :: any()
   def count_by_type(type) do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.type == ^type)
     |> Repo.aggregate(:count, :id)
   end
@@ -794,13 +869,14 @@ defmodule DB.Dataset do
   @spec count_public_transport_has_realtime :: number()
   def count_public_transport_has_realtime do
     base_query()
+    |> reject_archived_datasets()
     |> where([d], d.has_realtime and d.type == "public-transit")
     |> Repo.aggregate(:count, :id)
   end
 
   @spec count_by_custom_tag(binary()) :: non_neg_integer()
   def count_by_custom_tag(custom_tag) do
-    base_query() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
+    base_query() |> reject_archived_datasets() |> filter_by_custom_tag(custom_tag) |> Repo.aggregate(:count, :id)
   end
 
   @spec get_by_slug(binary) :: {:ok, __MODULE__.t()} | {:error, binary()}
@@ -809,6 +885,8 @@ defmodule DB.Dataset do
     |> where(slug: ^slug)
     |> preload([
       :declarative_spatial_areas,
+      offers: ^from(o in DB.Offer, select: [:nom_commercial, :identifiant_offre]),
+      dataset_subtypes: ^from(ds in DB.DatasetSubtype, select: [:slug]),
       resources: [:resources_related, :dataset]
     ])
     |> preload_legal_owners()
@@ -1099,7 +1177,10 @@ defmodule DB.Dataset do
   def experimental?(%__MODULE__{} = dataset), do: has_custom_tag?(dataset, @experimental_tag)
 
   def reject_experimental_datasets(queryable) do
-    queryable
-    |> where([d], @experimental_tag not in d.tags)
+    queryable |> where([d], @experimental_tag not in d.custom_tags)
+  end
+
+  def has_subtype?(%DB.Dataset{} = dataset, slug) do
+    slug in Enum.map(dataset.dataset_subtypes, & &1.slug)
   end
 end

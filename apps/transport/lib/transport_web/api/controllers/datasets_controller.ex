@@ -20,6 +20,7 @@ defmodule TransportWeb.API.DatasetController do
     :legal_owners_region,
     :declarative_spatial_areas,
     offers: from(o in DB.Offer, select: ^@offers_columns),
+    dataset_subtypes: from(ds in DB.DatasetSubtype, select: [:slug]),
     resources: [:dataset]
   ]
 
@@ -194,6 +195,7 @@ defmodule TransportWeb.API.DatasetController do
       "covered_area" => covered_area(dataset),
       "legal_owners" => legal_owners(dataset),
       "type" => dataset.type,
+      "sub_types" => Enum.map(dataset.dataset_subtypes, & &1.slug),
       "licence" => dataset.licence,
       "publisher" => get_publisher(dataset),
       "tags" => dataset.custom_tags,
@@ -334,21 +336,24 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp legal_owners(dataset) do
-    %{
-      "aoms" => legal_owners_aom(dataset.legal_owners_aom),
-      "regions" => legal_owners_region(dataset.legal_owners_region),
-      "company" => dataset.legal_owner_company_siren
-    }
+    legal_owners_aom(dataset.legal_owners_aom) ++
+      legal_owners_region(dataset.legal_owners_region) ++ legal_owners_company(dataset)
   end
 
   defp legal_owners_aom(aoms) do
-    aoms
-    |> Enum.map(fn aom -> %{"name" => aom.nom, "siren" => aom.siren} end)
+    Enum.map(aoms, fn aom -> %{"name" => aom.nom, "siren" => aom.siren, "type" => "aom"} end)
   end
 
   defp legal_owners_region(regions) do
-    regions
-    |> Enum.map(fn region -> %{"name" => region.nom, "insee" => region.insee} end)
+    Enum.map(regions, fn region -> %{"name" => region.nom, "insee" => region.insee, "type" => "region"} end)
+  end
+
+  def legal_owners_company(%{legal_owner_company_siren: nil}), do: []
+
+  def legal_owners_company(%{legal_owner_company_siren: legal_owner_company_siren}) do
+    [
+      %{"id" => nil, "siren" => legal_owner_company_siren, "type" => "company"}
+    ]
   end
 
   def offers(%DB.Dataset{} = dataset) do
@@ -362,7 +367,9 @@ defmodule TransportWeb.API.DatasetController do
     # On the next weekday, this query must be optimized :-)
     datasets_with_gtfs_metadata =
       DB.Dataset.base_query()
-      |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+      |> DB.Dataset.join_from_dataset_to_metadata(
+        Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_datasets_controller), & &1.validator_name())
+      )
       |> preload([resource: r, resource_history: rh, multi_validation: mv, metadata: m, dataset: d],
         resources: {r, dataset: d, resource_history: {rh, validations: {mv, metadata: m}}}
       )
@@ -413,7 +420,7 @@ defmodule TransportWeb.API.DatasetController do
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
       |> DB.MultiValidation.join_resource_history_with_latest_validation(
-        Transport.Validators.GTFSTransport.validator_name()
+        Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_datasets_controller), & &1.validator_name())
       )
       |> DB.ResourceMetadata.join_validation_with_metadata()
       |> preload([resource_history: rh, multi_validation: mv, metadata: m],

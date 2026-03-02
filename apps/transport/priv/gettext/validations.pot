@@ -94,14 +94,6 @@ msgstr ""
 msgid "Stops and routes visualization of the GTFS file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "This resource is also available in the following formats:"
-msgstr ""
-
 #, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
@@ -130,10 +122,6 @@ msgid "No error detected"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
 msgstr ""
 
@@ -143,10 +131,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Last updated at %{date}."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -179,10 +163,6 @@ msgid "warning"
 msgid_plural "warnings"
 msgstr[0] ""
 msgstr[1] ""
-
-#, elixir-autogen, elixir-format
-msgid "Data type"
-msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Validate"
@@ -309,10 +289,6 @@ msgid "Shapes present in the GTFS have been ignored, some rules are not enforced
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "calendar span by network:"
 msgstr ""
 
@@ -418,4 +394,20 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Canonical GTFS Schedule Validator"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Public transit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Vehicles sharing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE, ZFE, carpooling, bike data etc."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Road mobility and bike"
 msgstr ""

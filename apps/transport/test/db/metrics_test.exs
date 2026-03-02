@@ -63,6 +63,71 @@ defmodule DB.MetricsTest do
              DB.Metrics.requests_over_last_days(gtfs_rt_resource, 2)
   end
 
+  test "proxy_requests" do
+    slug = "divia-dijon-gtfs-rt-trip-update"
+
+    gtfs_rt_resource =
+      insert(:resource,
+        format: "gtfs-rt",
+        url: "https://proxy.transport.data.gouv.fr/resource/#{slug}"
+      )
+
+    insert(:metrics,
+      target: "proxy:#{slug}",
+      event: "proxy:request:external",
+      count: 2,
+      period: ~U[2025-12-01 10:00:00.0Z]
+    )
+
+    insert(:metrics,
+      target: "proxy:#{slug}",
+      event: "proxy:request:internal",
+      count: 1,
+      period: ~U[2025-12-01 10:00:00.0Z]
+    )
+
+    insert(:metrics,
+      target: "proxy:#{slug}",
+      event: "proxy:request:external",
+      count: 3,
+      period: ~U[2025-11-01 10:00:00.0Z]
+    )
+
+    insert(:metrics,
+      target: "proxy:#{slug}",
+      event: "proxy:request:internal",
+      count: 1,
+      period: ~U[2025-11-01 10:00:00.0Z]
+    )
+
+    assert [
+             %{
+               count: 3,
+               month: "2025-11",
+               target: "proxy:divia-dijon-gtfs-rt-trip-update",
+               event: "proxy:request:external"
+             },
+             %{
+               count: 1,
+               month: "2025-11",
+               target: "proxy:divia-dijon-gtfs-rt-trip-update",
+               event: "proxy:request:internal"
+             },
+             %{
+               count: 2,
+               month: "2025-12",
+               target: "proxy:divia-dijon-gtfs-rt-trip-update",
+               event: "proxy:request:external"
+             },
+             %{
+               count: 1,
+               month: "2025-12",
+               target: "proxy:divia-dijon-gtfs-rt-trip-update",
+               event: "proxy:request:internal"
+             }
+           ] == DB.Metrics.proxy_requests([gtfs_rt_resource])
+  end
+
   describe "for_last_days" do
     test "it works" do
       assert %{"bar" => %{"external" => 2}, "foo" => %{"external" => 3, "internal" => 8}} == DB.Metrics.for_last_days(2)

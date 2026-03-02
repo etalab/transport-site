@@ -7,23 +7,24 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     ~H"""
     <div class="pt-24">
       <label>
-        Une/des AOM locale(s) ou régionale(s) <%= InputHelpers.text_input(@form, :legal_owner_input,
+        Une/des AOM locale(s) ou régionale(s) {InputHelpers.text_input(@form, :legal_owner_input,
           placeholder: "CC du Val de Morteau",
           list: "owner_suggestions",
           phx_keydown: "add_tag",
+          phx_change: "change",
           phx_target: @myself,
           id: "js-owner-input"
-        ) %>
+        )}
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
-          <option value={owner_label(owner_suggestion)}><%= owner_label(owner_suggestion) %></option>
+          <option value={owner_label(owner_suggestion)}>{owner_label(owner_suggestion)}</option>
         <% end %>
       </datalist>
       <div class="pt-6">
         <%= for {owner, index} <- Enum.with_index(@owners) do %>
           <span class={["label", "custom-tag"] ++ [color_class(owner)]}>
-            <%= owner_label(owner, @owners_list) %>
+            {owner_label(owner, @owners_list)}
             <span
               class="delete-tag"
               phx-click="remove_tag"
@@ -34,7 +35,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             </span>
           </span>
           <% {field_name, field_value} = field_info(owner, index) %>
-          <%= Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value) %>
+          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
         <% end %>
       </div>
     </div>
@@ -50,18 +51,16 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     {:ok, socket |> assign(assigns) |> assign(:owners_list, owners_list)}
   end
 
-  def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
-    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end)
-    legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
-
-    if is_nil(new_owner) do
+  def handle_event("change", %{"form" => %{"legal_owner_input" => value}}, socket) do
+    if Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end) |> is_nil() do
       {:noreply, socket}
     else
-      # new owners list is sent to the parent liveview form
-      # because this is a LiveComponent, the process of the parent is the same.
-      send(self(), {:updated_legal_owner, legal_owners})
-      {:noreply, socket |> clear_input()}
+      add_owner(value, socket)
     end
+  end
+
+  def handle_event("add_tag", %{"key" => "Enter", "value" => value}, socket) do
+    add_owner(value, socket)
   end
 
   def handle_event("add_tag", _, socket) do
@@ -76,6 +75,20 @@ defmodule TransportWeb.LegalOwnerSelectLive do
     send(self(), {:updated_legal_owner, owners})
 
     {:noreply, socket}
+  end
+
+  def add_owner(value, socket) do
+    new_owner = Enum.find(socket.assigns.owners_list, fn owner -> owner_label(owner) == value end)
+    legal_owners = (socket.assigns.owners ++ [new_owner]) |> Enum.uniq()
+
+    if is_nil(new_owner) do
+      {:noreply, socket}
+    else
+      # new owners list is sent to the parent liveview form
+      # because this is a LiveComponent, the process of the parent is the same.
+      send(self(), {:updated_legal_owner, legal_owners})
+      {:noreply, socket |> clear_input()}
+    end
   end
 
   # clear the input using a js hook

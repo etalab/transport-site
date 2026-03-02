@@ -33,9 +33,9 @@ config :transport,
   rambo_impl: Transport.Rambo.Mock,
   gbfs_metadata_impl: Transport.GBFSMetadata.Mock,
   availability_checker_impl: Transport.AvailabilityChecker.Mock,
-  jsonschema_validator_impl: Shared.Validation.JSONSchemaValidator.Mock,
-  tableschema_validator_impl: Shared.Validation.TableSchemaValidator.Mock,
-  schemas_impl: Transport.Shared.Schemas.Mock,
+  jsonschema_validator_impl: Transport.Validators.JSONSchema.Mock,
+  tableschema_validator_impl: Transport.Validators.TableSchema.Mock,
+  schemas_impl: Transport.Schemas.Mock,
   hasher_impl: Hasher.Mock,
   validator_selection: Transport.ValidatorsSelection.Mock,
   data_visualization: Transport.DataVisualization.Mock,
@@ -50,6 +50,7 @@ config :transport,
   },
   workflow_notifier: Transport.Jobs.Workflow.ProcessNotifier,
   export_secret_key: "fake_export_secret_key",
+  proxy_config_secret_key: "fake_proxy_config_secret_key",
   api_auth_clients: "client1:secret_token;client2:other_token",
   enroute_token: "fake_enroute_token",
   enroute_validation_token: "fake_enroute_token",
@@ -57,7 +58,8 @@ config :transport,
   enroute_validator_client: Transport.EnRouteChouetteValidClient.Mock,
   enroute_rulesets_client: Transport.EnRoute.ChouetteValidRulesetsClient.Mock,
   netex_validator: Transport.Validators.NeTEx.Validator.Mock,
-  mobilitydata_gtfs_validator_client: Transport.Validators.MobilityDataGTFSValidatorClient.Mock
+  mobilitydata_gtfs_validator_client: Transport.Validators.MobilityDataGTFSValidatorClient.Mock,
+  unlock_event_incrementer: Unlock.BatchMetrics.Mock
 
 config :ex_aws,
   cellar_organisation_id: "fake-cellar_organisation_id"
@@ -66,7 +68,8 @@ config :ex_aws, :database_backup_source, bucket_name: "fake_source_bucket_name"
 
 config :ex_aws, :database_backup_destination, bucket_name: "fake_destination_bucket_name"
 
-config :datagouvfr,
+# data.gouv.fr
+config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
@@ -107,6 +110,7 @@ config :transport, DB.Repo,
   queue_target: 5000
 
 config :transport,
+  resource_unavailable_skip_resource_ids: [],
   datagouvfr_site: "https://demo.data.gouv.fr",
   datagouvfr_apikey: "fake-datagouv-api-key",
   # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
@@ -158,3 +162,6 @@ config :os_mon,
 config :sentry,
   test_mode: true,
   csp_url: ""
+
+config :phoenix_live_view,
+  enable_expensive_runtime_checks: true

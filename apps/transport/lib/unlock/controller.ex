@@ -12,7 +12,7 @@ defmodule Unlock.Controller do
   - https://www.mnot.net/blog/2011/07/11/what_proxies_must_do
   """
 
-  use Phoenix.Controller
+  use Phoenix.Controller, formats: [html: "View", json: "View"]
   require Logger
   import Unlock.GunzipTools
 
@@ -30,7 +30,7 @@ defmodule Unlock.Controller do
   Based on the provided slug/id, a look-up is done on the configuration.
 
   For production environments, the configuration is GitHub-based
-  (https://github.com/etalab/transport-proxy-config/blob/master/proxy-config.yml).
+  (https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml).
 
   When working locally, the config is loaded from disk (`config/proxy-config.yml`)
   at each request, so that one can tweak it easily when iterating locally.
@@ -40,6 +40,7 @@ defmodule Unlock.Controller do
   - `%Unlock.Config.Item.Aggregate{}` for multi-HTTP-sources aggregate (dynamic IRVE feed only)
   - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
   - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
+  - `%Unlock.Config.Item.GBFS{}` for GBFS feeds (with multiple endpoints)
 
   Once the item is found in configuration, different `process_resource` pattern-matching variants
   are doing specific processing, depending on the item type.
@@ -89,10 +90,14 @@ defmodule Unlock.Controller do
   - See `Unlock.Telemetry`
   - And `Transport.Telemetry`
   """
-  def fetch(conn, %{"id" => id}) do
+  def fetch(conn, %{"id" => id} = params) do
     config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
 
-    resource = Map.get(config, id)
+    resource =
+      case Map.get(config, id) do
+        %Unlock.Config.Item.GBFS{} = item -> %{item | endpoint: Map.get(params, "endpoint")}
+        item -> item
+      end
 
     if resource do
       conn
@@ -141,7 +146,8 @@ defmodule Unlock.Controller do
       - ["content-type", "text/csv"]
   ```
   """
-  def override_resp_headers_if_configured(conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+  def override_resp_headers_if_configured(conn, %module{} = item)
+      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS] do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
@@ -156,7 +162,7 @@ defmodule Unlock.Controller do
   defp to_boolean("1"), do: true
 
   # `process_resource` variant for aggregated CSV item (dynamic IRVE consolidation).
-  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
     conn = conn |> Plug.Conn.fetch_query_params()
@@ -175,31 +181,37 @@ defmodule Unlock.Controller do
   end
 
   # `process_resource` variant for `Item.S3` items.
-  # leverages `fetch_remote` with pattern matching as well.
-  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.S3{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+
+    displayed_filename = Path.basename(item.path)
+    conn = conn |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+
+    case fetch_remote(item) do
+      %Unlock.HTTP.Response{status: 200} = response ->
+        conn |> send_file(response.status, response.body)
+
+      response ->
+        conn |> send_resp(response.status, response.body)
+    end
+  end
+
+  # `process_resource` for larger HTTP feeds which are cached to disk.
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{caching: "disk"} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
-    displayed_filename = Path.basename(item.path)
-
-    conn
-    |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
-    |> send_resp(response.status, response.body)
+    send_http_response(conn, response, item)
+    |> send_file(response.status, response.body)
   end
 
   # `process_resource` variant for generic HTTP (GTFS-RT, single-file CSV) items
   # leverages `fetch_remote` with pattern matching as well.
-  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.Generic.HTTP{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     response = fetch_remote(item)
 
-    response.headers
-    |> prepare_response_headers()
-    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
-    # For now, we enforce the download. This will result in incorrect filenames
-    # if the content-type is incorrect, but is better than nothing.
-    |> put_resp_header("content-disposition", "attachment")
-    |> override_resp_headers_if_configured(item)
+    send_http_response(conn, response, item)
     |> send_resp(response.status, response.body)
   end
 
@@ -218,7 +230,7 @@ defmodule Unlock.Controller do
   # The code analyses the incoming XML payload, & replace the `requestor_ref` (used sometimes
   # as an API key) transparently with the one we have configured.
   #
-  defp process_resource(%{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
+  defp process_resource(%Plug.Conn{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
     {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
 
     parsed = Unlock.SIRI.parse_incoming(body)
@@ -237,12 +249,46 @@ defmodule Unlock.Controller do
   end
 
   # Forbid `GET` calls for SIRI, explicitely, since this is not the way to issue a SIRI call.
-  defp process_resource(%{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
     do: send_not_allowed(conn)
+
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.GBFS{endpoint: nil}) do
+    conn |> send_resp(404, "Not Found")
+  end
+
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.GBFS{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
+    response = fetch_remote(item)
+
+    parsed = URI.parse(item.base_url)
+    base_url = %URI{parsed | path: String.replace(parsed.path, "gbfs.json", ""), query: nil} |> URI.to_string()
+
+    # Replace `base_url` with the proxy base URL and remove query parameters
+    replace =
+      String.replace(Unlock.Router.Helpers.resource_url(conn, :fetch, item.identifier) <> "/", "://", "://proxy.")
+
+    body = String.replace(response.body, base_url, replace) |> String.replace("?" <> to_string(parsed.query), "")
+
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    |> override_resp_headers_if_configured(item)
+    |> send_resp(response.status, body)
+  end
 
   defp send_not_allowed(conn) do
     conn
     |> send_resp(405, "Method Not Allowed")
+  end
+
+  defp send_http_response(conn, response, %Unlock.Config.Item.Generic.HTTP{} = item) do
+    response.headers
+    |> prepare_response_headers()
+    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
+    # For now, we enforce the download. This will result in incorrect filenames
+    # if the content-type is incorrect, but is better than nothing.
+    |> put_resp_header("content-disposition", "attachment")
+    |> override_resp_headers_if_configured(item)
   end
 
   @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
@@ -280,7 +326,8 @@ defmodule Unlock.Controller do
   #
   # Processing varies between the two item types, thanks to pattern-matching
   # in `Unlock.CachedFetch`.
-  defp fetch_remote(%module{} = item) when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3] do
+  defp fetch_remote(%module{} = item)
+       when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.S3, Unlock.Config.Item.GBFS] do
     comp_fn = fn _key ->
       Logger.debug("Processing proxy request for identifier #{item.identifier}")
 
@@ -297,7 +344,13 @@ defmodule Unlock.Controller do
     end
 
     cache_name = Unlock.Shared.cache_name()
-    cache_key = Unlock.Shared.cache_key(item.identifier)
+
+    cache_key =
+      case item do
+        %Unlock.Config.Item.GBFS{} -> Unlock.Shared.cache_key(item.identifier, item.endpoint)
+        _ -> Unlock.Shared.cache_key(item.identifier)
+      end
+
     # NOTE: concurrent calls to `fetch` with the same key will result (here)
     # in only one fetching call, which is a nice guarantee (avoid overloading of target)
     outcome = Cachex.fetch(cache_name, cache_key, comp_fn)

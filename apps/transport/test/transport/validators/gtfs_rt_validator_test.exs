@@ -14,6 +14,7 @@ defmodule Transport.Validators.GTFSRTTest do
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

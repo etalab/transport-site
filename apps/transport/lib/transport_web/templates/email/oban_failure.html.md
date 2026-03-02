@@ -1,0 +1,1 @@
+Un job Oban <%= @worker %> vient d'échouer, il serait bien d'investiguer.

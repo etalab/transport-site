@@ -49,6 +49,22 @@ defmodule TransportWeb.SeoMetadata do
         title: dgettext("seo", "Transport open datasets for city %{name}", name: name)
       }
 
+  def metadata(TransportWeb.DatasetView, %{
+        page_title: %{name: name},
+        conn: %{params: %{"identifiant_offre" => _}}
+      }),
+      do: %{
+        title: dgettext("seo", "Transport open datasets for transport offer %{name}", name: name)
+      }
+
+  def metadata(TransportWeb.DatasetView, %{
+        page_title: %{name: name},
+        conn: %{params: %{"format" => _}}
+      }),
+      do: %{
+        title: dgettext("seo", "Transport open datasets for data format %{name}", name: name)
+      }
+
   def metadata(TransportWeb.DatasetView, %{page_title: %{type: type, name: name}}),
     do: %{
       title: dgettext("seo", "Transport open datasets for %{type} %{name}", type: type, name: name)
@@ -85,9 +101,7 @@ defmodule TransportWeb.SeoMetadata do
       title: dgettext("seo", "Data quality evaluation")
     }
 
-  def metadata(TransportWeb.ExploreView, %{page_title: page_title}) do
-    %{title: page_title}
-  end
+  def metadata(_view, %{page_title: page_title}), do: %{title: page_title}
 
   def metadata(TransportWeb.LandingPagesView, %{seo_page: "vls"}),
     do: %{

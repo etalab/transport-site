@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const extractImages = new CopyWebpackPlugin({ patterns: [{ from: 'images', to: '../images' }] })
 const extractSass = new MiniCssExtractPlugin({ filename: '../css/app.css' })
-const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise' })
+const promisePolyfill = new webpack.ProvidePlugin({ Promise: 'core-js/es/promise/index.js' })
 
 module.exports = {
     entry: {
@@ -20,6 +20,7 @@ module.exports = {
         validationmap: './javascripts/validation-map.js',
         utils: './javascripts/utils.js',
         autocomplete: './javascripts/autocomplete.js',
+        autocomplete_address: './javascripts/autocomplete_address.js',
         scss: './stylesheets/app.scss'
     },
     output: {

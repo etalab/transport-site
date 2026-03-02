@@ -11,7 +11,7 @@ extra_exclude =
       _ -> [:ci_only_on_mondays]
     end
   else
-    [:transport_tools, :ci_only_on_mondays, :external]
+    [:transport_tools, :ci_only_on_mondays, :external, :timescaledb]
   end
 
 ExUnit.configure(exclude: exclude ++ extra_exclude)
@@ -23,5 +23,9 @@ ExUnit.start()
 
 # Define VCR's path.
 ExVCR.Config.cassette_library_dir("test/fixture/cassettes")
+
+# Disable triggers on dataset, causing deadlocks
+DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER refresh_dataset_geographic_view_trigger")
+DB.Repo.query!("ALTER TABLE dataset DISABLE TRIGGER dataset_update_trigger")
 
 Ecto.Adapters.SQL.Sandbox.mode(DB.Repo, :manual)

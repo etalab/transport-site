@@ -24,12 +24,12 @@ defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJobTest do
         }
       })
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validate, fn ^schema_name, ^permanent_url, ^schema_version ->
       %{"has_errors" => false, "errors_count" => 0, "errors" => [], "validata_api_version" => validata_api_version}
     end)
 
-    Shared.Validation.TableSchemaValidator.Mock
+    Transport.Validators.TableSchema.Mock
     |> expect(:validator_api_url, fn ^schema_name, ^permanent_url, ^schema_version ->
       fake_validator_url
     end)
@@ -78,7 +78,7 @@ defmodule Transport.Jobs.ResourceHistoryTableSchemaValidationJobTest do
     # does not need validation: schema is not a Table Schema
     _rh4 = insert(:resource_history, %{payload: %{"schema_name" => Ecto.UUID.generate()}})
 
-    Transport.Shared.Schemas.Mock |> expect(:schemas_by_type, fn "tableschema" -> %{schema_name => %{}} end)
+    Transport.Schemas.Mock |> expect(:schemas_by_type, fn "tableschema" -> %{schema_name => %{}} end)
 
     assert :ok == perform_job(ResourceHistoryTableSchemaValidationJob, %{})
 

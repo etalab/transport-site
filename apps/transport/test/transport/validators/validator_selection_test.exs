@@ -31,7 +31,7 @@ defmodule Transport.ValidatorsSelectionTest do
       resource_history =
         insert(:resource_history, payload: %{"format" => "csv", "schema_name" => schema_name = "etalab/schema-zfe"})
 
-      Transport.Shared.Schemas.Mock
+      Transport.Schemas.Mock
       |> expect(:schemas_by_type, 2, fn type ->
         case type do
           "tableschema" -> %{}
@@ -39,7 +39,7 @@ defmodule Transport.ValidatorsSelectionTest do
         end
       end)
 
-      assert [Transport.Validators.EXJSONSchema] == ValidatorsSelection.validators(resource_history)
+      assert [Transport.Validators.JSONSchema] == ValidatorsSelection.validators(resource_history)
     end
 
     test "for a Resource with a format" do
@@ -51,7 +51,7 @@ defmodule Transport.ValidatorsSelectionTest do
     test "for a Resource with a schema" do
       resource = insert(:resource, format: "csv", schema_name: schema_name = "etalab/schema-zfe")
 
-      Transport.Shared.Schemas.Mock
+      Transport.Schemas.Mock
       |> expect(:schemas_by_type, 2, fn type ->
         case type do
           "tableschema" -> %{}
@@ -59,7 +59,7 @@ defmodule Transport.ValidatorsSelectionTest do
         end
       end)
 
-      assert [Transport.Validators.EXJSONSchema] == ValidatorsSelection.validators(resource)
+      assert [Transport.Validators.JSONSchema] == ValidatorsSelection.validators(resource)
     end
 
     test "for a GTFS-Flex" do

@@ -9,6 +9,7 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
   @url "/backoffice/cache"
 
   setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     {:ok, conn: build_conn()}
   end
@@ -32,7 +33,7 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
     {:ok, view, _html} = live(conn)
 
     Cachex.put(cache_name(), "foo", 42)
-    Cachex.put(cache_name(), "bar", "value", expire: ttl_ms = :timer.seconds(10))
+    Cachex.put(cache_name(), "bar", "value", expire: :timer.seconds(10))
 
     send(view.pid, :update_data)
 
@@ -40,10 +41,8 @@ defmodule TransportWeb.Backoffice.CacheLiveTest do
     assert render(view) =~ "Nombre de clés expirées : 0"
 
     assert [
-             %{"Clé" => "bar", "TTL" => ttl},
+             %{"Clé" => "bar", "TTL" => "dans 10 secondes"},
              %{"Clé" => "foo", "TTL" => "Pas de TTL"}
            ] = extract_data_from_html(render(view))
-
-    assert_in_delta ttl |> String.replace([" ", "ms"], "") |> String.to_integer(), ttl_ms, 30
   end
 end

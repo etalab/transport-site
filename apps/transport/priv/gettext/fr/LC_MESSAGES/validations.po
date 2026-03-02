@@ -96,14 +96,6 @@ msgstr "La visualisation des arrêts est volumineuse"
 msgid "Stops and routes visualization of the GTFS file"
 msgstr "Aperçu des arrêts et lignes de la ressource GTFS"
 
-#, elixir-autogen, elixir-format
-msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
-msgstr "Le format GeoJSON ne contient que les informations géographiques de la ressource (position des arrêts, éventuellement tracé des lignes), telles que vous les visualisez sur la carte ci-dessous."
-
-#, elixir-autogen, elixir-format
-msgid "This resource is also available in the following formats:"
-msgstr "Cette ressource est également disponible dans les formats suivants :"
-
 #, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
@@ -132,10 +124,6 @@ msgid "No error detected"
 msgstr "Pas d'erreur"
 
 #, elixir-autogen, elixir-format
-msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
-msgstr "Ce GeoJSON était bien à jour avec la ressource GTFS il y a %{hours}."
-
-#, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
 msgstr "Visualisation à jour il y a %{hours}."
 
@@ -146,10 +134,6 @@ msgstr "Choisissez votre fichier"
 #, elixir-autogen, elixir-format
 msgid "Last updated at %{date}."
 msgstr "Dernière mise à jour %{date}."
-
-#, elixir-autogen, elixir-format
-msgid "Validation in progress. This page will be updated automatically."
-msgstr "Validation en cours. Cette page va se rafraichir automatiquement."
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validation results"
@@ -181,10 +165,6 @@ msgid "warning"
 msgid_plural "warnings"
 msgstr[0] "avertissement"
 msgstr[1] "avertissements"
-
-#, elixir-autogen, elixir-format
-msgid "Data type"
-msgstr "Type de données"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Validate"
@@ -311,10 +291,6 @@ msgid "Shapes present in the GTFS have been ignored, some rules are not enforced
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
 #, elixir-autogen, elixir-format
-msgid "Please note that our GTFS validator does not validate the Flex and Fares v2 extensions."
-msgstr "Veuillez noter que notre validateur GTFS n'est pas en mesure de valider les extensions Flex et Fares v2 pour le moment."
-
-#, elixir-autogen, elixir-format
 msgid "calendar span by network:"
 msgstr "couverture calendaire par réseau :"
 
@@ -421,3 +397,19 @@ msgstr "Liens pertinents"
 #, elixir-autogen, elixir-format
 msgid "Canonical GTFS Schedule Validator"
 msgstr "le validateur GTFS canonique"
+
+#, elixir-autogen, elixir-format
+msgid "Public transit"
+msgstr "Transport public collectif"
+
+#, elixir-autogen, elixir-format
+msgid "Vehicles sharing"
+msgstr "Véhicules en libre-service"
+
+#, elixir-autogen, elixir-format
+msgid "IRVE, ZFE, carpooling, bike data etc."
+msgstr "IRVE, ZFE, covoiturage, données cyclables etc."
+
+#, elixir-autogen, elixir-format
+msgid "Road mobility and bike"
+msgstr "Mobilités routières et vélo"

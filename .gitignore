@@ -56,3 +56,7 @@ livebook/cache-dir
 apps/transport/priv/repo/structure.sql
 
 pg.list
+
+# Any CSV file put at the root level
+/*.csv
+/*~lock.*.csv#

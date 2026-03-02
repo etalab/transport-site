@@ -58,7 +58,7 @@ defmodule Search.HomeLive do
     <style>
       * { font-size: 1.1em; }
     </style>
-    <%= @inner_content %>
+    {@inner_content}
     """
   end
 
@@ -67,35 +67,35 @@ defmodule Search.HomeLive do
     <div class="px-4 py-5 text-center">
       <.form :let={f} id="search" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
         <div>
-          <%= text_input(f, :title,
+          {text_input(f, :title,
             value: @title,
             placeholder: "Title",
             autocorrect: "off"
-          ) %>
-          <%= text_input(f, :format,
+          )}
+          {text_input(f, :format,
             value: @format,
             placeholder: "Resource Format",
             autocorrect: "off"
-          ) %>
-          <%= text_input(f, :mode,
+          )}
+          {text_input(f, :mode,
             value: @mode,
             placeholder: "Resource Mode",
             autocorrect: "off"
-          ) %>
+          )}
         </div>
       </.form>
 
       <p>
-        <%= @datasets |> length %> datasets found
+        {@datasets |> length} datasets found
       </p>
       <table class="table fs-6">
         <tbody>
           <%= for dataset <- @datasets do %>
             <tr>
-              <td><%= dataset.id %></td>
-              <td style="min-width: 30em;"><%= dataset.title %></td>
-              <td><%= dataset.formats %></td>
-              <td><%= dataset.modes %></td>
+              <td>{dataset.id}</td>
+              <td style="min-width: 30em;">{dataset.title}</td>
+              <td>{dataset.formats}</td>
+              <td>{dataset.modes}</td>
             </tr>
           <% end %>
         </tbody>

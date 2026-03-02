@@ -31,16 +31,26 @@ defmodule DB.MultiValidation do
     timestamps(type: :utc_datetime_usec)
 
     field(:digest, :map)
+    field(:binary_result, :binary, load_in_query: false)
   end
 
   def base_query(opts \\ []) do
     include_result = Keyword.get(opts, :include_result, false)
+    include_binary_result = Keyword.get(opts, :include_binary_result, false)
 
-    if include_result do
-      from(mv in DB.MultiValidation, as: :multi_validation)
-      |> select_merge([mv], %{result: mv.result})
+    query = from(mv in DB.MultiValidation, as: :multi_validation)
+
+    query =
+      if include_result do
+        from(mv in query, select_merge: %{result: mv.result})
+      else
+        query
+      end
+
+    if include_binary_result do
+      from(mv in query, select_merge: %{binary_result: mv.binary_result})
     else
-      from(mv in DB.MultiValidation, as: :multi_validation)
+      query
     end
   end
 
@@ -48,10 +58,10 @@ defmodule DB.MultiValidation do
     base_query(include_result: true)
   end
 
-  @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   @doc """
   joins the query with the latest validation, given a validator name or a list of validator names
   """
+  @spec join_resource_history_with_latest_validation(Ecto.Query.t(), binary() | [binary()]) :: Ecto.Query.t()
   def join_resource_history_with_latest_validation(query, validator) do
     latest_validation = multi_validation_subquery(validator)
 
@@ -111,7 +121,8 @@ defmodule DB.MultiValidation do
     |> order_by([mv, rh, r], desc: rh.inserted_at, desc: r.id, desc: mv.validation_timestamp)
     |> preload([:metadata, :resource_history])
     |> limit(1)
-    |> DB.Repo.one()
+    # NOTE: do not use named prepared statement here, since it is big & not unallocated, apparently
+    |> DB.Repo.one(prepare: :unnamed)
   end
 
   @spec resource_latest_validations(integer(), atom, DateTime.t(), keyword()) :: [__MODULE__.t()]
@@ -212,4 +223,39 @@ defmodule DB.MultiValidation do
   def get_metadata_modes(multi_validation, default \\ nil)
   def get_metadata_modes(%__MODULE__{metadata: %DB.ResourceMetadata{modes: modes}}, _), do: modes
   def get_metadata_modes(_, default), do: default
+
+  @doc """
+  - true if the resource associated with the validation is outdated.
+  - false if not.
+  - nil if we don't know.
+
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "1900-01-01"}}}
+  iex> outdated?(validation)
+  true
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => "2900-01-01"}}}
+  iex> outdated?(validation)
+  false
+  iex> outdated?(%DB.MultiValidation{})
+  nil
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => ""}}}
+  iex> outdated?(validation)
+  nil
+  iex> validation = %DB.MultiValidation{metadata: %DB.ResourceMetadata{metadata: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}}}
+  iex> outdated?(validation)
+  true
+  """
+  def outdated?(%DB.MultiValidation{} = multi_validation) do
+    case DB.MultiValidation.get_metadata_info(multi_validation, "end_date") do
+      nil ->
+        nil
+
+      "" ->
+        nil
+
+      end_date ->
+        end_date |> Date.from_iso8601!() |> Date.compare(Date.utc_today()) !== :gt
+    end
+  end
+
+  def outdated?(_), do: nil
 end

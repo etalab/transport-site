@@ -18,38 +18,38 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   def render(assigns) do
     ~H"""
     <% reuser_space_path = reuser_space_path(@socket, :espace_reutilisateur, utm_campaign: "follow_dataset_heart")
-    producer_space_path = page_path(@socket, :espace_producteur, utm_campaign: "follow_dataset_heart") %>
+    producer_space_path = espace_producteur_path(@socket, :espace_producteur, utm_campaign: "follow_dataset_heart") %>
     <div :if={is_nil(@current_user)} class="follow-dataset-icon">
       <i class={@heart_class} phx-click="nudge_signup"></i>
       <p :if={@display_banner?} class="notification active">
-        <%= Phoenix.HTML.raw(
+        {Phoenix.HTML.raw(
           dgettext(
             "page-dataset-details",
             ~s|<a href="%{url}" target="_blank">Log in or sign up</a> to benefit from dataset services.|,
             url: page_path(@socket, :infos_reutilisateurs)
           )
-        ) %>
+        )}
       </p>
     </div>
     <div :if={not is_nil(@current_user) and not @producer?} class="follow-dataset-icon">
       <div :if={not @follows_dataset?} class="tooltip">
         <i class={@heart_class} phx-click="follow"></i>
-        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Follow this dataset") %></span>
+        <span class="tooltiptext left">{dgettext("page-dataset-details", "Follow this dataset")}</span>
       </div>
       <div :if={@follows_dataset?} class="tooltip">
         <a href={reuser_space_path} target="_blank">
           <i class={@heart_class}></i>
         </a>
-        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Manage services for this dataset") %></span>
+        <span class="tooltiptext left">{dgettext("page-dataset-details", "Manage services for this dataset")}</span>
       </div>
       <p :if={@display_banner?} class="notification active">
-        <%= Phoenix.HTML.raw(
+        {Phoenix.HTML.raw(
           dgettext(
             "page-dataset-details",
             ~s|Dataset added to your favorites! Personalise your settings from your <a href="%{url}" target="_blank">reuser space</a>.|,
             url: reuser_space_path
           )
-        ) %>
+        )}
       </p>
     </div>
     <div :if={@producer?} class="follow-dataset-icon">
@@ -57,7 +57,7 @@ defmodule TransportWeb.Live.FollowDatasetLive do
         <a href={producer_space_path} target="_blank">
           <i class={@heart_class}></i>
         </a>
-        <span class="tooltiptext left"><%= dgettext("page-dataset-details", "Manage your dataset") %></span>
+        <span class="tooltiptext left">{dgettext("page-dataset-details", "Manage your dataset")}</span>
       </div>
     </div>
     """

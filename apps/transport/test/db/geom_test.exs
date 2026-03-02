@@ -2,9 +2,17 @@ defmodule DB.GeomTest do
   @moduledoc """
   Tests on geom fields
   """
-  use DB.DatabaseCase, cleanup: [:datasets]
-
+  use ExUnit.Case, async: true
   import Ecto.Query
+  import DB.Factory
+
+  setup do
+    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    insert(:region)
+    insert(:aom)
+    insert(:commune)
+    :ok
+  end
 
   # NOTE: we could add DB.DatasetGeographicView here, but we lack an example record
   @modules [DB.Region, DB.AOM, DB.Commune]

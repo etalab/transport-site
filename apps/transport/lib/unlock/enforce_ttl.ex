@@ -29,7 +29,11 @@ defmodule Unlock.EnforceTTL do
 
   @impl true
   def handle_info(:work, state) do
-    cache_keys() |> Enum.each(fn key -> enforce_ttl(key, cache_ttl(key)) end)
+    cache_keys()
+    # For S3 items we store another key ending with `:etag` without a TTL
+    |> Enum.reject(&String.ends_with?(&1, ":etag"))
+    |> Enum.each(fn key -> enforce_ttl(key, cache_ttl(key)) end)
+
     schedule_work()
     {:noreply, state}
   end
@@ -65,14 +69,19 @@ defmodule Unlock.EnforceTTL do
   end
 
   # "aggregate" sub-items (`resource:identifier:sub_identifier`)
+  # "gbfs" sub feeds (`resource:identifier:gbfs.json`)
   def proxy_config_item(config, [identifier, sub_identifier]) do
-    [sub_item] =
-      config
-      |> Map.fetch!(identifier)
-      |> Map.fetch!(:feeds)
-      |> Enum.filter(&(&1.identifier == sub_identifier))
+    case Map.get(config, identifier) do
+      %Unlock.Config.Item.Aggregate{} ->
+        config
+        |> Map.fetch!(identifier)
+        |> Map.fetch!(:feeds)
+        |> Enum.filter(&(&1.identifier == sub_identifier))
+        |> hd()
 
-    sub_item
+      %Unlock.Config.Item.GBFS{} ->
+        config |> Map.fetch!(identifier)
+    end
   end
 
   defp schedule_work do

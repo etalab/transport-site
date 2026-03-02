@@ -1,28 +1,32 @@
 <section class="netex">
   <div class="container">
     <div class="validation-title">
-      <h2><%= dgettext("validations", "NeTEx review report") %></h2>
+      <div class="header_with_action_bar">
+        <h2>{dgettext("validations", "NeTEx review report")}</h2>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+
       <p>
-        <%= dgettext("validations", "explanations-netex") %>
+        {dgettext("validations", "explanations-netex")}
       </p>
       <p>
-        <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
-        <%= dgettext("validations", "during %{retention_days} days",
+        {dgettext("validations", "This report can be shared with")}
+        {link(dgettext("validations", "this permanent link"), to: current_url(@conn))}
+        {dgettext("validations", "during %{retention_days} days",
           retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
-        ) %>.
+        )}.
       </p>
     </div>
 
     <%= unless is_nil(@metadata) or @metadata == %{} do %>
-      <%= render("_resources_details_netex.html", metadata: @metadata, conn: @conn) %>
+      {render("_resources_details_netex.html", metadata: @metadata, conn: @conn)}
     <% end %>
   </div>
 
   <div class="validation-content">
     <div id="issues" class="container">
       <% %{"worst_occurrences" => worst_occurrences} = @max_severity %>
-      <% current_category = @conn.params["issues_category"] || "" %>
+      <% current_category = @filter["issues_category"] || "xsd-schema" %>
       <div id="issues" class="validation-navigation">
         <nav class="issues-list validation" role="navigation">
           <.netex_validation_summary
@@ -37,20 +41,28 @@
       <div class="validation-content-details">
         <div class="panel">
           <%= if worst_occurrences > 0 do %>
-            <% pagination =
-              pagination_links(@conn, @issues, [@validation_id],
-                issues_category: current_category,
-                token: @token,
-                path: &validation_path/4,
-                action: :show
-              ) %>
-            <%= pagination %>
-            <%= render(netex_template(current_category), issues: @issues || [], conn: @conn) %>
-            <div class="pt-24">
-              <%= pagination %>
-            </div>
+            <%= if current_category == "xsd-schema" do %>
+              {render(netex_template(current_category),
+                xsd_errors: @xsd_errors || [],
+                validation_report_url: @validation_report_url,
+                conn: @conn
+              )}
+            <% else %>
+              <% pagination =
+                pagination_links(@conn, @issues, [@validation_id],
+                  issues_category: current_category,
+                  token: @token,
+                  path: &validation_path/4,
+                  action: :show
+                ) %>
+              {pagination}
+              {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
+              <div class="pt-24">
+                {pagination}
+              </div>
+            <% end %>
           <% else %>
-            <h2><%= dgettext("validations", "Nice work, there are no issues!") %></h2>
+            <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
           <% end %>
         </div>
       </div>
@@ -59,8 +71,5 @@
 </section>
 
 <section class="section section-white">
-  <%= live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"}) %>
+  {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"})}
 </section>
-
-<script defer type="text/javascript" src={static_path(@conn, "/js/app.js")}>
-</script>

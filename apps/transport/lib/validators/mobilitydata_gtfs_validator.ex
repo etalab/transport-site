@@ -16,8 +16,16 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
 
   @behaviour Transport.Validators.Validator
 
+  @validator_name "MobilityData GTFS Validator"
+
   @impl Transport.Validators.Validator
-  def validator_name, do: "MobilityData GTFS Validator"
+  def validator_name, do: @validator_name
+
+  @impl Transport.Validators.Validator
+  def outdated?(%DB.MultiValidation{validator: @validator_name} = mv),
+    do: DB.MultiValidation.outdated?(mv)
+
+  def outdated?(_), do: nil
 
   @impl Transport.Validators.Validator
   @spec validate_and_save(DB.ResourceHistory.t() | binary()) :: :ok | map()
@@ -54,8 +62,8 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     validator_version = get_in(result, ["summary", "validatorVersion"]) || github_validator_version()
 
     metadata = %{
-      "start_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowStart"]),
-      "end_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowEnd"]),
+      "start_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowStart"]) |> empty_to_nil(),
+      "end_date" => get_in(result, ["summary", "feedInfo", "feedServiceWindowEnd"]) |> empty_to_nil(),
       "counts" => get_in(result, ["summary", "counts"]),
       "agencies" => get_in(result, ["summary", "agencies"]),
       "feedInfo" => get_in(result, ["summary", "feedInfo"])
@@ -71,6 +79,9 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
       features: get_in(result, ["summary", "gtfsFeatures"])
     }
   end
+
+  defp empty_to_nil(""), do: nil
+  defp empty_to_nil(value), do: value
 
   def github_validator_version do
     Transport.Cache.fetch(
@@ -92,6 +103,7 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp poll_validation_results(job_id, attempt \\ 1)
 
   defp poll_validation_results(job_id, 60 = _attempt) do
+    increment_counter("timeout")
     %{"status" => "error", "reason" => "timeout", "job_id" => job_id, "validation_performed" => false}
   end
 
@@ -102,12 +114,15 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
         poll_validation_results(job_id, attempt + 1)
 
       {:successful, data} ->
+        increment_counter("success")
         data
 
       {:error, data} ->
+        increment_counter("error")
         Map.put(data, "validation_performed", false)
 
       :unexpected_validation_status ->
+        increment_counter("unexpected_validation_status")
         %{"validation_performed" => false, "reason" => "unexpected_validation_status"}
     end
   end
@@ -122,11 +137,12 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
     "stats" => %{"WARNING" => 2},
     "summary" => [%{"code" => "unusable_trip", "severity" => "WARNING", "totalNotices" => 2}]
   }
+  iex> digest([])
+  %{"max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0}, "stats" => %{}, "summary" => []}
   """
-  @spec digest([map()]) :: map()
-  def digest([]) do
-    %{"stats" => nil, "max_severity" => nil, "summary" => nil}
-  end
+
+  @spec digest([map()] | map()) :: map()
+  def digest(%{"notices" => notices}), do: digest(notices)
 
   def digest(validation_result) do
     %{
@@ -241,13 +257,19 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   def format_severity(key, count) do
     case key do
       "ERROR" ->
-        dngettext("gtfs-transport-validator", "Error", "Errors", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Error", "Errors", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "WARNING" ->
-        dngettext("gtfs-transport-validator", "Warning", "Warnings", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Warning", "Warnings", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
 
       "INFO" ->
-        dngettext("gtfs-transport-validator", "Information", "Informations", count, value: Helpers.format_number(count))
+        dngettext("gtfs-transport-validator", "Information", "Informations", count,
+          value: Helpers.format_number(count, locale: Gettext.get_locale())
+        )
     end
   end
 
@@ -261,4 +283,6 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   defp validator_client, do: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper.impl()
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
+
+  defp increment_counter(status), do: Appsignal.increment_counter("mobilitydata_gtfs_validator.#{status}", 1)
 end

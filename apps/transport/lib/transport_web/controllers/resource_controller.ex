@@ -7,16 +7,7 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
-  @enabled_validators MapSet.new([
-                        Transport.Validators.GTFSTransport,
-                        Transport.Validators.GTFSRT,
-                        Transport.Validators.GBFSValidator,
-                        Transport.Validators.TableSchema,
-                        Transport.Validators.EXJSONSchema,
-                        Transport.Validators.NeTEx.Validator,
-                        Transport.Validators.MobilityDataGTFSValidator
-                      ])
-  plug(:assign_current_contact when action in [:details])
+  def enabled_validators, do: Transport.ValidatorsSelection.validators_for_feature(:resource_controller) |> MapSet.new()
 
   def details(conn, %{"id" => id} = params) do
     case load_resource(id) do
@@ -149,7 +140,7 @@ defmodule TransportWeb.ResourceController do
       if not is_nil(latest_resource_history) and DB.ResourceHistory.gtfs_flex?(latest_resource_history) do
         [Transport.Validators.MobilityDataGTFSValidator]
       else
-        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in @enabled_validators))
+        resource |> Transport.ValidatorsSelection.validators() |> Enum.filter(&(&1 in enabled_validators()))
       end
 
     validator =
@@ -158,7 +149,12 @@ defmodule TransportWeb.ResourceController do
         Enum.empty?(validators) -> nil
       end
 
-    DB.MultiValidation.resource_latest_validation(resource_id, validator, include_result: true)
+    netex? = validator == Transport.Validators.NeTEx.Validator
+
+    DB.MultiValidation.resource_latest_validation(resource_id, validator,
+      include_result: not netex?,
+      include_binary_result: netex?
+    )
   end
 
   def render_details(conn, resource) do
@@ -166,7 +162,9 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_gtfs_details(conn, params, resource, validation) do
-    validation_details = {_, _, _, _, issues} = build_gtfs_validation_details(validation, params)
+    config = make_pagination_config(params)
+
+    {validation_details, issues} = build_gtfs_validation_details(validation, params)
 
     issue_type =
       case params["issue_type"] do
@@ -175,28 +173,42 @@ defmodule TransportWeb.ResourceController do
       end
 
     conn
-    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign_base_resource_details(resource, validation_details)
+    |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validator, Transport.Validators.GTFSTransport)
     |> assign(:data_vis, encoded_data_vis(issue_type, validation))
     |> render("gtfs_details.html")
   end
 
-  defp build_gtfs_validation_details(nil, _params), do: {nil, nil, nil, [], []}
+  defp build_gtfs_validation_details(nil, _params), do: {{nil, nil, nil, []}, []}
 
   defp build_gtfs_validation_details(%{result: validation_result, metadata: metadata = %DB.ResourceMetadata{}}, params) do
     summary = Transport.Validators.GTFSTransport.summary(validation_result)
     stats = Transport.Validators.GTFSTransport.count_by_severity(validation_result)
     issues = Transport.Validators.GTFSTransport.get_issues(validation_result, params)
 
-    {summary, stats, metadata.metadata, metadata.modes, issues}
+    {{summary, stats, metadata.metadata, metadata.modes}, issues}
   end
 
   defp render_netex_details(conn, params, resource, validation) do
-    {results_adapter, validation_details, errors_template, max_severity} =
+    config = make_pagination_config(params)
+
+    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
       build_netex_validation_details(validation, params)
 
+    {filter, pagination} = issues
+
+    validation_report_url =
+      if download_validation_report?(validation, max_severity) do
+        DB.Resource.download_validation_report_url(conn, resource)
+      end
+
     conn
-    |> assign_base_resource_details(params, resource, validation_details)
+    |> assign_base_resource_details(resource, validation_details)
+    |> assign(:validation_report_url, validation_report_url)
+    |> assign(:filter, filter)
+    |> assign(:issues, paginate_netex_results(pagination, config))
+    |> assign(:xsd_errors, xsd_errors)
     |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
@@ -204,36 +216,67 @@ defmodule TransportWeb.ResourceController do
     |> render("netex_details.html")
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, [], []}, nil, nil}
+  defp download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
+  defp download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
+  defp download_validation_report?(_binary_result, _max_severity), do: true
+
+  # For NeTEx results we avoid loading every entries. We emulate
+  # Scrivener.paginate based on the total count.
+  def paginate_netex_results({total_entries, issues}, config) do
+    total_pages = div(total_entries, config.page_size)
+
+    total_pages =
+      if rem(total_entries, config.page_size) > 0 do
+        total_pages + 1
+      else
+        total_pages
+      end
+
+    %Scrivener.Page{
+      entries: issues,
+      page_number: config.page_number,
+      page_size: config.page_size,
+      total_entries: total_entries,
+      total_pages: total_pages
+    }
+  end
+
+  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
 
   defp build_netex_validation_details(
-         %{validator_version: version, result: validation_result, metadata: metadata = %DB.ResourceMetadata{}},
+         %{
+           validator_version: version,
+           digest: digest,
+           binary_result: binary_result,
+           metadata: metadata = %DB.ResourceMetadata{}
+         },
          params
        ) do
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-    summary = results_adapter.summary(validation_result)
-    stats = results_adapter.count_by_severity(validation_result)
-    issues = results_adapter.get_issues(validation_result, params)
+    summary = digest["summary"]
+    stats = digest["stats"]
     errors_template = pick_netex_errors_template(version)
-    max_severity = results_adapter.count_max_severity(validation_result)
+    max_severity = digest["max_severity"]
 
-    {results_adapter, {summary, stats, metadata.metadata, metadata.modes, issues}, errors_template, max_severity}
+    pagination_config = make_pagination_config(params)
+    issues = results_adapter.get_issues(binary_result, params, pagination_config)
+    xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
+
+    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity,
+     xsd_errors}
   end
 
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
 
-  defp assign_base_resource_details(conn, params, resource, validation_details) do
-    config = make_pagination_config(params)
-
-    {validation_summary, severities_count, metadata, modes, issues} = validation_details
+  defp assign_base_resource_details(conn, resource, validation_details) do
+    {validation_summary, severities_count, metadata, modes} = validation_details
 
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
-    |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validation_summary, validation_summary)
     |> assign(:severities_count, severities_count)
     |> assign(:metadata, metadata)
@@ -316,11 +359,56 @@ defmodule TransportWeb.ResourceController do
           _ ->
             conn
             |> put_flash(:error, dgettext("resource", "Resource is not available on remote server"))
-            |> put_status(:not_found)
-            |> put_view(ErrorView)
-            |> render("404.html")
+            |> not_found()
         end
     end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
+    resource = get_with_dataset(id)
+
+    cond do
+      is_nil(resource) ->
+        not_found(conn)
+
+      Resource.netex?(resource) ->
+        resource_history = DB.ResourceHistory.latest_resource_history(id)
+        validation = latest_validation(resource, resource_history)
+        download_validation_report(conn, resource, validation)
+
+      true ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, resource, %DB.MultiValidation{
+        id: mv_id,
+        binary_result: binary_result
+      })
+      when is_binary(binary_result) do
+    case binary_result
+         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
+         |> Explorer.DataFrame.dump_csv() do
+      {:ok, validation_report} ->
+        DB.FeatureUsage.insert!(
+          :download_validation_report,
+          get_in(conn.assigns.current_contact.id),
+          %{resource_id: resource.id}
+        )
+
+        send_download(conn, {:binary, validation_report},
+          disposition: :attachment,
+          content_type: "text/csv",
+          filename: "report-#{resource.id}-#{mv_id}.csv"
+        )
+
+      _ ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
+    not_found(conn)
   end
 
   defp get_with_dataset(resource_id) do
@@ -385,17 +473,4 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp downcase_header({h, v}), do: {String.downcase(h), v}
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-        |> DB.Repo.preload(:default_tokens)
-      end
-
-    assign(conn, :current_contact, current_contact)
-  end
 end

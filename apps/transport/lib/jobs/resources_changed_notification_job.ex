@@ -22,11 +22,10 @@ defmodule Transport.Jobs.ResourcesChangedNotificationJob do
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, args: %{"dataset_id" => dataset_id}}) do
     dataset = DB.Dataset |> DB.Repo.get!(dataset_id)
-    subject = "#{dataset.custom_title} : ressources modifiées"
 
     DB.NotificationSubscription.subscriptions_for_reason_dataset_and_role(@notification_reason, dataset, :reuser)
     |> Enum.each(fn %DB.NotificationSubscription{contact: %DB.Contact{} = contact} = subscription ->
-      Transport.UserNotifier.resources_changed(contact, subject, dataset)
+      Transport.UserNotifier.resources_changed(contact, dataset)
       |> Transport.Mailer.deliver()
 
       DB.Notification.insert!(dataset, subscription, %{job_id: job_id})

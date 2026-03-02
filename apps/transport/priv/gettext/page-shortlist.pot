@@ -233,9 +233,21 @@ msgid "Resource format"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Sub type"
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "department"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "EPCI %{name} has not yet published any datasets"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "transport offer"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "data format"
 msgstr ""

@@ -1,7 +1,7 @@
 <div :if={Phoenix.Flash.get(@flash, :breaking_news_info)} class="notification">
-  <%= @flash |> Phoenix.Flash.get(:breaking_news_info) |> markdown_to_safe_html!() %>
+  {@flash |> Phoenix.Flash.get(:breaking_news_info) |> markdown_to_safe_html!()}
 </div>
 
 <div :if={Phoenix.Flash.get(@flash, :breaking_news_error)} class="notification message--error">
-  <%= @flash |> Phoenix.Flash.get(:breaking_news_error) |> markdown_to_safe_html!() %>
+  {@flash |> Phoenix.Flash.get(:breaking_news_error) |> markdown_to_safe_html!()}
 </div>

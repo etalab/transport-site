@@ -23,5 +23,5 @@ defmodule Transport.Jobs.ResourceHistoryJSONSchemaValidationJob do
     ResourceHistorySchemaValidation.enqueue_jobs_for_schema_type("jsonschema", __MODULE__, validator())
   end
 
-  def validator, do: Transport.Validators.EXJSONSchema
+  def validator, do: Transport.Validators.JSONSchema
 end

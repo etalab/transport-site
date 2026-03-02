@@ -23,7 +23,7 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
 
   def refresh_all do
     result =
-      active_datasets_resource_history_items()
+      active_up_to_date_datasets_resource_history_items()
       |> refresh()
 
     batch =
@@ -100,10 +100,12 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
     end)
   end
 
-  def active_datasets_resource_history_items do
+  def active_up_to_date_datasets_resource_history_items do
     DB.Dataset.base_query()
-    |> DB.Resource.join_dataset_with_resource()
-    |> DB.ResourceHistory.join_resource_with_latest_resource_history()
+    |> DB.Dataset.join_from_dataset_to_metadata(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:gtfs_import_stops_job), & &1.validator_name())
+    )
+    |> DB.ResourceMetadata.where_up_to_date()
     |> where([resource: r], r.format == "GTFS")
     |> select([resource_history: rh], rh)
     |> DB.Repo.all()

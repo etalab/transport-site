@@ -5,6 +5,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   import ExUnit.CaptureLog
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup :verify_on_exit!
@@ -15,6 +16,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
 
   @filename "file.zip"
 
+  defp sample_metadata, do: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}
+
   test "still pending" do
     attempt = 1
     validation = create_validation(%{"type" => "netex"})
@@ -23,14 +26,16 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
 
     snooze_duration = Validator.poll_interval(attempt)
 
-    assert {:snooze, ^snooze_duration} = run_polling_job(validation, validation_id, attempt)
+    assert {:snooze, ^snooze_duration} = run_polling_job(validation, validation_id, sample_metadata(), attempt)
 
     assert %{
              data_vis: nil,
              max_error: nil,
              metadata: nil,
              oban_args: %{"state" => "waiting", "type" => "netex"},
-             result: nil
+             result: nil,
+             binary_result: nil,
+             digest: nil
            } = validation |> reload_validation()
   end
 
@@ -40,20 +45,22 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
     validation_id = with_running_validation() |> expect_pending_validation()
 
     assert capture_log([level: :error], fn ->
-             assert :ok == run_polling_job(validation, validation_id, 181)
+             assert :ok == run_polling_job(validation, validation_id, sample_metadata(), 181)
 
              assert %{
                       data_vis: nil,
-                      metadata: %{},
+                      metadata: %DB.ResourceMetadata{metadata: nil},
                       oban_args: %{
                         "state" => "error",
                         "type" => "netex",
                         "error_reason" => "enRoute Chouette Valid: Timeout while fetching results"
                       },
                       result: nil,
+                      binary_result: nil,
+                      digest: nil,
                       validation_timestamp: date,
                       validator: "enroute-chouette-netex-validator",
-                      validator_version: "0.2.0"
+                      validator_version: "0.2.1"
                     } = validation |> reload_validation()
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
@@ -65,20 +72,24 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
 
     validation_id = with_running_validation() |> expect_valid_netex()
 
-    assert :ok == run_polling_job(validation, validation_id)
+    assert :ok == run_polling_job(validation, validation_id, sample_metadata())
 
     assert %{
              data_vis: nil,
              max_error: "NoError",
-             metadata: %{},
+             metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
              result: %{},
+             binary_result: binary_result,
+             digest: digest,
              validation_timestamp: date,
              validator: "enroute-chouette-netex-validator",
-             validator_version: "0.2.0"
+             validator_version: "0.2.1"
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
+    assert ResultsAdapter.to_binary_result(%{}) == binary_result
+    assert ResultsAdapter.digest(%{}) == digest
   end
 
   test "error" do
@@ -110,18 +121,22 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
 
     validation_id = with_running_validation() |> expect_netex_with_errors(errors)
 
-    assert :ok == run_polling_job(validation, validation_id)
+    assert :ok == run_polling_job(validation, validation_id, sample_metadata())
 
     assert %{
              data_vis: nil,
              max_error: "error",
-             metadata: %{},
+             metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
              result: result,
+             binary_result: binary_result,
+             digest: digest,
              validation_timestamp: date
            } = validation |> reload_validation()
 
     assert %{"xsd-schema" => a1, "base-rules" => a2} = result
+    assert ResultsAdapter.to_binary_result(result) == binary_result
+    assert ResultsAdapter.digest(result) == digest
 
     assert length(a1) == 1
     assert length(a2) == 3
@@ -147,16 +162,16 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
     expect_get_messages(validation_id, messages)
   end
 
-  defp run_polling_job(%DB.MultiValidation{} = validation, validation_id, attempt \\ 1) do
+  defp run_polling_job(%DB.MultiValidation{} = validation, validation_id, metadata, attempt \\ 1) do
     payload =
       validation.oban_args
-      |> Map.merge(%{"id" => validation.id, "validation_id" => validation_id})
+      |> Map.merge(%{"id" => validation.id, "validation_id" => validation_id, "metadata" => metadata})
 
     perform_job(Transport.Jobs.OnDemandNeTExPollerJob, payload, attempt: attempt)
   end
 
   defp reload_validation(validation) do
-    DB.MultiValidation.with_result()
+    DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
     |> DB.Repo.get!(validation.id)
     |> DB.Repo.preload(:metadata)
   end

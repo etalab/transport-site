@@ -6,7 +6,6 @@ defmodule Transport.ImportData do
   alias Datagouvfr.Client.CommunityResources
   alias DB.{Dataset, LogsImport, Repo, Resource}
   alias Helpers
-  alias Opendatasoft.UrlExtractor
   alias Transport.Shared.ResourceSchema
   require Logger
   import Ecto.Query
@@ -45,10 +44,10 @@ defmodule Transport.ImportData do
     # validation is now gone, replaced by DB.MultiValidation
   end
 
-  def refresh_places do
+  def refresh_autocomplete do
     Logger.info("Refreshing places...")
-    # NOTE: I could not find a way to call "refresh_places()" directly
-    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW places;")
+    # NOTE: I could not find a way to call "refresh_autocomplete()" directly
+    {:ok, _result} = Repo.query("REFRESH MATERIALIZED VIEW autocomplete;")
   end
 
   def generate_import_logs!(
@@ -105,7 +104,7 @@ defmodule Transport.ImportData do
     {:ok, changeset} = Dataset.changeset(dataset_map_from_data_gouv)
     result = Repo.update!(changeset)
 
-    refresh_places()
+    refresh_autocomplete()
     result
   end
 
@@ -221,7 +220,7 @@ defmodule Transport.ImportData do
         resource
         |> Map.put("url", cleaned_url(resource["url"]))
 
-      format = formated_format(resource, type, is_community_resource)
+      format = Map.get(existing_resource, :format_override) || formated_format(resource, type, is_community_resource)
 
       {%{
          "url" => resource["url"],
@@ -262,21 +261,35 @@ defmodule Transport.ImportData do
   "http://example.com/file.zip"
   iex> cleaned_url("http://exs.sismo2.cityway.fr")
   "https://exs.sismo2.cityway.fr"
+  iex> cleaned_url("https://api.oisemob.cityway.fr/dataflow/offre-tc/download?provider=COROLIS_URB|COROLIS_INT&dataFormat=NETEX&dataProfil=OPENDATA")
+  "https://api.oisemob.cityway.fr/dataflow/offre-tc/download?provider=COROLIS_URB%7CCOROLIS_INT&dataFormat=NETEX&dataProfil=OPENDATA"
   """
   def cleaned_url(url) do
     uri = URI.parse(url)
 
-    if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
-      cleaned_query =
-        if is_nil(uri.query) do
-          nil
-        else
-          uri.query |> String.replace("&amp;", "&")
-        end
+    cond do
+      is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) ->
+        cleaned_query =
+          if is_nil(uri.query) do
+            nil
+          else
+            uri.query |> String.replace("&amp;", "&")
+          end
 
-      %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
-    else
-      url
+        %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
+
+      is_binary(uri.host) and String.match?(uri.host, ~r/^api\.(\w)+\.cityway\.fr$/) ->
+        cleaned_query =
+          if is_nil(uri.query) do
+            nil
+          else
+            uri.query |> String.replace("|", "%7C")
+          end
+
+        %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
+
+      true ->
+        url
     end
   end
 
@@ -308,33 +321,18 @@ defmodule Transport.ImportData do
     cond do
       !Enum.empty?(l = Enum.filter(resources, &gtfs?/1)) -> l
       !Enum.empty?(l = Enum.filter(resources, &zip?/1)) -> l
-      !Enum.empty?(l = UrlExtractor.get_gtfs_csv_resources(resources)) -> l
       true -> []
     end
   end
 
   @spec get_valid_netex_resources([map()]) :: [map()]
   def get_valid_netex_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &netex?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_netex_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
+    resources |> Enum.filter(&netex?/1) |> Enum.map(fn r -> %{r | "format" => "NeTEx"} end)
   end
 
   @spec get_valid_gtfs_rt_resources([map()]) :: [map()]
   def get_valid_gtfs_rt_resources(resources) do
-    resources =
-      cond do
-        !Enum.empty?(l = Enum.filter(resources, &gtfs_rt?/1)) -> l
-        !Enum.empty?(l = UrlExtractor.get_gtfs_rt_csv_resources(resources)) -> l
-        true -> []
-      end
-
-    resources |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
+    resources |> Enum.filter(&gtfs_rt?/1) |> Enum.map(fn r -> %{r | "format" => "gtfs-rt"} end)
   end
 
   @doc """
@@ -883,7 +881,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.url == ^url and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 
@@ -891,7 +889,7 @@ defmodule Transport.ImportData do
     Resource
     |> join(:inner, [r], d in Dataset, on: r.dataset_id == d.id)
     |> where([r, d], r.datagouv_id == ^resource_datagouv_id and d.datagouv_id == ^dataset_datagouv_id)
-    |> select([r], map(r, [:id]))
+    |> select([r], map(r, [:id, :format_override]))
     |> Repo.one()
   end
 

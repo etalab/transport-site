@@ -30,6 +30,7 @@ defmodule Unlock.HTTP do
 
     @callback get!(url :: binary, headers :: headers(), options :: keyword()) :: any()
     @callback post!(url :: binary, headers :: headers(), body :: binary) :: any()
+    @callback stream!(url :: binary, headers :: headers(), path :: binary) :: Unlock.HTTP.Response.t()
 
     def impl, do: Application.fetch_env!(:transport, :unlock_http_client)
   end
@@ -38,7 +39,33 @@ defmodule Unlock.HTTP do
     @moduledoc """
     A Finch-based implementation of the Client behaviour.
     """
+    @my_finch Unlock.Finch
     @behaviour Client
+
+    def stream!(url, headers, path) do
+      file = File.open!(path, [:write])
+      response = %Unlock.HTTP.Response{body: nil, status: nil, headers: nil}
+
+      try do
+        {:ok, response} =
+          Finch.build(:get, url, headers)
+          |> Finch.stream(@my_finch, response, fn
+            {:status, status}, acc ->
+              %{acc | status: status}
+
+            {:headers, headers}, acc ->
+              %{acc | headers: headers}
+
+            {:data, chunk}, acc ->
+              IO.binwrite(file, chunk)
+              acc
+          end)
+
+        response
+      after
+        File.close(file)
+      end
+    end
 
     # Implement HTTP GET with optional redirect support.
     #
@@ -77,7 +104,7 @@ defmodule Unlock.HTTP do
       {:ok, response} =
         :get
         |> Finch.build(url, headers)
-        |> Finch.request(Unlock.Finch)
+        |> Finch.request(@my_finch)
 
       response = %Response{
         body: response.body,
@@ -97,7 +124,7 @@ defmodule Unlock.HTTP do
       {:ok, response} =
         :post
         |> Finch.build(url, headers, body)
-        |> Finch.request(Unlock.Finch)
+        |> Finch.request(@my_finch)
 
       %Response{
         body: response.body,

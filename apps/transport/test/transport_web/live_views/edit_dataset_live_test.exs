@@ -143,7 +143,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
             nom: "Mon EPCI"
           )
         ],
-        offers: []
+        offers: [],
+        dataset_subtypes: []
       )
 
     {:ok, view, _html} =
@@ -174,7 +175,8 @@ defmodule TransportWeb.EditDatasetLiveTest do
         legal_owners_region: [],
         # needs to be preloaded
         declarative_spatial_areas: [],
-        offers: []
+        offers: [],
+        dataset_subtypes: []
       )
 
     {:ok, view, _html} =
@@ -200,6 +202,7 @@ defmodule TransportWeb.EditDatasetLiveTest do
         datagouv_id: "1234",
         offers: [insert(:offer, nom_commercial: nom_commercial = "Astuce")],
         # needs to be preloaded
+        dataset_subtypes: [],
         legal_owners_aom: [],
         legal_owners_region: [],
         declarative_spatial_areas: []
@@ -218,6 +221,34 @@ defmodule TransportWeb.EditDatasetLiveTest do
 
     assert render(view) =~ "Offres"
     assert render(view) =~ nom_commercial
+  end
+
+  test "dataset form, show dataset subtypes saved in the database", %{conn: conn} do
+    conn = conn |> setup_admin_in_session()
+
+    dataset =
+      insert(:dataset,
+        type: "public-transit",
+        dataset_subtypes: [insert(:dataset_subtype, slug: "urban", parent_type: "public-transit")],
+        # needs to be preloaded
+        offers: [],
+        legal_owners_aom: [],
+        legal_owners_region: [],
+        declarative_spatial_areas: []
+      )
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.EditDatasetLive,
+        session: %{
+          "dataset" => dataset,
+          "dataset_types" => [],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
+        }
+      )
+
+    assert render(view) =~ "urban"
   end
 
   test "form inputs are persisted", %{conn: conn} do

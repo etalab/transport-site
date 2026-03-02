@@ -7,6 +7,7 @@ defmodule TransportWeb.EmailView do
       dataset_url: 3,
       resource_url: 3,
       page_url: 3,
+      espace_producteur_url: 3,
       reuser_space_url: 3
     ]
 
@@ -36,7 +37,7 @@ defmodule TransportWeb.EmailView do
 
   def link_for_espace_producteur(view_name) do
     url =
-      page_url(TransportWeb.Endpoint, :espace_producteur,
+      espace_producteur_url(TransportWeb.Endpoint, :espace_producteur,
         utm_source: "transactional_email",
         utm_medium: "email",
         utm_campaign: to_string(view_name)

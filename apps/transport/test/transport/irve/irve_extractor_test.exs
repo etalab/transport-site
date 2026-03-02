@@ -13,15 +13,15 @@ defmodule Transport.IRVE.ExtractorTest do
     # initial request helps computing the number of pages & generating urls
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
-      assert options[:url] == "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page_size=2"
-      %Req.Response{status: 200, body: DB.Factory.IRVE.build_datagouv_initial_pagination_payload(page_size: 2)}
+      assert options[:url] == "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page_size=3"
+      %Req.Response{status: 200, body: DB.Factory.IRVE.build_datagouv_initial_pagination_payload(page_size: 3)}
     end)
 
     # next requests are same queries but paginated and helping
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
       assert options[:url] ==
-               "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=2"
+               "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique&page=1&page_size=3"
 
       %Req.Response{
         status: 200,
@@ -29,13 +29,15 @@ defmodule Transport.IRVE.ExtractorTest do
       }
     end)
 
-    assert Transport.IRVE.Extractor.datagouv_resources(page_size: 2) == [
+    assert Transport.IRVE.Extractor.datagouv_resources(page_size: 3) == [
              %{
                dataset_id: "the-dataset-id",
                dataset_title: "the-dataset-title",
                dataset_organisation_id: "the-org-id",
                dataset_organisation_name: "the-org",
                dataset_organisation_url: "http://the-org",
+               datagouv_organization_or_owner: "the-org",
+               datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00",
                resource_id: "the-resource-id",
                resource_title: "the-resource-title",
                schema_name: "etalab/schema-irve-statique",
@@ -51,15 +53,35 @@ defmodule Transport.IRVE.ExtractorTest do
                last_modified: "2024-02-29T07:43:59.660000+00:00",
                url: "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
                dataset_id: "another-dataset-id",
+               dataset_organisation_id: "another-org-id",
+               dataset_organisation_name: "another-org",
+               dataset_organisation_url: "http://another-org",
+               datagouv_organization_or_owner: "another-org",
+               datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00",
                resource_id: "another-resource-id",
                dataset_title: "another-dataset-title",
                schema_version: "2.3.0",
                schema_name: "etalab/schema-irve-statique",
                resource_title: "another-resource-title",
                filetype: "file",
+               validation_date: "2024-02-24"
+             },
+             %{
+               dataset_id: "individual-published-dataset-id",
                dataset_organisation_id: "???",
                dataset_organisation_name: "???",
                dataset_organisation_url: "???",
+               datagouv_organization_or_owner: "Guy Who loves IRVE",
+               datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00",
+               dataset_title: "individual-published-dataset-title",
+               filetype: "file",
+               last_modified: "2024-02-29T07:43:59.660000+00:00",
+               resource_id: "individual-published-resource-id",
+               resource_title: "individual-published-resource-title",
+               schema_name: "etalab/schema-irve-statique",
+               schema_version: "2.3.0",
+               url: "https://static.data.gouv.fr/resources/individual-published-irve-url-2024/data.csv",
+               valid: true,
                validation_date: "2024-02-24"
              }
            ]

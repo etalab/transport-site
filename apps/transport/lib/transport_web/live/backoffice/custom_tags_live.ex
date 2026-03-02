@@ -6,31 +6,33 @@ defmodule TransportWeb.CustomTagsLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <div class="pb-6">
-        <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
-          <span class="label custom-tag">
-            <%= tag %> <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
-          </span>
-          <%= Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag) %>
-        <% end %>
-      </div>
-      <%= InputHelpers.text_input(@form, :tag_input,
+      {InputHelpers.text_input(@form, :tag_input,
         placeholder: "Ajouter un tag",
         list: "suggestions",
         phx_keydown: "add_tag",
+        phx_change: "change",
         id: "custom_tag",
-        phx_target: @myself
-      ) %>
-      <datalist id="suggestions" phx-keydown="add_tag">
+        phx_target: @myself,
+        label: "Tags"
+      )}
+      <div class="pt-6">
+        <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
+          <span class="label custom-tag">
+            {tag} <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
+          </span>
+          {Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag)}
+        <% end %>
+      </div>
+      <datalist id="suggestions">
         <%= for suggestion <- @tag_suggestions do %>
-          <option value={suggestion}><%= suggestion %></option>
+          <option value={suggestion}>{suggestion}</option>
         <% end %>
       </datalist>
       <details class="pt-12">
         <summary>Tags liés à des fonctionnalités</summary>
         <ul>
           <%= for tag_doc <- Enum.sort_by(@tags_documentation, & &1.name) do %>
-            <li><span class="label"><%= tag_doc.name %></span><%= tag_doc.doc %></li>
+            <li><span class="label"><%= tag_doc.name %></span>{tag_doc.doc}</li>
           <% end %>
         </ul>
       </details>
@@ -58,7 +60,6 @@ defmodule TransportWeb.CustomTagsLive do
           "Ce jeu de données est soumis à l'obligation de réutilisation selon l'article 122 de la loi climat et résilience"
       },
       %{name: "requestor_ref:<valeur>", doc: "Renseigne le requestor_ref des ressources SIRI pour ce jeu de données"},
-      %{name: "saisonnier", doc: "Indique sur la page du JDD que ce jeu de données n'opère qu'une partie de l'année"},
       %{name: "skip_history", doc: "Désactive l'historisation des ressources pour ce jeu de données"},
       %{
         name: "masqué",
@@ -93,18 +94,16 @@ defmodule TransportWeb.CustomTagsLive do
      )}
   end
 
-  def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
-    # Do not lowercase a tag for a SIRI requestor_ref
-    clean_tag =
-      if String.starts_with?(tag, "requestor_ref:") do
-        tag |> String.trim()
-      else
-        tag |> String.downcase() |> String.trim()
-      end
+  def handle_event("change", %{"form" => %{"tag_input" => tag}}, socket) do
+    if tag in socket.assigns.tag_suggestions do
+      add_tag(tag, socket)
+    else
+      {:noreply, socket}
+    end
+  end
 
-    custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
-    send(self(), {:updated_custom_tags, custom_tags})
-    {:noreply, socket |> clear_input()}
+  def handle_event("add_tag", %{"key" => "Enter", "value" => tag}, socket) do
+    add_tag(tag, socket)
   end
 
   def handle_event("add_tag", _, socket) do
@@ -116,6 +115,21 @@ defmodule TransportWeb.CustomTagsLive do
     send(self(), {:updated_custom_tags, custom_tags})
 
     {:noreply, socket}
+  end
+
+  defp add_tag(tag, socket) do
+    # Do not lowercase a tag for a SIRI requestor_ref
+    clean_tag =
+      if String.starts_with?(tag, "requestor_ref:") do
+        tag |> String.trim()
+      else
+        tag |> String.downcase() |> String.trim()
+      end
+
+    custom_tags = (socket.assigns.custom_tags ++ [clean_tag]) |> Enum.uniq()
+    send(self(), {:updated_custom_tags, custom_tags})
+
+    {:noreply, socket |> clear_input()}
   end
 
   def clear_input(socket) do

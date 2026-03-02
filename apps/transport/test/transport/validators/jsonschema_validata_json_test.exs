@@ -14,7 +14,7 @@ defmodule Transport.Validators.ValidataJsonTest do
   test "a validata json validation" do
     job_id = Ecto.UUID.generate()
 
-    Transport.Shared.Schemas.Mock
+    Transport.Schemas.Mock
     |> expect(:transport_schemas, 2, fn ->
       %{
         "etalab/schema_name" => %{

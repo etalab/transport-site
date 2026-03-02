@@ -16,7 +16,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     unique: [fields: [:args, :worker]]
 
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry
@@ -37,20 +37,24 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     |> Helpers.handle_validation_result(multivalidation_id)
   end
 
-  def later(validation_id, multivalidation_id, url) do
-    %{validation_id: validation_id, id: multivalidation_id, permanent_url: url}
+  def later(validation_id, multivalidation_id, metadata, url) do
+    %{validation_id: validation_id, id: multivalidation_id, permanent_url: url, metadata: metadata}
     |> new(schedule_in: {20, :seconds})
     |> Oban.insert()
 
     Helpers.delegated_state()
   end
 
-  def check_result(%{"permanent_url" => url, "validation_id" => validation_id}, attempt) do
-    case Validator.poll_validation(validation_id, attempt) do
+  def check_result(%{"permanent_url" => url, "validation_id" => validation_id, "metadata" => metadata}, attempt) do
+    case Validator.poll_validation(validation_id, metadata, attempt) do
       {:error, error_result} -> handle_error(error_result)
       {:ok, ok_result} -> handle_success(ok_result, url)
       {:pending, _validation_id} -> handle_pending(attempt)
     end
+  end
+
+  def check_result(%{"permanent_url" => _, "validation_id" => _} = args, attempt) do
+    check_result(Map.merge(%{"metadata" => %{}}, args), attempt)
   end
 
   def handle_error(error_result) do
@@ -74,6 +78,8 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   defp build_successful_validation_result(%{"validations" => validation, "metadata" => metadata}, url) do
     %{
       result: validation,
+      binary_result: ResultsAdapter.to_binary_result(validation),
+      digest: ResultsAdapter.digest(validation),
       metadata: metadata,
       data_vis: nil,
       validator: Validator.validator_name(),

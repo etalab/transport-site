@@ -12,6 +12,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   describe "relevant_datasets" do
@@ -194,7 +195,7 @@ defmodule Transport.Test.Transport.Jobs.NewCommentsNotificationJobTest do
                            text_body: nil,
                            html_body: html_body
                          } ->
-      assert remove_whitespace(html_body) == remove_whitespace(~s|
+      assert remove_whitespace(html_body) =~ remove_whitespace(~s|
       <p>Bonjour,</p>
 
       <p>

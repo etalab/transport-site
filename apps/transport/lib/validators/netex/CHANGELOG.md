@@ -16,3 +16,10 @@ without any specific inline documentation.
 Categories are used to build the summary of a NeTEx validation. Each category
 has a title, a description (providing links to any relevant documentation), and
 some hints for usual errors (optional).
+
+## 0.2.1
+
+- Uses the profile `pan:french_profile:1` (which includes rules from
+    `enroute:starter-kit`)
+  - new rules introduced to check specific rules of the French profile
+      (mandatory attributes)

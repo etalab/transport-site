@@ -83,6 +83,17 @@ defmodule TransportWeb.SeoMetadataTest do
     assert title =~ "Jeux de données ouverts de la commune de Châteauroux"
   end
 
+  test "GET /datasets/offer/:id", %{conn: conn} do
+    offer = insert(:offer)
+    title = conn |> get(~p"/datasets/offer/#{offer.identifiant_offre}") |> html_response(200) |> title
+    assert title =~ "Jeux de données ouverts de l&#39;offre de transport #{offer.nom_commercial}"
+  end
+
+  test "GET /datasets?format=GTFS", %{conn: conn} do
+    title = conn |> get(~p"/datasets?format=GTFS") |> html_response(200) |> title
+    assert title == "Jeux de données ouverts du format de données GTFS"
+  end
+
   test "GET /landing-vls", %{conn: conn} do
     title = conn |> get(~p"/landing-vls") |> html_response(200) |> title
     assert title =~ "Jeux de données ouverts de la catégorie Vélos et trottinettes en libre-service"
@@ -105,7 +116,7 @@ defmodule TransportWeb.SeoMetadataTest do
   end
 
   test "GET /validation ", %{conn: conn} do
-    Transport.Shared.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
+    Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
     title = conn |> get(~p"/validation") |> html_response(200) |> title
     assert title =~ "Évaluation de la qualité d’un fichier ou d’un flux"
   end

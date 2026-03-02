@@ -1,15 +1,48 @@
 defmodule Transport.TelemetryTest do
   use ExUnit.Case, async: true
   import Transport.Telemetry, only: [count_event: 3, count_event: 4]
+  import Mox
+
+  setup :verify_on_exit!
+
   doctest Transport.Telemetry, import: true
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    DB.Repo.delete_all(DB.Metrics)
-    :ok
   end
 
   def stored_events, do: DB.Repo.all(DB.Metrics)
+
+  test "telemetry forwards proxy events to batch metrics system (incr_event)" do
+    assert DB.Repo.all(DB.Metrics) |> Enum.empty?()
+    assert %{} == :sys.get_state(Unlock.BatchMetrics)
+
+    Unlock.BatchMetrics.Mock
+    |> expect(:incr_event, fn %{target: "foo", event: "proxy:request:external"} ->
+      :ok
+    end)
+
+    Unlock.BatchMetrics.Mock
+    |> expect(:incr_event, fn %{target: "bar", event: "proxy:request:internal"} ->
+      :ok
+    end)
+
+    # Dispatch Telemetry events
+    :telemetry.execute(
+      [:proxy, :request, :external],
+      %{},
+      %{target: "foo"}
+    )
+
+    :telemetry.execute(
+      [:proxy, :request, :internal],
+      %{},
+      %{target: "bar"}
+    )
+
+    # Metrics have not been inserted directly
+    assert DB.Repo.all(DB.Metrics) |> Enum.empty?()
+  end
 
   test "aggregates same hour for a given identifier/event" do
     count_event("id-001", [:proxy, :request, :internal], ~U[2021-11-22 14:28:06.098765Z])

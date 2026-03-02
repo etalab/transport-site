@@ -6,7 +6,7 @@ defmodule Transport.Jobs.ResourceHistorySchemaValidation do
   It deals with JSON Schema and Table Schema.
   """
   import Ecto.Query
-  alias Transport.Shared.Schemas.Wrapper, as: Schemas
+  alias Transport.Schemas.Wrapper, as: Schemas
 
   def validate_resource_history_for_schema(resource_history_id, validator) do
     resource_history = DB.ResourceHistory |> DB.Repo.get!(resource_history_id)

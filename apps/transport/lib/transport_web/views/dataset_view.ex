@@ -2,7 +2,8 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
+  import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
@@ -75,7 +76,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.assign(conn, :msg, msg).assigns
 
     case assigns do
-      %{order_by: ^order_by} -> ~H{<span class="activefilter"><%= @msg %></span>}
+      %{order_by: ^order_by} -> ~H|<span class="activefilter">{@msg}</span>|
       _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
     end
   end
@@ -88,7 +89,7 @@ defmodule TransportWeb.DatasetView do
         to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
       )
     else
-      ~H{<span class="activefilter"><%= dgettext("page-shortlist", "All (feminine)") %> (<%= @count %>)</span>}
+      ~H|<span class="activefilter">{dgettext("page-shortlist", "All (feminine)")} ({@count})</span>|
     end
   end
 
@@ -96,7 +97,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
-      ~H{<span class="activefilter"><%= @name %> (<%= @count %>)</span>}
+      ~H|<span class="activefilter">{@name} ({@count})</span>|
     else
       link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
     end
@@ -116,7 +117,7 @@ defmodule TransportWeb.DatasetView do
     assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
 
     case current_path(conn, %{}) do
-      ^url -> ~H{<span class="activefilter"><%= @nom %> (<%= @count %>)</span>}
+      ^url -> ~H|<span class="activefilter">{@nom} ({@count})</span>|
       _ -> link("#{nom} (#{count})", to: full_url)
     end
   end
@@ -143,6 +144,10 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "type", %{key: type, msg: msg, count: count})
   end
 
+  def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
+    link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
+  end
+
   def format_link(conn, %{format: format, msg: msg, count: count}) do
     link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end
@@ -156,7 +161,7 @@ defmodule TransportWeb.DatasetView do
 
     link_text = "#{msg} (#{count})"
     assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
-    active_filter_text = ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+    active_filter_text = ~H|<span class="activefilter">{@msg} ({@count})</span>|
 
     case conn.params do
       %{^key_name => ^key} ->
@@ -186,7 +191,7 @@ defmodule TransportWeb.DatasetView do
     case {only_rt, Map.get(conn.query_params, "filter")} do
       {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
       {true, nil} -> link("#{msg} (#{count})", to: full_url)
-      _ -> ~H{<span class="activefilter"><%= @msg %> (<%= @count %>)</span>}
+      _ -> ~H|<span class="activefilter">{@msg} ({@count})</span>|
     end
   end
 
@@ -242,6 +247,10 @@ defmodule TransportWeb.DatasetView do
   iex> summary_class(%{severity: "ERROR"})
   "resource__summary--Error"
   """
+  def summary_class(%{digest: %{"max_severity" => %{"max_level" => severity, "worst_occurrences" => count_errors}}}) do
+    summary_class(%{count_errors: count_errors, severity: severity})
+  end
+
   def summary_class(%{count_errors: 0}), do: "resource__summary--Success"
   def summary_class(%{severity: severity}), do: "resource__summary--#{String.capitalize(severity)}"
 
@@ -300,13 +309,48 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
-  def outdated_class(true = _is_outdated), do: "resource__summary--Error"
-  def outdated_class(_), do: ""
+  @doc """
+  iex> outdated_class(~D[2025-12-28], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2026-01-15], ~D[2025-12-31])
+  ""
+  iex> outdated_class(~D[2025-12-01], ~D[2025-12-31])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-25], ~D[2025-12-25])
+  "resource__summary--Error"
+  iex> outdated_class(~D[2025-12-26], ~D[2025-12-25])
+  "resource__summary--Warning"
+  """
+  def outdated_class(%Date{} = end_date, reference_date \\ Date.utc_today()) do
+    case Date.diff(end_date, reference_date) do
+      diff when diff <= 0 -> "resource__summary--Error"
+      diff when diff <= 7 -> "resource__summary--Warning"
+      _ -> ""
+    end
+  end
+
+  def validity_dates(assigns) do
+    ~H"""
+    <% start_date = get_validity_date(@multi_validation, "start_date") %>
+    <% end_date = get_validity_date(@multi_validation, "end_date") %>
+    <div :if={start_date && end_date} title={dgettext("page-dataset-details", "Validity period")}>
+      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+      <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
+      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
+      <% end_date_date = end_date |> Date.from_iso8601!() %>
+      <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
+    </div>
+    """
+  end
+
+  def get_validity_date(multi_validation, key) do
+    multi_validation |> DB.MultiValidation.get_metadata_info(key) |> empty_to_nil()
+  end
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
   def valid_panel_class(%DB.Resource{} = r, is_outdated) do
-    if Resource.gtfs?(r) && is_outdated do
+    if (Resource.gtfs?(r) or Resource.netex?(r)) && is_outdated do
       "invalid-resource-panel"
     else
       ""
@@ -477,7 +521,7 @@ defmodule TransportWeb.DatasetView do
   end
 
   def documentation_url(%Resource{schema_name: schema_name, schema_version: schema_version}) do
-    Transport.Shared.Schemas.documentation_url(schema_name, schema_version)
+    Transport.Schemas.documentation_url(schema_name, schema_version)
   end
 
   def schema_label(%{schema_name: schema_name, schema_version: schema_version}) when not is_nil(schema_version) do
@@ -513,9 +557,9 @@ defmodule TransportWeb.DatasetView do
     ~H"""
     <span title={if @real_time, do: "", else: dgettext("page-dataset-details", "latest-content-modification-popover")}>
       <i class="icon icon--sync-alt" aria-hidden="true"></i>
-      <%= resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time) %>
+      {resource_last_update_date_or_string(@resources_updated_at, @resource, @locale, real_time: @real_time)}
       <span :if={!@real_time} class="small">
-        <%= dgettext("page-dataset-details", "latest-content-modification-label") %>
+        {dgettext("page-dataset-details", "latest-content-modification-label")}
       </span>
     </span>
     """
@@ -574,12 +618,12 @@ defmodule TransportWeb.DatasetView do
   def related_gtfs_resource(%Resource{}), do: nil
 
   @doc """
-  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["saisonnier", "foo"]})
+  iex> seasonal_warning?(%DB.Dataset{dataset_subtypes: [%DB.DatasetSubtype{slug: "seasonal"}]})
   true
-  iex> seasonal_warning?(%DB.Dataset{custom_tags: ["foo"]})
+  iex> seasonal_warning?(%DB.Dataset{dataset_subtypes: [%DB.DatasetSubtype{slug: "urban"}]})
   false
   """
-  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_custom_tag?(dataset, "saisonnier")
+  def seasonal_warning?(%DB.Dataset{} = dataset), do: DB.Dataset.has_subtype?(dataset, "seasonal")
 
   def authentication_required?(%DB.Dataset{} = dataset),
     do: DB.Dataset.has_custom_tag?(dataset, "authentification_requise")
@@ -607,6 +651,79 @@ defmodule TransportWeb.DatasetView do
       DB.Resource.gtfs?(resource) and Enum.count(validations) == 2 ->
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
     end
+  end
+
+  def pick_validator(%DB.MultiValidation{} = validation) do
+    [
+      Transport.Validators.GTFSTransport,
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
+    ]
+    |> Enum.find(fn validator -> validator.validator_name() == validation.validator end)
+  end
+
+  def pick_validator(_), do: nil
+
+  def empty_to_nil(""), do: nil
+  def empty_to_nil(value), do: value
+
+  def notification_sent(%{} = assigns) do
+    ~H"""
+    <tr>
+      <td>{Transport.NotificationReason.reason_to_str(@notification.reason)}</td>
+      <.notification_sent_details reason={@notification.reason} payload={@notification.payload} locale={@locale} />
+      <td>{DateTimeDisplay.format_datetime_to_paris(@notification.timestamp, @locale)}</td>
+    </tr>
+    """
+  end
+
+  def notification_sent_details(
+        %{
+          reason: :resource_unavailable,
+          payload: %{"resource_ids" => resource_ids, "hours_consecutive_downtime" => _}
+        } = assigns
+      ) do
+    assigns =
+      assign(
+        assigns,
+        :resources,
+        DB.Resource |> where([r], r.id in ^resource_ids) |> Ecto.Query.select([r], [:title, :id]) |> DB.Repo.all()
+      )
+
+    ~H"""
+    <td>
+      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+        {resource.title}
+      </a>
+      &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
+    </td>
+    """
+  end
+
+  def notification_sent_details(%{reason: reason, payload: %{"resource_ids" => resource_ids}} = assigns)
+      when reason in [:dataset_with_error, :resource_unavailable] do
+    assigns =
+      assign(
+        assigns,
+        :resources,
+        DB.Resource |> where([r], r.id in ^resource_ids) |> Ecto.Query.select([r], [:title, :id]) |> DB.Repo.all()
+      )
+
+    ~H"""
+    <td>
+      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+        {resource.title}
+      </a>
+    </td>
+    """
+  end
+
+  def notification_sent_details(%{reason: :expiration} = assigns) do
+    ~H"""
+    <td>
+      {Shared.DateTimeDisplay.relative_datetime_in_days(@payload["delay"], @locale)}
+    </td>
+    """
   end
 end
 

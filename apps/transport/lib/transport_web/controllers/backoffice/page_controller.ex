@@ -7,7 +7,9 @@ defmodule TransportWeb.Backoffice.PageController do
 
   def end_dates_query do
     DB.Dataset.base_with_hidden_datasets()
-    |> DB.Dataset.join_from_dataset_to_metadata(Transport.Validators.GTFSTransport.validator_name())
+    |> DB.Dataset.join_from_dataset_to_metadata(
+      Enum.map(Transport.ValidatorsSelection.validators_for_feature(:backoffice_page_controller), & &1.validator_name())
+    )
     |> where([metadata: m], fragment("?->>'end_date' IS NOT NULL", m.metadata))
     |> group_by([dataset: d], d.id)
     |> select([dataset: d, metadata: m], %{dataset_id: d.id, end_date: fragment("max(?->>'end_date')", m.metadata)})
@@ -165,6 +167,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:subscriptions_by_producer, subscriptions_by_producer(conn.assigns[:dataset]))
     |> assign(:reusers_count, reusers_count)
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
+    |> assign(:resource_formats, resource_formats())
     |> assign(
       :import_logs,
       LogsImport
@@ -184,9 +187,19 @@ defmodule TransportWeb.Backoffice.PageController do
       :legal_owners_aom,
       :legal_owners_region,
       :declarative_spatial_areas,
-      :offers
+      :offers,
+      :dataset_subtypes,
+      :resources
     ])
     |> Repo.get(dataset_id)
+  end
+
+  defp resource_formats do
+    DB.Resource.base_query()
+    |> select([r], r.format)
+    |> group_by([r], r.format)
+    |> order_by([r], {:desc, count(r.format)})
+    |> DB.Repo.all()
   end
 
   def subscriptions_by_producer(%DB.Dataset{} = dataset) do
@@ -309,6 +322,12 @@ defmodule TransportWeb.Backoffice.PageController do
     end
   end
 
+  def clear_proxy_config(%Plug.Conn{} = conn, _) do
+    Application.fetch_env!(:transport, :unlock_config_fetcher).clear_config_cache!()
+
+    conn |> text("OK")
+  end
+
   def download_resources_csv(%Plug.Conn{} = conn, _) do
     %Postgrex.Result{columns: columns, rows: rows} = resources_query()
     filename = "ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv"
@@ -336,6 +355,7 @@ defmodule TransportWeb.Backoffice.PageController do
       'https://transport.data.gouv.fr/datasets/' || d.slug dataset_url,
       d.licence licence,
       d.type dataset_type,
+      ds.dataset_sub_types,
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
       re.nom nom_region,
@@ -405,6 +425,15 @@ defmodule TransportWeb.Backoffice.PageController do
     ) administrative_division on administrative_division.dataset_id = d.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(ds.slug, ',' order by ds.slug) dataset_sub_types
+      from dataset d
+      left join dataset_dataset_subtype dds on dds.dataset_id = d.id
+      left join dataset_subtype ds on ds.id = dds.dataset_subtype_id
+      group by d.id
+    ) ds on ds.dataset_id = d.id
     -- FIXME: we should be able to do a single query for `dataset_score`
     left join (
       select

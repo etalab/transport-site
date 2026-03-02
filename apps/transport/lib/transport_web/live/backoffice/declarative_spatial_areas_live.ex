@@ -7,18 +7,18 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     ~H"""
     <div class="pt-24">
       <label>
-        <%= dgettext("backoffice", "spatial areas label") %>
+        {dgettext("backoffice", "spatial areas label")}
       </label>
       <br />
-      <%= InputHelpers.text_input(
+      {InputHelpers.text_input(
         @form,
         :spatial_areas_search_input,
         placeholder: "Recherchez votre territoire…",
-        phx_keydown: "search_division",
+        phx_change: "change",
         phx_target: @myself,
         id: "spatial_areas_search_input",
         required: @required
-      ) %>
+      )}
       <div
         :if={@administrative_division_search_matches != []}
         class="autoCompleteResultsField"
@@ -31,9 +31,9 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
             <%= for match <- @administrative_division_search_matches do %>
               <li class="autoComplete_result" phx-target={@myself} phx-click="select_division" phx-value-id={match.id} }>
                 <div>
-                  <span class="autocomplete_name"><%= match.nom %></span>
+                  <span class="autocomplete_name">{match.nom}</span>
                   <span class="autocomplete_type">
-                    <%= match.insee %> – <%= DB.AdministrativeDivision.display_type(match) %>
+                    {match.insee} – {DB.AdministrativeDivision.display_type(match)}
                   </span>
                 </div>
               </li>
@@ -44,10 +44,10 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
 
       <div :for={{division, index} <- Enum.with_index(@declarative_spatial_areas)} class="pt-6">
         <span class={["label", "custom-tag"] ++ [color_class(division)]}>
-          <%= division.nom %> (<%= division.insee %> – <%= DB.AdministrativeDivision.display_type(division) %>)
+          {division.nom} ({division.insee} – {DB.AdministrativeDivision.display_type(division)})
           <span class="delete-tag" phx-click="remove_division" phx-value-id={division.id} phx-target={@myself}></span>
         </span>
-        <%= Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id) %>
+        {Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id)}
       </div>
 
       <script nonce={@nonce}>
@@ -65,6 +65,12 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
               item.classList.add("autoComplete_selected");
             }
           });
+        }
+
+        window.onclick = function(event) {
+          if (!event.target.matches('#autoCompleteResults')) {
+            document.getElementById("autoCompleteResults").classList.add('hidden');
+          }
         }
 
         searchInput.addEventListener('keydown', (event) => {
@@ -118,15 +124,11 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
     {:ok, socket |> assign(assigns) |> assign(:required, assigns.declarative_spatial_areas |> Enum.empty?())}
   end
 
-  def handle_event("search_division", %{"key" => "Escape"}, socket) do
-    {:noreply, assign(socket, administrative_division_search_matches: [])}
+  def handle_event("change", %{"form" => %{"spatial_areas_search_input" => ""}}, socket) do
+    {:noreply, assign(socket, matches: [], administrative_division_search_matches: [])}
   end
 
-  def handle_event("search_division", %{"value" => ""}, socket) do
-    {:noreply, assign(socket, matches: [])}
-  end
-
-  def handle_event("search_division", %{"value" => query}, socket) when byte_size(query) <= 100 do
+  def handle_event("change", %{"form" => %{"spatial_areas_search_input" => query}}, socket) do
     existing_ids = Enum.map(socket.assigns.declarative_spatial_areas, & &1.id)
 
     matches =
@@ -137,10 +139,6 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
       |> Enum.take(5)
 
     {:noreply, assign(socket, administrative_division_search_matches: matches)}
-  end
-
-  def handle_event("search_division", _, socket) do
-    {:noreply, socket}
   end
 
   def handle_event("select_division", %{"id" => id}, socket) do

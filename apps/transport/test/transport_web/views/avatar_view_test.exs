@@ -1,12 +1,16 @@
 defmodule TransportWeb.LayoutViewTest do
   use TransportWeb.ConnCase, async: true
   use TransportWeb.DatabaseCase, cleanup: []
+  import DB.Factory
   import Plug.Test
 
   @moduletag :view
 
   setup do
+    contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+
     current_user = %{
+      "id" => contact.datagouv_user_id,
       "avatar_thumbnail" => "https://avatar.co/tristram",
       "first_name" => "Tristram",
       "last_name" => "Gräbener"

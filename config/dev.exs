@@ -17,7 +17,7 @@ config :transport, TransportWeb.Endpoint,
   # NOTE: this is required to ensure code reloading will work.
   # A page reload is required to trigger this. More apps could
   # be added when needed here, we just added what we needed.
-  reloadable_apps: [:shared, :transport, :datagouvfr]
+  reloadable_apps: [:shared, :transport]
 
 # Uncomment this to avoid having to restart the app for each change in description
 # See https://github.com/open-api-spex/open_api_spex#serve-the-spec
@@ -38,7 +38,7 @@ config :transport, TransportWeb.Endpoint,
   ]
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :default_formatter, format: "[$level] $message\n"
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
@@ -83,6 +83,11 @@ config :oauth2, Datagouvfr.Authentication,
 # Allows emails to be read at localhost:5000/dev/mailbox
 # Add a dev.secret.exs to use a real email provider
 config :transport, Transport.Mailer, adapter: Swoosh.Adapters.Local
+
+config :phoenix_live_view,
+  debug_heex_annotations: true,
+  debug_attributes: true,
+  enable_expensive_runtime_checks: true
 
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 

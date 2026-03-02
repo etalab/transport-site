@@ -3,6 +3,7 @@ defmodule TransportWeb.AOMsControllerTest do
   import DB.Factory
 
   setup do
+    Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

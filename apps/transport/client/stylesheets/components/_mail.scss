@@ -45,6 +45,8 @@ a.mail__button:hover {
   position: fixed;
   right: 1em;
   z-index: 10000;
+  height: 100%;
+  overflow-y: auto;
 
   h3 {
     color: $blue;

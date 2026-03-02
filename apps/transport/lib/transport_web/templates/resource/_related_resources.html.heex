@@ -1,15 +1,13 @@
 <% resources_by_id = Enum.into(@resource.dataset.resources, %{}, fn %DB.Resource{id: id} = r -> {id, r} end) %>
-<h2 id="related-resources"><%= dgettext("page-dataset-details", "Related resources") %></h2>
+<h2 id="related-resources">{dgettext("page-dataset-details", "Related resources")}</h2>
 <section>
   <div class="ressources-list">
     <%= for resource_related_details <- @resource.resources_related do %>
       <% related_resource = Map.fetch!(resources_by_id, resource_related_details.resource_dst_id) %>
       <div class="panel resource">
-        <h4><a href={resource_path(@conn, :details, related_resource.id)}><%= related_resource.title %></a></h4>
+        <h4><a href={resource_path(@conn, :details, related_resource.id)}>{related_resource.title}</a></h4>
         <div class="pt-12">
-          <i class="icon fa fa-link" aria-hidden="true"></i><%= DB.ResourceRelated.reason_to_str(
-            resource_related_details
-          ) %>
+          <i class="icon fa fa-link" aria-hidden="true"></i>{DB.ResourceRelated.reason_to_str(resource_related_details)}
         </div>
       </div>
     <% end %>

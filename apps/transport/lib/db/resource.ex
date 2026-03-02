@@ -13,6 +13,7 @@ defmodule DB.Resource do
     # The resource's real URL
     field(:url, :string)
     field(:format, :string)
+    field(:format_override, :string)
     field(:last_import, :utc_datetime_usec)
     field(:title, :string)
     field(:last_update, :utc_datetime_usec)
@@ -305,6 +306,14 @@ defmodule DB.Resource do
       _ ->
         resource_history_list |> Enum.at(0)
     end
+  end
+
+  def download_validation_report_url(%Plug.Conn{} = conn, %__MODULE__{format: "NeTEx"} = resource) do
+    resource_url(conn, :download_validation_report, resource.id)
+  end
+
+  def download_validation_report_url(%Plug.Conn{} = _conn, %__MODULE__{} = _resource) do
+    nil
   end
 
   def download_url(%__MODULE__{} = resource) do

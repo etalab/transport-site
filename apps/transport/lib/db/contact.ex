@@ -29,6 +29,7 @@ defmodule DB.Contact do
     field(:phone_number, DB.Encrypted.Binary)
     field(:secondary_phone_number, DB.Encrypted.Binary)
     field(:last_login_at, :utc_datetime_usec)
+    field(:locale, :string)
 
     field(:creation_source, Ecto.Enum,
       values: [

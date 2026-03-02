@@ -172,9 +172,20 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       assert DB.ResourceHistory.gtfs_flex?(resource_history)
 
+      validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+          resource_history_id: resource_history.id
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: validation.id,
+        metadata: metadata = %{start_date: Date.utc_today() |> Date.add(-5), end_date: Date.utc_today() |> Date.add(5)}
+      )
+
       assert %{
                freshness: 1.0,
-               raw_measure: %{source: "gtfs_flex"}
+               raw_measure: ^metadata
              } = resource_freshness(resource)
     end
   end
@@ -376,7 +387,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: rh_geojson_resource,
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"has_errors" => true},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
@@ -459,6 +470,26 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
              } == current_dataset_compliance(dataset.id)
     end
 
+    test "with a GTFS-Flex" do
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
+
+      insert(:multi_validation, %{
+        resource_history:
+          insert(:resource_history, resource: gtfs = insert(:resource, dataset: dataset, format: "GTFS")),
+        validator: Transport.Validators.MobilityDataGTFSValidator.validator_name(),
+        max_error: "ERROR"
+      })
+
+      assert %{
+               score: 0.0,
+               details: %{
+                 resources: [
+                   %{compliance: 0.0, raw_measure: %{"max_error" => "ERROR"}, resource_id: gtfs.id}
+                 ]
+               }
+             } == current_dataset_compliance(dataset.id)
+    end
+
     test "handles validation_performed = false with 2 resources" do
       dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true)
       schema_name = "etalab/#{Ecto.UUID.generate()}"
@@ -467,14 +498,14 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: geojson_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"has_errors" => false},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: zip_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: %{"validation_performed" => false},
         inserted_at: DateTime.utc_now() |> DateTime.add(-45, :minute)
       })
@@ -496,7 +527,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
 
       insert(:multi_validation, %{
         resource_history: insert(:resource_history, resource: geojson_resource),
-        validator: Transport.Validators.EXJSONSchema.validator_name(),
+        validator: Transport.Validators.JSONSchema.validator_name(),
         result: nil,
         digest: %{"errors_count" => 0}
       })
@@ -947,7 +978,7 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                    "previous_score" => nil,
                    "today_score" => 1.0,
                    "resources" => [
-                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => nil}, "resource_id" => ^resource_id}
+                     %{"compliance" => 1.0, "raw_measure" => %{"max_error" => "NoError"}, "resource_id" => ^resource_id}
                    ]
                  }
                }

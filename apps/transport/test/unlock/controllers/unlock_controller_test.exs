@@ -12,7 +12,7 @@ defmodule Unlock.ControllerTest do
   setup :set_mox_from_context
 
   setup do
-    Cachex.clear(Unlock.Cachex)
+    Cachex.clear(Unlock.Shared.cache_name())
     setup_telemetry_handler()
   end
 
@@ -138,18 +138,9 @@ defmodule Unlock.ControllerTest do
       # unzipped for now
       assert resp.resp_body == "<Everything></Everything>"
 
-      our_headers = [
-        "x-request-id",
-        "cache-control",
-        "content-disposition",
-        "access-control-allow-origin",
-        "access-control-expose-headers",
-        "access-control-allow-credentials"
-      ]
-
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
       assert remaining_headers == expected_forwarded_response_headers
     end
@@ -269,18 +260,9 @@ defmodule Unlock.ControllerTest do
       # due to incorrect content-type headers from the remote
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
 
-      our_headers = [
-        "x-request-id",
-        "cache-control",
-        "content-disposition",
-        "access-control-allow-origin",
-        "access-control-expose-headers",
-        "access-control-allow-credentials"
-      ]
-
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
       assert remaining_headers == expected_forwarded_response_headers
 
@@ -290,8 +272,8 @@ defmodule Unlock.ControllerTest do
       Unlock.HTTP.Client.Mock
       |> expect(:get!, 0, fn _url, _headers, _options -> nil end)
 
-      {:ok, ttl} = Cachex.ttl(Unlock.Cachex, "resource:an-existing-identifier")
-      assert_in_delta ttl / 1000.0, ttl_in_seconds, 1
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-identifier")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
 
       resp =
         proxy_conn()
@@ -307,8 +289,92 @@ defmodule Unlock.ControllerTest do
       # NOTE: this whole test will have to be DRYed
       remaining_headers =
         resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(our_headers, h) end)
+        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
 
+      assert remaining_headers == expected_forwarded_response_headers
+
+      verify!(Unlock.HTTP.Client.Mock)
+    end
+
+    test "handles GET /resource/:slug with disk caching" do
+      slug = "an-existing-identifier"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.Generic.HTTP{
+          identifier: slug,
+          target_url: target_url = "http://localhost/some-remote-resource",
+          ttl: ttl_in_seconds = 30,
+          caching: "disk"
+        }
+      })
+
+      expected_forwarded_response_headers = [
+        {"content-type", "application/json"},
+        {"content-length", "7350"},
+        {"date", "Thu, 10 Jun 2021 19:45:14 GMT"},
+        {"last-modified", "Thu, 10 Jun 2021 18:30:00 GMT"},
+        {"etag", "foobar"}
+      ]
+
+      assert expected_forwarded_response_headers |> Map.new() |> Map.keys() |> MapSet.new() ==
+               Shared.Proxy.forwarded_headers_allowlist() |> MapSet.new()
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:stream!, fn ^target_url, [] = _headers, path ->
+        File.write!(path, "somebody-to-love")
+
+        headers =
+          expected_forwarded_response_headers ++
+            [
+              # unwanted headers
+              {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
+              {"x-cache", "Miss from cloudfront"}
+            ]
+
+        %Unlock.HTTP.Response{body: nil, status: 200, headers: headers}
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-identifier")
+
+      assert resp.resp_body == "somebody-to-love"
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
+
+      # these ones are added by our pipeline for now
+      assert Plug.Conn.get_resp_header(resp, "x-request-id")
+      # we'll provide a finer grained algorithm later if useful, for now assume no cache is done
+      assert Plug.Conn.get_resp_header(resp, "cache-control") == [
+               "max-age=0, private, must-revalidate"
+             ]
+
+      # we enforce downloads for now, even if this results sometimes in incorrect filenames
+      # due to incorrect content-type headers from the remote
+      assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment"]
+
+      remaining_headers = Enum.reject(resp.resp_headers, fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
+      assert remaining_headers == expected_forwarded_response_headers
+
+      verify!(Unlock.HTTP.Client.Mock)
+
+      # Data has been saved to disk
+      path = System.tmp_dir!() |> Path.join("unlock_disk_cache:" <> slug)
+      assert File.exists?(path)
+      assert File.read!(path) == "somebody-to-love"
+
+      # subsequent queries should work based on cache
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:#{slug}")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
+      resp = proxy_conn() |> get("/resource/#{slug}")
+      assert resp.resp_body == "somebody-to-love"
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:an-existing-identifier"}}
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{}, %{target: "proxy:an-existing-identifier"}}
+
+      remaining_headers = Enum.reject(resp.resp_headers, fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
       assert remaining_headers == expected_forwarded_response_headers
 
       verify!(Unlock.HTTP.Client.Mock)
@@ -444,7 +510,7 @@ defmodule Unlock.ControllerTest do
           resp = proxy_conn() |> get("/resource/#{identifier}")
 
           # Got an exception, nothing is stored in cache
-          assert {:ok, []} == Cachex.keys(Unlock.Cachex)
+          assert {:ok, []} == Cachex.keys(Unlock.Shared.cache_name())
           assert resp.status == 502
           assert resp.resp_body == "Bad Gateway"
         end)
@@ -843,27 +909,226 @@ defmodule Unlock.ControllerTest do
       })
 
       content = "CONTENT"
+      etag = Ecto.UUID.generate()
 
       Transport.ExAWS.Mock
       |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
         assert %ExAws.Operation.S3{
                  bucket: ^expected_bucket,
                  path: ^path,
-                 http_method: :get,
+                 http_method: :head,
                  service: :s3
                } = operation
 
-        %{body: content, status_code: 200}
+        %{headers: [{"x-header", "foo"}, {"etag", etag}], status_code: 200}
       end)
 
-      resp =
-        proxy_conn()
-        |> get("/resource/an-existing-s3-identifier")
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
 
       assert resp.resp_body == content
       assert resp.status == 200
+      # original headers are not forwarded
+      assert Plug.Conn.get_resp_header(resp, "x-header") == []
       # enforce the filename provided via the config (especially to get its extension passed to clients)
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again, should hit the cache
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      refute_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug - checks ETag and skips download if it stayed the same" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = -1
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+      etag = Ecto.UUID.generate()
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again, should hit the cache
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      verify!(Transport.ExAWS.Mock)
+    end
+
+    test "handles GET /resource/:slug - checks ETag and downloads again if ETag changed" do
+      slug = "an-existing-s3-identifier"
+      ttl_in_seconds = -1
+      bucket_key = "aggregates"
+      path = "irve_static_consolidation.csv"
+      # automatically built by the app based on `bucket_key`
+      expected_bucket = "transport-data-gouv-fr-aggregates-test"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.S3{
+          identifier: slug,
+          bucket: bucket_key,
+          path: path,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      content = "CONTENT"
+      etag = Ecto.UUID.generate()
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+
+      assert resp.resp_body == content
+      assert resp.status == 200
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-s3-identifier"}}
+
+      # Downloading again
+      # But this time the ETag changed! We should download again.
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.Operation.S3{} = operation ->
+        assert %ExAws.Operation.S3{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 http_method: :head,
+                 service: :s3
+               } = operation
+
+        %{headers: [{"etag", etag <> Ecto.UUID.generate()}], status_code: 200}
+      end)
+
+      Transport.ExAWS.Mock
+      |> expect(:request!, fn %ExAws.S3.Download{} = operation ->
+        assert %ExAws.S3.Download{
+                 bucket: ^expected_bucket,
+                 path: ^path,
+                 dest: dest,
+                 service: :s3
+               } = operation
+
+        File.write!(dest, content)
+      end)
+
+      resp = proxy_conn() |> get("/resource/an-existing-s3-identifier")
+      assert resp.resp_body == content
+      assert resp.status == 200
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-s3-identifier"}}
@@ -917,6 +1182,187 @@ defmodule Unlock.ControllerTest do
     end
   end
 
+  describe "GBFS item support" do
+    test "handles GET /resource/:slug/gbfs.json (success case)" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      setup_remote_responses(%{
+        base_url => {200, %{"feed" => base_url, "data" => "foobar"} |> Jason.encode!()}
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}/gbfs.json")
+
+      assert resp.resp_body ==
+               %{"feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/gbfs.json", "data" => "foobar"}
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:gbfs.json"]} == Cachex.keys(Unlock.Shared.cache_name())
+      {:ok, ttl} = Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:gbfs.json")
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "handles GET /resource/:slug/system_information.json (success case)" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+      requested_url = "https://example.com/system_information.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      setup_remote_responses(%{
+        requested_url => {200, %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()}
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
+
+      assert resp.resp_body ==
+               %{"feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/system_information.json", "data" => "foobar"}
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} ==
+               Cachex.keys(Unlock.Shared.cache_name())
+
+      {:ok, ttl} =
+        Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "config with query string, request and response headers" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json?key=foobar"
+      requested_url = "https://example.com/system_information.json?key=foobar"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds,
+          request_headers: [{"x-key", "foo"}],
+          response_headers: [{"x-key", "foobar"}]
+        }
+      })
+
+      Unlock.HTTP.Client.Mock
+      |> expect(:get!, fn ^requested_url, [{"x-key", "foo"}], [] ->
+        body = %{"feed" => requested_url, "data" => "foobar"} |> Jason.encode!()
+        %Unlock.HTTP.Response{body: body, status: 200, headers: [{"ETag", "etag-value"}]}
+      end)
+
+      resp = proxy_conn() |> get("/resource/#{slug}/system_information.json")
+
+      assert resp.resp_body ==
+               %{
+                 "feed" => "http://proxy.127.0.0.1:5100/resource/#{slug}/system_information.json",
+                 "data" => "foobar"
+               }
+               |> Jason.encode!()
+
+      assert resp.status == 200
+
+      assert [
+               {"cache-control", "max-age=0, private, must-revalidate"},
+               {"x-request-id", _},
+               {"access-control-allow-origin", "*"},
+               {"access-control-expose-headers", "*"},
+               # present in the response, should be forwarded
+               {"etag", "etag-value"},
+               # present in `response_headers`, should have been added
+               {"x-key", "foobar"}
+             ] = resp.resp_headers
+
+      # Cache exist and has been set up properly
+      assert {:ok, ["resource:an-existing-gbfs-identifier:system_information.json"]} ==
+               Cachex.keys(Unlock.Shared.cache_name())
+
+      {:ok, ttl} =
+        Cachex.ttl(Unlock.Shared.cache_name(), "resource:an-existing-gbfs-identifier:system_information.json")
+
+      assert_in_delta ttl / 1_000, ttl_in_seconds, 1
+
+      assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+
+      assert_received {:telemetry_event, [:proxy, :request, :external], %{},
+                       %{target: "proxy:an-existing-gbfs-identifier"}}
+    end
+
+    test "root request without endpoint" do
+      slug = "an-existing-gbfs-identifier"
+      ttl_in_seconds = 30
+      base_url = "https://example.com/gbfs.json"
+
+      setup_proxy_config(%{
+        slug => %Unlock.Config.Item.GBFS{
+          identifier: slug,
+          base_url: base_url,
+          ttl: ttl_in_seconds
+        }
+      })
+
+      resp = proxy_conn() |> get("/resource/#{slug}")
+
+      assert resp.status == 404
+
+      assert {:ok, []} == Cachex.keys(Unlock.Shared.cache_name())
+    end
+  end
+
   defp setup_telemetry_handler do
     events = Unlock.Telemetry.proxy_request_event_names()
 
@@ -945,5 +1391,16 @@ defmodule Unlock.ControllerTest do
       end,
       nil
     )
+  end
+
+  defp existing_proxy_headers do
+    [
+      "x-request-id",
+      "cache-control",
+      "content-disposition",
+      "access-control-allow-origin",
+      "access-control-expose-headers",
+      "access-control-allow-credentials"
+    ]
   end
 end

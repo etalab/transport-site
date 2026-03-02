@@ -152,7 +152,7 @@ msgstr "Aucun jeu de données trouvé"
 
 #, elixir-autogen, elixir-format
 msgid "Alphabetical"
-msgstr "Ordre alphabetique"
+msgstr "Ordre alphabétique"
 
 #, elixir-autogen, elixir-format
 msgid "Most recently added"
@@ -205,8 +205,8 @@ msgstr "région"
 #, elixir-format, elixir-autogen
 msgid "result"
 msgid_plural "results"
-msgstr[0] "résultat"
-msgstr[1] "résultats"
+msgstr[0] "%{value} résultat pour \"%{q}\""
+msgstr[1] "%{value} résultats pour \"%{q}\""
 
 #, elixir-autogen, elixir-format
 msgid "city"
@@ -233,9 +233,21 @@ msgid "Resource format"
 msgstr "Format de ressource"
 
 #, elixir-autogen, elixir-format
+msgid "Sub type"
+msgstr "Sous-type"
+
+#, elixir-autogen, elixir-format
 msgid "department"
 msgstr "département"
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "EPCI %{name} has not yet published any datasets"
 msgstr "L'EPCI %{name} n'a pas encore publié de données"
+
+#, elixir-autogen, elixir-format
+msgid "transport offer"
+msgstr "offre de transport"
+
+#, elixir-autogen, elixir-format
+msgid "data format"
+msgstr "format de données"

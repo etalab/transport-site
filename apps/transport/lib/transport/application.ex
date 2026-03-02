@@ -9,7 +9,7 @@ defmodule Transport.Application do
   use Application
   use Task
   import Cachex.Spec
-  alias Transport.{CachedFiles, ImportDataWorker, SearchCommunes}
+  alias Transport.{CachedFiles, DatasetIndex, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
 
   @cache_name :transport
@@ -33,6 +33,7 @@ defmodule Transport.Application do
         ImportDataWorker,
         CachedFiles,
         SearchCommunes,
+        DatasetIndex,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
         TransportWeb.Presence,
         # Oban is "always started", but muted via `config/runtime.exs` for cases like
@@ -46,7 +47,8 @@ defmodule Transport.Application do
            name: Unlock.Cachex,
            expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
-        )
+        ),
+        Unlock.BatchMetrics
       ]
       |> add_scheduler()
       |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)
@@ -61,6 +63,8 @@ defmodule Transport.Application do
 
     :ok = Transport.Telemetry.setup()
     :ok = Transport.AppSignal.EctoTelemetry.setup()
+
+    LoggerBackends.add(Sentry.LoggerBackend)
 
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)

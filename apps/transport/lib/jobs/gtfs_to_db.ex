@@ -13,11 +13,13 @@ defmodule Transport.Jobs.GtfsToDB do
     fill_calendar_from_resource_history(resource_history_id, data_import_id)
     fill_calendar_dates_from_resource_history(resource_history_id, data_import_id)
     fill_trips_from_resource_history(resource_history_id, data_import_id)
+    fill_agency_from_resource_history(resource_history_id, data_import_id)
   end
 
-  def import_gtfs_from_resource_history(resource_history_id, :stops) do
+  def import_gtfs_from_resource_history(resource_history_id, :stops_and_agencies) do
     %{id: data_import_id} = %DB.DataImport{resource_history_id: resource_history_id} |> DB.Repo.insert!()
     fill_stops_from_resource_history(resource_history_id, data_import_id)
+    fill_agency_from_resource_history(resource_history_id, data_import_id)
     data_import_id
   end
 
@@ -47,7 +49,7 @@ defmodule Transport.Jobs.GtfsToDB do
           location_type: r |> Utils.csv_get_with_default!("location_type", "0", false) |> String.to_integer()
         }
       end)
-      |> Stream.chunk_every(1000)
+      |> Stream.chunk_every(1_000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Stops, chunk) end)
       |> Stream.run()
     end)
@@ -80,7 +82,7 @@ defmodule Transport.Jobs.GtfsToDB do
         res
         |> Map.put(:days, get_dow_array([monday, tuesday, wednesday, thursday, friday, saturday, sunday]))
       end)
-      |> Stream.chunk_every(1000)
+      |> Stream.chunk_every(1_000)
       |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Calendar, chunk) end)
       |> Stream.run()
     end)
@@ -119,7 +121,7 @@ defmodule Transport.Jobs.GtfsToDB do
             stop_sequence: r |> Map.fetch!("stop_sequence") |> String.to_integer()
           }
         end)
-        |> Stream.chunk_every(1000)
+        |> Stream.chunk_every(1_000)
         |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.StopTimes, chunk) end)
         |> Stream.run()
       end,
@@ -171,7 +173,7 @@ defmodule Transport.Jobs.GtfsToDB do
             exception_type: r |> Map.fetch!("exception_type") |> String.to_integer()
           }
         end)
-        |> Stream.chunk_every(1000)
+        |> Stream.chunk_every(1_000)
         |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.CalendarDates, chunk) end)
         |> Stream.run()
       end,
@@ -197,11 +199,40 @@ defmodule Transport.Jobs.GtfsToDB do
             trip_id: r |> Map.fetch!("trip_id")
           }
         end)
-        |> Stream.chunk_every(1000)
+        |> Stream.chunk_every(1_000)
         |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Trips, chunk) end)
         |> Stream.run()
       end,
       timeout: 240_000
     )
+  end
+
+  def fill_agency_from_resource_history(resource_history_id, data_import_id) do
+    file_stream = file_stream(resource_history_id, "agency.txt")
+    agency_stream_insert(file_stream, data_import_id)
+  end
+
+  def agency_stream_insert(file_stream, data_import_id) do
+    DB.Repo.transaction(fn ->
+      file_stream
+      |> Utils.to_stream_of_maps()
+      |> Stream.map(fn r ->
+        %{
+          data_import_id: data_import_id,
+          agency_id: r |> Map.fetch!("agency_id"),
+          agency_name: r |> Map.fetch!("agency_name"),
+          agency_url: r |> Map.fetch!("agency_url"),
+          agency_timezone: r |> Map.fetch!("agency_timezone"),
+          agency_lang: r |> Utils.csv_get_with_default("agency_lang", nil),
+          agency_phone: r |> Utils.csv_get_with_default("agency_phone", nil),
+          agency_fare_url: r |> Utils.csv_get_with_default("agency_fare_url", nil),
+          agency_email: r |> Utils.csv_get_with_default("agency_email", nil),
+          cemv_support: r |> Utils.csv_get_with_default("cemv_support", "0") |> String.to_integer()
+        }
+      end)
+      |> Stream.chunk_every(1_000)
+      |> Stream.each(fn chunk -> DB.Repo.insert_all(DB.GTFS.Agency, chunk) end)
+      |> Stream.run()
+    end)
   end
 end

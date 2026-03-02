@@ -1,22 +1,22 @@
 <section>
   <div class="container">
     <div class="validation-title">
-      <h2><%= dgettext("validations", "Validation results") %></h2>
+      <h2>{dgettext("validations", "Validation results")}</h2>
       <p>
-        <%= dgettext("validations", "This report can be shared with") %>
-        <%= link(dgettext("validations", "this permanent link"), to: current_url(@conn)) %>
-        <%= dgettext("validations", "during %{retention_days} days",
+        {dgettext("validations", "This report can be shared with")}
+        {link(dgettext("validations", "this permanent link"), to: current_url(@conn))}
+        {dgettext("validations", "during %{retention_days} days",
           retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
-        ) %>.
+        )}.
       </p>
       <p class="small">
-        <%= dgettext("validations", "Validation performed at %{date}.",
+        {dgettext("validations", "Validation performed at %{date}.",
           date:
             Shared.DateTimeDisplay.format_datetime_to_paris(
               @validation.validation_timestamp,
               get_session(@conn, :locale)
             )
-        ) %>
+        )}
       </p>
     </div>
   </div>
@@ -24,7 +24,7 @@
   <div class="validation-content">
     <div class="container">
       <p class="notification warning">
-        <%= dgettext("validations", "This validation is now expired. Results cannot be accessed anymore.") %>
+        {dgettext("validations", "This validation is now expired. Results cannot be accessed anymore.")}
       </p>
     </div>
   </div>

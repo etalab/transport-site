@@ -16,16 +16,8 @@ msgid "Adding a dataset guidelines"
 msgstr "Consultez le guide de publication"
 
 #, elixir-autogen, elixir-format
-msgid "Contact us"
-msgstr "Contacter l'équipe"
-
-#, elixir-autogen, elixir-format
 msgid "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
 msgstr "Afin que nous puissions référencer vos données de mobilité sur le Point d'Accès National, vous devez les ajouter sur data.gouv.fr en publiant un nouveau jeu de données."
-
-#, elixir-autogen, elixir-format
-msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
-msgstr "Une question sur la meilleure manière de publier de données ou de les mettre à jour ? Si vous ne trouvez pas de réponses sur le site, contactez-nous à l'adresse :"
 
 #, elixir-autogen, elixir-format
 msgid "Publish a dataset"
@@ -40,10 +32,6 @@ msgid "Publishing best practices"
 msgstr "Les bonnes pratiques de publication"
 
 #, elixir-autogen, elixir-format
-msgid "Update a dataset"
-msgstr "Mettre à jour un jeu de données"
-
-#, elixir-autogen, elixir-format
 msgid "Update a resource"
 msgstr "Modifier une ressource"
 
@@ -54,18 +42,6 @@ msgstr "Des ressources pour vous aider"
 #, elixir-autogen, elixir-format
 msgid "Validate your datasets"
 msgstr "Tester vos jeux de données"
-
-#, elixir-autogen, elixir-format
-msgid "Your producer space"
-msgstr "Votre espace producteur"
-
-#, elixir-autogen, elixir-format
-msgid "What would you like to do?"
-msgstr "Que souhaitez-vous faire ?"
-
-#, elixir-autogen, elixir-format
-msgid "You have no resource to update for the moment"
-msgstr "Vous n'avez pas de ressource à mettre à jour pour le moment"
 
 #, elixir-autogen, elixir-format
 msgid "New resource"
@@ -114,20 +90,6 @@ msgstr "Vos statistiques proxy"
 #, elixir-autogen, elixir-format
 msgid "Delete a resource"
 msgstr "Supprimer une ressource"
-
-#, elixir-autogen, elixir-format
-msgid "1 resource"
-msgid_plural "%{count} resources"
-msgstr[0] "1 ressource"
-msgstr[1] "%{count} ressources"
-
-#, elixir-autogen, elixir-format
-msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
-msgstr "%{nb_downloads} <div class=\"tooltip\">téléchargements en %{year}<span class=\"tooltiptext\">Nombre de téléchargements pour tous les fichiers hébergés sur data.gouv.fr</span></div>"
-
-#, elixir-autogen, elixir-format
-msgid "Edit"
-msgstr "Éditer"
 
 #, elixir-autogen, elixir-format
 msgid "Update your logo"
@@ -295,7 +257,7 @@ msgstr "Envoyer un fichier"
 
 #, elixir-autogen, elixir-format
 msgid "or"
-msgstr ""
+msgstr "ou"
 
 #, elixir-autogen, elixir-format
 msgid "title"
@@ -332,3 +294,191 @@ msgstr "Repartage des données améliorées"
 #, elixir-autogen, elixir-format
 msgid "Compare with my GTFS"
 msgstr "Comparer avec mon GTFS"
+
+#, elixir-autogen, elixir-format
+msgid "Datasets of your organisation"
+msgstr "Jeux de données de votre organisation"
+
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr "Gérer"
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr "Espace producteur"
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr "Jeu de données"
+
+#, elixir-autogen, elixir-format
+msgid "Download statistics"
+msgstr "Statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "Downloads for %{year}"
+msgstr "Téléchargements de l'année %{year}"
+
+#, elixir-autogen, elixir-format
+msgid "Get access to download statistics for your resources."
+msgstr "Accédez aux statistiques de téléchargements de vos ressources."
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr "Ressource"
+
+#, elixir-autogen, elixir-format
+msgid "Your download statistics"
+msgstr "Vos statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr "Télécharger les statistiques du proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Download download statistics"
+msgstr "Télécharger les statistiques de téléchargements"
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr "Fichier : <strong>%{name}</strong>"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr "Fichier invalide"
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr "Pas d'erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr "Voir le rapport de validation"
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr "Essayer à nouveau"
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr "Ressource arrivant à expiration"
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr "Ressource invalide"
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr "Ressource indisponible"
+
+#, elixir-autogen, elixir-format
+msgid "See the discussion"
+msgstr "Voir la discussion"
+
+#, elixir-autogen, elixir-format
+msgid "unanswered_discussions"
+msgstr "Discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "Discussion"
+msgstr "Discussion"
+
+#, elixir-autogen, elixir-format
+msgid "Link"
+msgstr "Lien"
+
+#, elixir-autogen, elixir-format
+msgid "Unanswered discussions"
+msgstr "Discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "You have no unanswered discussions."
+msgstr "Vous n'avez aucune discussion sans réponse."
+
+#, elixir-autogen, elixir-format
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr "Vous trouverez ci-dessous les données de téléchargement pour vos ressources. Les statistiques peuvent être téléchargées en bas de page."
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions"
+msgstr "Voir les discussions sans réponse"
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions on your datasets."
+msgstr "Voir les discussions sans réponse sur vos jeux de données."
+
+#, elixir-autogen, elixir-format
+msgid "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation."
+msgstr "Vous trouverez ici les discussions qui n'ont pas été clôturées et où la dernière personne ayant répondu n'est pas membre de votre organisation."
+
+#, elixir-autogen, elixir-format
+msgid "Start the validation"
+msgstr "Démarrer la validation"
+
+#, elixir-autogen, elixir-format
+msgid "Drop your file here or click to browse your local drive"
+msgstr "Glissez un fichier ici ou cliquez pour parcourir vos répertoires locaux"
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr "Ressource expirée"
+
+#, elixir-autogen, elixir-format
+msgid "recent_discussions"
+msgstr "Discussion récente"
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr "Découvrir les nouveautés"
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr "Nouvelles fonctionnalités disponibles"
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr "Nouvelles fonctionnalités"
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
+msgstr "Vous trouverez ci-dessous les statistiques du proxy pour vos ressources. Vous pouvez télécharger les statistiques détaillées au format CSV en utilisant le bouton ci-dessus."
+
+#, elixir-autogen, elixir-format
+msgid "Proxy requests"
+msgstr "Requêtes proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by the proxy"
+msgstr "Requêtes gérées par le proxy"
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by upstream"
+msgstr "Requêtes transmises à la source"
+
+#, elixir-autogen, elixir-format
+msgid "Upstream requests"
+msgstr "Requêtes source"
+
+#, elixir-autogen, elixir-format
+msgid "View detailed statistics"
+msgstr "Voir les statistiques détaillées"
+
+#, elixir-autogen, elixir-format
+msgid "over the last %{nb} days"
+msgstr "sur les %{nb} derniers jours"
+
+#, elixir-autogen, elixir-format
+msgid "Important information regarding your resources"
+msgstr "Informations importantes concernant vos ressources"
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgstr "Information"
+
+#, elixir-autogen, elixir-format
+msgid "The following information require your attention."
+msgstr "Les informations suivantes requièrent votre attention."
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
+msgstr "Services disponibles"

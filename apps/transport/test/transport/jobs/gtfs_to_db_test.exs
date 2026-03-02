@@ -141,6 +141,29 @@ defmodule Transport.Jobs.GtfsToDBTest do
                data_import_id: ^data_import_id
              } = trip_2
     end
+
+    test "import agencies" do
+      %{id: resource_history_id} = :resource_history |> insert(payload: %{})
+      %{id: data_import_id} = :data_import |> insert(resource_history_id: resource_history_id)
+
+      stream_local_file("agency.txt", "#{__DIR__}/../../fixture/files/gtfs_import.zip")
+      |> agency_stream_insert(data_import_id)
+
+      assert [
+               %DB.GTFS.Agency{
+                 data_import_id: ^data_import_id,
+                 agency_id: "76",
+                 agency_name: "Frioul If Express",
+                 agency_url: "http://www.lepilote.com",
+                 agency_timezone: "Europe/Paris",
+                 agency_lang: "fr",
+                 agency_phone: nil,
+                 agency_fare_url: nil,
+                 agency_email: nil,
+                 cemv_support: 0
+               }
+             ] = DB.GTFS.Agency |> DB.Repo.all()
+    end
   end
 
   def stream_local_file(file_name, zip_path) do

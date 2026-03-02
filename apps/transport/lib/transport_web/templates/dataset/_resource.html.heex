@@ -1,35 +1,26 @@
 <% locale = get_session(@conn, :locale) %>
-<% has_conversions = ResourceView.has_associated_files(@resources_related_files, @resource.id) %>
 <% unavailabilities = @resources_infos.unavailabilities %>
 <% validation = latest_validation(@resource, @resources_infos) %>
-<% gtfs_outdated? = Transport.Validators.GTFSTransport.gtfs_outdated?(validation) %>
+<% validator = pick_validator(validation) %>
+<% tc? = Resource.gtfs?(@resource) or Resource.netex?(@resource) %>
+<% outdated? =
+  if validator do
+    validator.outdated?(validation)
+  end %>
 <% related_gtfs_resource = related_gtfs_resource(@resource) %>
 
 <div
-  class={"panel resource #{valid_panel_class(@resource, gtfs_outdated?)}"}
+  class={"panel resource #{valid_panel_class(@resource, outdated?)}"}
   title={resource_tooltip_content(@resource)}
 >
-  <h4><%= @resource.title %></h4>
+  <h4>{@resource.title}</h4>
 
-  <%= unless is_nil(@resource.schema_name) do %>
-    <div title={dgettext("page-dataset-details", "Resource declared schema")}>
-      <i class="icon icon--table" aria-hidden="true"></i>
-      <%= link(schema_label(@resource), to: documentation_url(@resource), target: "_blank") %>
-    </div>
-  <% end %>
+  <div :if={not is_nil(@resource.schema_name)} title={dgettext("page-dataset-details", "Resource declared schema")}>
+    <i class="icon icon--table" aria-hidden="true"></i>
+    {link(schema_label(@resource), to: documentation_url(@resource), target: "_blank")}
+  </div>
 
-  <%= if Resource.gtfs?(@resource) do %>
-    <% start_date = validation |> get_metadata_info("start_date") %>
-    <% end_date = validation |> get_metadata_info("end_date") %>
-    <%= if start_date && end_date do %>
-      <div title={dgettext("page-dataset-details", "Validity period")}>
-        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-        <span><%= start_date |> DateTimeDisplay.format_date(locale) %></span>
-        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-        <span class={outdated_class(gtfs_outdated?)}><%= end_date |> DateTimeDisplay.format_date(locale) %></span>
-      </div>
-    <% end %>
-  <% end %>
+  <.validity_dates :if={tc?} multi_validation={validation} locale={locale} />
 
   <div class="pb-24 light-gry">
     <.resource_last_update_span
@@ -39,131 +30,127 @@
     />
 
     <% resource_ttl = validation |> get_metadata_info("ttl") %>
-    <%= unless is_nil(resource_ttl) do %>
-      <span
-        class="ml-05-em"
-        title={
-          dgettext("page-dataset-details", "time to live (%{feed})",
-            feed: gbfs_feed_source_for_ttl(validation |> get_metadata_info("types"))
-          )
-        }
-      >
-        <i class="icon fa fa-history" aria-hidden="true"></i>
-        <%= resource_ttl %>s
-      </span>
-    <% end %>
+    <span
+      :if={not is_nil(resource_ttl)}
+      class="ml-05-em"
+      title={
+        dgettext("page-dataset-details", "time to live (%{feed})",
+          feed: validation |> get_metadata_info("types") |> gbfs_feed_source_for_ttl()
+        )
+      }
+    >
+      <i class="icon fa fa-history" aria-hidden="true"></i>
+      {resource_ttl}s
+    </span>
     <div :if={related_gtfs_resource != nil}>
       <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
-        <i class="icon fa fa-link" aria-hidden="true"></i>
-        <%= link("GTFS", to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id), class: "dark") %>
+        <i class="icon fa fa-link" aria-hidden="true"></i>{link("GTFS",
+          to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id),
+          class: "dark"
+        )}
       </span>
     </div>
-    <%= if Map.has_key?(unavailabilities, @resource.id) do %>
-      <div>
-        <span title={
-          dgettext("page-dataset-details", "download availability over the last %{nb} days",
-            nb: availability_number_days()
-          )
-        }>
-          <img class="icon icon--uptime" src={static_path(@conn, "/images/icons/uptime.svg")} />
-          <% availability_ratio = unavailabilities[@resource.id] %>
-          <span class={availability_ratio_class(availability_ratio)}>
-            <%= link("#{availability_ratio}%",
-              to: resource_path(@conn, :details, @resource.id) <> "#download-availability"
-            ) %>
-          </span>
-          <span class="small"><%= dgettext("page-dataset-details", "Availability rate") %></span>
+    <div :if={Map.has_key?(unavailabilities, @resource.id)}>
+      <span title={
+        dgettext("page-dataset-details", "download availability over the last %{nb} days",
+          nb: availability_number_days()
+        )
+      }>
+        <img class="icon icon--uptime" src={static_path(@conn, "/images/icons/uptime.svg")} />
+        <% availability_ratio = unavailabilities[@resource.id] %>
+        <span class={availability_ratio_class(availability_ratio)}>
+          {link("#{availability_ratio}%",
+            to: "#{resource_path(@conn, :details, @resource.id)}#download-availability"
+          )}
         </span>
-      </div>
-    <% end %>
+        <span class="small">{dgettext("page-dataset-details", "Availability rate")}</span>
+      </span>
+    </div>
   </div>
 
-  <%= if Resource.gtfs?(@resource) or not @resource.is_available do %>
-    <div class={"resource-status-corner #{resource_class(@resource.is_available, gtfs_outdated?)}"}>
-      <span class={resource_span_class(@resource)}>
-        <%= unless @resource.is_available do %>
-          <%= dgettext("page-dataset-details", "Not") %> <br />
-          <%= dgettext("page-dataset-details", "available") %>
-        <% else %>
-          <%= if gtfs_outdated? == true do %>
-            <%= dgettext("page-dataset-details", "Outdated") %>
-          <% end %>
-          <%= if gtfs_outdated? == false do %>
-            <%= dgettext("page-dataset-details", "Up to date") %>
-          <% end %>
+  <div
+    :if={tc? or not @resource.is_available}
+    class={"resource-status-corner #{resource_class(@resource.is_available, outdated?)}"}
+  >
+    <span class={resource_span_class(@resource)}>
+      <%= unless @resource.is_available do %>
+        {dgettext("page-dataset-details", "Not")} <br />
+        {dgettext("page-dataset-details", "available")}
+      <% else %>
+        <%= if outdated? == true do %>
+          {dgettext("page-dataset-details", "Outdated")}
         <% end %>
-      </span>
-    </div>
-  <% end %>
+        <%= if outdated? == false do %>
+          {dgettext("page-dataset-details", "Up to date")}
+        <% end %>
+      <% end %>
+    </span>
+  </div>
 
   <%= if Resource.gtfs?(@resource) do %>
-    <%= render(TransportWeb.DatasetView, "_resource_validation_summary_gtfs.html",
+    {render(TransportWeb.DatasetView, "_resource_validation_summary_gtfs.html",
       conn: @conn,
       resource: @resource,
       validation: validation
-    ) %>
+    )}
   <% end %>
 
   <%= if Resource.netex?(@resource) do %>
-    <%= render(TransportWeb.DatasetView, "_resource_validation_summary_netex.html",
+    {render(TransportWeb.DatasetView, "_resource_validation_summary_netex.html",
       conn: @conn,
       resource: @resource,
       validation: validation
-    ) %>
+    )}
   <% end %>
 
-  <%= unless Resource.gtfs?(@resource) or Resource.netex?(@resource) do %>
-    <%= if multi_validation_performed?(validation) do %>
-      <% nb_warnings = warnings_count(validation) %>
-      <% nb_errors = errors_count(validation) %>
-      <%= render(TransportWeb.DatasetView, "_resource_validation_summary.html",
-        conn: @conn,
-        resource: @resource,
-        validation: validation,
-        nb_warnings: nb_warnings,
-        nb_errors: nb_errors
-      ) %>
-    <% end %>
+  <%= unless tc? do %>
+    {render(TransportWeb.DatasetView, "_resource_validation_summary.html",
+      conn: @conn,
+      resource: @resource,
+      validation: validation,
+      locale: @locale
+    )}
   <% end %>
 
   <div class="resource-panel-bottom">
     <div class="resource-features">
       <%= if Resource.gtfs_rt?(@resource) and not Enum.empty?(Map.get(@resources_infos.gtfs_rt_entities, @resource.id, [])) do %>
-        <%= dgettext("page-dataset-details", "Features available in the resource:") %>
+        {dgettext("page-dataset-details", "Features available in the resource:")}
         <div>
           <%= for entity <- Map.fetch!(@resources_infos.gtfs_rt_entities, @resource.id) do %>
-            <span class="label mode"><%= entity %></span>
+            <span class="label mode">{entity}</span>
           <% end %>
         </div>
       <% end %>
-      <%= if Resource.gbfs?(@resource) do %>
-        <%= for version <- validation |> get_metadata_info("versions", []) do %>
-          <a href={gbfs_documentation_link(version)} target="_blank">
-            <span class="label version">
-              <%= dgettext("page-dataset-details", "Version %{version}", version: version) %>
-            </span>
-          </a>
-        <% end %>
-      <% end %>
+      <a
+        :for={version <- validation |> get_metadata_info("versions", []) || []}
+        :if={Resource.gbfs?(@resource)}
+        href={gbfs_documentation_link(version)}
+        target="_blank"
+      >
+        <span class="label version">
+          {dgettext("page-dataset-details", "Version %{version}", version: version)}
+        </span>
+      </a>
     </div>
     <div class="resource-actions">
       <div>
         <div class="resource-format" title={dgettext("page-dataset-details", "resource format")}>
-          <span class="label"><%= @resource.format %></span>
+          <span class="label">{@resource.format}</span>
         </div>
       </div>
       <div>
         <a href={resource_path(@conn, :details, @resource.id)}>
           <button class="button-outline primary small">
-            <i class="icon icon--plus" aria-hidden="true"></i><%= dgettext("page-dataset-details", "details") %>
+            <i class="icon icon--plus" aria-hidden="true"></i>{dgettext("page-dataset-details", "details")}
           </button>
         </a>
         <a class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
           <button class="button-outline primary small">
             <%= if Resource.real_time?(@resource) do %>
-              <i class="icon icon--link" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Browse the API") %>
+              <i class="icon icon--link" aria-hidden="true"></i>{dgettext("page-dataset-details", "Browse the API")}
             <% else %>
-              <i class="icon icon--download" aria-hidden="true"></i><%= dgettext("page-dataset-details", "Download") %>
+              <i class="icon icon--download" aria-hidden="true"></i>{dgettext("page-dataset-details", "Download")}
             <% end %>
           </button>
         </a>
@@ -175,15 +162,10 @@
           ] %>
 
           <a href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
-            <button class="button-outline primary small"><%= dgettext("page-dataset-details", "Try me!") %></button>
+            <button class="button-outline primary small">{dgettext("page-dataset-details", "Try me!")}</button>
           </a>
         <% end %>
       </div>
     </div>
-    <%= if has_conversions do %>
-      <%= render(TransportWeb.DatasetView, "_conversions.html",
-        conversions_details: Map.fetch!(@resources_related_files, @resource.id)
-      ) %>
-    <% end %>
   </div>
 </div>

@@ -6,6 +6,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -56,9 +57,13 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "0.2.0"
-    assert multi_validation.result == %{}
-    assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
+    assert multi_validation.validator_version == "0.2.1"
+    assert multi_validation.result == nil
+    assert multi_validation.digest == ResultsAdapter.digest(%{})
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
+
+    assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
+             multi_validation.metadata.metadata
   end
 
   test "invalid NeTEx" do
@@ -77,40 +82,47 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
     assert multi_validation.validator == "enroute-chouette-netex-validator"
-    assert multi_validation.validator_version == "0.2.0"
-    assert multi_validation.metadata.metadata == %{"retries" => attempts, "elapsed_seconds" => duration}
+    assert multi_validation.validator_version == "0.2.1"
 
-    assert multi_validation.result == %{
-             "xsd-schema" => [
-               %{
-                 "code" => "xsd-1871",
-                 "criticity" => "error",
-                 "message" =>
-                   "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-               }
-             ],
-             "base-rules" => [
-               %{
-                 "code" => "uic-operating-period",
-                 "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-                 "criticity" => "error"
-               },
-               %{
-                 "code" => "valid-day-bits",
-                 "message" => "Mandatory attribute valid_day_bits not found",
-                 "criticity" => "error"
-               },
-               %{
-                 "code" => "frame-arret-resources",
-                 "message" => "Tag frame_id doesn't match ''",
-                 "criticity" => "warning"
-               },
-               %{
-                 "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-                 "criticity" => "error"
-               }
-             ]
-           }
+    assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
+             multi_validation.metadata.metadata
+
+    assert multi_validation.result == nil
+
+    result = %{
+      "xsd-schema" => [
+        %{
+          "code" => "xsd-1871",
+          "criticity" => "error",
+          "message" =>
+            "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
+        }
+      ],
+      "base-rules" => [
+        %{
+          "code" => "uic-operating-period",
+          "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
+          "criticity" => "error"
+        },
+        %{
+          "code" => "valid-day-bits",
+          "message" => "Mandatory attribute valid_day_bits not found",
+          "criticity" => "error"
+        },
+        %{
+          "code" => "frame-arret-resources",
+          "message" => "Tag frame_id doesn't match ''",
+          "criticity" => "warning"
+        },
+        %{
+          "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
+          "criticity" => "error"
+        }
+      ]
+    }
+
+    assert multi_validation.digest == ResultsAdapter.digest(result)
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
   end
 
   test "pending validation" do
@@ -140,7 +152,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   end
 
   defp load_multi_validation(resource_history_id) do
-    DB.MultiValidation.with_result()
+    DB.MultiValidation.base_query(include_binary_result: true)
     |> DB.Repo.get_by(resource_history_id: resource_history_id)
     |> DB.Repo.preload(:metadata)
   end
@@ -157,11 +169,14 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
   end
 
+  defp sample_metadata, do: %{"end_date" => Date.utc_today() |> Date.to_iso8601()}
+
   defp run_polling_job(%DB.ResourceHistory{} = resource_history, validation_id, attempt) do
     payload =
       %{
         "resource_history_id" => resource_history.id,
-        "validation_id" => validation_id
+        "validation_id" => validation_id,
+        "metadata" => sample_metadata()
       }
 
     perform_job(Transport.Jobs.NeTExPollerJob, payload, attempt: attempt)

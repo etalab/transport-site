@@ -9,36 +9,36 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
     <section class="section producteurs-top">
       <div class="producteurs-title">
         <h1>
-          <%= dgettext("reuser-space", "transport.data.gouv.fr helps you follow the data you reuse") %>
+          {dgettext("reuser-space", "transport.data.gouv.fr helps you follow the data you reuse")}
         </h1>
       </div>
       <%= if assigns[:current_user] do %>
         <div class="panel-producteurs signed-in">
-          <h2><%= dgettext("reuser-space", "Welcome!") %></h2>
+          <h2>{dgettext("reuser-space", "Welcome!")}</h2>
           <a class="button" href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "reuser_infos_page")}>
-            <%= dgettext("reuser-space", "Access your reuser space") %>
+            {dgettext("reuser-space", "Access your reuser space")}
           </a>
           <div class="pt-24">
-            <%= dgettext(
+            {dgettext(
               "reuser-space",
               "transport.data.gouv.fr is affiliated with data.gouv.fr, the open platform for French public data"
-            ) %>
+            )}
           </div>
         </div>
       <% else %>
         <div class="panel-producteurs">
-          <h2><%= dgettext("reuser-space", "Access your reuser space") %></h2>
+          <h2>{dgettext("reuser-space", "Access your reuser space")}</h2>
           <div>
-            <%= dgettext(
+            {dgettext(
               "reuser-space",
               "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
-            ) %>
+            )}
           </div>
           <a
             class="button reuser-space"
             href={page_path(@conn, :login, redirect_path: reuser_space_path(@conn, :espace_reutilisateur))}
           >
-            <%= dgettext("page-dataset-details", "Log in") %>
+            {dgettext("page-dataset-details", "Log in")}
           </a>
         </div>
       <% end %>
@@ -53,9 +53,9 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
                 alt={dgettext("reuser-space", "Notification bell")}
               />
             </div>
-            <h2><%= dgettext("reuser-space", "Set up notifications") %></h2>
+            <h2>{dgettext("reuser-space", "Set up notifications")}</h2>
             <div>
-              <%= dgettext("reuser-space", "Receive helpful notifications about your favorite datasets.") %>
+              {dgettext("reuser-space", "Receive helpful notifications about your favorite datasets.")}
             </div>
           </div>
         </div>
@@ -67,9 +67,9 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
                 alt={dgettext("reuser-space", "Reuses")}
               />
             </div>
-            <h2><%= dgettext("reuser-space", "Declare your reuses") %></h2>
+            <h2>{dgettext("reuser-space", "Declare your reuses")}</h2>
             <div>
-              <%= dgettext("reuser-space", "Highlight your reuses and make yourself known.") %>
+              {dgettext("reuser-space", "Highlight your reuses and make yourself known.")}
             </div>
           </div>
         </div>
@@ -81,9 +81,9 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
                 alt={dgettext("reuser-space", "Settings")}
               />
             </div>
-            <h2><%= dgettext("reuser-space", "API - Manage your tokens") %></h2>
+            <h2>{dgettext("reuser-space", "API - Manage your tokens")}</h2>
             <div>
-              <%= dgettext("reuser-space", "Create and manage your tokens independently.") %>
+              {dgettext("reuser-space", "Create and manage your tokens independently.")}
             </div>
           </div>
         </div>

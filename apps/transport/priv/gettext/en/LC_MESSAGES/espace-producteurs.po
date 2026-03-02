@@ -16,15 +16,7 @@ msgid "Adding a dataset guidelines"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Contact us"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "If you have any question on how to publish or update your data and you can't find an anwser on the website, do not hesitate, contact us:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -40,10 +32,6 @@ msgid "Publishing best practices"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Update a dataset"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Update a resource"
 msgstr ""
 
@@ -53,18 +41,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Validate your datasets"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Your producer space"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "What would you like to do?"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "You have no resource to update for the moment"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -113,20 +89,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Delete a resource"
-msgstr ""
-
-#, elixir-autogen, elixir-format, fuzzy
-msgid "1 resource"
-msgid_plural "%{count} resources"
-msgstr[0] ""
-msgstr[1] ""
-
-#, elixir-autogen, elixir-format
-msgid "%{nb_downloads} <div class=\"tooltip\">downloads in %{year}<span class=\"tooltiptext\">Number of downloads for all the files hosted on data.gouv.fr</span></div>"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Edit"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -331,4 +293,192 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Compare with my GTFS"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Datasets of your organisation"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Producer space"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Dataset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Downloads for %{year}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Get access to download statistics for your resources."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Your download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download proxy statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download download statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File: <strong>%{name}</strong>"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See the validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start again"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "expiring_resource"
+msgstr "Expiring resource"
+
+#, elixir-autogen, elixir-format
+msgid "invalid_resource"
+msgstr "Invalid resource"
+
+#, elixir-autogen, elixir-format
+msgid "unavailable_resource"
+msgstr "Unavailable resource"
+
+#, elixir-autogen, elixir-format
+msgid "See the discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "unanswered_discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Discussion"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Link"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Unanswered discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You have no unanswered discussions."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "You will find below download statistics for your resources. Statistics can be downloaded at the bottom of the page."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "See unanswered discussions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "See unanswered discussions on your datasets."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You will find here discussions that have not been closed and where the last person to reply is not a member of your organisation."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Start the validation"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Drop your file here or click to browse your local drive"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Expired resource"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "recent_discussions"
+msgstr "Recent discussion"
+
+#, elixir-autogen, elixir-format
+msgid "Discover new features"
+msgstr "Discover new features"
+
+#, elixir-autogen, elixir-format
+msgid "New features available"
+msgstr "New features available"
+
+#, elixir-autogen, elixir-format
+msgid "recent_features"
+msgstr "New features"
+
+#, elixir-autogen, elixir-format
+msgid "You will find below proxy statistics for your resources. You can download detailed statistics in CSV format using the button above."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Proxy requests"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by the proxy"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Requests served by upstream"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Upstream requests"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "View detailed statistics"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "over the last %{nb} days"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Important information regarding your resources"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Information"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following information require your attention."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Available services"
 msgstr ""

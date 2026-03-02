@@ -19,21 +19,22 @@ runs:
         cache-name: cache-elixir-deps
       with:
         path: deps
-        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('.tool-versions') }}-${{ hashFiles('**/mix.lock') }}
         restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('.tool-versions') }}
           ${{ runner.os }}-mix-${{ env.cache-name }}-
 
     - name: Cache compiled build
       id: cache-build
       uses: actions/cache@v4
       env:
-        cache-name: cache-compiled-build
+        cache-name: cache-compiled-build-v2
       with:
         path: _build
-        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('.tool-versions') }}-${{ hashFiles('**/mix.lock') }}
         restore-keys: |
+          ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('.tool-versions') }}
           ${{ runner.os }}-mix-${{ env.cache-name }}-
-          ${{ runner.os }}-mix-
 
     - name: Cache JS assets
       id: cache-js-assets
@@ -66,7 +67,9 @@ runs:
       shell: bash
 
     - name: Compile code
-      run: mix compile
+      run: |
+        mix compile
+        MIX_ENV=test mix compile
       shell: bash
 
     - name: Install yarn dependencies

@@ -19,7 +19,7 @@ defmodule Transport.DataVisualization.Impl do
 
   @impl Transport.DataVisualization
   def has_features(nil), do: false
-  def has_features(data_visualization), do: length(data_visualization["features"]) > 0
+  def has_features(data_visualization), do: not Enum.empty?(data_visualization["features"])
 
   @impl Transport.DataVisualization
   @spec validation_data_vis(any) :: nil | map

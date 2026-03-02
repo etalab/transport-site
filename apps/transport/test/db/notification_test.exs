@@ -39,7 +39,7 @@ defmodule DB.NotificationTest do
              DB.Notification |> DB.Repo.all()
   end
 
-  test "recent_reasons_binned" do
+  test "recent_reasons" do
     dataset = insert(:dataset, is_active: true, datagouv_id: Ecto.UUID.generate())
     yesterday = DateTime.add(DateTime.utc_now(), -1, :day)
     email = Ecto.UUID.generate() <> "@example.com"
@@ -49,35 +49,41 @@ defmodule DB.NotificationTest do
     # Should be ignored, this is an hidden reason
     insert_notification(%{dataset: dataset, role: :producer, reason: :dataset_now_on_nap, email: email})
 
-    insert_notification(%{
-      dataset: dataset,
-      role: :producer,
-      reason: :dataset_with_error,
-      email: email,
-      inserted_at: %{yesterday | hour: 10, minute: 22}
-    })
+    ns1 =
+      insert_notification(%{
+        dataset: dataset,
+        role: :producer,
+        reason: :dataset_with_error,
+        email: email,
+        payload: %{"job_id" => 1},
+        inserted_at: %{yesterday | hour: 10, minute: 22}
+      })
 
     insert_notification(%{
       dataset: dataset,
       role: :producer,
       reason: :dataset_with_error,
       email: other_email,
-      inserted_at: %{yesterday | hour: 10, minute: 22}
+      payload: %{"job_id" => 1},
+      inserted_at: %{yesterday | hour: 10, minute: 23}
     })
 
-    insert_notification(%{
-      dataset: dataset,
-      role: :producer,
-      reason: :expiration,
-      email: email,
-      inserted_at: %{yesterday | hour: 12, minute: 44}
-    })
+    ns2 =
+      insert_notification(%{
+        dataset: dataset,
+        role: :producer,
+        reason: :expiration,
+        email: email,
+        payload: %{"job_id" => 2},
+        inserted_at: %{yesterday | hour: 12, minute: 44}
+      })
 
     # Should be ignored: it's not for an enabled reason
     insert_notification(%{
       role: :producer,
       reason: :promote_producer_space,
       email: email,
+      payload: %{"job_id" => 3},
       inserted_at: %{yesterday | hour: 15, minute: 32}
     })
 
@@ -87,14 +93,13 @@ defmodule DB.NotificationTest do
       role: :reuser,
       reason: :expiration,
       email: reuser_email,
+      payload: %{"job_id" => 4},
       inserted_at: %{yesterday | hour: 11, minute: 42}
     })
 
-    yesterday_time = fn hour, minute -> %{yesterday | hour: hour, minute: minute, second: 0, microsecond: {0, 6}} end
-
     assert [
-             %{reason: :expiration, timestamp: yesterday_time.(12, 40)},
-             %{reason: :dataset_with_error, timestamp: yesterday_time.(10, 20)}
-           ] == DB.Notification.recent_reasons_binned(dataset, 7)
+             %{reason: :expiration, timestamp: ns2.inserted_at, payload: %{"job_id" => 2}},
+             %{reason: :dataset_with_error, timestamp: ns1.inserted_at, payload: %{"job_id" => 1}}
+           ] == DB.Notification.recent_reasons(dataset, 7)
   end
 end

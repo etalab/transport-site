@@ -2,17 +2,13 @@ defmodule Transport.AdminNotifier do
   @moduledoc """
   Module in charge of building emails sent to the admin team (bizdev, tech, etc.)
   """
-  use Phoenix.Swoosh, view: TransportWeb.EmailView
+  use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
+  import Transport.Expiration, only: [delay_str: 2]
 
   def contact(email, user_type, question_type, subject, question) do
     notify_contact("PAN, Formulaire Contact", email)
     |> subject(subject)
-    |> text_body("""
-    User type: #{user_type}
-    Question type: #{question_type}
-
-    Question: #{question}
-    """)
+    |> render_body("contact.html", user_type: user_type, question_type: question_type, question: question)
   end
 
   def feedback(rating, explanation, email, feature) do
@@ -20,64 +16,36 @@ defmodule Transport.AdminNotifier do
 
     reply_email = if email, do: email, else: Application.fetch_env!(:transport, :contact_email)
 
-    feedback_content = """
-    Vous avez un nouvel avis sur le PAN.
-    Fonctionnalité : #{feature}
-    Notation : #{rating_t[rating]}
-    Adresse e-mail : #{email}
-
-    Explication : #{explanation}
-    """
-
     notify_contact("Formulaire feedback", reply_email)
     |> subject("Nouvel avis pour #{feature} : #{rating_t[rating]}")
-    |> text_body(feedback_content)
+    |> render_body("feedback.html",
+      feature: feature,
+      rating: rating_t[rating],
+      email_address: email,
+      explanation: explanation
+    )
   end
 
   def bnlc_consolidation_report(subject, body, file_url) do
-    report_content = """
-    #{body}
-    <br/><br/>
-    🔗 <a href="#{file_url}">Fichier consolidé</a>
-    """
-
     notify_bizdev()
     |> subject(subject)
-    |> html_body(report_content)
+    |> render_body("bnlc_consolidation_report.html", body: body, file_url: file_url)
   end
 
   def datasets_without_gtfs_rt_related_resources(datasets) do
     notify_bizdev()
     |> subject("Jeux de données GTFS-RT sans ressources liées")
-    |> html_body("""
-    <p>Bonjour,</p>
-
-    <p>Les jeux de données suivants contiennent plusieurs GTFS et des liens entre les ressources GTFS-RT et GTFS sont manquants :</p>
-
-    <ul>
-    #{Enum.map_join(datasets, "", &link_and_name/1)}
-    </ul>
-
-    <p>L’équipe transport.data.gouv.fr</p>
-    """)
+    |> render_body("datasets_without_gtfs_rt_related_resources.html",
+      list: Enum.map_join(datasets, "", &link_and_name/1)
+    )
   end
 
   def unknown_gbfs_operator_feeds(resources) do
     notify_bizdev()
     |> subject("Flux GBFS : opérateurs non détectés")
-    |> html_body("""
-    <p>Bonjour,</p>
-
-    <p>Il n'est pas possible de détecter automatiquement les opérateurs des flux GBFS suivants :</p>
-
-    <ul>
-    #{Enum.map(resources, fn %DB.Resource{url: url} -> ~s|<li><a href="#{url}">#{url}</a></li>| end)}
-    </ul>
-
-    <p>La configuration peut être modifiée <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/priv/gbfs_operators.csv">sur GitHub</a>.</p>
-
-    <p>L’équipe transport.data.gouv.fr</p>
-    """)
+    |> render_body("unknown_gbfs_operator_feeds.html",
+      list: Enum.map(resources, fn %DB.Resource{url: url} -> ~s|<li><a href="#{url}">#{url}</a></li>| end)
+    )
   end
 
   def datasets_climate_resilience_bill_inappropriate_licence(datasets) do
@@ -89,54 +57,33 @@ defmodule Transport.AdminNotifier do
   def new_datagouv_datasets(category, datagouv_datasets, rule_explanation, duration) do
     notify_bizdev()
     |> subject("Nouveaux jeux de données #{category} à référencer - data.gouv.fr")
-    |> html_body("""
-    <p>Bonjour,</p>
-
-    <p>Les jeux de données suivants ont été ajoutés sur data.gouv.fr dans les dernières #{duration}h et sont susceptibles d'avoir leur place sur le PAN :</p>
-
-    <ul>
-    #{Enum.map_join(datagouv_datasets, "", &link_and_name_from_datagouv_payload/1)}
-    </ul>
-    <br/>
-    <hr>
-    #{rule_explanation}
-    <p>Vous pouvez modifier <a href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/jobs/new_datagouv_datasets_job.ex">les règles de cette tâche</a>.</p>
-    """)
+    |> render_body("new_datagouv_datasets.html",
+      list: Enum.map_join(datagouv_datasets, "", &link_and_name_from_datagouv_payload/1),
+      rule_explanation: rule_explanation,
+      duration: duration
+    )
   end
 
   def expiration(records) do
     notify_bizdev()
     |> subject("Jeux de données arrivant à expiration")
-    |> html_body("""
-    <p>Bonjour,</p>
-
-    <p>Voici un résumé des jeux de données arrivant à expiration</p>
-
-    #{Enum.map_join(records, "<hr>", &expiration_str/1)}
-    """)
+    |> render_body("expiration.html", expiration: Enum.map_join(records, "<hr>", &expiration_str/1))
   end
 
   def inactive_datasets(reactivated_datasets, inactive_datasets, archived_datasets) do
-    reactivated_datasets_str = fmt_reactivated_datasets(reactivated_datasets)
-    inactive_datasets_str = fmt_inactive_datasets(inactive_datasets)
-    archived_datasets_str = fmt_archived_datasets(archived_datasets)
-
     notify_bizdev()
     |> subject("Jeux de données supprimés ou archivés")
-    |> html_body("""
-    <p>Bonjour,</p>
-    #{inactive_datasets_str}
-    #{reactivated_datasets_str}
-    #{archived_datasets_str}
-
-    <p>Il faut peut être creuser pour savoir si c'est normal.</p>
-    """)
+    |> render_body("inactive_datasets.html",
+      inactive_datasets_str: fmt_inactive_datasets(inactive_datasets),
+      reactivated_datasets_str: fmt_reactivated_datasets(reactivated_datasets),
+      archived_datasets_str: fmt_archived_datasets(archived_datasets)
+    )
   end
 
   def oban_failure(worker) do
     notify_tech()
     |> subject("Échec de job Oban : #{worker}")
-    |> text_body("Un job Oban #{worker} vient d'échouer, il serait bien d'investiguer.")
+    |> render_body("oban_failure.html", worker: worker)
   end
 
   # Utility functions from here
@@ -245,36 +192,6 @@ defmodule Transport.AdminNotifier do
     TransportWeb.Router.Helpers.backoffice_page_url(TransportWeb.Endpoint, :index, %{"filter" => "archived"}) <>
       "#list_datasets"
   end
-
-  @doc """
-  Common to both notifiers. If refactored or moved elsewhere, don’t forget to change or delete Transport.NotifiersTest.
-  iex> delay_str(0, :périmant)
-  "périmant demain"
-  iex> delay_str(0, :périment)
-  "périment demain"
-  iex> delay_str(2, :périmant)
-  "périmant dans 2 jours"
-  iex> delay_str(2, :périment)
-  "périment dans 2 jours"
-  iex> delay_str(-1, :périmant)
-  "périmé depuis hier"
-  iex> delay_str(-1, :périment)
-  "sont périmées depuis hier"
-  iex> delay_str(-2, :périmant)
-  "périmés depuis 2 jours"
-  iex> delay_str(-2, :périment)
-  "sont périmées depuis 2 jours"
-  iex> delay_str(-60, :périment)
-  "sont périmées depuis 60 jours"
-  """
-  @spec delay_str(integer(), :périment | :périmant) :: binary()
-  def delay_str(0, verb), do: "#{verb} demain"
-  def delay_str(1, verb), do: "#{verb} dans 1 jour"
-  def delay_str(d, verb) when d >= 2, do: "#{verb} dans #{d} jours"
-  def delay_str(-1, :périmant), do: "périmé depuis hier"
-  def delay_str(-1, :périment), do: "sont périmées depuis hier"
-  def delay_str(d, :périmant) when d <= -2, do: "périmés depuis #{-d} jours"
-  def delay_str(d, :périment) when d <= -2, do: "sont périmées depuis #{-d} jours"
 
   defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
     link = Phoenix.HTML.Link.link(title, to: page) |> Phoenix.HTML.safe_to_string()

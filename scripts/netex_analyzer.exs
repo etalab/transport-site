@@ -51,7 +51,7 @@ count_relevant_stop_places_per_resource = fn r ->
 
   try do
     count =
-      Transport.NeTEx.read_all_stop_places(r.local_path)
+      Transport.NeTEx.ArchiveParser.read_all_stop_places(r.local_path)
       |> Enum.flat_map(fn {_file, stops} -> stops end)
       # some stop places have no latitude in NeTEx
       |> Enum.reject(fn p -> is_nil(p[:latitude]) end)

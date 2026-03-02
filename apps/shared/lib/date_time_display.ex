@@ -223,6 +223,25 @@ defmodule Shared.DateTimeDisplay do
     |> Cldr.Calendar.Duration.to_string!(locale: locale)
   end
 
+  @doc """
+  iex> relative_datetime_in_days(1, "fr")
+  "demain"
+  iex> relative_datetime_in_days(0, "fr")
+  "aujourd’hui"
+  iex> relative_datetime_in_days(-1, "fr")
+  "hier"
+  iex> relative_datetime_in_days(-7, "en")
+  "7 days ago"
+  """
+  @spec relative_datetime_in_days(integer(), binary()) :: binary()
+  def relative_datetime_in_days(days, locale) do
+    Transport.Cldr.DateTime.Relative.to_string!(days, unit: :day, locale: locale)
+  end
+
+  def relative_datetime_in_seconds(seconds, locale) do
+    Transport.Cldr.DateTime.Relative.to_string!(seconds, locale: locale)
+  end
+
   @spec convert_to_paris_time(DateTime.t() | NaiveDateTime.t()) :: DateTime.t()
   def convert_to_paris_time(%DateTime{} = dt) do
     TimeWrapper.convert_to_paris_time(dt)

@@ -26,17 +26,17 @@ defmodule JobsTableComponent do
       <tbody>
         <%= for job <- @jobs do %>
           <tr>
-            <td><%= job.id %></td>
-            <td><%= job.state %></td>
-            <td><%= job.queue %></td>
-            <td><%= job.worker %></td>
-            <td><%= inspect(job.args) %></td>
-            <td><%= format_datetime(job.inserted_at) %></td>
+            <td>{job.id}</td>
+            <td>{job.state}</td>
+            <td>{job.queue}</td>
+            <td>{job.worker}</td>
+            <td>{inspect(job.args)}</td>
+            <td>{format_datetime(job.inserted_at)}</td>
             <%= if @state in ["discarded", "retryable"] do %>
-              <td><%= inspect(job.errors) %></td>
+              <td>{inspect(job.errors)}</td>
             <% end %>
             <%= if @state in ["scheduled", "retryable"] do %>
-              <td><%= format_datetime(job.scheduled_at) %></td>
+              <td>{format_datetime(job.scheduled_at)}</td>
             <% end %>
           </tr>
         <% end %>

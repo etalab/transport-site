@@ -3,6 +3,7 @@ defmodule Transport.Registry.NeTEx do
   Implementation of a stop extractor for NeTEx resources.
   """
 
+  alias Transport.NeTEx.ArchiveParser
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Model.StopIdentifier
   alias Transport.Registry.Result
@@ -15,7 +16,7 @@ defmodule Transport.Registry.NeTEx do
   """
   def extract_from_archive(data_source_id, archive) do
     archive
-    |> Transport.NeTEx.read_all_stop_places()
+    |> ArchiveParser.read_all_stop_places()
     |> Enum.flat_map(&process_stop_places(data_source_id, &1))
     |> Result.ok()
   end

@@ -1,7 +1,6 @@
 defmodule TransportWeb.DatasetController do
   use TransportWeb, :controller
   alias Datagouvfr.Authentication
-  alias DB.{Dataset, DatasetGeographicView, Region, Repo}
   import Ecto.Query
 
   import TransportWeb.DatasetView,
@@ -10,29 +9,35 @@ defmodule TransportWeb.DatasetController do
   import Phoenix.HTML
   require Logger
 
-  plug(:assign_current_contact when action in [:details, :resources_history_csv])
-
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, params), do: list_datasets(conn, params, true)
 
+  @db_filter_fns %{
+    "departement" => &DB.Dataset.filter_by_departement/2,
+    "epci" => &DB.Dataset.filter_by_epci/2,
+    "commune" => &DB.Dataset.filter_by_commune/2,
+    "q" => &DB.Dataset.filter_by_fulltext/2,
+    "features" => &DB.Dataset.filter_by_feature/2
+  }
+  @db_only_filters Map.keys(@db_filter_fns)
+
   @spec list_datasets(Plug.Conn.t(), map(), boolean) :: Plug.Conn.t()
   def list_datasets(%Plug.Conn{} = conn, %{} = params, count_by_region \\ false) do
-    conn =
-      case count_by_region do
-        true -> assign(conn, :regions, get_regions(params))
-        false -> conn
-      end
+    index = Transport.DatasetIndex.get()
+    dataset_ids = dataset_ids_for(index, params)
 
-    datasets = get_datasets(params)
+    datasets =
+      DB.Dataset.base_query()
+      |> preload(:resources)
+      |> where([d], d.id in ^dataset_ids)
+      |> order_by([d], fragment("array_position(?, ?)", ^dataset_ids, d.id))
+      |> preload_spatial_areas()
+      |> DB.Repo.paginate(page: make_pagination_config(params).page_number)
 
     conn
+    |> maybe_assign_regions(count_by_region, index, dataset_ids)
     |> assign(:datasets, datasets)
-    |> assign(:types, get_types(params))
-    |> assign(:licences, get_licences(params))
-    |> assign(:number_realtime_datasets, get_realtime_count(params))
-    |> assign(:number_resource_format_datasets, resource_format_count(params))
-    |> assign(:order_by, params["order_by"])
-    |> assign(:q, Map.get(params, "q"))
+    |> assign_facets(index, dataset_ids, params)
     |> put_dataset_heart_values(datasets)
     |> put_empty_message(params)
     |> put_category_custom_message(params)
@@ -40,13 +45,34 @@ defmodule TransportWeb.DatasetController do
     |> render("index.html")
   end
 
+  defp assign_facets(conn, index, dataset_ids, params) do
+    conn
+    |> assign(:types, Transport.DatasetIndex.types(index, dataset_ids))
+    |> assign(:licences, Transport.DatasetIndex.licences(index, dataset_ids))
+    |> assign(:number_realtime_datasets, Transport.DatasetIndex.realtime_count(index, dataset_ids))
+    |> assign(:number_resource_format_datasets, Transport.DatasetIndex.resource_format_count(index, dataset_ids))
+    |> assign(:subtypes, subtypes_facet(index, dataset_ids, params))
+    |> assign(:order_by, params["order_by"])
+    |> assign(:q, params["q"])
+  end
+
+  defp maybe_assign_regions(conn, false, _index, _dataset_ids), do: conn
+
+  defp maybe_assign_regions(conn, true, index, dataset_ids),
+    do: assign(conn, :regions, Transport.DatasetIndex.regions(index, dataset_ids))
+
+  defp subtypes_facet(index, dataset_ids, %{"type" => type} = _params) do
+    Transport.DatasetIndex.subtypes(index, dataset_ids, type)
+  end
+
+  defp subtypes_facet(_index, _dataset_ids, _params), do: %{all: 0, subtypes: []}
+
   @spec details(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     case DB.Dataset.get_by_slug(slug_or_id) do
       {:ok, %DB.Dataset{} = dataset} ->
         conn
         |> assign(:dataset, dataset)
-        |> assign(:resources_related_files, DB.Dataset.get_resources_related_files(dataset))
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
         |> assign(:resources_infos, resources_infos(dataset))
         |> assign(
@@ -58,7 +84,7 @@ defmodule TransportWeb.DatasetController do
           )
         )
         |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
-        |> assign(:notifications_sent, DB.Notification.recent_reasons_binned(dataset, days_notifications_sent()))
+        |> assign(:notifications_sent, DB.Notification.recent_reasons(dataset, days_notifications_sent()))
         |> assign_scores(dataset)
         |> assign_is_producer(dataset)
         |> assign_follows_dataset(dataset)
@@ -132,15 +158,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   def validators_to_use,
-    do: [
-      Transport.Validators.GTFSTransport,
-      Transport.Validators.GTFSRT,
-      Transport.Validators.TableSchema,
-      Transport.Validators.EXJSONSchema,
-      Transport.Validators.GBFSValidator,
-      Transport.Validators.NeTEx.Validator,
-      Transport.Validators.MobilityDataGTFSValidator
-    ]
+    do: Transport.ValidatorsSelection.validators_for_feature(:dataset_controller)
 
   def resources_infos(dataset) do
     %{
@@ -151,8 +169,8 @@ defmodule TransportWeb.DatasetController do
     }
   end
 
-  @spec gtfs_rt_entities(Dataset.t()) :: map()
-  def gtfs_rt_entities(%Dataset{id: dataset_id, type: "public-transit"}) do
+  @spec gtfs_rt_entities(DB.Dataset.t()) :: map()
+  def gtfs_rt_entities(%DB.Dataset{id: dataset_id, type: "public-transit"}) do
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     DB.Resource.base_query()
@@ -172,7 +190,7 @@ defmodule TransportWeb.DatasetController do
     end)
   end
 
-  def gtfs_rt_entities(%Dataset{}), do: %{}
+  def gtfs_rt_entities(%DB.Dataset{}), do: %{}
 
   @spec by_region(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def by_region(%Plug.Conn{} = conn, %{"region" => insee} = params) do
@@ -211,7 +229,11 @@ defmodule TransportWeb.DatasetController do
     by_territory(conn, DB.Commune |> where([c], c.insee == ^insee), params, error_msg)
   end
 
-  defp unavailabilities(%Dataset{id: id, resources: resources}) do
+  def by_offer(%Plug.Conn{} = conn, params) do
+    conn |> list_datasets(params, _count_by_region = false)
+  end
+
+  defp unavailabilities(%DB.Dataset{id: id, resources: resources}) do
     Transport.Cache.fetch("unavailabilities_dataset_#{id}", fn ->
       resources
       |> Enum.into(%{}, fn resource ->
@@ -226,7 +248,7 @@ defmodule TransportWeb.DatasetController do
 
   defp by_territory(conn, territory, params, error_msg, count_by_region \\ false) do
     territory
-    |> Repo.one()
+    |> DB.Repo.one()
     |> case do
       nil ->
         error_page(conn, error_msg)
@@ -249,79 +271,39 @@ defmodule TransportWeb.DatasetController do
     |> render("404.html")
   end
 
-  @spec get_datasets(map()) :: Scrivener.Page.t()
-  def get_datasets(params) do
-    config = make_pagination_config(params)
-
-    params
-    |> Dataset.list_datasets()
-    |> preload_spatial_areas(params)
-    |> Repo.paginate(page: config.page_number)
+  defp dataset_ids_for(index, params) do
+    memory_ids = Transport.DatasetIndex.filter_dataset_ids(index, params)
+    db_only_params = Map.take(params, @db_only_filters)
+    order_and_refine(memory_ids, index, params, db_only_params)
   end
 
-  # pre-optimisation version kept, in order to allow side-by-side prod benchmark
-  defp preload_spatial_areas(query, %{"before_optim" => "1"}) do
-    query |> preload([:declarative_spatial_areas])
+  # When the search does not include "db params" we can filter and order using only the memory index
+  defp order_and_refine(memory_ids, index, params, db_only_params) when db_only_params == %{} do
+    Transport.DatasetIndex.order_dataset_ids(memory_ids, index, params)
   end
 
-  defp preload_spatial_areas(query, _params) do
+  defp order_and_refine(memory_ids, _index, params, db_only_params) do
+    DB.Dataset.base_query()
+    |> where([dataset: d], d.id in ^memory_ids)
+    |> apply_db_only_filters(db_only_params)
+    |> DB.Dataset.order_datasets(params)
+    |> select([dataset: d], d.id)
+    |> DB.Repo.all()
+  end
+
+  defp apply_db_only_filters(%Ecto.Query{} = query, db_only_params) do
+    Enum.reduce(db_only_params, query, fn {key, _value}, acc ->
+      case Map.fetch(@db_filter_fns, key) do
+        {:ok, filter_fn} -> filter_fn.(acc, db_only_params)
+        :error -> acc
+      end
+    end)
+  end
+
+  defp preload_spatial_areas(query) do
     DB.AdministrativeDivision
-    # avoid loading `:geom` (total for `/datasets` can be several MB)
     |> select([a], struct(a, [:type, :nom]))
     |> then(&preload(query, declarative_spatial_areas: ^&1))
-  end
-
-  @spec clean_datasets_query(map(), String.t()) :: Ecto.Query.t()
-  defp clean_datasets_query(params, key_to_delete),
-    do: params |> Map.delete(key_to_delete) |> Dataset.list_datasets() |> exclude(:preload)
-
-  @spec get_regions(map()) :: [Region.t()]
-  def get_regions(params) do
-    sub =
-      params
-      |> clean_datasets_query("region")
-      |> exclude(:order_by)
-      |> join(:left, [dataset: d], d_geo in DatasetGeographicView, on: d.id == d_geo.dataset_id, as: :geo_view)
-      |> select([dataset: d, geo_view: d_geo], %{id: d.id, region_id: d_geo.region_id})
-
-    Region
-    |> join(:left, [r], d in subquery(sub), on: d.region_id == r.id)
-    |> group_by([r], [r.insee, r.nom])
-    |> select([r, d], %{nom: r.nom, insee: r.insee, count: count(d.id, :distinct)})
-    |> order_by([r], r.nom)
-    |> Repo.all()
-  end
-
-  @spec get_licences(map()) :: [%{licence: binary(), count: non_neg_integer()}]
-  def get_licences(params) do
-    params
-    |> clean_datasets_query("licence")
-    |> exclude(:order_by)
-    |> group_by([d], fragment("cleaned_licence"))
-    |> select([d], %{
-      licence:
-        fragment("case when licence in ('fr-lo', 'lov2') then 'licence-ouverte' else licence end as cleaned_licence"),
-      count: count(d.id)
-    })
-    |> Repo.all()
-    # Licence ouverte should be first
-    |> Enum.sort_by(&Map.get(%{"licence-ouverte" => 1}, &1.licence, 0), &>=/2)
-  end
-
-  @spec get_types(map()) :: [%{type: binary(), msg: binary(), count: non_neg_integer()}]
-  def get_types(params) do
-    params
-    |> clean_datasets_query("type")
-    |> exclude(:order_by)
-    |> group_by([d], [d.type])
-    |> select([d], %{type: d.type, count: count(d.id, :distinct)})
-    |> Repo.all()
-    |> Enum.reject(&is_nil/1)
-    |> Enum.map(fn res ->
-      %{type: res.type, count: res.count, msg: Dataset.type_to_str(res.type)}
-    end)
-    |> add_current_type(params["type"])
-    |> Enum.reject(fn t -> is_nil(t.msg) end)
   end
 
   def resources_history_csv(%Plug.Conn{} = conn, %{"dataset_id" => dataset_id}) do
@@ -401,57 +383,15 @@ defmodule TransportWeb.DatasetController do
     Enum.map(csv_header, &Map.fetch!(row, &1))
   end
 
-  defp add_current_type(results, type) do
-    case Enum.any?(results, &(&1.type == type)) do
-      true -> results
-      false -> results ++ [%{type: type, count: 0, msg: Dataset.type_to_str(type)}]
-    end
-  end
-
-  @spec resource_format_count(map()) :: %{binary() => non_neg_integer()}
-  defp resource_format_count(params) do
-    result =
-      params
-      |> clean_datasets_query("format")
-      |> exclude(:order_by)
-      |> DB.Resource.join_dataset_with_resource()
-      |> where([resource: r], not is_nil(r.format))
-      |> select([resource: r], %{
-        dataset_id: r.dataset_id,
-        format: r.format
-      })
-      |> distinct(true)
-      |> DB.Repo.all()
-
-    %{all: result |> Enum.uniq_by(& &1.dataset_id) |> Enum.count()}
-    |> Map.merge(result |> Enum.map(& &1.format) |> Enum.frequencies() |> Map.new())
-    |> Enum.sort_by(fn {_, count} -> count end, :desc)
-  end
-
-  @spec get_realtime_count(map()) :: %{all: non_neg_integer(), true: non_neg_integer()}
-  defp get_realtime_count(params) do
-    result =
-      params
-      |> clean_datasets_query("filter")
-      |> exclude(:order_by)
-      |> group_by([d], d.has_realtime)
-      |> select([d], %{has_realtime: d.has_realtime, count: count(d.id, :distinct)})
-      |> Repo.all()
-      |> Enum.reduce(%{}, fn r, acc -> Map.put(acc, r.has_realtime, r.count) end)
-
-    # return the total number of datasets (all) and the number of real time datasets (true)
-    %{all: Map.get(result, true, 0) + Map.get(result, false, 0), true: Map.get(result, true, 0)}
-  end
-
   @spec redirect_to_slug_or_404(Plug.Conn.t(), binary()) :: Plug.Conn.t()
   defp redirect_to_slug_or_404(conn, slug_or_id) do
     case Integer.parse(slug_or_id) do
       {_id, ""} ->
-        redirect_to_dataset(conn, Repo.get_by(Dataset, id: slug_or_id))
+        redirect_to_dataset(conn, DB.Repo.get_by(DB.Dataset, id: slug_or_id))
 
       _ ->
-        case Repo.get_by(Dataset, datagouv_id: slug_or_id) do
-          %Dataset{} = dataset -> redirect_to_dataset(conn, dataset)
+        case DB.Repo.get_by(DB.Dataset, datagouv_id: slug_or_id) do
+          %DB.Dataset{} = dataset -> redirect_to_dataset(conn, dataset)
           nil -> find_dataset_from_slug(conn, slug_or_id)
         end
     end
@@ -460,7 +400,7 @@ defmodule TransportWeb.DatasetController do
   defp find_dataset_from_slug(%Plug.Conn{} = conn, slug) do
     case DB.DatasetHistory.from_old_dataset_slug(slug) do
       %DB.DatasetHistory{dataset_id: dataset_id} ->
-        redirect_to_dataset(conn, Repo.get_by(Dataset, id: dataset_id))
+        redirect_to_dataset(conn, DB.Repo.get_by(DB.Dataset, id: dataset_id))
 
       nil ->
         find_dataset_from_datagouv(conn, slug)
@@ -472,14 +412,14 @@ defmodule TransportWeb.DatasetController do
   defp find_dataset_from_datagouv(%Plug.Conn{} = conn, slug) do
     case Datagouvfr.Client.Datasets.get(slug) do
       {:ok, %{"id" => datagouv_id}} ->
-        redirect_to_dataset(conn, Repo.get_by(Dataset, datagouv_id: datagouv_id))
+        redirect_to_dataset(conn, DB.Repo.get_by(DB.Dataset, datagouv_id: datagouv_id))
 
       _ ->
         redirect_to_dataset(conn, nil)
     end
   end
 
-  @spec redirect_to_dataset(Plug.Conn.t(), Dataset.t() | nil) :: Plug.Conn.t()
+  @spec redirect_to_dataset(Plug.Conn.t(), DB.Dataset.t() | nil) :: Plug.Conn.t()
   defp redirect_to_dataset(conn, nil) do
     conn
     |> put_status(:not_found)
@@ -487,14 +427,21 @@ defmodule TransportWeb.DatasetController do
     |> render("404.html")
   end
 
-  defp redirect_to_dataset(conn, %Dataset{} = dataset) do
+  defp redirect_to_dataset(conn, %DB.Dataset{} = dataset) do
     redirect(conn, to: dataset_path(conn, :details, dataset.slug))
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
+  defp get_name(DB.Offer, identifiant_offre) do
+    DB.Offer
+    |> where([o], o.identifiant_offre == ^identifiant_offre)
+    |> select([o], o.nom_commercial)
+    |> DB.Repo.one!()
+  end
+
   defp get_name(territory, insee) do
     territory
-    |> Repo.get_by(insee: insee)
+    |> DB.Repo.get_by(insee: insee)
     |> case do
       nil -> insee
       t -> t.nom
@@ -579,6 +526,28 @@ defmodule TransportWeb.DatasetController do
         %{type: "EPCI", name: get_name(DB.EPCI, insee)}
       )
 
+  defp put_page_title(conn, %{"identifiant_offre" => identifiant_offre}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "transport offer"),
+          name: get_name(DB.Offer, identifiant_offre)
+        }
+      )
+
+  defp put_page_title(conn, %{"format" => format}),
+    do:
+      assign(
+        conn,
+        :page_title,
+        %{
+          type: dgettext("page-shortlist", "data format"),
+          name: format
+        }
+      )
+
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     # We use the home tiles to associate the URL params to a title, see doc of the function
     TransportWeb.PageController.home_tiles(conn)
@@ -649,18 +618,5 @@ defmodule TransportWeb.DatasetController do
 
       {dataset_id, value}
     end)
-  end
-
-  defp assign_current_contact(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _options) do
-    current_contact =
-      if is_nil(current_user) do
-        nil
-      else
-        DB.Contact
-        |> DB.Repo.get_by!(datagouv_user_id: Map.fetch!(current_user, "id"))
-        |> DB.Repo.preload(:default_tokens)
-      end
-
-    assign(conn, :current_contact, current_contact)
   end
 end

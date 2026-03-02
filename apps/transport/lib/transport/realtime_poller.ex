@@ -3,8 +3,8 @@ defmodule Transport.RealtimePoller do
   A system to poll all active GTFS-RT feeds in the database, and broadcast
   the data via pubsub to the subscribed clients.
   """
-
   use GenServer
+  import Ecto.Query
   require Logger
 
   # NOTE: at time of writing, the code will not result into `:tick` events stacking
@@ -30,12 +30,10 @@ defmodule Transport.RealtimePoller do
     Process.send_after(self(), :tick, delay)
   end
 
-  import Ecto.Query
-
   # separated here so that we can filter if we want
   def relevant_resources do
     DB.Resource
-    |> where(format: "gtfs-rt")
+    |> where(format: "gtfs-rt", is_available: true)
     |> preload(:dataset)
     |> DB.Repo.all()
     |> Enum.filter(& &1.dataset.is_active)
@@ -69,7 +67,7 @@ defmodule Transport.RealtimePoller do
 
   def process do
     task = fn {resource_id, resource_url} ->
-      Logger.info("Processing #{resource_id}...")
+      Logger.debug("Processing #{resource_id}...")
 
       outcome =
         try do
@@ -118,7 +116,7 @@ defmodule Transport.RealtimePoller do
       entity: entity
     } = TransitRealtime.FeedMessage.decode(body)
 
-    Logger.info(
+    Logger.debug(
       "resource:#{resource_id} - timestamp=#{timestamp} #{timestamp |> DateTime.from_unix!()} query_time=#{query_time}"
     )
 

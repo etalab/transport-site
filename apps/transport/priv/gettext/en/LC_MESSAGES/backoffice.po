@@ -295,3 +295,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Spatial area"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Email preview"
+msgstr ""

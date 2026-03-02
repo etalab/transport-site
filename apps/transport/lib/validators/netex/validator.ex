@@ -6,7 +6,8 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.MetadataExtractor
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
 
   @behaviour Transport.Validators.Validator
 
@@ -28,11 +29,13 @@ defmodule Transport.Validators.NeTEx.Validator do
   def poll_interval(nb_tries) when nb_tries < 6, do: 10
   def poll_interval(_), do: 20
 
+  @validator_name "enroute-chouette-netex-validator"
+
   @impl Transport.Validators.Validator
-  def validator_name, do: "enroute-chouette-netex-validator"
+  def validator_name, do: @validator_name
 
   # This will change with an actual versioning of the validator
-  def validator_version, do: "0.2.0"
+  def validator_version, do: "0.2.1"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do
@@ -42,57 +45,73 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   def validate_resource_history(resource_history, filepath) do
-    validate_with_enroute(filepath)
-    |> handle_validation_results(resource_history.id, &enqueue_poller(resource_history.id, &1))
+    metadata = MetadataExtractor.extract(filepath)
+
+    validate_with_enroute(filepath, metadata)
+    |> handle_validation_results(resource_history.id, metadata, &enqueue_poller(resource_history.id, &1, metadata))
   end
 
-  def enqueue_poller(resource_history_id, validation_id, attempt \\ 0) do
+  def enqueue_poller(resource_history_id, validation_id, metadata, attempt \\ 0) do
     {:ok, _job} =
-      Poller.new(%{"validation_id" => validation_id, "resource_history_id" => resource_history_id})
+      Poller.new(%{
+        "validation_id" => validation_id,
+        "resource_history_id" => resource_history_id,
+        "metadata" => metadata
+      })
       |> Oban.insert(schedule_in: _seconds = poll_interval(attempt))
 
     :ok
   end
 
-  def handle_validation_results(validation_results, resource_history_id, on_pending) do
+  def handle_validation_results(validation_results, resource_history_id, metadata, on_pending) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         insert_validation_results(
           resource_history_id,
           result_url,
-          %{elapsed_seconds: elapsed_seconds, retries: retries}
+          Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
         )
 
         :ok
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         insert_validation_results(
           resource_history_id,
           result_url,
-          %{elapsed_seconds: elapsed_seconds, retries: retries},
+          Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries}),
           errors
         )
 
         :ok
 
       {:error, :unexpected_validation_status} ->
+        notify_invalid_api_call(resource_history_id)
+
         Logger.error("Invalid API call to enRoute Chouette Valid (resource_history_id: #{resource_history_id})")
 
         :ok
 
       {:error, %{message: :timeout, retries: _retries}} ->
+        notify_timeout(resource_history_id)
+
         Logger.error(
           "Timeout while fetching results on enRoute Chouette Valid (resource_history_id: #{resource_history_id})"
         )
 
         :ok
 
-      {:pending, validation_id} ->
+      {:pending, {validation_id, _metatada}} ->
         on_pending.(validation_id)
     end
   end
 
-  @type error_details :: %{:message => String.t(), optional(:retries) => integer()}
+  @type metadata :: map()
+
+  @type error_details :: %{:metata => metadata(), :message => String.t(), optional(:retries) => integer()}
 
   @type validation_id :: binary()
 
@@ -106,7 +125,9 @@ defmodule Transport.Validators.NeTEx.Validator do
   @spec validate(binary()) :: validation_results()
   def validate(url) do
     with_url(url, fn filepath ->
-      validate_with_enroute(filepath) |> handle_validation_results_on_demand()
+      metadata = MetadataExtractor.extract(filepath)
+
+      validate_with_enroute(filepath, metadata) |> handle_validation_results_on_demand(metadata)
     end)
   end
 
@@ -115,42 +136,51 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   Let the OnDemand job yield while waiting for results without having the OnDemand implementation leak here.
   """
-  @spec poll_validation(validation_id(), non_neg_integer()) :: validation_results()
-  def poll_validation(validation_id, retries) do
-    poll_validation_results(validation_id, retries) |> handle_validation_results_on_demand()
+  @spec poll_validation(validation_id(), map(), non_neg_integer()) :: validation_results()
+  def poll_validation(validation_id, metadata, retries) do
+    poll_validation_results(validation_id, metadata, retries) |> handle_validation_results_on_demand(metadata)
   end
 
-  defp handle_validation_results_on_demand(validation_results) do
+  defp handle_validation_results_on_demand(validation_results, metadata) do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
         # result_url in metadata?
         Logger.info("Result URL: #{result_url}")
 
         {:ok,
          %{
            "validations" => ResultsAdapter.index_messages([]),
-           "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
+        notify_success()
+
         Logger.info("Result URL: #{result_url}")
         # result_url in metadata?
         {:ok,
          %{
            "validations" => errors |> ResultsAdapter.index_messages(),
-           "metadata" => %{elapsed_seconds: elapsed_seconds, retries: retries}
+           "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, :unexpected_validation_status} ->
+        notify_invalid_api_call()
+
         Logger.error("Invalid API call to enRoute Chouette Valid")
+
         {:error, %{message: "enRoute Chouette Valid: Unexpected validation status"}}
 
       {:error, %{message: :timeout, retries: retries}} ->
+        notify_timeout()
+
         Logger.error("Timeout while fetching results on enRoute Chouette Valid")
+
         {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
 
-      {:pending, validation_id} ->
-        {:pending, validation_id}
+      {:pending, {validation_id, metadata}} ->
+        {:pending, {validation_id, metadata}}
     end
   end
 
@@ -188,33 +218,40 @@ defmodule Transport.Validators.NeTEx.Validator do
   def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
     result = ResultsAdapter.index_messages(errors)
 
+    resource_metadata =
+      %DB.ResourceMetadata{
+        metadata: metadata,
+        modes: metadata["modes"] || []
+      }
+
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      result: result,
+      result: nil,
+      binary_result: ResultsAdapter.to_binary_result(result),
       digest: ResultsAdapter.digest(result),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: result_url,
       max_error: ResultsAdapter.get_max_severity_error(result),
-      metadata: %DB.ResourceMetadata{metadata: metadata}
+      metadata: resource_metadata
     }
     |> DB.Repo.insert!()
   end
 
-  defp validate_with_enroute(filepath) do
-    setup_validation(filepath) |> poll_validation_results(0)
+  defp validate_with_enroute(filepath, metadata) do
+    setup_validation(filepath) |> poll_validation_results(metadata, 0)
   end
 
-  defp setup_validation(filepath), do: client().create_a_validation(filepath)
+  defp setup_validation(filepath), do: client().create_a_validation(filepath, "pan:french_profile:1")
 
-  def poll_validation_results(validation_id, retries) do
+  def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do
       :pending when too_many_attempts(retries) ->
         {:error, %{message: :timeout, retries: retries}}
 
       :pending ->
-        {:pending, validation_id}
+        {:pending, {validation_id, metadata}}
 
       {:successful, url, elapsed_seconds} ->
         {:ok, %{url: url, elapsed_seconds: elapsed_seconds, retries: retries}}
@@ -227,7 +264,37 @@ defmodule Transport.Validators.NeTEx.Validator do
     end
   end
 
+  @impl Transport.Validators.Validator
+  @doc """
+  - true if the NeTEx is outdated.
+  - false if not.
+  - nil if we don't know.
+  """
+  def outdated?(%DB.MultiValidation{validator: @validator_name} = multi_validation) do
+    DB.MultiValidation.outdated?(multi_validation)
+  end
+
+  def outdated?(_), do: nil
+
   defp client do
     Transport.EnRouteChouetteValidClient.Wrapper.impl()
   end
+
+  defp notify_success, do: Appsignal.increment_counter("enroute_chouette_valid.success", 1)
+
+  defp notify_invalid_api_call, do: Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1)
+
+  defp notify_invalid_api_call(resource_history_id),
+    do:
+      Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1, %{
+        resource_history_id: resource_history_id
+      })
+
+  defp notify_timeout, do: Appsignal.increment_counter("enroute_chouette_valid.timeout", 1)
+
+  defp notify_timeout(resource_history_id),
+    do:
+      Appsignal.increment_counter("enroute_chouette_valid.timeout", 1, %{
+        resource_history_id: resource_history_id
+      })
 end

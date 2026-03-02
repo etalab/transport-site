@@ -7,6 +7,7 @@ defmodule Transport.Test.Transport.Jobs.PromoteReuserSpaceJobTest do
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    on_exit(fn -> assert_no_email_sent() end)
   end
 
   test "perform" do

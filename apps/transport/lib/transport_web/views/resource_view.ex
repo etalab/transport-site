@@ -9,9 +9,9 @@ defmodule TransportWeb.ResourceView do
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]
-  import Shared.Validation.TableSchemaValidator, only: [validata_web_url: 1]
+  import Transport.Validators.TableSchema, only: [validata_web_url: 1]
   import Transport.GBFSUtils, only: [gbfs_validation_link: 1]
-  import Transport.Shared.Schemas.Wrapper, only: [schema_type: 1]
+  import Transport.Schemas.Wrapper, only: [schema_type: 1]
   alias Shared.DateTimeDisplay
   def format_related_objects(nil), do: ""
 
@@ -63,20 +63,6 @@ defmodule TransportWeb.ResourceView do
 
     "_netex#{template}"
   end
-
-  def has_associated_files(%{} = resources_related_files, resource_id) do
-    # Don't keep records looking like `%{79088 => %{GeoJSON: nil, NeTEx: nil}}`
-    resource_ids =
-      resources_related_files
-      |> Enum.reject(fn {_resource_id, conversions} ->
-        conversions |> Map.values() |> Enum.reject(&is_nil/1) |> Enum.empty?()
-      end)
-      |> Enum.map(fn {resource_id, _} -> resource_id end)
-
-    resource_id in resource_ids
-  end
-
-  def has_associated_files(_, _), do: false
 
   def get_associated_geojson(%{GeoJSON: geojson_details}), do: geojson_details
   def get_associated_geojson(_), do: nil
@@ -147,19 +133,23 @@ defmodule TransportWeb.ResourceView do
   def mobilitydata_gtfs_validator_url, do: "https://gtfs-validator.mobilitydata.org"
 
   def on_demand_validation_link(conn, %DB.Resource{} = resource) do
-    type =
+    {tile, sub_tile} =
       cond do
-        DB.Resource.gtfs?(resource) -> "gtfs"
-        DB.Resource.gbfs?(resource) -> "gbfs"
-        not is_nil(resource.schema_name) -> resource.schema_name
+        DB.Resource.gtfs?(resource) -> {"public-transit", "gtfs"}
+        DB.Resource.gbfs?(resource) -> {"vehicles-sharing", "gbfs"}
+        not is_nil(resource.schema_name) -> {"schemas", resource.schema_name}
         true -> ""
       end
 
-    unless type == "" or TransportWeb.ValidationController.valid_type?(type) do
-      raise "#{type} is not a valid type for on demand validation"
+    unless sub_tile == "" or TransportWeb.ValidationController.valid_type?(sub_tile) do
+      raise "#{sub_tile} is not a valid type for on demand validation"
     end
 
-    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: type)
+    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive,
+      type: sub_tile,
+      selected_tile: tile,
+      selected_subtile: sub_tile
+    )
   end
 
   @doc """
@@ -270,12 +260,12 @@ defmodule TransportWeb.ResourceView do
     ~H"""
     <div class="networks-start-end">
       <%= for {network, %{"start_date" => start_date, "end_date" => end_date, "end_date_class" => class}} <- @network_data do %>
-        <span><strong><%= network %></strong></span>
-        <span><%= dgettext("validations", "from") %></span>
-        <span><%= Shared.DateTimeDisplay.format_date(start_date, @locale) %></span>
-        <span><%= dgettext("validations", "to") %></span>
+        <span><strong>{network}</strong></span>
+        <span>{dgettext("validations", "from")}</span>
+        <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
+        <span>{dgettext("validations", "to")}</span>
         <span class={class}>
-          <%= Shared.DateTimeDisplay.format_date(end_date, @locale) %>
+          {Shared.DateTimeDisplay.format_date(end_date, @locale)}
         </span>
       <% end %>
     </div>
@@ -337,6 +327,38 @@ defmodule TransportWeb.ResourceView do
     """
   end
 
+  def netex_validation_report_download(%{validation_report_url: _} = assigns) do
+    ~H"""
+    <.download_button url={@validation_report_url}>
+      <.netex_csv_report />
+    </.download_button>
+    """
+  end
+
+  def download_button(%{url: nil} = assigns) do
+    ~H"""
+    <button class="button-outline small secondary" disabled title={dgettext("validations", "No validation error")}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  def download_button(%{url: _} = assigns) do
+    ~H"""
+    <a class="download-button" href={@url} target="_blank">
+      <button class="button-outline small secondary">
+        {render_slot(@inner_block)}
+      </button>
+    </a>
+    """
+  end
+
+  defp netex_csv_report(%{} = assigns) do
+    ~H"""
+    <i class="icon icon--download" aria-hidden="true"></i>{dgettext("resource", "CSV report")}
+    """
+  end
+
   defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
     ~H"""
     """
@@ -347,8 +369,8 @@ defmodule TransportWeb.ResourceView do
     <li class="comment">
       <.info_icon />
       <div>
-        <%= dgettext("validations", "netex-validations-layers") |> raw() %>
-        <%= french_profile_comment(@compliance_check) %>
+        {dgettext("validations", "netex-validations-layers") |> raw()}
+        {french_profile_comment(@compliance_check)}
       </div>
     </li>
     """
@@ -363,11 +385,11 @@ defmodule TransportWeb.ResourceView do
     <li>
       <.validity_icon errors={@stats["count"]} />
       <div class="selector">
-        <%= compatibility_filter(@conn, @category, @token, @stats["count"]) %>
+        {compatibility_filter(@conn, @category, @token, @stats["count"])}
         <.stats :if={@stats["count"] > 0} stats={@stats} results_adapter={@results_adapter} />
       </div>
       <p :if={netex_category_description(@category)}>
-        <%= netex_category_description(@category) %>
+        {netex_category_description(@category)}
       </p>
       <.category_hints :if={netex_category_hints(@category) && @stats["count"] > 0} category={@category} />
     </li>
@@ -377,13 +399,13 @@ defmodule TransportWeb.ResourceView do
   defp category_hints(%{category: _} = assigns) do
     ~H"""
     <.info_icon />
-    <p><%= netex_category_hints(@category) %></p>
+    <p>{netex_category_hints(@category)}</p>
     """
   end
 
   defp stats(%{stats: _, results_adapter: _} = assigns) do
     ~H"""
-    (<%= @results_adapter.format_severity(@stats["criticity"], @stats["count"]) %>)
+    ({@results_adapter.format_severity(@stats["criticity"], @stats["count"])})
     """
   end
 
