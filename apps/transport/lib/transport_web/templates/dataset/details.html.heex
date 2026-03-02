@@ -1,22 +1,5 @@
 <% locale = get_session(@conn, :locale) %>
-<div class="container dataset-page-top">
-  <div class="form__group">
-    <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
-      <div class="searchBar">
-        {search_input(f, :q,
-          id: "autoComplete",
-          autocomplete: "off",
-          value: assigns[:q] || "",
-          placeholder: dgettext("page-index", "Find dataset"),
-          "aria-label": dgettext("page-index", "Find dataset")
-        )}
-        <div class="autoCompleteResultsField">
-          <div id="autoCompleteResults"></div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</div>
+{render(TransportWeb.ResourceView, "_search_bar.html", conn: @conn)}
 <%= unless @dataset.is_active do %>
   <div class="notification error full-width">
     {dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr")}
@@ -319,4 +302,3 @@
   })
 </script>
 <script src={static_path(@conn, "/js/utils.js")} />
-{render(TransportWeb.PageView, "_home_autocomplete.html", conn: @conn)}
