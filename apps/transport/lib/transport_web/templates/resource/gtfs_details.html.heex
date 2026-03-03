@@ -1,5 +1,6 @@
 <% associated_geojson = get_associated_geojson(@related_files)
 locale = get_session(@conn, :locale) %>
+{render("_search_bar.html", conn: @conn)}
 <div class="dataset-page">
   <div class="dataset-menu-container">
     <nav class="dataset-menu">
