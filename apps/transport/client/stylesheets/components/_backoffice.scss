@@ -251,7 +251,7 @@
   color: red;
 }
 
-iframe {
+iframe#email_preview {
   border-radius: 8px;
   border: 2px solid var(--grey);
   aspect-ratio: 16 / 9;
