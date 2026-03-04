@@ -42,7 +42,7 @@
     <div :if={@selected_email} class="panel dashboard-description">
       <div class="">
         <h4>{@selected_email.subject}</h4>
-        <iframe id="iframe" srcdoc={@selected_email.html_body}></iframe>
+        <iframe id="email_preview" srcdoc={@selected_email.html_body}></iframe>
         <a href="#" class="mt-24 button-outline primary small" phx-click="receive_selected_email">
           <i class="fa-solid fa-envelope"></i> Recevoir
         </a>

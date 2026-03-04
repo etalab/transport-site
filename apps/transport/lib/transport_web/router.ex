@@ -162,6 +162,7 @@ defmodule TransportWeb.Router do
     end
 
     get("/stats", StatsController, :index)
+    get("/stats/public-transit", StatsController, :stats_public_transit)
     get("/atom.xml", AtomController, :index)
     post("/send_mail", ContactController, :send_mail)
     get("/aoms", AOMSController, :index)
