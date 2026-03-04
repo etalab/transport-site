@@ -1,0 +1,18 @@
+<div class="container">
+  <script defer src="https://metabase.transport.data.gouv.fr/app/embed.js">
+  </script>
+  <script>
+    function defineMetabaseConfig(config) {
+      window.metabaseConfig = config;
+    }
+  </script>
+  <script>
+    defineMetabaseConfig({
+      theme: { preset: "light" },
+      isGuest: true,
+      instanceUrl: "https://metabase.transport.data.gouv.fr"
+    });
+  </script>
+
+  <metabase-dashboard token={@metabase_token} with-title="true" with-downloads="true"></metabase-dashboard>
+</div>
