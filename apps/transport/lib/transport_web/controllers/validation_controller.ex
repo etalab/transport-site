@@ -46,7 +46,9 @@ defmodule TransportWeb.ValidationController do
             live_path(
               conn,
               TransportWeb.Live.OnDemandValidationSelectLive,
-              params |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+              params
+              |> Enum.sort_by(fn {k, _} -> k end)
+              |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
             )
         )
     end
