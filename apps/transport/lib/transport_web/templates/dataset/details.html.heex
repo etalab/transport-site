@@ -1,4 +1,5 @@
 <% locale = get_session(@conn, :locale) %>
+{render(TransportWeb.ResourceView, "_search_bar.html", conn: @conn)}
 <%= unless @dataset.is_active do %>
   <div class="notification error full-width">
     {dgettext("page-dataset-details", "This dataset has been removed from data.gouv.fr")}

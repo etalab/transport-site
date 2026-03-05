@@ -21,6 +21,7 @@ module.exports = {
         utils: './javascripts/utils.js',
         autocomplete: './javascripts/autocomplete.js',
         autocomplete_address: './javascripts/autocomplete_address.js',
+        fullscreen_wrapper: './javascripts/fullscreen_wrapper.js',
         scss: './stylesheets/app.scss'
     },
     output: {
