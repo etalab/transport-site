@@ -287,6 +287,10 @@ msgid "Previous validations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Many validation errors indicate that the GTFS-RT identifiers do not match the GTFS identifiers."
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
