@@ -45,12 +45,45 @@ html {
   z-index: 999;
   text-align: left;
   left: 0;
+}
 
-  &.languages {
+@supports not (top: anchor(bottom)) {
+  .dropdown-content.languages {
     min-width: auto;
     text-align: center;
     right: 0;
     left: auto;
+  }
+}
+
+/* Anchor positioning is still new. */
+@supports (top: anchor(bottom)) {
+  .dropdown:hover {
+    anchor-name: --menu-dropdown-anchor;
+  }
+  .dropdown-content {
+    position: fixed;
+    position-anchor: --menu-dropdown-anchor;
+    position-try-fallbacks: --right-aligned;
+    top: anchor(bottom);
+    left: anchor(left);
+  }
+  @media (max-width: $breakpoint-tablet) {
+    .dropdown-content {
+      left: auto;
+      right: auto;
+      justify-self: anchor-center;
+      position-try-fallbacks: --top-aligned;
+    }
+  }
+  @position-try --right-aligned {
+    left: auto;
+    right: anchor(right);
+  }
+
+  @position-try --top-aligned {
+    top: auto;
+    bottom: anchor(top);
   }
 }
 
