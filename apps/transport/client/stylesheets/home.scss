@@ -270,11 +270,11 @@ a.tile.sub_tile {
       }
     }
     .search-method {
-      background-color: rgb(255, 255, 255, 0.8);
+      background-color: rgb(255 255 255 / 0.8);
       border-radius: 5px;
       margin: 0 12px;
       &:hover {
-        background-color: rgb(255, 255, 255, 0.9);
+        background-color: rgb(255 255 255 / 0.9);
       }
       a {
         background-color: initial;
