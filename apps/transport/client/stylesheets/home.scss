@@ -35,6 +35,10 @@ html {
   }
 }
 
+.dropdown {
+  cursor: default;
+}
+
 .dropdown-content {
   min-width: 250px;
   z-index: 999;
