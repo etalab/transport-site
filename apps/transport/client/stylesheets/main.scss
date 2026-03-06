@@ -112,27 +112,18 @@ nav.navigation input {
       flex: 1;
     }
 
-    .nav__hamburger {
+    nav .nav__hamburger {
       display: block;
-      width: 7vw;
-      height: 100%;
-      z-index: 1;
-
-      div {
-        background-color: $black;
-        border-radius: 3px;
-        height: 4px;
-        margin-bottom: 0.5vh;
-        width: 100%;
-      }
+      text-decoration: none;
+      font-size: 2rem;
+      color: black;
+      border: none;
+      margin-inline: 1rem;
+      vertical-align: text-top;
     }
 
     .navbar__home {
       max-width: 85%;
-    }
-
-    nav div.nav__hamburger {
-      vertical-align: text-top;
     }
 
     #menu {
