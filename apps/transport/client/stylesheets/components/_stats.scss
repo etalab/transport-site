@@ -16,8 +16,8 @@
   .info {
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    background: rgb(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgb(0, 0, 0, 0.2);
     border-radius: 5px;
   }
   .legend {
@@ -209,7 +209,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
     grid-template-rows: auto;
-    grid-gap: 0;
+    gap: 0;
   }
 
   .bike-list .tile__icon {
