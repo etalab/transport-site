@@ -46,15 +46,17 @@ nav.navigation input {
 }
 
 .nav__avatar {
-  height: 35px;
-  width: 35px;
+  height: 24px;
+  width: 24px;
   border-radius: 50%;
   border: 0.5px solid;
   vertical-align: middle;
 }
 
-.nav__username {
-  margin-left: 1em;
+.nav__item > a {
+  display: inline-block;
+  min-height: 24px;
+  padding: 0.4em 0.8em;
 }
 
 .navbar__logo-mariane {
@@ -177,6 +179,7 @@ nav.navigation input {
 .user-name-display {
   display: flex;
   align-items: center;
+  gap: 0.5em;
 }
 
 .nav__item .language {
