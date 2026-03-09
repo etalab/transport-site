@@ -200,20 +200,16 @@
   h4 {
     display: inline-block;
     margin-bottom: 0;
+    margin-right: 5%;
     font-size: 1em;
-    max-width: 95%;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    &:hover {
-      background: white;
-      margin: -3px 0 -2px -6px;
-      padding: 3px 5px 1px;
-      border: 1px solid var(--lighter-grey);
-      width: max-content;
-      max-width: unset;
-      z-index: 10;
-    }
+  }
+  &:hover h4 {
+    background: white;
+    padding-right: 3px;
+    width: fit-content;
+    z-index: 10;
   }
   .resource-panel-bottom {
     display: flex;
@@ -643,7 +639,7 @@ hr {
   a.button.secondary:hover {
     background-color: var(--darkest-grey) !important;
   }
-  
+
   .button {
     display: flex;
     align-items: center;
