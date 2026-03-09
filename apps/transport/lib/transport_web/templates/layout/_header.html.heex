@@ -139,12 +139,8 @@
                 <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="24" />
               <% end %>
               <div class="dropdown-content languages">
-                <%= link(to: add_locale_to_url(@conn, "fr")) do %>
-                  Français
-                <% end %>
-                <%= link(to: add_locale_to_url(@conn, "en")) do %>
-                  English
-                <% end %>
+                {link("Français", to: add_locale_to_url(@conn, "fr"))}
+                {link("English", to: add_locale_to_url(@conn, "en"))}
               </div>
             </div>
           </li>
