@@ -187,7 +187,7 @@ defmodule Transport.IRVE.Deduplicator do
   defp exact_duplicate_in_same_file_rule(df) do
     df
     # This is grouping by all columns, thus grouping identical entries (with same file ids) together
-    |> Explorer.DataFrame.group_by(fn _col -> true end)
+    |> Explorer.DataFrame.group_by(Transport.IRVE.DatabaseExporter.export_field_list())
     |> Explorer.DataFrame.mutate(count_dups: count(id_pdc_itinerance))
     |> Explorer.DataFrame.mutate(min_row_index: min(row_index(id_pdc_itinerance)))
     |> Explorer.DataFrame.mutate(

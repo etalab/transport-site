@@ -326,6 +326,16 @@ defmodule Transport.IRVE.DeduplicatorTest do
         Enum.map(similar_resource_content, &Map.merge(&1, similar_resource_published_at_same_timestamp_1)) ++
         Enum.map(similar_resource_content, &Map.merge(&1, similar_resource_published_at_same_timestamp_2))
 
-    Explorer.DataFrame.new(data)
+    data
+    |> add_dummy_missing_columns()
+    |> Explorer.DataFrame.new()
+  end
+
+  defp add_dummy_missing_columns(data) do
+    dummy_columns =
+      Transport.IRVE.DatabaseExporter.export_field_list()
+      |> Map.new(&{&1, nil})
+
+    Enum.map(data, &Map.merge(dummy_columns, &1))
   end
 end
