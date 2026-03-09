@@ -176,10 +176,14 @@ nav.navigation input {
   margin-left: var(--space-s) !important;
 }
 
-.user-name-display {
+.user-name-display, a.with-badge {
   display: flex;
   align-items: center;
   gap: 0.5em;
+  .notification_badge {
+    align-self: start;
+    transform: translateY(-0.4em);
+  }
 }
 
 .nav__item .language {

@@ -88,7 +88,7 @@
                     <% end %>
                   </span>
                   <% notifications_count = notifications_count(@conn) %>
-                  <.notification_count count={notifications_count} static={false} />
+                  <.notification_count count={notifications_count} static={true} />
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
@@ -96,6 +96,7 @@
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
                     <a
+                      class="with-badge"
                       data-link-name="producer-space"
                       href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")}
                     >
@@ -104,6 +105,7 @@
                     </a>
                   <% end %>
                   <a
+                    class="with-badge"
                     data-link-name="reuser-space"
                     href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")}
                   >
