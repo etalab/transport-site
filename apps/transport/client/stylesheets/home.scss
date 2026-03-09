@@ -45,6 +45,17 @@ html {
   z-index: 999;
   text-align: left;
   left: 0;
+  transition: opacity 500ms, display 0ms allow-discrete;
+}
+
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+}
+
+@starting-style {
+  .dropdown:hover .dropdown-content {
+    opacity: 0;
+  }
 }
 
 @supports not (top: anchor(bottom)) {
