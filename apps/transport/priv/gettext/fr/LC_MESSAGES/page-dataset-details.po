@@ -287,10 +287,6 @@ msgid "Unavailable resources"
 msgstr "Ressources non disponibles"
 
 #, elixir-autogen, elixir-format
-msgid "Those resources are listed by the provider but are unreachable for now"
-msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment"
-
-#, elixir-autogen, elixir-format
 msgid "Up to date"
 msgstr "À jour"
 
@@ -733,3 +729,7 @@ msgstr "Vous trouverez dessous les réutilisations créées par des personnes ou
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Download as GeoJSON"
 msgstr "Télécharger au format GeoJSON"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
+msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment. <a href=\"%{url}\">En savoir plus</a>."

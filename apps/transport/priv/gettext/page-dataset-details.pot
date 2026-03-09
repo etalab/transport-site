@@ -287,10 +287,6 @@ msgid "Unavailable resources"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Those resources are listed by the provider but are unreachable for now"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Up to date"
 msgstr ""
 
@@ -732,4 +728,8 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Download as GeoJSON"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
 msgstr ""

@@ -156,7 +156,14 @@
         dataset: @dataset,
         title: dgettext("page-dataset-details", "Unavailable resources"),
         warning_message:
-          dgettext("page-dataset-details", "Those resources are listed by the provider but are unreachable for now"),
+          raw(
+            dgettext(
+              "page-dataset-details",
+              ~s|Those resources are listed by the provider but are unreachable for now. <a href="%{url}">Learn more</a>.|,
+              url:
+                "https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/test-de-disponibilite-des-ressources"
+            )
+          ),
         latest_resources_history_infos: @latest_resources_history_infos
       )}
       {render("_reuser_message.html")}
