@@ -135,4 +135,15 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     |> DF.names()
     |> Enum.member?(column_name)
   end
+
+  def summarize_xsd_errors(df) do
+    if has_column?(df, "category") do
+      df
+      |> DF.frequencies(["message"])
+      |> DF.sort_by(message)
+      |> DF.to_rows()
+    else
+      []
+    end
+  end
 end

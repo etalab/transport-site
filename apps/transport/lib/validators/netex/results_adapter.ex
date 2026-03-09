@@ -14,6 +14,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback french_profile_compliance_check() :: :none | :partial | :good_enough
   @callback to_dataframe(list()) :: Explorer.DataFrame.t()
   @callback to_binary_result(list()) :: binary()
+  @callback summarize_xsd_errors(binary()) :: list()
 
   def resolve("0.2.1"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_1
   def resolve("0.2.0"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0

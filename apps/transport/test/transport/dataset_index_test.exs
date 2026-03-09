@@ -373,6 +373,23 @@ defmodule Transport.DatasetIndexTest do
       assert sorted == [d2.id, d1.id, d3.id]
     end
 
+    test "order_by most_recent correctly orders dates across month boundaries" do
+      # March 1 (day=1) is more recent than February 28 (day=28).
+      # A naive DateTime struct comparison compares the `day` field first
+      # (alphabetically the 3rd key), giving 28 > 1 and putting Feb 28 before
+      # March 1 — which is wrong. This test guards against that regression.
+      feb_28 = ~U[2024-02-28 12:00:00Z]
+      mar_1 = ~U[2024-03-01 12:00:00Z]
+
+      d1 = insert(:dataset, inserted_at: feb_28)
+      d2 = insert(:dataset, inserted_at: mar_1)
+
+      index = Transport.DatasetIndex.build_index()
+      sorted = Transport.DatasetIndex.order_dataset_ids([d1.id, d2.id], index, %{"order_by" => "most_recent"})
+      # d2 (March 1) is more recent and must come first
+      assert sorted == [d2.id, d1.id]
+    end
+
     test "default order sorts by population DESC then custom_title ASC" do
       d1 = insert(:dataset, population: 10, custom_title: "AAA")
       d2 = insert(:dataset, population: 20, custom_title: "BBB")

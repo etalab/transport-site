@@ -162,6 +162,7 @@ defmodule TransportWeb.Router do
     end
 
     get("/stats", StatsController, :index)
+    get("/stats/public-transit", StatsController, :stats_public_transit)
     get("/atom.xml", AtomController, :index)
     post("/send_mail", ContactController, :send_mail)
     get("/aoms", AOMSController, :index)
@@ -294,6 +295,7 @@ defmodule TransportWeb.Router do
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
       get("/:id", ValidationController, :show)
+      get("/:id/download-validation-report", ValidationController, :download_validation_report)
     end
 
     scope "/tools" do

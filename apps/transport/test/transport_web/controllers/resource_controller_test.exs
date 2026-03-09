@@ -4,6 +4,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import Mox
   import DB.Factory
   import ExUnit.CaptureLog
+  import NeTExValidationReportHelpers
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
   import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
@@ -763,7 +764,11 @@ defmodule TransportWeb.ResourceControllerTest do
 
         rows = content |> Floki.parse_document!() |> Floki.find("table tr.message")
 
-        assert page_size() == Enum.count(rows)
+        if version in ["0.2.0", "0.2.1"] do
+          assert distinct_xsd_errors(issues) == Enum.count(rows)
+        else
+          assert page_size() == Enum.count(rows)
+        end
 
         assert content =~ "réseaux"
         assert content =~ "Réseau urbain, Réseau inter-urbain"
@@ -830,6 +835,38 @@ defmodule TransportWeb.ResourceControllerTest do
       assert conn2 |> html_response(200) =~ "Les shapes présentes dans le GTFS ont été ignorées"
       assert conn2 |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
       refute conn2 |> html_response(200) =~ "Pas de validation disponible"
+    end
+
+    test "GTFS-RT validation when result is nil", %{conn: conn} do
+      %{id: dataset_id} = insert(:dataset)
+      %{id: gtfs_id} = insert(:resource, format: "GTFS", dataset_id: dataset_id)
+
+      %{id: resource_id} =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "gtfs-rt",
+          url: "https://example.com/file"
+        })
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _, _, _ -> {:ok, %HTTPoison.Response{status_code: 200, body: ""}} end)
+
+      %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        result: nil,
+        digest: %{"errors_count" => 1, "warnings_count" => 0},
+        secondary_resource_id: gtfs_id,
+        metadata: %DB.ResourceMetadata{metadata: %{}}
+      })
+
+      {response, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+      assert response |> html_response(200) =~ "Rapport de validation"
+      assert response |> html_response(200) =~ "1 erreur"
+      assert response |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
+      refute response |> html_response(200) =~ "Pas de validation disponible"
     end
 
     test "Table Schema validation is shown", %{conn: conn} do
@@ -1341,18 +1378,17 @@ defmodule TransportWeb.ResourceControllerTest do
       for version <- ["0.1.0", "0.2.0", "0.2.1"] do
         setup_netex_validation_report(resource, version, true)
 
-        content =
-          conn
-          |> get(resource_path(conn, :download_validation_report, resource.id))
-          |> csv_response(200)
+        assert expected_netex_report_content(version, nils_as_empty_string: true) ==
+                 conn
+                 |> get(resource_path(conn, :download_validation_report, resource.id))
+                 |> csv_response(200)
+                 |> parse_csv()
 
-        if version == "0.1.0" do
-          assert content ==
-                   "code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
-        else
-          assert content ==
-                   "category,code,criticity,message,resource.class,resource.column,resource.filename,resource.id,resource.line\nxsd-schema,xsd-1871,error,Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).,,,,,\n"
-        end
+        assert expected_netex_report_content(version) ==
+                 conn
+                 |> get(resource_path(conn, :download_validation_report, resource.id, format: "parquet"))
+                 |> parquet_response(200)
+                 |> parse_parquet()
       end
 
       resource_id = resource.id
@@ -1361,17 +1397,32 @@ defmodule TransportWeb.ResourceControllerTest do
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
                },
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
                },
                %DB.FeatureUsage{
                  feature: :download_validation_report,
                  contact_id: ^contact_id,
-                 metadata: %{"resource_id" => ^resource_id}
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "csv"}
+               },
+               %DB.FeatureUsage{
+                 feature: :download_validation_report,
+                 contact_id: ^contact_id,
+                 metadata: %{"resource_id" => ^resource_id, "format" => "parquet"}
                }
              ] = DB.FeatureUsage |> DB.Repo.all()
     end
@@ -1429,6 +1480,39 @@ defmodule TransportWeb.ResourceControllerTest do
     })
   end
 
+  def expected_netex_report_content(version, opts \\ [])
+
+  def expected_netex_report_content("0.1.0", opts) do
+    expected_netex_report_content("0.2.1", opts)
+    |> Enum.map(&Map.delete(&1, "category"))
+  end
+
+  def expected_netex_report_content(_, opts) do
+    nils_as_empty_string = Keyword.get(opts, :nils_as_empty_string, false)
+
+    empty =
+      if nils_as_empty_string do
+        ""
+      else
+        nil
+      end
+
+    [
+      %{
+        "category" => "xsd-schema",
+        "code" => "xsd-1871",
+        "criticity" => "error",
+        "message" =>
+          "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef ).",
+        "resource.class" => empty,
+        "resource.column" => empty,
+        "resource.filename" => empty,
+        "resource.id" => empty,
+        "resource.line" => empty
+      }
+    ]
+  end
+
   defp connected_user(conn) do
     %DB.Contact{id: contact_id} = insert_contact(%{datagouv_user_id: datagouv_user_id = Ecto.UUID.generate()})
     conn = conn |> Phoenix.ConnTest.init_test_session(%{current_user: %{"id" => datagouv_user_id}})
@@ -1481,10 +1565,11 @@ defmodule TransportWeb.ResourceControllerTest do
     TransportWeb.PaginationHelpers.make_pagination_config(%{}).page_size
   end
 
-  defp csv_response(conn, status) do
-    body = response(conn, status)
-    _ = response_content_type(conn, :csv)
-
-    body
+  defp distinct_xsd_errors(issues) do
+    issues
+    |> Enum.filter(&String.starts_with?(&1["code"], "xsd-"))
+    |> Enum.map(& &1["message"])
+    |> MapSet.new()
+    |> MapSet.size()
   end
 end

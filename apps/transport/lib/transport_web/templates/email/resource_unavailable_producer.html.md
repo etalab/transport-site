@@ -2,6 +2,8 @@ Bonjour,
 
 Les ressources <%= @resource_titles %> dans votre jeu de données <%= link_for_dataset(@dataset) %> ne sont plus disponibles au téléchargement depuis plus de <%= @hours_consecutive_downtime %>h.
 
+Retrouvez plus d'informations sur [notre documentation](https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/test-de-disponibilite-des-ressources).
+
 <%= if @deleted_recreated_on_datagouv do %>
 Il semble que vous ayez supprimé puis créé une nouvelle ressource : l’URL de téléchargement a donc été modifiée ce qui risque de perturber la réutilisation de vos données. Si ce constat est avéré, nous vous encourageons à prévenir les réutilisateurs de la modification de l’URL de téléchargement via <%= link_for_dataset_discussions(@dataset) %>.
 

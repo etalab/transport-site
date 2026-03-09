@@ -44,8 +44,9 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
         "font-src" => "*",
         "frame-ancestors" => "'none'",
         "img-src" => "'self' https: data:",
-        "script-src" => "'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js",
-        "frame-src" => "https://*.dailymotion.com",
+        "script-src" =>
+          "'self' 'unsafe-eval' 'unsafe-inline' https://stats.data.gouv.fr/matomo.js https://metabase.transport.data.gouv.fr/app/embed.js",
+        "frame-src" => "https://*.dailymotion.com http://metabase.transport.data.gouv.fr",
         "style-src" => "'self' 'nonce-#{nonce}' #{vega_hash_values}",
         "report-uri" => ""
       }

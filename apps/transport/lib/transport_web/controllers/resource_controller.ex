@@ -193,7 +193,7 @@ defmodule TransportWeb.ResourceController do
   defp render_netex_details(conn, params, resource, validation) do
     config = make_pagination_config(params)
 
-    {results_adapter, validation_details, issues, errors_template, max_severity} =
+    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
       build_netex_validation_details(validation, params)
 
     {filter, pagination} = issues
@@ -208,6 +208,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:validation_report_url, validation_report_url)
     |> assign(:filter, filter)
     |> assign(:issues, paginate_netex_results(pagination, config))
+    |> assign(:xsd_errors, xsd_errors)
     |> assign(:errors_template, errors_template)
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
@@ -240,7 +241,7 @@ defmodule TransportWeb.ResourceController do
     }
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil}
+  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
 
   defp build_netex_validation_details(
          %{
@@ -259,8 +260,10 @@ defmodule TransportWeb.ResourceController do
 
     pagination_config = make_pagination_config(params)
     issues = results_adapter.get_issues(binary_result, params, pagination_config)
+    xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
 
-    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity}
+    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity,
+     xsd_errors}
   end
 
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
@@ -361,7 +364,7 @@ defmodule TransportWeb.ResourceController do
     end
   end
 
-  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{"id" => id}) do
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{"id" => id, "format" => format}) do
     resource = get_with_dataset(id)
 
     cond do
@@ -371,41 +374,75 @@ defmodule TransportWeb.ResourceController do
       Resource.netex?(resource) ->
         resource_history = DB.ResourceHistory.latest_resource_history(id)
         validation = latest_validation(resource, resource_history)
-        download_validation_report(conn, resource, validation)
+        download_validation_report(conn, resource, validation, format)
 
       true ->
         not_found(conn)
     end
   end
 
-  def download_validation_report(%Plug.Conn{method: "GET"} = conn, resource, %DB.MultiValidation{
-        id: mv_id,
-        binary_result: binary_result
-      })
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{"id" => _} = params) do
+    download_validation_report(conn, params |> Map.merge(%{"format" => "csv"}))
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _) do
+    not_found(conn)
+  end
+
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        resource,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "csv" = format
+      )
       when is_binary(binary_result) do
     case binary_result
          |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
          |> Explorer.DataFrame.dump_csv() do
       {:ok, validation_report} ->
-        DB.FeatureUsage.insert!(
-          :download_validation_report,
-          get_in(conn.assigns.current_contact.id),
-          %{resource_id: resource.id}
-        )
-
-        send_download(conn, {:binary, validation_report},
-          disposition: :attachment,
-          content_type: "text/csv",
-          filename: "report-#{resource.id}-#{mv_id}.csv"
-        )
+        log_download(conn, resource.id, format)
+        download_binary(conn, validation_report, "text/csv", "report-#{resource.id}-#{mv_id}.csv")
 
       _ ->
         not_found(conn)
     end
   end
 
-  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        resource,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "parquet" = format
+      )
+      when is_binary(binary_result) do
+    log_download(conn, resource.id, format)
+    download_binary(conn, binary_result, "application/vnd.apache.parquet", "report-#{resource.id}-#{mv_id}.parquet")
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _, _) do
     not_found(conn)
+  end
+
+  defp log_download(conn, resource_id, format) do
+    DB.FeatureUsage.insert!(
+      :download_validation_report,
+      get_in(conn.assigns.current_contact.id),
+      %{resource_id: resource_id, format: format}
+    )
+  end
+
+  defp download_binary(conn, binary, content_type, filename) do
+    send_download(conn, {:binary, binary},
+      disposition: :attachment,
+      content_type: content_type,
+      filename: filename
+    )
   end
 
   defp get_with_dataset(resource_id) do

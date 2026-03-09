@@ -40,6 +40,13 @@ html {
   z-index: 999;
   text-align: left;
   left: 0;
+
+  &.languages {
+    min-width: auto;
+    text-align: center;
+    right: 0;
+    left: auto;
+  }
 }
 
 #chevron-hint {

@@ -241,7 +241,7 @@ defmodule Transport.DatasetIndex do
       fn id ->
         case index[id].inserted_at do
           nil -> {0, nil}
-          dt -> {1, dt}
+          dt -> {1, DateTime.to_iso8601(dt)}
         end
       end,
       :desc

@@ -1,7 +1,10 @@
 <header class="navbar">
   <div class="navbar__container">
     <a href="/" class="navbar__home">
-      {img_tag("/images/logo-header.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-mariane")}
+      {img_tag("/images/logo-ministere-transports-2026-03.png",
+        alt: gettext("transport.data.gouv.fr"),
+        class: "navbar__logo-mariane"
+      )}
       {img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black")}
     </a>
     <nav>
@@ -139,7 +142,7 @@
               <% else %>
                 <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="24" />
               <% end %>
-              <div class="dropdown-content">
+              <div class="dropdown-content languages">
                 <%= link(to: add_locale_to_url(@conn, "fr")) do %>
                   Français
                 <% end %>

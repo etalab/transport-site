@@ -201,7 +201,19 @@
     display: inline-block;
     margin-bottom: 0;
     font-size: 1em;
-    max-width: 80%;
+    max-width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      background: white;
+      margin: -3px 0 -2px -6px;
+      padding: 3px 5px 1px;
+      border: 1px solid var(--lighter-grey);
+      width: max-content;
+      max-width: unset;
+      z-index: 10;
+    }
   }
   .resource-panel-bottom {
     display: flex;

@@ -1,5 +1,5 @@
 <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
-<% current_category = @filter["issues_category"] || "" %>
+<% current_category = @filter["issues_category"] || "xsd-schema" %>
 
 <div class="header_with_action_bar">
   <h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
@@ -13,13 +13,19 @@
   validation_summary={@validation_summary}
 />
 
-<%= if worst_occurrences > 0 do %>
-  <div class="main-pane">
+<div :if={worst_occurrences > 0} class="main-pane">
+  <%= if current_category == "xsd-schema" do %>
+    {render(netex_template(current_category),
+      xsd_errors: @xsd_errors || [],
+      validation_report_url: @validation_report_url,
+      conn: @conn
+    )}
+  <% else %>
     {pagination_links(@conn, @issues, [@resource.id],
       issues_category: current_category,
       path: &resource_path/4,
       action: :details
     )}
     {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
-  </div>
-<% end %>
+  <% end %>
+</div>

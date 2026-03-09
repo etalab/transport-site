@@ -227,7 +227,7 @@ defmodule Transport.Validators.NeTEx.Validator do
     %DB.MultiValidation{
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
-      result: result,
+      result: nil,
       binary_result: ResultsAdapter.to_binary_result(result),
       digest: ResultsAdapter.digest(result),
       resource_history_id: resource_history_id,
