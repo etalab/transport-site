@@ -6,17 +6,12 @@ defmodule Transport.IRVE.Deduplicator do
 
   require Explorer.DataFrame
 
-  # Lowest priority number = highest priority, 1 = main priority, 2 = second priority, etc.
-  # Don’t put two datasets on the same priority level
-  # Prioritary datasets must have only a single resource tagged at static IRVE schema
-  @prioritary_datasets [
-    # Gireve
-    %{datagouv_dataset_id: "63dccb1307e9b2f213a5130c", priority: 1},
-    # Eco-movement
-    %{datagouv_dataset_id: "64060c2ac773dcf3fabbe5d2", priority: 2},
-    # Qualicharge
-    %{datagouv_dataset_id: "6818bce2d9af175f6e01a1b2", priority: 3}
-  ]
+  # Loaded at compile time from priv/irve_prioritary_datasets.yml
+  @prioritary_datasets :transport
+                       |> Application.app_dir("priv")
+                       |> Kernel.<>("/irve_prioritary_datasets.yml")
+                       |> File.read!()
+                       |> YamlElixir.read_from_string!()
 
   @doc """
   Main method of deduplication.
