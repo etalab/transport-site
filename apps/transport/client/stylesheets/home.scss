@@ -150,7 +150,7 @@ a.tile.sub_tile {
 }
 
 .grid.available-data {
-  grid-gap: 1.5em !important;
+  gap: 1.5em !important;
   grid-auto-rows: 1fr;
   .tile__text {
     height: 100%;
@@ -165,7 +165,7 @@ a.tile.sub_tile {
 
   .grid {
     color: $grey;
-    grid-gap: 1.5em !important;
+    gap: 1.5em !important;
 
     .tile {
       flex-direction: row;
@@ -270,11 +270,11 @@ a.tile.sub_tile {
       }
     }
     .search-method {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgb(255 255 255 / 0.8);
       border-radius: 5px;
       margin: 0 12px;
       &:hover {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgb(255 255 255 / 0.9);
       }
       a {
         background-color: initial;

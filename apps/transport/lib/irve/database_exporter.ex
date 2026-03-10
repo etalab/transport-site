@@ -71,6 +71,11 @@ defmodule Transport.IRVE.DatabaseExporter do
     ]
   end
 
+  @doc """
+  Returns the list and order of fields to be exported in the dataframe (and CSV file).
+  This function is also used for grouping fully identical entries in the deduplication module
+  as Explorer’s group_by needs a list of columns (or a function).
+  """
   def export_field_list do
     Transport.IRVE.StaticIRVESchema.field_names_list()
     |> Enum.concat(["consolidated_longitude", "consolidated_latitude"])
