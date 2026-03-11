@@ -302,7 +302,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
   end
 
   defp assert_renders_manage_settings_div(%Phoenix.LiveViewTest.View{} = view, dataset_id) do
-    producer_space_url = espace_producteur_path(TransportWeb.Endpoint, :edit_dataset, dataset_id, utm_campaign: "follow_dataset_heart")
+    producer_space_url =
+      espace_producteur_path(TransportWeb.Endpoint, :edit_dataset, dataset_id, utm_campaign: "follow_dataset_heart")
 
     assert [
              {"div", _,
@@ -343,7 +344,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
   end
 
   defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, dataset_id, with_banner: true) do
-    reuser_space_url = reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
+    reuser_space_url =
+      reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
 
     assert [
              {"div", _,
@@ -356,8 +358,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a",
-                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
+                        {"a", [{"href", ^reuser_space_url}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
@@ -367,9 +368,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [{"class", "notification active"}],
                       [
                         "\n    Jeu de données ajouté à vos favoris ! Personnalisez vos préférences depuis votre ",
-                        {"a",
-                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
-                         ["espace réutilisateur"]},
+                        {"a", [{"href", ^reuser_space_url}, {"target", "_blank"}], ["espace réutilisateur"]},
                         ".\n  "
                       ]
                     }
@@ -380,7 +379,8 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
   end
 
   defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, dataset_id, with_banner: false) do
-    reuser_space_url = reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
+    reuser_space_url =
+      reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
 
     assert [
              {"div", _,
@@ -393,8 +393,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       "div",
                       [{"class", "tooltip"}],
                       [
-                        {"a",
-                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
+                        {"a", [{"href", ^reuser_space_url}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
