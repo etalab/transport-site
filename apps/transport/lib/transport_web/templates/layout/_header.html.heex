@@ -8,12 +8,8 @@
       {img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black")}
     </a>
     <nav>
-      <a href="#menu">
-        <div class="nav__hamburger">
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
+      <a href="#menu" class="nav__hamburger" aria-label={dgettext("page-index", "Open the menu")}>
+        <i class="fa fa-bars"></i>
       </a>
       <div id="menu">
         <a id="close-menu" href="#" aria-label={dgettext("page-index", "Close the menu")}>
@@ -92,7 +88,7 @@
                     <% end %>
                   </span>
                   <% notifications_count = notifications_count(@conn) %>
-                  <.notification_count count={notifications_count} static={false} />
+                  <.notification_count count={notifications_count} static={true} />
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
@@ -100,6 +96,7 @@
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
                     <a
+                      class="with-badge"
                       data-link-name="producer-space"
                       href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")}
                     >
@@ -108,6 +105,7 @@
                     </a>
                   <% end %>
                   <a
+                    class="with-badge"
                     data-link-name="reuser-space"
                     href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")}
                   >
@@ -138,17 +136,13 @@
           <li class="nav__item">
             <div class="dropdown">
               <%= if get_session(@conn, :locale) == "fr" do %>
-                <img src={static_path(@conn, "/images/icons/fr.png")} alt="Français" height="24" />
+                <img src={static_path(@conn, "/images/icons/fr.png")} alt="Français" height="18px" />
               <% else %>
-                <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="24" />
+                <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="18px" />
               <% end %>
               <div class="dropdown-content languages">
-                <%= link(to: add_locale_to_url(@conn, "fr")) do %>
-                  Français
-                <% end %>
-                <%= link(to: add_locale_to_url(@conn, "en")) do %>
-                  English
-                <% end %>
+                {link("Français", to: add_locale_to_url(@conn, "fr"))}
+                {link("English", to: add_locale_to_url(@conn, "en"))}
               </div>
             </div>
           </li>

@@ -11,6 +11,11 @@ defmodule Transport.Validators.GTFSRT do
 
   @validator_filename "gtfs-realtime-validator-lib-1.0.0-SNAPSHOT.jar"
   @max_errors_per_section 5
+  # Error codes indicating that GTFS-RT identifiers do not match the GTFS identifiers.
+  # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md
+  @id_mismatch_error_codes ~w(E003 E004 E011 E034)
+
+  def id_mismatch_error_codes, do: @id_mismatch_error_codes
 
   @impl Transport.Validators.Validator
   def validator_name, do: "gtfs-realtime-validator"
