@@ -45,7 +45,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
         }
       )
 
-    assert_renders_manage_settings_div(view)
+    assert_renders_manage_settings_div(view, dataset.id)
   end
 
   test "follows the dataset", %{conn: conn} do
@@ -72,7 +72,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
       )
 
     assert [notification_subscription] == DB.NotificationSubscription |> DB.Repo.all()
-    assert_renders_red_heart(view, with_banner: false)
+    assert_renders_red_heart(view, dataset_id, with_banner: false)
     assert [%DB.DatasetFollower{dataset_id: ^dataset_id, contact_id: ^contact_id}] = DB.DatasetFollower |> DB.Repo.all()
   end
 
@@ -96,7 +96,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
     # Clicking the heart icon
     view |> element("div i") |> render_click()
 
-    assert_renders_red_heart(view, with_banner: true)
+    assert_renders_red_heart(view, dataset_id, with_banner: true)
 
     # Dataset is now being followed
     assert [%DB.DatasetFollower{dataset_id: ^dataset_id, contact_id: ^contact_id, source: :follow_button}] =
@@ -170,7 +170,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
     # Clicking the heart icon
     view |> element("div i") |> render_click()
 
-    assert_renders_red_heart(view, with_banner: true)
+    assert_renders_red_heart(view, dataset_id, with_banner: true)
 
     assert [] == all_enqueued()
   end
@@ -301,7 +301,9 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
            ] = view |> render() |> Floki.parse_document!()
   end
 
-  defp assert_renders_manage_settings_div(%Phoenix.LiveViewTest.View{} = view) do
+  defp assert_renders_manage_settings_div(%Phoenix.LiveViewTest.View{} = view, dataset_id) do
+    producer_space_url = espace_producteur_path(TransportWeb.Endpoint, :edit_dataset, dataset_id, utm_campaign: "follow_dataset_heart")
+
     assert [
              {"div", _,
               [
@@ -309,7 +311,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                  [
                    {"div", [{"class", "tooltip"}],
                     [
-                      {"a", [{"href", "/espace_producteur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
+                      {"a", [{"href", ^producer_space_url}, {"target", "_blank"}],
                        [{"i", [{"class", "fa fa-heart fa-2x producer"}], []}]},
                       {"span", [{"class", "tooltiptext left"}], ["Gérez votre jeu de données"]}
                     ]}
@@ -340,7 +342,9 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
            ] = view |> render() |> Floki.parse_document!()
   end
 
-  defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, with_banner: true) do
+  defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, dataset_id, with_banner: true) do
+    reuser_space_url = reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
+
     assert [
              {"div", _,
               [
@@ -353,7 +357,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [{"class", "tooltip"}],
                       [
                         {"a",
-                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
+                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
@@ -364,7 +368,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [
                         "\n    Jeu de données ajouté à vos favoris ! Personnalisez vos préférences depuis votre ",
                         {"a",
-                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
+                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
                          ["espace réutilisateur"]},
                         ".\n  "
                       ]
@@ -375,7 +379,9 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
            ] = view |> render() |> Floki.parse_document!()
   end
 
-  defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, with_banner: false) do
+  defp assert_renders_red_heart(%Phoenix.LiveViewTest.View{} = view, dataset_id, with_banner: false) do
+    reuser_space_url = reuser_space_path(TransportWeb.Endpoint, :datasets_edit, dataset_id, utm_campaign: "follow_dataset_heart")
+
     assert [
              {"div", _,
               [
@@ -388,7 +394,7 @@ defmodule TransportWeb.Live.FollowDatasetLiveTest do
                       [{"class", "tooltip"}],
                       [
                         {"a",
-                         [{"href", "/espace_reutilisateur?utm_campaign=follow_dataset_heart"}, {"target", "_blank"}],
+                         [{"href", ^reuser_space_url}, {"target", "_blank"}],
                          [{"i", [{"class", "fa fa-heart fa-2x icon---animated-heart active"}], []}]},
                         {"span", [{"class", "tooltiptext left"}], ["Gérez les services liés à ce jeu de données"]}
                       ]
