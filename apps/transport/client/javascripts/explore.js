@@ -85,8 +85,6 @@ function getTooltip ({ object, layer }) {
     if (object) {
         if (layer.id === 'bnlc-layer') {
             return { html: `<strong>Aire de covoiturage</strong><br>${object.properties.nom_lieu}` }
-        } else if (layer.id === 'parkings_relais-layer') {
-            return { html: `<strong>Parking relais</strong><br>${object.properties.nom}<br>Capacité : ${object.properties.nb_pr} places` }
         } else if (layer.id === 'zfe-layer') {
             return { html: '<strong>Zone à Faible Émission</strong>' }
         } else if (layer.id === 'gbfs_stations-layer') {
@@ -110,14 +108,13 @@ function getTooltip ({ object, layer }) {
 }
 // internal dictionary were all layers are stored
 let GTFSRTData = {}
-const layers = { gtfsrt: undefined, bnlc: undefined, parkings_relais: undefined, zfe: undefined, gbfs_stations: undefined }
+const layers = { gtfsrt: undefined, bnlc: undefined, zfe: undefined, gbfs_stations: undefined }
 
 function getLayers (layers) {
     return [
         layers.gtfsrt,
         layers.zfe,
         layers.bnlc,
-        layers.parkings_relais,
         layers.irve,
         layers.gbfs_stations
     ]
@@ -193,23 +190,6 @@ function startBNLC () {
         .then(data => updateBNLCLayer(data.json()))
 }
 
-// Handle Parkings Relais toggle
-document.getElementById('parkings_relais-check').addEventListener('change', (event) => {
-    if (event.currentTarget.checked) {
-        setQueryFlag('parkings-relais')
-        startParkingsRelais()
-    } else {
-        unsetQueryFlag('parkings-relais')
-        updateParkingsRelaisLayer(null)
-    }
-})
-
-function startParkingsRelais () {
-    trackEvent('parkings-relais')
-    fetch('/api/geo-query?data=parkings_relais')
-        .then(data => updateParkingsRelaisLayer(data.json()))
-}
-
 // Handle ZFE toggle
 document.getElementById('zfe-check').addEventListener('change', (event) => {
     if (event.currentTarget.checked) {
@@ -264,7 +244,6 @@ function startGBFS () {
 const bootSequence = {
     'gtfs-rt-check': startGTFSRT,
     'bnlc-check': startBNLC,
-    'parkings_relais-check': startParkingsRelais,
     'zfe-check': startZFE,
     'irve-check': startIRVE,
     'gbfs_stations-check': startGBFS
@@ -281,10 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateBNLCLayer (geojson) {
     layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
-    deckGLLayer.setProps({ layers: getLayers(layers) })
-}
-function updateParkingsRelaisLayer (geojson) {
-    layers.parkings_relais = createPointsLayer(geojson, 'parkings_relais-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
 function updateZFELayer (geojson) {
@@ -311,7 +286,6 @@ function trackEvent (layer) {
 function createPointsLayer (geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
-        'parkings_relais-layer': [0, 33, 70, 100],
         'zfe-layer': [52, 8, 143, 100],
         'irve-layer': [245, 40, 145, 100],
         'gbfs_stations-layer': [60, 115, 168, 100]
