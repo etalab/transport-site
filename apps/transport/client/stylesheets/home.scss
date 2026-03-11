@@ -28,24 +28,73 @@ html {
 
 @media (max-width: $breakpoint-tablet) {
   #close-menu {
-    margin: 20px 20px 0 0;
+    margin: 20px 40px 0 0;
   }
   .dropdown-content {
     top: 60px;
   }
 }
 
+.dropdown {
+  cursor: default;
+}
+
 .dropdown-content {
-  min-width: 250px;
+  min-width: 200px;
+  max-width: max-content;
   z-index: 999;
   text-align: left;
   left: 0;
+  transition: opacity 500ms, display 0ms allow-discrete;
+}
 
-  &.languages {
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+}
+
+@starting-style {
+  .dropdown:hover .dropdown-content {
+    opacity: 0;
+  }
+}
+
+@supports not (top: anchor(bottom)) {
+  .dropdown-content.languages {
     min-width: auto;
     text-align: center;
     right: 0;
     left: auto;
+  }
+}
+
+/* Anchor positioning is still new. */
+@supports (top: anchor(bottom)) {
+  .dropdown:hover {
+    anchor-name: --menu-dropdown-anchor;
+  }
+  .dropdown-content {
+    position: fixed;
+    position-anchor: --menu-dropdown-anchor;
+    position-try-fallbacks: --right-aligned;
+    top: anchor(bottom);
+    left: anchor(left);
+  }
+  @media (max-width: $breakpoint-tablet) {
+    .dropdown-content {
+      left: auto;
+      right: auto;
+      justify-self: anchor-center;
+      position-try-fallbacks: --top-aligned;
+    }
+  }
+  @position-try --right-aligned {
+    left: auto;
+    right: anchor(right);
+  }
+
+  @position-try --top-aligned {
+    top: auto;
+    bottom: anchor(top);
   }
 }
 

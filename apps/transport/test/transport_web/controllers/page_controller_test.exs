@@ -267,7 +267,7 @@ defmodule TransportWeb.PageControllerTest do
       |> Floki.parse_document!()
 
     assert doc |> Floki.find(".notification_badge") == [
-             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
              {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
            ]
 
@@ -306,7 +306,7 @@ defmodule TransportWeb.PageControllerTest do
       |> Floki.parse_document!()
 
     assert doc |> Floki.find(".notification_badge") == [
-             {"span", [{"class", "notification_badge"}, {"aria-label", "2 notifications"}], ["\n  2\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "2 notifications"}], ["\n  2\n"]},
              {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
              {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
            ]
@@ -342,7 +342,7 @@ defmodule TransportWeb.PageControllerTest do
       |> Floki.parse_document!()
 
     assert doc |> Floki.find(".notification_badge") == [
-             {"span", [{"class", "notification_badge"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
+             {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]},
              {"span", [{"class", "notification_badge static"}, {"aria-label", "1 notification"}], ["\n  1\n"]}
            ]
 
