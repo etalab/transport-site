@@ -105,6 +105,19 @@ nav.navigation input {
   }
 }
 
+dialog {
+  &.panel {
+    position: fixed;
+  }
+  &::backdrop {
+    background: var(--darker-grey);
+    opacity: 0.3;
+  }
+  hr {
+    margin: var(--space-m) 0;
+  }
+}
+
 @media (max-width: $breakpoint-tablet) {
   .navbar__container {
     align-items: center;

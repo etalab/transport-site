@@ -417,3 +417,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a CSV file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a Parquet file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download the report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "No validation error. No report to download."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+msgstr ""
