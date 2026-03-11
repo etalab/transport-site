@@ -118,7 +118,6 @@ oban_prod_crontab = [
   {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
   {"20 */2 * * *", Transport.Jobs.GTFSRTMetadataDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
-  {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
   {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
