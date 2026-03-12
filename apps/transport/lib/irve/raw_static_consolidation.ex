@@ -37,7 +37,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
   require Explorer.DataFrame
 
   # needed to filter out the existing, data-gouv provided consolidation
-  @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
+  @datagouv_organization_id Application.compile_env!(:transport, :datagouvfr_publisher_id)
   # Filter also our own consolidation!
   @transport_organization_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
   # similarly, required to eliminate a test file
