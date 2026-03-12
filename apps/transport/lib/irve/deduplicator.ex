@@ -23,6 +23,7 @@ defmodule Transport.IRVE.Deduplicator do
   We group the dataframe by this column, and then can use Explorer "group aware" aggregation functions.
   There are multiple filters applied, once a filter has written a deduplication_status, this won’t be overwritten by next filters.
   How every filter works in detail:
+  - Non concerné : we remove all the lines
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
   - In_prioritary_datasets: we check the min value of the priority for each group of duplicates.
       - If no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
@@ -33,6 +34,9 @@ defmodule Transport.IRVE.Deduplicator do
       but we mark the eventual older ones as duplicates.
   - Datagouv_last_modified: then for the last undecided entries (that are dups that have the same and max date_maj…),
     we mark as kept the one(s) with the most recent datagouv_last_modified, and the others as duplicates.
+  - Exact duplicate in the same file: We check if there are still exact duplicates in the same file (same values on all columns), and we keep only one of them.
+  - Remove undecided duplicates: if after all these rules, there are still duplicates that we cannot decide on,
+    we flag them to be removed.
 
   Values of the additional column:
   - unique
