@@ -288,10 +288,13 @@ defmodule Transport.NeTEx.ArchiveParserTest do
           <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
             <members>
               <Network>
-                <Name>Réseau Urbain</Name>
+                <Name>R'bus (Rochefort Océan)</Name>
+                <members>
+                  <LineRef ref="CA_ROCHEFORT_OCEAN:Line:A:LOC"/>
+                </members>
               </Network>
-              <Line>
-                <Name>Alberville - Besançon</Name>
+              <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+                <Name>Saint-Agnant Les Cordries / Echillais / Rochefort Roy Bry / Tonnay-Charente Les Fontenelles</Name>
               </Line>
             </members>
           </GeneralFrame>
@@ -299,7 +302,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["Réseau Urbain"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
+    assert ["R'bus (Rochefort Océan)"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
 
     multiple_networks = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -360,8 +363,8 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     general_frame = """
       <GeneralFrame>
         <members>
-          <Route id="FR:Route:Route1:" version="any">
-          </Route>
+          <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+          </Line>
           <Quay id="FR:Quay:Quay1:" version="any">
           </Quay>
           <Quay id="FR:Quay:Quay2:" version="any">
@@ -378,7 +381,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
 
     statistics = extract(&ArchiveParser.read_all_description!/1, general_frame)
 
-    assert 1 == statistics.routes
+    assert 1 == statistics.lines
     assert 3 == statistics.quays
     assert 2 == statistics.stop_places
   end

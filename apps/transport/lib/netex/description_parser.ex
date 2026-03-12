@@ -10,7 +10,7 @@ defmodule Transport.NeTEx.DescriptionParser do
   @empty %{
     networks: [],
     transport_modes: [],
-    routes: 0,
+    lines: 0,
     quays: 0,
     stop_places: 0
   }
@@ -32,13 +32,12 @@ defmodule Transport.NeTEx.DescriptionParser do
     {:ok, state |> push(element)}
   end
 
-  def handle_event(:end_element, element, state)
-      when element in ["Network", "Line"] do
+  def handle_event(:end_element, "Network", state) do
     {:ok, state |> stop_capture() |> pop()}
   end
 
-  def handle_event(:end_element, "Route", state) do
-    {:ok, state |> increment(:routes) |> pop()}
+  def handle_event(:end_element, "Line", state) do
+    {:ok, state |> increment(:lines) |> stop_capture() |> pop()}
   end
 
   def handle_event(:end_element, "Quay", state) do

@@ -753,7 +753,7 @@ defmodule TransportWeb.ResourceControllerTest do
               "networks" => networks,
               "modes" => modes,
               "stats" => %{
-                "routes_count" => 1,
+                "lines_count" => 1,
                 "quays_count" => 1002,
                 "stop_places_count" => 103
               }

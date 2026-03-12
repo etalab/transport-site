@@ -425,3 +425,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "number of stop places:"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "number of lines:"
+msgstr ""

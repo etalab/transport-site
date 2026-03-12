@@ -2,7 +2,7 @@
 <% networks = Map.get(@metadata, "networks", []) %>
 <% modes = Map.get(@metadata, "modes", []) %>
 <% stats = Map.get(@metadata, "stats", %{}) %>
-<% routes_count = Map.get(stats, "routes_count", 0) %>
+<% lines_count = Map.get(stats, "lines_count", 0) %>
 <% quays_count = Map.get(stats, "quays_count", 0) %>
 <% stop_places_count = Map.get(stats, "stop_places_count", 0) %>
 <p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
@@ -25,9 +25,9 @@
     {dngettext("validations", "transport mode", "transport modes", length(modes))} :
     <strong>{Enum.join(modes, ", ")}</strong>
   </li>
-  <li :if={routes_count > 0}>
-    {dgettext("validations", "number of routes:")}
-    <strong>{format_nil_or_number(routes_count, locale)}</strong>
+  <li :if={lines_count > 0}>
+    {dgettext("validations", "number of lines:")}
+    <strong>{format_nil_or_number(lines_count, locale)}</strong>
   </li>
   <li :if={quays_count > 0}>
     {dgettext("validations", "number of quays:")}

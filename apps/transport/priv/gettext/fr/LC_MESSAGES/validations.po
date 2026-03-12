@@ -425,3 +425,7 @@ msgstr "nombre de quais :"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "number of stop places:"
 msgstr "nombre de lieux d’arrêt :"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "number of lines:"
+msgstr "nombre de lignes :"

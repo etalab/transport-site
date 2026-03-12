@@ -15,7 +15,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                        "networks" => [],
                        "modes" => [],
                        "stats" => %{
-                         "routes_count" => 0,
+                         "lines_count" => 0,
                          "quays_count" => 0,
                          "stop_places_count" => 0
                        }
@@ -35,7 +35,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                  "networks" => [],
                  "modes" => [],
                  "stats" => %{
-                   "routes_count" => 0,
+                   "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
                  }
@@ -69,7 +69,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                  "networks" => [],
                  "modes" => [],
                  "stats" => %{
-                   "routes_count" => 0,
+                   "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
                  }
@@ -112,7 +112,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                  "networks" => [],
                  "modes" => [],
                  "stats" => %{
-                   "routes_count" => 0,
+                   "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
                  }
@@ -158,7 +158,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                  "networks" => ["Réseau Urbain", "Réseau Régional"],
                  "modes" => ["bus", "ferry"],
                  "stats" => %{
-                   "routes_count" => 0,
+                   "lines_count" => 3,
                    "quays_count" => 0,
                    "stop_places_count" => 0
                  }
@@ -169,12 +169,12 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
   end
 
   test "statistics" do
-    routes = """
+    network = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
         <dataObjects>
           <GeneralFrame>
-            <Route id="FR:Route:Route1:" version="any">
-            </Route>
+            <Line id="FR:Line:LineA:" version="any">
+            </Line>
           </GeneralFrame>
         </dataObjects>
       </PublicationDelivery>
@@ -200,14 +200,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
     """
 
     ZipCreator.with_tmp_zip(
-      [{"network.xml", routes}, {"stops.xml", stops}] |> in_sub_directory(),
+      [{"network.xml", network}, {"stops.xml", stops}] |> in_sub_directory(),
       fn filepath ->
         assert %{
                  "no_validity_dates" => true,
                  "networks" => [],
                  "modes" => [],
                  "stats" => %{
-                   "routes_count" => 1,
+                   "lines_count" => 1,
                    "quays_count" => 3,
                    "stop_places_count" => 2
                  }

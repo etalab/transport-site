@@ -30,7 +30,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
       "networks" => [],
       "modes" => [],
       "stats" => %{
-        "routes_count" => 0,
+        "lines_count" => 0,
         "quays_count" => 0,
         "stop_places_count" => 0
       }
@@ -42,7 +42,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
           "networks" => acc["networks"] ++ elem.networks,
           "modes" => uniq(acc["modes"] ++ elem.transport_modes),
           "stats" => %{
-            "routes_count" => acc["stats"]["routes_count"] + elem.routes,
+            "lines_count" => acc["stats"]["lines_count"] + elem.lines,
             "quays_count" => acc["stats"]["quays_count"] + elem.quays,
             "stop_places_count" => acc["stats"]["stop_places_count"] + elem.stop_places
           }
