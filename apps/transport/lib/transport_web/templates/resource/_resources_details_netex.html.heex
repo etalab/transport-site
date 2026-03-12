@@ -25,16 +25,7 @@
     {dngettext("validations", "transport mode", "transport modes", length(modes))} :
     <strong>{Enum.join(modes, ", ")}</strong>
   </li>
-  <li :if={lines_count > 0}>
-    {dgettext("validations", "number of lines:")}
-    <strong>{format_nil_or_number(lines_count, locale)}</strong>
-  </li>
-  <li :if={quays_count > 0}>
-    {dgettext("validations", "number of quays:")}
-    <strong>{format_nil_or_number(quays_count, locale)}</strong>
-  </li>
-  <li :if={stop_places_count > 0}>
-    {dgettext("validations", "number of stop places:")}
-    <strong>{format_nil_or_number(stop_places_count, locale)}</strong>
-  </li>
+  <.netex_statistic concept={:line} count={lines_count} locale={locale} />
+  <.netex_statistic concept={:quay} count={quays_count} locale={locale} />
+  <.netex_statistic concept={:stop_place} count={stop_places_count} locale={locale} />
 </ul>

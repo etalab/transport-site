@@ -105,4 +105,4 @@ defmodule Script do
 end
 
 Logger.configure(level: :info)
-Script.backfill_all(resource_ids: [82368], force: true)
+Script.backfill_all()
