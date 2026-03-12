@@ -224,3 +224,11 @@ msgstr "Nouvelles fonctionnalités"
 #, elixir-autogen, elixir-format
 msgid "Choose an option"
 msgstr "Sélectionnez un choix"
+
+#, elixir-autogen, elixir-format
+msgid "Fullscreen display"
+msgstr "Afficher en plein écran"
+
+#, elixir-autogen, elixir-format
+msgid "Leave fullscreen display"
+msgstr "Quitter le plein écran"
