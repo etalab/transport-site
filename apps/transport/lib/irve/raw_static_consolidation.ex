@@ -38,6 +38,8 @@ defmodule Transport.IRVE.RawStaticConsolidation do
 
   # needed to filter out the existing, data-gouv provided consolidation
   @datagouv_organization_id "646b7187b50b2a93b1ae3d45"
+  # Filter also our own consolidation!
+  @transport_organization_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
   # similarly, required to eliminate a test file
   @test_dataset_id "67811b8e8934d388950bca3f"
 
@@ -202,6 +204,7 @@ defmodule Transport.IRVE.RawStaticConsolidation do
     # also exclude "test dataset" https://www.data.gouv.fr/en/datasets/test-data-set
     # which is a large file marked as IRVE
     |> Enum.reject(fn r -> r.dataset_id == @test_dataset_id end)
+    |> Enum.reject(fn r -> r.dataset_organisation_id == @transport_organization_id end)
   end
 
   def build_report_item(row, body, extension, optional_error) do
