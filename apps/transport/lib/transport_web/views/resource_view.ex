@@ -363,22 +363,64 @@ defmodule TransportWeb.ResourceView do
 
   def netex_validation_report_download(%{validation_report_url: _} = assigns) do
     ~H"""
-    <div>
-      <.download_button url={@validation_report_url} format="csv">
-        {dgettext("resource", "CSV report")}
-      </.download_button>
-      <.download_button url={@validation_report_url} format="parquet">
-        {dgettext("resource", "Parquet report")}
-      </.download_button>
-    </div>
+    <button class="button-outline small secondary" popovertarget="download-popup">
+      <.download_popup_title />
+    </button>
+    <dialog id="download-popup" popover class="panel">
+      <div class="header_with_action_bar">
+        <h5><.download_popup_title /></h5>
+        <button popovertarget="download-popup" popovertargetaction="hide" class="small secondary">
+          <i class="fa fa-close"></i>
+        </button>
+      </div>
+      <.download_popup_content url={@validation_report_url} />
+    </dialog>
     """
   end
 
-  def download_button(%{url: nil} = assigns) do
+  def download_popup_title(%{} = assigns) do
     ~H"""
-    <button class="button-outline small secondary" disabled title={dgettext("validations", "No validation error")}>
-      <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
-    </button>
+    <i class="icon icon--download" aria-hidden="true"></i> {dgettext("validations", "Download the report")}
+    """
+  end
+
+  def download_popup_content(%{url: nil} = assigns) do
+    ~H"""
+    <p>
+      {dgettext("validations", "No validation error. No report to download.")}
+    </p>
+    """
+  end
+
+  def download_popup_content(%{url: _} = assigns) do
+    ~H"""
+    <div class="download-grid">
+      <span>
+        {dgettext("validations", "As a CSV file:")}
+      </span>
+      <.download_button url={@url} format="csv">
+        validation.csv
+      </.download_button>
+      <span>
+        {dgettext("validations", "As a Parquet file:")}
+      </span>
+      <.download_button url={@url} format="parquet">
+        validation.parquet
+      </.download_button>
+    </div>
+    <hr />
+    <p>
+      {dgettext(
+        "validations",
+        "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+      )}
+    </p>
+    <p>
+      {dgettext("validations", "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>.",
+        parquet_url: "https://parquet.apache.org/"
+      )
+      |> raw()}
+    </p>
     """
   end
 

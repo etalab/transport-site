@@ -171,6 +171,22 @@ table.netex_generic_issue tr.debug td code {
     display: grid;
     grid-template-columns: 1fr max-content;
     align-items: baseline;
+    gap: var(--space-m);
+  }
+
+  #download-popup {
+    max-width: 60ch;
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: 1fr max-content;
+      gap: var(--space-s) var(--space-l);
+
+      button {
+        display: flex;
+        width: 100%;
+      }
+    }
   }
 
   ul.summary {
