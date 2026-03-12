@@ -84,11 +84,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Size:"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "CSV report"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Parquet report"
-msgstr ""

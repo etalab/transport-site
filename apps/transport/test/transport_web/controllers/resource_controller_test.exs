@@ -777,7 +777,11 @@ defmodule TransportWeb.ResourceControllerTest do
         assert content =~ "bus, ferry"
 
         if version in ["0.2.0", "0.2.1"] do
-          assert content =~ "Rapport CSV"
+          assert content =~ "Au format CSV :"
+          assert content =~ "validation.csv"
+
+          assert content =~ "Au format Parquet :"
+          assert content =~ "validation.parquet"
         end
       end
     end

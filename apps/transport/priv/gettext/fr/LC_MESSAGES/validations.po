@@ -417,3 +417,27 @@ msgstr "IRVE, ZFE, covoiturage, données cyclables etc."
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
 msgstr "Mobilités routières et vélo"
+
+#, elixir-autogen, elixir-format
+msgid "As a CSV file:"
+msgstr "Au format CSV :"
+
+#, elixir-autogen, elixir-format
+msgid "As a Parquet file:"
+msgstr "Au format Parquet :"
+
+#, elixir-autogen, elixir-format
+msgid "Download the report"
+msgstr "Télécharger le rapport"
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>."
+msgstr "En savoir plus <a href=\"%{parquet_url}\" target=\"_blank\">ici</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "No validation error. No report to download."
+msgstr "Aucune erreur de validation. Aucun rapport à télécharger."
+
+#, elixir-autogen, elixir-format
+msgid "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+msgstr "Le format Parquet est bien plus compact mais nécessitera que vous utilisiez des outils spécifiques."
