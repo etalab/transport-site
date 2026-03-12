@@ -5,10 +5,8 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ## Février 2026
 
 ### 🚌 NeTEx
-- Dates de validité : affichage dans le cartouche et notification de ressources expirées
-- Métadonnées :
-  - Extraire les metadata NeTEx à la validation
-  - Modes de transports et réseaux
+- Identification et notification aux producteurs des ressources NeTEx expirées.
+- Extraction et affichage de métadonnées dont les modes de transports, les réseaux et les dates de validité d'une ressource NeTEx.
 - Rapport de validation: erreurs XSD regroupées par message
 - Téléchargement du rapport de validation
 - Corrections & maintenance
@@ -29,13 +27,13 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ### 📦 Produit
 - Page nouveautés : janvier 2026
 - Rapport opérationnel (suivi global + détaillé)
-- Resource#details : ajoute menu de navigation
+- Ajout d'un menu de navigation dans le détail d'une ressource.
 - Conversion GeoJSON moins mise en avant
 - GTFS Flex: flag "Périmé" sur cartouche
 
 ### ⚙️ Ops
 - Montée de version PostgreSQL (de 14 à 18)
-- Actualise configuration ZFE
+- Actualisation de la configuration ZFE
 - Ajout de la Suisse dans administrative_division
 
 ### 🛠️ Maintenance
