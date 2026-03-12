@@ -2,9 +2,6 @@
 <% networks = Map.get(@metadata, "networks", []) %>
 <% modes = Map.get(@metadata, "modes", []) %>
 <% stats = Map.get(@metadata, "stats", %{}) %>
-<% lines_count = Map.get(stats, "lines_count", 0) %>
-<% quays_count = Map.get(stats, "quays_count", 0) %>
-<% stop_places_count = Map.get(stats, "stop_places_count", 0) %>
 <p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
   {dgettext("validations", "It is valid from")}
   <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
@@ -25,7 +22,5 @@
     {dngettext("validations", "transport mode", "transport modes", length(modes))} :
     <strong>{Enum.join(modes, ", ")}</strong>
   </li>
-  <.netex_statistic concept={:line} count={lines_count} locale={locale} />
-  <.netex_statistic concept={:quay} count={quays_count} locale={locale} />
-  <.netex_statistic concept={:stop_place} count={stop_places_count} locale={locale} />
+  <.netex_statistics stats={stats} locale={locale} />
 </ul>

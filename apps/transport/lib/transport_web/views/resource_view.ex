@@ -311,11 +311,20 @@ defmodule TransportWeb.ResourceView do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
 
-  def netex_statistic(%{concept: _, count: _, locale: _} = assigns) do
+  def netex_statistics(%{stats: _, locale: _} = assigns) do
     ~H"""
-    <li :if={@count > 0} class="statistic">
+    <.netex_statistic stats={@stats} locale={@locale} concept={:line} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:quay} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:stop_place} />
+    """
+  end
+
+  defp netex_statistic(%{concept: _, stats: _, locale: _} = assigns) do
+    ~H"""
+    <% count = Map.get(@stats, "#{Atom.to_string(@concept)}s_count", 0) %>
+    <li :if={count > 0} class="statistic">
       {netex_statistic_description(@concept)}
-      <strong>{format_nil_or_number(@count, @locale)}</strong>
+      <strong>{format_nil_or_number(count, @locale)}</strong>
       <.netex_statistic_element_tooltip concept={@concept} />
     </li>
     """
