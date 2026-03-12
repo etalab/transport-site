@@ -5,21 +5,44 @@ defmodule Script do
   alias Transport.Validators.NeTEx.Validator
   alias Transport.Validators.NeTEx.MetadataExtractor
 
-  def backfill_all(resource_ids \\ []) do
-    load_candidates(resource_ids)
+  def backfill_all(options \\ []) do
+    load_candidates(options)
     |> log_count()
     |> Enum.each(&backfill/1)
 
     Logger.info("Done")
   end
 
-  defp load_candidates(resource_ids) do
+  defp load_candidates(options) do
+    resource_ids = Keyword.get(options, :resource_ids, [])
+    force = Keyword.get(options, :force, false) == true
+
+    document_query(resource_ids, force)
+
     from_multi_validation_and_resource_metadata_for_historized_resources()
     |> is_netex()
-    |> without_computed_validity_dates()
+    |> without_computed_validity_dates(force)
     |> limited_to_subset(resource_ids)
     |> oldest_first()
     |> DB.Repo.all()
+  end
+
+  defp document_query([], true) do
+    Logger.info("Backfilling metadata for all NeTEx historized resources")
+  end
+
+  defp document_query(resource_ids, force) do
+    intro =
+      if force do
+        "Backfilling metadata for NeTEx historized resources"
+      else
+        "Backfilling metadata for NeTEx historized resources without validity dates"
+      end
+
+    case resource_ids do
+      [] -> Logger.info(intro)
+      _ -> Logger.info("#{intro} linked to resources #{inspect(resource_ids)}")
+    end
   end
 
   def from_multi_validation_and_resource_metadata_for_historized_resources do
@@ -36,24 +59,18 @@ defmodule Script do
     |> where([mv, _rh, _r, _rm], mv.validator == "enroute-chouette-netex-validator")
   end
 
-  defp without_computed_validity_dates(query) do
+  defp without_computed_validity_dates(query, true), do: query
+
+  defp without_computed_validity_dates(query, _) do
     query
     |> where([_mv, _rh, _r, rm], fragment("?->>'start_date' is null", rm.metadata))
     |> where([_mv, _rh, _r, rm], not fragment("coalesce((?->>'no_validity_dates')::boolean, false)", rm.metadata))
   end
 
+  defp limited_to_subset(query, []), do: query
+
   defp limited_to_subset(query, resource_ids) do
-    intro = "Backfilling metadata for NeTEx resources without validity dates"
-
-    case resource_ids || [] do
-      [] ->
-        Logger.info(intro)
-        query
-
-      _ ->
-        Logger.info("#{intro}, limited to resources #{inspect(resource_ids)}")
-        query |> where([_mv, _rh, r, _rm], r.id in ^resource_ids)
-    end
+    query |> where([_mv, _rh, r, _rm], r.id in ^resource_ids)
   end
 
   def oldest_first(query) do
@@ -88,4 +105,4 @@ defmodule Script do
 end
 
 Logger.configure(level: :info)
-Script.backfill_all()
+Script.backfill_all(resource_ids: [82368], force: true)
