@@ -236,13 +236,16 @@
           </b>
         </div>
       </div>
-      <%= if Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 do %>
+      <%= if Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 || not is_nil(@dataset.legal_owner_company_siren) do %>
         <div class="pt-12">
           <span class="dataset-metas-info-title">
             {dgettext("page-dataset-details", "Data under the responsibility of")}
           </span>
           <div>
             {legal_owners_links(@conn, @dataset)}
+            <%= if not is_nil(@dataset.legal_owner_company_siren) do %>
+              {if @company, do: @company.nom_complet, else: @dataset.legal_owner_company_siren}
+            <% end %>
           </div>
         </div>
       <% end %>
