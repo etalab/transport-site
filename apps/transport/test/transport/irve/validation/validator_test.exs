@@ -138,4 +138,46 @@ defmodule Transport.IRVE.ValidatorTest do
       assert Transport.IRVE.Validator.full_file_valid?(result)
     end)
   end
+
+  test "summarize/1 returns a valid summary for a valid file" do
+    csv_content = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
+
+      assert %{
+               valid: true,
+               valid_row_count: 1,
+               invalid_row_count: 0,
+               column_errors: %{},
+               error_samples: []
+             } = summary
+    end)
+  end
+
+  test "summarize/1 reports column errors and caps error samples to 5 per column" do
+    # 10 rows with invalid puissance_nominale, 1 row with invalid nbre_pdc (valid puissance_nominale)
+    invalid_puissance_rows = for _ <- 1..10, do: DB.Factory.IRVE.generate_row(%{"puissance_nominale" => "not-a-number"})
+    invalid_nbre_pdc_row = DB.Factory.IRVE.generate_row(%{"nbre_pdc" => "not-a-number"})
+    csv_content = (invalid_puissance_rows ++ [invalid_nbre_pdc_row]) |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
+
+      assert summary.valid == false
+      assert summary.valid_row_count == 0
+      assert summary.invalid_row_count == 11
+      assert summary.column_errors == %{"puissance_nominale" => 10, "nbre_pdc" => 1}
+
+      # 5 samples from puissance_nominale (capped) + 1 from nbre_pdc
+      assert length(summary.error_samples) == 6
+
+      assert summary.error_samples
+             |> Enum.filter(&(&1.column == "puissance_nominale"))
+             |> Enum.all?(&(&1.value == "not-a-number"))
+
+      assert [%{column: "nbre_pdc", value: "not-a-number", id_pdc_itinerance: _}] =
+               Enum.filter(summary.error_samples, &(&1.column == "nbre_pdc"))
+    end)
+  end
 end
