@@ -180,4 +180,31 @@ defmodule Transport.IRVE.ValidatorTest do
                Enum.filter(summary.error_samples, &(&1.column == "nbre_pdc"))
     end)
   end
+
+  test "validate_and_summarize/1 returns a normal summary with file_level_error: nil for a valid file" do
+    csv_content = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert %{valid: true, file_level_error: nil, valid_row_count: 1, invalid_row_count: 0} = summary
+    end)
+  end
+
+  test "validate_and_summarize/1 returns an error summary instead of raising on a file-level error" do
+    with_tmp_file("PK\x03\x04" <> "some content", fn path ->
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert %{
+               valid: false,
+               file_level_error: error_message,
+               valid_row_count: nil,
+               invalid_row_count: nil,
+               column_errors: %{},
+               error_samples: []
+             } = summary
+
+      assert error_message =~ "zip"
+    end)
+  end
 end

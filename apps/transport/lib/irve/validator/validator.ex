@@ -65,6 +65,34 @@ defmodule Transport.IRVE.Validator do
     }
   end
 
+  @doc """
+  Combines `validate/2` and `summarize/1` into a single call, catching any file-level error
+  (bad encoding, wrong format, missing columns, etc.) instead of raising.
+
+  Returns the same map as `summarize/1` with an additional `file_level_error` key:
+  - `nil` when validation ran successfully (the file could still be invalid row-by-row)
+  - an error message string when a hard file-level error was caught
+
+  On a file-level error, `valid_row_count`, `invalid_row_count`, `column_errors`, and
+  `error_samples` are all `nil`/empty since there is no DataFrame to summarize from.
+  """
+  def validate_and_summarize(path, extension \\ ".csv") do
+    path
+    |> validate(extension)
+    |> summarize()
+    |> Map.put(:file_level_error, nil)
+  rescue
+    error ->
+      %{
+        valid: false,
+        file_level_error: Exception.message(error),
+        valid_row_count: nil,
+        invalid_row_count: nil,
+        column_errors: %{},
+        error_samples: []
+      }
+  end
+
   defp summarize_total_counts(df) do
     valid_count = df["check_row_valid"] |> Explorer.Series.sum()
     invalid_count = Explorer.DataFrame.n_rows(df) - valid_count
