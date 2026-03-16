@@ -4,8 +4,30 @@ defmodule Transport.NeTEx.ArchiveParser do
 
   The current implementation is specialized into extracting `StopPlace`s, but the code
   will be generalized for other uses in a later PR.
+
+  Also provides conversion to GeoJSON via `to_geojson/1` and `to_geojson/2`.
   """
   require Logger
+
+  @doc """
+  Converts a NeTEx ZIP archive to a GeoJSON FeatureCollection.
+
+  This is a convenience facade for `Transport.NeTEx.ToGeoJSON.convert_archive/2`.
+
+  ## Options
+
+  - `:types` - List of element types to extract. Defaults to all types.
+    Available types: `:stop_places`, `:quays`, `:service_links`
+
+  ## Examples
+
+      {:ok, geojson} = Transport.NeTEx.to_geojson("/path/to/netex.zip")
+
+      {:ok, geojson} = Transport.NeTEx.to_geojson(path, types: [:stop_places, :quays])
+
+  """
+  @spec to_geojson(String.t(), keyword()) :: {:ok, map()} | {:error, String.t()}
+  defdelegate to_geojson(zip_path, opts \\ []), to: Transport.NeTEx.ToGeoJSON, as: :convert_archive
 
   @doc """
   Inside a zip archive opened with `Unzip`, parse a given file
