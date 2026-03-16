@@ -54,7 +54,13 @@ defmodule Unlock.Config do
     """
 
     @enforce_keys [:identifier, :bucket, :path, :ttl]
-    defstruct [:identifier, :bucket, :path, :ttl]
+    defstruct [
+      :identifier,
+      :bucket,
+      :path,
+      :ttl,
+      response_headers: []
+    ]
   end
 
   defmodule Item.GBFS do
