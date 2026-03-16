@@ -43,6 +43,8 @@ defmodule TransportWeb.Backoffice.DatasetController do
          complete_params <- Map.merge(form_params, dg_dataset),
          {:ok, changeset} <- Dataset.changeset(complete_params),
          {:ok, dataset} <- insert_dataset(changeset) do
+      Transport.DatasetIndex.refresh()
+
       dataset
       |> Dataset.validate()
       |> flash(
