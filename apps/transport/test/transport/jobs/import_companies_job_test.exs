@@ -167,7 +167,7 @@ defmodule Transport.Test.Transport.Jobs.ImportCompaniesJobTest do
       "nom_complet" => "AIR FRANCE",
       "nom_raison_sociale" => "AIR FRANCE",
       "sigle" => "AF",
-      "date_mise_a_jour_rne" => "2023-01-15",
+      "date_mise_a_jour_rne" => "2023-01-15T16:49:33",
       "siege" => %{
         "adresse" => "45 RUE DE PARIS 95747 ROISSY-EN-FRANCE",
         "latitude" => "49.003869",

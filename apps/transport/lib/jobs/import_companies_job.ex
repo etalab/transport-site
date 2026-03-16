@@ -51,7 +51,12 @@ defmodule Transport.Jobs.ImportCompaniesJob do
   end
 
   defp parse_date(nil), do: nil
-  defp parse_date(value), do: Date.from_iso8601!(value)
+  defp parse_date(value), do: datetime_to_date(value)
+
+  defp datetime_to_date(dt_string) when is_binary(dt_string) do
+    {:ok, dt, 0} = "#{String.trim_trailing(dt_string, "Z")}Z" |> DateTime.from_iso8601()
+    DateTime.to_date(dt)
+  end
 
   defp parse_float(nil), do: nil
   defp parse_float(value), do: String.to_float(value)

@@ -45,6 +45,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
       |> assign(:dataset_subtypes, get_dataset_subtypes(dataset))
       |> assign(:matches, [])
+      |> assign(:company, get_company(dataset))
 
     {:ok, socket}
   end
@@ -106,6 +107,12 @@ defmodule TransportWeb.EditDatasetLive do
   end
 
   def get_dataset_subtypes(_), do: []
+
+  def get_company(%Dataset{legal_owner_company_siren: siren}) when not is_nil(siren) do
+    DB.Repo.get(DB.Company, siren)
+  end
+
+  def get_company(_), do: nil
 
   def organization_types,
     do: [
