@@ -266,6 +266,8 @@ defmodule TransportWeb.Router do
         post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_resource_format_override", DatasetController, :resource_format_override)
+        post("/:id/_resource_related_create", DatasetController, :resource_related_create)
+        post("/:id/_resource_related_delete", DatasetController, :resource_related_delete)
       end
 
       get("/breaking_news", BreakingNewsController, :index)

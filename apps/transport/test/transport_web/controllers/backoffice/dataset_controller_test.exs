@@ -192,6 +192,101 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
     assert DB.Repo.reload(dataset) |> is_nil()
   end
 
+  describe "resource_related_create" do
+    test "creates an association between two resources", %{conn: conn} do
+      dataset = insert(:dataset)
+      resource_src = insert(:resource, dataset: dataset)
+      resource_dst = insert(:resource, dataset: dataset)
+
+      conn =
+        conn
+        |> setup_admin_in_session()
+        |> post(Routes.backoffice_dataset_path(conn, :resource_related_create, dataset.id), %{
+          "resource_src_id" => to_string(resource_src.id),
+          "resource_dst_id" => to_string(resource_dst.id),
+          "reason" => "gtfs_rt_gtfs"
+        })
+
+      assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Les ressources ont été associées"
+
+      assert DB.Repo.get_by(DB.ResourceRelated,
+               resource_src_id: resource_src.id,
+               resource_dst_id: resource_dst.id,
+               reason: :gtfs_rt_gtfs
+             )
+    end
+
+    test "is idempotent when the association already exists", %{conn: conn} do
+      dataset = insert(:dataset)
+      resource_src = insert(:resource, dataset: dataset)
+      resource_dst = insert(:resource, dataset: dataset)
+
+      insert(:resource_related,
+        resource_src: resource_src,
+        resource_dst: resource_dst,
+        reason: :manual
+      )
+
+      conn
+      |> setup_admin_in_session()
+      |> post(Routes.backoffice_dataset_path(conn, :resource_related_create, dataset.id), %{
+        "resource_src_id" => to_string(resource_src.id),
+        "resource_dst_id" => to_string(resource_dst.id),
+        "reason" => "manual"
+      })
+
+      assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 1
+    end
+
+    test "returns an error when src and dst are the same resource", %{conn: conn} do
+      dataset = insert(:dataset)
+      resource = insert(:resource, dataset: dataset)
+
+      conn =
+        conn
+        |> setup_admin_in_session()
+        |> post(Routes.backoffice_dataset_path(conn, :resource_related_create, dataset.id), %{
+          "resource_src_id" => to_string(resource.id),
+          "resource_dst_id" => to_string(resource.id),
+          "reason" => "manual"
+        })
+
+      assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "différentes"
+
+      assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 0
+    end
+  end
+
+  describe "resource_related_delete" do
+    test "deletes an existing association", %{conn: conn} do
+      dataset = insert(:dataset)
+      resource_src = insert(:resource, dataset: dataset)
+      resource_dst = insert(:resource, dataset: dataset)
+
+      insert(:resource_related,
+        resource_src: resource_src,
+        resource_dst: resource_dst,
+        reason: :manual
+      )
+
+      conn =
+        conn
+        |> setup_admin_in_session()
+        |> post(Routes.backoffice_dataset_path(conn, :resource_related_delete, dataset.id), %{
+          "resource_src_id" => to_string(resource_src.id),
+          "resource_dst_id" => to_string(resource_dst.id),
+          "reason" => "manual"
+        })
+
+      assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "supprimée"
+
+      assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 0
+    end
+  end
+
   test "resource_format_override", %{conn: conn} do
     dataset = insert(:dataset)
     resource = insert(:resource, dataset: dataset, format: "GTFS")

@@ -177,6 +177,47 @@ defmodule TransportWeb.Backoffice.DatasetController do
     |> redirect_to_index()
   end
 
+  def resource_related_create(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
+    src_id = String.to_integer(params["resource_src_id"])
+    dst_id = String.to_integer(params["resource_dst_id"])
+
+    {flash_type, flash_msg} =
+      if src_id == dst_id do
+        {:error, "Les deux ressources doivent être différentes"}
+      else
+        reason = String.to_existing_atom(params["reason"])
+
+        %DB.ResourceRelated{}
+        |> Ecto.Changeset.change(%{resource_src_id: src_id, resource_dst_id: dst_id, reason: reason})
+        |> DB.Repo.insert(on_conflict: :nothing, conflict_target: [:resource_src_id, :resource_dst_id, :reason])
+
+        {:info, "Les ressources ont été associées"}
+      end
+
+    conn
+    |> put_flash(flash_type, flash_msg)
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+  end
+
+  def resource_related_delete(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
+    import Ecto.Query
+
+    src_id = String.to_integer(params["resource_src_id"])
+    dst_id = String.to_integer(params["resource_dst_id"])
+
+    reason = String.to_existing_atom(params["reason"])
+
+    DB.Repo.delete_all(
+      from(rr in DB.ResourceRelated,
+        where: rr.resource_src_id == ^src_id and rr.resource_dst_id == ^dst_id and rr.reason == ^reason
+      )
+    )
+
+    conn
+    |> put_flash(:info, "L'association a été supprimée")
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+  end
+
   def resource_format_override(%Plug.Conn{} = conn, params) do
     resource = DB.Repo.get!(DB.Resource, params["resource_id"])
     dataset = DB.Repo.get!(DB.Dataset, params["id"])
