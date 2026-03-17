@@ -361,7 +361,7 @@ defmodule TransportWeb.Backoffice.PageController do
       re.nom nom_region,
       o.offre_mobilite,
       administrative_division.noms couverture_spatiale,
-      coalesce(legal_owners.noms, d.legal_owner_company_siren::varchar) representants_legaux,
+      nullif(concat_ws(', ', legal_owners.noms, case when d.legal_owner_company_siren is not null then coalesce(c.nom_complet || ' (' || d.legal_owner_company_siren || ')', d.legal_owner_company_siren) end), '') representants_legaux,
       case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv,
       r.title titre_ressource,
       r.url url_ressource,
@@ -369,6 +369,7 @@ defmodule TransportWeb.Backoffice.PageController do
       r.is_community_resource est_ressource_communautaire,
       r.format format_ressource,
       r.format in ('gtfs-rt', 'gbfs', 'SIRI', 'SIRI Lite') est_temps_reel_ressource,
+      associated_resources.titres est_associee_a_ressources,
       case when r.url like 'https://static.data.gouv.fr%' then 'manuelle' else 'automatique' end methode_maj,
       rh.inserted_at derniere_maj,
       case when mv.validator = 'GTFS transport-validator' then mv.max_error else mv.result->>'errors_count' end validation_errors,
@@ -423,6 +424,13 @@ defmodule TransportWeb.Backoffice.PageController do
       join administrative_division ad on ad.id = ddsa.administrative_division_id
       group by ddsa.dataset_id
     ) administrative_division on administrative_division.dataset_id = d.id
+    left join company c on c.siren = d.legal_owner_company_siren
+    left join (
+      select rr.resource_src_id resource_id, string_agg(r2.title, ',' order by r2.title) titres
+      from resource_related rr
+      join resource r2 on r2.id = rr.resource_dst_id
+      group by rr.resource_src_id
+    ) associated_resources on associated_resources.resource_id = r.id
     left join multi_validation mv on mv.resource_history_id = rh.id
     left join resource_metadata rm on rm.multi_validation_id = mv.id
     left join (
