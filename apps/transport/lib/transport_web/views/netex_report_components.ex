@@ -281,7 +281,6 @@ defmodule TransportWeb.NeTExReportComponents do
     <.colorful_link
       href={netex_link_to_category(@conn, @category)}
       valid={@stats["count"] == 0}
-      striped={@category == "french-profile" and @results_adapter.french_profile_compliance_check() == :partial}
       selected={@current_category == @category}
     >
       <:icon>
