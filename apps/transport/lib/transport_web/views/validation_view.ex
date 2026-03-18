@@ -5,9 +5,14 @@ defmodule TransportWeb.ValidationView do
   import TransportWeb.ResourceView,
     only: [
       gtfs_template: 1,
-      netex_template: 0,
+      netex_template: 0
+    ]
+
+  import TransportWeb.NeTExReportComponents,
+    only: [
+      netex_validation_report_content: 1,
       netex_validation_report_title: 1,
-      netex_validation_report_content: 1
+      to_netex_validation_report: 1
     ]
 
   import TransportWeb.PaginationHelpers
@@ -29,6 +34,6 @@ defmodule TransportWeb.ValidationView do
   end
 
   defp netex_issues_path(conn, action, validation_id, params) do
-    validation_path(conn, action, validation_id, params) <> "#validation-report"
+    validation_path(conn, action, validation_id, params) |> to_netex_validation_report()
   end
 end
