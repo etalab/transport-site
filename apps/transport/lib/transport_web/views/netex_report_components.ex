@@ -9,6 +9,7 @@ defmodule TransportWeb.NeTExReportComponents do
   import Phoenix.HTML
   import Plug.Conn, only: [get_session: 2]
   use Gettext, backend: TransportWeb.Gettext
+  import TransportWeb.Components.ColorfulButton
 
   def to_netex_validation_report(url), do: url <> "#validation-report"
 
@@ -277,25 +278,22 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp netex_errors_category(%{conn: _, category: _, stats: _, results_adapter: _, current_category: _} = assigns) do
     ~H"""
-    <.link
-      class={
-        netex_errors_category_classnames(
-          @category,
-          @current_category,
-          @stats["count"],
-          @results_adapter.french_profile_compliance_check()
-        )
-      }
+    <.colorful_link
       href={netex_link_to_category(@conn, @category)}
+      valid={@stats["count"] == 0}
+      striped={@category == "french-profile" and @results_adapter.french_profile_compliance_check() == :partial}
+      selected={@current_category == @category}
     >
-      <.validity_icon errors={@stats["count"]} />
-      <span>
+      <:icon>
+        <.validity_icon errors={@stats["count"]} />
+      </:icon>
+      <:label>
         <span class="category">
           {netex_category_label(@category)}
         </span>
         <.stats :if={@stats["count"] > 0} stats={@stats} results_adapter={@results_adapter} />
-      </span>
-    </.link>
+      </:label>
+    </.colorful_link>
     """
   end
 
@@ -310,31 +308,6 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp drop_empty_query_params(query_params) do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)
-  end
-
-  defp netex_errors_category_classnames(category, current_category, errors, compliance_check) do
-    validity =
-      if errors == 0 do
-        ["valid"]
-      else
-        ["invalid"]
-      end
-
-    variant =
-      if category == "french-profile" and compliance_check == :partial do
-        ["striped"]
-      else
-        []
-      end
-
-    selected =
-      if current_category == category do
-        ["selected"]
-      else
-        []
-      end
-
-    Enum.join(["colorful"] ++ validity ++ variant ++ selected, " ")
   end
 
   defp netex_category_description(%{category: _, compliance_check: _, conn: _} = assigns) do
