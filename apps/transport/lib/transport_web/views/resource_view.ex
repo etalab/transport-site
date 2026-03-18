@@ -311,6 +311,49 @@ defmodule TransportWeb.ResourceView do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
 
+  def netex_statistics(%{stats: _, locale: _} = assigns) do
+    ~H"""
+    <.netex_statistic stats={@stats} locale={@locale} concept={:line} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:quay} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:stop_place} />
+    """
+  end
+
+  defp netex_statistic(%{concept: _, stats: _, locale: _} = assigns) do
+    ~H"""
+    <% count = Map.get(@stats, "#{Atom.to_string(@concept)}s_count", 0) %>
+    <li :if={count > 0} class="statistic">
+      {netex_statistic_description(@concept)}
+      <strong>{format_nil_or_number(count, @locale)}</strong>
+      <.netex_statistic_element_tooltip concept={@concept} />
+    </li>
+    """
+  end
+
+  defp netex_statistic_description(:line), do: dgettext("resource", "number of lines:")
+  defp netex_statistic_description(:quay), do: dgettext("resource", "number of quays:")
+  defp netex_statistic_description(:stop_place), do: dgettext("resource", "number of stop places:")
+
+  defp netex_statistic_element_tooltip(%{concept: _} = assigns) do
+    ~H"""
+    <span class="dropdown">
+      <i class="fa fa-circle-question"></i>
+      <div class="dropdown-content">
+        {dgettext("resource", "Occurrences of the %{element} element.", element: netex_statistic_element(@concept))
+        |> raw()}
+      </div>
+    </span>
+    """
+  end
+
+  defp netex_statistic_element(:line), do: "Line" |> element()
+  defp netex_statistic_element(:quay), do: "Quay" |> element()
+  defp netex_statistic_element(:stop_place), do: "StopPlace" |> element()
+
+  defp element(element_name) do
+    "<code>&lt;#{element_name}&gt;</code>"
+  end
+
   def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
     ~H"""
     <ul class="summary">
