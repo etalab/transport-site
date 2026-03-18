@@ -448,11 +448,20 @@ a.button.reuser-space {
   display: none;
 }
 
+@function change-luminosity($color, $shift) {
+  @return oklab(from $color calc(l + $shift) a b);
+}
+
 .notification_badge {
-  background-color: #fa3e3e;
-  border-radius: 2px;
+  /* Adjust background color to have proper contrast (accessibility issue). */
+  background-color: change-luminosity(#fa3e3e, -0.06);
+  border-radius: 4px;
+  font-weight: 600;
   color: white;
   line-height: 1.5em;
+  min-width: 1.7em;
+  display: inline-flex;
+  justify-content: center;
   padding: 1px 3px;
   font-size: 10px;
   position: absolute;
