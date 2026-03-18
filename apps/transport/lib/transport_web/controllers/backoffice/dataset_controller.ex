@@ -4,6 +4,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   alias DB.{Dataset, ImportDataWorker, Repo}
   alias Transport.{ImportData, ImportDataWorker}
+  import Ecto.Query
   require Logger
 
   @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -180,18 +181,25 @@ defmodule TransportWeb.Backoffice.DatasetController do
   def resource_related_create(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
     src_id = String.to_integer(params["resource_src_id"])
     dst_id = String.to_integer(params["resource_dst_id"])
+    dataset = DB.Repo.get!(DB.Dataset, dataset_id) |> DB.Repo.preload(:resources)
+    resource_ids = dataset.resources |> MapSet.new(& &1.id)
 
     {flash_type, flash_msg} =
-      if src_id == dst_id do
-        {:error, "Les deux ressources doivent être différentes"}
-      else
-        reason = String.to_existing_atom(params["reason"])
+      cond do
+        src_id not in resource_ids or dst_id not in resource_ids ->
+          {:error, "Les ressources doivent appartenir au jeu de données"}
 
-        %DB.ResourceRelated{}
-        |> Ecto.Changeset.change(%{resource_src_id: src_id, resource_dst_id: dst_id, reason: reason})
-        |> DB.Repo.insert(on_conflict: :nothing, conflict_target: [:resource_src_id, :resource_dst_id, :reason])
+        src_id == dst_id ->
+          {:error, "Les deux ressources doivent être différentes"}
 
-        {:info, "Les ressources ont été associées"}
+        true ->
+          reason = String.to_existing_atom(params["reason"])
+
+          %DB.ResourceRelated{}
+          |> Ecto.Changeset.change(%{resource_src_id: src_id, resource_dst_id: dst_id, reason: reason})
+          |> DB.Repo.insert(on_conflict: :nothing, conflict_target: [:resource_src_id, :resource_dst_id, :reason])
+
+          {:info, "Les ressources ont été associées"}
       end
 
     conn
@@ -200,21 +208,27 @@ defmodule TransportWeb.Backoffice.DatasetController do
   end
 
   def resource_related_delete(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
-    import Ecto.Query
-
     src_id = String.to_integer(params["resource_src_id"])
     dst_id = String.to_integer(params["resource_dst_id"])
-
     reason = String.to_existing_atom(params["reason"])
+    dataset = DB.Repo.get!(DB.Dataset, dataset_id) |> DB.Repo.preload(:resources)
+    resource_ids = dataset.resources |> MapSet.new(& &1.id)
 
-    DB.Repo.delete_all(
-      from(rr in DB.ResourceRelated,
-        where: rr.resource_src_id == ^src_id and rr.resource_dst_id == ^dst_id and rr.reason == ^reason
-      )
-    )
+    {flash_type, flash_msg} =
+      if src_id in resource_ids and dst_id in resource_ids do
+        DB.Repo.delete_all(
+          from(rr in DB.ResourceRelated,
+            where: rr.resource_src_id == ^src_id and rr.resource_dst_id == ^dst_id and rr.reason == ^reason
+          )
+        )
+
+        {:info, "L'association a été supprimée"}
+      else
+        {:error, "Les ressources doivent appartenir au jeu de données"}
+      end
 
     conn
-    |> put_flash(:info, "L'association a été supprimée")
+    |> put_flash(flash_type, flash_msg)
     |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
   end
 

@@ -239,6 +239,27 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
       assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 1
     end
 
+    test "returns an error when a resource does not belong to the dataset", %{conn: conn} do
+      dataset = insert(:dataset)
+      other_dataset = insert(:dataset)
+      resource_src = insert(:resource, dataset: dataset)
+      resource_dst = insert(:resource, dataset: other_dataset)
+
+      conn =
+        conn
+        |> setup_admin_in_session()
+        |> post(Routes.backoffice_dataset_path(conn, :resource_related_create, dataset.id), %{
+          "resource_src_id" => to_string(resource_src.id),
+          "resource_dst_id" => to_string(resource_dst.id),
+          "reason" => "manual"
+        })
+
+      assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "appartenir au jeu de données"
+
+      assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 0
+    end
+
     test "returns an error when src and dst are the same resource", %{conn: conn} do
       dataset = insert(:dataset)
       resource = insert(:resource, dataset: dataset)
@@ -260,6 +281,29 @@ defmodule TransportWeb.Backoffice.DatasetControllerTest do
   end
 
   describe "resource_related_delete" do
+    test "returns an error when a resource does not belong to the dataset", %{conn: conn} do
+      dataset = insert(:dataset)
+      other_dataset = insert(:dataset)
+      resource_src = insert(:resource, dataset: dataset)
+      resource_dst = insert(:resource, dataset: other_dataset)
+
+      insert(:resource_related, resource_src: resource_src, resource_dst: resource_dst, reason: :manual)
+
+      conn =
+        conn
+        |> setup_admin_in_session()
+        |> post(Routes.backoffice_dataset_path(conn, :resource_related_delete, dataset.id), %{
+          "resource_src_id" => to_string(resource_src.id),
+          "resource_dst_id" => to_string(resource_dst.id),
+          "reason" => "manual"
+        })
+
+      assert redirected_to(conn, 302) == backoffice_page_path(conn, :edit, dataset.id)
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "appartenir au jeu de données"
+
+      assert DB.Repo.aggregate(DB.ResourceRelated, :count) == 1
+    end
+
     test "deletes an existing association", %{conn: conn} do
       dataset = insert(:dataset)
       resource_src = insert(:resource, dataset: dataset)
