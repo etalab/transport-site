@@ -169,6 +169,10 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
     |> assign(:resource_formats, resource_formats())
     |> assign(
+      :resource_related,
+      conn.assigns[:dataset].resources |> Enum.flat_map(& &1.resources_related)
+    )
+    |> assign(
       :import_logs,
       LogsImport
       |> where([v], v.dataset_id == ^dataset_id)
@@ -189,7 +193,7 @@ defmodule TransportWeb.Backoffice.PageController do
       :declarative_spatial_areas,
       :offers,
       :dataset_subtypes,
-      :resources
+      [resources: [resources_related: [:resource_src, :resource_dst]]]
     ])
     |> Repo.get(dataset_id)
   end

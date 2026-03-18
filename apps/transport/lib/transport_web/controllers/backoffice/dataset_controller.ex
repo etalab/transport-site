@@ -4,6 +4,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   alias DB.{Dataset, ImportDataWorker, Repo}
   alias Transport.{ImportData, ImportDataWorker}
+  import Ecto.Query
   require Logger
 
   @spec post(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -175,6 +176,60 @@ defmodule TransportWeb.Backoffice.DatasetController do
       )
     )
     |> redirect_to_index()
+  end
+
+  def resource_related_create(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
+    src_id = String.to_integer(params["resource_src_id"])
+    dst_id = String.to_integer(params["resource_dst_id"])
+    dataset = DB.Repo.get!(DB.Dataset, dataset_id) |> DB.Repo.preload(:resources)
+    resource_ids = dataset.resources |> MapSet.new(& &1.id)
+
+    {flash_type, flash_msg} =
+      cond do
+        src_id not in resource_ids or dst_id not in resource_ids ->
+          {:error, "Les ressources doivent appartenir au jeu de données"}
+
+        src_id == dst_id ->
+          {:error, "Les deux ressources doivent être différentes"}
+
+        true ->
+          reason = String.to_existing_atom(params["reason"])
+
+          %DB.ResourceRelated{}
+          |> Ecto.Changeset.change(%{resource_src_id: src_id, resource_dst_id: dst_id, reason: reason})
+          |> DB.Repo.insert(on_conflict: :nothing, conflict_target: [:resource_src_id, :resource_dst_id, :reason])
+
+          {:info, "Les ressources ont été associées"}
+      end
+
+    conn
+    |> put_flash(flash_type, flash_msg)
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+  end
+
+  def resource_related_delete(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
+    src_id = String.to_integer(params["resource_src_id"])
+    dst_id = String.to_integer(params["resource_dst_id"])
+    reason = String.to_existing_atom(params["reason"])
+    dataset = DB.Repo.get!(DB.Dataset, dataset_id) |> DB.Repo.preload(:resources)
+    resource_ids = dataset.resources |> MapSet.new(& &1.id)
+
+    {flash_type, flash_msg} =
+      if src_id in resource_ids and dst_id in resource_ids do
+        DB.Repo.delete_all(
+          from(rr in DB.ResourceRelated,
+            where: rr.resource_src_id == ^src_id and rr.resource_dst_id == ^dst_id and rr.reason == ^reason
+          )
+        )
+
+        {:info, "L'association a été supprimée"}
+      else
+        {:error, "Les ressources doivent appartenir au jeu de données"}
+      end
+
+    conn
+    |> put_flash(flash_type, flash_msg)
+    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
   end
 
   def resource_format_override(%Plug.Conn{} = conn, params) do
