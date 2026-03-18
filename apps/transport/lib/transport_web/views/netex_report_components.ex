@@ -18,18 +18,18 @@ defmodule TransportWeb.NeTExReportComponents do
     <table class="table netex_generic_issue">
       <tr>
         <th>{dgettext("validations-explanations", "Message")}</th>
-        <th>{dgettext("validations-explanations", "Location")}</th>
+        <th>{dgettext("validations-explanations", "File")}</th>
+        <th>{dgettext("validations-explanations", "Line")}</th>
       </tr>
 
       <tr :for={issue <- @issues} class="message">
         <td lang="en">{issue["message"]}</td>
-        <td>
-          <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
-            {dgettext("validations-explanations", "Unknown location")}
-          <% else %>
-            {issue["resource"]["filename"]}:{issue["resource"]["line"]}
-          <% end %>
-        </td>
+        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
+          <td colspan="2">{dgettext("validations-explanations", "Unknown location")}</td>
+        <% else %>
+          <td>{issue["resource"]["filename"]}</td>
+          <td>{issue["resource"]["line"]}</td>
+        <% end %>
       </tr>
     </table>
     """

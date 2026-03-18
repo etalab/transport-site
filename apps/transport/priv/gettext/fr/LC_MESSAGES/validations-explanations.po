@@ -132,10 +132,6 @@ msgid "NegativeStopDuration"
 msgstr "L'heure de départ d'un arrêt (departure_time) est antérieure à son heure d'arrivée (arrival_time)."
 
 #, elixir-autogen, elixir-format
-msgid "Location"
-msgstr "Emplacement"
-
-#, elixir-autogen, elixir-format
 msgid "Message"
 msgstr "Message"
 
@@ -162,3 +158,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "The following errors are only available in English."
 msgstr "Les erreurs ci-après ne sont pas traduites en français."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "File"
+msgstr "Fichier"
+
+#, elixir-autogen, elixir-format
+msgid "Line"
+msgstr "Ligne"

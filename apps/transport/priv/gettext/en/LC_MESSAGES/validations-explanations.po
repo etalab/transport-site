@@ -132,10 +132,6 @@ msgid "NegativeStopDuration"
 msgstr "The departure time at a stop is earlier than its arrival time."
 
 #, elixir-autogen, elixir-format
-msgid "Location"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Message"
 msgstr ""
 
@@ -161,4 +157,12 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "The following errors are only available in English."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "File"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line"
 msgstr ""
