@@ -213,6 +213,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   defdelegate french_profile_compliance_check(), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def french_profile, do: nil
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
     %{
       "summary" => summary(validation_result),
