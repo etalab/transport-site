@@ -420,7 +420,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
-      assert body =~ ~r{XSD NeTEx\s+\(1 erreur\)}
+      assert body =~ ~r{XSD\s+– 1 erreur}
 
       assert body =~ "Au format CSV :"
       assert body =~ "validation.csv"

@@ -695,7 +695,9 @@ defmodule TransportWeb.ResourceControllerTest do
     end
 
     test "NeTEx validation is shown", %{conn: conn} do
-      items = page_size() * 2 + 1
+      page_size = 10
+
+      items = page_size * 2 + 1
 
       issues =
         [
@@ -776,7 +778,7 @@ defmodule TransportWeb.ResourceControllerTest do
         if version in ["0.2.0", "0.2.1"] do
           assert distinct_xsd_errors(issues) == Enum.count(rows)
         else
-          assert page_size() == Enum.count(rows)
+          assert page_size == Enum.count(rows)
         end
 
         assert content =~ "réseaux"

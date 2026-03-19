@@ -4,6 +4,8 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import Ecto.Query
 
+  @netex_issues_page_size 10
+
   plug(:log_usage when action in [:validate])
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
@@ -135,7 +137,7 @@ defmodule TransportWeb.ValidationController do
 
         template = pick_netex_template(validation.validator_version)
 
-        pagination_config = make_pagination_config(params)
+        pagination_config = make_pagination_config(params, @netex_issues_page_size)
         {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
 
         validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
