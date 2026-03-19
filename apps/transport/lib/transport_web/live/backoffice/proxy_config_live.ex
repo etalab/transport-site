@@ -38,12 +38,15 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   defp update_data(socket) do
     config = get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
+    {total_ram_size, total_disk_size} = total_cache_sizes(config)
 
     assign(socket,
       last_updated_at: (Time.utc_now() |> Time.truncate(:second) |> to_string()) <> " UTC",
       stats_days: @stats_days,
       proxy_configuration: config,
-      select_options: Enum.map(config, &{&1.type, &1.type}) |> Enum.uniq() |> Enum.sort()
+      select_options: Enum.map(config, &{&1.type, &1.type}) |> Enum.uniq() |> Enum.sort(),
+      total_ram_size: total_ram_size,
+      total_disk_size: total_disk_size
     )
     |> filter_config()
   end
@@ -239,8 +242,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
     if cache_entry do
+      size_bytes = cache_entry.body |> byte_size()
+
       Map.merge(item, %{
-        cache_size: cache_entry.body |> byte_size() |> Sizeable.filesize(),
+        cache_size: size_bytes |> Sizeable.filesize(),
+        cache_size_bytes: size_bytes,
         cache_status: cache_entry.status,
         cache_ttl: cache_ttl(cache_key)
       })
@@ -254,14 +260,32 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     cache_entry = cache_key |> Unlock.Shared.cache_entry()
 
     if cache_entry do
+      size_bytes = File.stat!(cache_entry.body).size
+
       Map.merge(item, %{
-        cache_size: (File.stat!(cache_entry.body).size |> Sizeable.filesize()) <> " sur disque",
+        cache_size: (size_bytes |> Sizeable.filesize()) <> " sur disque",
+        cache_size_bytes: size_bytes,
         cache_status: cache_entry.status,
         cache_ttl: cache_ttl(cache_key)
       })
     else
       item
     end
+  end
+
+  def total_cache_sizes(config) do
+    {ram_bytes, disk_bytes} =
+      Enum.reduce(config, {0, 0}, fn item, {ram, disk} ->
+        bytes = Map.get(item, :cache_size_bytes, 0)
+
+        if Map.get(item, :caching) == "disk" or item.type == "S3" do
+          {ram, disk + bytes}
+        else
+          {ram + bytes, disk}
+        end
+      end)
+
+    {Sizeable.filesize(ram_bytes), Sizeable.filesize(disk_bytes)}
   end
 
   defp cache_ttl(cache_key) do
