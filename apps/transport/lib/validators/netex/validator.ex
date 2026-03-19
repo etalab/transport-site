@@ -7,7 +7,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
   alias Transport.Validators.NeTEx.MetadataExtractor
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
 
   @behaviour Transport.Validators.Validator
 
@@ -243,7 +243,7 @@ defmodule Transport.Validators.NeTEx.Validator do
     setup_validation(filepath) |> poll_validation_results(metadata, 0)
   end
 
-  defp setup_validation(filepath), do: client().create_a_validation(filepath, "pan:french_profile:1")
+  defp setup_validation(filepath), do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug())
 
   def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do

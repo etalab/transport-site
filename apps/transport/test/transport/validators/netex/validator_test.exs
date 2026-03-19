@@ -5,7 +5,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -59,7 +59,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_successful_validation(12)
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(12)
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -105,7 +106,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -147,7 +148,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(31)
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -237,7 +238,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      expect_create_validation("pan:french_profile:1") |> expect_successful_validation(9)
+      expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(9)
 
       assert {:ok,
               %{
@@ -275,7 +276,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(25)
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -359,7 +360,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end

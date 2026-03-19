@@ -9,16 +9,9 @@ defmodule Transport.NeTEx.FrenchProfile do
   only a subset of the NeTEx specification can be validated by enRoute.
   """
 
-  alias Transport.NeTEx.FrenchProfile.V1
-  alias Transport.NeTEx.FrenchProfile.V2
+  alias Transport.NeTEx.FrenchProfile.V2, as: Latest
 
-  @versions [V1, V2]
-
-  def resolve(slug) do
-    Enum.find(@versions, fn module -> module.slug() == slug end)
-  end
-
-  defdelegate slug, to: V2
-  defdelegate ruleset(device), to: V2
-  defdelegate markdown(device), to: V2
+  defdelegate slug, to: Latest
+  defdelegate ruleset(device), to: Latest
+  defdelegate markdown(device), to: Latest
 end
