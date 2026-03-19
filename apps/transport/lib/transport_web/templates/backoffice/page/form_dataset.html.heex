@@ -90,15 +90,21 @@
       <%= if Enum.count(@resource_related) > 0 do %>
         <table class="table mb-24">
           <tr>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Raison</th>
+            <th>Ressource de référence</th>
+            <th>Ressource complémentaire</th>
+            <th>Motif</th>
             <th>Actions</th>
           </tr>
           <%= for rr <- @resource_related do %>
             <tr>
-              <td>{link(rr.resource_src.title, to: resource_path(@conn, :details, rr.resource_src_id))}</td>
-              <td>{link(rr.resource_dst.title, to: resource_path(@conn, :details, rr.resource_dst_id))}</td>
+              <td>
+                {link(rr.resource_src.title, to: resource_path(@conn, :details, rr.resource_src_id))}
+                <span class="label">{rr.resource_src.format}</span>
+              </td>
+              <td>
+                {link(rr.resource_dst.title, to: resource_path(@conn, :details, rr.resource_dst_id))}
+                <span class="label">{rr.resource_dst.format}</span>
+              </td>
               <td>{DB.ResourceRelated.reason_to_str(rr)}</td>
               <td>
                 <%= form_for @conn, backoffice_dataset_path(@conn, :resource_related_delete, @dataset.id), [nodiv: true], fn f -> %>
@@ -115,8 +121,11 @@
         </table>
       <% end %>
       <%= form_for @conn, backoffice_dataset_path(@conn, :resource_related_create, @dataset.id), [], fn f -> %>
+        {label(f, :resource_src_id, "Ressource de référence")}
         {select(f, :resource_src_id, Enum.map(@dataset.resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
+        {label(f, :resource_dst_id, "Ressource complémentaire")}
         {select(f, :resource_dst_id, Enum.map(@dataset.resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
+        {label(f, :reason, "Motif")}
         {select(
           f,
           :reason,
