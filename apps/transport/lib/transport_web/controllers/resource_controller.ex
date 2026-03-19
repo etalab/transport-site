@@ -7,6 +7,8 @@ defmodule TransportWeb.ResourceController do
   import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
   import TransportWeb.DatasetView, only: [availability_number_days: 0]
 
+  @netex_issues_page_size 10
+
   def enabled_validators, do: Transport.ValidatorsSelection.validators_for_feature(:resource_controller) |> MapSet.new()
 
   def details(conn, %{"id" => id} = params) do
@@ -191,10 +193,10 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp render_netex_details(conn, params, resource, validation) do
-    config = make_pagination_config(params)
+    config = make_pagination_config(params, @netex_issues_page_size)
 
     {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
-      build_netex_validation_details(validation, params)
+      build_netex_validation_details(validation, params, config)
 
     {filter, pagination} = issues
 
@@ -241,7 +243,8 @@ defmodule TransportWeb.ResourceController do
     }
   end
 
-  defp build_netex_validation_details(nil, _params), do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
+  defp build_netex_validation_details(nil, _params, _pagination_config),
+    do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
 
   defp build_netex_validation_details(
          %{
@@ -250,7 +253,8 @@ defmodule TransportWeb.ResourceController do
            binary_result: binary_result,
            metadata: metadata = %DB.ResourceMetadata{}
          },
-         params
+         params,
+         pagination_config
        ) do
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
     summary = digest["summary"]
@@ -258,7 +262,6 @@ defmodule TransportWeb.ResourceController do
     errors_template = pick_netex_errors_template(version)
     max_severity = digest["max_severity"]
 
-    pagination_config = make_pagination_config(params)
     issues = results_adapter.get_issues(binary_result, params, pagination_config)
     xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
 

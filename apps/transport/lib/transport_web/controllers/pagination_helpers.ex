@@ -4,17 +4,19 @@ defmodule TransportWeb.PaginationHelpers do
   """
   alias Scrivener.HTML
 
-  def make_pagination_config(%{"page" => page_number}) do
+  def make_pagination_config(params, page_size \\ 20)
+
+  def make_pagination_config(%{"page" => page_number}, page_size) do
     page_number =
       case Integer.parse(page_number) do
         :error -> 1
         {int, _} -> int
       end
 
-    %Scrivener.Config{page_number: page_number, page_size: 20}
+    %Scrivener.Config{page_number: page_number, page_size: page_size}
   end
 
-  def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 20}
+  def make_pagination_config(_, page_size), do: %Scrivener.Config{page_number: 1, page_size: page_size}
 
   def pagination_links(_, %{total_pages: 1}), do: {:safe, ""}
 
