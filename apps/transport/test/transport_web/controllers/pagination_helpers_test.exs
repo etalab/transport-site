@@ -79,6 +79,13 @@ defmodule TransportWeb.PaginationHelpersTest do
     |> pagination_links(pagination, opts)
     |> Phoenix.HTML.safe_to_string()
     |> Floki.parse_document!()
+    |> assert_has_aria_label()
+  end
+
+  defp assert_has_aria_label(doc) do
+    assert [{"nav", [{"aria-label", _}], _}] = doc
+
+    doc
   end
 
   defp assert_has_pages(doc, links) do
