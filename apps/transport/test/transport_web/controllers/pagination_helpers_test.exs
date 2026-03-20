@@ -10,30 +10,30 @@ defmodule TransportWeb.PaginationHelpersTest do
 
   describe "pagination_links" do
     test "simple links" do
-      assert paginate(1, %{}) == ""
-      assert paginate(1, %{"page" => "1"}) == ""
+      assert test_pagination(1, %{}) == []
+      assert test_pagination(1, %{"page" => "1"}) == []
 
-      assert paginate(2, %{}) ==
-               "<nav><ul class=\"pagination\"><li class=\"active\"><a class=\"\">1</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2\" rel=\"next\">2</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2\" rel=\"next\">&gt;&gt;</a></li></ul></nav>"
+      test_pagination(2, %{})
+      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2"}, {">>", "/datasets?page=2"}])
 
-      assert paginate(2, %{"page" => "1"}) ==
-               "<nav><ul class=\"pagination\"><li class=\"active\"><a class=\"\">1</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2\" rel=\"next\">2</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2\" rel=\"next\">&gt;&gt;</a></li></ul></nav>"
+      test_pagination(2, %{"page" => "1"})
+      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2"}, {">>", "/datasets?page=2"}])
 
-      assert paginate(2, %{"page" => "2"}) ==
-               "<nav><ul class=\"pagination\"><li class=\"\"><a class=\"\" href=\"/datasets\" rel=\"prev\">&lt;&lt;</a></li><li class=\"\"><a class=\"\" href=\"/datasets\" rel=\"prev\">1</a></li><li class=\"active\"><a class=\"\">2</a></li></ul></nav>"
+      test_pagination(2, %{"page" => "2"})
+      |> assert_has_pages([{"<<", "/datasets"}, {"1", "/datasets"}, {"2", nil}])
     end
 
     test "custom path" do
       opts = [path: &custom_path/3]
 
-      assert paginate(2, %{}, opts) ==
-               "<nav><ul class=\"pagination\"><li class=\"active\"><a class=\"\">1</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2#list\" rel=\"next\">2</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2#list\" rel=\"next\">&gt;&gt;</a></li></ul></nav>"
+      test_pagination(2, %{}, opts)
+      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2#list"}, {">>", "/datasets?page=2#list"}])
 
-      assert paginate(2, %{"page" => "1"}, opts) ==
-               "<nav><ul class=\"pagination\"><li class=\"active\"><a class=\"\">1</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2#list\" rel=\"next\">2</a></li><li class=\"\"><a class=\"\" href=\"/datasets?page=2#list\" rel=\"next\">&gt;&gt;</a></li></ul></nav>"
+      test_pagination(2, %{"page" => "1"}, opts)
+      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2#list"}, {">>", "/datasets?page=2#list"}])
 
-      assert paginate(2, %{"page" => "2"}, opts) ==
-               "<nav><ul class=\"pagination\"><li class=\"\"><a class=\"\" href=\"/datasets#list\" rel=\"prev\">&lt;&lt;</a></li><li class=\"\"><a class=\"\" href=\"/datasets#list\" rel=\"prev\">1</a></li><li class=\"active\"><a class=\"\">2</a></li></ul></nav>"
+      test_pagination(2, %{"page" => "2"}, opts)
+      |> assert_has_pages([{"<<", "/datasets#list"}, {"1", "/datasets#list"}, {"2", nil}])
     end
   end
 
@@ -41,20 +41,38 @@ defmodule TransportWeb.PaginationHelpersTest do
     dataset_path(conn, action, params) <> "#list"
   end
 
-  defp paginate(n_pages, params) do
+  defp test_pagination(n_pages, params) do
     {conn, pagination} = setup_pagination(n_pages, params)
 
     conn
     |> pagination_links(pagination)
     |> Phoenix.HTML.safe_to_string()
+    |> Floki.parse_document!()
   end
 
-  defp paginate(n_pages, params, opts) do
+  defp test_pagination(n_pages, params, opts) do
     {conn, pagination} = setup_pagination(n_pages, params)
 
     conn
     |> pagination_links(pagination, opts)
     |> Phoenix.HTML.safe_to_string()
+    |> Floki.parse_document!()
+  end
+
+  defp assert_has_pages(doc, links) do
+    assert links == doc |> Floki.find("a") |> Enum.map(&extract_link/1)
+
+    doc
+  end
+
+  defp extract_link(link) do
+    href =
+      case Floki.attribute(link, "href") do
+        [href] -> href
+        _ -> nil
+      end
+
+    {Floki.text(link), href}
   end
 
   defp setup_pagination(n_pages, params) do
