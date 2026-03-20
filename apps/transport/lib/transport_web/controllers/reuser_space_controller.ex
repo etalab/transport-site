@@ -156,9 +156,20 @@ defmodule TransportWeb.ReuserSpaceController do
     |> redirect(to: reuser_space_path(conn, :datasets_edit, dataset.id))
   end
 
-  def unfavorite(%Plug.Conn{assigns: %{dataset: %DB.Dataset{} = dataset, contact: %DB.Contact{} = contact}} = conn, _) do
+  def unfavorite(
+        %Plug.Conn{
+          assigns: %{
+            dataset: %DB.Dataset{} = dataset,
+            contact: %DB.Contact{} = contact,
+            current_user: %{"id" => user_id}
+          }
+        } =
+          conn,
+        _
+      ) do
     DB.DatasetFollower.unfollow!(contact, dataset)
     delete_notification_subscriptions(contact, dataset)
+    Transport.Cache.delete(TransportWeb.Plugs.ReuserData.followed_datasets_checks_cache_key(user_id))
 
     conn
     |> put_flash(

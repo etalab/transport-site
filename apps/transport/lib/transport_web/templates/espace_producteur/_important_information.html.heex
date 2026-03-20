@@ -33,7 +33,7 @@
           </td>
         </tr>
         <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>
-          <% checks = @checks[dataset.id] %>
+          <% checks = @checks[dataset.id] || [] %>
           <%= for {check_name, issues} <- checks |> Enum.sort_by(& elem(&1, 0)) do %>
             <%= for issue <- issues do %>
               <% {issue, multi_validation} =

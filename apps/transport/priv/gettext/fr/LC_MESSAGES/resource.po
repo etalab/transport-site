@@ -86,9 +86,17 @@ msgid "Size:"
 msgstr "Taille :"
 
 #, elixir-autogen, elixir-format
-msgid "CSV report"
-msgstr "Rapport CSV"
+msgid "Occurrences of the %{element} element."
+msgstr "Occurrences de l’élément %{element}."
 
 #, elixir-autogen, elixir-format
-msgid "Parquet report"
-msgstr "Rapport Parquet"
+msgid "number of lines:"
+msgstr "nombre de lignes :"
+
+#, elixir-autogen, elixir-format
+msgid "number of quays:"
+msgstr "nombre de zones d’embarquement :"
+
+#, elixir-autogen, elixir-format
+msgid "number of stop places:"
+msgstr "nombre de lieux d’arrêt :"

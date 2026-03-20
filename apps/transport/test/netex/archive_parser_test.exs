@@ -288,10 +288,13 @@ defmodule Transport.NeTEx.ArchiveParserTest do
           <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
             <members>
               <Network>
-                <Name>Réseau Urbain</Name>
+                <Name>R'bus (Rochefort Océan)</Name>
+                <members>
+                  <LineRef ref="CA_ROCHEFORT_OCEAN:Line:A:LOC"/>
+                </members>
               </Network>
-              <Line>
-                <Name>Alberville - Besançon</Name>
+              <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+                <Name>Saint-Agnant Les Cordries / Echillais / Rochefort Roy Bry / Tonnay-Charente Les Fontenelles</Name>
               </Line>
             </members>
           </GeneralFrame>
@@ -299,7 +302,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["Réseau Urbain"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
+    assert ["R'bus (Rochefort Océan)"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
 
     multiple_networks = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -354,6 +357,33 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     """
 
     assert ["bus", "ferry", "bus"] == extract(&ArchiveParser.read_all_description!/1, general_frame).transport_modes
+  end
+
+  test "extract statistics" do
+    general_frame = """
+      <GeneralFrame>
+        <members>
+          <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+          </Line>
+          <Quay id="FR:Quay:Quay1:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay2:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay3:" version="any">
+          </Quay>
+          <StopPlace id="FR:StopPlace:StopPlace1:" version="any">
+          </StopPlace>
+          <StopPlace id="FR:StopPlace:StopPlace2:" version="any">
+          </StopPlace>
+        </members>
+      </GeneralFrame>
+    """
+
+    statistics = extract(&ArchiveParser.read_all_description!/1, general_frame)
+
+    assert 1 == statistics.lines
+    assert 3 == statistics.quays
+    assert 2 == statistics.stop_places
   end
 
   defp extract(extractor, xml) do

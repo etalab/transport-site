@@ -130,12 +130,23 @@ table.netex_generic_issue, table.netex_xsd_schema {
   }
 }
 
-table.netex_generic_issue th:nth-child(1) {
-  width: 60%;
+table.netex_generic_issue {
+  th, td {
+    &:nth-child(1) {
+      width: 60%;
+    }
+    &:nth-child(3) {
+      width: 10%;
+    }
+  }
 }
 
-table.netex_xsd_schema th:nth-child(1) {
-  width: 80%;
+table.netex_xsd_schema {
+  tr, td {
+    &:nth-child(1) {
+      text-align: right;
+    }
+  }
 }
 
 table.netex_generic_issue tr.debug:hover {
@@ -167,74 +178,105 @@ table.netex_generic_issue tr.debug td code {
 }
 
 .netex {
-  div.header_with_action_bar {
-    display: grid;
-    grid-template-columns: 1fr max-content;
-    align-items: baseline;
+  #download-popup {
+    max-width: 60ch;
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: 1fr max-content;
+      gap: var(--space-s) var(--space-l);
+
+      button {
+        display: flex;
+        width: 100%;
+      }
+    }
   }
 
-  ul.summary {
-    list-style: none;
-    padding-inline: var(--space-xs);
+  #issues {
+    display: grid;
+    grid-template-rows: max-content max-content 1fr max-content;
+    min-height: 80vh;
+    container-type: inline-size;
+    container-name: issues-list;
 
-    li {
-      display: grid;
-      gap: var(--space-s) var(--space-m);
-      grid-template-columns: [icon-start] 1.5rem [icon-end content-start] 45rem [content-end];
-      padding-bottom: var(--space-m);
-      padding-left: var(--space-s);
-      margin-bottom: var(--space-m);
-      border-bottom: 1px solid var(--light-grey);
+    .issues-footer {
+      border-top: 1px solid var(--light-grey);
+      padding-top: var(--space-s);
+      margin-top: var(--space-s);
 
-      i.fa {
-        align-self: center;
-        justify-self: center;
-        grid-column: icon;
-      }
-      > * {
-        grid-column: content;
-      }
       p {
-        margin: 0;
+        margin-block: unset;
+      }
+    }
 
-        a {
-          text-decoration: underline;
+    table {
+      border: unset;
+      td, th {
+        padding: var(--space-xs) var(--space-s);
+        @container issues-list (width < 800px) {
+          padding: calc(var(--space-xs) / 2) var(--space-xs);
         }
       }
     }
+  }
 
-    li.comment {
-      padding-bottom: unset;
-      border-bottom: unset;
+  .pagination {
+    margin-top: var(--space-s);
+  }
 
-      div a {
-        text-decoration: underline;
-      }
+  #issues-list {
+    margin-top: var(--space-m);
+  }
+
+  #categories {
+    margin-bottom: var(--space-s);
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .category {
+    font-weight: 600;
+  }
+
+  .selected-category {
+    .fa {
+      padding-right: var(--space-xs);
+    }
+
+    .fa-check {
+      color: var(--green);
+    }
+
+    .fa-circle-info {
+      color: var(--dark-blue);
     }
   }
 
-  .fa {
-    margin-right: 0.25rem;
-  }
+  .text-quote {
+    --taint: var(--grey);
 
-  .fa-check {
-    color: var(--green);
-  }
+    padding: var(--space-s);
+    background-color: color-mix(in oklab, var(--taint), white);
+    color: color-mix(in oklab, var(--taint), black);
+    border-left-color: var(--taint);
 
-  .fa-xmark {
-    color: var(--red);
-  }
+    .fa {
+      color: color-mix(in oklab, var(--taint), black 30%);
+    }
 
-  .fa-minus {
-    color: var(--light-grey);
-  }
+    a {
+      color: color-mix(in oklab, var(--taint), black 30%);
+    }
 
-  .fa-circle-info {
-    color: var(--dark-blue);
-  }
+    &.information {
+      --taint: var(--theme-info-border);
+    }
 
-  .compatibility_filter {
-    font-weight: 600;
+    &.warning {
+      --taint: var(--orange);
+    }
   }
 }
 
@@ -258,4 +300,11 @@ blockquote {
 }
 @keyframes loader-animation {
   100% {background-position: 36.36%}
+}
+
+div.header_with_action_bar {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  align-items: baseline;
+  gap: var(--space-m);
 }

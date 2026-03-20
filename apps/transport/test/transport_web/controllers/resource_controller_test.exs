@@ -695,7 +695,9 @@ defmodule TransportWeb.ResourceControllerTest do
     end
 
     test "NeTEx validation is shown", %{conn: conn} do
-      items = page_size() * 2 + 1
+      page_size = 10
+
+      items = page_size * 2 + 1
 
       issues =
         [
@@ -748,7 +750,16 @@ defmodule TransportWeb.ResourceControllerTest do
           binary_result: results_adapter.to_binary_result(result),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
-            metadata: %{"elapsed_seconds" => 42, "networks" => networks, "modes" => modes},
+            metadata: %{
+              "elapsed_seconds" => 42,
+              "networks" => networks,
+              "modes" => modes,
+              "stats" => %{
+                "lines_count" => 1,
+                "quays_count" => 1002,
+                "stop_places_count" => 103
+              }
+            },
             modes: modes,
             features: []
           },
@@ -767,7 +778,7 @@ defmodule TransportWeb.ResourceControllerTest do
         if version in ["0.2.0", "0.2.1"] do
           assert distinct_xsd_errors(issues) == Enum.count(rows)
         else
-          assert page_size() == Enum.count(rows)
+          assert page_size == Enum.count(rows)
         end
 
         assert content =~ "réseaux"
@@ -775,9 +786,16 @@ defmodule TransportWeb.ResourceControllerTest do
 
         assert content =~ "modes de transport"
         assert content =~ "bus, ferry"
+        assert content =~ ~r"nombre de lignes :(\s*)<strong>1</strong>"
+        assert content =~ ~r"nombre de zones d’embarquement :(\s*)<strong>1 002</strong>"
+        assert content =~ ~r"nombre de lieux d’arrêt :(\s*)<strong>103</strong>"
 
         if version in ["0.2.0", "0.2.1"] do
-          assert content =~ "Rapport CSV"
+          assert content =~ "Au format CSV :"
+          assert content =~ "validation.csv"
+
+          assert content =~ "Au format Parquet :"
+          assert content =~ "validation.parquet"
         end
       end
     end

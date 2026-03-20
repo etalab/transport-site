@@ -88,6 +88,7 @@ defmodule TransportWeb.DatasetController do
         |> assign_scores(dataset)
         |> assign_is_producer(dataset)
         |> assign_follows_dataset(dataset)
+        |> assign_company(dataset)
         |> put_status(if dataset.is_active, do: :ok, else: :not_found)
         |> render("details.html")
 
@@ -95,6 +96,14 @@ defmodule TransportWeb.DatasetController do
         Logger.error("Could not fetch dataset details: #{msg}")
         redirect_to_slug_or_404(conn, slug_or_id)
     end
+  end
+
+  defp assign_company(%Plug.Conn{} = conn, %DB.Dataset{legal_owner_company_siren: nil}) do
+    assign(conn, :company, nil)
+  end
+
+  defp assign_company(%Plug.Conn{} = conn, %DB.Dataset{legal_owner_company_siren: siren}) do
+    assign(conn, :company, DB.Repo.get(DB.Company, siren))
   end
 
   defp assign_follows_dataset(

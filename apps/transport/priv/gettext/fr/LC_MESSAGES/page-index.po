@@ -112,7 +112,7 @@ msgstr "Fermer le formulaire"
 
 #, elixir-autogen, elixir-format
 msgid "Close the menu"
-msgstr "Fermer le formulaire"
+msgstr "Fermer le menu"
 
 #, elixir-autogen, elixir-format
 msgid "Search for data for a region, a city, a network…"
@@ -185,3 +185,7 @@ msgstr "Valider vos données"
 #, elixir-autogen, elixir-format
 msgid "Transport offers available"
 msgstr "Offres de transport disponibles"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Open the menu"
+msgstr "Fermer le menu"
