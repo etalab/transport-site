@@ -270,7 +270,9 @@ Display.print_table(
     :v_date,
     :schema_name,
     :schema_version
-  ], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)")
+  ],
+  title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)"
+)
 
 Display.print_table(
   rows,
@@ -281,7 +283,9 @@ Display.print_table(
     :download_url,
     :dataset_url,
     :valid
-  ], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)")
+  ],
+  title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)"
+)
 
 exploded_rows =
   rows
@@ -298,7 +302,9 @@ Display.print_table(
     :local_valid,
     :really_local_valid,
     :one_error
-  ], title: "Erreurs de validation détaillées (une ligne par erreur par ressource)")
+  ],
+  title: "Erreurs de validation détaillées (une ligne par erreur par ressource)"
+)
 
 rows =
   rows
