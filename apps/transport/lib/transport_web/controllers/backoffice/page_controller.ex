@@ -168,6 +168,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:reusers_count, reusers_count)
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
     |> assign(:resource_formats, resource_formats())
+    |> assign(:resources, DB.Dataset.official_resources(conn.assigns[:dataset]))
     |> assign(
       :resource_related,
       conn.assigns[:dataset].resources |> Enum.flat_map(& &1.resources_related)
