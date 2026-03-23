@@ -6,6 +6,8 @@ end
 
 cache_dir = CacheDir.cache_dir()
 
+if !File.exists?(cache_dir), do: File.mkdir(cache_dir)
+
 use_cache =
   case System.get_env("CACHE", "NONE") do
     "NONE" ->
@@ -28,7 +30,7 @@ use_cache =
 Mix.install(
   [
     {:my_app, path: my_app_root, env: :dev},
-    {:io_ansi_table, "~> 1.0"}
+    {:table_rex, "~> 4.0"}
   ],
   config_path: Path.join(my_app_root, "config/config.exs"),
   lockfile: Path.join(my_app_root, "mix.lock")
@@ -76,6 +78,7 @@ resources =
     |> Enum.filter(fn r -> r["schema"]["name"] == "etalab/schema-irve-dynamique" end)
     |> Enum.map(fn r ->
       r
+      |> Map.put("dataset_id", dataset["id"])
       |> Map.put("dataset_url", dataset["page"])
       |> Map.put("organization", dataset["organization"]["name"])
       |> Map.put("valid", get_in(r, ["extras", "validation-report:valid_resource"]))
@@ -193,8 +196,11 @@ IO.puts("========== #{resources |> length()} candidates ==========\n\n")
 
 rows =
   resources
+  |> Enum.reject(&(&1["id"] == "5e18be8c-475c-49e3-ad7c-f6c08308e5c5"))
+  |> Enum.reject(&(&1["id"] == "5259635d-83d6-4b7b-acfc-b503b660a259"))
+  |> Enum.reject(&(&1["id"] == "514d529a-c961-4862-9d20-49fdf499a9aa"))
   |> Enum.map(fn r ->
-    IO.puts("Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]})...")
+    IO.puts("Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]}) - r_url=#{r["url"]} ...")
     body = IRVECheck.get_body(r["url"], enable_cache: use_cache == :all)
     rows = IRVECheck.parse_csv(body)
     headers = IRVECheck.get_headers(body)
@@ -210,8 +216,10 @@ rows =
     )
 
     %{
+      dataset_id: r["dataset_id"],
       dataset_url: r["dataset_url"],
       r_id: r["id"],
+      download_url: "https://www.data.gouv.fr/api/1/datasets/r/#{r["id"]}",
       organization: r["organization"],
       resource_url: r["url"],
       dyn_irve_likely: IRVECheck.is_dynamic_irve?(headers),
@@ -231,53 +239,45 @@ rows =
 
 IO.inspect(rows, IEx.inspect_opts())
 
-IO.ANSI.Table.start(
-  [
-    :organization,
-    :r_id,
-    :dyn_irve_likely,
-    :rows,
-    #    :dataset_url,
-    :valid,
-    :local_valid,
-    :really_local_valid,
-    :v_date,
-    :schema_name,
-    :schema_version
-  ],
-  sort_specs: [desc: :rows],
-  max_width: :infinity
-)
+defmodule Display do
+  def print_table(data, columns, opts \\ []) do
+    sort_key = Keyword.get(opts, :sort_key, :rows)
+    title = Keyword.get(opts, :title)
+    sorted = Enum.sort_by(data, & &1[sort_key], :desc)
+    headers = columns |> Enum.map(&to_string/1)
 
-IO.ANSI.Table.format(rows)
-IO.ANSI.Table.stop()
+    table_rows =
+      sorted
+      |> Enum.map(fn row ->
+        columns |> Enum.map(fn col -> row[col] |> inspect() end)
+      end)
 
-IO.ANSI.Table.start(
-  [
-    :organization,
-    :dyn_irve_likely,
-    :rows,
-    :dataset_url,
-    :valid
-  ],
-  sort_specs: [desc: :rows],
-  max_width: :infinity
-)
+    TableRex.quick_render!(table_rows, headers, title)
+    |> IO.puts()
+  end
+end
 
-IO.ANSI.Table.format(rows)
-IO.ANSI.Table.stop()
+Display.print_table(rows, [
+  :organization,
+  :r_id,
+  :dyn_irve_likely,
+  :rows,
+  :valid,
+  :local_valid,
+  :really_local_valid,
+  :v_date,
+  :schema_name,
+  :schema_version
+], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)")
 
-IO.ANSI.Table.start(
-  [
-    :organization,
-    :rows,
-    :local_valid,
-    :really_local_valid,
-    :one_error
-  ],
-  sort_specs: [desc: :rows],
-  max_width: :infinity
-)
+Display.print_table(rows, [
+  :organization,
+  :dyn_irve_likely,
+  :rows,
+  :download_url,
+  :dataset_url,
+  :valid
+], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)")
 
 exploded_rows =
   rows
@@ -286,8 +286,13 @@ exploded_rows =
     |> Enum.map(fn x -> r |> Map.put(:one_error, x) end)
   end)
 
-IO.ANSI.Table.format(exploded_rows)
-IO.ANSI.Table.stop()
+Display.print_table(exploded_rows, [
+  :organization,
+  :rows,
+  :local_valid,
+  :really_local_valid,
+  :one_error
+], title: "Erreurs de validation détaillées (une ligne par erreur par ressource)")
 
 rows =
   rows
@@ -295,17 +300,29 @@ rows =
     Map.update!(r, :local_validation_stats, &inspect/1)
   end)
 
-IO.ANSI.Table.start(
-  [
-    :organization,
-    :rows,
-    :local_valid,
-    :local_validation_stats,
-    :frictionless_output_file
-  ],
-  sort_specs: [desc: :rows],
-  max_width: :infinity
-)
+Display.print_table(rows, [
+  :organization,
+  :rows,
+  :local_valid,
+  :local_validation_stats,
+  :frictionless_output_file
+])
 
-IO.ANSI.Table.format(rows)
-IO.ANSI.Table.stop()
+# Generate YAML config for qualifying resources
+yaml_rows =
+  rows
+  |> Enum.filter(fn r -> r[:rows] > 80 && r[:dyn_irve_likely] == true && r[:valid] == true end)
+  |> Enum.sort_by(& &1[:rows], :desc)
+
+IO.puts("\n========== Configuration YAML ==========\n")
+
+yaml_rows
+|> Enum.each(fn r ->
+  slug = r[:organization] |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
+  IO.puts("""
+        - identifier: #{r[:dataset_id]}
+          slug: #{slug}
+          target_url: #{r[:download_url]}\
+  """)
+end)
