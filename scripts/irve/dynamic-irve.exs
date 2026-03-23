@@ -257,27 +257,31 @@ defmodule Display do
   end
 end
 
-Display.print_table(rows, [
-  :organization,
-  :r_id,
-  :dyn_irve_likely,
-  :rows,
-  :valid,
-  :local_valid,
-  :really_local_valid,
-  :v_date,
-  :schema_name,
-  :schema_version
-], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)")
+Display.print_table(
+  rows,
+  [
+    :organization,
+    :r_id,
+    :dyn_irve_likely,
+    :rows,
+    :valid,
+    :local_valid,
+    :really_local_valid,
+    :v_date,
+    :schema_name,
+    :schema_version
+  ], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)")
 
-Display.print_table(rows, [
-  :organization,
-  :dyn_irve_likely,
-  :rows,
-  :download_url,
-  :dataset_url,
-  :valid
-], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)")
+Display.print_table(
+  rows,
+  [
+    :organization,
+    :dyn_irve_likely,
+    :rows,
+    :download_url,
+    :dataset_url,
+    :valid
+  ], title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)")
 
 exploded_rows =
   rows
@@ -286,13 +290,15 @@ exploded_rows =
     |> Enum.map(fn x -> r |> Map.put(:one_error, x) end)
   end)
 
-Display.print_table(exploded_rows, [
-  :organization,
-  :rows,
-  :local_valid,
-  :really_local_valid,
-  :one_error
-], title: "Erreurs de validation détaillées (une ligne par erreur par ressource)")
+Display.print_table(
+  exploded_rows,
+  [
+    :organization,
+    :rows,
+    :local_valid,
+    :really_local_valid,
+    :one_error
+  ], title: "Erreurs de validation détaillées (une ligne par erreur par ressource)")
 
 rows =
   rows
