@@ -20,6 +20,25 @@ defmodule Transport.Validators.GTFSRTTest do
 
   setup :verify_on_exit!
 
+  test "critical_errors?" do
+    mv = fn errors -> %DB.MultiValidation{result: %{"errors" => errors}} end
+
+    refute GTFSRT.critical_errors?(mv.([]))
+    refute GTFSRT.critical_errors?(mv.([%{"error_id" => "E003", "errors_count" => 49}]))
+
+    assert GTFSRT.critical_errors?(mv.([%{"error_id" => "E003", "errors_count" => 50}]))
+
+    assert GTFSRT.critical_errors?(
+             mv.([
+               %{"error_id" => "E003", "errors_count" => 10},
+               %{"error_id" => "E004", "errors_count" => 40}
+             ])
+           )
+
+    assert GTFSRT.critical_errors?(mv.([%{"error_id" => "FATAL", "errors_count" => 1}]))
+    refute GTFSRT.critical_errors?(mv.([%{"error_id" => "E001", "errors_count" => 100}]))
+  end
+
   test "get_max_severity_error" do
     assert nil == GTFSRT.get_max_severity_error([])
     assert "ERROR" == GTFSRT.get_max_severity_error([%{"severity" => "ERROR"}])
@@ -444,14 +463,75 @@ defmodule Transport.Validators.GTFSRTTest do
 
       assert :ok == GTFSRT.validate_and_save(dataset)
 
-      gtfs_rt_validation =
+      refute DB.MultiValidation.with_result()
+             |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
+             |> DB.Repo.exists?()
+    end
+
+    test "inserts a fatal validation when the validator produces no results file (not a valid GTFS or GTFS-RT)" do
+      gtfs_permanent_url = "https://example.com/gtfs.zip"
+      gtfs_rt_url = "https://example.com/gtfs-rt"
+
+      %{dataset: dataset, resource_history: %{id: resource_history_id}, resource: %{id: gtfs_id}} =
+        insert_up_to_date_resource_and_friends(
+          resource_history_payload: %{
+            "format" => "GTFS",
+            "permanent_url" => gtfs_permanent_url,
+            "uuid" => Ecto.UUID.generate()
+          }
+        )
+
+      %DB.Resource{id: gtfs_rt_id} =
+        gtfs_rt =
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: true,
+          format: "gtfs-rt",
+          is_community_resource: false,
+          url: gtfs_rt_url
+        )
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_rt_url, [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "not a gtfs-rt")
+        {:ok, %Req.Response{status: 200, body: "not a gtfs-rt"}}
+      end)
+
+      Transport.Req.Mock
+      |> expect(:get, fn ^gtfs_permanent_url,
+                         [compressed: false, decode_body: false, into: %File.Stream{path: stream_path}] ->
+        File.write!(stream_path, "gtfs_content")
+        {:ok, %Req.Response{status: 200}}
+      end)
+
+      mock_s3_stream_upload(gtfs_rt)
+
+      Transport.Rambo.Mock
+      |> expect(:run, fn _binary, _args, [log: false] ->
+        # Validator runs but does not produce a results file
+        {:ok, nil}
+      end)
+
+      assert :ok == GTFSRT.validate_and_save(dataset)
+
+      %DB.MultiValidation{
+        result: result,
+        max_error: "ERROR",
+        resource_id: ^gtfs_rt_id,
+        secondary_resource_id: ^gtfs_id,
+        secondary_resource_history_id: ^resource_history_id
+      } =
         DB.MultiValidation.with_result()
         |> where([mv], mv.resource_id == ^gtfs_rt.id and mv.validator == ^GTFSRT.validator_name())
-        |> order_by([mv], desc: mv.inserted_at)
-        |> limit(1)
-        |> DB.Repo.all()
+        |> DB.Repo.one!()
 
-      assert [] == gtfs_rt_validation
+      assert %{
+               "errors_count" => 1,
+               "warnings_count" => 0,
+               "has_errors" => true,
+               "max_severity" => "ERROR",
+               "errors" => [%{"error_id" => "FATAL", "severity" => "ERROR"}]
+             } = result
     end
 
     test "when there is a memory error, run the validator another time and ignore shapes" do

@@ -48,7 +48,6 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
   @notification_reason Transport.NotificationReason.reason(:dataset_with_error)
 
   @gtfs_rt_validator Transport.Validators.GTFSRT.validator_name()
-  @gtfs_rt_errors_threshold 50
 
   @impl Oban.Worker
   def perform(%Oban.Job{
@@ -252,10 +251,8 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     |> Enum.group_by(& &1.resource.dataset)
   end
 
-  def relevant_realtime_validation?(%DB.MultiValidation{validator: @gtfs_rt_validator, result: %{"errors" => errors}}) do
-    errors
-    |> Enum.filter(&(&1["error_id"] in Transport.Validators.GTFSRT.id_mismatch_error_codes()))
-    |> Enum.sum_by(& &1["errors_count"]) >= @gtfs_rt_errors_threshold
+  def relevant_realtime_validation?(%DB.MultiValidation{validator: @gtfs_rt_validator} = mv) do
+    Transport.Validators.GTFSRT.critical_errors?(mv)
   end
 
   def relevant_realtime_validation?(%DB.MultiValidation{}), do: true
