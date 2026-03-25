@@ -168,6 +168,7 @@ defmodule TransportWeb.Backoffice.PageController do
     |> assign(:reusers_count, reusers_count)
     |> assign(:reuser_subscriptions_count, reuser_subscriptions |> Enum.count())
     |> assign(:resource_formats, resource_formats())
+    |> assign(:resources, DB.Dataset.official_resources(conn.assigns[:dataset]))
     |> assign(
       :resource_related,
       conn.assigns[:dataset].resources |> Enum.flat_map(& &1.resources_related)
@@ -362,7 +363,7 @@ defmodule TransportWeb.Backoffice.PageController do
       ds.dataset_sub_types,
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
-      re.nom nom_region,
+      re.noms nom_region,
       o.offre_mobilite,
       administrative_division.noms couverture_spatiale,
       nullif(concat_ws(', ', legal_owners.noms, case when d.legal_owner_company_siren is not null then coalesce(c.nom_complet || ' (' || d.legal_owner_company_siren || ')', d.legal_owner_company_siren) end), '') representants_legaux,
@@ -386,8 +387,14 @@ defmodule TransportWeb.Backoffice.PageController do
       compliance_score.score score_conformite
     from resource r
     join dataset d on d.id = r.dataset_id
-    left join dataset_geographic_view dgv on dgv.dataset_id = d.id
-    left join region re on re.id = dgv.region_id
+    left join (
+      select
+        dgv.dataset_id,
+        string_agg(re.nom, ', ' order by re.nom) noms
+      from dataset_geographic_view dgv
+      join region re on re.id = dgv.region_id
+      group by dgv.dataset_id
+    ) re on re.dataset_id = d.id
     left join (
       select
         d.id dataset_id,
