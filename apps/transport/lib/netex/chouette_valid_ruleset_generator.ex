@@ -56,11 +56,13 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
     end
   end
 
-  defp header(level, text) do
-    symbol = "###########" |> String.slice(0, level)
+  defp header(level, text) when level in 1..6 do
+    symbol = "######" |> String.slice(0, level)
 
     "#{symbol} #{text}"
   end
+
+  defp header(_level, text), do: text
 
   def process_rule_context(sub_profile, %{type: :mandatory_attributes, parent: parent, names: names}) do
     %{
