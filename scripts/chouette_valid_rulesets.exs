@@ -44,8 +44,8 @@ defmodule Script do
     |> IO.inspect()
   end
 
-  def publish_ruleset(slug) do
-    slug = Slugs.check_slug!(slug)
+  def publish_ruleset do
+    slug = slug() |> Slugs.check_slug!()
 
     result =
       with_string(&ruleset/1)
@@ -96,7 +96,7 @@ defmodule CLI do
       ["find-ruleset-id", slug] -> Script.find_ruleset_id(slug)
       ["get-ruleset", slug] -> Script.get_ruleset(slug)
       ["list-revisions", slug] -> Script.list_revisions(slug)
-      ["publish-ruleset", slug] -> Script.publish_ruleset(slug)
+      ["publish-ruleset"] -> Script.publish_ruleset()
       ["list-rulesets"] -> Script.list_rulesets()
       ["document-rulesets", filename] -> Script.document_rulesets(filename)
       ["document-rulesets"] -> Script.document_rulesets("chouette_ruleset")
@@ -113,7 +113,7 @@ defmodule CLI do
       Helps us implement NeTEx French profile and custom checks.
 
     Commands:
-      publish-ruleset <slug>       # publish our ruleset to the given slug from the definition
+      publish-ruleset              # publish our ruleset to the given slug from the definition
       list-rulesets                # list all published rulesets
       get-ruleset <slug>           # inspect ruleset for a given slug
       document-rulesets (filename) # dump rulesets as json definition and markdown (filename.md & filename.json)
