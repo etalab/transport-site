@@ -105,6 +105,7 @@ defmodule TransportWeb.NeTExReportComponents do
       errors={errors}
       validation_report_url={@validation_report_url}
       pagination={@pagination}
+      results_adapter={@results_adapter}
     />
     """
   end
@@ -138,41 +139,55 @@ defmodule TransportWeb.NeTExReportComponents do
   end
 
   defp netex_validation_selected_category(
-         %{conn: _, compliance_check: _, current_category: _, errors: _, validation_report_url: _, pagination: _} =
+         %{
+           conn: _,
+           compliance_check: _,
+           current_category: _,
+           errors: _,
+           validation_report_url: _,
+           pagination: _,
+           results_adapter: _
+         } =
            assigns
        ) do
     ~H"""
     <% locale = get_session(@conn, :locale) %>
     <div class="selected-category">
-      <.netex_category_description category={@current_category} compliance_check={@compliance_check} conn={@conn} />
+      <.netex_category_description
+        category={@current_category}
+        compliance_check={@compliance_check}
+        conn={@conn}
+        results_adapter={@results_adapter}
+      />
       <.netex_category_comment count={Enum.count(@errors)} category={@current_category} />
 
-      <div :if={@current_category == "xsd-schema" and Enum.count(@errors) > 0} id="issues-list">
-        <p>
-          {dgettext(
-            "validations-explanations",
-            "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
-            validation_report_url: @validation_report_url
-          )
-          |> raw()}
-        </p>
-        <.non_translated_messages locale={locale} />
-        <table class="table netex_xsd_schema">
-          <tr>
-            <th>{dgettext("validations-explanations", "Occurrences")}</th>
-            <th>{dgettext("validations-explanations", "Message")}</th>
-          </tr>
+      <div :if={Enum.count(@errors) > 0} id="issues-list">
+        <%= if @current_category == "xsd-schema" do %>
+          <p>
+            {dgettext(
+              "validations-explanations",
+              "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
+              validation_report_url: @validation_report_url
+            )
+            |> raw()}
+          </p>
+          <.non_translated_messages locale={locale} />
+          <table class="table netex_xsd_schema">
+            <tr>
+              <th>{dgettext("validations-explanations", "Occurrences")}</th>
+              <th>{dgettext("validations-explanations", "Message")}</th>
+            </tr>
 
-          <tr :for={xsd_error <- @errors} class="message">
-            <td>{Helpers.format_number(xsd_error["counts"], locale: locale)}</td>
-            <td lang="en">{xsd_error["message"]}</td>
-          </tr>
-        </table>
-      </div>
-      <div :if={@current_category != "xsd-schema" and Enum.count(@errors) > 0} id="issues-list">
-        <.non_translated_messages locale={locale} />
-        <.netex_generic_issues issues={@errors} />
-        {@pagination}
+            <tr :for={xsd_error <- @errors} class="message">
+              <td>{Helpers.format_number(xsd_error["counts"], locale: locale)}</td>
+              <td lang="en">{xsd_error["message"]}</td>
+            </tr>
+          </table>
+        <% else %>
+          <.non_translated_messages locale={locale} />
+          <.netex_generic_issues issues={@errors} />
+          {@pagination}
+        <% end %>
       </div>
     </div>
     """
@@ -259,17 +274,63 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  defp netex_category_tooltip(%{category: _, compliance_check: _} = assigns) do
+  defp with_string(proc) do
+    {:ok, device} = StringIO.open("")
+
+    proc.(device)
+
+    StringIO.flush(device)
+  end
+
+  defp netex_category_tooltip(%{category: _, compliance_check: _, results_adapter: _, conn: _} = assigns) do
     ~H"""
+    <% french_profile = @results_adapter.french_profile() %>
     <p :if={@category == "french-profile"}>
       <.info_icon /> {french_profile_comment(@compliance_check)}
+      <button :if={french_profile} class="button-outline small secondary" popovertarget="french-profile-rules">
+        <i class="fa fa-circle-question" aria-hidden="true"></i> {dgettext("validations", "Learn more")}
+      </button>
     </p>
+    <dialog :if={french_profile} id="french-profile-rules" popover class="panel inline-help">
+      <div class="header_with_action_bar">
+        <h5>{dgettext("validations", "List of French Profile rules currently checked")}</h5>
+        <button popovertarget="french-profile-rules" popovertargetaction="hide" class="small secondary">
+          <i class="fa fa-close"></i>
+        </button>
+      </div>
+      <% markdown = with_string(&french_profile.markdown(&1, header_level: 6)) %>
+      <% locale = get_session(@conn, :locale) %>
+      <p :if={locale != "fr"} class="notification warning">
+        <i class="fa fa-circle-info"></i>
+        <em>
+          {dgettext("validations-explanations", "The French profile and the following rules are only available in French.")}
+        </em>
+      </p>
+      {markdown_to_safe_html!(markdown)}
+    </dialog>
     """
   end
 
   defp netex_category_tooltip(%{} = assigns) do
     ~H"""
     """
+  end
+
+  defp markdown_to_safe_html!(markdown) do
+    case TransportWeb.MarkdownHandler.markdown_to_safe_html!(markdown) do
+      {:safe, safe} -> {:safe, update_links_target(safe)}
+      otherwise -> otherwise
+    end
+  end
+
+  defp update_links_target(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.traverse_and_update(fn
+      {"a", attrs, children} -> {"a", [{"target", "_blank"} | attrs], children}
+      other -> other
+    end)
+    |> Floki.raw_html()
   end
 
   defp french_profile_comment(:none), do: dgettext("validations", "netex-french-profile-no-compliance") |> raw()
@@ -309,14 +370,19 @@ defmodule TransportWeb.NeTExReportComponents do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)
   end
 
-  defp netex_category_description(%{category: _, compliance_check: _, conn: _} = assigns) do
+  defp netex_category_description(%{category: _, compliance_check: _, conn: _, results_adapter: _} = assigns) do
     ~H"""
     <% url = netex_link_to_category(@conn, "french-profile") %>
     <% description = netex_category_description_html(@category, url) %>
     <p :if={description}>
       {raw(description)}
     </p>
-    <.netex_category_tooltip category={@category} compliance_check={@compliance_check} />
+    <.netex_category_tooltip
+      category={@category}
+      compliance_check={@compliance_check}
+      results_adapter={@results_adapter}
+      conn={@conn}
+    />
     """
   end
 

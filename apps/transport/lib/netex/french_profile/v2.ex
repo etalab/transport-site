@@ -19,8 +19,8 @@ defmodule Transport.NeTEx.FrenchProfile.V2 do
     definition() |> encode_ruleset(device)
   end
 
-  def markdown(device \\ :stdio) do
-    definition() |> document_ruleset(device)
+  def markdown(device \\ :stdio, markdown_options \\ []) do
+    definition() |> document_ruleset(device, markdown_options)
   end
 
   defp definition do

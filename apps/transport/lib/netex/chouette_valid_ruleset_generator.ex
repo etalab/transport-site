@@ -31,25 +31,35 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
     Enum.map(ruleset, &process_rule_context(sub_profile, &1))
   end
 
-  def document_ruleset(ruleset, device \\ :stdio) do
-    Enum.each(ruleset, &document_sub_profile(&1, device))
+  def document_ruleset(ruleset, device \\ :stdio, markdown_options \\ []) do
+    Enum.each(ruleset, &document_sub_profile(&1, device, markdown_options))
   end
 
-  def document_sub_profile(%{title: title, ruleset: ruleset}, device) do
-    IO.puts(device, "## #{title}")
-    IO.puts(device, "")
+  def document_sub_profile(%{title: title, ruleset: ruleset}, device, markdown_options) do
+    header_level = Keyword.get(markdown_options, :header_level, 1)
 
-    ruleset
-    |> Enum.each(fn rule_context ->
-      IO.puts(device, "In [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}):")
+    if not Enum.empty?(ruleset) do
+      IO.puts(device, header(header_level, title))
       IO.puts(device, "")
 
-      for name <- rule_context.names do
-        IO.puts(device, "- `//#{rule_context.parent}/#{name}` : `0:1` -> `1:1`")
-      end
+      ruleset
+      |> Enum.each(fn rule_context ->
+        IO.puts(device, "In [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}):")
+        IO.puts(device, "")
 
-      IO.puts(device, "")
-    end)
+        for name <- rule_context.names do
+          IO.puts(device, "- `//#{rule_context.parent}/#{name}` : `0:1` -> `1:1`")
+        end
+
+        IO.puts(device, "")
+      end)
+    end
+  end
+
+  defp header(level, text) do
+    symbol = "###########" |> String.slice(0, level)
+
+    "#{symbol} #{text}"
   end
 
   def process_rule_context(sub_profile, %{type: :mandatory_attributes, parent: parent, names: names}) do

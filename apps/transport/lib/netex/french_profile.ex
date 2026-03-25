@@ -13,5 +13,5 @@ defmodule Transport.NeTEx.FrenchProfile do
 
   defdelegate slug, to: Latest
   defdelegate ruleset(device), to: Latest
-  defdelegate markdown(device), to: Latest
+  defdelegate markdown(device, markdown_options), to: Latest
 end

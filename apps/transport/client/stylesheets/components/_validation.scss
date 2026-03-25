@@ -278,6 +278,27 @@ table.netex_generic_issue tr.debug td code {
       --taint: var(--orange);
     }
   }
+
+  button[popovertarget="french-profile-rules"] {
+    margin-left: 0.5em;
+  }
+
+  .inline-help {
+    max-width: 90%;
+    width: 80ch;
+    max-height: 90%;
+    overflow: scrollable;
+    overscroll-behavior: contain;
+
+    h5, h6 { text-align: start; }
+    h5 { margin-block: 0 1em; }
+    h6 { margin-block: 2em 1em; }
+    .header_with_action_bar + h6 { margin-top: 0; }
+    .fa-close { padding: unset }
+    .warning .fa-circle-info {
+      color: color-mix(in oklab, var(--orange), black 10%);
+    }
+  }
 }
 
 blockquote {
