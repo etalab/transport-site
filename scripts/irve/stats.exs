@@ -10,7 +10,8 @@ sources = [
    "consolidation-nationale-irve-statique-brute-v1.csv", :original_resource_id},
   {"https://www.data.gouv.fr/fr/datasets/r/eb76d20a-8501-400e-b336-d85724de5435", "consolidation-data-gouv.csv",
    :datagouv_resource_id},
-  {"https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-dynamique?include_source=1", "dynamic-irve.csv", :slug}
+  {"https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-dynamique?include_source=1",
+   "dynamic-irve.csv", :slug}
   # # generate with `mix run dump-simple-consolidation.exs`
   # {:on_disk, "simple-consolidation.csv", :datagouv_resource_id}
 ]
