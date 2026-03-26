@@ -1,9 +1,6 @@
-defmodule Transport.Jobs.GTFSGenericConverter do
+defmodule Transport.Jobs.NeTExGenericConverter do
   @moduledoc """
-  Provides some functions to convert GTFS to another format.
-
-  Note that the EnRoute's GTFS to NeTEx converter does not use this class
-  because the conversion is not done locally but through an API.
+  Provides some functions to convert NeTEx to another format.
   """
   alias Transport.Jobs.GenericConverter
 
@@ -17,7 +14,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   end
 
   def enqueue_all_conversion_jobs(format, conversion_job_module) do
-    GenericConverter.enqueue_all_conversion_jobs("GTFS", format, conversion_job_module)
+    GenericConverter.enqueue_all_conversion_jobs("NeTEx", format, conversion_job_module)
   end
 
   @doc """
@@ -25,6 +22,6 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   """
   @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
   def perform_single_conversion_job(resource_history_id, format, converter_module) do
-    GenericConverter.perform_single_conversion_job(resource_history_id, :GTFS, format, converter_module)
+    GenericConverter.perform_single_conversion_job(resource_history_id, :NeTEx, format, converter_module)
   end
 end
