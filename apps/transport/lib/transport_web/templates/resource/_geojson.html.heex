@@ -1,0 +1,32 @@
+<% locale = get_session(@conn, :locale) %>
+<div class="panel no-padding">
+  <div id="resource-geojson-info" class="p-24"></div>
+  <div id="resource-geojson"></div>
+  <script src={static_path(@conn, "/js/mapgeojson.js")}>
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      GTFSGeojsonMap(
+        'resource-geojson',
+        'resource-geojson-info',
+        "<%= @associated_geojson.url %>",
+        "<%= @associated_geojson.filesize || 0 %>",
+        "<%= dgettext("validations", "Stops visualization is quite big") %>",
+        "<%= dgettext("validations", "Show anyway") %>"
+        )
+      })
+  </script>
+</div>
+<div :if={not is_nil(@associated_geojson.resource_history_last_up_to_date_at)} class="is-centered mt-12">
+  {dgettext("validations", "Visualization up-to-date %{hours} ago.",
+    hours: hours_ago(@associated_geojson.resource_history_last_up_to_date_at, locale)
+  )}
+  <a class="download-button" rel="nofollow" href={@associated_geojson.stable_url}>
+    <button class="button-outline secondary no-border small">
+      <i class="icon icon--download" aria-hidden="true"></i>{dgettext(
+        "page-dataset-details",
+        "Download as GeoJSON"
+      )}
+    </button>
+  </a>
+</div>
