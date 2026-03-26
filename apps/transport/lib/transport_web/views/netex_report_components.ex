@@ -299,13 +299,6 @@ defmodule TransportWeb.NeTExReportComponents do
         </button>
       </div>
       <% markdown = with_string(&french_profile.markdown(&1, header_level: 6)) %>
-      <% locale = get_session(@conn, :locale) %>
-      <p :if={locale != "fr"} class="notification warning">
-        <i class="fa fa-circle-info"></i>
-        <em>
-          {dgettext("validations-explanations", "The French profile and the following rules are only available in French.")}
-        </em>
-      </p>
       {markdown_to_safe_html!(markdown)}
     </dialog>
     """

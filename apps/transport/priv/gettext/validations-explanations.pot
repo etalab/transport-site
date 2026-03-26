@@ -165,7 +165,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Line"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "The French profile and the following rules are only available in French."
-msgstr ""

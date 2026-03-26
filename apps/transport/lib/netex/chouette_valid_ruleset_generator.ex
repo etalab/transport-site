@@ -9,6 +9,8 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
   - it can keep track of source documentation for each rule to help maintain a user friendly interface
   """
 
+  use Gettext, backend: TransportWeb.Gettext
+
   def mandatory_attributes(parent, names, documentation_title, documentation_url) do
     %{
       type: :mandatory_attributes,
@@ -35,20 +37,23 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
     Enum.each(ruleset, &document_sub_profile(&1, device, markdown_options))
   end
 
-  def document_sub_profile(%{title: title, ruleset: ruleset}, device, markdown_options) do
-    header_level = Keyword.get(markdown_options, :header_level, 1)
+  def document_sub_profile(%{title: title, ruleset: ruleset}, device, options) do
+    header_level = Keyword.get(options, :header_level, 1)
 
     if not Enum.empty?(ruleset) do
-      IO.puts(device, header(header_level, "Sous-profil « #{title} »"))
+      IO.puts(device, header(header_level, dgettext("netex-documentation", "Sub-profile “%{title}”", title: title)))
       IO.puts(device, "")
 
       ruleset
       |> Enum.each(fn rule_context ->
-        IO.puts(device, "Section [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}) :")
+        IO.puts(device, dgettext("netex-documentation", "Section [%{title}](%{url}):", rule_context.documentation_link))
         IO.puts(device, "")
 
         for name <- rule_context.names do
-          IO.puts(device, "- `//#{rule_context.parent}/#{name}` : `0:1` -> `1:1`")
+          IO.puts(
+            device,
+            "- #{dgettext("netex-documentation", "The element `%{name}` is required.", name: "#{rule_context.parent}/#{name}")}"
+          )
         end
 
         IO.puts(device, "")

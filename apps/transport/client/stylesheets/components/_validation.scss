@@ -294,9 +294,7 @@ table.netex_generic_issue tr.debug td code {
     h6 { margin-block: 2em 1em; }
     .header_with_action_bar + h6 { margin-top: 0; }
     .fa-close { padding: unset }
-    .warning .fa-circle-info {
-      color: color-mix(in oklab, var(--orange), black 10%);
-    }
+    code { font-size: 0.75em; }
   }
 }
 
