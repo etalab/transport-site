@@ -39,12 +39,12 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
     header_level = Keyword.get(markdown_options, :header_level, 1)
 
     if not Enum.empty?(ruleset) do
-      IO.puts(device, header(header_level, title))
+      IO.puts(device, header(header_level, "Sous-profil « #{title} »"))
       IO.puts(device, "")
 
       ruleset
       |> Enum.each(fn rule_context ->
-        IO.puts(device, "In [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}):")
+        IO.puts(device, "Section [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}) :")
         IO.puts(device, "")
 
         for name <- rule_context.names do
