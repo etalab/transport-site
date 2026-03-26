@@ -152,7 +152,7 @@ msgstr "Aucun jeu de données trouvé"
 
 #, elixir-autogen, elixir-format
 msgid "Alphabetical"
-msgstr "Ordre alphabetique"
+msgstr "Ordre alphabétique"
 
 #, elixir-autogen, elixir-format
 msgid "Most recently added"
@@ -233,6 +233,10 @@ msgid "Resource format"
 msgstr "Format de ressource"
 
 #, elixir-autogen, elixir-format
+msgid "Sub type"
+msgstr "Sous-type"
+
+#, elixir-autogen, elixir-format
 msgid "department"
 msgstr "département"
 
@@ -247,47 +251,3 @@ msgstr "offre de transport"
 #, elixir-autogen, elixir-format
 msgid "data format"
 msgstr "format de données"
-
-#, elixir-autogen, elixir-format
-msgid "Data subtype"
-msgstr "Sous-type de données"
-
-#, elixir-autogen, elixir-format
-msgid "Urban"
-msgstr "Urbain"
-
-#, elixir-autogen, elixir-format
-msgid "Intercity"
-msgstr "Interurbain"
-
-#, elixir-autogen, elixir-format
-msgid "School transport"
-msgstr "Scolaire"
-
-#, elixir-autogen, elixir-format
-msgid "Seasonal"
-msgstr "Saisonnier"
-
-#, elixir-autogen, elixir-format
-msgid "Demand responsive transport"
-msgstr "Transport à la demande zonal"
-
-#, elixir-autogen, elixir-format
-msgid "Bicycle"
-msgstr "Vélo"
-
-#, elixir-autogen, elixir-format
-msgid "Scooter"
-msgstr "Trottinette"
-
-#, elixir-autogen, elixir-format
-msgid "Carsharing"
-msgstr "Autopartage"
-
-#, elixir-autogen, elixir-format
-msgid "Moped"
-msgstr "Cyclomoteur"
-
-#, elixir-autogen, elixir-format
-msgid "Free-floating"
-msgstr "Libre-service"

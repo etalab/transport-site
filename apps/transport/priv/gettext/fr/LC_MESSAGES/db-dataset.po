@@ -58,3 +58,43 @@ msgstr "Cheminement piéton"
 #, elixir-autogen, elixir-format
 msgid "Vehicles sharing"
 msgstr "Véhicules en libre-service"
+
+#, elixir-autogen, elixir-format
+msgid "Urban"
+msgstr "Urbain"
+
+#, elixir-autogen, elixir-format
+msgid "Intercity"
+msgstr "Intercités"
+
+#, elixir-autogen, elixir-format
+msgid "School"
+msgstr "Scolaire"
+
+#, elixir-autogen, elixir-format
+msgid "Seasonal"
+msgstr "Saisonnier"
+
+#, elixir-autogen, elixir-format
+msgid "Zonal DRT"
+msgstr "TAD zonal"
+
+#, elixir-autogen, elixir-format
+msgid "Bicycle"
+msgstr "Vélo"
+
+#, elixir-autogen, elixir-format
+msgid "Scooter"
+msgstr "Trottinette"
+
+#, elixir-autogen, elixir-format
+msgid "Carsharing"
+msgstr "Autopartage"
+
+#, elixir-autogen, elixir-format
+msgid "Moped"
+msgstr "Cyclomoteur"
+
+#, elixir-autogen, elixir-format
+msgid "Freefloating"
+msgstr "Free-floating"

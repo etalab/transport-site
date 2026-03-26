@@ -1,21 +1,7 @@
 defmodule Transport.NeTEx.ArchiveParserTest do
   use ExUnit.Case, async: true
 
-  defmodule ZipCreator do
-    @moduledoc """
-    A light wrapper around OTP `:zip` features. Does not support streaming here,
-    but massages the string <-> charlist differences.
-    """
-    @spec create!(String.t(), [{String.t(), binary()}]) :: no_return()
-    def create!(zip_filename, file_data) do
-      {:ok, ^zip_filename} =
-        :zip.create(
-          zip_filename,
-          file_data
-          |> Enum.map(fn {name, content} -> {name |> to_charlist(), content} end)
-        )
-    end
-  end
+  alias Transport.NeTEx.ArchiveParser
 
   # not fully correct XML, but close enough for what we want to test
   def some_netex_content do
@@ -40,7 +26,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     tmp_file = create_tmp_netex([{"arrets.xml", some_netex_content()}])
 
     # given a zip netex archive containing 1 file, I want the output I expected
-    [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places(tmp_file)
+    [{"arrets.xml", data}] = ArchiveParser.read_all_stop_places(tmp_file)
 
     assert data ==
              {:ok,
@@ -49,7 +35,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
               ]}
 
     # given a zip netex archive containing 1 file, I want the output I expected
-    [{"arrets.xml", data}] = Transport.NeTEx.read_all_stop_places!(tmp_file)
+    [{"arrets.xml", data}] = ArchiveParser.read_all_stop_places!(tmp_file)
 
     assert data == [
              %{id: "FR:HELLO:POYARTIN:001", latitude: 43.669, longitude: -0.919, name: "Poyartin"}
@@ -90,7 +76,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, service_calendar_content)
+    data = extract(&ArchiveParser.read_all_service_calendars!/1, service_calendar_content)
 
     assert [
              %{
@@ -127,7 +113,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_service_calendars!/1, empty_service_calendar_content)
+    data = extract(&ArchiveParser.read_all_service_calendars!/1, empty_service_calendar_content)
 
     assert [] == data
   end
@@ -149,7 +135,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, calendar_content)
 
     assert [
              %{
@@ -174,7 +160,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, calendar_content)
 
     assert [
              %{
@@ -200,7 +186,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, idfm_calendar_content)
+    data = extract(&ArchiveParser.read_all_calendars!/1, idfm_calendar_content)
 
     assert [
              %{
@@ -224,7 +210,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </GeneralFrame>
     """
 
-    data = extract(&Transport.NeTEx.read_all_calendars!/1, operating_periods)
+    data = extract(&ArchiveParser.read_all_calendars!/1, operating_periods)
 
     assert [
              %{
@@ -248,7 +234,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["NETEX_CALENDRIER"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, general_frame)
+    assert ["NETEX_CALENDRIER"] == extract(&ArchiveParser.read_all_types_of_frames!/1, general_frame)
 
     composite_frames = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -268,7 +254,7 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == extract(&Transport.NeTEx.read_all_types_of_frames!/1, composite_frames)
+    assert ["NETEX_N_LIGNE", "NETEX_LIGNE"] == extract(&ArchiveParser.read_all_types_of_frames!/1, composite_frames)
 
     non_standard_types = """
       <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
@@ -288,17 +274,128 @@ defmodule Transport.NeTEx.ArchiveParserTest do
       </PublicationDelivery>
     """
 
-    types = extract(&Transport.NeTEx.read_all_types_of_frames!/1, non_standard_types)
+    types = extract(&ArchiveParser.read_all_types_of_frames!/1, non_standard_types)
 
     assert [] == types
   end
 
+  test "extract Network(s)" do
+    general_frame = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>R'bus (Rochefort Océan)</Name>
+                <members>
+                  <LineRef ref="CA_ROCHEFORT_OCEAN:Line:A:LOC"/>
+                </members>
+              </Network>
+              <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+                <Name>Saint-Agnant Les Cordries / Echillais / Rochefort Roy Bry / Tonnay-Charente Les Fontenelles</Name>
+              </Line>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["R'bus (Rochefort Océan)"] == extract(&ArchiveParser.read_all_description!/1, general_frame).networks
+
+    multiple_networks = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>Réseau Urbain</Name>
+              </Network>
+              <Network>
+                <Name>Réseau Régional</Name>
+              </Network>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["Réseau Urbain", "Réseau Régional"] ==
+             extract(&ArchiveParser.read_all_description!/1, multiple_networks).networks
+  end
+
+  test "extract TransportMode(s)" do
+    general_frame = """
+      <PublicationDelivery xmlns="http://www.netex.org.uk/netex" version="1.04:FR1-NETEX-1.6-1.8">
+        <PublicationTimestamp>2026-02-02T15:45:04Z</PublicationTimestamp>
+        <ParticipantRef>FR1_OFFRE</ParticipantRef>
+        <dataObjects>
+          <GeneralFrame id="FR:GeneralFrame:NETEX_COMMUN:LOC" version="1.09:FR-NETEX-2.1-1.0">
+            <members>
+              <Network>
+                <Name>Réseau Urbain</Name>
+              </Network>
+              <Line>
+                <Name>Alberville - Besançon</Name>
+                <TransportMode>bus</TransportMode>
+              </Line>
+              <Line>
+                <Name>Cherbourg - Deauville</Name>
+                <TransportMode>ferry</TransportMode>
+              </Line>
+              <Line>
+                <Name>Écully - Francheville</Name>
+                <TransportMode>bus</TransportMode>
+              </Line>
+            </members>
+          </GeneralFrame>
+        </dataObjects>
+      </PublicationDelivery>
+    """
+
+    assert ["bus", "ferry", "bus"] == extract(&ArchiveParser.read_all_description!/1, general_frame).transport_modes
+  end
+
+  test "extract statistics" do
+    general_frame = """
+      <GeneralFrame>
+        <members>
+          <Line id="CA_ROCHEFORT_OCEAN:Line:A:LOC" version="any">
+          </Line>
+          <Quay id="FR:Quay:Quay1:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay2:" version="any">
+          </Quay>
+          <Quay id="FR:Quay:Quay3:" version="any">
+          </Quay>
+          <StopPlace id="FR:StopPlace:StopPlace1:" version="any">
+          </StopPlace>
+          <StopPlace id="FR:StopPlace:StopPlace2:" version="any">
+          </StopPlace>
+        </members>
+      </GeneralFrame>
+    """
+
+    statistics = extract(&ArchiveParser.read_all_description!/1, general_frame)
+
+    assert 1 == statistics.lines
+    assert 3 == statistics.quays
+    assert 2 == statistics.stop_places
+  end
+
   defp extract(extractor, xml) do
-    tmp_file = create_tmp_netex([{"file.xml", xml}])
+    tmp_file = create_tmp_netex([{"directory/", ""}, {"directory/file.xml", xml}])
 
-    [{"file.xml", types}] = extractor.(tmp_file)
+    try do
+      [{"directory/", _}, {"directory/file.xml", types}] = extractor.(tmp_file)
 
-    types
+      types
+    after
+      File.rm(tmp_file)
+    end
   end
 
   defp create_tmp_netex(files) do

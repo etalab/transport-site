@@ -28,18 +28,74 @@ html {
 
 @media (max-width: $breakpoint-tablet) {
   #close-menu {
-    margin: 20px 20px 0 0;
+    margin: 20px 40px 0 0;
   }
   .dropdown-content {
     top: 60px;
   }
 }
 
+.dropdown {
+  cursor: default;
+}
+
 .dropdown-content {
-  min-width: 250px;
+  min-width: 200px;
+  max-width: max-content;
   z-index: 999;
   text-align: left;
   left: 0;
+  transition: opacity 500ms, display 0ms allow-discrete;
+}
+
+.dropdown:hover .dropdown-content {
+  opacity: 1;
+}
+
+@starting-style {
+  .dropdown:hover .dropdown-content {
+    opacity: 0;
+  }
+}
+
+@supports not (top: anchor(bottom)) {
+  .dropdown-content.languages {
+    min-width: auto;
+    text-align: center;
+    right: 0;
+    left: auto;
+  }
+}
+
+/* Anchor positioning is still new. */
+@supports (top: anchor(bottom)) {
+  .dropdown:hover {
+    anchor-name: --menu-dropdown-anchor;
+  }
+  .dropdown-content {
+    position: fixed;
+    position-anchor: --menu-dropdown-anchor;
+    position-try-fallbacks: --right-aligned;
+    top: anchor(bottom);
+    left: anchor(left);
+  }
+  @media (max-width: $breakpoint-tablet) {
+    .dropdown-content {
+      left: auto;
+      right: auto;
+      justify-self: anchor-center;
+      position-try-fallbacks: --top-aligned;
+    }
+  }
+  @position-try --right-aligned {
+    left: auto;
+    right: anchor(right);
+  }
+
+  @position-try --top-aligned {
+    top: auto;
+    bottom: anchor(top);
+  }
 }
 
 #chevron-hint {
@@ -143,7 +199,7 @@ a.tile.sub_tile {
 }
 
 .grid.available-data {
-  grid-gap: 1.5em !important;
+  gap: 1.5em !important;
   grid-auto-rows: 1fr;
   .tile__text {
     height: 100%;
@@ -158,7 +214,7 @@ a.tile.sub_tile {
 
   .grid {
     color: $grey;
-    grid-gap: 1.5em !important;
+    gap: 1.5em !important;
 
     .tile {
       flex-direction: row;
@@ -263,11 +319,11 @@ a.tile.sub_tile {
       }
     }
     .search-method {
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgb(255 255 255 / 0.8);
       border-radius: 5px;
       margin: 0 12px;
       &:hover {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgb(255 255 255 / 0.9);
       }
       a {
         background-color: initial;
@@ -392,11 +448,20 @@ a.button.reuser-space {
   display: none;
 }
 
+@function change-luminosity($color, $shift) {
+  @return oklab(from $color calc(l + $shift) a b);
+}
+
 .notification_badge {
-  background-color: #fa3e3e;
-  border-radius: 2px;
+  /* Adjust background color to have proper contrast (accessibility issue). */
+  background-color: change-luminosity(#fa3e3e, -0.06);
+  border-radius: 4px;
+  font-weight: 600;
   color: white;
   line-height: 1.5em;
+  min-width: 1.7em;
+  display: inline-flex;
+  justify-content: center;
   padding: 1px 3px;
   font-size: 10px;
   position: absolute;

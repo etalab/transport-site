@@ -1,4 +1,4 @@
-defmodule Transport.NeTEx do
+defmodule Transport.NeTEx.ArchiveParser do
   @moduledoc """
   A first implementation of on-the-fly NeTEx (zip) archive traversal.
 
@@ -21,9 +21,9 @@ defmodule Transport.NeTEx do
 
   ## Examples
 
-      {:ok, geojson} = Transport.NeTEx.to_geojson("/path/to/netex.zip")
+      {:ok, geojson} = #{__MODULE__}.to_geojson("/path/to/netex.zip")
 
-      {:ok, geojson} = Transport.NeTEx.to_geojson(path, types: [:stop_places, :quays])
+      {:ok, geojson} = #{__MODULE__}.to_geojson(path, types: [:stop_places, :quays])
 
   """
   @spec to_geojson(String.t(), keyword()) :: {:ok, map()} | {:error, String.t()}
@@ -138,6 +138,31 @@ defmodule Transport.NeTEx do
     read_all(zip_file_name, &read_types_of_frames!/2)
   end
 
+  @doc """
+  Inside a zip archive opened with `Unzip`, parse a given file (pointed by
+  `file_name`) and extract various descriptive information. The file is read in
+  streaming fashion to save memory, but the stop places are stacked in a list
+  (all in memory at once).
+  """
+  def read_description(%Unzip{} = unzip, file_name) do
+    parse_stream(unzip, file_name, Transport.NeTEx.DescriptionParser)
+  end
+
+  @doc """
+  Like read_description/2 but raises on errors.
+  """
+  def read_description!(%Unzip{} = unzip, file_name) do
+    parse_stream!(unzip, file_name, Transport.NeTEx.DescriptionParser)
+  end
+
+  def read_all_description(zip_file_name) do
+    read_all(zip_file_name, &read_description/2)
+  end
+
+  def read_all_description!(zip_file_name) do
+    read_all(zip_file_name, &read_description!/2)
+  end
+
   defp parse_stream(unzip, file_name, parser) do
     extension = Path.extname(file_name)
 
@@ -145,7 +170,7 @@ defmodule Transport.NeTEx do
       # Entry names ending with a slash `/` are directories. Skip them.
       # https://github.com/akash-akya/unzip/blob/689a1ca7a134ab2aeb79c8c4f8492d61fa3e09a0/lib/unzip.ex#L69
       String.ends_with?(file_name, "/") ->
-        {:ok, []}
+        {:ok, parser.initial_state() |> parser.unwrap_result()}
 
       extension |> String.downcase() == ".zip" ->
         {:error, "Insupported zip inside zip for file #{file_name}"}
@@ -190,7 +215,7 @@ defmodule Transport.NeTEx do
     end)
   end
 
-  defp with_zip_file_handle(zip_file_name, cb) do
+  def with_zip_file_handle(zip_file_name, cb) do
     zip_file = Unzip.LocalFile.open(zip_file_name)
 
     try do

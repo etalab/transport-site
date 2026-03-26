@@ -76,6 +76,17 @@
     <a
       class="button"
       href={
+        backoffice_page_path(@conn, :download_datasets_csv, %{
+          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
+        })
+      }
+      title="Export CSV des jeux de données"
+    >
+      📦 Export des jeux de données
+    </a>
+    <a
+      class="button"
+      href={
         backoffice_page_path(@conn, :download_resources_csv, %{
           "export_key" => Application.fetch_env!(:transport, :export_secret_key)
         })

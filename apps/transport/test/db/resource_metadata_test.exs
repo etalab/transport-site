@@ -23,7 +23,7 @@ defmodule DB.ResourceMetadataTest do
     assert [validation_1] ==
              DB.MultiValidation.base_query()
              |> DB.ResourceMetadata.join_validation_with_metadata()
-             |> DB.ResourceMetadata.where_gtfs_up_to_date()
+             |> DB.ResourceMetadata.where_up_to_date()
              |> DB.Repo.all()
   end
 end

@@ -25,16 +25,6 @@ defmodule TransportWeb.API.GeoQueryController do
     DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
   end
 
-  def transform_geojson(%DB.GeoDataImport{} = geo_data_import, :parkings_relais) do
-    add_fields = fn query ->
-      from(g in query,
-        select_merge: %{nom: fragment("payload->>'nom'"), nb_pr: fragment("(payload->>'nb_pr')::int")}
-      )
-    end
-
-    DB.GeoData.geo_data_as_geojson(geo_data_import, add_fields)
-  end
-
   def transform_geojson(%DB.GeoDataImport{} = geo_data_import, :zfe) do
     add_fields = fn query -> query end
 

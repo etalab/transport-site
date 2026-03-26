@@ -308,6 +308,14 @@ defmodule DB.Resource do
     end
   end
 
+  def download_validation_report_url(%Plug.Conn{} = conn, %__MODULE__{format: "NeTEx"} = resource) do
+    resource_url(conn, :download_validation_report, resource.id)
+  end
+
+  def download_validation_report_url(%Plug.Conn{} = _conn, %__MODULE__{} = _resource) do
+    nil
+  end
+
   def download_url(%__MODULE__{} = resource) do
     download_url(resource, TransportWeb.Endpoint)
   end

@@ -39,7 +39,7 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: {TransportWeb.LayoutView, "app.html"},
+    layout: [html: {TransportWeb.LayoutView, :app}],
     accepts: ~w(html json)
   ],
   pubsub_server: TransportWeb.PubSub
@@ -96,10 +96,10 @@ config :transport,
 config :transport,
   consolidation: %{
     zfe: %{
-      dataset_id: "624ff4b1bbb449a550264040",
+      dataset_id: "625438b890bf88454b283a55",
       resource_ids: %{
-        "voies" => "98c6bcdb-1205-4481-8859-f885290763f2",
-        "aires" => "3ddd29ee-00dd-40af-bc98-3367adbd0289"
+        "voies" => "3a5d0c66-aef9-4d68-841f-4fe81c9de980",
+        "aires" => "673a16bf-49ec-4645-9da2-cf975d0aa0ea"
       }
     },
     # These are production IDs
@@ -167,6 +167,7 @@ config :gettext, :default_locale, "fr"
 config :transport,
   domain_name: System.get_env("DOMAIN_NAME", "transport.data.gouv.fr"),
   export_secret_key: System.get_env("EXPORT_SECRET_KEY"),
+  metabase_secret_key: System.get_env("METABASE_SECRET_KEY"),
   proxy_config_secret_key: System.get_env("PROXY_CONFIG_SECRET_KEY"),
   # Expected format: `client1:secret_token;client2:other_token`
   api_auth_clients: System.get_env("API_AUTH_CLIENTS"),

@@ -2,7 +2,7 @@ defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ResourceView, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
   import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
@@ -144,12 +144,12 @@ defmodule TransportWeb.DatasetView do
     link_by_key(conn, "type", %{key: type, msg: msg, count: count})
   end
 
-  def format_link(conn, %{format: format, msg: msg, count: count}) do
-    link_by_key(conn, "format", %{key: format, msg: msg, count: count})
-  end
-
   def subtype_link(conn, %{subtype: subtype, msg: msg, count: count}) do
     link_by_key(conn, "subtype", %{key: subtype, msg: msg, count: count})
+  end
+
+  def format_link(conn, %{format: format, msg: msg, count: count}) do
+    link_by_key(conn, "format", %{key: format, msg: msg, count: count})
   end
 
   defp link_by_key(conn, key_name, %{key: key, msg: msg, count: count}) do
@@ -331,24 +331,26 @@ defmodule TransportWeb.DatasetView do
 
   def validity_dates(assigns) do
     ~H"""
-    <% start_date = @multi_validation |> DB.MultiValidation.get_metadata_info("start_date") |> empty_to_nil() %>
-    <% end_date = @multi_validation |> DB.MultiValidation.get_metadata_info("end_date") |> empty_to_nil() %>
-    <%= if start_date && end_date do %>
+    <% start_date = get_validity_date(@multi_validation, "start_date") %>
+    <% end_date = get_validity_date(@multi_validation, "end_date") %>
+    <div :if={start_date && end_date} title={dgettext("page-dataset-details", "Validity period")}>
+      <i class="icon icon--calendar-alt" aria-hidden="true"></i>
+      <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
+      <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
       <% end_date_date = end_date |> Date.from_iso8601!() %>
-      <div title={dgettext("page-dataset-details", "Validity period")}>
-        <i class="icon icon--calendar-alt" aria-hidden="true"></i>
-        <span>{Shared.DateTimeDisplay.format_date(start_date, @locale)}</span>
-        <i class="icon icon--right-arrow ml-05-em" aria-hidden="true"></i>
-        <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
-      </div>
-    <% end %>
+      <span class={outdated_class(end_date_date)}>{Shared.DateTimeDisplay.format_date(end_date, @locale)}</span>
+    </div>
     """
+  end
+
+  def get_validity_date(multi_validation, key) do
+    multi_validation |> DB.MultiValidation.get_metadata_info(key) |> empty_to_nil()
   end
 
   def valid_panel_class(%DB.Resource{is_available: false}, _), do: "invalid-resource-panel"
 
   def valid_panel_class(%DB.Resource{} = r, is_outdated) do
-    if Resource.gtfs?(r) && is_outdated do
+    if (Resource.gtfs?(r) or Resource.netex?(r)) && is_outdated do
       "invalid-resource-panel"
     else
       ""
@@ -650,6 +652,17 @@ defmodule TransportWeb.DatasetView do
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
     end
   end
+
+  def pick_validator(%DB.MultiValidation{} = validation) do
+    [
+      Transport.Validators.GTFSTransport,
+      Transport.Validators.NeTEx.Validator,
+      Transport.Validators.MobilityDataGTFSValidator
+    ]
+    |> Enum.find(fn validator -> validator.validator_name() == validation.validator end)
+  end
+
+  def pick_validator(_), do: nil
 
   def empty_to_nil(""), do: nil
   def empty_to_nil(value), do: value

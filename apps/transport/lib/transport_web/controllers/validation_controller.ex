@@ -4,6 +4,8 @@ defmodule TransportWeb.ValidationController do
   alias Transport.DataVisualization
   import Ecto.Query
 
+  @netex_issues_page_size 10
+
   plug(:log_usage when action in [:validate])
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => url, "type" => "gbfs"} = params}) do
@@ -46,7 +48,9 @@ defmodule TransportWeb.ValidationController do
             live_path(
               conn,
               TransportWeb.Live.OnDemandValidationSelectLive,
-              params |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
+              params
+              |> Enum.sort_by(fn {k, _} -> k end)
+              |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
             )
         )
     end
@@ -133,8 +137,12 @@ defmodule TransportWeb.ValidationController do
 
         template = pick_netex_template(validation.validator_version)
 
-        pagination_config = make_pagination_config(params)
+        pagination_config = make_pagination_config(params, @netex_issues_page_size)
         {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
+
+        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+
+        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
 
         conn
         |> assign_base_validation_details(params)
@@ -145,6 +153,8 @@ defmodule TransportWeb.ValidationController do
         |> assign(:max_severity, validation.digest["max_severity"])
         |> assign(:validation_summary, validation.digest["summary"])
         |> assign(:severities_count, validation.digest["stats"])
+        |> assign(:validation_report_url, validation_report_url)
+        |> assign(:xsd_errors, xsd_errors)
         |> render(template)
 
       # Handles waiting for validation to complete, errors and
@@ -158,6 +168,87 @@ defmodule TransportWeb.ValidationController do
           }
         )
     end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{} = params) do
+    token = params["token"]
+
+    validation =
+      MultiValidation.base_query(include_binary_result: true)
+      |> Repo.get(params["id"])
+
+    case validation do
+      nil ->
+        not_found(conn)
+
+      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
+      when expected_token != token ->
+        unauthorized(conn)
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
+        download_validation_report(conn, validation, params["format"] || "csv")
+
+      true ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _) do
+    not_found(conn)
+  end
+
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "csv" = format
+      )
+      when is_binary(binary_result) do
+    case binary_result
+         |> Transport.Validators.NeTEx.ResultsAdapters.Commons.from_binary()
+         |> Explorer.DataFrame.dump_csv() do
+      {:ok, validation_report} ->
+        log_download(conn, mv_id, format)
+        download_binary(conn, validation_report, "text/csv", "report-#{mv_id}.csv")
+
+      _ ->
+        not_found(conn)
+    end
+  end
+
+  def download_validation_report(
+        %Plug.Conn{method: "GET"} = conn,
+        %DB.MultiValidation{
+          id: mv_id,
+          binary_result: binary_result
+        },
+        "parquet" = format
+      )
+      when is_binary(binary_result) do
+    log_download(conn, mv_id, format)
+    download_binary(conn, binary_result, "application/vnd.apache.parquet", "report-#{mv_id}.parquet")
+  end
+
+  def download_validation_report(%Plug.Conn{method: "GET"} = conn, _, _) do
+    not_found(conn)
+  end
+
+  defp log_download(conn, validation_id, format) do
+    DB.FeatureUsage.insert!(
+      :download_validation_report,
+      get_in(conn.assigns.current_contact.id),
+      %{validation_id: validation_id, format: format}
+    )
+  end
+
+  defp download_binary(conn, binary, content_type, filename) do
+    send_download(conn, {:binary, binary},
+      disposition: :attachment,
+      content_type: content_type,
+      filename: filename
+    )
   end
 
   defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"

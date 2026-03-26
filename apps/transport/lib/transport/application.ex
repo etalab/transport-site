@@ -9,7 +9,7 @@ defmodule Transport.Application do
   use Application
   use Task
   import Cachex.Spec
-  alias Transport.{CachedFiles, ImportDataWorker, SearchCommunes}
+  alias Transport.{CachedFiles, DatasetIndex, ImportDataWorker, SearchCommunes}
   alias TransportWeb.Endpoint
 
   @cache_name :transport
@@ -33,6 +33,7 @@ defmodule Transport.Application do
         ImportDataWorker,
         CachedFiles,
         SearchCommunes,
+        DatasetIndex,
         {Phoenix.PubSub, [name: TransportWeb.PubSub, adapter: Phoenix.PubSub.PG2]},
         TransportWeb.Presence,
         # Oban is "always started", but muted via `config/runtime.exs` for cases like

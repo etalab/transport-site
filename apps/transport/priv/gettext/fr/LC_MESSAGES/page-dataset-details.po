@@ -287,10 +287,6 @@ msgid "Unavailable resources"
 msgstr "Ressources non disponibles"
 
 #, elixir-autogen, elixir-format
-msgid "Those resources are listed by the provider but are unreachable for now"
-msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment"
-
-#, elixir-autogen, elixir-format
 msgid "Up to date"
 msgstr "À jour"
 
@@ -511,10 +507,6 @@ msgid "Static data"
 msgstr "Données statiques"
 
 #, elixir-autogen, elixir-format
-msgid "Automatic conversions"
-msgstr "Conversions automatiques"
-
-#, elixir-autogen, elixir-format
 msgid "Accessibility issue"
 msgstr "Problème d'accessibilité"
 
@@ -733,3 +725,11 @@ msgstr "Cette discussion est fermée"
 #, elixir-autogen, elixir-format
 msgid "You will find below reuses created by individuals or organizations based on this dataset."
 msgstr "Vous trouverez dessous les réutilisations créées par des personnes ou des organisations en utilisant ce jeu de données."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download as GeoJSON"
+msgstr "Télécharger au format GeoJSON"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
+msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment. <a href=\"%{url}\">En savoir plus</a>."

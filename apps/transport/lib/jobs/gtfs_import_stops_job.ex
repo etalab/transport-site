@@ -105,7 +105,7 @@ defmodule Transport.Jobs.GTFSImportStopsJob do
     |> DB.Dataset.join_from_dataset_to_metadata(
       Enum.map(Transport.ValidatorsSelection.validators_for_feature(:gtfs_import_stops_job), & &1.validator_name())
     )
-    |> DB.ResourceMetadata.where_gtfs_up_to_date()
+    |> DB.ResourceMetadata.where_up_to_date()
     |> where([resource: r], r.format == "GTFS")
     |> select([resource_history: rh], rh)
     |> DB.Repo.all()

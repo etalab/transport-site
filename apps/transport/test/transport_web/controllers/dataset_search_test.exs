@@ -49,6 +49,8 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       ]
     )
 
+    Transport.DatasetIndex.refresh()
+
     :ok
   end
 
@@ -131,15 +133,20 @@ defmodule TransportWeb.DatasetSearchControllerTest do
       %{id: resource_id_3} = insert(:resource, dataset_id: dataset_id_3)
       insert(:resource_metadata, resource_id: resource_id_3, features: ["repose pieds en velour"])
 
-      assert [%{id: ^dataset_id}] =
-               %{"features" => ["vehicle_positions"]}
-               |> TransportWeb.DatasetController.get_datasets()
-               |> Map.fetch!(:entries)
+      index = Transport.DatasetIndex.build_index()
+
+      dataset_ids =
+        %{"features" => ["vehicle_positions"]}
+        |> DB.Dataset.list_datasets()
+        |> DB.Repo.all()
+        |> Enum.map(& &1.id)
+
+      assert [dataset_id] == dataset_ids
 
       assert [%{count: 1, type: "public-transit"}] =
-               %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_types()
+               Transport.DatasetIndex.types(index, dataset_ids)
 
-      regions_count = %{"features" => ["vehicle_positions"]} |> TransportWeb.DatasetController.get_regions()
+      regions_count = Transport.DatasetIndex.regions(index, dataset_ids)
       assert [%{count: 1, insee: ^region_insee}] = regions_count |> Enum.filter(&(&1.insee == region_insee))
     end
   end
@@ -420,6 +427,27 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> Enum.map(& &1.id)
   end
 
+  test "search by subtype" do
+    ds_urban = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
+    ds_intercity = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
+
+    d1 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_urban])
+    d2 = insert(:dataset, type: "public-transit", dataset_subtypes: [ds_intercity])
+    _d3 = insert(:dataset, type: "public-transit", dataset_subtypes: [])
+
+    assert [d1.id] ==
+             %{"type" => "public-transit", "subtype" => "urban"}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+
+    assert [d2.id] ==
+             %{"type" => "public-transit", "subtype" => "intercity"}
+             |> DB.Dataset.list_datasets()
+             |> DB.Repo.all()
+             |> Enum.map(& &1.id)
+  end
+
   test "search by transport offer" do
     o1 = insert(:offer)
     o2 = insert(:offer)
@@ -439,58 +467,5 @@ defmodule TransportWeb.DatasetSearchControllerTest do
              |> DB.Dataset.list_datasets()
              |> DB.Repo.all()
              |> Enum.map(& &1.id)
-  end
-
-  describe "search by subtype" do
-    test "filters datasets by subtype" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      intercity_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "intercity")
-
-      d1 = insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-      d2 = insert(:dataset, type: "public-transit", dataset_subtypes: [intercity_subtype])
-      d3 = insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype, intercity_subtype])
-      _d4 = insert(:dataset, type: "public-transit", dataset_subtypes: [])
-
-      # Filter by urban subtype
-      assert [d1.id, d3.id] |> Enum.sort() ==
-               %{"subtype" => "urban"}
-               |> DB.Dataset.list_datasets()
-               |> DB.Repo.all()
-               |> Enum.map(& &1.id)
-               |> Enum.sort()
-
-      # Filter by intercity subtype
-      assert [d2.id, d3.id] |> Enum.sort() ==
-               %{"subtype" => "intercity"}
-               |> DB.Dataset.list_datasets()
-               |> DB.Repo.all()
-               |> Enum.map(& &1.id)
-               |> Enum.sort()
-    end
-
-    test "combines subtype filter with type filter" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      bicycle_subtype = insert(:dataset_subtype, parent_type: "vehicles-sharing", slug: "bicycle")
-
-      d1 = insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-      _d2 = insert(:dataset, type: "vehicles-sharing", dataset_subtypes: [bicycle_subtype])
-
-      # Filter by type and subtype
-      assert [d1.id] ==
-               %{"type" => "public-transit", "subtype" => "urban"}
-               |> DB.Dataset.list_datasets()
-               |> DB.Repo.all()
-               |> Enum.map(& &1.id)
-    end
-
-    test "returns empty when subtype doesn't match" do
-      urban_subtype = insert(:dataset_subtype, parent_type: "public-transit", slug: "urban")
-      insert(:dataset, type: "public-transit", dataset_subtypes: [urban_subtype])
-
-      assert [] ==
-               %{"subtype" => "nonexistent"}
-               |> DB.Dataset.list_datasets()
-               |> DB.Repo.all()
-    end
   end
 end

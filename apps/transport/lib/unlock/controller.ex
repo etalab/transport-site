@@ -12,7 +12,7 @@ defmodule Unlock.Controller do
   - https://www.mnot.net/blog/2011/07/11/what_proxies_must_do
   """
 
-  use Phoenix.Controller
+  use Phoenix.Controller, formats: [html: "View", json: "View"]
   require Logger
   import Unlock.GunzipTools
 
@@ -147,7 +147,7 @@ defmodule Unlock.Controller do
   ```
   """
   def override_resp_headers_if_configured(conn, %module{} = item)
-      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS] do
+      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS, Unlock.Config.Item.S3] do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
@@ -185,7 +185,11 @@ defmodule Unlock.Controller do
     Unlock.Telemetry.trace_request(item.identifier, :external)
 
     displayed_filename = Path.basename(item.path)
-    conn = conn |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+
+    conn =
+      conn
+      |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+      |> override_resp_headers_if_configured(item)
 
     case fetch_remote(item) do
       %Unlock.HTTP.Response{status: 200} = response ->

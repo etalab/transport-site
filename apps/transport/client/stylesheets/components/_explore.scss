@@ -2,9 +2,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
-    "gtfs-rt         zfe"
-    "bnlc            irve"
-    "parkings_relais gbfs_stations";
+    "gtfs-rt irve"
+    "bnlc    gbfs_stations"
+    "zfe     .";
   column-gap: 24px;
   row-gap: 12px;
   justify-content: space-between;
@@ -12,17 +12,14 @@
   padding-bottom: 24px;
   padding-inline: 48px;
 
-  .gtfs-rt         { grid-area: gtfs-rt;         }
-  .zfe             { grid-area: zfe;             }
-  .bnlc            { grid-area: bnlc;            }
-  .irve            { grid-area: irve;            }
-  .parkings_relais { grid-area: parkings_relais; }
-  .gbfs_stations   { grid-area: gbfs_stations;   }
+  .gtfs-rt       { grid-area: gtfs-rt;       }
+  .zfe           { grid-area: zfe;           }
+  .bnlc          { grid-area: bnlc;          }
+  .irve          { grid-area: irve;          }
+  .gbfs_stations { grid-area: gbfs_stations; }
 
-  > div {
-    summary {
-      cursor: pointer;
-    }
+  > div summary {
+    cursor: pointer;
   }
 }
 
@@ -39,22 +36,19 @@
     margin-top: 0;
   }
   #gtfs-rt-check:checked {
-    background-color: rgb(0, 150, 136);
+    background-color: rgb(0 150 136);
   }
   #bnlc-check:checked {
-    background-color: rgb(255, 174, 0);
-  }
-  #parkings_relais-check:checked {
-    background-color: rgb(0, 33, 70);
+    background-color: rgb(255 174 0);
   }
   #zfe-check:checked {
-    background-color: rgb(52, 8, 143);
+    background-color: rgb(52 8 143);
   }
   #irve-check:checked {
-    background-color: rgb(245, 40, 145);
+    background-color: rgb(245 40 145);
   }
   #gbfs_stations-check:checked {
-    background-color: rgb(60, 115, 168);
+    background-color: rgb(60 115 168);
   }
 }
 
@@ -64,7 +58,6 @@
     grid-template-areas:
       "gtfs-rt"
       "bnlc"
-      "parkings_relais"
       "zfe"
       "irve"
       "gbfs_stations";

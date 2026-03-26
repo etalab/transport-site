@@ -20,7 +20,8 @@ defmodule DB.FeatureUsage do
         :autocomplete,
         :upload_file,
         :delete_resource,
-        :upload_logo
+        :upload_logo,
+        :download_validation_report
       ]
     )
 

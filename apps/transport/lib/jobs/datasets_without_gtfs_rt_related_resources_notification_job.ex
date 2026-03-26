@@ -37,7 +37,7 @@ defmodule Transport.Jobs.DatasetsWithoutGTFSRTRelatedResourcesNotificationJob do
           & &1.validator_name()
         )
       )
-      |> DB.ResourceMetadata.where_gtfs_up_to_date()
+      |> DB.ResourceMetadata.where_up_to_date()
       |> where([resource: r], r.format == "GTFS" and not r.is_community_resource)
       |> group_by([dataset: d], d.id)
       |> having([resource: r], count(r.id) > 1)
