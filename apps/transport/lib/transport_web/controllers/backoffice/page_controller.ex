@@ -333,6 +333,23 @@ defmodule TransportWeb.Backoffice.PageController do
     conn |> text("OK")
   end
 
+  def download_datasets_csv(%Plug.Conn{} = conn, _) do
+    %Postgrex.Result{columns: columns, rows: rows} = datasets_query()
+    filename = "datasets-#{Date.utc_today() |> Date.to_iso8601()}.csv"
+
+    content =
+      rows
+      |> Enum.map(fn row -> columns |> Enum.zip(row) |> Enum.into(%{}) end)
+      |> CSV.encode(headers: columns)
+      |> Enum.to_list()
+      |> to_string()
+
+    conn
+    |> put_resp_content_type("text/csv")
+    |> put_resp_header("content-disposition", ~s(attachment; filename="#{filename}"))
+    |> send_resp(200, content)
+  end
+
   def download_resources_csv(%Plug.Conn{} = conn, _) do
     %Postgrex.Result{columns: columns, rows: rows} = resources_query()
     filename = "ressources-#{Date.utc_today() |> Date.to_iso8601()}.csv"
@@ -350,6 +367,130 @@ defmodule TransportWeb.Backoffice.PageController do
     |> send_resp(200, content)
   end
 
+  defp datasets_query do
+    DB.Repo
+    |> Ecto.Adapters.SQL.query!("""
+    select
+      d.id id_dataset,
+      d.custom_title dataset_titre,
+      'https://transport.data.gouv.fr/datasets/' || d.slug dataset_url,
+      d.type dataset_type,
+      ds.dataset_sub_types,
+      case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
+      d.organization_type type_publicateur,
+      re.noms nom_region,
+      o.offre_mobilite,
+      administrative_division.noms couverture_spatiale,
+      nullif(concat_ws(', ', legal_owners.noms, case when d.legal_owner_company_siren is not null then coalesce(c.nom_complet || ' (' || d.legal_owner_company_siren || ')', d.legal_owner_company_siren) end), '') representants_legaux,
+      d.licence licence,
+      coalesce(reusers_sub.count, 0) nb_reusers_subscription,
+      coalesce(reusers_notif_sub.count, 0) nb_reusers_notifications_subscription,
+      coalesce(producers_notif_sub.count, 0) nb_producers_notifications_subscription,
+      freshness_score.score score_fraicheur,
+      availability_score.score score_disponibilite,
+      compliance_score.score score_conformite,
+      d.organization_id id_organisation,
+      d.organization nom_organisation,
+      d.datagouv_id id_dataset_datagouv,
+      d.datagouv_title dataset_titre_datagouv,
+      case when d.is_active and d.archived_at is null then 'actif' when not d.is_active then 'supprimé' when d.archived_at is not null then 'archivé' end statut_datagouv
+    from dataset d
+    left join (
+      select
+        dgv.dataset_id,
+        string_agg(re.nom, ', ' order by re.nom) noms
+      from dataset_geographic_view dgv
+      join region re on re.id = dgv.region_id
+      group by dgv.dataset_id
+    ) re on re.dataset_id = d.id
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(o.nom_commercial, ',' order by o.nom_commercial) offre_mobilite
+      from dataset d
+      left join dataset_offer dao on dao.dataset_id = d.id
+      left join offer o on o.id = dao.offer_id
+      group by 1
+    ) o on o.dataset_id = d.id
+    left join (
+      select
+        dataset_id,
+        string_agg(nom, ',' order by nom) noms
+      from (
+        select dr.dataset_id, r.nom nom
+        from dataset_region_legal_owner dr
+        join region r on dr.region_id = r.id
+
+        union
+
+        select da.dataset_id, a.nom
+        from dataset_aom_legal_owner da
+        join aom a on da.aom_id = a.id
+      ) t
+      group by dataset_id
+    ) legal_owners on legal_owners.dataset_id = d.id
+    left join (
+       select
+        ddsa.dataset_id,
+        string_agg(ad.nom, ',' order by ad.nom) noms
+      from dataset_declarative_spatial_area ddsa
+      join administrative_division ad on ad.id = ddsa.administrative_division_id
+      group by ddsa.dataset_id
+    ) administrative_division on administrative_division.dataset_id = d.id
+    left join company c on c.siren = d.legal_owner_company_siren
+    left join (
+      select
+        d.id dataset_id,
+        string_agg(ds.slug, ',' order by ds.slug) dataset_sub_types
+      from dataset d
+      left join dataset_dataset_subtype dds on dds.dataset_id = d.id
+      left join dataset_subtype ds on ds.id = dds.dataset_subtype_id
+      group by d.id
+    ) ds on ds.dataset_id = d.id
+    left join (
+      select dataset_id, count(*) count
+      from dataset_followers
+      group by dataset_id
+    ) reusers_sub on reusers_sub.dataset_id = d.id
+    left join (
+      select dataset_id, count(*) count
+      from notification_subscription
+      where role = 'reuser'
+      group by dataset_id
+    ) reusers_notif_sub on reusers_notif_sub.dataset_id = d.id
+    left join (
+      select dataset_id, count(*) count
+      from notification_subscription
+      where role = 'producer'
+      group by dataset_id
+    ) producers_notif_sub on producers_notif_sub.dataset_id = d.id
+    left join (
+      select
+        ds.dataset_id,
+        ds.score,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'freshness'
+    ) freshness_score on freshness_score.dataset_id = d.id and freshness_score.row_number = 1
+    left join (
+      select
+        ds.dataset_id,
+        ds.score,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'availability'
+    ) availability_score on availability_score.dataset_id = d.id and availability_score.row_number = 1
+    left join (
+      select
+        ds.dataset_id,
+        ds.score,
+        row_number() over (partition by ds.dataset_id order by ds.timestamp desc) row_number
+      from dataset_score ds
+      where ds.topic = 'compliance'
+    ) compliance_score on compliance_score.dataset_id = d.id and compliance_score.row_number = 1
+    """)
+  end
+
   defp resources_query do
     DB.Repo
     |> Ecto.Adapters.SQL.query!("""
@@ -363,7 +504,7 @@ defmodule TransportWeb.Backoffice.PageController do
       ds.dataset_sub_types,
       case when d.custom_tags is null or cardinality(d.custom_tags) = 0 then null else d.custom_tags end dataset_custom_tags,
       d.organization_type type_publicateur,
-      re.nom nom_region,
+      re.noms nom_region,
       o.offre_mobilite,
       administrative_division.noms couverture_spatiale,
       nullif(concat_ws(', ', legal_owners.noms, case when d.legal_owner_company_siren is not null then coalesce(c.nom_complet || ' (' || d.legal_owner_company_siren || ')', d.legal_owner_company_siren) end), '') representants_legaux,
@@ -387,8 +528,14 @@ defmodule TransportWeb.Backoffice.PageController do
       compliance_score.score score_conformite
     from resource r
     join dataset d on d.id = r.dataset_id
-    left join dataset_geographic_view dgv on dgv.dataset_id = d.id
-    left join region re on re.id = dgv.region_id
+    left join (
+      select
+        dgv.dataset_id,
+        string_agg(re.nom, ', ' order by re.nom) noms
+      from dataset_geographic_view dgv
+      join region re on re.id = dgv.region_id
+      group by dgv.dataset_id
+    ) re on re.dataset_id = d.id
     left join (
       select
         d.id dataset_id,

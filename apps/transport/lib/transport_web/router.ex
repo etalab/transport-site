@@ -277,6 +277,7 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:backoffice_csv_export])
       get("/download_resources_csv", PageController, :download_resources_csv)
+      get("/download_datasets_csv", PageController, :download_datasets_csv)
     end
 
     # Authentication
