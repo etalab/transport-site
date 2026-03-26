@@ -21,33 +21,27 @@ defmodule TransportWeb.PaginationHelpers do
   def pagination_links(_, %{total_pages: 1}), do: {:safe, ""}
 
   def pagination_links(conn, paginator) do
-    conn.params
-    |> remove_empty_q()
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator)
-      args -> HTML.pagination_links(conn, paginator, args)
+    case remove_empty_q(conn.params) do
+      [] -> HTML.pagination_links(conn, paginator, view_style: :bootstrap_v4)
+      args -> HTML.pagination_links(conn, paginator, [view_style: :bootstrap_v4] ++ args)
     end
   end
 
   def pagination_links(_, %{total_pages: 1}, _), do: {:safe, ""}
 
   def pagination_links(conn, paginator, opts) do
-    opts
-    |> remove_empty_q
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator, opts)
-      opts -> HTML.pagination_links(conn, paginator, opts)
+    case remove_empty_q(opts) do
+      [] -> HTML.pagination_links(conn, paginator, view_style: :bootstrap_v4)
+      opts -> HTML.pagination_links(conn, paginator, [view_style: :bootstrap_v4] ++ opts)
     end
   end
 
   def pagination_links(_, %{total_pages: 1}, _, _), do: {:safe, ""}
 
   def pagination_links(conn, paginator, args, opts) do
-    opts
-    |> remove_empty_q()
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator, opts)
-      opts -> HTML.pagination_links(conn, paginator, args, opts)
+    case remove_empty_q(opts) do
+      [] -> HTML.pagination_links(conn, paginator, args, view_style: :bootstrap_v4)
+      opts -> HTML.pagination_links(conn, paginator, args, [view_style: :bootstrap_v4] ++ opts)
     end
   end
 
