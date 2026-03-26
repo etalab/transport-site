@@ -10,7 +10,8 @@
     "errors": "webpack --display-error-details --config webpack.dev.js",
     "linter:ecma": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
     "linter:ecma:fix": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js . --fix",
-    "linter:sass": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss'"
+    "linter:sass": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss'",
+    "linter:sass:fix": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss' --fix"
   },
   "dependencies": {
     "@deck.gl/core": "^8.7.0",
@@ -52,9 +53,9 @@
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.1",
-    "stylelint": "^15.10.1",
-    "stylelint-config-standard-scss": "^10.0.0",
-    "stylelint-scss": "^5.0.1",
+    "stylelint": "^17.4.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-scss": "^7.0.0",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.9.2",
     "webpack-merge": "^5.8.0"

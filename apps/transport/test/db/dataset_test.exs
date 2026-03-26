@@ -267,11 +267,14 @@ defmodule DB.DatasetDBTest do
       })
 
       # resource 2
-      insert(:resource_history, %{resource_id: resource_id_2, payload: %{}})
+      insert(:resource_history, %{
+        resource_id: resource_id_2,
+        inserted_at: resource_2_last_update_time = DateTime.utc_now()
+      })
 
       dataset = DB.Dataset |> preload(:resources) |> DB.Repo.get!(dataset_id)
 
-      assert %{resource_id_1 => resource_1_last_update_time, resource_id_2 => nil} ==
+      assert %{resource_id_1 => resource_1_last_update_time, resource_id_2 => resource_2_last_update_time} ==
                DB.Dataset.resources_content_updated_at(dataset)
     end
 
@@ -298,23 +301,15 @@ defmodule DB.DatasetDBTest do
       assert %{resource_id => expected_last_update_time} == DB.Dataset.resources_content_updated_at(dataset)
     end
 
-    test "only one resource history, we don't know the resource last content update time" do
+    test "only one resource history" do
       {dataset, resource_id} = insert_dataset_resource()
 
       insert(:resource_history, %{
         resource_id: resource_id,
-        inserted_at: DateTime.utc_now() |> DateTime.add(-7200)
+        inserted_at: expected_last_update_time = DateTime.utc_now() |> DateTime.add(-7200)
       })
 
-      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
-    end
-
-    test "last content update time, single record" do
-      {dataset, resource_id} = insert_dataset_resource()
-
-      insert(:resource_history, %{resource_id: resource_id, payload: %{}})
-
-      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => nil}
+      assert DB.Dataset.resources_content_updated_at(dataset) == %{resource_id => expected_last_update_time}
     end
 
     test "last content update time, multiple datetimes" do

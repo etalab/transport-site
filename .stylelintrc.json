@@ -1,7 +1,6 @@
 {
   "extends": ["stylelint-config-standard", "stylelint-config-standard-scss"],
   "rules": {
-      "scss/at-import-no-partial-leading-underscore": true,
       "scss/dollar-variable-colon-space-after": "at-least-one-space",
       "scss/dollar-variable-default": true,
 
@@ -26,10 +25,8 @@
       "color-function-notation": null,
       "scss/dollar-variable-empty-line-before": null,
       "alpha-value-notation": null,
-      "number-leading-zero": null,
       "at-rule-empty-line-before": null,
       "value-keyword-case": null,
-      "no-missing-end-of-source-newline": null,
       "comment-empty-line-before": null,
       "font-family-no-missing-generic-family-keyword": null,
       "scss/at-extend-no-missing-placeholder": null,

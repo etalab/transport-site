@@ -1,21 +1,19 @@
-<% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
-<% current_category = @filter["issues_category"] || "" %>
+<% current_category = @filter["issues_category"] || "xsd-schema" %>
 
-<h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
-<.netex_validation_summary
-  conn={@conn}
-  token={nil}
+<.netex_validation_report_title
+  level={4}
+  max_severity={@max_severity}
   results_adapter={@results_adapter}
-  validation_summary={@validation_summary}
+  validation_report_url={@validation_report_url}
 />
 
-<%= if worst_occurrences > 0 do %>
-  <div class="main-pane">
-    {pagination_links(@conn, @issues, [@resource.id],
-      issues_category: current_category,
-      path: &resource_path/4,
-      action: :details
-    )}
-    {render(netex_template(current_category), issues: @issues || [], conn: @conn)}
-  </div>
-<% end %>
+<.netex_validation_report_content
+  conn={@conn}
+  current_category={current_category}
+  xsd_errors={@xsd_errors}
+  issues={@issues}
+  results_adapter={@results_adapter}
+  validation_report_url={@validation_report_url}
+  validation_summary={@validation_summary}
+  pagination={netex_pagination_links(@conn, @issues, @resource, current_category)}
+/>

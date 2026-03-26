@@ -7,6 +7,32 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   doctest TransportWeb.Backoffice.ProxyConfigLive, import: true
 
+  describe "total_cache_sizes/1" do
+    alias TransportWeb.Backoffice.ProxyConfigLive
+
+    test "returns zeros when config is empty" do
+      assert {"0 B", "0 B"} = ProxyConfigLive.total_cache_sizes([])
+    end
+
+    test "returns zeros when no items have cache_size_bytes" do
+      config = [%{type: "HTTP"}, %{type: "SIRI"}]
+      assert {"0 B", "0 B"} = ProxyConfigLive.total_cache_sizes(config)
+    end
+
+    test "sums RAM and disk sizes separately" do
+      config = [
+        %{type: "HTTP", cache_size_bytes: 1024},
+        %{type: "HTTP", cache_size_bytes: 512},
+        %{type: "HTTP", caching: "disk", cache_size_bytes: 2048},
+        %{type: "S3", cache_size_bytes: 4096}
+      ]
+
+      {ram, disk} = ProxyConfigLive.total_cache_sizes(config)
+      assert ram == Sizeable.filesize(1024 + 512)
+      assert disk == Sizeable.filesize(2048 + 4096)
+    end
+  end
+
   @endpoint TransportWeb.Endpoint
   @url "/backoffice/proxy-config"
 

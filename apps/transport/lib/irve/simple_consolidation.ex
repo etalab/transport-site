@@ -15,8 +15,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
   require Logger
   import Transport.S3.AggregatesUploader
 
-  @report_output_base_name "consolidation_transport_avec_doublons_irve_statique_rapport"
+  @report_output_base_name "consolidation_transport_irve_statique_rapport"
   @consolidated_file_no_dedup_base_name "consolidation_transport_avec_doublons_irve_statique"
+  @consolidated_file_base_name "consolidation_transport_irve_statique"
 
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
@@ -42,7 +43,17 @@ defmodule Transport.IRVE.SimpleConsolidation do
       |> Enum.into([])
 
     report = generate_report(report_rows, destination: destination)
-    write_consolidated_file(destination)
+
+    consolidated_df =
+      Transport.IRVE.DatabaseExporter.build_data_frame()
+      |> Transport.IRVE.Deduplicator.add_duplicates_column()
+
+    write_consolidated_file(consolidated_df, @consolidated_file_no_dedup_base_name, destination)
+
+    consolidated_df = Transport.IRVE.Deduplicator.discard_duplicates(consolidated_df)
+
+    write_consolidated_file(consolidated_df, @consolidated_file_base_name, destination)
+
     Logger.info("IRVE simple consolidation process completed.")
     {:ok, report}
   end
@@ -88,7 +99,11 @@ defmodule Transport.IRVE.SimpleConsolidation do
     with_maybe_cached_download_on_disk(resource, path, extension, use_permanent_disk_cache, fn path, extension ->
       # minus header line
       estimated_pdc_count = (File.stream!(path) |> Enum.count()) - 1
-      resource = Map.put(resource, :estimated_pdc_count, estimated_pdc_count)
+
+      resource =
+        resource
+        |> Map.put(:estimated_pdc_count, estimated_pdc_count)
+        |> Map.put(:file_extension, extension)
 
       # The code is convoluted mostly because we didn't go far enough on the validator work.
       # The validator will ultimately stop raising exceptions, and will instead return structures.
@@ -105,7 +120,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
 
         if file_valid? do
-          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource.dataset_id, resource.resource_id), resource}
+          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
         else
           {:not_compliant_with_schema, resource}
         end
@@ -131,8 +146,11 @@ defmodule Transport.IRVE.SimpleConsolidation do
         "status",
         "error_type",
         "estimated_pdc_count",
+        "file_extension",
         "url",
         "dataset_title",
+        "datagouv_organization_or_owner",
+        "datagouv_last_modified",
         "error_message"
       ])
 
@@ -159,24 +177,24 @@ defmodule Transport.IRVE.SimpleConsolidation do
     report_df
   end
 
-  def write_consolidated_file(:send_to_s3) do
-    Logger.info("Creating and uploading consolidated file (#{@consolidated_file_no_dedup_base_name}.csv) to S3...")
+  def write_consolidated_file(df, base_name, :send_to_s3) do
+    Logger.info("Creating and uploading consolidated file (#{base_name}.csv) to S3...")
 
     with_tmp_file(fn consolidation_file ->
-      Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+      Explorer.DataFrame.to_csv!(df, consolidation_file)
 
       upload_aggregate!(
         consolidation_file,
-        "#{@consolidated_file_no_dedup_base_name}_#{timestamp()}.csv",
-        "#{@consolidated_file_no_dedup_base_name}.csv"
+        "#{base_name}_#{timestamp()}.csv",
+        "#{base_name}.csv"
       )
     end)
   end
 
-  def write_consolidated_file(:local_disk) do
-    consolidation_file = @consolidated_file_no_dedup_base_name <> ".csv"
+  def write_consolidated_file(df, base_name, :local_disk) do
+    consolidation_file = base_name <> ".csv"
     Logger.info("Creating and saving consolidated file locally to #{consolidation_file}...")
-    Transport.IRVE.DatabaseExporter.export_to_csv(consolidation_file)
+    Explorer.DataFrame.to_csv!(df, consolidation_file)
   end
 
   def storage_path(resource_id) do

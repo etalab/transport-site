@@ -96,14 +96,6 @@ msgstr ""
 msgid "Stops and routes visualization of the GTFS file"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "GeoJSON format contains only the spatial information of the resource (stops coordinates, eventually lines shapes)\n              It corresponds to the data you can see on the map below."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "This resource is also available in the following formats:"
-msgstr ""
-
 #, elixir-format, elixir-autogen
 msgctxt "errors"
 msgid "error"
@@ -129,10 +121,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "No error detected"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "This GeoJSON was up-to-date with the GTFS resource %{hours} ago."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -299,6 +287,10 @@ msgid "Previous validations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Many validation errors indicate that the GTFS-RT identifiers do not match the GTFS identifiers."
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
@@ -343,12 +335,8 @@ msgid "enRoute Chouette Valid"
 msgstr "enRoute Chouette Valid validator"
 
 #, elixir-autogen, elixir-format
-msgid "XSD NeTEx"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "Every NeTEx resource must comply with the <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">NeTEX XSD</a>, regardless of its profile. The XSD validation does not cover choices made by <a href=\"https://normes.transport.data.gouv.fr/\">the French profile</a>."
+msgstr "Every NeTEx resource must comply with the <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">NeTEX XSD</a>, regardless of its profile. The XSD validation does not cover choices made by <a href=\"%{category_french_profile}\">the French profile</a>."
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-hints"
@@ -360,15 +348,11 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "base-rules-description"
-msgstr "These rules are common best practices. They are shared by all NeTEx profiles. Their documentation can be found on <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\">enRoute's Wiki</a>."
+msgstr "These rules are common best practices. They are shared by all NeTEx profiles. Their documentation can be found on <a href=\"https://enroute.atlassian.net/wiki/spaces/PUBLICFR/pages/2987556904/Les+r+gles+par+enRoute\" target=\"_blank\">enRoute's Wiki</a>."
 
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Other errors"
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "netex-validations-layers"
-msgstr "Validation of NeTEx resources is still a work in progress. Currently, we only check that any resource in NeTEx respects the XSD schema and follows some best practices."
 
 #, elixir-autogen, elixir-format
 msgid "netex-french-profile-no-compliance"
@@ -424,4 +408,44 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a CSV file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a Parquet file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download the report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "No validation error. No report to download."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "XSD"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All rules of this category are respected."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "List of French Profile rules currently checked"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more"
 msgstr ""

@@ -14,3 +14,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Associated GTFS file"
 msgstr "Fichier GTFS associé"
+
+#, elixir-autogen
+msgid "Manual association"
+msgstr "Association manuelle"

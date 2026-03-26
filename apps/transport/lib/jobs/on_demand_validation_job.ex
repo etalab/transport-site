@@ -86,8 +86,8 @@ defmodule Transport.Jobs.OnDemandValidationJob do
       {:ok, ok_result} ->
         OnDemandNeTExPollerJob.handle_success(ok_result, url)
 
-      {:pending, validation_id} ->
-        OnDemandNeTExPollerJob.later(validation_id, multivalidation_id, url)
+      {:pending, {validation_id, metadata}} ->
+        OnDemandNeTExPollerJob.later(validation_id, multivalidation_id, metadata, url)
     end
   end
 

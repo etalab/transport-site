@@ -41,55 +41,6 @@ defmodule TransportWeb.API.GeoQueryControllerTest do
     )
   end
 
-  test "a parkings relais geo query", %{conn: conn} do
-    %{id: dataset_id} = insert_parcs_relais_dataset()
-
-    %{id: resource_history_id} = insert(:resource_history, %{payload: %{"dataset_id" => dataset_id}})
-
-    %{id: geo_data_import_id} =
-      insert(:geo_data_import, %{slug: :parkings_relais, resource_history_id: resource_history_id})
-
-    %{id: geo_data_import_id_ko} = insert(:geo_data_import)
-
-    point1 = %Geo.Point{coordinates: {1, 1}, srid: 4326}
-    point2 = %Geo.Point{coordinates: {2, 2}, srid: 4326}
-
-    insert(:geo_data, %{
-      geo_data_import_id: geo_data_import_id,
-      geom: point1,
-      payload: %{"nom" => "Nuits-Saint-Georges", "nb_pr" => 22}
-    })
-
-    insert(:geo_data, %{
-      geo_data_import_id: geo_data_import_id,
-      geom: point2,
-      payload: %{"nom" => "Gevrey-Chambertin", "nb_pr" => 23}
-    })
-
-    # Should be ignored, other `geo_data_import`
-    insert(:geo_data, %{
-      geo_data_import_id: geo_data_import_id_ko,
-      geom: point2,
-      payload: %{"nom" => "Rouen", "nb_pr" => 50}
-    })
-
-    assert_expected_geojson(conn,
-      data: "parkings_relais",
-      expected_features: [
-        %{
-          "geometry" => %{"coordinates" => [1, 1], "type" => "Point"},
-          "properties" => %{"nom" => "Nuits-Saint-Georges", "nb_pr" => 22},
-          "type" => "Feature"
-        },
-        %{
-          "geometry" => %{"coordinates" => [2, 2], "type" => "Point"},
-          "properties" => %{"nom" => "Gevrey-Chambertin", "nb_pr" => 23},
-          "type" => "Feature"
-        }
-      ]
-    )
-  end
-
   test "a ZFE geo query", %{conn: conn} do
     %{id: dataset_id} = insert_zfe_dataset()
 

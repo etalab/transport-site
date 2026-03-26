@@ -2,7 +2,7 @@ defmodule Transport.Expiration do
   @moduledoc """
   Shared utilities for expiration notification jobs.
 
-  Centralizes delays configuration, date calculations, GTFS dataset queries,
+  Centralizes delays configuration, date calculations, public transit dataset queries,
   and French delay string formatting.
 
   Used by:
@@ -92,19 +92,19 @@ defmodule Transport.Expiration do
   def delay_str(delay), do: delay_str(delay, :périmant)
 
   @doc """
-  Base query for GTFS datasets with expiration metadata.
+  Base query for datasets with either GTFS or NeTEx resources with expiration metadata.
 
   Joins datasets to their metadata using validators configured for expiration notifications,
-  and filters to GTFS resources only.
+  and filters to GTFS and NeTEx resources only.
   """
-  @spec gtfs_with_expiration_metadata_query() :: Ecto.Query.t()
-  def gtfs_with_expiration_metadata_query do
+  @spec public_transit_with_expiration_metadata_query() :: Ecto.Query.t()
+  def public_transit_with_expiration_metadata_query do
     validators = Transport.ValidatorsSelection.validators_for_feature(:expiration_notification)
     validator_names = Enum.map(validators, & &1.validator_name())
 
     DB.Dataset.base_query()
     |> DB.Dataset.join_from_dataset_to_metadata(validator_names)
-    |> where([resource: r], r.format == "GTFS")
+    |> where([resource: r], r.format in ["GTFS", "NeTEx"])
   end
 
   @doc """
@@ -121,7 +121,7 @@ defmodule Transport.Expiration do
     dates_to_delays = Map.new(delays_map, fn {delay, date} -> {date, delay} end)
     target_dates = Map.values(delays_map)
 
-    gtfs_with_expiration_metadata_query()
+    public_transit_with_expiration_metadata_query()
     |> where([metadata: m], fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) in ^target_dates)
     |> select([dataset: d, metadata: m], %{
       dataset_id: d.id,
@@ -144,7 +144,7 @@ defmodule Transport.Expiration do
   """
   @spec datasets_with_resources_expiring_on(Date.t()) :: [{DB.Dataset.t(), [DB.Resource.t()]}]
   def datasets_with_resources_expiring_on(%Date{} = date) do
-    gtfs_with_expiration_metadata_query()
+    public_transit_with_expiration_metadata_query()
     |> where([metadata: m], fragment("TO_DATE(?->>'end_date', 'YYYY-MM-DD')", m.metadata) == ^date)
     |> select([dataset: d, resource: r], {d, r})
     |> distinct(true)

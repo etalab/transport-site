@@ -220,6 +220,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   def french_profile_compliance_check, do: :none
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def french_profile, do: nil
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
     %{
       "summary" => summary(validation_result),
@@ -239,4 +242,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     |> to_dataframe()
     |> Commons.to_binary()
   end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summarize_xsd_errors(_binary_result), do: []
 end

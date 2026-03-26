@@ -6,7 +6,6 @@ defmodule DB.DatasetSubtype do
   use Ecto.Schema
   use TypedEctoSchema
   import Ecto.Changeset
-  use Gettext, backend: TransportWeb.Gettext
 
   typed_schema "dataset_subtype" do
     field(:parent_type, :string)
@@ -23,24 +22,4 @@ defmodule DB.DatasetSubtype do
     |> validate_required([:parent_type, :slug])
     |> unique_constraint([:parent_type, :slug])
   end
-
-  @doc """
-  Converts a subtype slug to a human-readable string.
-
-  ## Examples
-
-      iex> DB.DatasetSubtype.slug_to_str("urban")
-      "Urbain"
-  """
-  @spec slug_to_str(binary()) :: binary()
-  def slug_to_str("urban"), do: dgettext("page-shortlist", "Urban")
-  def slug_to_str("intercity"), do: dgettext("page-shortlist", "Intercity")
-  def slug_to_str("school"), do: dgettext("page-shortlist", "School transport")
-  def slug_to_str("seasonal"), do: dgettext("page-shortlist", "Seasonal")
-  def slug_to_str("zonal_drt"), do: dgettext("page-shortlist", "Demand responsive transport")
-  def slug_to_str("bicycle"), do: dgettext("page-shortlist", "Bicycle")
-  def slug_to_str("scooter"), do: dgettext("page-shortlist", "Scooter")
-  def slug_to_str("carsharing"), do: dgettext("page-shortlist", "Carsharing")
-  def slug_to_str("moped"), do: dgettext("page-shortlist", "Moped")
-  def slug_to_str("freefloating"), do: dgettext("page-shortlist", "Free-floating")
 end

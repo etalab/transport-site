@@ -4,48 +4,44 @@ defmodule TransportWeb.PaginationHelpers do
   """
   alias Scrivener.HTML
 
-  def make_pagination_config(%{"page" => page_number}) do
+  def make_pagination_config(params, page_size \\ 20)
+
+  def make_pagination_config(%{"page" => page_number}, page_size) do
     page_number =
       case Integer.parse(page_number) do
         :error -> 1
         {int, _} -> int
       end
 
-    %Scrivener.Config{page_number: page_number, page_size: 20}
+    %Scrivener.Config{page_number: page_number, page_size: page_size}
   end
 
-  def make_pagination_config(_), do: %Scrivener.Config{page_number: 1, page_size: 20}
+  def make_pagination_config(_, page_size), do: %Scrivener.Config{page_number: 1, page_size: page_size}
 
-  def pagination_links(_, %{total_pages: 1}), do: ""
+  def pagination_links(_, %{total_pages: 1}), do: {:safe, ""}
 
   def pagination_links(conn, paginator) do
-    conn.params
-    |> remove_empty_q()
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator)
-      args -> HTML.pagination_links(conn, paginator, args)
+    case remove_empty_q(conn.params) do
+      [] -> HTML.pagination_links(conn, paginator, view_style: :bootstrap_v4)
+      args -> HTML.pagination_links(conn, paginator, [view_style: :bootstrap_v4] ++ args)
     end
   end
 
-  def pagination_links(_, %{total_pages: 1}, _), do: ""
+  def pagination_links(_, %{total_pages: 1}, _), do: {:safe, ""}
 
   def pagination_links(conn, paginator, opts) do
-    opts
-    |> remove_empty_q
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator, opts)
-      opts -> HTML.pagination_links(conn, paginator, opts)
+    case remove_empty_q(opts) do
+      [] -> HTML.pagination_links(conn, paginator, view_style: :bootstrap_v4)
+      opts -> HTML.pagination_links(conn, paginator, [view_style: :bootstrap_v4] ++ opts)
     end
   end
 
-  def pagination_links(_, %{total_pages: 1}, _, _), do: ""
+  def pagination_links(_, %{total_pages: 1}, _, _), do: {:safe, ""}
 
   def pagination_links(conn, paginator, args, opts) do
-    opts
-    |> remove_empty_q()
-    |> case do
-      [] -> HTML.pagination_links(conn, paginator, opts)
-      opts -> HTML.pagination_links(conn, paginator, args, opts)
+    case remove_empty_q(opts) do
+      [] -> HTML.pagination_links(conn, paginator, args, view_style: :bootstrap_v4)
+      opts -> HTML.pagination_links(conn, paginator, args, [view_style: :bootstrap_v4] ++ opts)
     end
   end
 

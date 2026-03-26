@@ -169,6 +169,24 @@ defmodule DB.Dataset do
   @spec type_to_str(binary()) :: binary()
   def type_to_str(type), do: type_to_str_map()[type]
 
+  @spec subtype_to_str(binary()) :: binary()
+  def subtype_to_str(subtype) do
+    subtypes_map = %{
+      "urban" => dgettext("db-dataset", "Urban"),
+      "intercity" => dgettext("db-dataset", "Intercity"),
+      "school" => dgettext("db-dataset", "School"),
+      "seasonal" => dgettext("db-dataset", "Seasonal"),
+      "zonal_drt" => dgettext("db-dataset", "Zonal DRT"),
+      "bicycle" => dgettext("db-dataset", "Bicycle"),
+      "scooter" => dgettext("db-dataset", "Scooter"),
+      "carsharing" => dgettext("db-dataset", "Carsharing"),
+      "moped" => dgettext("db-dataset", "Moped"),
+      "freefloating" => dgettext("db-dataset", "Freefloating")
+    }
+
+    Map.fetch!(subtypes_map, subtype)
+  end
+
   @spec types() :: [binary()]
   def types, do: Map.keys(type_to_str_map())
 
@@ -219,9 +237,9 @@ defmodule DB.Dataset do
   end
 
   @spec filter_by_fulltext(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_fulltext(query, %{"q" => ""}), do: query
+  def filter_by_fulltext(query, %{"q" => ""}), do: query
 
-  defp filter_by_fulltext(query, %{"q" => q}) do
+  def filter_by_fulltext(query, %{"q" => q}) do
     where(
       query,
       [d],
@@ -229,7 +247,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_fulltext(query, _), do: query
+  def filter_by_fulltext(query, _), do: query
 
   @spec filter_by_region(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_region(query, %{"region" => region}) do
@@ -243,7 +261,7 @@ defmodule DB.Dataset do
   defp filter_by_region(query, _), do: query
 
   @spec filter_by_departement(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_departement(query, %{"departement" => insee}) do
+  def filter_by_departement(query, %{"departement" => insee}) do
     query
     |> where(
       [dataset: d],
@@ -296,7 +314,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_departement(query, _), do: query
+  def filter_by_departement(query, _), do: query
 
   @spec filter_by_category(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_category(query, %{"filter" => filter_key}) do
@@ -319,8 +337,8 @@ defmodule DB.Dataset do
   def filter_by_custom_tag(%Ecto.Query{} = query, _), do: query
 
   @spec filter_by_feature(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_feature(query, %{"features" => [feature]})
-       when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
+  def filter_by_feature(query, %{"features" => [feature]})
+      when feature in ["service_alerts", "trip_updates", "vehicle_positions"] do
     recent_limit = Transport.Jobs.GTFSRTMetadataJob.datetime_limit()
 
     query
@@ -340,13 +358,13 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_feature(query, %{"features" => feature}) do
+  def filter_by_feature(query, %{"features" => feature}) do
     query
     |> join(:inner, [dataset: d], r in assoc(d, :resources), as: :resource_for_features)
     |> where([resource_for_features: r], fragment("?->'gtfs_features' @> ?", r.counter_cache, ^feature))
   end
 
-  defp filter_by_feature(query, _), do: query
+  def filter_by_feature(query, _), do: query
 
   @spec filter_by_mode(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_mode(query, %{"modes" => modes}) when is_list(modes) do
@@ -373,14 +391,14 @@ defmodule DB.Dataset do
   @spec filter_by_subtype(Ecto.Query.t(), map()) :: Ecto.Query.t()
   defp filter_by_subtype(query, %{"subtype" => subtype}) do
     query
-    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtype)
-    |> where([dataset_subtype: ds], ds.slug == ^subtype)
+    |> join(:inner, [dataset: d], ds in assoc(d, :dataset_subtypes), as: :dataset_subtypes)
+    |> where([dataset_subtypes: ds], ds.slug == ^subtype)
   end
 
   defp filter_by_subtype(query, _), do: query
 
   @spec filter_by_epci(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_epci(query, %{"epci" => epci}) do
+  def filter_by_epci(query, %{"epci" => epci}) do
     query
     |> where(
       [dataset: d],
@@ -435,10 +453,10 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_epci(query, _), do: query
+  def filter_by_epci(query, _), do: query
 
   @spec filter_by_commune(Ecto.Query.t(), map()) :: Ecto.Query.t()
-  defp filter_by_commune(query, %{"commune" => commune}) do
+  def filter_by_commune(query, %{"commune" => commune}) do
     query
     |> where(
       [dataset: d],
@@ -490,7 +508,7 @@ defmodule DB.Dataset do
     )
   end
 
-  defp filter_by_commune(query, _), do: query
+  def filter_by_commune(query, _), do: query
 
   defp filter_by_offer(query, %{"identifiant_offre" => identifiant_offre}) do
     query
@@ -569,9 +587,7 @@ defmodule DB.Dataset do
           "case when organization_id = ? and custom_title ilike 'base nationale%' then 1 else 0 end",
           ^pan_publisher
         ),
-      # Gotcha, population can be null for datasets covering France/Europe
-      # https://github.com/etalab/transport-site/issues/3848
-      desc: fragment("coalesce(population, 100000000)"),
+      desc: :population,
       asc: :custom_title
     )
   end
@@ -1087,17 +1103,8 @@ defmodule DB.Dataset do
     |> join(:left, [r], rh in DB.ResourceHistory, on: rh.resource_id == r.id)
     |> where([r], r.dataset_id == ^dataset_id)
     |> group_by([r, rh], [r.id, rh.resource_id])
-    |> select([r, rh], {r.id, count(rh.id), max(rh.inserted_at)})
+    |> select([r, rh], {r.id, max(rh.inserted_at)})
     |> DB.Repo.all()
-    |> Enum.map(fn {id, count, updated_at} ->
-      case count do
-        n when n in [0, 1] ->
-          {id, nil}
-
-        _ ->
-          {id, updated_at}
-      end
-    end)
     |> Enum.into(%{})
   end
 

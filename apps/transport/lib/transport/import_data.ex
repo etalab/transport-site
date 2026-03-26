@@ -261,21 +261,35 @@ defmodule Transport.ImportData do
   "http://example.com/file.zip"
   iex> cleaned_url("http://exs.sismo2.cityway.fr")
   "https://exs.sismo2.cityway.fr"
+  iex> cleaned_url("https://api.oisemob.cityway.fr/dataflow/offre-tc/download?provider=COROLIS_URB|COROLIS_INT&dataFormat=NETEX&dataProfil=OPENDATA")
+  "https://api.oisemob.cityway.fr/dataflow/offre-tc/download?provider=COROLIS_URB%7CCOROLIS_INT&dataFormat=NETEX&dataProfil=OPENDATA"
   """
   def cleaned_url(url) do
     uri = URI.parse(url)
 
-    if is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) do
-      cleaned_query =
-        if is_nil(uri.query) do
-          nil
-        else
-          uri.query |> String.replace("&amp;", "&")
-        end
+    cond do
+      is_binary(uri.host) and String.match?(uri.host, ~r/^exs\.(\w)+\.cityway\.fr$/) ->
+        cleaned_query =
+          if is_nil(uri.query) do
+            nil
+          else
+            uri.query |> String.replace("&amp;", "&")
+          end
 
-      %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
-    else
-      url
+        %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
+
+      is_binary(uri.host) and String.match?(uri.host, ~r/^api\.(\w)+\.cityway\.fr$/) ->
+        cleaned_query =
+          if is_nil(uri.query) do
+            nil
+          else
+            uri.query |> String.replace("|", "%7C")
+          end
+
+        %{uri | scheme: "https", query: cleaned_query, port: 443} |> URI.to_string()
+
+      true ->
+        url
     end
   end
 

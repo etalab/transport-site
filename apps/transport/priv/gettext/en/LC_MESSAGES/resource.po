@@ -84,3 +84,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Size:"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Occurrences of the %{element} element."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of lines:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of quays:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of stop places:"
+msgstr ""

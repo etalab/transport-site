@@ -13,7 +13,8 @@ defmodule Transport.MixProject do
         plt_add_apps: [:mix],
         plt_local_path: "dialyzer-plt",
         plt_core_path: "dialyzer-plt"
-      ]
+      ],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 

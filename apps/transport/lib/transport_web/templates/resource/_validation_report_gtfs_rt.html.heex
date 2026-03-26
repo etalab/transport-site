@@ -1,17 +1,28 @@
-<% locale = get_session(@conn, :locale) %>
+<% locale = get_session(@conn, :locale)
+validation_result = @validation.result || %{} %>
 <div class="panel">
-  <% errors = Map.fetch!(@validation.result, "errors") %>
+  <% errors = Map.get(validation_result, "errors", []) %>
   <% errors_error_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "ERROR")) %>
   <% errors_warning_level = errors |> Enum.filter(&(Map.fetch!(&1, "severity") == "WARNING")) %>
+  <% id_mismatch_count =
+    errors
+    |> Enum.filter(&(Map.fetch!(&1, "error_id") in Transport.Validators.GTFSRT.id_mismatch_error_codes()))
+    |> Enum.sum_by(&Map.fetch!(&1, "errors_count")) %>
   {render("_errors_warnings_count.html",
     nb_errors: errors_count(@validation),
     nb_warnings: warnings_count(@validation),
     locale: locale
   )}
-  <p :if={Map.get(@validation.result, "ignore_shapes", false)} class="notification">
+  <p :if={id_mismatch_count >= 50} class="notification warning">
+    {dgettext(
+      "validations",
+      "Many validation errors indicate that the GTFS-RT identifiers do not match the GTFS identifiers."
+    )}
+  </p>
+  <p :if={Map.get(validation_result, "ignore_shapes", false)} class="notification">
     {dgettext("validations", "Shapes present in the GTFS have been ignored, some rules are not enforced.")}
   </p>
-  <p>
+  <p :if={validation_result != %{}}>
     {raw(
       dgettext(
         "validations",

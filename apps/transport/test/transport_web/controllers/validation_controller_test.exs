@@ -4,6 +4,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import DB.Factory
   import Ecto.Query
   import Mox
+  import NeTExValidationReportHelpers
   import Phoenix.LiveViewTest
   alias Transport.Test.S3TestUtils
   alias Transport.Validators.NeTEx.ResultsAdapter
@@ -419,7 +420,41 @@ defmodule TransportWeb.ValidationControllerTest do
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
-      assert body =~ ~r{XSD NeTEx\s+\(1 erreur\)}
+      assert body =~ ~r{XSD\s+– 1 erreur}
+
+      assert body =~ "Au format CSV :"
+      assert body =~ "validation.csv"
+
+      assert url =
+               conn
+               |> get(validation_url(conn, :download_validation_report, multi_validation.id, token: token))
+               |> redirected_to(:moved_permanently)
+
+      assert csv_report_content =
+               conn
+               |> get(url)
+               |> csv_response(200)
+               |> parse_csv()
+
+      assert 1 == length(csv_report_content)
+
+      assert body =~ "Au format Parquet :"
+      assert body =~ "validation.parquet"
+
+      assert url =
+               conn
+               |> get(
+                 validation_url(conn, :download_validation_report, multi_validation.id, token: token, format: "parquet")
+               )
+               |> redirected_to(:moved_permanently)
+
+      assert parquet_report_content =
+               conn
+               |> get(url)
+               |> parquet_response(200)
+               |> parse_parquet()
+
+      assert 1 == length(parquet_report_content)
     end
 
     test "with a schema", %{conn: conn} do

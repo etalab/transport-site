@@ -213,6 +213,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   defdelegate french_profile_compliance_check(), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def french_profile, do: nil
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
     %{
       "summary" => summary(validation_result),
@@ -239,5 +242,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     |> List.flatten()
     |> to_dataframe()
     |> Commons.to_binary()
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summarize_xsd_errors(binary_result) do
+    df = Commons.from_binary(binary_result)
+
+    if Commons.has_column?(df, "category") do
+      df
+      |> DF.filter(category == ^@xsd_schema_category)
+      |> Commons.summarize_xsd_errors()
+    else
+      []
+    end
   end
 end

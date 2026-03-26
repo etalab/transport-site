@@ -407,7 +407,7 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
     end
   end
 
-  describe "Transport.NeTEx.to_geojson/1 facade" do
+  describe "Transport.NeTEx.ArchiveParser.to_geojson/1 facade" do
     test "delegates to convert_archive" do
       xml = """
       <root>
@@ -426,7 +426,7 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
       ZipCreator.create!(tmp_file, [{"data.xml", xml}])
 
-      assert {:ok, geojson} = Transport.NeTEx.to_geojson(tmp_file)
+      assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file)
 
       assert geojson["type"] == "FeatureCollection"
       assert length(geojson["features"]) == 1
@@ -461,7 +461,7 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
       ZipCreator.create!(tmp_file, [{"data.xml", xml}])
 
-      assert {:ok, geojson} = Transport.NeTEx.to_geojson(tmp_file, types: [:stop_places])
+      assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file, types: [:stop_places])
 
       assert length(geojson["features"]) == 1
       assert hd(geojson["features"])["id"] == "stop_1"

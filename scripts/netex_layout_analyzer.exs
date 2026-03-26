@@ -55,7 +55,7 @@ dump_netex_files = fn r ->
 
   result =
     try do
-      Transport.NeTEx.read_all_stop_places(r.local_path)
+      Transport.NeTEx.ArchiveParser.read_all_stop_places(r.local_path)
       |> Enum.map(fn {file, _stops} -> file end)
       |> Enum.reject(fn file -> String.ends_with?(file, "/") end)
       |> Enum.map(fn file -> [url, r.title, r.url, file, hierarchy_level.(file)] end)

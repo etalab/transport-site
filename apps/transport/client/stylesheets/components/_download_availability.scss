@@ -27,40 +27,46 @@
     }
   }
 
+  $color-availability-100: rgb(117 206 94) !default;
+  $color-availability-99: rgb(189 206 94) !default;
+  $color-availability-95: rgb(206 185 94) !default;
+  $color-availability-50: rgb(255 118 83) !default;
+  $color-availability-low: rgb(199 18 18) !default;
+
   .download_availability_100 {
-    background-color: rgb(117, 206, 94);
+    background-color: $color-availability-100;
   }
   .download_availability_99 {
-    background-color: rgb(189, 206, 94);
+    background-color: $color-availability-99;
   }
   .download_availability_95 {
-    background-color: rgb(206, 185, 94);
+    background-color: $color-availability-95;
   }
   .download_availability_50 {
-    background-color: rgb(255, 118, 83);
+    background-color: $color-availability-50;
   }
   .download_availability_low {
-    background-color: rgb(199, 18, 18);
+    background-color: $color-availability-low;
   }
 
   .download_availability_100_text {
-    color: rgb(117, 206, 94);
+    color: $color-availability-100;
     filter: brightness(70%);
   }
   .download_availability_99_text {
-    color: rgb(189, 206, 94);
+    color: $color-availability-99;
     filter: brightness(70%);
   }
   .download_availability_95_text {
-    color: rgb(206, 185, 94);
+    color: $color-availability-95;
     filter: brightness(70%);
   }
   .download_availability_50_text {
-    color: rgb(255, 118, 83);
+    color: $color-availability-50;
     filter: brightness(70%);
   }
   .download_availability_low_text {
-    color: rgb(199, 18, 18);
+    color: $color-availability-low;
     filter: brightness(70%);
   }
 
