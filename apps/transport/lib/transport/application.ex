@@ -50,7 +50,7 @@ defmodule Transport.Application do
         ),
         Unlock.BatchMetrics,
         # Registry for dynamic IRVE feed workers, keyed by slug
-        # Debug: Unlock.DynamicIRVE.FeedWorker.state("qualicharge")
+        # Debug: Unlock.DynamicIRVE.FeedStore.get("qualicharge")
         {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
         # Supervises one GenServer per dynamic IRVE feed
         Unlock.DynamicIRVESupervisor
