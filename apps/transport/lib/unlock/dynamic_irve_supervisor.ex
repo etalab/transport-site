@@ -12,7 +12,8 @@ defmodule Unlock.DynamicIRVESupervisor do
 
     children = [
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
-      {Unlock.DynamicIRVE.FeedStarter, []}
+      {Unlock.DynamicIRVE.FeedStarter, []},
+      Unlock.DynamicIRVE.Aggregator
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
