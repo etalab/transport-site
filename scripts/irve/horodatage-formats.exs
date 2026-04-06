@@ -16,32 +16,29 @@ defmodule HorodatageAnalysis do
     df = DataFrame.load_csv!(body, infer_schema_length: 0)
     IO.puts("#{DataFrame.n_rows(df)} rows loaded\n")
 
-    # Replace digits with 'D' to reveal the format pattern
     patterns =
       df["horodatage"]
       |> Series.to_list()
       |> Enum.map(fn s -> String.replace(s, ~r/\d/, "D") end)
       |> Series.from_list()
+
     df = DataFrame.put(df, "pattern", patterns)
 
-    stats =
-      df
-      |> DataFrame.group_by(["origin", "pattern"])
-      |> DataFrame.summarise(count: count(col("id_pdc_itinerance")))
-      |> DataFrame.sort_by([asc: col("origin"), desc: col("count")])
+    IO.puts("=== Counts by origin + pattern ===\n")
 
-    IO.puts("=== Horodatage format patterns by origin ===\n")
-    IO.inspect(stats)
+    df
+    |> DataFrame.group_by(["origin", "pattern"])
+    |> DataFrame.summarise(count: count(col("id_pdc_itinerance")))
+    |> DataFrame.sort_by([asc: col("origin"), desc: col("count")])
+    |> DataFrame.print(limit: :infinity)
 
     IO.puts("\n=== One example per pattern ===\n")
 
-    examples =
-      df
-      |> DataFrame.distinct(["pattern"], keep_all: true)
-      |> DataFrame.select(["origin", "pattern", "horodatage"])
-      |> DataFrame.sort_by(asc: col("origin"))
-
-    IO.inspect(examples)
+    df
+    |> DataFrame.distinct(["pattern"], keep_all: true)
+    |> DataFrame.select(["origin", "pattern", "horodatage"])
+    |> DataFrame.sort_by(asc: col("origin"))
+    |> DataFrame.print(limit: :infinity)
   end
 end
 
