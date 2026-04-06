@@ -113,6 +113,14 @@ defmodule Unlock.Config do
       }
     end
 
+    def convert_yaml_item_to_struct(%{"type" => "dynamic-irve-aggregate"} = item) do
+      %Item.DynamicIRVEAggregate{
+        identifier: Map.fetch!(item, "identifier"),
+        feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1)),
+        ttl: Map.get(item, "ttl", 10)
+      }
+    end
+
     def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
       %Item.SIRI{
         identifier: Map.fetch!(item, "identifier"),
