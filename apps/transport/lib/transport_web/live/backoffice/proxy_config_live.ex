@@ -186,6 +186,17 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
+  defp extract_config(proxy_base_url, %Unlock.Config.Item.DynamicIRVEAggregate{} = resource) do
+    %{
+      unique_slug: resource.identifier,
+      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
+      original_url: nil,
+      ttl: "N/A",
+      internal_count_default_value: nil,
+      type: "DynamicIRVEAggregate"
+    }
+  end
+
   defp extract_config(proxy_base_url, %Unlock.Config.Item.S3{} = resource) do
     %{
       unique_slug: resource.identifier,
