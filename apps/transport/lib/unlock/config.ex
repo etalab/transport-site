@@ -48,6 +48,15 @@ defmodule Unlock.Config do
     defstruct [:identifier, :feeds, :ttl]
   end
 
+  defmodule Item.DynamicIRVEAggregate do
+    @moduledoc """
+    Intermediate structure for dynamic IRVE aggregated configured items.
+    """
+    @enforce_keys [:identifier, :feeds]
+
+    defstruct [:identifier, :feeds, :ttl]
+  end
+
   defmodule Item.S3 do
     @moduledoc """
     Intermediate structure for S3-based configured items.
