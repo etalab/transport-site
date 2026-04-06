@@ -8,6 +8,8 @@ defmodule Unlock.DynamicIRVESupervisor do
 
   @impl true
   def init(_opts) do
+    Unlock.DynamicIRVE.FeedStore.create_table()
+
     children = [
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
       {Unlock.DynamicIRVE.FeedStarter, []}
