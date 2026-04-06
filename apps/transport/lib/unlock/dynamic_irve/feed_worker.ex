@@ -22,8 +22,8 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
 
   @impl true
   def handle_info(:tick, feed) do
-    fetch_and_process(feed)
     schedule_tick()
+    fetch_and_process(feed)
     {:noreply, feed}
   end
 
