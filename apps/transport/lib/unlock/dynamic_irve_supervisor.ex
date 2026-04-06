@@ -52,6 +52,7 @@ defmodule Unlock.DynamicIRVESupervisor do
   defp start_new_feeds(expected, running) do
     for feed <- expected, feed.slug not in running do
       Logger.info("[DynamicIRVE] Starting feed #{feed.slug}")
+
       DynamicSupervisor.start_child(
         Unlock.DynamicIRVE.FeedSupervisor,
         {Unlock.DynamicIRVE.FeedWorker, feed}
