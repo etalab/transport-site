@@ -48,7 +48,12 @@ defmodule Transport.Application do
            expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
         ),
-        Unlock.BatchMetrics
+        Unlock.BatchMetrics,
+        # Registry for dynamic IRVE feed workers, keyed by slug
+        # Debug: Unlock.DynamicIRVE.FeedWorker.state("qualicharge")
+        {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
+        # Supervises one GenServer per dynamic IRVE feed
+        Unlock.DynamicIRVESupervisor
       ]
       |> add_scheduler()
       |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)
