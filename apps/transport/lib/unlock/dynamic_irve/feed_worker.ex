@@ -35,23 +35,27 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
         # infer_schema_length: 0 → all columns as strings
         df = Explorer.DataFrame.load_csv!(body, infer_schema_length: 0)
         df = Explorer.DataFrame.select(df, expected_columns())
-        n_rows = Explorer.DataFrame.n_rows(df)
-        n_unique = df["id_pdc_itinerance"] |> Explorer.Series.distinct() |> Explorer.Series.count()
-        Logger.info("[DynamicIRVE] #{feed.slug} => HTTP 200, #{n_rows} rows, #{n_unique} unique id_pdc")
-        Unlock.DynamicIRVE.FeedStore.put(feed.slug, %{df: df, updated_at: DateTime.utc_now(), error: nil})
+        Logger.info("[DynamicIRVE] #{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows")
+        Unlock.DynamicIRVE.FeedStore.put(feed.slug, %{df: df, last_updated_at: DateTime.utc_now(), error: nil})
 
       {:ok, %Req.Response{status: status}} ->
         Logger.warning("[DynamicIRVE] #{feed.slug} => HTTP #{status}")
-        Unlock.DynamicIRVE.FeedStore.put(feed.slug, %{df: nil, updated_at: nil, error: "HTTP #{status}"})
+        put_error(feed.slug, "HTTP #{status}")
 
       {:error, reason} ->
         Logger.warning("[DynamicIRVE] #{feed.slug} => #{inspect(reason)}")
-        Unlock.DynamicIRVE.FeedStore.put(feed.slug, %{df: nil, updated_at: nil, error: inspect(reason)})
+        put_error(feed.slug, inspect(reason))
     end
   rescue
     e ->
       Logger.warning("[DynamicIRVE] #{feed.slug} => #{Exception.message(e)}")
-      Unlock.DynamicIRVE.FeedStore.put(feed.slug, %{df: nil, updated_at: nil, error: Exception.message(e)})
+      put_error(feed.slug, Exception.message(e))
+  end
+
+  # Preserves existing df/last_updated_at, only sets the error fields
+  defp put_error(slug, message) do
+    previous = Unlock.DynamicIRVE.FeedStore.get(slug) || %{df: nil, last_updated_at: nil}
+    Unlock.DynamicIRVE.FeedStore.put(slug, Map.merge(previous, %{error: message, last_errored_at: DateTime.utc_now()}))
   end
 
   defp schedule_tick do

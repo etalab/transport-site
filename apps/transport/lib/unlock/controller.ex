@@ -161,6 +161,27 @@ defmodule Unlock.Controller do
   defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
+  # Status page for dynamic IRVE feeds. Reads from ETS — no coupling with workers.
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
+    feeds = Enum.map(item.feeds, fn feed -> feed_status(feed.slug) end)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(feeds))
+  end
+
+  defp feed_status(slug) when is_binary(slug) do
+    slug |> Unlock.DynamicIRVE.FeedStore.get() |> feed_status(slug)
+  end
+
+  defp feed_status(nil, slug), do: %{slug: slug, status: "pending"}
+
+  defp feed_status(%{error: nil, last_updated_at: last_updated_at}, slug),
+    do: %{slug: slug, status: "OK", last_updated_at: last_updated_at}
+
+  defp feed_status(%{error: error, last_errored_at: last_errored_at, last_updated_at: last_updated_at}, slug),
+    do: %{slug: slug, status: "KO", error: error, last_errored_at: last_errored_at, last_updated_at: last_updated_at}
+
   # `process_resource` variant for aggregated CSV item (dynamic IRVE consolidation).
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
