@@ -17,7 +17,7 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
   def init(feed) do
     Logger.info("[DynamicIRVE] Feed worker started: #{feed.slug} (#{feed.identifier})")
     schedule_tick()
-    {:ok, %{feed: feed, last_success_at: nil, last_error: nil}}
+    {:ok, %{feed: feed, last_success_at: nil, last_error: nil, last_df: nil}}
   end
 
   @impl true
@@ -38,8 +38,10 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
       {:ok, %Req.Response{status: 200, body: body}} ->
         # infer_schema_length: 0 → all columns as strings
         df = Explorer.DataFrame.load_csv!(body, infer_schema_length: 0)
-        Logger.info("[DynamicIRVE] #{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows, #{Explorer.DataFrame.n_columns(df)} cols")
-        %{state | last_success_at: DateTime.utc_now(), last_error: nil}
+        df = Explorer.DataFrame.select(df, expected_columns())
+        # IO.inspect(df, [label: "[DynamicIRVE] #{feed.slug}"] ++ IEx.inspect_opts())
+        Logger.info("[DynamicIRVE] #{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows")
+        %{state | last_success_at: DateTime.utc_now(), last_error: nil, last_df: df}
 
       {:ok, %Req.Response{status: status}} ->
         Logger.warning("[DynamicIRVE] #{feed.slug} => HTTP #{status}")
@@ -60,4 +62,6 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
   end
 
   defp tick_interval, do: Application.fetch_env!(:transport, :dynamic_irve_tick_interval)
+
+  defp expected_columns, do: Transport.IRVE.DynamicIRVESchema.build_schema_fields_list()
 end
