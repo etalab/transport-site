@@ -8,6 +8,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   alias Transport.Jobs.OnDemandValidationJob
   alias Transport.Validators.GTFSRT
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+
   setup :verify_on_exit!
 
   setup do
@@ -611,14 +613,14 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   end
 
   def expect_netex_with_errors(messages) do
-    validation_id = expect_create_validation("pan:french_profile:1")
+    validation_id = expect_create_validation(ResultsAdapter.french_profile().slug())
     expect_failed_validation(validation_id, 10)
 
     expect_get_messages(validation_id, messages)
   end
 
   def expect_netex_long_lasting do
-    expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
+    expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
   end
 
   defp run_job(%DB.MultiValidation{} = validation) do

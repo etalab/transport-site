@@ -1,6 +1,6 @@
 defmodule Transport.Validators.GTFSRT do
   @moduledoc """
-  Validate a GTFS-RT with gtfs-realtime-validato (https://github.com/MobilityData/gtfs-realtime-validator/)
+  Validate a GTFS-RT with gtfs-realtime-validator (https://github.com/MobilityData/gtfs-realtime-validator/)
   """
   import Ecto.Query
   alias DB.{Dataset, MultiValidation, Repo, Resource, ResourceHistory, ResourceMetadata}
@@ -14,8 +14,24 @@ defmodule Transport.Validators.GTFSRT do
   # Error codes indicating that GTFS-RT identifiers do not match the GTFS identifiers.
   # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/RULES.md
   @id_mismatch_error_codes ~w(E003 E004 E011 E034)
+  @gtfs_rt_errors_threshold 50
 
   def id_mismatch_error_codes, do: @id_mismatch_error_codes
+
+  @doc """
+  Returns true if a GTFS-RT `MultiValidation` result is considered critical:
+  either at least #{@gtfs_rt_errors_threshold} id-mismatch errors, or at least one FATAL error.
+  """
+  def critical_errors?(%DB.MultiValidation{result: %{"errors" => errors}}) do
+    id_mismatch_count =
+      errors
+      |> Enum.filter(&(&1["error_id"] in id_mismatch_error_codes()))
+      |> Enum.sum_by(& &1["errors_count"])
+
+    id_mismatch_count >= @gtfs_rt_errors_threshold or Enum.any?(errors, &(&1["error_id"] == "FATAL"))
+  end
+
+  def critical_errors?(%DB.MultiValidation{result: nil}), do: false
 
   @impl Transport.Validators.Validator
   def validator_name, do: "gtfs-realtime-validator"
@@ -48,8 +64,23 @@ defmodule Transport.Validators.GTFSRT do
     download_latest_gtfs(gtfs_resource_history, gtfs_path)
     validator_args = validator_arguments(gtfs_path, gtfs_rt_path, opts)
 
-    with {:ok, _} <- GTFSRT.run_validator(validator_args),
-         {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report(opts) do
+    report =
+      with {:ok, _} <- GTFSRT.run_validator(validator_args),
+           {:ok, report} <- rt_resource |> gtfs_rt_result_path() |> GTFSRT.convert_validator_report(opts) do
+        report
+      else
+        :error ->
+          fatal_report()
+
+        {:error, message} ->
+          if not ignore_shapes and String.contains?(message, "java.lang.OutOfMemoryError") do
+            run_validator_and_save(snapshot, ignore_shapes: true)
+          end
+
+          nil
+      end
+
+    if report do
       insert_multi_validation(
         rt_resource,
         GTFSRT.build_validation_details(gtfs_resource_history, report, cellar_filename),
@@ -57,14 +88,6 @@ defmodule Transport.Validators.GTFSRT do
         gtfs_resource,
         gtfs_resource_history
       )
-    else
-      :error ->
-        {:error, "Could not run validator. Please provide a GTFS and a GTFS-RT."}
-
-      {:error, message} ->
-        if not ignore_shapes and String.contains?(message, "java.lang.OutOfMemoryError") do
-          run_validator_and_save(snapshot, ignore_shapes: true)
-        end
     end
   end
 
@@ -188,6 +211,29 @@ defmodule Transport.Validators.GTFSRT do
       },
       "uuid" => Ecto.UUID.generate()
     })
+  end
+
+  @doc """
+  Builds a fatal validation report when the validator cannot process the files,
+  i.e. when valid GTFS and GTFS-RT feeds are not provided.
+  """
+  def fatal_report do
+    %{
+      "errors_count" => 1,
+      "warnings_count" => 0,
+      "has_errors" => true,
+      "ignore_shapes" => false,
+      "errors" => [
+        %{
+          "error_id" => "FATAL",
+          "severity" => "ERROR",
+          "title" => "Not a valid GTFS or GTFS-RT feed",
+          "description" => "The validator could not run. Please provide a valid GTFS and a valid GTFS-RT feed.",
+          "errors_count" => 1,
+          "errors" => []
+        }
+      ]
+    }
   end
 
   def up_to_date_gtfs_resources(%Resource{dataset_id: dataset_id}),

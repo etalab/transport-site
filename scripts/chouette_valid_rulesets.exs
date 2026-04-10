@@ -1,7 +1,16 @@
 defmodule Script do
   @moduledoc """
-  Script to debug and inspect current implementation of validation rules for the
-  French NeTEx profile.
+  Script to interact with the enRoute Chouette Valid rulesets API.
+
+  Used to:
+  - list published rulesets
+  - publish the latest rulesets
+  - debug and inspect current implementation of validation rules for the
+    French NeTEx profile.
+  - convert existing rules to markdown or JSON for documentation. This is a
+    legacy command which will be droped. Documentation of published rules is
+    still useful but should be done via the interface instead. Until the later
+    is implemented this command remain.
   """
 
   import Transport.NeTEx.FrenchProfile
@@ -16,14 +25,6 @@ defmodule Script do
   def list_rulesets do
     Wrapper.impl().list_rulesets()
     |> IO.inspect()
-  end
-
-  def purge_rulesets do
-    Wrapper.impl().list_rulesets()
-    |> Enum.each(fn %{"id" => ruleset_id, "slug" => slug} ->
-      IO.puts("Deleting profile #{slug}")
-      Wrapper.impl().delete_ruleset(ruleset_id)
-    end)
   end
 
   def list_revisions(slug) do
@@ -44,8 +45,8 @@ defmodule Script do
     |> IO.inspect()
   end
 
-  def publish_ruleset(slug) do
-    slug = Slugs.check_slug!(slug)
+  def publish_ruleset do
+    slug = slug() |> Slugs.check_slug!()
 
     result =
       with_string(&ruleset/1)
@@ -96,11 +97,10 @@ defmodule CLI do
       ["find-ruleset-id", slug] -> Script.find_ruleset_id(slug)
       ["get-ruleset", slug] -> Script.get_ruleset(slug)
       ["list-revisions", slug] -> Script.list_revisions(slug)
-      ["publish-ruleset", slug] -> Script.publish_ruleset(slug)
+      ["publish-ruleset"] -> Script.publish_ruleset()
       ["list-rulesets"] -> Script.list_rulesets()
       ["document-rulesets", filename] -> Script.document_rulesets(filename)
       ["document-rulesets"] -> Script.document_rulesets("chouette_ruleset")
-      ["purge-rulesets"] -> Script.purge_rulesets()
       ["help"] -> help()
       _ -> help()
     end
@@ -113,15 +113,14 @@ defmodule CLI do
       Helps us implement NeTEx French profile and custom checks.
 
     Commands:
-      publish-ruleset <slug>       # publish our ruleset to the given slug from the definition
+      publish-ruleset              # publish our ruleset to the given slug from the definition
       list-rulesets                # list all published rulesets
       get-ruleset <slug>           # inspect ruleset for a given slug
-      document-rulesets (filename) # dump rulesets as json definition and markdown (filename.md & filename.json)
 
       find-ruleset-id <slug>       # find ruleset-id of a given slug (ruleset-id in Chouette Valid API)
       list-revisions <slug>        # list revisions of a given slug
 
-      purge-rulesets               # purge all published rulesets (DANGEROUS). This will break production.
+      document-rulesets (filename) # dump rulesets as json definition and markdown (filename.md & filename.json). Deprecated command ; will be superseeded by a proper inline documentation.
 
       help                         # this message
     """)

@@ -114,17 +114,17 @@ defmodule Transport.DatasetChecksTest do
 
     errors = too_few_errors ++ [%{"error_id" => "E034", "errors_count" => 10}]
 
-    mv1 = %DB.MultiValidation{
-      validator: Transport.Validators.GTFSRT.validator_name(),
-      result: %{"errors" => too_few_errors}
-    }
+    gtfs_rt_validator = Transport.Validators.GTFSRT.validator_name()
 
+    mv1 = %DB.MultiValidation{validator: gtfs_rt_validator, result: %{"errors" => too_few_errors}}
     mv2 = %{mv1 | result: %{"errors" => errors}}
+    mv_fatal = %{mv1 | result: %{"errors" => [%{"error_id" => "FATAL", "errors_count" => 1}]}}
 
     dataset = dataset |> DB.Repo.preload(:resources)
 
     assert [] == dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv1]})
     assert [{_, [^mv2]}] = dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv2]})
+    assert [{_, [^mv_fatal]}] = dataset |> Transport.DatasetChecks.invalid_resource(%{resource.id => [mv_fatal]})
   end
 
   test "invalid_resource for a GTFS-RT at the check level" do

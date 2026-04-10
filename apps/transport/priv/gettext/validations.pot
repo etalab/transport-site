@@ -439,3 +439,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "All rules of this category are respected."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "List of French Profile rules currently checked"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more"
+msgstr ""

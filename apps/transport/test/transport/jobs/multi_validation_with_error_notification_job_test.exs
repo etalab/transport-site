@@ -95,6 +95,23 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
     end
 
+    test "for a GTFS-RT with a FATAL error" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      gtfs_rt = insert(:resource, format: "gtfs-rt", dataset: dataset)
+
+      %DB.MultiValidation{id: mv_id} =
+        insert(:multi_validation, %{
+          resource_id: gtfs_rt.id,
+          validator: Transport.Validators.GTFSRT.validator_name(),
+          result: %{"has_errors" => true, "errors" => [%{"error_id" => "FATAL", "errors_count" => 1}]},
+          inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+        })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
+    end
+
     test "finds the MobilityData validator" do
       %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
       gtfs = insert(:resource, format: "GTFS", dataset: dataset)
