@@ -81,12 +81,13 @@ defmodule Transport.IRVE.Validator do
     path
     |> validate(extension)
     |> summarize()
-    |> Map.put(:file_level_error, nil)
+    |> Map.put(:file_level_errors, [])
   rescue
     error ->
       %{
         valid: false,
-        file_level_error: Exception.message(error),
+        # array because we may want multiple warnings in the future
+        file_level_errors: [Exception.message(error)],
         valid_row_count: nil,
         invalid_row_count: nil,
         total_row_count: nil,

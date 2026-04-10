@@ -188,7 +188,7 @@ defmodule Transport.IRVE.ValidatorTest do
     with_tmp_file(csv_content, fn path ->
       summary = Transport.IRVE.Validator.validate_and_summarize(path)
 
-      assert %{valid: true, file_level_error: nil, valid_row_count: 1, invalid_row_count: 0} = summary
+      assert %{valid: true, file_level_errors: [], valid_row_count: 1, invalid_row_count: 0} = summary
     end)
   end
 
@@ -198,7 +198,7 @@ defmodule Transport.IRVE.ValidatorTest do
 
       assert %{
                valid: false,
-               file_level_error: error_message,
+               file_level_errors: [error_message],
                valid_row_count: nil,
                invalid_row_count: nil,
                total_row_count: nil,
