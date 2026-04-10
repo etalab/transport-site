@@ -60,6 +60,7 @@ defmodule Transport.IRVE.Validator do
       valid: invalid_count == 0,
       valid_row_count: valid_count,
       invalid_row_count: invalid_count,
+      total_row_count: valid_count + invalid_count,
       column_errors: column_errors,
       error_samples: error_samples
     }
@@ -88,6 +89,7 @@ defmodule Transport.IRVE.Validator do
         file_level_error: Exception.message(error),
         valid_row_count: nil,
         invalid_row_count: nil,
+        total_row_count: nil,
         column_errors: %{},
         error_samples: []
       }

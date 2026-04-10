@@ -149,9 +149,10 @@ defmodule Transport.IRVE.ValidatorTest do
                valid: true,
                valid_row_count: 1,
                invalid_row_count: 0,
+               total_row_count: 1,
                column_errors: %{},
                error_samples: []
-             } = summary
+             } == summary
     end)
   end
 
@@ -200,6 +201,7 @@ defmodule Transport.IRVE.ValidatorTest do
                file_level_error: error_message,
                valid_row_count: nil,
                invalid_row_count: nil,
+               total_row_count: nil,
                column_errors: %{},
                error_samples: []
              } = summary
