@@ -56,11 +56,12 @@ defmodule Transport.IRVE.Validator do
     column_errors = summarize_column_errors(df)
     error_samples = error_samples(df, column_errors)
 
-    %{
+    %Transport.IRVE.Validator.Summary{
       valid: invalid_count == 0,
       valid_row_count: valid_count,
       invalid_row_count: invalid_count,
       total_row_count: valid_count + invalid_count,
+      file_level_errors: [],
       column_errors: column_errors,
       error_samples: error_samples
     }
@@ -81,16 +82,14 @@ defmodule Transport.IRVE.Validator do
     path
     |> validate(extension)
     |> summarize()
-    |> Map.put(:file_level_errors, [])
   rescue
     error ->
-      %{
+      %Transport.IRVE.Validator.Summary{
         valid: false,
-        # array because we may want multiple warnings in the future
-        file_level_errors: [Exception.message(error)],
         valid_row_count: nil,
         invalid_row_count: nil,
         total_row_count: nil,
+        file_level_errors: [Exception.message(error)],
         column_errors: %{},
         error_samples: []
       }
