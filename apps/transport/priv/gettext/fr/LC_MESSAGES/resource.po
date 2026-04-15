@@ -100,3 +100,31 @@ msgstr "nombre de zones d’embarquement :"
 #, elixir-autogen, elixir-format
 msgid "number of stop places:"
 msgstr "nombre de lieux d’arrêt :"
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx features:"
+msgstr "fonctionnalités NeTEx :"
+
+#, elixir-autogen, elixir-format
+msgid "accessibility"
+msgstr " accessibilité"
+
+#, elixir-autogen, elixir-format
+msgid "fares"
+msgstr "tarifs"
+
+#, elixir-autogen, elixir-format
+msgid "networks"
+msgstr "description des réseaux"
+
+#, elixir-autogen, elixir-format
+msgid "parkings"
+msgstr "parkings"
+
+#, elixir-autogen, elixir-format
+msgid "stops"
+msgstr "description des arrêts"
+
+#, elixir-autogen, elixir-format
+msgid "timetables"
+msgstr "horaires"

@@ -2,6 +2,8 @@
 <% networks = Map.get(@metadata, "networks", []) %>
 <% modes = Map.get(@metadata, "modes", []) %>
 <% stats = Map.get(@metadata, "stats", %{}) %>
+<% features = Map.get(@metadata, "features", %{}) %>
+
 <p :if={@metadata["start_date"] != nil and @metadata["end_date"] != nil}>
   {dgettext("validations", "It is valid from")}
   <strong>{DateTimeDisplay.format_date(@metadata["start_date"], locale)}</strong> {dgettext(
@@ -10,6 +12,7 @@
   )} <strong><%= DateTimeDisplay.format_date(@metadata["end_date"], locale) %></strong>.
 </p>
 <ul>
+  <.netex_features features={features} />
   <li :if={networks != []}>
     <div>
       <div class="networks-list">
