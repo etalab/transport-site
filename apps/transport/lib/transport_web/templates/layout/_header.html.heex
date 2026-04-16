@@ -17,7 +17,7 @@
         </a>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
-            <div class="dropdown">
+            <button type="button" class="dropdown">
               {gettext("Data")}
               <div class="dropdown-content">
                 {link(gettext("Datasets"), to: dataset_path(@conn, :index))}
@@ -25,13 +25,13 @@
                 {link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops))}
                 {link(gettext("Reuses"), to: reuse_path(@conn, :index))}
               </div>
-            </div>
+            </button>
           </li>
           <li class="nav__item">
             {link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr")}
           </li>
           <li class="nav__item">
-            <div class="dropdown">
+            <button type="button" class="dropdown">
               {gettext("Tools")}
               <div class="dropdown-content">
                 {link(gettext("Check the quality of a file or a feed"),
@@ -45,13 +45,13 @@
                 {link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank")}
                 {link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank")}
               </div>
-            </div>
+            </button>
           </li>
           <li class="nav__item">
             {link(gettext("Statistics"), to: stats_path(@conn, :index))}
           </li>
           <li class="nav__item">
-            <div class="dropdown">
+            <button type="button" class="dropdown">
               {gettext("Regulation")}
               <div class="dropdown-content">
                 {link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank")}
@@ -61,23 +61,23 @@
                   target: "_blank"
                 )}
               </div>
-            </div>
+            </button>
           </li>
           <li class="nav__item">
-            <div class="dropdown">
+            <button type="button" class="dropdown">
               {gettext("About")}
               <div class="dropdown-content">
                 {link(gettext("Our missions"), to: page_path(@conn, :missions))}
                 {link(gettext("New features"), to: page_path(@conn, :nouveautes))}
               </div>
-            </div>
+            </button>
           </li>
           <li class="nav__item">
             {link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr")}
           </li>
           <%= if assigns[:current_user] do %>
             <li class="nav__item">
-              <div class="dropdown">
+              <button type="button" class="dropdown">
                 <div class="user-name-display">
                   <img :if={avatar_url(@conn)} src={avatar_url(@conn)} alt="Avatar" class="nav__avatar" />
                   <span class="nav__username">
@@ -120,7 +120,7 @@
                     <span>{gettext("Sign Out")}</span>
                   </a>
                 </div>
-              </div>
+              </button>
             </li>
           <% else %>
             <li class="nav__item">
@@ -134,7 +134,7 @@
             </li>
           <% end %>
           <li class="nav__item">
-            <div class="dropdown">
+            <button type="button" class="dropdown">
               <%= if get_session(@conn, :locale) == "fr" do %>
                 <img src={static_path(@conn, "/images/icons/fr.png")} alt="Français" height="18px" />
               <% else %>
@@ -144,7 +144,7 @@
                 {link("Français", to: add_locale_to_url(@conn, "fr"))}
                 {link("English", to: add_locale_to_url(@conn, "en"))}
               </div>
-            </div>
+            </button>
           </li>
         </ul>
       </div>
