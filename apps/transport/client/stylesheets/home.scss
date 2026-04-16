@@ -40,11 +40,13 @@ html {
 }
 
 button.dropdown {
+  font-family: $font-family-primary;
+  font-size: 16px;
+  line-height: 1.5em;
   background: unset;
   border: none;
   display: inline-block;
   min-height: 24px;
-  line-height: 24px;
 }
 
 .nav__item > :focus,
