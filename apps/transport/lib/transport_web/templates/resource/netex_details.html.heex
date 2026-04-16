@@ -1,3 +1,4 @@
+<% associated_geojson = get_associated_geojson(@related_files) %>
 {render("_search_bar.html", conn: @conn)}
 <div class="dataset-page netex">
   <div class="dataset-menu-container">
@@ -5,6 +6,9 @@
       <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
       <div class="menu-item">
         <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
+      </div>
+      <div :if={not is_nil(associated_geojson)} class="menu-item">
+        <a href="#visualization">{dgettext("validations", "Stops and routes visualization of the NeTEx file")}</a>
       </div>
       <div :if={not DB.Resource.documentation?(@resource)} class="menu-item">
         <a href="#validation-report">{dgettext("validations", "Validation report")}</a>
@@ -32,12 +36,18 @@
     <h2 id="download-availability">{dgettext("page-dataset-details", "Download availability")}</h2>
     {render("_download_availability.html", uptime_per_day: @uptime_per_day, conn: @conn)}
 
+    <%= unless is_nil(associated_geojson) do %>
+      <h2 class="mt-48" id="visualization">
+        {dgettext("validations", "Stops and routes visualization of the NeTEx file")}
+      </h2>
+      {render("_geojson.html", associated_geojson: associated_geojson, conn: @conn)}
+    <% end %>
+
     <h2 id="validation-report" class="mt-48">{dgettext("validations", "Validation report")}</h2>
     <div class="panel" id="issues">
       <%= if is_nil(@validation_summary) do %>
         {dgettext("validations", "No validation available")}
-      <% end %>
-      <%= unless is_nil(@validation_summary) do %>
+      <% else %>
         {render(@errors_template,
           conn: @conn,
           issues: @issues,
@@ -79,13 +89,9 @@
       <h2 id="other-resources">{dgettext("validations", "Other resources")}</h2>
       <div class="panel">
         <ul>
-          <%= for resource <- @other_resources do %>
-            <li>
-              {link(resource.title,
-                to: resource_path(@conn, :details, resource.id)
-              )}
-            </li>
-          <% end %>
+          <li :for={resource <- @other_resources}>
+            {link(resource.title, to: resource_path(@conn, :details, resource.id))}
+          </li>
         </ul>
       </div>
     <% end %>

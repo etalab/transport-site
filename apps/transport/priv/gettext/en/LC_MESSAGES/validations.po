@@ -449,3 +449,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Learn more"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops and routes visualization of the NeTEx file"
+msgstr ""

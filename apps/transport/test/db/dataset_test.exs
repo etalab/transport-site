@@ -436,7 +436,7 @@ defmodule DB.DatasetDBTest do
         resource_history_uuid: uuid1,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         payload: %{"permanent_url" => "url1", "filesize" => 21}
       )
 
@@ -444,7 +444,7 @@ defmodule DB.DatasetDBTest do
         resource_history_uuid: uuid2,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         payload: %{"permanent_url" => "url2", "filesize" => 76}
       )
 
@@ -453,7 +453,7 @@ defmodule DB.DatasetDBTest do
         resource_history_uuid: uuid3,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         status: :pending,
         payload: %{"permanent_url" => "url3", "filesize" => 43}
       )
@@ -501,7 +501,7 @@ defmodule DB.DatasetDBTest do
         resource_history_uuid: uuid1,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         payload: %{"permanent_url" => "url1", "filesize" => 21}
       )
 
