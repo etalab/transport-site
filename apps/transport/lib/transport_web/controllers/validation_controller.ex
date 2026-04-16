@@ -5,8 +5,6 @@ defmodule TransportWeb.ValidationController do
   import Ecto.Query
 
   @netex_issues_page_size 10
-  @legacy_irve_schema "etalab/schema-irve-statique"
-  @integrated_irve_type "irve-statique"
 
   plug(:log_usage when action in [:validate])
 
@@ -59,7 +57,7 @@ defmodule TransportWeb.ValidationController do
   end
 
   def validate(%Plug.Conn{} = conn, %{
-        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => @integrated_irve_type}
+        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "irve-statique"}
       }) do
     extension =
       case filename do
@@ -336,19 +334,14 @@ defmodule TransportWeb.ValidationController do
 
   def select_options do
     schemas =
-      transport_schemas()
-      |> Enum.reject(fn {schema_name, _schema} -> schema_name == @legacy_irve_schema end)
+      Transport.Schemas.Wrapper.validated_transport_schemas()
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    [
-      {"GTFS", "gtfs"},
-      {"GTFS-Flex", "gtfs-flex"},
-      {"NeTEx", "netex"},
-      {"GTFS-RT", "gtfs-rt"},
-      {"GBFS", "gbfs"},
-      {"IRVE Statique", @integrated_irve_type}
-    ] ++ schemas
+    ["GTFS", "GTFS-Flex", "NeTEx", "GTFS-RT", "GBFS"]
+    |> Enum.map(&{&1, String.downcase(&1)})
+    |> Kernel.++([{"IRVE Statique", "irve-statique"}])
+    |> Kernel.++(schemas)
   end
 
   def valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
@@ -371,8 +364,8 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  defp build_oban_args(%{"type" => @integrated_irve_type}) do
-    %{"type" => @integrated_irve_type}
+  defp build_oban_args(%{"type" => "irve-statique"}) do
+    %{"type" => "irve-statique"}
   end
 
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)

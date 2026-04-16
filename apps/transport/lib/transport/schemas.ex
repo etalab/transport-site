@@ -12,6 +12,15 @@ defmodule Transport.Schemas.Wrapper do
 
   def known_schema?(schema_name), do: Map.has_key?(transport_schemas(), schema_name)
 
+  @doc """
+  Returns transport schemas suitable for on-demand validation, excluding schemas
+  that have a dedicated integrated validator (e.g. IRVE statique).
+  """
+  def validated_transport_schemas do
+    transport_schemas()
+    |> Map.reject(fn {schema_name, _schema} -> schema_name == "etalab/schema-irve-statique" end)
+  end
+
   def schema_type(schema_name) do
     cond do
       tableschema?(schema_name) -> "tableschema"
