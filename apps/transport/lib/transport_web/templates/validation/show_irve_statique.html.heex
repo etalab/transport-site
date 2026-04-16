@@ -59,26 +59,18 @@
 
         <%= unless Enum.empty?(@summary.column_errors) do %>
           <h4>{dgettext("validations", "Errors by column")}</h4>
-          <table class="table" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+          <table class="table">
             <thead>
               <tr>
-                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left;">
-                  {dgettext("validations", "Column")}
-                </th>
-                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: right; width: 140px;">
-                  {dgettext("validations", "Invalid rows")}
-                </th>
+                <th>{dgettext("validations", "Column")}</th>
+                <th>{dgettext("validations", "Invalid rows")}</th>
               </tr>
             </thead>
             <tbody>
-              <%= for {{column, error_count}, index} <- Enum.sort_by(@summary.column_errors, &elem(&1, 0)) |> Enum.with_index() do %>
-                <tr style={if rem(index, 2) == 1, do: "background: #fcfcfc;", else: ""}>
-                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
-                    {column}
-                  </td>
-                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; text-align: right;">
-                    {error_count}
-                  </td>
+              <%= for {column, error_count} <- Enum.sort_by(@summary.column_errors, &elem(&1, 0)) do %>
+                <tr>
+                  <td>{column}</td>
+                  <td>{error_count}</td>
                 </tr>
               <% end %>
             </tbody>
@@ -87,32 +79,20 @@
 
         <%= unless Enum.empty?(@summary.error_samples) do %>
           <h4>{dgettext("validations", "Error samples")}</h4>
-          <table class="table" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+          <table class="table">
             <thead>
               <tr>
-                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left; width: 180px;">
-                  id_pdc_itinerance
-                </th>
-                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left; width: 200px;">
-                  {dgettext("validations", "Column")}
-                </th>
-                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left;">
-                  {dgettext("validations", "Value")}
-                </th>
+                <th>id_pdc_itinerance</th>
+                <th>{dgettext("validations", "Column")}</th>
+                <th>{dgettext("validations", "Value")}</th>
               </tr>
             </thead>
             <tbody>
-              <%= for {sample, index} <- Enum.with_index(@summary.error_samples) do %>
-                <tr style={if rem(index, 2) == 1, do: "background: #fcfcfc;", else: ""}>
-                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
-                    {sample.id_pdc_itinerance}
-                  </td>
-                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
-                    {sample.column}
-                  </td>
-                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
-                    {sample.value}
-                  </td>
+              <%= for sample <- @summary.error_samples do %>
+                <tr>
+                  <td>{sample.id_pdc_itinerance}</td>
+                  <td>{sample.column}</td>
+                  <td>{sample.value}</td>
                 </tr>
               <% end %>
             </tbody>
