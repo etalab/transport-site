@@ -12,6 +12,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   import TransportWeb.Router.Helpers
 
   @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
+  @legacy_irve_schema "etalab/schema-irve-statique"
+  @integrated_irve_type "irve-statique"
 
   def mount(_params, %{"locale" => locale} = _session, socket) do
     Gettext.put_locale(locale)
@@ -43,9 +45,11 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
                 title: dgettext("validations", "Road mobility and bike"),
                 subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
                 sub_tiles:
-                  Transport.Schemas.Wrapper.transport_schemas()
-                  |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
-                  |> Enum.sort_by(&elem(&1, 0))
+                  [{"IRVE Statique", @integrated_irve_type}] ++
+                    (Transport.Schemas.Wrapper.transport_schemas()
+                     |> Enum.reject(fn {schema_name, _schema} -> schema_name == @legacy_irve_schema end)
+                     |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
+                     |> Enum.sort_by(&elem(&1, 0)))
               }}
            ]
          },
@@ -73,6 +77,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   def determine_input_type(type) when type in ["gbfs"], do: "link"
   def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
+  def determine_input_type(type) when type in ["irve-statique"], do: "file"
   def determine_input_type(_), do: "file"
 
   def handle_event("form_changed", %{"upload" => params, "_target" => target}, socket) do
@@ -105,6 +110,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
         "etalab/schema-amenagements-cyclables" => "/images/icons/bike-data.svg",
         "etalab/schema-stationnement-cyclable" => "/images/icons/bike-data.svg",
         "etalab/schema-irve-dynamique" => "/images/icons/charge-station.svg",
+        "irve-statique" => "/images/icons/charge-station.svg",
         "etalab/schema-irve-statique" => "/images/icons/charge-station.svg",
         "etalab/schema-lieux-covoiturage" => "/images/icons/carpooling-areas.svg",
         "etalab/schema-zfe" => "/images/icons/roads.svg",

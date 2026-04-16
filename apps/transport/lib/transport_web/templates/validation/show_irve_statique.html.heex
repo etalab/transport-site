@@ -1,0 +1,131 @@
+<section>
+  <div class="container">
+    <div class="validation-title">
+      <h2>{dgettext("validations", "IRVE Statique validation report")}</h2>
+      <p>
+        {dgettext("validations", "Validation file")}: <b>{@filename}</b>
+      </p>
+      <p class="notification">
+        {dgettext("validations", "This validation now uses our integrated IRVE Statique validator.")}
+        {" "}
+        {raw(
+          dgettext(
+            "validations",
+            ~s(You can still use the previous <a href="%{url}" target="_blank">Validata validator</a>.),
+            url: "https://validata.fr/table-schema?schema_name=schema-datagouvfr.etalab%2Fschema-irve-statique"
+          )
+        )}
+      </p>
+    </div>
+  </div>
+
+  <div class="validation-content">
+    <div class="container">
+      <div class="panel">
+        <p>
+          <b>
+            <%= if @summary.valid do %>
+              <span class="icon--validation">✅</span>{dgettext("validations", "No error detected")}
+            <% else %>
+              <span class="icon--validation">❌</span>{dgettext("validations", "Invalid file")}
+            <% end %>
+          </b>
+        </p>
+
+        <%= if is_nil(@summary.total_row_count) do %>
+          <p>{dgettext("validations", "Could not validate file rows because of file-level errors.")}</p>
+        <% else %>
+          <ul>
+            <li>
+              {dgettext("validations", "Total rows")}: {@summary.total_row_count}
+            </li>
+            <li>
+              {dgettext("validations", "Valid rows")}: {@summary.valid_row_count}
+            </li>
+            <li>
+              {dgettext("validations", "Invalid rows")}: {@summary.invalid_row_count}
+            </li>
+          </ul>
+        <% end %>
+
+        <%= unless Enum.empty?(@summary.file_level_errors) do %>
+          <h4>{dgettext("validations", "File-level errors")}</h4>
+          <ul>
+            <%= for error <- @summary.file_level_errors do %>
+              <li>{error}</li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <%= unless Enum.empty?(@summary.column_errors) do %>
+          <h4>{dgettext("validations", "Errors by column")}</h4>
+          <table class="table" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left;">
+                  {dgettext("validations", "Column")}
+                </th>
+                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: right; width: 140px;">
+                  {dgettext("validations", "Invalid rows")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for {{column, error_count}, index} <- Enum.sort_by(@summary.column_errors, &elem(&1, 0)) |> Enum.with_index() do %>
+                <tr style={if rem(index, 2) == 1, do: "background: #fcfcfc;", else: ""}>
+                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
+                    {column}
+                  </td>
+                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; text-align: right;">
+                    {error_count}
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+
+        <%= unless Enum.empty?(@summary.error_samples) do %>
+          <h4>{dgettext("validations", "Error samples")}</h4>
+          <table class="table" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left; width: 180px;">
+                  id_pdc_itinerance
+                </th>
+                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left; width: 200px;">
+                  {dgettext("validations", "Column")}
+                </th>
+                <th style="border: 1px solid #cfcfcf; background: #f7f7f7; padding: 0.75rem; text-align: left;">
+                  {dgettext("validations", "Value")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for {sample, index} <- Enum.with_index(@summary.error_samples) do %>
+                <tr style={if rem(index, 2) == 1, do: "background: #fcfcfc;", else: ""}>
+                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
+                    {sample.id_pdc_itinerance}
+                  </td>
+                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
+                    {sample.column}
+                  </td>
+                  <td style="border: 1px solid #d9d9d9; padding: 0.6rem; vertical-align: top; word-break: break-word;">
+                    {sample.value}
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-white">
+  {live_render(@conn, TransportWeb.Live.FeedbackLive,
+    id: "feedback-form",
+    session: %{"feature" => "on_demand_validation"}
+  )}
+</section>

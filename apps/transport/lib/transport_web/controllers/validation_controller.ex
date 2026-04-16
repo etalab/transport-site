@@ -5,6 +5,8 @@ defmodule TransportWeb.ValidationController do
   import Ecto.Query
 
   @netex_issues_page_size 10
+  @legacy_irve_schema "etalab/schema-irve-statique"
+  @integrated_irve_type "irve-statique"
 
   plug(:log_usage when action in [:validate])
 
@@ -54,6 +56,29 @@ defmodule TransportWeb.ValidationController do
             )
         )
     end
+  end
+
+  def validate(%Plug.Conn{} = conn, %{
+        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => @integrated_irve_type}
+      }) do
+    extension =
+      case filename do
+        value when is_binary(value) and value != "" ->
+          case Path.extname(value) do
+            "" -> ".csv"
+            ext -> ext
+          end
+
+        _ ->
+          ".csv"
+      end
+
+    summary = Transport.IRVE.Validator.validate_and_summarize(file_path, extension)
+
+    conn
+    |> assign(:summary, summary)
+    |> assign(:filename, filename || "upload.csv")
+    |> render("show_irve_statique.html")
   end
 
   def validate(%Plug.Conn{} = conn, %{
@@ -312,10 +337,18 @@ defmodule TransportWeb.ValidationController do
   def select_options do
     schemas =
       transport_schemas()
+      |> Enum.reject(fn {schema_name, _schema} -> schema_name == @legacy_irve_schema end)
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    ["GTFS", "GTFS-Flex", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
+    [
+      {"GTFS", "gtfs"},
+      {"GTFS-Flex", "gtfs-flex"},
+      {"NeTEx", "netex"},
+      {"GTFS-RT", "gtfs-rt"},
+      {"GBFS", "gbfs"},
+      {"IRVE Statique", @integrated_irve_type}
+    ] ++ schemas
   end
 
   def valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
@@ -336,6 +369,10 @@ defmodule TransportWeb.ValidationController do
 
   defp build_oban_args(%{"url" => url, "type" => "gbfs"}) do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
+  end
+
+  defp build_oban_args(%{"type" => @integrated_irve_type}) do
+    %{"type" => @integrated_irve_type}
   end
 
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
