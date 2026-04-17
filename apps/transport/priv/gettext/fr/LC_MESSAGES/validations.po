@@ -450,6 +450,10 @@ msgstr "Liste des règles du profil France actuellement implémentées"
 msgid "Learn more"
 msgstr "En savoir plus"
 
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops and routes visualization of the NeTEx file"
+msgstr "Aperçu des arrêts et lignes de la ressource NeTEx"
+
 #, elixir-autogen, elixir-format
 msgid "Column"
 msgstr "Colonne"

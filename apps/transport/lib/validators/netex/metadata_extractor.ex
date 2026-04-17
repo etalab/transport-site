@@ -33,6 +33,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
         "lines_count" => 0,
         "quays_count" => 0,
         "stop_places_count" => 0
+      },
+      "features" => %{
+        "networks" => false,
+        "stops" => false,
+        "timetables" => false,
+        "fares" => false,
+        "parkings" => false,
+        "accessibility" => false
       }
     }
 
@@ -45,6 +53,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
             "lines_count" => acc["stats"]["lines_count"] + elem.lines,
             "quays_count" => acc["stats"]["quays_count"] + elem.quays,
             "stop_places_count" => acc["stats"]["stop_places_count"] + elem.stop_places
+          },
+          "features" => %{
+            "networks" => acc["features"]["networks"] || elem.features.networks,
+            "stops" => acc["features"]["stops"] || elem.features.stops,
+            "timetables" => acc["features"]["timetables"] || elem.features.timetables,
+            "fares" => acc["features"]["fares"] || elem.features.fares,
+            "parkings" => acc["features"]["parkings"] || elem.features.parkings,
+            "accessibility" => acc["features"]["accessibility"] || elem.features.accessibility
           }
         }
       end)
