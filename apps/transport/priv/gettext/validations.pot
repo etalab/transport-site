@@ -447,3 +447,59 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Learn more"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Could not validate file rows because of file-level errors."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Error samples"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Errors by column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File-level errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE Statique validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This validation now uses our integrated IRVE Statique validator."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Total rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Valid rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validation file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Value"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You can still use the previous <a href=\"%{url}\" target=\"_blank\">Validata validator</a>."
+msgstr ""
