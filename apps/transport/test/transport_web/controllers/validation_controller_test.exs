@@ -262,7 +262,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  %DB.FeatureUsage{
                    feature: :on_demand_validation,
                    contact_id: nil,
-                   metadata: %{"type" => "etalab/schema-irve-statique"}
+                   metadata: %{"type" => "irve-statique"}
                  }
                ] = DB.FeatureUsage |> DB.Repo.all()
       end)
