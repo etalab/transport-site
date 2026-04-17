@@ -57,7 +57,7 @@ defmodule TransportWeb.ValidationController do
   end
 
   def validate(%Plug.Conn{} = conn, %{
-        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "irve-statique"}
+        "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
     extension =
       case filename do
@@ -334,14 +334,11 @@ defmodule TransportWeb.ValidationController do
 
   def select_options do
     schemas =
-      Transport.Schemas.Wrapper.validated_transport_schemas()
+      transport_schemas()
       |> Enum.map(fn {k, v} -> {Map.fetch!(v, "title"), k} end)
       |> Enum.sort_by(&elem(&1, 0))
 
-    ["GTFS", "GTFS-Flex", "NeTEx", "GTFS-RT", "GBFS"]
-    |> Enum.map(&{&1, String.downcase(&1)})
-    |> Kernel.++([{"IRVE Statique", "irve-statique"}])
-    |> Kernel.++(schemas)
+    ["GTFS", "GTFS-Flex", "NeTEx", "GTFS-RT", "GBFS"] |> Enum.map(&{&1, String.downcase(&1)}) |> Kernel.++(schemas)
   end
 
   def valid_type?(type), do: type in (select_options() |> Enum.map(&elem(&1, 1)))
@@ -367,8 +364,8 @@ defmodule TransportWeb.ValidationController do
   # For IRVE statique, we don’t use Oban to perform validation
   # This function is just here to log the usage
   # See TransportWeb.ValidationController.log_usage/2
-  defp build_oban_args(%{"type" => "irve-statique"}) do
-    %{"type" => "irve-statique"}
+  defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
+    %{"type" => "etalab/schema-irve-statique"}
   end
 
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)

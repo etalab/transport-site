@@ -138,24 +138,6 @@ defmodule TransportWeb.ValidationControllerTest do
       refute view |> has_element?("input[name='upload[file]']")
       assert view |> has_element?("input[name='upload[url]']")
     end
-
-    test "replaces legacy IRVE statique tile by integrated IRVE Statique tile", %{conn: conn} do
-      Transport.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn ->
-        %{
-          "etalab/schema-irve-statique" => %{"title" => "IRVE statique"},
-          "etalab/schema-zfe" => %{"title" => "ZFE"}
-        }
-      end)
-
-      {:ok, view, _html} = conn |> get(live_path(conn, OnDemandValidationSelectLive)) |> live()
-
-      view |> element(~s|[phx-value-tile="schemas"]|) |> render_click()
-      assert_patched(view, live_path(conn, OnDemandValidationSelectLive, selected_tile: "schemas"))
-
-      assert view |> has_element?(~s|[phx-value-tile="irve-statique"]|)
-      refute view |> has_element?(~s|[phx-value-tile="etalab/schema-irve-statique"]|)
-    end
   end
 
   describe "POST validate" do
@@ -264,7 +246,10 @@ defmodule TransportWeb.ValidationControllerTest do
         conn =
           conn
           |> post(validation_path(conn, :validate), %{
-            "upload" => %{"file" => %Plug.Upload{path: path, filename: "irve.csv"}, "type" => "irve-statique"}
+            "upload" => %{
+              "file" => %Plug.Upload{path: path, filename: "irve.csv"},
+              "type" => "etalab/schema-irve-statique"
+            }
           })
 
         response = html_response(conn, 200)
@@ -277,7 +262,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  %DB.FeatureUsage{
                    feature: :on_demand_validation,
                    contact_id: nil,
-                   metadata: %{"type" => "irve-statique"}
+                   metadata: %{"type" => "etalab/schema-irve-statique"}
                  }
                ] = DB.FeatureUsage |> DB.Repo.all()
       end)
@@ -292,7 +277,10 @@ defmodule TransportWeb.ValidationControllerTest do
         conn =
           conn
           |> post(validation_path(conn, :validate), %{
-            "upload" => %{"file" => %Plug.Upload{path: path, filename: "irve.csv"}, "type" => "irve-statique"}
+            "upload" => %{
+              "file" => %Plug.Upload{path: path, filename: "irve.csv"},
+              "type" => "etalab/schema-irve-statique"
+            }
           })
 
         response = html_response(conn, 200)
@@ -668,21 +656,6 @@ defmodule TransportWeb.ValidationControllerTest do
                  metadata: %{"type" => nil, "schema_name" => "foo"}
                }
              ] = DB.FeatureUsage |> DB.Repo.all()
-    end
-
-    test "with legacy IRVE statique schema type", %{conn: conn} do
-      Transport.Schemas.Mock
-      |> expect(:transport_schemas, 2, fn ->
-        %{"etalab/schema-irve-statique" => %{"schema_type" => "tableschema", "title" => "IRVE statique"}}
-      end)
-
-      conn
-      |> post(validation_path(conn, :validate), %{
-        "upload" => %{"file" => %Plug.Upload{path: @gtfs_path}, "type" => "etalab/schema-irve-statique"}
-      })
-      |> html_response(400)
-
-      assert 0 == count_validations()
     end
   end
 
