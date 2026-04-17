@@ -364,6 +364,9 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
+  # For IRVE statique, we don’t use Oban to perform validation
+  # This function is just here to log the usage
+  # See TransportWeb.ValidationController.log_usage/2
   defp build_oban_args(%{"type" => "irve-statique"}) do
     %{"type" => "irve-statique"}
   end
