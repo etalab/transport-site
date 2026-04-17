@@ -51,9 +51,7 @@
         <%= unless Enum.empty?(@summary.file_level_errors) do %>
           <h4>{dgettext("validations", "File-level errors")}</h4>
           <ul>
-            <%= for error <- @summary.file_level_errors do %>
-              <li>{error}</li>
-            <% end %>
+            <li :for={error <- @summary.file_level_errors}>{error}</li>
           </ul>
         <% end %>
 
@@ -67,12 +65,10 @@
               </tr>
             </thead>
             <tbody>
-              <%= for {column, error_count} <- Enum.sort_by(@summary.column_errors, &elem(&1, 0)) do %>
-                <tr>
-                  <td>{column}</td>
-                  <td>{error_count}</td>
-                </tr>
-              <% end %>
+              <tr :for={{column, error_count} <- Enum.sort_by(@summary.column_errors, &elem(&1, 0))}>
+                <td>{column}</td>
+                <td>{error_count}</td>
+              </tr>
             </tbody>
           </table>
         <% end %>
@@ -88,13 +84,11 @@
               </tr>
             </thead>
             <tbody>
-              <%= for sample <- @summary.error_samples do %>
-                <tr>
-                  <td>{sample.id_pdc_itinerance}</td>
-                  <td>{sample.column}</td>
-                  <td>{sample.value}</td>
-                </tr>
-              <% end %>
+              <tr :for={sample <- @summary.error_samples}>
+                <td>{sample.id_pdc_itinerance}</td>
+                <td>{sample.column}</td>
+                <td>{sample.value}</td>
+              </tr>
             </tbody>
           </table>
         <% end %>
