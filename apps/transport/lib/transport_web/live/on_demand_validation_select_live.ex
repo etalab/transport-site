@@ -74,7 +74,6 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
 
   def determine_input_type(type) when type in ["gbfs"], do: "link"
   def determine_input_type(type) when type in ["gtfs-rt"], do: "gtfs-rt"
-  def determine_input_type(type) when type in ["irve-statique"], do: "file"
   def determine_input_type(_), do: "file"
 
   def handle_event("form_changed", %{"upload" => params, "_target" => target}, socket) do
