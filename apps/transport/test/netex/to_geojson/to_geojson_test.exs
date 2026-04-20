@@ -439,6 +439,14 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       end)
     end
 
+    test "empty archive" do
+      ZipCreator.with_tmp_zip([], fn tmp_file ->
+        assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file, types: [:stop_places])
+
+        assert geojson == %{"features" => [], "type" => "FeatureCollection"}
+      end)
+    end
+
     test "bad NeTEx" do
       xml = """
       not an XML
