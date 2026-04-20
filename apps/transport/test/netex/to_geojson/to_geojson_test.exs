@@ -3,18 +3,6 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
 
   alias Transport.NeTEx.ToGeoJSON
 
-  defmodule ZipCreator do
-    @spec create!(String.t(), [{String.t(), binary()}]) :: no_return()
-    def create!(zip_filename, file_data) do
-      {:ok, ^zip_filename} =
-        :zip.create(
-          zip_filename,
-          file_data
-          |> Enum.map(fn {name, content} -> {name |> to_charlist(), content} end)
-        )
-    end
-  end
-
   describe "convert_xml/1" do
     test "converts StopPlaces to Point features" do
       xml = """
@@ -305,19 +293,16 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"stops.xml", xml1}, {"quays.xml", xml2}])
+      ZipCreator.with_tmp_zip([{"stops.xml", xml1}, {"quays.xml", xml2}], fn tmp_file ->
+        assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
 
-      assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
+        assert geojson["type"] == "FeatureCollection"
+        assert length(geojson["features"]) == 2
 
-      assert geojson["type"] == "FeatureCollection"
-      assert length(geojson["features"]) == 2
-
-      ids = Enum.map(geojson["features"], & &1["id"])
-      assert "stop_1" in ids
-      assert "quay_1" in ids
-
-      File.rm!(tmp_file)
+        ids = Enum.map(geojson["features"], & &1["id"])
+        assert "stop_1" in ids
+        assert "quay_1" in ids
+      end)
     end
 
     test "filters by types option" do
@@ -344,15 +329,12 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"data.xml", xml}])
+      ZipCreator.with_tmp_zip([{"data.xml", xml}], fn tmp_file ->
+        assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file, types: [:quays])
 
-      assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file, types: [:quays])
-
-      assert length(geojson["features"]) == 1
-      assert hd(geojson["features"])["id"] == "quay_1"
-
-      File.rm!(tmp_file)
+        assert length(geojson["features"]) == 1
+        assert hd(geojson["features"])["id"] == "quay_1"
+      end)
     end
 
     test "skips non-XML files" do
@@ -370,14 +352,11 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"data.xml", xml}, {"readme.txt", "Some text"}])
+      ZipCreator.with_tmp_zip([{"data.xml", xml}, {"readme.txt", "Some text"}], fn tmp_file ->
+        assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
 
-      assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
-
-      assert length(geojson["features"]) == 1
-
-      File.rm!(tmp_file)
+        assert length(geojson["features"]) == 1
+      end)
     end
 
     test "skips directories" do
@@ -395,15 +374,12 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"subdir/data.xml", xml}])
+      ZipCreator.with_tmp_zip([{"subdir/data.xml", xml}], fn tmp_file ->
+        assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
 
-      assert {:ok, geojson} = ToGeoJSON.convert_archive(tmp_file)
-
-      # Should still find the XML in the subdirectory
-      assert length(geojson["features"]) == 1
-
-      File.rm!(tmp_file)
+        # Should still find the XML in the subdirectory
+        assert length(geojson["features"]) == 1
+      end)
     end
   end
 
@@ -423,15 +399,12 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"data.xml", xml}])
+      ZipCreator.with_tmp_zip([{"data.xml", xml}], fn tmp_file ->
+        assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file)
 
-      assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file)
-
-      assert geojson["type"] == "FeatureCollection"
-      assert length(geojson["features"]) == 1
-
-      File.rm!(tmp_file)
+        assert geojson["type"] == "FeatureCollection"
+        assert length(geojson["features"]) == 1
+      end)
     end
 
     test "accepts types option" do
@@ -458,15 +431,24 @@ defmodule Transport.NeTEx.ToGeoJSONTest do
       </root>
       """
 
-      tmp_file = System.tmp_dir!() |> Path.join("netex-geojson-#{Ecto.UUID.generate()}.zip")
-      ZipCreator.create!(tmp_file, [{"data.xml", xml}])
+      ZipCreator.with_tmp_zip([{"data.xml", xml}], fn tmp_file ->
+        assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file, types: [:stop_places])
 
-      assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file, types: [:stop_places])
+        assert length(geojson["features"]) == 1
+        assert hd(geojson["features"])["id"] == "stop_1"
+      end)
+    end
 
-      assert length(geojson["features"]) == 1
-      assert hd(geojson["features"])["id"] == "stop_1"
+    test "bad NeTEx" do
+      xml = """
+      not an XML
+      """
 
-      File.rm!(tmp_file)
+      ZipCreator.with_tmp_zip([{"data.xml", xml}], fn tmp_file ->
+        assert {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(tmp_file, types: [:stop_places])
+
+        assert geojson == %{"features" => [], "type" => "FeatureCollection"}
+      end)
     end
   end
 end
