@@ -135,7 +135,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
           dataset: insert(:dataset)
         )
 
-      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^latest_url -> true end)
+      Transport.AvailabilityChecker.Mock |> expect(:available?, fn _format, ^latest_url, _opts -> true end)
 
       assert DB.Resource.download_url(resource) == latest_url
 
@@ -245,7 +245,7 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         {:ok, %HTTPoison.Response{status_code: 404}}
       end)
 
-      expect(Transport.AvailabilityChecker.Mock, :available?, fn _format, ^latest_url -> false end)
+      expect(Transport.AvailabilityChecker.Mock, :available?, fn _format, ^latest_url, _opts -> false end)
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
@@ -266,7 +266,29 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
         )
 
       Transport.AvailabilityChecker.Mock
-      |> expect(:available?, fn "SIRI", ^url -> true end)
+      |> expect(:available?, fn "SIRI", ^url, _opts -> true end)
+
+      assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
+
+      assert 0 == count_resource_unavailabilities()
+      assert %DB.Resource{is_available: true} = Repo.reload(resource)
+    end
+
+    test "passes requestor_ref in opts for a SIRI resource with a requestor_ref custom tag" do
+      requestor_ref = "my_requestor_ref"
+
+      resource =
+        insert(:resource,
+          url: url = "https://example.com/stop-monitoring",
+          latest_url: "https://static.data.gouv.fr/latest_url",
+          is_available: true,
+          format: "SIRI",
+          datagouv_id: "foo",
+          dataset: insert(:dataset, custom_tags: ["requestor_ref:#{requestor_ref}"])
+        )
+
+      Transport.AvailabilityChecker.Mock
+      |> expect(:available?, fn "SIRI", ^url, [requestor_ref: ^requestor_ref] -> true end)
 
       assert :ok == perform_job(ResourceUnavailableJob, %{"resource_id" => resource.id})
 
@@ -334,14 +356,14 @@ defmodule Transport.Test.Transport.Jobs.ResourceUnavailableJobTest do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn _format, ^url -> false end)
+    |> expect(:available?, fn _format, ^url, _opts -> false end)
   end
 
   defp setup_mock_available do
     url = @resource_url
 
     Transport.AvailabilityChecker.Mock
-    |> expect(:available?, fn _format, ^url -> true end)
+    |> expect(:available?, fn _format, ^url, _opts -> true end)
   end
 
   defp count_resources do

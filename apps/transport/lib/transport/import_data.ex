@@ -10,7 +10,7 @@ defmodule Transport.ImportData do
   require Logger
   import Ecto.Query
 
-  defp availability_checker, do: Transport.AvailabilityChecker.Wrapper.impl()
+  defp availability_checker, do: Transport.AvailabilityChecker.Wrapper
 
   def max_import_concurrent_jobs do
     Application.fetch_env!(:transport, :max_import_concurrent_jobs)

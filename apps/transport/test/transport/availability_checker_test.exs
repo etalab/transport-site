@@ -26,7 +26,7 @@ defmodule Transport.AvailabilityCheckerTest do
     refute AvailabilityChecker.available?("GTFS", "url204")
   end
 
-  describe "SIRI or SIRI Lite resource" do
+  describe "SIRI or SIRI Lite resource (GET fallback, no requestor_ref)" do
     test "401" do
       Transport.HTTPoison.Mock
       |> expect(:get, 2, fn _url, [], [follow_redirect: true] ->
@@ -73,6 +73,51 @@ defmodule Transport.AvailabilityCheckerTest do
       end)
 
       assert AvailabilityChecker.available?("SIRI", "url500soap")
+    end
+  end
+
+  describe "SIRI resource with requestor_ref (CheckStatus)" do
+    test "200 response is available" do
+      Transport.HTTPoison.Mock
+      |> expect(:post, fn url, body, [{"Content-Type", "text/xml"}] ->
+        assert url == "http://siri.example.com"
+        assert body =~ "<sw:CheckStatus"
+        assert body =~ "<siri:RequestorRef>my_ref</siri:RequestorRef>"
+        {:ok, %HTTPoison.Response{status_code: 200}}
+      end)
+
+      assert AvailabilityChecker.available?("SIRI", "http://siri.example.com", requestor_ref: "my_ref")
+    end
+
+    test "non-200 response is unavailable" do
+      Transport.HTTPoison.Mock
+      |> expect(:post, fn _url, body, [{"Content-Type", "text/xml"}] ->
+        assert body =~ "<sw:CheckStatus"
+        assert body =~ "<siri:RequestorRef>my_ref</siri:RequestorRef>"
+        {:ok, %HTTPoison.Response{status_code: 500, body: "<soap:Envelope></soap:Envelope>"}}
+      end)
+
+      refute AvailabilityChecker.available?("SIRI", "http://siri.example.com", requestor_ref: "my_ref")
+    end
+
+    test "error response is unavailable" do
+      Transport.HTTPoison.Mock
+      |> expect(:post, fn _url, body, [{"Content-Type", "text/xml"}] ->
+        assert body =~ "<sw:CheckStatus"
+        assert body =~ "<siri:RequestorRef>my_ref</siri:RequestorRef>"
+        {:error, %HTTPoison.Error{reason: :timeout}}
+      end)
+
+      refute AvailabilityChecker.available?("SIRI", "http://siri.example.com", requestor_ref: "my_ref")
+    end
+
+    test "SIRI Lite with requestor_ref still uses GET" do
+      Transport.HTTPoison.Mock
+      |> expect(:get, fn _url, [], [follow_redirect: true] ->
+        {:ok, %HTTPoison.Response{status_code: 200}}
+      end)
+
+      assert AvailabilityChecker.available?("SIRI Lite", "http://siri-lite.example.com", requestor_ref: "my_ref")
     end
   end
 

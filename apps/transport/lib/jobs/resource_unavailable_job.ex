@@ -97,7 +97,11 @@ defmodule Transport.Jobs.ResourceUnavailableJob do
       {true, resource}
     else
       download_url = Resource.download_url(resource)
-      is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url)
+      opts = case Resource.requestor_ref(resource) do
+        nil -> []
+        requestor_ref -> [requestor_ref: requestor_ref]
+      end
+      is_available = Transport.AvailabilityChecker.Wrapper.available?(format, download_url, opts)
       {is_available, resource}
     end
   end
