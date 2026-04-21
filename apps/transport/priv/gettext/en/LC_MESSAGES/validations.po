@@ -509,3 +509,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "You can still use the previous <a href=\"%{url}\" target=\"_blank\">Validata validator</a>."
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "File is too large, must be <%{max_file_size}."
+msgstr ""

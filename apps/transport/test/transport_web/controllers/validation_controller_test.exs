@@ -291,6 +291,27 @@ defmodule TransportWeb.ValidationControllerTest do
       end)
     end
 
+    test "with an oversized IRVE Statique file", %{conn: conn} do
+      oversized_content = String.duplicate("x", 50 * 1024 * 1024 + 1)
+
+      with_tmp_file(oversized_content, fn path ->
+        conn =
+          conn
+          |> post(validation_path(conn, :validate), %{
+            "upload" => %{
+              "file" => %Plug.Upload{path: path, filename: "irve.csv"},
+              "type" => "etalab/schema-irve-statique"
+            }
+          })
+
+        assert redirected_to(conn, 302) ==
+                 live_path(conn, OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
+
+        assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "trop gros"
+        assert 0 == count_validations()
+      end)
+    end
+
     test "with a GTFS-Flex", %{conn: conn} do
       Transport.Schemas.Mock |> expect(:transport_schemas, fn -> %{} end)
       S3TestUtils.s3_mock_stream_file(start_path: "", bucket: "transport-data-gouv-fr-on-demand-validation-test")

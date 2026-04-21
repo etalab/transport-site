@@ -509,3 +509,7 @@ msgstr "Valeur"
 #, elixir-autogen, elixir-format
 msgid "You can still use the previous <a href=\"%{url}\" target=\"_blank\">Validata validator</a>."
 msgstr "Vous pouvez toujours utiliser l'ancien <a href=\"%{url}\" target=\"_blank\">validateur Validata</a>."
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size}."
+msgstr "Fichier trop gros, doit peser moins de %{max_file_size}."
