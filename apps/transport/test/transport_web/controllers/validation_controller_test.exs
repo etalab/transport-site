@@ -6,6 +6,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Mox
   import NeTExValidationReportHelpers
   import Phoenix.LiveViewTest
+  import TransportWeb.LiveViewTestHelpers
   alias Transport.Test.S3TestUtils
   alias Transport.Validators.NeTEx.ResultsAdapter
   alias TransportWeb.Live.OnDemandValidationSelectLive
@@ -46,7 +47,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       view |> element(~s|[phx-value-tile="gbfs"]|) |> render_click()
 
-      assert_patched(
+      assert_patched_any_params_order(
         view,
         live_path(conn, OnDemandValidationSelectLive,
           type: "gbfs",
@@ -76,7 +77,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       view |> element(~s|[phx-value-tile="gtfs"]|) |> render_click()
 
-      assert_patched(
+      assert_patched_any_params_order(
         view,
         live_path(conn, OnDemandValidationSelectLive,
           type: "gtfs",
@@ -91,7 +92,7 @@ defmodule TransportWeb.ValidationControllerTest do
       # Select "NeTEx"
       view |> element(~s|[phx-value-tile="netex"]|) |> render_click()
 
-      assert_patched(
+      assert_patched_any_params_order(
         view,
         live_path(conn, OnDemandValidationSelectLive,
           type: "netex",
@@ -106,7 +107,7 @@ defmodule TransportWeb.ValidationControllerTest do
       # Select "GTFS-RT"
       view |> element(~s|[phx-value-tile="gtfs-rt"]|) |> render_click()
 
-      assert_patched(
+      assert_patched_any_params_order(
         view,
         live_path(conn, OnDemandValidationSelectLive,
           type: "gtfs-rt",
