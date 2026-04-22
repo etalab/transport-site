@@ -78,8 +78,14 @@ defmodule Unlock.DynamicIRVE.FeedStarter do
 
   @impl true
   def handle_continue(:start_feeds, state) do
-    config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
-    Unlock.DynamicIRVESupervisor.sync_feeds(config)
+    # Skip boot-time sync in test env: the config fetcher Mox mock has no
+    # default expectation, and tests that need the supervisor should call
+    # sync_feeds/1 themselves with a stubbed config.
+    unless Mix.env() == :test do
+      config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
+      Unlock.DynamicIRVESupervisor.sync_feeds(config)
+    end
+
     {:noreply, state}
   end
 end
