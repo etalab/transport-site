@@ -319,6 +319,47 @@ defmodule TransportWeb.ResourceView do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
 
+  def netex_features(%{features: _} = assigns) do
+    ~H"""
+    <% features = enumerate_netex_features(@features) %>
+    <li :if={not Enum.empty?(features)}>
+      {dgettext("resource", "NeTEx features:")}
+      {safe_join(features, ", ")}.
+    </li>
+    """
+  end
+
+  defp enumerate_netex_features(features) do
+    features
+    |> Enum.filter(fn {_feature, active} -> active end)
+    |> Enum.sort_by(&feature_order/1)
+    |> Enum.map(fn {feature, _} -> "<strong>#{netex_feature(feature)}</strong>" |> raw() end)
+  end
+
+  defp feature_order({"networks", _}), do: 1
+  defp feature_order({"stops", _}), do: 2
+  defp feature_order({"fares", _}), do: 3
+  defp feature_order({"timetables", _}), do: 4
+  defp feature_order({"parkings", _}), do: 5
+  defp feature_order({"accessibility", _}), do: 6
+  defp feature_order({_, _}), do: 100
+
+  defp netex_feature("networks"), do: dgettext("resource", "networks")
+  defp netex_feature("stops"), do: dgettext("resource", "stops")
+  defp netex_feature("fares"), do: dgettext("resource", "fares")
+  defp netex_feature("timetables"), do: dgettext("resource", "timetables")
+  defp netex_feature("parkings"), do: dgettext("resource", "parkings")
+  defp netex_feature("accessibility"), do: dgettext("resource", "accessibility")
+  defp netex_feature(_), do: ""
+
+  defp safe_join(safe_htmls, separator) do
+    html =
+      safe_htmls
+      |> Enum.map_join(separator, fn {:safe, html} -> html end)
+
+    {:safe, html}
+  end
+
   def netex_statistics(%{stats: _, locale: _} = assigns) do
     ~H"""
     <.netex_statistic stats={@stats} locale={@locale} concept={:line} />

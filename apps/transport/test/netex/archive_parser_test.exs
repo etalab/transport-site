@@ -384,6 +384,14 @@ defmodule Transport.NeTEx.ArchiveParserTest do
     assert 1 == statistics.lines
     assert 3 == statistics.quays
     assert 2 == statistics.stop_places
+
+    assert statistics.features.networks
+    assert statistics.features.stops
+
+    refute statistics.features.timetables
+    refute statistics.features.fares
+    refute statistics.features.parkings
+    refute statistics.features.accessibility
   end
 
   defp extract(extractor, xml) do

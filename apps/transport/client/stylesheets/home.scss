@@ -39,6 +39,23 @@ html {
   cursor: default;
 }
 
+button.dropdown {
+  font-family: $font-family-primary;
+  font-size: 16px;
+  line-height: 1.5em;
+  background: unset;
+  border: none;
+  display: inline-block;
+  min-height: 24px;
+}
+
+.nav__item > :focus,
+/* Keep the menu highlighted when focusing any menu entry: */
+.dropdown:has(a:focus),
+.dropdown-content a:focus {
+  background: var(--lighter-grey);
+}
+
 .dropdown-content {
   min-width: 200px;
   max-width: max-content;
@@ -48,7 +65,28 @@ html {
   transition: opacity 500ms, display 0ms allow-discrete;
 }
 
-.dropdown:hover .dropdown-content {
+/* Keeps the menu visible when menu entry is focused (via keyboard) */
+.dropdown-content:has(a:focus) {
+  display: block;
+}
+
+/* Make sure focused items trigger menu display, like on hover */
+.dropdown:focus .dropdown-content {
+  display: block;
+  opacity: 1;
+  /* Transition is weird when skipping via the tab key, let's disable it. */
+  transition: none;
+}
+
+/* Disable behaviour from the template */
+#menu .dropdown:hover .dropdown-content {
+  display: none;
+  opacity: 0;
+}
+
+/* The hover is only supported when the menu is not focused. */
+#menu:not(:has(:focus)) .dropdown:hover .dropdown-content {
+  display: block;
   opacity: 1;
 }
 
@@ -69,7 +107,11 @@ html {
 
 /* Anchor positioning is still new. */
 @supports (top: anchor(bottom)) {
-  .dropdown:hover {
+  .dropdown:focus,
+  /* Keep the menu position when focusing any menu entry: */
+  #menu .dropdown:has(a:focus),
+  /* The hover is only supported when the menu is not focused: */
+  #menu:not(:has(:focus)) .dropdown:hover {
     anchor-name: --menu-dropdown-anchor;
   }
   .dropdown-content {

@@ -84,6 +84,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                  "lines_count" => length(lines),
                  "quays_count" => 0,
                  "stop_places_count" => 0
+               },
+               "features" => %{
+                 "networks" => true,
+                 "stops" => false,
+                 "timetables" => false,
+                 "fares" => false,
+                 "parkings" => false,
+                 "accessibility" => false
                }
              }
 
@@ -124,6 +132,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
               "lines_count" => length(lines),
               "quays_count" => 0,
               "stop_places_count" => 0
+            },
+            "features" => %{
+              "networks" => true,
+              "stops" => false,
+              "timetables" => false,
+              "fares" => false,
+              "parkings" => false,
+              "accessibility" => false
             }
           }
         }
@@ -171,6 +187,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                  "lines_count" => length(lines),
                  "quays_count" => 0,
                  "stop_places_count" => 0
+               },
+               "features" => %{
+                 "networks" => true,
+                 "stops" => false,
+                 "timetables" => false,
+                 "fares" => false,
+                 "parkings" => false,
+                 "accessibility" => false
                }
              }
 
@@ -254,6 +278,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                     "lines_count" => length(lines),
                     "quays_count" => 0,
                     "stop_places_count" => 0
+                  },
+                  "features" => %{
+                    "networks" => true,
+                    "stops" => false,
+                    "timetables" => false,
+                    "fares" => false,
+                    "parkings" => false,
+                    "accessibility" => false
                   }
                 }
               }} ==
@@ -326,6 +358,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                     "lines_count" => length(lines),
                     "quays_count" => 0,
                     "stop_places_count" => 0
+                  },
+                  "features" => %{
+                    "networks" => true,
+                    "stops" => false,
+                    "timetables" => false,
+                    "fares" => false,
+                    "parkings" => false,
+                    "accessibility" => false
                   }
                 }
               }} ==
@@ -355,6 +395,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
           "lines_count" => length(lines),
           "quays_count" => 0,
           "stop_places_count" => 0
+        },
+        "features" => %{
+          "networks" => true,
+          "stops" => false,
+          "timetables" => false,
+          "fares" => false,
+          "parkings" => false,
+          "accessibility" => false
         }
       }
 

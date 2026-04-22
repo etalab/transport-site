@@ -31,6 +31,8 @@ defmodule Transport.Validators.GTFSRT do
     id_mismatch_count >= @gtfs_rt_errors_threshold or Enum.any?(errors, &(&1["error_id"] == "FATAL"))
   end
 
+  def critical_errors?(%DB.MultiValidation{result: nil}), do: false
+
   @impl Transport.Validators.Validator
   def validator_name, do: "gtfs-realtime-validator"
 

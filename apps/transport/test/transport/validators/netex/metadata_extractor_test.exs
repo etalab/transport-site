@@ -18,6 +18,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                          "lines_count" => 0,
                          "quays_count" => 0,
                          "stop_places_count" => 0
+                       },
+                       "features" => %{
+                         "networks" => false,
+                         "stops" => false,
+                         "timetables" => false,
+                         "fares" => false,
+                         "parkings" => false,
+                         "accessibility" => false
                        }
                      } ==
                        MetadataExtractor.extract(filepath)
@@ -38,6 +46,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                    "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
+                 },
+                 "features" => %{
+                   "networks" => false,
+                   "stops" => false,
+                   "timetables" => false,
+                   "fares" => false,
+                   "parkings" => false,
+                   "accessibility" => false
                  }
                } ==
                  MetadataExtractor.extract(filepath)
@@ -72,6 +88,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                    "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
+                 },
+                 "features" => %{
+                   "networks" => false,
+                   "stops" => false,
+                   "timetables" => false,
+                   "fares" => false,
+                   "parkings" => false,
+                   "accessibility" => false
                  }
                } ==
                  MetadataExtractor.extract(filepath)
@@ -115,6 +139,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                    "lines_count" => 0,
                    "quays_count" => 0,
                    "stop_places_count" => 0
+                 },
+                 "features" => %{
+                   "networks" => false,
+                   "stops" => false,
+                   "timetables" => false,
+                   "fares" => false,
+                   "parkings" => false,
+                   "accessibility" => false
                  }
                } ==
                  MetadataExtractor.extract(filepath)
@@ -161,6 +193,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                    "lines_count" => 3,
                    "quays_count" => 0,
                    "stop_places_count" => 0
+                 },
+                 "features" => %{
+                   "networks" => true,
+                   "stops" => false,
+                   "timetables" => false,
+                   "fares" => false,
+                   "parkings" => false,
+                   "accessibility" => false
                  }
                } ==
                  MetadataExtractor.extract(filepath)
@@ -210,6 +250,14 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
                    "lines_count" => 1,
                    "quays_count" => 3,
                    "stop_places_count" => 2
+                 },
+                 "features" => %{
+                   "networks" => true,
+                   "stops" => true,
+                   "timetables" => false,
+                   "fares" => false,
+                   "parkings" => false,
+                   "accessibility" => false
                  }
                } ==
                  MetadataExtractor.extract(filepath)
