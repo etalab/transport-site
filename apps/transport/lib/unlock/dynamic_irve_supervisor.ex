@@ -22,13 +22,16 @@ defmodule Unlock.DynamicIRVESupervisor do
   end
 
   @doc """
-  Terminates all running feed workers, then starts one per feed across all
-  `DynamicIRVEAggregate` config items. Called at boot and on backoffice reload.
+  Fetches the current proxy config, terminates all running feed workers, then
+  starts one per feed across all `DynamicIRVEAggregate` items. Called at boot
+  and on backoffice reload.
 
   The brute-force approach avoids edge cases (renamed slug, changed URL, partial
   drift) at the cost of a short data gap — acceptable since consumers tolerate it.
   """
-  def sync_feeds(config) do
+  def sync_feeds do
+    config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
+
     stop_all(Unlock.DynamicIRVE.FeedSupervisor)
 
     for item <- Map.values(config),

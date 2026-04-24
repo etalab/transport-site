@@ -60,8 +60,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   @impl true
   def handle_event("refresh_proxy_config", _value, socket) do
     config_module().clear_config_cache!()
-    config = config_module().fetch_config!()
-    Unlock.DynamicIRVESupervisor.sync_feeds(config)
+    Unlock.DynamicIRVESupervisor.sync_feeds()
     {:noreply, socket}
   end
 
