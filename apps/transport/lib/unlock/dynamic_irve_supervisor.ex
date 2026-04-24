@@ -1,4 +1,12 @@
 defmodule Unlock.DynamicIRVESupervisor do
+  @moduledoc """
+  Root supervisor for the dynamic IRVE pipeline: owns the feed workers and
+  their ETS-backed store.
+
+  Call `sync_feeds/0` to align running workers with the latest proxy config —
+  invoked once at boot and on the backoffice "refresh proxy config" action.
+  """
+
   use Supervisor
   require Logger
 
