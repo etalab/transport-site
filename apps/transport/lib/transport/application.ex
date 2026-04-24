@@ -45,14 +45,16 @@ defmodule Transport.Application do
         Supervisor.child_spec(
           {Cachex,
            name: Unlock.Cachex,
-           expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
+           expiration:
+             expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
         ),
         Unlock.BatchMetrics,
-        # Registry for dynamic IRVE feed workers and aggregators.
-        # Debug: Unlock.DynamicIRVE.FeedStore.get_feed("dyn-irve-consolidated", "qualicharge")
+        # Unique-keys registry: guarantees at most one worker per (parent_id, slug),
+        # even under concurrent sync_feeds calls (e.g. boot Task + backoffice refresh).
         {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
-        # Supervises one GenServer per dynamic IRVE feed
+        # Supervises one GenServer per dynamic IRVE feed.
+        # Debug: Unlock.DynamicIRVE.FeedStore.get_feed(parent_id, slug)
         Unlock.DynamicIRVESupervisor
       ]
       |> add_scheduler()
@@ -84,7 +86,9 @@ defmodule Transport.Application do
   def run_realtime_poller?, do: webserver_enabled?() && Mix.env() != :test
 
   def preemptive_caching?,
-    do: webserver_enabled?() && Application.fetch_env!(:transport, :app_env) in [:production, :staging]
+    do:
+      webserver_enabled?() &&
+        Application.fetch_env!(:transport, :app_env) in [:production, :staging]
 
   defp add_if(children, condition, child) do
     if condition.() do

@@ -12,10 +12,6 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
 
   @impl true
   def init({parent_id, feed}) do
-    Logger.info(
-      "[DynamicIRVE] Feed worker started: #{parent_id}/#{feed.slug} (#{feed.identifier})"
-    )
-
     schedule_tick()
     {:ok, {parent_id, feed}}
   end

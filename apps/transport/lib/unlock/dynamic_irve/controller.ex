@@ -51,30 +51,27 @@ defmodule Unlock.DynamicIRVE.Controller do
   defp row_count(%{df: %DataFrame{} = df}), do: DataFrame.n_rows(df)
   defp row_count(_), do: 0
 
-  defp serve_data(conn, item) do
-    case aggregate(item) do
-      nil ->
-        send_resp(conn, 503, "No data available yet")
+  defp serve_data(conn, item), do: serve_data(conn, item, aggregate(item))
 
-      df ->
-        format = parse_format(conn.query_params["format"])
-        include_origin = to_boolean(conn.query_params["include_origin"])
-        limit_per_source = to_nil_or_integer(conn.query_params["limit_per_source"])
+  defp serve_data(conn, _item, nil), do: send_resp(conn, 503, "No data available yet")
 
-        {body, content_type, extension} =
-          df
-          |> apply_limit(limit_per_source)
-          |> DataFrame.select(columns(include_origin))
-          |> dump(format)
+  defp serve_data(conn, item, df) do
+    format = parse_format(conn.query_params["format"])
+    include_origin = to_boolean(conn.query_params["include_origin"])
+    limit_per_source = to_nil_or_integer(conn.query_params["limit_per_source"])
 
-        filename =
-          "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.#{extension}"
+    {body, content_type, extension} =
+      df
+      |> apply_limit(limit_per_source)
+      |> DataFrame.select(columns(include_origin))
+      |> dump(format)
 
-        conn
-        |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
-        |> put_resp_content_type(content_type, charset(format))
-        |> send_resp(200, body)
-    end
+    filename = "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.#{extension}"
+
+    conn
+    |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
+    |> put_resp_content_type(content_type, charset(format))
+    |> send_resp(200, body)
   end
 
   # Concatenates all available feed DataFrames with an "origin" column (the slug).

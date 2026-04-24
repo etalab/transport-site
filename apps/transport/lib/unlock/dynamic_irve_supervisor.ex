@@ -12,7 +12,7 @@ defmodule Unlock.DynamicIRVESupervisor do
 
     children = [
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
-      %{id: :initial_sync, start: {Task, :start_link, [&initial_sync/0]}, restart: :transient}
+      {Task, &initial_sync/0}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -28,12 +28,13 @@ defmodule Unlock.DynamicIRVESupervisor do
   def sync_feeds(config) do
     stop_all(Unlock.DynamicIRVE.FeedSupervisor)
 
-    for item <- aggregate_items(config),
+    for item <- Map.values(config),
+        match?(%Unlock.Config.Item.DynamicIRVEAggregate{}, item),
         feed <- item.feeds,
         do: start_feed(item.identifier, feed)
   end
 
-  # Invoked once at boot via a transient Task child, after both DynamicSupervisors are up.
+  # Invoked once at boot via a transient Task child, after the DynamicSupervisor is up.
   defp initial_sync do
     # Skipped in :test so the config fetcher Mox mock needs no default expectation;
     # tests that need live feeds call sync_feeds/1 themselves with a stubbed config.
@@ -41,12 +42,6 @@ defmodule Unlock.DynamicIRVESupervisor do
       config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
       sync_feeds(config)
     end
-  end
-
-  defp aggregate_items(config) do
-    config
-    |> Map.values()
-    |> Enum.filter(&match?(%Unlock.Config.Item.DynamicIRVEAggregate{}, &1))
   end
 
   defp stop_all(supervisor) do
