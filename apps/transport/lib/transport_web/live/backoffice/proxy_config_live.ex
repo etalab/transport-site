@@ -174,7 +174,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
-  defp extract_config(proxy_base_url, %Unlock.Config.Item.Aggregate{} = resource) do
+  defp extract_config(proxy_base_url, %module{} = resource)
+       when module in [Unlock.Config.Item.Aggregate, Unlock.Config.Item.DynamicIRVEAggregate] do
     %{
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
@@ -183,18 +184,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       ttl: "N/A",
       # We do not display the internal count for aggregate item at the moment
       internal_count_default_value: nil,
-      type: "Aggregate"
-    }
-  end
-
-  defp extract_config(proxy_base_url, %Unlock.Config.Item.DynamicIRVEAggregate{} = resource) do
-    %{
-      unique_slug: resource.identifier,
-      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
-      original_url: nil,
-      ttl: "N/A",
-      internal_count_default_value: nil,
-      type: "DynamicIRVEAggregate"
+      type: module |> Module.split() |> List.last()
     }
   end
 
