@@ -50,10 +50,7 @@ defmodule Transport.Application do
           id: :unlock_cachex
         ),
         Unlock.BatchMetrics,
-        # Unique-keys registry: guarantees at most one worker per (parent_id, slug),
-        # even under concurrent sync_feeds calls (e.g. boot Task + backoffice refresh).
-        {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
-        # Supervises one GenServer per dynamic IRVE feed.
+        # Supervises the dynamic IRVE feed pipeline (one GenServer per feed).
         # Debug: Unlock.DynamicIRVE.FeedStore.get_feed(parent_id, slug)
         Unlock.DynamicIRVESupervisor
       ]

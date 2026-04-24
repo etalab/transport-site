@@ -11,6 +11,9 @@ defmodule Unlock.DynamicIRVESupervisor do
     Unlock.DynamicIRVE.FeedStore.create_table()
 
     children = [
+      # Unique-keys registry: guarantees at most one worker per (parent_id, slug),
+      # even under concurrent sync_feeds calls (e.g. boot Task + backoffice refresh).
+      {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
       {Task, &initial_sync/0}
     ]
