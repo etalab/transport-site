@@ -14,18 +14,15 @@ defmodule Unlock.DynamicIRVE.Controller do
   import Plug.Conn
   import Unlock.Params, only: [to_boolean: 1, to_nil_or_integer: 1]
 
-  alias Explorer.DataFrame
-  alias Unlock.DynamicIRVE.FeedStore
+  alias Unlock.DynamicIRVE.{FeedStore, Renderer}
 
   def serve(conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
     conn = fetch_query_params(conn)
-
-    if to_boolean(conn.query_params["status"]) do
-      serve_status(conn, item)
-    else
-      serve_data(conn, item)
-    end
+    dispatch(conn, item, to_boolean(conn.query_params["status"]))
   end
+
+  defp dispatch(conn, item, true), do: serve_status(conn, item)
+  defp dispatch(conn, item, false), do: serve_data(conn, item)
 
   defp serve_status(conn, item) do
     feeds = Enum.map(item.feeds, &feed_status(item.identifier, &1))
@@ -49,24 +46,22 @@ defmodule Unlock.DynamicIRVE.Controller do
   defp status_fields(%{error: e, last_errored_at: le, last_updated_at: lu}, slug),
     do: %{slug: slug, status: "KO", error: e, last_errored_at: le, last_updated_at: lu}
 
-  defp row_count(%{df: %DataFrame{} = df}), do: DataFrame.n_rows(df)
+  defp row_count(%{df: %Explorer.DataFrame{} = df}), do: Explorer.DataFrame.n_rows(df)
   defp row_count(_), do: 0
 
-  defp serve_data(conn, item), do: serve_data(conn, item, aggregate(item))
+  defp serve_data(conn, item), do: serve_data(conn, item, Renderer.aggregate(item))
 
   defp serve_data(conn, _item, nil), do: send_resp(conn, 503, "No data available yet")
 
   defp serve_data(conn, item, df) do
     format = parse_format(conn.query_params["format"])
-    include_origin = to_boolean(conn.query_params["include_origin"])
-    limit_per_source = to_nil_or_integer(conn.query_params["limit_per_source"])
 
-    {body, content_type, extension} =
-      df
-      |> apply_limit(limit_per_source)
-      |> DataFrame.select(columns(include_origin))
-      |> dump(format)
+    opts = [
+      include_origin: to_boolean(conn.query_params["include_origin"]),
+      limit_per_source: to_nil_or_integer(conn.query_params["limit_per_source"])
+    ]
 
+    {body, content_type, extension} = Renderer.render(df, format, opts)
     filename = "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.#{extension}"
 
     conn
@@ -75,51 +70,10 @@ defmodule Unlock.DynamicIRVE.Controller do
     |> send_resp(200, body)
   end
 
-  # Concatenates all available feed DataFrames with an "origin" column (the slug).
-  # Returns nil if no feed has data yet.
-  defp aggregate(item) do
-    item.feeds
-    |> Enum.flat_map(&tagged_df(item.identifier, &1))
-    |> concat()
-  end
-
-  defp tagged_df(parent_id, feed) do
-    case FeedStore.get_feed(parent_id, feed.slug) do
-      %{df: %DataFrame{} = df} ->
-        [DataFrame.put(df, "origin", List.duplicate(feed.slug, DataFrame.n_rows(df)))]
-
-      _ ->
-        []
-    end
-  end
-
-  defp concat([]), do: nil
-  defp concat(dfs), do: DataFrame.concat_rows(dfs)
-
-  defp apply_limit(df, nil), do: df
-
-  defp apply_limit(df, n) when is_integer(n),
-    do: df |> DataFrame.group_by("origin") |> DataFrame.head(n) |> DataFrame.ungroup()
-
-  defp columns(false), do: Transport.IRVE.DynamicIRVESchema.build_schema_fields_list()
-  defp columns(true), do: columns(false) ++ ["origin"]
-
-  defp dump(df, :csv), do: {DataFrame.dump_csv!(df), "text/csv", "csv"}
-
-  defp dump(df, :parquet),
-    do: {DataFrame.dump_parquet!(df), "application/vnd.apache.parquet", "parquet"}
-
   defp parse_format(nil), do: :csv
   defp parse_format("csv"), do: :csv
   defp parse_format("parquet"), do: :parquet
 
   defp charset(:csv), do: "utf-8"
   defp charset(:parquet), do: nil
-
-  defp to_nil_or_integer(nil), do: nil
-  defp to_nil_or_integer(data), do: String.to_integer(data)
-
-  defp to_boolean(nil), do: false
-  defp to_boolean("0"), do: false
-  defp to_boolean("1"), do: true
 end
