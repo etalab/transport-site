@@ -221,7 +221,8 @@ defmodule Transport.Validators.NeTEx.Validator do
     resource_metadata =
       %DB.ResourceMetadata{
         metadata: metadata,
-        modes: metadata["modes"] || []
+        modes: metadata["modes"] || [],
+        features: features_list(metadata["features"] || %{})
       }
 
     %DB.MultiValidation{
@@ -237,6 +238,10 @@ defmodule Transport.Validators.NeTEx.Validator do
       metadata: resource_metadata
     }
     |> DB.Repo.insert!()
+  end
+
+  defp features_list(%{} = features) do
+    Enum.sort(for {feature, true} <- features, do: feature)
   end
 
   defp validate_with_enroute(filepath, metadata) do
