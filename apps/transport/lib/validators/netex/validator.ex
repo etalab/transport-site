@@ -241,9 +241,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   defp features_list(%{} = features) do
-    features
-    |> Map.filter(fn {_feature, enabled} -> enabled end)
-    |> Enum.map(fn {feature, _enabled} -> feature end)
+    for {feature, true} <- features, do: feature
   end
 
   defp validate_with_enroute(filepath, metadata) do
