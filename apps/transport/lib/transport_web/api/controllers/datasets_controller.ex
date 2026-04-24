@@ -255,7 +255,7 @@ defmodule TransportWeb.API.DatasetController do
     )
   end
 
-  defp get_metadata(%Resource{format: "GTFS", resource_history: resource_history}) do
+  defp get_metadata(%Resource{format: format, resource_history: resource_history}) when format in ["GTFS", "NeTEx"] do
     resource_history
     |> Enum.at(0)
     |> Map.get(:validations)
@@ -365,7 +365,7 @@ defmodule TransportWeb.API.DatasetController do
     # work-around https://github.com/etalab/transport-site/issues/4598
     # which causes the whole API & backoffice to crash for hours.
     # On the next weekday, this query must be optimized :-)
-    datasets_with_gtfs_metadata =
+    datasets_with_gtfs_or_netex_metadata =
       DB.Dataset.base_query()
       |> DB.Dataset.join_from_dataset_to_metadata(
         Enum.map(Transport.ValidatorsSelection.validators_for_feature(:api_datasets_controller), & &1.validator_name())
@@ -387,7 +387,7 @@ defmodule TransportWeb.API.DatasetController do
       |> DB.Repo.all()
 
     datasets_with_metadata =
-      datasets_with_gtfs_metadata
+      datasets_with_gtfs_or_netex_metadata
       |> Kernel.++(datasets_with_gtfs_rt_metadata)
       |> Enum.group_by(& &1.id, & &1.resources)
       |> Enum.map(fn {dataset_id, resources} -> {dataset_id, List.flatten(resources)} end)
@@ -416,7 +416,7 @@ defmodule TransportWeb.API.DatasetController do
   end
 
   defp prepare_dataset_detail_data(%DB.Dataset{} = dataset) do
-    gtfs_resources_with_metadata =
+    gtfs_or_netex_resources_with_metadata =
       DB.Resource.base_query()
       |> DB.ResourceHistory.join_resource_with_latest_resource_history()
       |> DB.MultiValidation.join_resource_history_with_latest_validation(
@@ -443,7 +443,7 @@ defmodule TransportWeb.API.DatasetController do
       |> select([resource: r], {r.id, r})
       |> DB.Repo.all()
 
-    resources_with_metadata = Enum.into(gtfs_resources_with_metadata ++ gtfs_rt_resources_with_metadata, %{})
+    resources_with_metadata = Enum.into(gtfs_or_netex_resources_with_metadata ++ gtfs_rt_resources_with_metadata, %{})
 
     enriched_resources =
       dataset
