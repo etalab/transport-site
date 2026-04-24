@@ -48,6 +48,18 @@ defmodule Unlock.Config do
     defstruct [:identifier, :feeds, :ttl]
   end
 
+  defmodule Item.DynamicIRVEAggregate do
+    @moduledoc """
+    Intermediate structure for dynamic IRVE aggregated configured items.
+
+    No TTL here: the aggregate is rebuilt on-the-fly from the latest per-feed
+    DataFrames in `Unlock.DynamicIRVE.FeedStore`, so nothing to expire.
+    """
+    @enforce_keys [:identifier, :feeds]
+
+    defstruct [:identifier, :feeds]
+  end
+
   defmodule Item.S3 do
     @moduledoc """
     Intermediate structure for S3-based configured items.
@@ -101,6 +113,13 @@ defmodule Unlock.Config do
         # but that will do for now as the number of items is low
         feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1)),
         ttl: Map.get(item, "ttl", 10)
+      }
+    end
+
+    def convert_yaml_item_to_struct(%{"type" => "dynamic-irve-aggregate"} = item) do
+      %Item.DynamicIRVEAggregate{
+        identifier: Map.fetch!(item, "identifier"),
+        feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1))
       }
     end
 

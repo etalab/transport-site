@@ -60,6 +60,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   @impl true
   def handle_event("refresh_proxy_config", _value, socket) do
     config_module().clear_config_cache!()
+    Unlock.DynamicIRVESupervisor.sync_feeds()
     {:noreply, socket}
   end
 
@@ -173,7 +174,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
-  defp extract_config(proxy_base_url, %Unlock.Config.Item.Aggregate{} = resource) do
+  defp extract_config(proxy_base_url, %module{} = resource)
+       when module in [Unlock.Config.Item.Aggregate, Unlock.Config.Item.DynamicIRVEAggregate] do
     %{
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
@@ -182,7 +184,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
       ttl: "N/A",
       # We do not display the internal count for aggregate item at the moment
       internal_count_default_value: nil,
-      type: "Aggregate"
+      type: module |> Module.split() |> List.last()
     }
   end
 
