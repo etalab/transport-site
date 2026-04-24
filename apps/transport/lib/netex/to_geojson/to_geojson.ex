@@ -50,18 +50,20 @@ defmodule Transport.NeTEx.ToGeoJSON do
   def convert_archive(zip_path, opts \\ []) do
     types = Keyword.get(opts, :types, @all_types)
 
-    Transport.NeTEx.ArchiveParser.with_zip_file_handle(zip_path, fn unzip ->
-      features =
-        unzip
-        |> Unzip.list_entries()
-        |> Enum.flat_map(fn metadata ->
-          extract_features_from_entry(unzip, metadata.file_name, types)
-        end)
+    Transport.NeTEx.ArchiveParser.with_zip_file_handle(
+      zip_path,
+      fn unzip ->
+        features =
+          unzip
+          |> Unzip.list_entries()
+          |> Enum.flat_map(fn metadata ->
+            extract_features_from_entry(unzip, metadata.file_name, types)
+          end)
 
-      {:ok, GeoJSONBuilder.feature_collection(features)}
-    end)
-  rescue
-    e -> {:error, Exception.message(e)}
+        {:ok, GeoJSONBuilder.feature_collection(features)}
+      end,
+      fn e -> {:error, e} end
+    )
   end
 
   @doc """

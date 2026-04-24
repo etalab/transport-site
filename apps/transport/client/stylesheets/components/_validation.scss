@@ -212,9 +212,12 @@ details > code {
   #issues {
     display: grid;
     grid-template-rows: max-content max-content 1fr max-content;
-    min-height: 80vh;
     container-type: inline-size;
     container-name: issues-list;
+
+    &:has(a.colorful.invalid) {
+      min-height: 80vh;
+    }
 
     .issues-footer {
       border-top: 1px solid var(--light-grey);
