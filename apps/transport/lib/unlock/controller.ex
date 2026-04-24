@@ -161,27 +161,14 @@ defmodule Unlock.Controller do
   defp to_boolean("0"), do: false
   defp to_boolean("1"), do: true
 
-  # Dynamic IRVE aggregate endpoint.
-  # ?status=1 returns JSON status of all feeds. Otherwise returns concatenated CSV.
-  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
-    conn = Plug.Conn.fetch_query_params(conn)
-
-    if to_boolean(conn.query_params["status"]) do
-      serve_status(conn, item)
-    else
-      serve_csv(conn, item)
-    end
-  end
-
   defp serve_status(conn, item) do
-    feeds = Enum.map(item.feeds, fn feed ->
-      feed.slug |> feed_status() |> Map.put(:row_count, feed_row_count(feed.slug))
-    end)
+    feeds =
+      Enum.map(item.feeds, fn feed ->
+        data = Unlock.DynamicIRVE.FeedStore.get_feed(item.identifier, feed.slug)
+        data |> feed_status(feed.slug) |> Map.put(:row_count, row_count(data))
+      end)
 
-    total_row_count = case Unlock.DynamicIRVE.FeedStore.get(:aggregate) do
-      %{df: df} -> Explorer.DataFrame.n_rows(df)
-      _ -> 0
-    end
+    total_row_count = item.identifier |> Unlock.DynamicIRVE.FeedStore.get_aggregate() |> row_count()
 
     conn
     |> put_resp_content_type("application/json")
@@ -189,18 +176,19 @@ defmodule Unlock.Controller do
   end
 
   defp serve_csv(conn, item) do
-    case Unlock.DynamicIRVE.FeedStore.get(:aggregate) do
+    case Unlock.DynamicIRVE.FeedStore.get_aggregate(item.identifier) do
       %{df: df} ->
         include_origin = to_boolean(conn.query_params["include_origin"])
         limit_per_source = to_nil_or_integer(conn.query_params["limit_per_source"])
 
-        df = if limit_per_source do
-          Explorer.DataFrame.group_by(df, "origin")
-          |> Explorer.DataFrame.head(limit_per_source)
-          |> Explorer.DataFrame.ungroup()
-        else
-          df
-        end
+        df =
+          if limit_per_source do
+            Explorer.DataFrame.group_by(df, "origin")
+            |> Explorer.DataFrame.head(limit_per_source)
+            |> Explorer.DataFrame.ungroup()
+          else
+            df
+          end
 
         columns = expected_csv_columns(include_origin)
         df = Explorer.DataFrame.select(df, columns)
@@ -217,10 +205,6 @@ defmodule Unlock.Controller do
     end
   end
 
-  defp feed_status(slug) when is_binary(slug) do
-    slug |> Unlock.DynamicIRVE.FeedStore.get() |> feed_status(slug)
-  end
-
   defp feed_status(nil, slug), do: %{slug: slug, status: "pending"}
 
   defp feed_status(%{error: nil, last_updated_at: last_updated_at}, slug),
@@ -234,10 +218,18 @@ defmodule Unlock.Controller do
     if include_origin, do: schema_cols ++ ["origin"], else: schema_cols
   end
 
-  defp feed_row_count(slug) do
-    case Unlock.DynamicIRVE.FeedStore.get(slug) do
-      %{df: df} when not is_nil(df) -> Explorer.DataFrame.n_rows(df)
-      _ -> 0
+  defp row_count(%{df: %Explorer.DataFrame{} = df}), do: Explorer.DataFrame.n_rows(df)
+  defp row_count(_), do: 0
+
+  # Dynamic IRVE aggregate endpoint.
+  # ?status=1 returns JSON status of all feeds. Otherwise returns concatenated CSV.
+  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
+    conn = Plug.Conn.fetch_query_params(conn)
+
+    if to_boolean(conn.query_params["status"]) do
+      serve_status(conn, item)
+    else
+      serve_csv(conn, item)
     end
   end
 
