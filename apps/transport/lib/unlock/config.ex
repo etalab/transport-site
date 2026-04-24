@@ -56,6 +56,9 @@ defmodule Unlock.Config do
   defmodule Item.DynamicIRVEAggregate do
     @moduledoc """
     Intermediate structure for dynamic IRVE aggregated configured items.
+
+    No TTL here: the aggregate is rebuilt on-the-fly from the latest per-feed
+    DataFrames in `Unlock.DynamicIRVE.FeedStore`, so nothing to expire.
     """
     @enforce_keys [:identifier, :feeds]
 
