@@ -2,6 +2,8 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
   use GenServer
   require Logger
 
+  alias Unlock.DynamicIRVE.FeedStore
+
   def start_link({parent_id, %Unlock.Config.Item.Generic.HTTP{} = feed}) do
     GenServer.start_link(__MODULE__, {parent_id, feed}, name: via({parent_id, feed.slug}))
   end
@@ -10,7 +12,10 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
 
   @impl true
   def init({parent_id, feed}) do
-    Logger.info("[DynamicIRVE] Feed worker started: #{parent_id}/#{feed.slug} (#{feed.identifier})")
+    Logger.info(
+      "[DynamicIRVE] Feed worker started: #{parent_id}/#{feed.slug} (#{feed.identifier})"
+    )
+
     schedule_tick()
     {:ok, {parent_id, feed}}
   end
@@ -24,50 +29,45 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
 
   # Catches HTTP errors and invalid CSV to avoid crashing the worker
   defp fetch_and_process(parent_id, feed) do
-    try do
-      # decode_body: false keeps raw binary (Req still handles gzip decompression)
-      case Req.get(feed.target_url, redirect_log_level: false, decode_body: false) do
-        {:ok, %Req.Response{status: 200, body: body}} ->
-          # infer_schema_length: 0 → all columns as strings
-          df = Explorer.DataFrame.load_csv!(body, infer_schema_length: 0)
-          df = Explorer.DataFrame.select(df, expected_columns())
-          Logger.info("[DynamicIRVE] #{parent_id}/#{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows")
+    # decode_body: false keeps raw binary (Req still handles gzip decompression)
+    case Req.get!(feed.target_url, redirect_log_level: false, decode_body: false) do
+      %Req.Response{status: 200, body: body} ->
+        # infer_schema_length: 0 → all columns as strings
+        df =
+          body
+          |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
+          |> Explorer.DataFrame.select(expected_columns())
 
-          Unlock.DynamicIRVE.FeedStore.put_feed(parent_id, feed.slug, %{
-            df: df,
-            last_updated_at: DateTime.utc_now(),
-            error: nil
-          })
+        Logger.info(
+          "[DynamicIRVE] #{parent_id}/#{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows"
+        )
 
-        {:ok, %Req.Response{status: status}} ->
-          Logger.warning("[DynamicIRVE] #{parent_id}/#{feed.slug} => HTTP #{status}")
-          put_error(parent_id, feed.slug, "HTTP #{status}")
+        FeedStore.put_feed(parent_id, feed.slug, %{
+          df: df,
+          last_updated_at: DateTime.utc_now(),
+          error: nil
+        })
 
-        {:error, reason} ->
-          Logger.warning("[DynamicIRVE] #{parent_id}/#{feed.slug} => #{inspect(reason)}")
-          put_error(parent_id, feed.slug, inspect(reason))
-      end
-    rescue
-      e ->
-        Logger.warning("[DynamicIRVE] #{parent_id}/#{feed.slug} => #{Exception.message(e)}")
-        put_error(parent_id, feed.slug, Exception.message(e))
+      %Req.Response{status: status} ->
+        record_error(parent_id, feed.slug, "HTTP #{status}")
     end
+  rescue
+    e -> record_error(parent_id, feed.slug, Exception.message(e))
   end
 
-  # Preserves existing df/last_updated_at, only sets the error fields
-  defp put_error(parent_id, slug, message) do
-    previous = Unlock.DynamicIRVE.FeedStore.get_feed(parent_id, slug) || %{df: nil, last_updated_at: nil}
+  # Logs + stores the error, preserving the last good df/last_updated_at.
+  defp record_error(parent_id, slug, message) do
+    Logger.warning("[DynamicIRVE] #{parent_id}/#{slug} => #{message}")
+    previous = FeedStore.get_feed(parent_id, slug) || %{df: nil, last_updated_at: nil}
 
-    Unlock.DynamicIRVE.FeedStore.put_feed(
+    FeedStore.put_feed(
       parent_id,
       slug,
       Map.merge(previous, %{error: message, last_errored_at: DateTime.utc_now()})
     )
   end
 
-  defp schedule_tick do
-    Process.send_after(self(), :tick, tick_interval())
-  end
+  defp schedule_tick, do: Process.send_after(self(), :tick, tick_interval())
 
   defp tick_interval, do: Application.fetch_env!(:transport, :dynamic_irve_tick_interval)
 
