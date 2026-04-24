@@ -162,6 +162,7 @@ defmodule Unlock.Controller do
   defp to_boolean("1"), do: true
 
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
+    Unlock.Telemetry.trace_request(item.identifier, :external)
     Unlock.DynamicIRVE.Controller.serve(conn, item)
   end
 

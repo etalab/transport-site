@@ -9,6 +9,8 @@ defmodule Unlock.DynamicIRVE.IntegrationTest do
   setup :set_mox_from_context
 
   setup do
+    setup_telemetry_handler()
+
     on_exit(fn ->
       for {_, pid, _, _} <- DynamicSupervisor.which_children(Unlock.DynamicIRVE.FeedSupervisor),
           is_pid(pid),
@@ -57,10 +59,38 @@ defmodule Unlock.DynamicIRVE.IntegrationTest do
 
     origins = df |> Explorer.DataFrame.pull("origin") |> Explorer.Series.to_list() |> Enum.sort()
     assert origins == ["source-a", "source-b"]
+
+    # :external event must be emitted so the request counts in the proxy metrics
+    assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:test-agg"}}
   end
 
   defp build_df(marker) do
     fields = Transport.IRVE.DynamicIRVESchema.build_schema_fields_list()
     Explorer.DataFrame.new(for f <- fields, into: %{}, do: {f, ["#{marker}-#{f}"]})
+  end
+
+  # TODO: DRY this helper with the identical one in `unlock_controller_test.exs`
+  # (and reconcile with the slightly different/buggy one in `conversion_controller_test.exs`).
+  # Not so simple: proper factoring needs a shared support module + migration of both existing
+  # call sites, which widens the PR scope beyond dyn-IRVE. Candidate for a test-infra cleanup PR.
+  defp setup_telemetry_handler do
+    events = Unlock.Telemetry.proxy_request_event_names()
+
+    events
+    |> Enum.flat_map(&:telemetry.list_handlers(&1))
+    |> Enum.map(& &1.id)
+    |> Enum.uniq()
+    |> Enum.each(&:telemetry.detach/1)
+
+    test_pid = self()
+
+    :telemetry.attach_many(
+      "dyn-irve-test-#{System.unique_integer()}",
+      events,
+      fn name, measurements, metadata, _ ->
+        send(test_pid, {:telemetry_event, name, measurements, metadata})
+      end,
+      nil
+    )
   end
 end
