@@ -154,12 +154,7 @@ defmodule Unlock.Controller do
     end)
   end
 
-  # this is for HTTP parameters handling
-  defp to_nil_or_integer(nil), do: nil
-  defp to_nil_or_integer(data), do: String.to_integer(data)
-  defp to_boolean(nil), do: false
-  defp to_boolean("0"), do: false
-  defp to_boolean("1"), do: true
+  import Unlock.Params, only: [to_boolean: 1, to_nil_or_integer: 1]
 
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)

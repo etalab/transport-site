@@ -12,6 +12,7 @@ defmodule Unlock.DynamicIRVE.Controller do
   """
 
   import Plug.Conn
+  import Unlock.Params, only: [to_boolean: 1, to_nil_or_integer: 1]
 
   alias Explorer.DataFrame
   alias Unlock.DynamicIRVE.FeedStore
