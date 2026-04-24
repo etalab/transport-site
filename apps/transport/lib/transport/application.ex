@@ -50,8 +50,6 @@ defmodule Transport.Application do
           id: :unlock_cachex
         ),
         Unlock.BatchMetrics,
-        # Supervises the dynamic IRVE feed pipeline (one GenServer per feed).
-        # Debug: Unlock.DynamicIRVE.FeedStore.get_feed(parent_id, slug)
         Unlock.DynamicIRVESupervisor
       ]
       |> add_scheduler()
