@@ -26,7 +26,7 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
   # Catches HTTP errors and invalid CSV to avoid crashing the worker
   defp fetch_and_process(parent_id, feed) do
     # decode_body: false keeps raw binary (Req still handles gzip decompression)
-    case Req.get!(feed.target_url, redirect_log_level: false, decode_body: false) do
+    case Transport.Req.impl().get!(feed.target_url, redirect_log_level: false, decode_body: false) do
       %Req.Response{status: 200, body: body} ->
         # infer_schema_length: 0 → all columns as strings
         df =
