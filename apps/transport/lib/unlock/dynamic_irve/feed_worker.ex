@@ -1,4 +1,11 @@
 defmodule Unlock.DynamicIRVE.FeedWorker do
+  @moduledoc """
+  Polls a single IRVE feed periodically and stores the latest snapshot in
+  `Unlock.DynamicIRVE.FeedStore`. HTTP and parsing errors are isolated so the
+  worker survives transient outages; the last good snapshot remains available
+  to readers during failures.
+  """
+
   use GenServer
   require Logger
 
