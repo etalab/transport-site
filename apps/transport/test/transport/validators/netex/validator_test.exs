@@ -96,6 +96,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
              }
 
       assert multi_validation.metadata.modes == modes
+      assert multi_validation.metadata.features == ["networks"]
     end
 
     test "pending validation" do
@@ -199,6 +200,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
              }
 
       assert multi_validation.metadata.modes == modes
+      assert multi_validation.metadata.features == ["networks"]
 
       result = %{
         "xsd-schema" => [

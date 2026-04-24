@@ -201,21 +201,25 @@ defmodule Transport.NeTEx.ArchiveParser do
   end
 
   defp read_all(zip_file_name, reader) do
-    with_zip_file_handle(zip_file_name, fn unzip ->
-      unzip
-      |> Unzip.list_entries()
-      |> Enum.map(fn metadata ->
-        Logger.debug("Processing #{metadata.file_name}")
+    with_zip_file_handle(
+      zip_file_name,
+      fn unzip ->
+        unzip
+        |> Unzip.list_entries()
+        |> Enum.map(fn metadata ->
+          Logger.debug("Processing #{metadata.file_name}")
 
-        {
-          metadata.file_name,
-          reader.(unzip, metadata.file_name)
-        }
-      end)
-    end)
+          {
+            metadata.file_name,
+            reader.(unzip, metadata.file_name)
+          }
+        end)
+      end,
+      fn _error -> [] end
+    )
   end
 
-  def with_zip_file_handle(zip_file_name, cb) do
+  def with_zip_file_handle(zip_file_name, cb, on_error) do
     zip_file = Unzip.LocalFile.open(zip_file_name)
 
     try do
@@ -225,7 +229,7 @@ defmodule Transport.NeTEx.ArchiveParser do
 
         {:error, message} ->
           Logger.error("Error while reading #{zip_file_name}: #{message}")
-          []
+          on_error.(message)
       end
     after
       Unzip.LocalFile.close(zip_file)
