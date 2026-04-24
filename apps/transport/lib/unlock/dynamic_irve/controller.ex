@@ -13,6 +13,7 @@ defmodule Unlock.DynamicIRVE.Controller do
 
   import Plug.Conn
 
+  alias Explorer.DataFrame
   alias Unlock.DynamicIRVE.{FeedStore, Renderer, Status}
 
   def serve(conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
@@ -32,8 +33,11 @@ defmodule Unlock.DynamicIRVE.Controller do
   end
 
   defp serve_data(conn, item) do
-    case FeedStore.get_aggregate(item.identifier) do
-      %{df: df} ->
+    case aggregate(item) do
+      nil ->
+        send_resp(conn, 503, "No data available yet")
+
+      df ->
         format = parse_format(conn.query_params["format"])
 
         opts = [
@@ -50,9 +54,26 @@ defmodule Unlock.DynamicIRVE.Controller do
         |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
         |> put_resp_content_type(content_type, charset(format))
         |> send_resp(200, body)
+    end
+  end
 
-      _ ->
-        send_resp(conn, 503, "No data available yet")
+  # Concatenates all available feed DataFrames with an "origin" column (the slug).
+  # Returns nil if no feed has data yet.
+  defp aggregate(item) do
+    dfs =
+      item.feeds
+      |> Enum.map(fn feed -> {feed.slug, FeedStore.get_feed(item.identifier, feed.slug)} end)
+      |> Enum.flat_map(fn
+        {slug, %{df: %DataFrame{} = df}} ->
+          [DataFrame.put(df, "origin", List.duplicate(slug, DataFrame.n_rows(df)))]
+
+        _ ->
+          []
+      end)
+
+    case dfs do
+      [] -> nil
+      _ -> DataFrame.concat_rows(dfs)
     end
   end
 

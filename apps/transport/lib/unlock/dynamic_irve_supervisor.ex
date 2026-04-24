@@ -12,29 +12,34 @@ defmodule Unlock.DynamicIRVESupervisor do
 
     children = [
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
-      {DynamicSupervisor, name: Unlock.DynamicIRVE.AggregatorSupervisor, strategy: :one_for_one},
-      {Unlock.DynamicIRVE.FeedStarter, []}
+      %{id: :initial_sync, start: {Task, :start_link, [&initial_sync/0]}, restart: :transient}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
   @doc """
-  Reloads from scratch: terminates all running feed workers and aggregators,
-  then starts one worker per feed and one aggregator per config item.
-  Called at boot (via FeedStarter) and on config refresh (via backoffice).
+  Terminates all running feed workers, then starts one per feed across all
+  `DynamicIRVEAggregate` config items. Called at boot and on backoffice reload.
 
-  The brute-force approach avoids edge cases (same slug, changed URL;
-  partial config drift) at the cost of a short gap where some feeds have
-  no data — acceptable since the aggregator tolerates missing feeds.
+  The brute-force approach avoids edge cases (renamed slug, changed URL, partial
+  drift) at the cost of a short data gap — acceptable since consumers tolerate it.
   """
   def sync_feeds(config) do
-    stop_all(Unlock.DynamicIRVE.AggregatorSupervisor)
     stop_all(Unlock.DynamicIRVE.FeedSupervisor)
 
-    for item <- aggregate_items(config) do
-      for feed <- item.feeds, do: start_feed(item.identifier, feed)
-      start_aggregator(item)
+    for item <- aggregate_items(config),
+        feed <- item.feeds,
+        do: start_feed(item.identifier, feed)
+  end
+
+  # Invoked once at boot via a transient Task child, after both DynamicSupervisors are up.
+  defp initial_sync do
+    # Skipped in :test so the config fetcher Mox mock needs no default expectation;
+    # tests that need live feeds call sync_feeds/1 themselves with a stubbed config.
+    unless Mix.env() == :test do
+      config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
+      sync_feeds(config)
     end
   end
 
@@ -57,43 +62,5 @@ defmodule Unlock.DynamicIRVESupervisor do
       Unlock.DynamicIRVE.FeedSupervisor,
       {Unlock.DynamicIRVE.FeedWorker, {parent_id, feed}}
     )
-  end
-
-  defp start_aggregator(item) do
-    Logger.info("[DynamicIRVE] Starting aggregator #{item.identifier}")
-
-    DynamicSupervisor.start_child(
-      Unlock.DynamicIRVE.AggregatorSupervisor,
-      {Unlock.DynamicIRVE.Aggregator, item}
-    )
-  end
-end
-
-defmodule Unlock.DynamicIRVE.FeedStarter do
-  @moduledoc """
-  Triggers sync_feeds once the DynamicSupervisors are ready.
-  A Supervisor's init/1 cannot start dynamic children, so we use
-  handle_continue to defer the call.
-  """
-  use GenServer
-
-  def start_link(_opts), do: GenServer.start_link(__MODULE__, [])
-
-  @impl true
-  def init(_) do
-    {:ok, nil, {:continue, :start_feeds}}
-  end
-
-  @impl true
-  def handle_continue(:start_feeds, state) do
-    # Skip boot-time sync in test env: the config fetcher Mox mock has no
-    # default expectation, and tests that need the supervisor should call
-    # sync_feeds/1 themselves with a stubbed config.
-    unless Mix.env() == :test do
-      config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
-      Unlock.DynamicIRVESupervisor.sync_feeds(config)
-    end
-
-    {:noreply, state}
   end
 end

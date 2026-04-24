@@ -1,17 +1,14 @@
 defmodule Unlock.DynamicIRVE.Status do
   @moduledoc """
   Builds the JSON-ready status payload for a `DynamicIRVEAggregate` item:
-  per-feed state (OK/KO/pending) + row counts, and total row count of the
-  latest aggregate.
+  per-feed state (OK/KO/pending) + row counts, and total row count.
   """
 
   alias Unlock.DynamicIRVE.FeedStore
 
   def build(%Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
-    %{
-      feeds: Enum.map(item.feeds, &feed_entry(item.identifier, &1)),
-      row_count: item.identifier |> FeedStore.get_aggregate() |> row_count()
-    }
+    feeds = Enum.map(item.feeds, &feed_entry(item.identifier, &1))
+    %{feeds: feeds, row_count: feeds |> Enum.map(& &1.row_count) |> Enum.sum()}
   end
 
   defp feed_entry(parent_id, feed) do
@@ -24,8 +21,17 @@ defmodule Unlock.DynamicIRVE.Status do
   defp feed_status(%{error: nil, last_updated_at: last_updated_at}, slug),
     do: %{slug: slug, status: "OK", last_updated_at: last_updated_at}
 
-  defp feed_status(%{error: error, last_errored_at: last_errored_at, last_updated_at: last_updated_at}, slug),
-    do: %{slug: slug, status: "KO", error: error, last_errored_at: last_errored_at, last_updated_at: last_updated_at}
+  defp feed_status(
+         %{error: error, last_errored_at: last_errored_at, last_updated_at: last_updated_at},
+         slug
+       ),
+       do: %{
+         slug: slug,
+         status: "KO",
+         error: error,
+         last_errored_at: last_errored_at,
+         last_updated_at: last_updated_at
+       }
 
   defp row_count(%{df: %Explorer.DataFrame{} = df}), do: Explorer.DataFrame.n_rows(df)
   defp row_count(_), do: 0
