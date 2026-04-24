@@ -241,7 +241,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   defp features_list(%{} = features) do
-    for {feature, true} <- features, do: feature
+    Enum.sort(for {feature, true} <- features, do: feature)
   end
 
   defp validate_with_enroute(filepath, metadata) do
