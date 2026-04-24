@@ -41,14 +41,9 @@ defmodule Unlock.DynamicIRVESupervisor do
   end
 
   # Invoked once at boot via a transient Task child, after the DynamicSupervisor is up.
-  defp initial_sync do
-    # Skipped in :test so the config fetcher Mox mock needs no default expectation;
-    # tests that need live feeds call sync_feeds/1 themselves with a stubbed config.
-    unless Mix.env() == :test do
-      config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
-      sync_feeds(config)
-    end
-  end
+  # Skipped in :test so the config fetcher Mox mock needs no default expectation;
+  # tests that want workers running set their own expectation and call sync_feeds/0.
+  defp initial_sync, do: unless(Mix.env() == :test, do: sync_feeds())
 
   defp stop_all(supervisor) do
     for {_, pid, _, _} <- DynamicSupervisor.which_children(supervisor) do
