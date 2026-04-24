@@ -1,51 +1,56 @@
 defmodule Unlock.DynamicIRVE.Aggregator do
   @moduledoc """
-  Periodically concatenates all feed DataFrames into a single one,
-  adding an "origin" column (the slug). Stores the result in FeedStore
-  under the :aggregate key for the controller to serve.
+  Periodically concatenates the DataFrames of all feeds belonging to a
+  single `DynamicIRVEAggregate` config item, adding an "origin" column
+  (the slug). Stores the result in FeedStore (see `FeedStore.put_aggregate/2`)
+  for the controller to serve.
 
-  LIMITATION: only supports a single `dynamic-irve-aggregate` item in the
-  global config. All running feed workers are merged into one aggregate,
-  regardless of which config item they belong to.
+  One Aggregator runs per config item.
   """
   use GenServer
   require Logger
 
-  def start_link(_opts), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def start_link(%Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
+    GenServer.start_link(__MODULE__, item, name: via(item.identifier))
+  end
+
+  defp via(parent_id), do: {:via, Registry, {Unlock.DynamicIRVE.Registry, {:aggregator, parent_id}}}
 
   @impl true
-  def init(_) do
+  def init(item) do
     schedule_tick()
-    {:ok, nil}
+    {:ok, item}
   end
 
   @impl true
-  def handle_info(:tick, state) do
+  def handle_info(:tick, item) do
     schedule_tick()
-    aggregate()
-    {:noreply, state}
+    aggregate(item)
+    {:noreply, item}
   end
 
-  defp aggregate do
-    dfs = collect_feed_dfs()
+  defp aggregate(item) do
+    dfs = collect_feed_dfs(item)
 
     if dfs == [] do
-      Logger.warning("[DynamicIRVE:Aggregator] No feeds available yet")
+      Logger.warning("[DynamicIRVE:Aggregator:#{item.identifier}] No feeds available yet")
     else
       {microseconds, merged} = :timer.tc(fn -> Explorer.DataFrame.concat_rows(dfs) end)
-      Logger.info("[DynamicIRVE:Aggregator] #{Explorer.DataFrame.n_rows(merged)} rows, concatenated in #{div(microseconds, 1000)}ms")
-      Unlock.DynamicIRVE.FeedStore.put(:aggregate, %{df: merged, last_updated_at: DateTime.utc_now()})
+
+      Logger.info(
+        "[DynamicIRVE:Aggregator:#{item.identifier}] #{Explorer.DataFrame.n_rows(merged)} rows, concatenated in #{div(microseconds, 1000)}ms"
+      )
+
+      Unlock.DynamicIRVE.FeedStore.put_aggregate(
+        item.identifier,
+        %{df: merged, last_updated_at: DateTime.utc_now()}
+      )
     end
   end
 
-  defp running_slugs do
-    DynamicSupervisor.which_children(Unlock.DynamicIRVE.FeedSupervisor)
-    |> Enum.map(fn {_, pid, _, _} -> Unlock.DynamicIRVE.FeedWorker.slug(pid) end)
-  end
-
-  defp collect_feed_dfs do
-    running_slugs()
-    |> Enum.map(fn slug -> {slug, Unlock.DynamicIRVE.FeedStore.get(slug)} end)
+  defp collect_feed_dfs(item) do
+    item.feeds
+    |> Enum.map(fn feed -> {feed.slug, Unlock.DynamicIRVE.FeedStore.get_feed(item.identifier, feed.slug)} end)
     |> Enum.filter(fn {_, entry} -> match?(%{df: %Explorer.DataFrame{}}, entry) end)
     |> Enum.map(fn {slug, %{df: df}} ->
       Explorer.DataFrame.put(df, "origin", List.duplicate(slug, Explorer.DataFrame.n_rows(df)))

@@ -12,58 +12,66 @@ defmodule Unlock.DynamicIRVESupervisor do
 
     children = [
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
-      {Unlock.DynamicIRVE.FeedStarter, []},
-      Unlock.DynamicIRVE.Aggregator
+      {DynamicSupervisor, name: Unlock.DynamicIRVE.AggregatorSupervisor, strategy: :one_for_one},
+      {Unlock.DynamicIRVE.FeedStarter, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
   @doc """
-  Reloads workers from scratch: terminates all running feed workers,
-  then starts one per feed in the config. Called at boot (via FeedStarter)
-  and on config refresh (via backoffice).
+  Reloads from scratch: terminates all running feed workers and aggregators,
+  then starts one worker per feed and one aggregator per config item.
+  Called at boot (via FeedStarter) and on config refresh (via backoffice).
 
   The brute-force approach avoids edge cases (same slug, changed URL;
   partial config drift) at the cost of a short gap where some feeds have
   no data — acceptable since the aggregator tolerates missing feeds.
   """
   def sync_feeds(config) do
-    stop_feeds()
-    start_feeds(expected_feeds(config))
+    stop_all(Unlock.DynamicIRVE.AggregatorSupervisor)
+    stop_all(Unlock.DynamicIRVE.FeedSupervisor)
+
+    for item <- aggregate_items(config) do
+      for feed <- item.feeds, do: start_feed(item.identifier, feed)
+      start_aggregator(item)
+    end
   end
 
-  defp expected_feeds(config) do
+  defp aggregate_items(config) do
     config
     |> Map.values()
-    |> Enum.flat_map(fn
-      %Unlock.Config.Item.DynamicIRVEAggregate{feeds: feeds} -> feeds
-      _ -> []
-    end)
+    |> Enum.filter(&match?(%Unlock.Config.Item.DynamicIRVEAggregate{}, &1))
   end
 
-  defp stop_feeds do
-    for {_, pid, _, _} <- DynamicSupervisor.which_children(Unlock.DynamicIRVE.FeedSupervisor) do
-      Logger.info("[DynamicIRVE] Stopping feed #{Unlock.DynamicIRVE.FeedWorker.slug(pid)}")
-      DynamicSupervisor.terminate_child(Unlock.DynamicIRVE.FeedSupervisor, pid)
+  defp stop_all(supervisor) do
+    for {_, pid, _, _} <- DynamicSupervisor.which_children(supervisor) do
+      DynamicSupervisor.terminate_child(supervisor, pid)
     end
   end
 
-  defp start_feeds(feeds) do
-    for feed <- feeds do
-      Logger.info("[DynamicIRVE] Starting feed #{feed.slug}")
+  defp start_feed(parent_id, feed) do
+    Logger.info("[DynamicIRVE] Starting feed #{parent_id}/#{feed.slug}")
 
-      DynamicSupervisor.start_child(
-        Unlock.DynamicIRVE.FeedSupervisor,
-        {Unlock.DynamicIRVE.FeedWorker, feed}
-      )
-    end
+    DynamicSupervisor.start_child(
+      Unlock.DynamicIRVE.FeedSupervisor,
+      {Unlock.DynamicIRVE.FeedWorker, {parent_id, feed}}
+    )
+  end
+
+  defp start_aggregator(item) do
+    Logger.info("[DynamicIRVE] Starting aggregator #{item.identifier}")
+
+    DynamicSupervisor.start_child(
+      Unlock.DynamicIRVE.AggregatorSupervisor,
+      {Unlock.DynamicIRVE.Aggregator, item}
+    )
   end
 end
 
 defmodule Unlock.DynamicIRVE.FeedStarter do
   @moduledoc """
-  Triggers sync_feeds once the DynamicSupervisor is ready.
+  Triggers sync_feeds once the DynamicSupervisors are ready.
   A Supervisor's init/1 cannot start dynamic children, so we use
   handle_continue to defer the call.
   """

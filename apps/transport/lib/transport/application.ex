@@ -49,8 +49,8 @@ defmodule Transport.Application do
           id: :unlock_cachex
         ),
         Unlock.BatchMetrics,
-        # Registry for dynamic IRVE feed workers, keyed by slug
-        # Debug: Unlock.DynamicIRVE.FeedStore.get("qualicharge")
+        # Registry for dynamic IRVE feed workers and aggregators.
+        # Debug: Unlock.DynamicIRVE.FeedStore.get_feed("dyn-irve-consolidated", "qualicharge")
         {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
         # Supervises one GenServer per dynamic IRVE feed
         Unlock.DynamicIRVESupervisor
