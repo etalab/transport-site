@@ -33,12 +33,7 @@ defmodule Unlock.Config do
     """
     @enforce_keys [:identifier, :target_url, :requestor_ref]
 
-    @type t :: %__MODULE__{
-            identifier: binary(),
-            target_url: binary(),
-            requestor_ref: binary(),
-            request_headers: list()
-          }
+    @type t :: %__MODULE__{identifier: binary(), target_url: binary(), requestor_ref: binary(), request_headers: list()}
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
@@ -141,8 +136,7 @@ defmodule Unlock.Config do
     At the moment, GTFS-RT is just an alias for HTTP generic. This is done
     to make it easier to achieve alternate processing later if needed.
     """
-    def convert_yaml_item_to_struct(%{"type" => subtype} = item)
-        when subtype in ["generic-http", "gtfs-rt"] do
+    def convert_yaml_item_to_struct(%{"type" => subtype} = item) when subtype in ["generic-http", "gtfs-rt"] do
       %Item.Generic.HTTP{
         identifier: Map.fetch!(item, "identifier"),
         slug: Map.get(item, "slug"),
@@ -228,8 +222,7 @@ defmodule Unlock.Config do
       # NOTE: this won't handle errors correctly at this point
       fetch_config = fn _key -> {:commit, fetch_config_no_cache!()} end
 
-      case {_operation, _result} =
-             Cachex.fetch(cache_name(), @proxy_config_cache_key, fetch_config) do
+      case {_operation, _result} = Cachex.fetch(cache_name(), @proxy_config_cache_key, fetch_config) do
         {:commit, result} ->
           Cachex.persist(cache_name(), @proxy_config_cache_key)
           result
@@ -259,11 +252,7 @@ defmodule Unlock.Config do
       github_token = Application.fetch_env!(:transport, :unlock_github_auth_token)
 
       %{status: 200, body: body} =
-        Unlock.HTTP.Client.impl().get!(
-          config_url,
-          [{"Authorization", "token #{github_token}"}],
-          []
-        )
+        Unlock.HTTP.Client.impl().get!(config_url, [{"Authorization", "token #{github_token}"}], [])
 
       body
     end

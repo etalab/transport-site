@@ -45,8 +45,7 @@ defmodule Transport.Application do
         Supervisor.child_spec(
           {Cachex,
            name: Unlock.Cachex,
-           expiration:
-             expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
+           expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
         ),
         Unlock.BatchMetrics,
@@ -81,9 +80,7 @@ defmodule Transport.Application do
   def run_realtime_poller?, do: webserver_enabled?() && Mix.env() != :test
 
   def preemptive_caching?,
-    do:
-      webserver_enabled?() &&
-        Application.fetch_env!(:transport, :app_env) in [:production, :staging]
+    do: webserver_enabled?() && Application.fetch_env!(:transport, :app_env) in [:production, :staging]
 
   defp add_if(children, condition, child) do
     if condition.() do
