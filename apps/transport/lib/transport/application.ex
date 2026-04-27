@@ -80,7 +80,8 @@ defmodule Transport.Application do
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()
 
-  def run_explore_vehicle_positions_poller?, do: webserver_enabled?() && Mix.env() != :test
+  def run_explore_vehicle_positions_poller?,
+    do: webserver_enabled?() && Application.fetch_env!(:transport, :explore_vehicle_positions_poller_enabled)
 
   def preemptive_caching?,
     do: webserver_enabled?() && Application.fetch_env!(:transport, :app_env) in [:production, :staging]

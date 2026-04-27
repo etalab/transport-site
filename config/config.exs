@@ -28,6 +28,8 @@ config :transport,
 
 config :transport, Unlock.Endpoint, []
 
+config :transport, explore_vehicle_positions_poller_enabled: true
+
 if System.get_env("CELLAR_NAMESPACE") do
   # We believe CELLAR_NAMESPACE was a previous attempt at siloting S3 envs.
   # We will instead rely on separate buckets in the short-term future.

@@ -168,3 +168,6 @@ config :phoenix_live_view,
 
 # Override the default `@max_records` defined in the module, to keep tests fast
 config :transport, clean_multi_validation_max_records: 1
+
+# Disabled by default during tests; tests that need it should start the poller locally
+config :transport, explore_vehicle_positions_poller_enabled: false
