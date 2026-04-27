@@ -23,6 +23,10 @@ defmodule Unlock.DynamicIRVESupervisor do
       # even under concurrent sync_feeds calls (e.g. boot Task + backoffice refresh).
       {Registry, keys: :unique, name: Unlock.DynamicIRVE.Registry},
       {DynamicSupervisor, name: Unlock.DynamicIRVE.FeedSupervisor, strategy: :one_for_one},
+      # Calls `sync_feeds/0` once at boot in a separate short-lived process: fetches
+      # the config (HTTP to GitHub) and (re)starts one poller per feed in the
+      # DynamicSupervisor above.
+      # `:temporary` → a failure is not restarted and does not affect sibling boot.
       {Task, &initial_sync/0}
     ]
 
@@ -48,9 +52,9 @@ defmodule Unlock.DynamicIRVESupervisor do
         do: start_feed(item.identifier, feed)
   end
 
-  # Invoked once at boot via a transient Task child, after the DynamicSupervisor is up.
-  # Skipped in :test so the config fetcher Mox mock needs no default expectation;
-  # tests that want workers running set their own expectation and call sync_feeds/0.
+  # `sync_feeds/0` may raise (HTTP to GitHub) — let it crash: the `:temporary` Task
+  # isolates the failure (boot is unaffected) and the stack trace bubbles up to Sentry.
+  # Skipped in :test so the config fetcher Mox mock needs no default expectation.
   defp initial_sync, do: unless(Mix.env() == :test, do: sync_feeds())
 
   defp stop_all(supervisor) do
