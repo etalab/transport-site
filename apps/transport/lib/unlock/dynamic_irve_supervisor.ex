@@ -39,7 +39,7 @@ defmodule Unlock.DynamicIRVESupervisor do
   and on backoffice reload.
 
   The brute-force approach avoids edge cases (renamed slug, changed URL, partial
-  drift) at the cost of a short data gap — acceptable since consumers tolerate it.
+  drift) at the cost of a short data gap — acceptable for now.
   """
   def sync_feeds do
     config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
