@@ -1,3 +1,7 @@
+# Quick generator of Validata links for every feed currently configured in the
+# dynamic IRVE proxy config. Run it to audit each feed's compliance against the
+# `schema-irve-dynamique` schema without manually crafting URLs.
+
 Mix.install([
   {:req, "~> 0.5.15"},
   {:explorer, "~> 0.11.0"},
