@@ -2,6 +2,7 @@ import { Socket } from 'phoenix'
 import { LiveSocket } from 'phoenix_live_view'
 import Prism from 'prismjs'
 import format from 'xml-formatter'
+import IRVEMap from './irve_map'
 
 const Hooks = {}
 Hooks.SyntaxColoring = {
@@ -31,6 +32,51 @@ Hooks.TextareaAutoexpand = {
     mounted () {
         this.el.addEventListener('input', event => {
             event.target.parentNode.dataset.replicatedValue = event.target.value
+        })
+    }
+}
+
+Hooks.Geolocate = {
+    mounted () {
+        this.el.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                window.alert('Géolocalisation non disponible dans ce navigateur.')
+                return
+            }
+            this.el.disabled = true
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    this.el.disabled = false
+                    this.pushEvent('locate-here', {
+                        lat: pos.coords.latitude.toFixed(6),
+                        lon: pos.coords.longitude.toFixed(6)
+                    })
+                },
+                err => {
+                    this.el.disabled = false
+                    window.alert('Géolocalisation refusée ou indisponible : ' + err.message)
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            )
+        })
+    }
+}
+
+Hooks.IRVEMap = IRVEMap
+
+Hooks.IRVEBlink = {
+    mounted () {
+        this.handleEvent('irve:blink', ({ cells }) => {
+            cells.forEach(({ id, field }) => {
+                const td = this.el.querySelector(
+                    `td[data-cell-id="${CSS.escape(id)}"][data-cell-field="${CSS.escape(field)}"]`
+                )
+                if (!td) return
+                td.classList.remove('irve-blink')
+                // force reflow so the animation restarts even on consecutive ticks
+                void td.offsetWidth
+                td.classList.add('irve-blink')
+            })
         })
     }
 }

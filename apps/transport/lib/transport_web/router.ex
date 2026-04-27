@@ -172,6 +172,10 @@ defmodule TransportWeb.Router do
       get("/", ExploreController, :index)
       get("/vehicle-positions", ExploreController, :vehicle_positions)
       get("/gtfs-stops", ExploreController, :gtfs_stops)
+
+      live_session :irve_debug, root_layout: {TransportWeb.LayoutView, :app} do
+        live("/irve", Live.IRVEDebugLive)
+      end
     end
 
     scope "/datasets" do

@@ -1,0 +1,110 @@
+<section class="section pb-24" id="irve-debug" phx-hook="IRVEBlink">
+  <div class="container">
+    <h1>Consolidation IRVE — debug</h1>
+    <p>
+      Page de diagnostic publique. Source statique :
+      <code>consolidation-transport-irve-statique</code>
+      (et son pendant
+      <code>...-avec-doublons-...</code>) ; source dynamique :
+      <code>consolidation-nationale-irve-dynamique</code>. Tout est consommé via le proxy public.
+    </p>
+
+    <div class="panel">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <button class="button" phx-click="locate-here" phx-hook="Geolocate" id="geolocate-btn">
+          📍 Around here
+        </button>
+
+        <button class="button" phx-click="toggle-dedup">
+          <%= if @dedup do %>
+            Source : <strong>dédoublonnée</strong> (cliquer pour basculer sur "avec doublons")
+          <% else %>
+            Source : <strong>avec doublons</strong> (cliquer pour basculer sur "dédoublonnée")
+          <% end %>
+        </button>
+
+        <button class="button-outline" phx-click="clear">Reset</button>
+      </div>
+
+      <p :if={@bbox} style="margin-top: 0.5rem;">
+        BBox :
+        <code>
+          {Float.round(@bbox.min_lat, 5)},{Float.round(@bbox.min_lon, 5)} → {Float.round(@bbox.max_lat, 5)},{Float.round(
+            @bbox.max_lon,
+            5
+          )}
+        </code>
+        <span :if={@last_dynamic_refresh}>
+          — dernier refresh dynamique :
+          <code>{Calendar.strftime(@last_dynamic_refresh, "%H:%M:%S UTC")}</code>
+        </span>
+      </p>
+      <p :if={@error} class="notification error">{@error}</p>
+    </div>
+
+    <div :if={@bbox} id="irve-map-wrapper" phx-update="ignore">
+      <div id="irve-map" phx-hook="IRVEMap"></div>
+      <div class="irve-map-legend">
+        <span class="legend-dot legend-en_service"></span> en_service
+        <span class="legend-dot legend-occupe"></span> occupé
+        <span class="legend-dot legend-hors_service"></span> hors_service
+        <span class="legend-dot legend-inconnu"></span> inconnu
+        <span class="legend-dot legend-no_dynamic"></span> sans dyn
+      </div>
+    </div>
+
+    <h2>Statique ({length(@static_rows)} ligne(s))</h2>
+    <p :if={@bbox == nil}>
+      <em>Cliquer sur « Around here » pour localiser et charger les données.</em>
+    </p>
+    <div :if={@bbox} class="irve-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th :for={col <- @static_visible_columns}>{col}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={row <- @static_rows}>
+            <td :for={col <- @static_visible_columns} title={row[col]}>{row[col]}</td>
+          </tr>
+          <tr :if={@static_rows == []}>
+            <td colspan={length(@static_visible_columns)}><em>Aucun PDC dans la zone.</em></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Dynamique ({length(@dynamic_rows)} ligne(s))</h2>
+    <p>
+      Joint sur <code>id_pdc_itinerance</code>
+      des PDCs statiques affichés. Les cellules clignotent en jaune lorsqu'une valeur change.
+    </p>
+    <div :if={@bbox} class="irve-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th :for={col <- @dynamic_visible_columns}>{col}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :for={row <- @dynamic_rows}>
+            <td
+              :for={col <- @dynamic_visible_columns}
+              data-cell-id={row["id_pdc_itinerance"]}
+              data-cell-field={col}
+              title={row[col]}
+            >
+              {row[col]}
+            </td>
+          </tr>
+          <tr :if={@dynamic_rows == []}>
+            <td colspan={length(@dynamic_visible_columns)}>
+              <em>Aucune donnée dynamique pour ces PDCs (ou consolidation dynamique vide).</em>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
