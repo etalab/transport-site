@@ -54,8 +54,10 @@ defmodule Unlock.DynamicIRVESupervisor do
 
   # `sync_feeds/0` may raise (HTTP to GitHub) — let it crash: the `:temporary` Task
   # isolates the failure (boot is unaffected) and the stack trace bubbles up to Sentry.
-  # Skipped in :test so the config fetcher Mox mock needs no default expectation.
-  defp initial_sync, do: unless(Mix.env() == :test, do: sync_feeds())
+  # Disabled in test so the config fetcher Mox mock needs no default expectation.
+  defp initial_sync do
+    if Application.fetch_env!(:transport, :dynamic_irve_initial_sync), do: sync_feeds()
+  end
 
   defp stop_all(supervisor) do
     for {_, pid, _, _} <- DynamicSupervisor.which_children(supervisor) do

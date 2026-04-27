@@ -43,7 +43,8 @@ config :transport,
 
 config :transport,
   unlock_enforce_ttl: webserver,
-  dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30))
+  dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30)),
+  dynamic_irve_initial_sync: config_env() != :test
 
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
