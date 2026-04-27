@@ -96,7 +96,7 @@ defmodule Transport.Application do
 
   defp add_scheduler(children) do
     if Mix.env() != :test do
-      [Transport.Scheduler | children]
+      [Transport.QuantumScheduler | children]
     else
       children
     end
