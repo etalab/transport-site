@@ -46,7 +46,7 @@ defmodule Transport.Application do
         ),
         Unlock.BatchMetrics
       ]
-      |> add_scheduler()
+      |> add_quantum_scheduler()
       |> add_if(fn -> run_explore_vehicle_positions_poller?() end, Transport.ExploreVehiclePositionsPoller)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveHomeStatsCache)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveAPICache)
@@ -94,8 +94,8 @@ defmodule Transport.Application do
     end
   end
 
-  defp add_scheduler(children) do
-    if Mix.env() != :test do
+  defp add_quantum_scheduler(children) do
+    if Application.fetch_env!(:transport, :quantum_scheduler_enabled) do
       [Transport.QuantumScheduler | children]
     else
       children

@@ -171,3 +171,6 @@ config :transport, clean_multi_validation_max_records: 1
 
 # Disabled by default during tests; tests that need it should start the poller locally
 config :transport, explore_vehicle_positions_poller_enabled: false
+
+# Disabled by default during tests; tests that need it should start it locally
+config :transport, quantum_scheduler_enabled: false
