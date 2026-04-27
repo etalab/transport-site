@@ -15,6 +15,9 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
     GenServer.start_link(__MODULE__, {parent_id, feed}, name: via({parent_id, feed.slug}))
   end
 
+  # Garantit (via le Registry `:unique`) l'unicité d'un worker par couple
+  # `{parent_id, slug}`, y compris sous race condition. Pas strictement
+  # nécessaire en l'état (aucun lookup), mais utile pour les évolutions.
   defp via(key), do: {:via, Registry, {Unlock.DynamicIRVE.Registry, key}}
 
   @impl true
