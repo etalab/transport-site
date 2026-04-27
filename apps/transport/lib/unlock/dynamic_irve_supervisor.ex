@@ -52,6 +52,20 @@ defmodule Unlock.DynamicIRVESupervisor do
         do: start_feed(item.identifier, feed)
   end
 
+  @doc """
+  Lists the currently running feed pollers as `{parent_id, slug}` tuples,
+  read from `Unlock.DynamicIRVE.Registry`. Useful for tests and the debug LiveView.
+  """
+  def running_feed_pollers do
+    # ETS match spec: each Registry entry is `{key, pid, value}`. We bind the key
+    # to `:"$1"` (a positional capture, like a numbered placeholder) and ignore the
+    # rest with `:_`. The body `[:"$1"]` says "return only what we captured".
+    # Equivalent to `for {key, _pid, _value} <- entries, do: key`, but executed
+    # inside ETS without copying the table.
+    # See https://hexdocs.pm/elixir/Registry.html#select/2
+    Registry.select(Unlock.DynamicIRVE.Registry, [{{:"$1", :_, :_}, [], [:"$1"]}])
+  end
+
   # `sync_feeds/0` may raise (HTTP to GitHub) — let it crash: the `:temporary` Task
   # isolates the failure (boot is unaffected) and the stack trace bubbles up to Sentry.
   # Disabled in test so the config fetcher Mox mock needs no default expectation.

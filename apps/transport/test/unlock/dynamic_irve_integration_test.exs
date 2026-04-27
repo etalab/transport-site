@@ -43,7 +43,8 @@ defmodule Unlock.DynamicIRVE.IntegrationTest do
 
     Unlock.DynamicIRVESupervisor.sync_feeds()
 
-    assert %{active: 2} = DynamicSupervisor.count_children(Unlock.DynamicIRVE.FeedSupervisor)
+    assert Enum.sort(Unlock.DynamicIRVESupervisor.running_feed_pollers()) ==
+             [{parent, "source-a"}, {parent, "source-b"}]
 
     now = DateTime.utc_now()
     FeedStore.put_feed(parent, "source-a", %{df: build_df("A"), last_updated_at: now, error: nil})
