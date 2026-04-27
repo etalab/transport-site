@@ -19,7 +19,7 @@ defmodule Unlock.DynamicIRVE.FeedWorkerTest do
 
     {:ok, pid} = FeedWorker.start_link({"parent", feed("ok")})
     send(pid, :tick)
-    :sys.get_state(pid)
+    await_genserver_messages_processed(pid)
 
     stored = FeedStore.get_feed("parent", "ok")
     assert %{error: nil, last_updated_at: %DateTime{}, df: %Explorer.DataFrame{} = df} = stored
@@ -33,11 +33,17 @@ defmodule Unlock.DynamicIRVE.FeedWorkerTest do
 
     {:ok, pid} = FeedWorker.start_link({"parent", feed("ko")})
     send(pid, :tick)
-    :sys.get_state(pid)
+    await_genserver_messages_processed(pid)
 
     assert %{error: "HTTP 500", last_errored_at: %DateTime{}} = FeedStore.get_feed("parent", "ko")
     assert Process.alive?(pid)
   end
+
+  # Sync barrier: a GenServer handles one message at a time, in FIFO order from
+  # any given sender. `:sys.get_state/1` is itself a message — it only returns
+  # once every message we sent earlier from this process has been fully handled.
+  # The returned state is discarded.
+  defp await_genserver_messages_processed(pid), do: :sys.get_state(pid)
 
   defp feed(slug) do
     %Unlock.Config.Item.Generic.HTTP{
