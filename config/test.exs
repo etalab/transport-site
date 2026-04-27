@@ -177,3 +177,6 @@ config :transport, explore_vehicle_positions_poller_enabled: false
 
 # Disabled by default during tests; tests that need it should start it locally
 config :transport, quantum_scheduler_enabled: false
+
+# Safety: tests that exercise WorkerHealthcheck.stop_the_beam! must not actually halt the suite
+config :transport, worker_healthcheck_halts_beam: false
