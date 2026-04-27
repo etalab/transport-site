@@ -136,7 +136,6 @@ defmodule TransportWeb.API.DatasetControllerTest do
         custom_title: "title",
         type: "public-transit",
         licence: "lov2",
-        datagouv_id: datagouv_id = "datagouv",
         slug: "slug-1",
         is_active: true,
         created_at: ~U[2021-12-23 13:30:40.000000Z],
@@ -157,9 +156,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         dataset_subtypes: [ds1]
       )
 
-    resource_1 =
+    gtfs_resource_1 =
       insert(:resource,
-        dataset_id: dataset.id,
+        dataset: dataset,
         url: "https://link.to/file.zip",
         latest_url: "https://static.data.gouv.fr/foo",
         datagouv_id: "1",
@@ -168,9 +167,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
         filesize: 42
       )
 
-    resource_2 =
+    gtfs_resource_2 =
       insert(:resource,
-        dataset_id: dataset.id,
+        dataset: dataset,
         url: "https://link.to/file2.zip",
         latest_url: "https://static.data.gouv.fr/foo2",
         datagouv_id: "2",
@@ -181,7 +180,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
 
     gbfs_resource =
       insert(:resource,
-        dataset_id: dataset.id,
+        dataset: dataset,
         url: "https://link.to/gbfs.json",
         latest_url: "https://link.to/latest",
         datagouv_id: "3",
@@ -191,10 +190,22 @@ defmodule TransportWeb.API.DatasetControllerTest do
         is_available: false
       )
 
+    netex_resource =
+      insert(:resource,
+        dataset: dataset,
+        url: "https://link.to/file3.zip",
+        latest_url: "https://static.data.gouv.fr/foo3",
+        datagouv_id: "4",
+        title: "NeTEx",
+        type: "main",
+        format: "NeTEx",
+        filesize: 43
+      )
+
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource_1.id),
+          resource_history: insert(:resource_history, resource: gtfs_resource_1),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["bus"],
@@ -205,12 +216,23 @@ defmodule TransportWeb.API.DatasetControllerTest do
     insert(:resource_metadata,
       multi_validation:
         insert(:multi_validation,
-          resource_history: insert(:resource_history, resource_id: resource_2.id),
+          resource_history: insert(:resource_history, resource: gtfs_resource_2),
           validator: Transport.Validators.GTFSTransport.validator_name()
         ),
       modes: ["skate"],
       features: ["clim"],
       metadata: %{"foo" => "bar2"}
+    )
+
+    insert(:resource_metadata,
+      multi_validation:
+        insert(:multi_validation,
+          resource_history: insert(:resource_history, resource: netex_resource),
+          validator: Transport.Validators.NeTEx.Validator.validator_name()
+        ),
+      modes: ["bus"],
+      features: ["networks"],
+      metadata: %{"foo" => "bar3"}
     )
 
     path = Helpers.dataset_path(conn, :datasets)
@@ -220,16 +242,16 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "covered_area" => [%{"insee" => "123456", "nom" => "Angers Métropole", "type" => "epci"}],
       "legal_owners" => [],
       "created_at" => "2021-12-23",
-      "datagouv_id" => "datagouv",
-      "id" => "datagouv",
+      "datagouv_id" => dataset.datagouv_id,
+      "id" => dataset.datagouv_id,
       "licence" => "lov2",
       "page_url" => "http://127.0.0.1:5100/datasets/slug-1",
       "publisher" => %{"name" => "org", "type" => "organization", "id" => "org_id"},
       "resources" => [
         %{
-          "updated" => resource_1.last_update |> DateTime.to_iso8601(),
-          "page_url" => resource_page_url(resource_1),
-          "id" => resource_1.id,
+          "updated" => gtfs_resource_1.last_update |> DateTime.to_iso8601(),
+          "page_url" => resource_page_url(gtfs_resource_1),
+          "id" => gtfs_resource_1.id,
           "datagouv_id" => "1",
           "features" => ["couleurs des lignes"],
           "filesize" => 42,
@@ -243,9 +265,9 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "is_available" => true
         },
         %{
-          "updated" => resource_2.last_update |> DateTime.to_iso8601(),
-          "page_url" => resource_page_url(resource_2),
-          "id" => resource_2.id,
+          "updated" => gtfs_resource_2.last_update |> DateTime.to_iso8601(),
+          "page_url" => resource_page_url(gtfs_resource_2),
+          "id" => gtfs_resource_2.id,
           "datagouv_id" => "2",
           "features" => ["clim"],
           "filesize" => 43,
@@ -269,6 +291,22 @@ defmodule TransportWeb.API.DatasetControllerTest do
           "type" => "main",
           "url" => gbfs_resource.latest_url,
           "is_available" => gbfs_resource.is_available
+        },
+        %{
+          "updated" => netex_resource.last_update |> DateTime.to_iso8601(),
+          "page_url" => resource_page_url(netex_resource),
+          "id" => netex_resource.id,
+          "datagouv_id" => "4",
+          "features" => ["networks"],
+          "filesize" => 43,
+          "format" => "NeTEx",
+          "metadata" => %{"foo" => "bar3"},
+          "modes" => ["bus"],
+          "original_url" => "https://link.to/file3.zip",
+          "title" => "NeTEx",
+          "type" => "main",
+          "url" => "https://static.data.gouv.fr/foo3",
+          "is_available" => true
         }
       ],
       "slug" => "slug-1",
@@ -276,7 +314,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       "type" => "public-transit",
       "sub_types" => ["urban"],
       "updated" =>
-        [resource_1, gbfs_resource, resource_2]
+        [gtfs_resource_1, gbfs_resource, gtfs_resource_2, netex_resource]
         |> Enum.map(& &1.last_update)
         |> Enum.max(DateTime)
         |> DateTime.to_iso8601(),
@@ -304,7 +342,7 @@ defmodule TransportWeb.API.DatasetControllerTest do
       |> Map.merge(%{"history" => []})
       |> Map.put("resources", Enum.map(dataset_res["resources"], &Map.put(&1, "conversions", %{})))
 
-    json = conn |> get(Helpers.dataset_path(conn, :by_id, datagouv_id)) |> json_response(200)
+    json = conn |> get(Helpers.dataset_path(conn, :by_id, dataset.datagouv_id)) |> json_response(200)
     assert dataset_res == json
     assert_schema(json, "DatasetDetails", TransportWeb.API.Spec.spec())
   end
