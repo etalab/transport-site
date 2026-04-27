@@ -17,12 +17,8 @@ defmodule Transport.Application do
   def cache_name, do: @cache_name
 
   def start(_type, _args) do
-    unless Mix.env() == :test do
-      cond do
-        worker_only?() -> Logger.info("Booting in worker-only mode...")
-        webserver_only?() -> Logger.info("Booting in webserver-only mode...")
-        dual_mode?() -> Logger.info("Booting in worker+webserver mode...")
-      end
+    if worker_enabled?() or webserver_enabled?() do
+      Logger.info("Booting in #{boot_mode_label()} mode...")
     end
 
     children =
@@ -68,6 +64,14 @@ defmodule Transport.Application do
 
     opts = [strategy: :one_for_one, name: Transport.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp boot_mode_label do
+    cond do
+      worker_only?() -> "worker-only"
+      webserver_only?() -> "webserver-only"
+      dual_mode?() -> "worker+webserver"
+    end
   end
 
   def webserver_enabled?, do: Application.fetch_env!(:transport, :webserver)
