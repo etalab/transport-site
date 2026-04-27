@@ -180,3 +180,6 @@ config :transport, quantum_scheduler_enabled: false
 
 # Safety: tests that exercise WorkerHealthcheck.stop_the_beam! must not actually halt the suite
 config :transport, worker_healthcheck_halts_beam: false
+
+# Re-raise exceptions caught in Unlock.Controller so ExUnit assertions can catch them
+config :transport, unlock_controller_rescue_mode: :reraise

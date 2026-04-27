@@ -92,6 +92,9 @@ config :phoenix_live_view,
 # Forward GTFS-RT validator subprocess output to the parent for local debugging
 config :transport, gtfs_rt_validator_cli_log: true
 
+# Log full stacktrace when Unlock.Controller catches an exception
+config :transport, unlock_controller_rescue_mode: :verbose
+
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
