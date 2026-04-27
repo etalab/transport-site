@@ -1,3 +1,8 @@
+# Quick audit of `horodatage` timestamp formats across all upstream feeds in the
+# dynamic IRVE consolidated output. Replaces digits with `D` to surface the shape
+# of each timestamp, then groups by origin to see which feed uses which format —
+# useful before deciding on normalization rules.
+
 Mix.install([
   {:req, "~> 0.5.15"},
   {:explorer, "~> 0.11.0"}
