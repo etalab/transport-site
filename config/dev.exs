@@ -89,6 +89,9 @@ config :phoenix_live_view,
   debug_attributes: true,
   enable_expensive_runtime_checks: true
 
+# Forward GTFS-RT validator subprocess output to the parent for local debugging
+config :transport, gtfs_rt_validator_cli_log: true
+
 extra_config_file = Path.join(__DIR__, "#{config_env()}.secret.exs")
 
 if File.exists?(extra_config_file) do
