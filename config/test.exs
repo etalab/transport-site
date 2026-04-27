@@ -165,3 +165,6 @@ config :sentry,
 
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Override the default `@max_records` defined in the module, to keep tests fast
+config :transport, clean_multi_validation_max_records: 1
