@@ -168,7 +168,8 @@ defmodule Unlock.Config do
         identifier: Map.fetch!(item, "identifier"),
         bucket: Map.fetch!(item, "bucket"),
         path: Map.fetch!(item, "path"),
-        ttl: Map.get(item, "ttl", 10)
+        ttl: Map.get(item, "ttl", 10),
+        response_headers: parse_config_http_headers(Map.get(item, "response_headers", []))
       }
     end
 

@@ -179,6 +179,30 @@ defmodule Unlock.ConfigFetcherTest do
     end
   end
 
+  test "S3 items" do
+    yaml_config = """
+    ---
+    feeds:
+      - identifier: "irve-statique"
+        type: "s3"
+        bucket: "aggregates"
+        path: "consolidation_irve_statique.csv"
+        ttl: 300
+        response_headers:
+          - ["content-type", "text/csv"]
+    """
+
+    assert parse_config(yaml_config) == [
+             %Unlock.Config.Item.S3{
+               identifier: "irve-statique",
+               bucket: "aggregates",
+               path: "consolidation_irve_statique.csv",
+               ttl: 300,
+               response_headers: [{"content-type", "text/csv"}]
+             }
+           ]
+  end
+
   test "for a GBFS feed" do
     yaml_config = """
     ---
