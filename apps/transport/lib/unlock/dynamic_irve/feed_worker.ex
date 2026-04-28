@@ -44,6 +44,8 @@ defmodule Unlock.DynamicIRVE.FeedWorker do
           |> Explorer.DataFrame.load_csv!(infer_schema_length: 0)
           |> Explorer.DataFrame.select(expected_columns())
 
+        # TO DO: we might want to sample that in the future, to avoid consuming too much AppSignal quota,
+        # but I'll appreciate having it initially.
         Logger.info("[DynamicIRVE] #{parent_id}/#{feed.slug} => HTTP 200, #{Explorer.DataFrame.n_rows(df)} rows")
 
         FeedStore.put_feed(parent_id, feed.slug, %{
