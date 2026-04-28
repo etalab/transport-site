@@ -41,7 +41,7 @@ defmodule JobsTableComponent do
   end
 
   defp format_datetime(dt) do
-    Shared.DateTimeDisplay.format_datetime_to_paris(dt, "en", no_timezone: true, with_seconds: true)
+    Shared.DateTimeDisplay.format_time_to_paris(dt, "en", no_timezone: true, with_seconds: true)
   end
 
   defp compact_errors(%{errors: _} = assigns) do
