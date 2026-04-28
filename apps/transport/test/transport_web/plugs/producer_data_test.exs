@@ -21,6 +21,10 @@ defmodule TransportWeb.Plugs.ProducerDataTest do
     end)
 
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    # Cachex runs the cache computation function in a separate Courier process,
+    # which would otherwise have no DB sandbox ownership. Shared mode locks
+    # this file in async: false but is the simplest fix.
+    Ecto.Adapters.SQL.Sandbox.mode(DB.Repo, {:shared, self()})
   end
 
   describe "call" do

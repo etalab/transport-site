@@ -1,4 +1,6 @@
 defmodule Unlock.Plugs.TokenAuthTest do
+  # UUID slugs remove cache-key collisions, but full async: true still requires
+  # tackling Mox global mode, Application.put_env for the auth flag, and global telemetry handlers.
   use TransportWeb.ConnCase, async: false
   import DB.Factory
   import Mox
@@ -17,7 +19,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
     end
 
     test "valid token passed: request is logged" do
-      slug = "an-existing-identifier"
+      slug = "valid-token-logged-#{Ecto.UUID.generate()}"
       %DB.Token{id: token_id} = token = insert_token()
 
       setup_proxy_config(%{
@@ -45,7 +47,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
     end
 
     test "no token passed" do
-      slug = "another-identifier"
+      slug = "no-token-#{Ecto.UUID.generate()}"
 
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.Generic.HTTP{
@@ -85,7 +87,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
     end
 
     test "valid token passed: no requests logged" do
-      slug = "an-existing-identifier-valid-token"
+      slug = "valid-token-not-logged-#{Ecto.UUID.generate()}"
       token = insert_token()
 
       setup_proxy_config(%{
@@ -109,7 +111,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
     end
 
     test "invalid token passes through without authentication" do
-      slug = "an-identifier"
+      slug = "invalid-token-passthrough-#{Ecto.UUID.generate()}"
 
       setup_proxy_config(%{
         slug => %Unlock.Config.Item.Generic.HTTP{
