@@ -235,7 +235,7 @@ defmodule TransportWeb.Router do
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/jobs", JobsLive)
-        live("/jobs2", Jobs2Live)
+        live("/jobs/experimental", Jobs2Live)
       end
 
       live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do

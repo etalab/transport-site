@@ -1,5 +1,10 @@
 <section class="container pt-48 pb-48">
-  <h1>Jobs Observation Center</h1>
+  <div class="header_with_action_bar">
+    <h1>Jobs Observation Center</h1>
+    {link("version expérimentale",
+      to: backoffice_live_path(@socket, TransportWeb.Backoffice.Jobs2Live, worker: @worker)
+    )}
+  </div>
   <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 
   <div class="pb-24">
