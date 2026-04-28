@@ -1,6 +1,7 @@
 defmodule Unlock.BatchMetricsTest do
   use ExUnit.Case, async: false
   import DB.Factory
+  import Transport.Test.TestUtils, only: [wait_until: 1]
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -24,7 +25,8 @@ defmodule Unlock.BatchMetricsTest do
     assert %{{"foo", "external"} => 3, {"bar", "internal"} => 1} == :sys.get_state(Unlock.BatchMetrics)
 
     send(Unlock.BatchMetrics, :work)
-    :timer.sleep(100)
+    # upserts run in async tasks — poll until the records have been inserted
+    wait_until(fn -> DB.Repo.aggregate(DB.Metrics, :count) == 2 end)
 
     assert [
              # Metric has been updated
