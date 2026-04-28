@@ -31,14 +31,6 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
      end)}
   end
 
-  defp flag(params, key, default_value) do
-    case Map.get(params, key) do
-      "true" -> true
-      "false" -> false
-      _ -> default_value
-    end
-  end
-
   # TO DO: DRY code with proxy live
   # If one calls "redirect" and does not leave immediately, the remaining code will
   # be executed, opening security issues. This method goal is to minimize this risk.
@@ -195,15 +187,27 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   end
 
   defp extract_params(params) do
+    flags = flags(params, [:listing | @states])
+
     %{
-      worker: Map.get(params, "worker", nil),
-      executing: flag(params, "executing", true),
-      completed: flag(params, "completed", true),
-      scheduled: flag(params, "scheduled", true),
-      retryable: flag(params, "retryable", true),
-      available: flag(params, "available", true),
-      discarded: flag(params, "discarded", true),
-      listing: flag(params, "listing", true)
+      worker: Map.get(params, "worker", nil)
     }
+    |> Map.merge(flags)
+  end
+
+  defp flags(params, keys) do
+    keys
+    |> Enum.map(fn key ->
+      {key, flag(params, to_string(key))}
+    end)
+    |> Map.new()
+  end
+
+  defp flag(params, key) do
+    case Map.get(params, key) do
+      "true" -> true
+      "false" -> false
+      _ -> true
+    end
   end
 end
