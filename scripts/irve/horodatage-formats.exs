@@ -34,7 +34,7 @@ defmodule HorodatageAnalysis do
     df
     |> DataFrame.group_by(["origin", "pattern"])
     |> DataFrame.summarise(count: count(col("id_pdc_itinerance")))
-    |> DataFrame.sort_by([asc: col("origin"), desc: col("count")])
+    |> DataFrame.sort_by(asc: col("origin"), desc: col("count"))
     |> DataFrame.print(limit: :infinity)
 
     IO.puts("\n=== One example per pattern ===\n")
