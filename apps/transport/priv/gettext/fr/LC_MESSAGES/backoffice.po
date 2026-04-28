@@ -299,3 +299,55 @@ msgstr "Territoire couvert déclaré"
 #, elixir-autogen, elixir-format
 msgid "Email preview"
 msgstr "Prévisualisation d'e-mails"
+
+#, elixir-autogen, elixir-format
+msgid "Jobs Observation Center"
+msgstr "Suivi des jobs"
+
+#, elixir-autogen, elixir-format
+msgid "count"
+msgstr "nombre"
+
+#, elixir-autogen, elixir-format
+msgid "worker"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Last update:"
+msgstr "Dernière mise à jour :"
+
+#, elixir-autogen, elixir-format
+msgid "args"
+msgstr "arguments"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "errors"
+msgstr "erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "queue"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "state"
+msgstr "état"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "inserted_at"
+msgstr "inséré à"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "scheduled_at"
+msgstr "programmé à"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "time range"
+msgstr "plage horaire"
+
+#, elixir-autogen, elixir-format
+msgid "listing"
+msgstr "liste"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "total:"
+msgstr "total :"

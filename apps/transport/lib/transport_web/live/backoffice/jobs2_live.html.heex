@@ -1,0 +1,48 @@
+<section id="jobs">
+  <div class="header_with_action_bar">
+    <h1>{dgettext("backoffice", "Jobs Observation Center")}</h1>
+    <span>{dgettext("backoffice", "Last update:")} {@last_updated_at}</span>
+  </div>
+
+  <.form :let={f} for={%{}} phx-change="filter" class="no-margin">
+    <div class="jobs-filter">
+      {text_input(f, :worker, value: @worker, autofocus: true)}
+      <div class="vsep"></div>
+      <label :for={state <- @states} class={"job-state job-state-#{state}"}>
+        {checkbox(f, state, value: assigns[state])} {state}
+      </label>
+      <div class="vsep"></div>
+      <label class="listing-toggle">
+        {checkbox(f, :listing, value: @listing)}
+        {dgettext("backoffice", "listing")}
+      </label>
+      <div :if={@listing} class="vsep"></div>
+      <div :if={@listing} class="total">{dgettext("backoffice", "total:")} {Helpers.format_number(@count_jobs)}</div>
+    </div>
+  </.form>
+
+  <%= if @listing do %>
+    <.live_component module={JobsTableComponent} jobs={@jobs} id="live_jobs" />
+  <% else %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{dgettext("backoffice", "time range")}</th>
+          <th>{dgettext("backoffice", "worker")}</th>
+          <th>{dgettext("backoffice", "count")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for {hour, rows} <- @jobs_count do %>
+          <tr :for={{row, index} <- Enum.with_index(rows)}>
+            <td :if={index == 0} rowspan={Enum.count(rows)}>
+              {format_1_hour_range(hour)}
+            </td>
+            <td>{row.worker}</td>
+            <td>{Helpers.format_number(row.count)}</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</section>
