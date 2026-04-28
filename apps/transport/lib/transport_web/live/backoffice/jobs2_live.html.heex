@@ -16,8 +16,10 @@
         {checkbox(f, :listing, value: @listing)}
         {dgettext("backoffice", "listing")}
       </label>
-      <div :if={@listing} class="vsep"></div>
-      <div :if={@listing} class="total">{dgettext("backoffice", "total:")} {Helpers.format_number(@count_jobs)}</div>
+      <div :if={@listing and @count_jobs} class="vsep"></div>
+      <div :if={@listing and @count_jobs} class="total">
+        {dgettext("backoffice", "total:")} {Helpers.format_number(@count_jobs)}
+      </div>
     </div>
   </.form>
 
