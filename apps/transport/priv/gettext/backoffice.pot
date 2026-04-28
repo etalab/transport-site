@@ -299,3 +299,55 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Email preview"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Jobs Observation Center"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "count"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "worker"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Last update:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "args"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "queue"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "state"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "inserted_at"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "scheduled_at"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "time range"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "listing"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "total:"
+msgstr ""
