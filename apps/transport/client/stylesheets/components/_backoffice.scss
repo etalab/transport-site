@@ -304,6 +304,32 @@ iframe#email_preview {
     --taint: color-mix(red 70%, white);
   }
 
+  table tr th,
+  table tr td {
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  table tr td {
+    vertical-align: top;
+
+    ol.errors {
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin: 0;
+        padding: 0;
+
+        code {
+          font-size: 0.75rem;
+          line-height: 1rem;
+        }
+      }
+    }
+  }
+
   form {
     max-width: unset;
     display: flex;

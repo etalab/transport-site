@@ -46,11 +46,11 @@ defmodule JobsTableComponent do
 
   defp compact_errors(%{errors: _} = assigns) do
     ~H"""
-    <ul>
+    <ol class="errors">
       <li :for={error <- split_errors(@errors)}>
         {error.at} : <code>{error.error}</code>
       </li>
-    </ul>
+    </ol>
     """
   end
 
