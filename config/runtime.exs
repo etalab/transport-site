@@ -85,7 +85,8 @@ domain_name =
 config :transport, domain_name: domain_name
 
 config :transport,
-  app_env: app_env
+  app_env: app_env,
+  mix_env: config_env()
 
 # Override configuration specific to staging
 if app_env == :staging do
