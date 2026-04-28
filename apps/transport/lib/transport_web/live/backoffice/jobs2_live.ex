@@ -8,7 +8,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   import Ecto.Query
   import TransportWeb.Router.Helpers
 
-  @states [:executing, :completed, :scheduled, :retryable, :available, :discarded]
+  @states [:executing, :completed, :scheduled, :retryable, :available, :discarded, :cancelled]
 
   @max_jobs 100
 
