@@ -1,7 +1,7 @@
-defmodule Transport.RealtimePoller do
+defmodule Transport.ExploreVehiclePositionsPoller do
   @moduledoc """
-  A system to poll all active GTFS-RT feeds in the database, and broadcast
-  the data via pubsub to the subscribed clients.
+  Polls vehicle positions from active GTFS-RT feeds and broadcasts them via
+  PubSub on the Explore channel, feeding the realtime vehicle map.
   """
   use GenServer
   import Ecto.Query
