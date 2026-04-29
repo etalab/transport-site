@@ -37,10 +37,10 @@
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.3.4",
-    "babel-loader": "^9.1.3",
-    "copy-webpack-plugin": "^11.0.0",
+    "babel-loader": "^10.1.1",
+    "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^6.7.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "eslint": "^8.24.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.22.1",
@@ -52,12 +52,12 @@
     "mini-css-extract-plugin": "^2.5.3",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
-    "style-loader": "^3.3.1",
+    "style-loader": "^4.0.0",
     "stylelint": "^17.4.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-scss": "^7.0.0",
     "webpack": "^5.106.2",
-    "webpack-cli": "^4.9.2",
+    "webpack-cli": "^7.0.2",
     "webpack-merge": "^5.8.0"
   },
   "resolutions": {
