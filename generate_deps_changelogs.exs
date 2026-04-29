@@ -12,7 +12,8 @@
 
 defmodule Scanner do
   def scan(mix_lock_content) do
-    {lock_deps, []} = mix_lock_content |> Code.eval_string()
+    {{lock_deps, []}, _diagnostics} =
+      Code.with_diagnostics(fn -> Code.eval_string(mix_lock_content) end)
 
     lock_deps
     |> Enum.map(fn {entry, data} ->
