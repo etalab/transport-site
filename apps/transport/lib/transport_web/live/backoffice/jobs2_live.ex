@@ -157,7 +157,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
   @impl true
   def handle_event("filter", params, socket) do
-    update = extract_params(params)
+    update = extract_params(params) |> drop_defaults()
 
     socket =
       socket
@@ -209,5 +209,12 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
       "false" -> false
       _ -> true
     end
+  end
+
+  defp drop_defaults(updates) do
+    Map.reject(updates, fn {_key, value} ->
+      value == true or value == ""
+    end)
+
   end
 end
