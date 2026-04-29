@@ -164,3 +164,21 @@ config :sentry,
 
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Override the default `@max_records` defined in the module, to keep tests fast
+config :transport, clean_multi_validation_max_records: 1
+
+# Override the default `@max_emails_per_day` defined in the module, to test the scheduling logic
+config :transport, periodic_reminder_producers_chunk_size: 1
+
+# Disabled by default during tests; tests that need it should start the poller locally
+config :transport, explore_vehicle_positions_poller_enabled: false
+
+# Disabled by default during tests; tests that need it should start it locally
+config :transport, quantum_scheduler_enabled: false
+
+# Safety: tests that exercise WorkerHealthcheck.stop_the_beam! must not actually halt the suite
+config :transport, worker_healthcheck_halts_beam: false
+
+# Re-raise exceptions caught in Unlock.Controller so ExUnit assertions can catch them
+config :transport, unlock_controller_rescue_mode: :reraise
