@@ -42,7 +42,9 @@ config :transport,
   disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
 config :transport,
-  unlock_enforce_ttl: webserver
+  unlock_enforce_ttl: webserver,
+  dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30)),
+  dynamic_irve_initial_sync: config_env() != :test
 
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
@@ -55,7 +57,7 @@ iex_started? = Code.ensure_loaded?(IEx) && IEx.started?()
 # https://www.clever-cloud.com/doc/reference/reference-environment-variables/#set-by-the-deployment-process
 # They should not run in an iex session either.
 if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTANCE_NUMBER") == "0" do
-  config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
+  config :transport, Transport.QuantumScheduler, jobs: Transport.QuantumScheduler.scheduled_jobs()
 end
 
 # Make sure that APP_ENV is set in production to distinguish
@@ -85,7 +87,8 @@ domain_name =
 config :transport, domain_name: domain_name
 
 config :transport,
-  app_env: app_env
+  app_env: app_env,
+  mix_env: config_env()
 
 # Override configuration specific to staging
 if app_env == :staging do
@@ -106,7 +109,7 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 #
 # - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
 #   and "config_env :prod" in contrast to :dev et :test
-# - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
+# - ⚠️ There is another (in-memory) crontab in `Transport.QuantumScheduler`, see `quantum_scheduler.ex`
 # See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},

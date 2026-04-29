@@ -123,7 +123,7 @@ defmodule Transport.Validators.GTFSRT do
 
   def run_validator({binary_path, args}) do
     # See https://github.com/MobilityData/gtfs-realtime-validator/blob/master/gtfs-realtime-validator-lib/README.md#batch-processing
-    Transport.RamboLauncher.run(binary_path, args, log: Mix.env() == :dev)
+    Transport.RamboLauncher.run(binary_path, args, log: Application.fetch_env!(:transport, :gtfs_rt_validator_cli_log))
   end
 
   @spec convert_validator_report(binary(), ignore_shapes: boolean()) :: {:ok, map()} | :error
