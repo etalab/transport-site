@@ -131,19 +131,11 @@ msgid "NegativeStopDuration"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Location"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Message"
 msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Unknown location"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Details for debugging purposes"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -160,4 +152,16 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Occurrences"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "The following errors are only available in English."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Line"
 msgstr ""

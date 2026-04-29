@@ -4,6 +4,14 @@ defmodule TransportWeb.ResourceView do
   import TransportWeb.PaginationHelpers
   import Phoenix.Controller, only: [current_url: 2]
 
+  import TransportWeb.NeTExReportComponents,
+    only: [
+      netex_generic_issues: 1,
+      netex_validation_report_content: 1,
+      netex_validation_report_title: 1,
+      to_netex_validation_report: 1
+    ]
+
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
 
@@ -311,156 +319,100 @@ defmodule TransportWeb.ResourceView do
     "https://explore.data.gouv.fr/fr/datasets/#{dataset_datagouv_id}/#/resources/#{resource_datagouv_id}"
   end
 
-  def netex_validation_summary(%{conn: _, results_adapter: _, validation_summary: _, token: _} = assigns) do
+  def netex_features(%{features: _} = assigns) do
     ~H"""
-    <ul class="summary">
-      <.netex_errors_category
-        :for={%{"category" => category, "stats" => stats} <- @validation_summary}
-        conn={@conn}
-        results_adapter={@results_adapter}
-        category={category}
-        stats={stats}
-        token={@token}
-      />
-      <.netex_validations_layers compliance_check={@results_adapter.french_profile_compliance_check()} />
-    </ul>
-    """
-  end
-
-  def netex_validation_report_download(%{validation_report_url: _} = assigns) do
-    ~H"""
-    <div>
-      <.download_button url={@validation_report_url} format="csv">
-        {dgettext("resource", "CSV report")}
-      </.download_button>
-      <.download_button url={@validation_report_url} format="parquet">
-        {dgettext("resource", "Parquet report")}
-      </.download_button>
-    </div>
-    """
-  end
-
-  def download_button(%{url: nil} = assigns) do
-    ~H"""
-    <button class="button-outline small secondary" disabled title={dgettext("validations", "No validation error")}>
-      <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
-    </button>
-    """
-  end
-
-  def download_button(%{url: _, format: _} = assigns) do
-    ~H"""
-    <a class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
-      <button class="button-outline small secondary">
-        <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
-      </button>
-    </a>
-    """
-  end
-
-  defp netex_validations_layers(%{compliance_check: :good_enough} = assigns) do
-    ~H"""
-    """
-  end
-
-  defp netex_validations_layers(%{compliance_check: _} = assigns) do
-    ~H"""
-    <li class="comment">
-      <.info_icon />
-      <div>
-        {dgettext("validations", "netex-validations-layers") |> raw()}
-        {french_profile_comment(@compliance_check)}
-      </div>
+    <% features = enumerate_netex_features(@features) %>
+    <li :if={not Enum.empty?(features)}>
+      {dgettext("resource", "NeTEx features:")}
+      {safe_join(features, ", ")}.
     </li>
     """
   end
 
-  defp french_profile_comment(:none), do: dgettext("validations", "netex-french-profile-no-compliance") |> raw()
-  defp french_profile_comment(:partial), do: dgettext("validations", "netex-french-profile-partial-compliance") |> raw()
-  defp french_profile_comment(:good_enough), do: ""
+  defp enumerate_netex_features(features) do
+    features
+    |> Enum.filter(fn {_feature, active} -> active end)
+    |> Enum.sort_by(&feature_order/1)
+    |> Enum.map(fn {feature, _} -> "<strong>#{netex_feature(feature)}</strong>" |> raw() end)
+  end
 
-  defp netex_errors_category(%{conn: _, category: _, stats: _, token: _, results_adapter: _} = assigns) do
+  defp feature_order({"networks", _}), do: 1
+  defp feature_order({"stops", _}), do: 2
+  defp feature_order({"fares", _}), do: 3
+  defp feature_order({"timetables", _}), do: 4
+  defp feature_order({"parkings", _}), do: 5
+  defp feature_order({"accessibility", _}), do: 6
+  defp feature_order({_, _}), do: 100
+
+  defp netex_feature("networks"), do: dgettext("resource", "networks")
+  defp netex_feature("stops"), do: dgettext("resource", "stops")
+  defp netex_feature("fares"), do: dgettext("resource", "fares")
+  defp netex_feature("timetables"), do: dgettext("resource", "timetables")
+  defp netex_feature("parkings"), do: dgettext("resource", "parkings")
+  defp netex_feature("accessibility"), do: dgettext("resource", "accessibility")
+  defp netex_feature(_), do: ""
+
+  defp safe_join(safe_htmls, separator) do
+    html =
+      safe_htmls
+      |> Enum.map_join(separator, fn {:safe, html} -> html end)
+
+    {:safe, html}
+  end
+
+  def netex_statistics(%{stats: _, locale: _} = assigns) do
     ~H"""
-    <li>
-      <.validity_icon errors={@stats["count"]} />
-      <div class="selector">
-        {compatibility_filter(@conn, @category, @token, @stats["count"])}
-        <.stats :if={@stats["count"] > 0} stats={@stats} results_adapter={@results_adapter} />
-      </div>
-      <p :if={netex_category_description(@category)}>
-        {netex_category_description(@category)}
-      </p>
-      <.category_hints :if={netex_category_hints(@category) && @stats["count"] > 0} category={@category} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:line} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:quay} />
+    <.netex_statistic stats={@stats} locale={@locale} concept={:stop_place} />
+    """
+  end
+
+  defp netex_statistic(%{concept: _, stats: _, locale: _} = assigns) do
+    ~H"""
+    <% count = Map.get(@stats, "#{Atom.to_string(@concept)}s_count", 0) %>
+    <li :if={count > 0} class="statistic">
+      {netex_statistic_description(@concept)}
+      <strong>{format_nil_or_number(count, @locale)}</strong>
+      <.netex_statistic_element_tooltip concept={@concept} />
     </li>
     """
   end
 
-  defp category_hints(%{category: _} = assigns) do
+  defp netex_statistic_description(:line), do: dgettext("resource", "number of lines:")
+  defp netex_statistic_description(:quay), do: dgettext("resource", "number of quays:")
+  defp netex_statistic_description(:stop_place), do: dgettext("resource", "number of stop places:")
+
+  defp netex_statistic_element_tooltip(%{concept: _} = assigns) do
     ~H"""
-    <.info_icon />
-    <p>{netex_category_hints(@category)}</p>
+    <span class="dropdown">
+      <i class="fa fa-circle-question"></i>
+      <div class="dropdown-content">
+        {dgettext("resource", "Occurrences of the %{element} element.", element: netex_statistic_element(@concept))
+        |> raw()}
+      </div>
+    </span>
     """
   end
 
-  defp stats(%{stats: _, results_adapter: _} = assigns) do
-    ~H"""
-    ({@results_adapter.format_severity(@stats["criticity"], @stats["count"])})
-    """
+  defp netex_statistic_element(:line), do: "Line" |> element()
+  defp netex_statistic_element(:quay), do: "Quay" |> element()
+  defp netex_statistic_element(:stop_place), do: "StopPlace" |> element()
+
+  defp element(element_name) do
+    "<code>&lt;#{element_name}&gt;</code>"
   end
 
-  defp compatibility_filter(conn, category, token, count) when count > 0 do
-    query_params =
-      %{"token" => token, "issues_category" => category}
-      |> drop_empty_query_params()
-
-    url = current_url(conn, query_params)
-
-    category
-    |> netex_category_label()
-    |> link(class: "compatibility_filter", to: "#{url}#issues")
+  def netex_pagination_links(conn, issues, resource, current_category) do
+    pagination_links(conn, issues, [resource.id],
+      issues_category: current_category,
+      path: &netex_issues_path/4,
+      action: :details
+    )
   end
 
-  defp compatibility_filter(_conn, category, _token, _count) do
-    category
-    |> netex_category_label()
-    |> strong()
-  end
-
-  defp strong(text), do: raw("<strong>#{text}</strong>")
-
-  def validity_icon(%{errors: errors} = assigns) when errors > 0 do
-    ~H"""
-    <i class="fa fa-xmark"></i>
-    """
-  end
-
-  def validity_icon(assigns) do
-    ~H"""
-    <i class="fa fa-check"></i>
-    """
-  end
-
-  def info_icon(assigns) do
-    ~H"""
-    <i class="fa fa-circle-info"></i>
-    """
-  end
-
-  def netex_category_label("xsd-schema"), do: dgettext("validations", "XSD NeTEx")
-  def netex_category_label("french-profile"), do: dgettext("validations", "French profile")
-  def netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
-  def netex_category_label(_), do: dgettext("validations", "Other errors")
-
-  def netex_category_description("xsd-schema"), do: dgettext("validations", "xsd-schema-description") |> raw()
-  def netex_category_description("french-profile"), do: dgettext("validations", "french-profile-description") |> raw()
-  def netex_category_description("base-rules"), do: dgettext("validations", "base-rules-description") |> raw()
-  def netex_category_description(_), do: nil
-
-  def netex_category_hints("xsd-schema"), do: dgettext("validations", "xsd-schema-hints") |> raw()
-  def netex_category_hints(_), do: nil
-
-  defp drop_empty_query_params(query_params) do
-    Map.reject(query_params, fn {_, v} -> is_nil(v) end)
+  defp netex_issues_path(conn, action, resource_id, params) do
+    resource_path(conn, action, resource_id, params) |> to_netex_validation_report()
   end
 
   def error_label(severity) do

@@ -406,6 +406,13 @@ defmodule DB.Factory do
     %DB.DatasetSubtype{}
   end
 
+  def company_factory do
+    %DB.Company{
+      siren: "420495178",
+      nom_complet: "SOCIÉTÉ AIR FRANCE"
+    }
+  end
+
   def insert_token(%{} = args \\ %{}) do
     args =
       %{

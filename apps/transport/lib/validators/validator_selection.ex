@@ -68,10 +68,6 @@ defmodule Transport.ValidatorsSelection.Impl do
       when feature in [
              :datasets_without_gtfs_rt_related_resouces,
              :gtfs_import_stops_job,
-             :api_datasets_controller,
-             :api_stats_controller,
-             :aoms_controller,
-             :backoffice_page_controller,
              :gtfs_rt_validator
            ],
       do: [
@@ -79,12 +75,19 @@ defmodule Transport.ValidatorsSelection.Impl do
         Transport.Validators.MobilityDataGTFSValidator
       ]
 
-  def validators_for_feature(:expiration_notification),
-    do: [
-      Transport.Validators.GTFSTransport,
-      Transport.Validators.MobilityDataGTFSValidator,
-      Transport.Validators.NeTEx.Validator
-    ]
+  def validators_for_feature(feature)
+      when feature in [
+             :api_datasets_controller,
+             :api_stats_controller,
+             :aoms_controller,
+             :backoffice_page_controller,
+             :expiration_notification
+           ],
+      do: [
+        Transport.Validators.GTFSTransport,
+        Transport.Validators.MobilityDataGTFSValidator,
+        Transport.Validators.NeTEx.Validator
+      ]
 
   def validators_for_feature(:multi_validation_with_error_static_validators),
     do: [

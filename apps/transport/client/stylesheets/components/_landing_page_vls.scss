@@ -15,6 +15,7 @@ article.landing_page_vls {
 
   h1, h2 {
     text-align: center;
+    text-wrap: balance;
     margin-block: 1.5rem;
   }
 
@@ -26,6 +27,10 @@ article.landing_page_vls {
     font-size: 22px;
   }
 
+  p {
+    text-wrap: pretty;
+  }
+
   ul {
     list-style-type: none;
     padding: 0;
@@ -33,6 +38,7 @@ article.landing_page_vls {
 
   li {
     margin-bottom: 10px;
+    text-wrap: balance;
   }
 
   header, footer {
@@ -200,6 +206,7 @@ article.landing_page_vls {
       background-color: white;
       padding: 1.5rem;
       text-align: center;
+      text-wrap: balance;
       box-shadow: rgb(0 0 0 / 0.4) 0 0 25px, rgb(255 255 255 / 0.2) 0 0 15px, rgb(255 255 255 / 0.4) 0 0 3px;
     }
 
@@ -215,10 +222,6 @@ article.landing_page_vls {
   }
 
   @media (min-width: 870px) {
-    h1 {
-      max-width: 80%;
-    }
-
     header, footer {
       padding: 4rem;
     }

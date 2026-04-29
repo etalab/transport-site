@@ -5,7 +5,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -47,11 +47,20 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_successful_validation(12)
+      modes = lines |> modes()
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
+
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(12)
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -70,21 +79,43 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
-               "modes" => modes
+               "modes" => modes,
+               "stats" => %{
+                 "lines_count" => length(lines),
+                 "quays_count" => 0,
+                 "stop_places_count" => 0
+               },
+               "features" => %{
+                 "networks" => true,
+                 "stops" => false,
+                 "timetables" => false,
+                 "fares" => false,
+                 "parkings" => false,
+                 "accessibility" => false
+               }
              }
 
       assert multi_validation.metadata.modes == modes
+      assert multi_validation.metadata.features == ["networks"]
     end
 
     test "pending validation" do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
+      modes = lines |> modes()
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
+
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -93,7 +124,25 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         args: %{
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
-          "metadata" => %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
+          "metadata" => %{
+            "start_date" => start_date,
+            "end_date" => end_date,
+            "networks" => [network],
+            "modes" => modes,
+            "stats" => %{
+              "lines_count" => length(lines),
+              "quays_count" => 0,
+              "stop_places_count" => 0
+            },
+            "features" => %{
+              "networks" => true,
+              "stops" => false,
+              "timetables" => false,
+              "fares" => false,
+              "parkings" => false,
+              "accessibility" => false
+            }
+          }
         }
       )
 
@@ -104,11 +153,19 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, modes)
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(31)
+      modes = lines |> modes()
+
+      resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
+
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -126,10 +183,24 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
-               "modes" => modes
+               "modes" => modes,
+               "stats" => %{
+                 "lines_count" => length(lines),
+                 "quays_count" => 0,
+                 "stop_places_count" => 0
+               },
+               "features" => %{
+                 "networks" => true,
+                 "stops" => false,
+                 "timetables" => false,
+                 "fares" => false,
+                 "parkings" => false,
+                 "accessibility" => false
+               }
              }
 
       assert multi_validation.metadata.modes == modes
+      assert multi_validation.metadata.features == ["networks"]
 
       result = %{
         "xsd-schema" => [
@@ -181,11 +252,19 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      resource_url = mk_netex(start_date, end_date, network, modes)
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      expect_create_validation("pan:french_profile:1") |> expect_successful_validation(9)
+      modes = lines |> modes()
+
+      resource_url = mk_netex(start_date, end_date, network, lines)
+
+      expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(9)
 
       assert {:ok,
               %{
@@ -196,7 +275,20 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
-                  "modes" => modes
+                  "modes" => modes,
+                  "stats" => %{
+                    "lines_count" => length(lines),
+                    "quays_count" => 0,
+                    "stop_places_count" => 0
+                  },
+                  "features" => %{
+                    "networks" => true,
+                    "stops" => false,
+                    "timetables" => false,
+                    "fares" => false,
+                    "parkings" => false,
+                    "accessibility" => false
+                  }
                 }
               }} ==
                Validator.validate(resource_url)
@@ -206,11 +298,19 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      resource_url = mk_netex(start_date, end_date, network, modes)
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_failed_validation(25)
+      modes = lines |> modes()
+
+      resource_url = mk_netex(start_date, end_date, network, lines)
+
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -255,7 +355,20 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
-                  "modes" => modes
+                  "modes" => modes,
+                  "stats" => %{
+                    "lines_count" => length(lines),
+                    "quays_count" => 0,
+                    "stop_places_count" => 0
+                  },
+                  "features" => %{
+                    "networks" => true,
+                    "stops" => false,
+                    "timetables" => false,
+                    "fares" => false,
+                    "parkings" => false,
+                    "accessibility" => false
+                  }
                 }
               }} ==
                Validator.validate(resource_url)
@@ -265,34 +378,73 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       start_date = "2025-11-03"
       end_date = "2025-11-15"
       network = "Réseau Urbain"
-      modes = ["bus", "ferry"]
 
-      metadata = %{"start_date" => start_date, "end_date" => end_date, "networks" => [network], "modes" => modes}
+      lines = [
+        mk_line("A", "bus"),
+        mk_line("B", "bus"),
+        mk_line("F1", "ferry"),
+        mk_line("F2", "ferry")
+      ]
 
-      resource_url = mk_netex(start_date, end_date, network, modes)
+      modes = lines |> modes()
 
-      validation_id = expect_create_validation("pan:french_profile:1") |> expect_pending_validation()
+      metadata = %{
+        "start_date" => start_date,
+        "end_date" => end_date,
+        "networks" => [network],
+        "modes" => modes,
+        "stats" => %{
+          "lines_count" => length(lines),
+          "quays_count" => 0,
+          "stop_places_count" => 0
+        },
+        "features" => %{
+          "networks" => true,
+          "stops" => false,
+          "timetables" => false,
+          "fares" => false,
+          "parkings" => false,
+          "accessibility" => false
+        }
+      }
+
+      resource_url = mk_netex(start_date, end_date, network, lines)
+
+      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end
   end
 
-  defp mk_netex_resource_with_calendar(start_date, end_date, network, modes) do
+  defp mk_line(public_code, mode) do
+    %{
+      id: "RESEAU_URBAIN:Line:#{public_code}",
+      short_name: "Ligne #{public_code}",
+      public_code: public_code,
+      mode: mode
+    }
+  end
+
+  defp modes(lines) do
+    lines |> Enum.map(& &1.mode) |> MapSet.new() |> MapSet.to_list()
+  end
+
+  defp mk_netex_resource_with_calendar(start_date, end_date, network, lines) do
     dataset = insert(:dataset)
 
     resource = insert(:resource, dataset_id: dataset.id, format: "NeTEx")
 
     insert(:resource_history,
       resource_id: resource.id,
-      payload: %{"permanent_url" => mk_netex(start_date, end_date, network, modes)}
+      payload: %{"permanent_url" => mk_netex(start_date, end_date, network, lines)}
     )
   end
 
-  defp mk_netex(start_date, end_date, network, modes),
+  defp mk_netex(start_date, end_date, network, lines),
     do:
       mk_raw_netex_resource([
         {"resource.xml", calendar_content(start_date, end_date)},
-        {"network.xml", network_content(network, modes)}
+        {"network.xml", network_content(network, lines)}
       ])
 
   defp mk_raw_netex_resource(content) do
@@ -333,15 +485,31 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     """
   end
 
-  defp network_content(network_name, transport_modes) do
-    lines =
-      Enum.map(transport_modes, fn mode ->
+  defp network_content(network_name, lines) do
+    line_refs =
+      Enum.map(lines, fn line ->
         """
-          <Line>
-            <TransportMode>#{mode}</TransportMode>
-          </Line>
-          <Line>
-            <TransportMode>#{mode}</TransportMode>
+          <LineRef ref="#{line.id}" />
+        """
+      end)
+
+    network =
+      """
+        <Network>
+          <Name>#{network_name}</Name>
+          <members>
+            #{line_refs}
+          </members>
+        </Network>
+      """
+
+    lines =
+      Enum.map(lines, fn line ->
+        """
+          <Line version="any" id="#{line.id}">
+            <ShortName>#{line.short_name}</ShortName>
+            <PublicCode>#{line.public_code}</PublicCode>
+            <TransportMode>#{line.mode}</TransportMode>
           </Line>
         """
       end)
@@ -353,9 +521,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         <dataObjects>
           <GeneralFrame version="any" id="DIGO:GeneralFrame:NETEX_CALENDRIER-20250729093455Z:LOC">
             <members>
-              <Network>
-                <Name>#{network_name}</Name>
-              </Network>
+              #{network}
               #{lines}
             </members>
           </GeneralFrame>

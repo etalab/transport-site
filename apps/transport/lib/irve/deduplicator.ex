@@ -6,17 +6,12 @@ defmodule Transport.IRVE.Deduplicator do
 
   require Explorer.DataFrame
 
-  # Lowest priority number = highest priority, 1 = main priority, 2 = second priority, etc.
-  # Don’t put two datasets on the same priority level
-  # Prioritary datasets must have only a single resource tagged at static IRVE schema
-  @prioritary_datasets [
-    # Gireve
-    %{datagouv_dataset_id: "63dccb1307e9b2f213a5130c", priority: 1},
-    # Eco-movement
-    %{datagouv_dataset_id: "64060c2ac773dcf3fabbe5d2", priority: 2},
-    # Qualicharge
-    %{datagouv_dataset_id: "6818bce2d9af175f6e01a1b2", priority: 3}
-  ]
+  # Loaded at compile time from priv/irve_prioritary_datasets.yml
+  @prioritary_datasets :transport
+                       |> Application.app_dir("priv")
+                       |> Kernel.<>("/irve_prioritary_datasets.yml")
+                       |> File.read!()
+                       |> YamlElixir.read_from_string!()
 
   @doc """
   Main method of deduplication.
@@ -28,6 +23,7 @@ defmodule Transport.IRVE.Deduplicator do
   We group the dataframe by this column, and then can use Explorer "group aware" aggregation functions.
   There are multiple filters applied, once a filter has written a deduplication_status, this won’t be overwritten by next filters.
   How every filter works in detail:
+  - Non concerné : we remove all the lines
   - Unique: if a pdc is unique, it’s written in the deduplication_status column.
   - In_prioritary_datasets: we check the min value of the priority for each group of duplicates.
       - If no entry in the duplicates group is in a prioritary dataset, no status is written for this filter.
@@ -38,6 +34,9 @@ defmodule Transport.IRVE.Deduplicator do
       but we mark the eventual older ones as duplicates.
   - Datagouv_last_modified: then for the last undecided entries (that are dups that have the same and max date_maj…),
     we mark as kept the one(s) with the most recent datagouv_last_modified, and the others as duplicates.
+  - Exact duplicate in the same file: We check if there are still exact duplicates in the same file (same values on all columns), and we keep only one of them.
+  - Remove undecided duplicates: if after all these rules, there are still duplicates that we cannot decide on,
+    we flag them to be removed.
 
   Values of the additional column:
   - unique

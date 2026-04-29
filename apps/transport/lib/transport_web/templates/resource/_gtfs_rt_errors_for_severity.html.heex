@@ -1,4 +1,4 @@
-<%= for error <- @errors_for_severity |> Enum.sort_by(& Map.fetch!(&1, "error_id")) do %>
+<%= for error <- @errors_for_severity |> Enum.sort_by(&{Map.fetch!(&1, "error_id") not in Transport.Validators.GTFSRT.id_mismatch_error_codes(), Map.fetch!(&1, "error_id")}) do %>
   <% nb_errors = Map.fetch!(error, "errors_count") %>
   <div class="panel">
     <p class="mt-0 mb-0">

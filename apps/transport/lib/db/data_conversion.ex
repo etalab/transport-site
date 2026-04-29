@@ -10,7 +10,7 @@ defmodule DB.DataConversion do
     field(:status, Ecto.Enum, values: [:created, :pending, :success, :failed, :timeout])
     field(:converter, :string)
     field(:converter_version, :string)
-    field(:convert_from, Ecto.Enum, values: [:GTFS])
+    field(:convert_from, Ecto.Enum, values: [:GTFS, :NeTEx])
     field(:convert_to, Ecto.Enum, values: [:GeoJSON, :NeTEx])
     field(:resource_history_uuid, Ecto.UUID)
     field(:payload, :map)
@@ -31,33 +31,48 @@ defmodule DB.DataConversion do
   @doc """
   Finds the default converter to use for a target format.
 
-  iex> converter_to_use(:GeoJSON)
+  iex> converter_to_use(:GTFS, :GeoJSON)
   "rust-transit/gtfs-to-geojson"
-  iex> available_conversion_formats() |> Enum.each(& converter_to_use/1)
+  iex> converter_to_use(:NeTEx, :GeoJSON)
+  "etalab/transport-site"
+  iex> available_conversion_formats() |> Enum.each(& converter_to_use(:GTFS, &1))
+  :ok
+  iex> available_conversion_formats() |> Enum.each(& converter_to_use(:NeTEx, &1))
   :ok
   """
-  @spec converter_to_use(binary() | atom()) :: binary()
-  def converter_to_use(convert_to) do
+  @spec converter_to_use(binary() | atom(), binary() | atom()) :: binary()
+  def converter_to_use(convert_from, convert_to) do
     Map.fetch!(
       %{
-        "GeoJSON" => Transport.GTFSToGeoJSONConverter.converter()
+        {"GTFS", "GeoJSON"} => Transport.GTFSToGeoJSONConverter.converter(),
+        {"NeTEx", "GeoJSON"} => Transport.NeTExToGeoJSONConverter.converter()
       },
-      to_string(convert_to)
+      {to_string(convert_from), to_string(convert_to)}
     )
   end
 
   @spec join_resource_history_with_data_conversion(Ecto.Query.t(), [binary()], [binary()] | nil) :: Ecto.Query.t()
   @spec join_resource_history_with_data_conversion(Ecto.Query.t(), [binary()]) :: Ecto.Query.t()
   def join_resource_history_with_data_conversion(%Ecto.Query{} = query, convert_tos, converters \\ nil) do
-    converters = converters || Enum.map(convert_tos, &converter_to_use/1)
+    convert_froms = [:GTFS, :NeTEx]
+
+    converters = converters || default_converters(convert_froms, convert_tos)
 
     query
     |> join(:left, [resource_history: rh], dc in DB.DataConversion,
       on: fragment("(?->>'uuid')::uuid = ?", rh.payload, dc.resource_history_uuid),
       as: :data_conversion
     )
-    |> where([data_conversion: dc], dc.convert_from == :GTFS and dc.convert_to in ^convert_tos)
+    |> where([data_conversion: dc], dc.convert_from in ^convert_froms and dc.convert_to in ^convert_tos)
     |> where([data_conversion: dc], dc.status == :success and dc.converter in ^converters)
+  end
+
+  defp default_converters(convert_froms, convert_tos) do
+    for convert_from <- convert_froms,
+        convert_to <- convert_tos,
+        converter = converter_to_use(convert_from, convert_to) do
+      converter
+    end
   end
 
   @spec latest_data_conversions(integer(), binary()) :: [map()]

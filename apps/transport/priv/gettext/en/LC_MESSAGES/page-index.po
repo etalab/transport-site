@@ -185,3 +185,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Transport offers available"
 msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Open the menu"
+msgstr ""

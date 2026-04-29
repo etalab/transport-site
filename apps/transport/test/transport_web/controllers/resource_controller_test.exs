@@ -695,7 +695,9 @@ defmodule TransportWeb.ResourceControllerTest do
     end
 
     test "NeTEx validation is shown", %{conn: conn} do
-      items = page_size() * 2 + 1
+      page_size = 10
+
+      items = page_size * 2 + 1
 
       issues =
         [
@@ -748,7 +750,16 @@ defmodule TransportWeb.ResourceControllerTest do
           binary_result: results_adapter.to_binary_result(result),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
-            metadata: %{"elapsed_seconds" => 42, "networks" => networks, "modes" => modes},
+            metadata: %{
+              "elapsed_seconds" => 42,
+              "networks" => networks,
+              "modes" => modes,
+              "stats" => %{
+                "lines_count" => 1,
+                "quays_count" => 1002,
+                "stop_places_count" => 103
+              }
+            },
             modes: modes,
             features: []
           },
@@ -767,7 +778,7 @@ defmodule TransportWeb.ResourceControllerTest do
         if version in ["0.2.0", "0.2.1"] do
           assert distinct_xsd_errors(issues) == Enum.count(rows)
         else
-          assert page_size() == Enum.count(rows)
+          assert page_size == Enum.count(rows)
         end
 
         assert content =~ "réseaux"
@@ -775,9 +786,16 @@ defmodule TransportWeb.ResourceControllerTest do
 
         assert content =~ "modes de transport"
         assert content =~ "bus, ferry"
+        assert content =~ ~r"nombre de lignes :(\s*)<strong>1</strong>"
+        assert content =~ ~r"nombre de zones d’embarquement :(\s*)<strong>1 002</strong>"
+        assert content =~ ~r"nombre de lieux d’arrêt :(\s*)<strong>103</strong>"
 
         if version in ["0.2.0", "0.2.1"] do
-          assert content =~ "Rapport CSV"
+          assert content =~ "Au format CSV :"
+          assert content =~ "validation.csv"
+
+          assert content =~ "Au format Parquet :"
+          assert content =~ "validation.parquet"
         end
       end
     end
@@ -867,6 +885,98 @@ defmodule TransportWeb.ResourceControllerTest do
       assert response |> html_response(200) =~ "1 erreur"
       assert response |> html_response(200) =~ "Valider ce GTFS-RT maintenant"
       refute response |> html_response(200) =~ "Pas de validation disponible"
+    end
+
+    test "GTFS-RT validation shows identifier mismatch warning when >= 50 matching errors", %{conn: conn} do
+      %{id: dataset_id} = insert(:dataset)
+      %{id: gtfs_id} = insert(:resource, format: "GTFS", dataset_id: dataset_id)
+
+      %{id: resource_id} =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "gtfs-rt",
+          url: "https://example.com/file"
+        })
+
+      Transport.HTTPoison.Mock
+      |> expect(:get, 2, fn _, _, _ -> {:ok, %HTTPoison.Response{status_code: 200, body: ""}} end)
+
+      %{id: resource_history_id} = insert(:resource_history, %{resource_id: resource_id})
+
+      base_validation_fields = %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.GTFSRT.validator_name(),
+        secondary_resource_id: gtfs_id,
+        metadata: %DB.ResourceMetadata{metadata: %{}}
+      }
+
+      files = %{"gtfs_permanent_url" => "url", "gtfs_rt_permanent_url" => "url"}
+
+      # below threshold: no warning
+      insert(
+        :multi_validation,
+        Map.put(base_validation_fields, :result, %{
+          "errors" => [
+            %{
+              "title" => "Unknown entity",
+              "severity" => "ERROR",
+              "error_id" => "E003",
+              "errors_count" => 49,
+              "description" => "desc",
+              "errors" => []
+            }
+          ],
+          "has_errors" => true,
+          "errors_count" => 49,
+          "files" => files
+        })
+      )
+
+      {conn1, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+
+      refute conn1 |> html_response(200) =~
+               "les identifiants du GTFS-RT ne correspondent pas"
+
+      # at threshold: warning shown
+      insert(
+        :multi_validation,
+        Map.put(base_validation_fields, :result, %{
+          "errors" => [
+            %{
+              "title" => "Unknown entity",
+              "severity" => "ERROR",
+              "error_id" => "E003",
+              "errors_count" => 30,
+              "description" => "desc",
+              "errors" => []
+            },
+            %{
+              "title" => "Another mismatch",
+              "severity" => "ERROR",
+              "error_id" => "E011",
+              "errors_count" => 20,
+              "description" => "desc",
+              "errors" => []
+            },
+            %{
+              "title" => "Unrelated error",
+              "severity" => "ERROR",
+              "error_id" => "E001",
+              "errors_count" => 100,
+              "description" => "desc",
+              "errors" => []
+            }
+          ],
+          "has_errors" => true,
+          "errors_count" => 150,
+          "files" => files
+        })
+      )
+
+      {conn2, _} = with_log(fn -> conn |> get(resource_path(conn, :details, resource_id)) end)
+
+      assert conn2 |> html_response(200) =~
+               "les identifiants du GTFS-RT ne correspondent pas"
     end
 
     test "Table Schema validation is shown", %{conn: conn} do

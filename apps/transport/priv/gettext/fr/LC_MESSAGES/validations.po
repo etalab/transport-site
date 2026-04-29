@@ -121,7 +121,7 @@ msgstr "Rapport de validation"
 
 #, elixir-autogen, elixir-format
 msgid "No error detected"
-msgstr "Pas d'erreur"
+msgstr "Fichier conforme au schéma."
 
 #, elixir-autogen, elixir-format
 msgid "Visualization up-to-date %{hours} ago."
@@ -287,6 +287,10 @@ msgid "Previous validations"
 msgstr "Validations précédentes"
 
 #, elixir-autogen, elixir-format
+msgid "Many validation errors indicate that the GTFS-RT identifiers do not match the GTFS identifiers."
+msgstr "De nombreuses erreurs de validation indiquent que les identifiants du GTFS-RT ne correspondent pas aux identifiants du GTFS."
+
+#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr "Les shapes présentes dans le GTFS ont été ignorées, certaines règles de validation n'ont pas été vérifiées."
 
@@ -331,12 +335,8 @@ msgid "enRoute Chouette Valid"
 msgstr "le validateur NeTEx d’enRoute"
 
 #, elixir-autogen, elixir-format
-msgid "XSD NeTEx"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
-msgstr "Toute ressource NeTEx doit être conforme à la <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">XSD de NeTEx</a>, quel que soit le profil utilisé. La validation de la XSD ne tient pas compte des choix faits dans <a href=\"https://normes.transport.data.gouv.fr/\">le profil France</a>."
+msgstr "Toute ressource NeTEx doit être conforme à la <a href=\"https://github.com/NeTEx-CEN/NeTEx\" target=\"_blank\">XSD de NeTEx</a>, quel que soit le profil utilisé. La validation de la XSD ne tient pas compte des choix faits dans <a href=\"%{category_french_profile}\">le profil France</a>."
 
 #, elixir-autogen, elixir-format
 msgid "xsd-schema-hints"
@@ -353,10 +353,6 @@ msgstr "Ces règles sont issues des pratiques métiers les plus courantes. Elles
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Other errors"
 msgstr "Autres erreurs"
-
-#, elixir-autogen, elixir-format
-msgid "netex-validations-layers"
-msgstr "La validation des ressources NeTEx est encore à ses débuts. Pour le moment, nous vérifions la conformité à la XSD et certaines bonnes pratiques."
 
 #, elixir-autogen, elixir-format
 msgid "netex-french-profile-no-compliance"
@@ -413,3 +409,107 @@ msgstr "IRVE, ZFE, covoiturage, données cyclables etc."
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
 msgstr "Mobilités routières et vélo"
+
+#, elixir-autogen, elixir-format
+msgid "As a CSV file:"
+msgstr "Au format CSV :"
+
+#, elixir-autogen, elixir-format
+msgid "As a Parquet file:"
+msgstr "Au format Parquet :"
+
+#, elixir-autogen, elixir-format
+msgid "Download the report"
+msgstr "Télécharger le rapport"
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>."
+msgstr "En savoir plus <a href=\"%{parquet_url}\" target=\"_blank\">ici</a>."
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "No validation error. No report to download."
+msgstr "Aucune erreur de validation. Aucun rapport à télécharger."
+
+#, elixir-autogen, elixir-format
+msgid "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+msgstr "Le format Parquet est bien plus compact mais nécessitera que vous utilisiez des outils spécifiques."
+
+#, elixir-autogen, elixir-format
+msgid "XSD"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All rules of this category are respected."
+msgstr "Toutes les règles de cette catégorie sont respectées."
+
+#, elixir-autogen, elixir-format
+msgid "List of French Profile rules currently checked"
+msgstr "Liste des règles du profil France actuellement implémentées"
+
+#, elixir-autogen, elixir-format
+msgid "Learn more"
+msgstr "En savoir plus"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Stops and routes visualization of the NeTEx file"
+msgstr "Aperçu des arrêts et lignes de la ressource NeTEx"
+
+#, elixir-autogen, elixir-format
+msgid "Column"
+msgstr "Colonne"
+
+#, elixir-autogen, elixir-format
+msgid "Could not validate file rows because of file-level errors."
+msgstr "Impossible de valider les lignes du fichier en raison d'erreurs au niveau du fichier."
+
+#, elixir-autogen, elixir-format
+msgid "Error samples"
+msgstr "Exemples d'erreurs"
+
+#, elixir-autogen, elixir-format
+msgid "Errors by column"
+msgstr "Erreurs par colonne"
+
+#, elixir-autogen, elixir-format
+msgid "File-level errors"
+msgstr "Erreurs au niveau du fichier"
+
+#, elixir-autogen, elixir-format
+msgid "IRVE Statique validation report"
+msgstr "Rapport de validation IRVE statique"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr "Fichier invalide"
+
+#, elixir-autogen, elixir-format
+msgid "Invalid rows"
+msgstr "Lignes invalides"
+
+#, elixir-autogen, elixir-format
+msgid "This validation now uses our integrated IRVE Statique validator."
+msgstr "Cette validation utilise désormais notre validateur IRVE statique intégré."
+
+#, elixir-autogen, elixir-format
+msgid "Total rows"
+msgstr "Lignes totales"
+
+#, elixir-autogen, elixir-format
+msgid "Valid rows"
+msgstr "Lignes valides"
+
+#, elixir-autogen, elixir-format
+msgid "Validation file"
+msgstr "Fichier validé"
+
+#, elixir-autogen, elixir-format
+msgid "Value"
+msgstr "Valeur"
+
+#, elixir-autogen, elixir-format
+msgid "You can still use the previous <a href=\"%{url}\" target=\"_blank\">Validata validator</a>."
+msgstr "Vous pouvez toujours utiliser l'ancien <a href=\"%{url}\" target=\"_blank\">validateur Validata</a>."
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size}."
+msgstr "Fichier trop gros, doit peser moins de %{max_file_size}."

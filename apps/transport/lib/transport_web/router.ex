@@ -235,6 +235,7 @@ defmodule TransportWeb.Router do
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/jobs", JobsLive)
+        live("/jobs/experimental", Jobs2Live)
       end
 
       live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
@@ -266,6 +267,8 @@ defmodule TransportWeb.Router do
         post("/_all_/_force_validate_gtfs_transport", DatasetController, :force_validate_gtfs_transport)
         post("/:id/_import_validate", DatasetController, :import_validate_all)
         post("/:id/_resource_format_override", DatasetController, :resource_format_override)
+        post("/:id/_resource_related_create", DatasetController, :resource_related_create)
+        post("/:id/_resource_related_delete", DatasetController, :resource_related_delete)
       end
 
       get("/breaking_news", BreakingNewsController, :index)
@@ -275,6 +278,7 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:backoffice_csv_export])
       get("/download_resources_csv", PageController, :download_resources_csv)
+      get("/download_datasets_csv", PageController, :download_datasets_csv)
     end
 
     # Authentication
@@ -370,7 +374,7 @@ defmodule TransportWeb.Router do
   # private
 
   defp assign_mix_env(conn, _) do
-    assign(conn, :mix_env, Mix.env())
+    assign(conn, :mix_env, Application.fetch_env!(:transport, :mix_env))
   end
 
   defp assign_current_user(conn, _) do

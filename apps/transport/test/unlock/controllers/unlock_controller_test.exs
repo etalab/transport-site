@@ -904,7 +904,8 @@ defmodule Unlock.ControllerTest do
           identifier: slug,
           bucket: bucket_key,
           path: path,
-          ttl: ttl_in_seconds
+          ttl: ttl_in_seconds,
+          response_headers: [{"x-key", "foobar"}]
         }
       })
 
@@ -943,6 +944,8 @@ defmodule Unlock.ControllerTest do
       assert Plug.Conn.get_resp_header(resp, "x-header") == []
       # enforce the filename provided via the config (especially to get its extension passed to clients)
       assert Plug.Conn.get_resp_header(resp, "content-disposition") == ["attachment; filename=#{path}"]
+      # response_headers from the configuration are added
+      assert Plug.Conn.get_resp_header(resp, "x-key") == ["foobar"]
 
       assert_received {:telemetry_event, [:proxy, :request, :internal], %{},
                        %{target: "proxy:an-existing-s3-identifier"}}

@@ -173,10 +173,7 @@ defmodule Transport.Jobs.PeriodicReminderProducersNotificationJob do
   We set the chunk size to 1 in the test env to test the scheduling logic.
   """
   def chunk_size do
-    case Mix.env() do
-      :test -> 1
-      _ -> @max_emails_per_day
-    end
+    Application.get_env(:transport, :periodic_reminder_producers_chunk_size, @max_emails_per_day)
   end
 
   @doc """

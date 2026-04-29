@@ -73,7 +73,7 @@ defmodule DB.DataConversionTest do
     insert(:data_conversion,
       convert_from: "GTFS",
       convert_to: "GeoJSON",
-      converter: DB.DataConversion.converter_to_use("GeoJSON"),
+      converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
       resource_history_uuid: uuid_old,
       payload: %{filename: "filename_old"}
     )
@@ -86,7 +86,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         resource_history_uuid: uuid,
         payload: %{filename: "filename"}
       )
@@ -101,7 +101,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         resource_history_uuid: uuid_2,
         payload: %{filename: "filename_2"}
       )
@@ -117,7 +117,7 @@ defmodule DB.DataConversionTest do
       insert(:data_conversion,
         convert_from: "GTFS",
         convert_to: "GeoJSON",
-        converter: DB.DataConversion.converter_to_use("GeoJSON"),
+        converter: DB.DataConversion.converter_to_use("GTFS", "GeoJSON"),
         resource_history_uuid: uuid_other,
         payload: %{filename: "filename"}
       )

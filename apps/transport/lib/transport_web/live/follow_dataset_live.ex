@@ -17,8 +17,8 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <% reuser_space_path = reuser_space_path(@socket, :espace_reutilisateur, utm_campaign: "follow_dataset_heart")
-    producer_space_path = espace_producteur_path(@socket, :espace_producteur, utm_campaign: "follow_dataset_heart") %>
+    <% reuser_space_path = reuser_space_path(@socket, :datasets_edit, @dataset.id, utm_campaign: "follow_dataset_heart")
+    producer_space_path = espace_producteur_path(@socket, :edit_dataset, @dataset.id, utm_campaign: "follow_dataset_heart") %>
     <div :if={is_nil(@current_user)} class="follow-dataset-icon">
       <i class={@heart_class} phx-click="nudge_signup"></i>
       <p :if={@display_banner?} class="notification active">

@@ -35,6 +35,8 @@ main {
 .nav__links {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: end;
 }
 
 nav.navigation input {
@@ -46,15 +48,17 @@ nav.navigation input {
 }
 
 .nav__avatar {
-  height: 35px;
-  width: 35px;
+  height: 24px;
+  width: 24px;
   border-radius: 50%;
   border: 0.5px solid;
   vertical-align: middle;
 }
 
-.nav__username {
-  margin-left: 1em;
+.nav__item > a {
+  display: inline-block;
+  min-height: 24px;
+  padding: 0.4em 0.8em;
 }
 
 .navbar__logo-mariane {
@@ -103,6 +107,19 @@ nav.navigation input {
   }
 }
 
+dialog {
+  &.panel {
+    position: fixed;
+  }
+  &::backdrop {
+    background: var(--darker-grey);
+    opacity: 0.3;
+  }
+  hr {
+    margin: var(--space-m) 0;
+  }
+}
+
 @media (max-width: $breakpoint-tablet) {
   .navbar__container {
     align-items: center;
@@ -112,27 +129,18 @@ nav.navigation input {
       flex: 1;
     }
 
-    .nav__hamburger {
+    nav .nav__hamburger {
       display: block;
-      width: 7vw;
-      height: 100%;
-      z-index: 1;
-
-      div {
-        background-color: $black;
-        border-radius: 3px;
-        height: 4px;
-        margin-bottom: 0.5vh;
-        width: 100%;
-      }
+      text-decoration: none;
+      font-size: 2rem;
+      color: black;
+      border: none;
+      margin-inline: 1rem;
+      vertical-align: text-top;
     }
 
     .navbar__home {
       max-width: 85%;
-    }
-
-    nav div.nav__hamburger {
-      vertical-align: text-top;
     }
 
     #menu {
@@ -183,9 +191,14 @@ nav.navigation input {
   margin-left: var(--space-s) !important;
 }
 
-.user-name-display {
+.user-name-display, a.with-badge {
   display: flex;
   align-items: center;
+  gap: 0.5em;
+  .notification_badge {
+    align-self: start;
+    transform: translateY(-0.4em);
+  }
 }
 
 .nav__item .language {

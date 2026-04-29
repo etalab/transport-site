@@ -3,6 +3,28 @@ defmodule Transport.Test.TestUtils do
   Some useful functions for testing
   """
 
+  @doc """
+  Polls `fun` until it returns a truthy value, or fails the test after `timeout_ms`.
+  Useful as a sync barrier in tests where work happens in async tasks.
+  """
+  def wait_until(fun, timeout_ms \\ 2_000, interval_ms \\ 10) do
+    deadline = System.monotonic_time(:millisecond) + timeout_ms
+    do_wait_until(fun, deadline, interval_ms, timeout_ms)
+  end
+
+  defp do_wait_until(fun, deadline, interval_ms, timeout_ms) do
+    if fun.() do
+      :ok
+    else
+      if System.monotonic_time(:millisecond) > deadline do
+        ExUnit.Assertions.flunk("wait_until: condition not met within #{timeout_ms}ms")
+      else
+        Process.sleep(interval_ms)
+        do_wait_until(fun, deadline, interval_ms, timeout_ms)
+      end
+    end
+  end
+
   def ensure_no_tmp_files!(file_prefix) do
     tmp_files = System.tmp_dir!() |> File.ls!()
 

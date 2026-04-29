@@ -47,7 +47,6 @@ defmodule TransportWeb.ExploreController do
     %{
       gtfs_rt: params["gtfs-rt"] == "yes",
       bnlc: params["bnlc"] == "yes",
-      parkings_relais: params["parkings-relais"] == "yes",
       zfe: params["zfe"] == "yes",
       irve: params["irve"] == "yes",
       gbfs_stations: params["gbfs-stations"] == "yes"

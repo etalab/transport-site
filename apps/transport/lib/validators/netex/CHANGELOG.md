@@ -23,3 +23,9 @@ some hints for usual errors (optional).
     `enroute:starter-kit`)
   - new rules introduced to check specific rules of the French profile
       (mandatory attributes)
+
+## 0.2.2
+
+- Uses the profile `pan:french_profile:2` (which includes rules from
+    `enroute:starter-kit`)
+  - dropped rule on Point/Location

@@ -63,13 +63,13 @@ defmodule Transport.IRVE.DeduplicatorTest do
              %{
                "datagouv_resource_id" => "gireve-resource",
                "date_maj" => ~D[2025-10-01],
-               "deduplication_status" => "kept_because_in_prioritary_dataset",
+               "deduplication_status" => "removed_because_not_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{
                "datagouv_resource_id" => "qualicharge-resource",
                "date_maj" => ~D[2025-10-01],
-               "deduplication_status" => "removed_because_not_in_prioritary_dataset",
+               "deduplication_status" => "kept_because_in_prioritary_dataset",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{
@@ -132,7 +132,7 @@ defmodule Transport.IRVE.DeduplicatorTest do
                "id_pdc_itinerance" => "FRS31DUPLICATE1"
              },
              %{
-               "datagouv_resource_id" => "gireve-resource",
+               "datagouv_resource_id" => "qualicharge-resource",
                "id_pdc_itinerance" => "FRS31DUPLICATE3"
              },
              %{

@@ -1196,6 +1196,29 @@ defmodule TransportWeb.DatasetControllerTest do
       # Region is displayed first
       assert Floki.text(doc) =~ "Pays de la Loire, Angers Métropole"
     end
+
+    test "dataset#details with a company legal owner, DB.Company exists", %{conn: conn} do
+      %DB.Company{siren: siren, nom_complet: nom_complet} = insert(:company)
+      dataset = insert(:dataset, is_active: true, legal_owner_company_siren: siren)
+
+      mock_empty_history_resources()
+
+      doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+      assert Floki.text(doc) =~ "Données sous la responsabilité de"
+      assert Floki.text(doc) =~ nom_complet
+    end
+
+    test "dataset#details with a company legal owner, DB.Company does not exist yet", %{conn: conn} do
+      siren = "420495178"
+      dataset = insert(:dataset, is_active: true, legal_owner_company_siren: siren)
+
+      mock_empty_history_resources()
+
+      doc = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> Floki.parse_document!()
+      assert Floki.text(doc) =~ "Données sous la responsabilité de"
+      # Falls back to displaying the SIREN when the company is not yet in DB
+      assert Floki.text(doc) =~ siren
+    end
   end
 
   test "dataset#details, PAN resource, logged-in user with a default token", %{conn: conn} do

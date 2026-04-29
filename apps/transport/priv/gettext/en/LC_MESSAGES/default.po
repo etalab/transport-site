@@ -224,3 +224,11 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Choose an option"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Fullscreen display"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Leave fullscreen display"
+msgstr ""

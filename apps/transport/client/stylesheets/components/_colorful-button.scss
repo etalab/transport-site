@@ -1,0 +1,101 @@
+/* Colorful link or button
+ *
+ * Defaults to blue.
+ *
+ * Variant classes:
+ * - `.valid`: green
+ * - `.invalid`: red
+ * - `.striped`: striped background, doesn't change the color
+ * - `.selected`: highlighted button, white content and colored background, typically used for active page
+ */
+a.colorful, button.colorful {
+  --taint: var(--blue);
+  --light-taint: color-mix(in oklab, var(--taint) 20%, white);
+  --border-width-deselected: 1px;
+  --border-width-hover: 3px;
+  --padding-block: var(--space-xs);
+  --padding-inline: var(--space-s);
+
+  display: inline-flex;
+  line-height: normal;
+  font-size: $font-size;
+  font-family: $font-family-primary;
+  gap: var(--space-xs);
+  padding: var(--padding-block) var(--padding-inline);
+  background-color: var(--light-taint);
+  border: var(--border-width-deselected) solid var(--taint);
+  border-radius: 4px;
+  color: var(--darkest-grey);
+  text-decoration: none;
+  background-origin: border-box;
+  background-position-x: var(--border-width-deselected);
+  background-position-y: var(--border-width-deselected);
+
+  * {
+    color: var(--darkest-grey);
+  }
+
+  .fa {
+    color: var(--taint);
+  }
+
+  &:visited {
+    color: var(--taint);
+  }
+
+  &.selected {
+    background-color: var(--taint);
+    color: white;
+    text-shadow: 0 0 2px var(--darker-grey);
+
+    * {
+      color:white;
+    }
+  }
+
+  &.valid {
+    --taint: var(--green);
+  }
+
+  &.invalid {
+    --taint: var(--red);
+  }
+
+  &.striped {
+    --alt-taint: color-mix(in oklab, var(--taint) 90%, white);
+    --light-alt-taint: color-mix(in oklab, var(--light-taint) 60%, white);
+    --stripes-width: 20px;
+
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--light-taint),
+      var(--light-taint) var(--stripes-width),
+      var(--light-alt-taint) var(--stripes-width),
+      var(--light-alt-taint) calc(var(--stripes-width) * 2)
+    );
+
+    &.selected {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        var(--taint),
+        var(--taint) var(--stripes-width),
+        var(--alt-taint) var(--stripes-width),
+        var(--alt-taint) calc(var(--stripes-width) * 2)
+      );
+    }
+  }
+
+  i.fa {
+    align-self: center;
+    justify-self: center;
+  }
+
+  &:hover, &:focus, &.selected {
+    border-width: var(--border-width-hover);
+    background-position-x: calc(var(--border-width-hover) - 2 * var(--border-width-deselected));
+    background-position-y: calc(var(--border-width-hover) - 2 * var(--border-width-deselected));
+    padding:
+      calc(var(--padding-block) + var(--border-width-deselected) - var(--border-width-hover))
+      calc(var(--padding-inline) + var(--border-width-deselected) - var(--border-width-hover));
+  }
+}
