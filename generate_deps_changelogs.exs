@@ -40,8 +40,7 @@ master
 |> Enum.each(fn {dep, old} ->
   new = Keyword.get(current, dep)
 
-  diff =
-    case {old, new} do
+  case {old, new} do
       {{:hex, v1}, {:hex, v2}} ->
         if v1 != v2 do
           IO.puts("* https://diff.hex.pm/diff/#{dep}/#{v1}..#{v2}")
@@ -58,9 +57,9 @@ master
             IO.puts "* From #{repo}/commit/#{sha1} to #{repo_next}/commit/#{sha2}"
           end
         end
-      {{:hex, v1}, {:git, repo, sha2}} ->
+      {{:hex, _v1}, {:git, repo, sha2}} ->
         IO.puts("* Now using git-version #{repo} @ #{sha2}")
-      {{:git, repo, sha1}, {:hex, v2}} ->
+      {{:git, repo, sha1}, {:hex, _v2}} ->
         IO.puts("* Now using https://hex.pm/packages/#{dep} instead of #{repo} @ #{sha1}")
       {{:hex, v1}, nil} ->
         IO.puts("* REMOVED: #{dep}@#{v1}")
