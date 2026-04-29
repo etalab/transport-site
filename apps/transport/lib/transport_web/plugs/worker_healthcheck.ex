@@ -65,15 +65,15 @@ defmodule TransportWeb.Plugs.WorkerHealthcheck do
   """
   def stop_the_beam! do
     # "Asynchronously and carefully stops the Erlang runtime system."
-    if Mix.env() == :test do
-      # We do not want to stop the system during tests, because it
+    if Application.fetch_env!(:transport, :worker_healthcheck_halts_beam) do
+      # Make sure to return with a non-zero exit code, to more clearly
+      # indicate that this is not the normal output
+      System.stop(1)
+    else
+      # In test the flag is false: we do not want to stop the system, because it
       # gives the impression the test suite completed successfully, but
       # it would actually just bypass all the tests after the one running this!
       raise "would halt the BEAM"
-    else
-      # Also make sure to return with a non-zero exit code, to more clearly
-      # indicate that this is not the normal output
-      System.stop(1)
     end
   end
 

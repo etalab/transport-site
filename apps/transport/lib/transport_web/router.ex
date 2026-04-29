@@ -374,7 +374,7 @@ defmodule TransportWeb.Router do
   # private
 
   defp assign_mix_env(conn, _) do
-    assign(conn, :mix_env, Mix.env())
+    assign(conn, :mix_env, Application.fetch_env!(:transport, :mix_env))
   end
 
   defp assign_current_user(conn, _) do

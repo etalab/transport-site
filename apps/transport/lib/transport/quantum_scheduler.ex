@@ -1,6 +1,8 @@
-defmodule Transport.Scheduler do
+defmodule Transport.QuantumScheduler do
   @moduledoc """
-  This made to launch schedule tasks
+  In-memory cron scheduler (Quantum) for jobs that don't need DB-backed
+  scheduling (no retries, no persistence, no UI). Coexists with Oban Cron
+  (`config/runtime.exs`) which handles jobs needing those features.
   """
 
   use Quantum,
