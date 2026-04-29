@@ -9,10 +9,8 @@ defmodule Transport.Scheduler do
   @doc """
   The jobs are defined here, but only programmatically activated on one node. See `config/runtime.exs`.
 
-  Tasks are written as 0-arity captures (`&Mod.fun/0`) rather than `{Mod, :fun, []}` tuples so
-  the compiler catches references to undefined/renamed functions. Caveat: switching to a
-  Quantum storage backend other than the default `Noop` would require MFA tuples (captures
-  don't serialise).
+  Tasks use `&Mod.fun/0` captures rather than `{Mod, :fun, []}` tuples to get compile-time
+  checking of the references (e.g. catch #5046).
   """
   def scheduled_jobs do
     [
