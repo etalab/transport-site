@@ -24,6 +24,7 @@ defmodule Transport.Scheduler do
       {"0 3 * * *", &Transport.LogCleaner.clean_old_logs/0},
       # compute some global stats and store them in the DB
       {"0 20 * * *", &Transport.StatsHandler.store_stats/0},
+      # Duplicate `Transport.Jobs.RefreshAutocompleteJob` (Oban, see #5114). Kept for now.
       {"0 * * * *", &Transport.ImportData.refresh_autocomplete/0}
     ]
   end
