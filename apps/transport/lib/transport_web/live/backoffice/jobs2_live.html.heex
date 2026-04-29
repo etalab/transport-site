@@ -4,27 +4,32 @@
     <span>{dgettext("backoffice", "Last update:")} {@last_updated_at}</span>
   </div>
 
-  <.form :let={f} for={%{}} phx-change="filter" class="no-margin">
-    <div class="jobs-filter">
-      {text_input(f, :worker, value: @worker, autofocus: true)}
-      <div class="vsep"></div>
-      <label :for={state <- @states} class={"job-state job-state-#{state}"}>
-        {checkbox(f, state, value: assigns[state])} {state}
-      </label>
-      <div class="vsep"></div>
-      <label class="listing-toggle">
-        {checkbox(f, :listing, value: @listing)}
-        {dgettext("backoffice", "listing")}
-      </label>
-      <div :if={@listing and @count_jobs} class="vsep"></div>
-      <div :if={@listing and @count_jobs} class="total">
-        {dgettext("backoffice", "total:")} {Helpers.format_number(@count_jobs)}
-      </div>
+  <.form :let={f} for={%{}} phx-change="filter" class="no-margin jobs-filter">
+    {text_input(f, :worker, value: @worker, autofocus: true)}
+    <div class="vsep"></div>
+    <label :for={state <- @states} class={"job-state job-state-#{state}"}>
+      {checkbox(f, state, value: assigns[state])} {state}
+    </label>
+    <div class="vsep"></div>
+    <label class="listing-toggle">
+      {checkbox(f, :listing, value: @listing)}
+      {dgettext("backoffice", "listing")}
+    </label>
+    <div class="vsep"></div>
+    <button class="button-outline secondary small" type="reset" name="reset">{dgettext("backoffice", "Reset")}</button>
+    <div :if={@listing and @count_jobs} class="vsep"></div>
+    <div :if={@listing and @count_jobs} class="total">
+      {dngettext("backoffice", "total: %{n_jobs} job", "total: %{n_jobs} jobs", @count_jobs,
+        n_jobs: Helpers.format_number(@count_jobs)
+      )}
     </div>
   </.form>
 
   <%= if @listing do %>
-    <.live_component module={JobsTableComponent} jobs={@jobs} id="live_jobs" />
+    <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" />
+    <div :if={@count_jobs > length(@jobs)} class="small is-centered">
+      {dgettext("backoffice", "truncated (%{hidden} jobs hidden)", hidden: @count_jobs - length(@jobs))}
+    </div>
   <% else %>
     <table class="table">
       <thead>
@@ -38,7 +43,7 @@
         <%= for {hour, rows} <- @jobs_count do %>
           <tr :for={{row, index} <- Enum.with_index(rows)}>
             <td :if={index == 0} rowspan={Enum.count(rows)}>
-              {format_1_hour_range(hour)}
+              {format_1_hour_range(hour, @locale)}
             </td>
             <td>{row.worker}</td>
             <td>{Helpers.format_number(row.count)}</td>

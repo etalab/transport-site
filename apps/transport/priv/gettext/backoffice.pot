@@ -349,5 +349,31 @@ msgid "listing"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "total:"
+msgid "total: %{n_jobs} job"
+msgid_plural "total: %{n_jobs} jobs"
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Reset"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Today"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Tomorrow"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Yesterday"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{date} between %{from} and %{to}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "truncated (%{hidden} jobs hidden)"
 msgstr ""

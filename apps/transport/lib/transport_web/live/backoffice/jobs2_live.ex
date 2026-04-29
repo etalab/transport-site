@@ -8,7 +8,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   import Ecto.Query
   import TransportWeb.Router.Helpers
 
-  @states [:executing, :completed, :scheduled, :retryable, :available, :discarded]
+  @states [:executing, :completed, :scheduled, :retryable, :available, :discarded, :cancelled]
 
   @max_jobs 100
 
@@ -156,9 +156,15 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   end
 
   @impl true
-  def handle_event("filter", params, socket) do
-    update = extract_params(params)
+  def handle_event("filter", %{"_target" => ["reset"]} = _params, socket) do
+    %{} |> sync_query_params(socket)
+  end
 
+  def handle_event("filter", params, socket) do
+    extract_params(params) |> drop_defaults() |> sync_query_params(socket)
+  end
+
+  defp sync_query_params(update, socket) do
     socket =
       socket
       |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.Jobs2Live, update))
@@ -166,20 +172,25 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
     {:noreply, socket}
   end
 
-  def format_1_hour_range(from) do
+  def format_1_hour_range(from, locale) do
     to = DateTime.add(from, 1, :hour)
 
     days_diff = from |> DateTime.to_date() |> Date.diff(Date.utc_today())
 
     date =
       case days_diff do
-        0 -> "Today"
-        -1 -> "Yesterday"
-        1 -> "Tomorrow"
-        _ -> Shared.DateTimeDisplay.format_date(from, "en")
+        0 -> dgettext("backoffice", "Today")
+        -1 -> dgettext("backoffice", "Yesterday")
+        1 -> dgettext("backoffice", "Tomorrow")
+        _ -> Shared.DateTimeDisplay.format_date(from, locale)
       end
 
-    "#{date} between #{format_time(from)} and #{format_time(to)}"
+    # "#{date} between #{format_time(from)} and #{format_time(to)}"
+    dgettext("backoffice", "%{date} between %{from} and %{to}",
+      date: date,
+      from: format_time(from),
+      to: format_time(to)
+    )
   end
 
   defp format_time(dt) do
@@ -209,5 +220,11 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
       "false" -> false
       _ -> true
     end
+  end
+
+  defp drop_defaults(updates) do
+    Map.reject(updates, fn {_key, value} ->
+      value == true or value == ""
+    end)
   end
 end

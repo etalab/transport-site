@@ -5,7 +5,7 @@ defmodule JobsTableComponent do
   use Phoenix.LiveComponent
   use Gettext, backend: TransportWeb.Gettext
 
-  def render(%{state: _, jobs: _} = assigns) do
+  def render(%{state: _, locale: _, jobs: _} = assigns) do
     ~H"""
     <table class="table">
       <thead>
@@ -27,20 +27,60 @@ defmodule JobsTableComponent do
           <td>{job.queue}</td>
           <td>{job.worker}</td>
           <td>{inspect(job.args)}</td>
-          <td>{format_datetime(job.inserted_at)}</td>
-          <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}>{inspect(job.errors)}</td>
-          <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>{format_datetime(job.scheduled_at)}</td>
+          <td><.timestamp dt={job.inserted_at} } locale={@locale} /></td>
+          <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}>
+            <.compact_errors errors={job.errors} locale={@locale} />
+          </td>
+          <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>
+            <.timestamp dt={job.scheduled_at} } locale={@locale} />
+          </td>
         </tr>
       </tbody>
     </table>
     """
   end
 
-  def render(%{jobs: _} = assigns) do
+  def render(%{jobs: _, locale: _} = assigns) do
     render(Map.merge(%{state: nil}, assigns))
   end
 
-  defp format_datetime(dt) do
-    Shared.DateTimeDisplay.format_datetime_to_paris(dt, "en", no_timezone: true, with_seconds: true)
+  defp timestamp(%{dt: _, locale: _} = assigns) do
+    ~H"""
+    <span class="timestamp" data-datetime={format_datetime(@dt, @locale)}>{format_time(@dt, @locale)}</span>
+    """
+  end
+
+  defp format_time(dt, locale) do
+    Shared.DateTimeDisplay.format_time_to_paris(dt, locale || "en", no_timezone: true, with_seconds: true)
+  end
+
+  defp format_datetime(dt, locale) do
+    Shared.DateTimeDisplay.format_datetime_to_paris(dt, locale || "en", no_timezone: true, with_seconds: true)
+  end
+
+  defp compact_errors(%{errors: _, locale: _} = assigns) do
+    ~H"""
+    <ol class="errors">
+      <li :for={error <- split_errors(@errors, @locale)}>
+        <.timestamp dt={error.at} locale={@locale} /> : <code>{error.error}</code>
+      </li>
+    </ol>
+    """
+  end
+
+  defp split_errors(errors, locale), do: Enum.map(errors, &split_error(&1, locale))
+
+  defp split_error(error, locale) do
+    %{
+      at: Map.get(error, "at"),
+      error: Map.get(error, "error", "") |> extract_message()
+    }
+  end
+
+  defp maybe(nil, _f), do: nil
+  defp maybe(value, f), do: f.(value)
+
+  defp extract_message(message) do
+    message |> String.split("\n") |> List.first("") |> String.trim_leading("** ")
   end
 end
