@@ -3,46 +3,41 @@ defmodule JobsTableComponent do
   A live view table for Oban jobs monitoring
   """
   use Phoenix.LiveComponent
+  use Gettext, backend: TransportWeb.Gettext
 
-  def render(assigns) do
+  def render(%{state: _, jobs: _} = assigns) do
     ~H"""
     <table class="table">
       <thead>
         <tr>
           <th>id</th>
-          <th>state</th>
-          <th>queue</th>
-          <th>worker</th>
-          <th>args</th>
-          <th>inserted_at (Paris time)</th>
-          <%= if @state in ["discarded", "retryable"] do %>
-            <th>errors</th>
-          <% end %>
-          <%= if @state in ["scheduled", "retryable"] do %>
-            <th>scheduled_at (Paris time)</th>
-          <% end %>
+          <th :if={is_nil(@state)}>{dgettext("backoffice", "state")}</th>
+          <th>{dgettext("backoffice", "queue")}</th>
+          <th>{dgettext("backoffice", "worker")}</th>
+          <th>{dgettext("backoffice", "args")}</th>
+          <th>{dgettext("backoffice", "inserted_at")}</th>
+          <th :if={is_nil(@state) or @state in ["discarded", "retryable"]}>{dgettext("backoffice", "errors")}</th>
+          <th :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>{dgettext("backoffice", "scheduled_at")}</th>
         </tr>
       </thead>
       <tbody>
-        <%= for job <- @jobs do %>
-          <tr>
-            <td>{job.id}</td>
-            <td>{job.state}</td>
-            <td>{job.queue}</td>
-            <td>{job.worker}</td>
-            <td>{inspect(job.args)}</td>
-            <td>{format_datetime(job.inserted_at)}</td>
-            <%= if @state in ["discarded", "retryable"] do %>
-              <td>{inspect(job.errors)}</td>
-            <% end %>
-            <%= if @state in ["scheduled", "retryable"] do %>
-              <td>{format_datetime(job.scheduled_at)}</td>
-            <% end %>
-          </tr>
-        <% end %>
+        <tr :for={job <- @jobs}>
+          <td>{job.id}</td>
+          <td :if={is_nil(@state)}><span class={"job-state job-state-#{job.state}"}>{job.state}</span></td>
+          <td>{job.queue}</td>
+          <td>{job.worker}</td>
+          <td>{inspect(job.args)}</td>
+          <td>{format_datetime(job.inserted_at)}</td>
+          <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}>{inspect(job.errors)}</td>
+          <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>{format_datetime(job.scheduled_at)}</td>
+        </tr>
       </tbody>
     </table>
     """
+  end
+
+  def render(%{jobs: _} = assigns) do
+    render(Map.merge(%{state: nil}, assigns))
   end
 
   defp format_datetime(dt) do
