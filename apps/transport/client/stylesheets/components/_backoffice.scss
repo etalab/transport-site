@@ -304,11 +304,52 @@ iframe#email_preview {
     --taint: color-mix(red 70%, white);
   }
 
-  form {
+  table tr th,
+  table tr td {
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+    padding: var(--space-xs) var(--space-s);
+  }
+
+  table tr th {
+    text-wrap: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  table tr td {
+    vertical-align: top;
+
+    ol.errors {
+      margin: 0;
+      padding: 0;
+
+      li {
+        margin: 0;
+        padding: 0;
+
+        code {
+          font-size: 0.75rem;
+          line-height: 1rem;
+        }
+      }
+    }
+  }
+
+  form.jobs-filter {
     max-width: unset;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
+
+    input[type="text"] {
+      flex: 1;
+      line-height: 1;
+      min-width: 30ch;
+      max-width: 60ch;
+      padding: 0.25em;
+    }
 
     .vsep {
       width: 1px;
@@ -333,48 +374,36 @@ iframe#email_preview {
       line-height: 1rem;
     }
 
-    .jobs-filter {
-      max-width: unset;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
+    button {
+      margin: 0;
+    }
 
-      input[type="text"] {
-        flex: 1;
-        line-height: 1;
-        min-width: 30ch;
-        max-width: 60ch;
-        padding: 0.25em;
+    label.job-state {
+      line-height: 1.25rem;
+      cursor: pointer;
+      transition: all 50ms linear;
+
+      input[type="checkbox"] {
+        display: none;
+
+        &:checked {
+          --taint: lightgray;
+
+          background-color: var(--taint);
+          color: var(--taint);
+          border-color: var(--taint);
+        }
       }
 
-      label.job-state {
-        line-height: 1.25rem;
-        cursor: pointer;
-        transition: all 50ms linear;
+      &:not(:has(input:checked)) {
+         --taint: white;
 
-        input[type="checkbox"] {
-          display: none;
+         opacity: 0.6;
+         border: 1px dashed gray;
 
-          &:checked {
-            --taint: lightgray;
-
-            background-color: var(--taint);
-            color: var(--taint);
-            border-color: var(--taint);
-          }
-        }
-
-        &:not(:has(input:checked)) {
-           --taint: white;
-
-           opacity: 0.6;
-           border: 1px dashed gray;
-
-           &:hover {
-             opacity: 1;
-           }
-        }
+         &:hover {
+           opacity: 1;
+         }
       }
     }
   }
