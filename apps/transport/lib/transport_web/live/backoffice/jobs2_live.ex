@@ -58,7 +58,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   def last_jobs_query(n) do
     from(j in "oban_jobs",
       select: map(j, [:id, :state, :queue, :worker, :args, :inserted_at, :scheduled_at, :errors]),
-      order_by: [desc: j.attempted_at],
+      order_by: [desc: j.id],
       limit: ^n
     )
   end
