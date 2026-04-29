@@ -15,8 +15,8 @@
   </script>
 
   <div id="fullscreen-wrapper">
-    <button id="enter-fullscreen"><i class="fa fa-expand"></i>Afficher en plein écran</button>
-    <button id="exit-fullscreen"><i class="fa fa-compress"></i>Quitter le plein écran</button>
+    <button id="enter-fullscreen"><i class="fa fa-expand"></i>{gettext("Fullscreen display")}</button>
+    <button id="exit-fullscreen"><i class="fa fa-compress"></i>{gettext("Leave fullscreen display")}</button>
     <metabase-dashboard class="dashboard" token={@metabase_token} with-title="true" with-downloads="true">
     </metabase-dashboard>
   </div>

@@ -36,7 +36,7 @@ defmodule TransportWeb.Plugs.ReuserData do
   defp followed_datasets_checks(
          %Plug.Conn{assigns: %{followed_datasets: datasets, current_user: %{"id" => user_id}}} = conn
        ) do
-    cache_key = "followed_datasets_checks::#{user_id}"
+    cache_key = followed_datasets_checks_cache_key(user_id)
 
     checks =
       case datasets do
@@ -51,6 +51,8 @@ defmodule TransportWeb.Plugs.ReuserData do
   end
 
   defp followed_datasets_checks(%Plug.Conn{} = conn), do: assign(conn, :followed_datasets_checks, [])
+
+  def followed_datasets_checks_cache_key(user_id), do: "followed_datasets_checks::#{user_id}"
 
   defp datasets_checks(datasets, cache_key) do
     Transport.Cache.fetch(

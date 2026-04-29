@@ -67,6 +67,10 @@
     <span :if={nb_feeds == 1}>{Helpers.format_number(nb_feeds)} flux est masqué.</span>
     <span :if={nb_feeds > 1}>{Helpers.format_number(nb_feeds)} flux sont masqués.</span>
   </p>
+  <p>
+    Taille totale en RAM : <strong>{@total_ram_size}</strong>
+    · Taille totale sur disque : <strong>{@total_disk_size}</strong>
+  </p>
   <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 </section>
 <script nonce={@nonce}>

@@ -285,6 +285,10 @@ msgid "Previous validations"
 msgstr ""
 
 #, elixir-autogen, elixir-format
+msgid "Many validation errors indicate that the GTFS-RT identifiers do not match the GTFS identifiers."
+msgstr ""
+
+#, elixir-autogen, elixir-format
 msgid "Shapes present in the GTFS have been ignored, some rules are not enforced."
 msgstr ""
 
@@ -329,10 +333,6 @@ msgid "enRoute Chouette Valid"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "XSD NeTEx"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "xsd-schema-description"
 msgstr ""
 
@@ -350,10 +350,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Other errors"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "netex-validations-layers"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -410,4 +406,108 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Road mobility and bike"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a CSV file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "As a Parquet file:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Download the report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more about it <a href=\"%{parquet_url}\" target=\"_blank\">here</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No validation error. No report to download."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Parquet is way more compact file format but it will require you to use some dedicated tooling."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "XSD"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "All rules of this category are respected."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "List of French Profile rules currently checked"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Learn more"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Stops and routes visualization of the NeTEx file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Could not validate file rows because of file-level errors."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Error samples"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Errors by column"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File-level errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "IRVE Statique validation report"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Invalid rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "This validation now uses our integrated IRVE Statique validator."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Total rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Valid rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Validation file"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Value"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "You can still use the previous <a href=\"%{url}\" target=\"_blank\">Validata validator</a>."
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "File is too large, must be <%{max_file_size}."
 msgstr ""

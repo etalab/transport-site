@@ -1,6 +1,5 @@
 <% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
 <% bnlc_link = dataset_path(@conn, :details, @bnlc_dataset.slug) %>
-<% parcs_relais_link = dataset_path(@conn, :details, @parkings_relais_dataset.slug) %>
 <% zfe_link = dataset_path(@conn, :details, @zfe_dataset.slug) %>
 <% irve_link = dataset_path(@conn, :details, @irve_dataset.slug) %>
 <% vehicles_sharing_datasets_link = dataset_path(@conn, :index, type: "vehicles-sharing") %>
@@ -31,19 +30,6 @@
         {raw(
           dgettext("explore", "bnlc-explanation",
             link: safe_to_string(link(dgettext("explore", "dataset"), to: bnlc_link))
-          )
-        )}
-      </details>
-    </div>
-    <div class="checkbox-explore parkings_relais">
-      <input id="parkings_relais-check" name="parkings_relais" type="checkbox" value="true" checked={@parkings_relais} />
-      <details>
-        <summary>
-          {dgettext("explore", "Park and ride database")}
-        </summary>
-        {raw(
-          dgettext("explore", "park-and-ride-explanation",
-            link: safe_to_string(link(dgettext("explore", "dataset"), to: parcs_relais_link))
           )
         )}
       </details>

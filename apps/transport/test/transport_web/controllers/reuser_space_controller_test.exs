@@ -5,6 +5,8 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   import DB.Factory
   import Mox
 
+  @cache_name Transport.Cache.Cachex.cache_name()
+
   @home_url reuser_space_path(TransportWeb.Endpoint, :espace_reutilisateur)
   @google_maps_org_id "63fdfe4f4cd1c437ac478323"
 
@@ -143,6 +145,61 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   end
 
   describe "unfavorite" do
+    test "cache is invalidated after unfavoriting to avoid checks offset", %{conn: conn} do
+      # Regression test: when the checks cache was not invalidated after unfavoriting,
+      # `Enum.zip(followed_datasets_ids, followed_datasets_checks)` would misalign
+      # dataset IDs with checks — e.g. dataset_B would receive dataset_A's checks.
+      #
+      # Setup: user follows 2 datasets.
+      # dataset_a has an unavailable resource (triggers an "important information" check).
+      # dataset_b is healthy (no checks).
+      contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+      dataset_a = insert(:dataset)
+      dataset_b = insert(:dataset)
+      insert(:resource, dataset: dataset_a, is_available: false)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset_a.id, source: :follow_button)
+      insert(:dataset_follower, contact_id: contact.id, dataset_id: dataset_b.id, source: :follow_button)
+
+      Datagouvfr.Client.Discussions.Mock |> stub(:get, fn _datagouv_id -> [] end)
+
+      old_cache_impl = Application.fetch_env!(:transport, :cache_impl)
+      Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
+
+      on_exit(fn ->
+        Application.put_env(:transport, :cache_impl, old_cache_impl)
+        Cachex.reset(@cache_name)
+      end)
+
+      # First page load: populates the cache with checks for [dataset_a, dataset_b].
+      # At this point 1 check row is expected (unavailable resource on dataset_a).
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert length(important_info_rows_without_recent_features(doc)) == 1
+
+      # Unfavorite dataset_a — this should invalidate the cache.
+      conn
+      |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+      |> post(reuser_space_path(conn, :unfavorite, dataset_a.id))
+
+      # Second page load: only dataset_b is followed. The cache must have been
+      # invalidated so checks are recomputed for [dataset_b] only.
+      # Without the fix the stale cache returns [checks_a, checks_b], zip gives
+      # {dataset_b.id => checks_a}, and dataset_b incorrectly shows 1 check row.
+      doc =
+        conn
+        |> Plug.Test.init_test_session(%{current_user: %{"id" => contact.datagouv_user_id}})
+        |> get(@home_url)
+        |> html_response(200)
+        |> Floki.parse_document!()
+
+      assert Enum.empty?(important_info_rows_without_recent_features(doc))
+    end
+
     test "requested dataset is not in the user's favorites", %{conn: conn} do
       contact = insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
       dataset = insert(:dataset)

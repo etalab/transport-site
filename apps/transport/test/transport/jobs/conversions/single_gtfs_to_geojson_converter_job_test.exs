@@ -29,7 +29,7 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
       convert_from: :GTFS,
       convert_to: :GeoJSON,
       resource_history_uuid: uuid,
-      converter: DB.DataConversion.converter_to_use(:GeoJSON),
+      converter: DB.DataConversion.converter_to_use(:GTFS, :GeoJSON),
       payload: %{}
     )
 
@@ -77,7 +77,7 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
              DB.Repo.get_by!(DB.DataConversion,
                convert_from: :GTFS,
                convert_to: :GeoJSON,
-               converter: DB.DataConversion.converter_to_use(:GeoJSON),
+               converter: DB.DataConversion.converter_to_use(:GTFS, :GeoJSON),
                resource_history_uuid: uuid
              )
 
@@ -124,7 +124,7 @@ defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJobTest do
       |> DB.Repo.get_by!(
         convert_from: :GTFS,
         convert_to: :GeoJSON,
-        converter: DB.DataConversion.converter_to_use(:GeoJSON),
+        converter: DB.DataConversion.converter_to_use(:GTFS, :GeoJSON),
         resource_history_uuid: uuid
       )
     end)

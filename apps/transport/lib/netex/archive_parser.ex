@@ -4,8 +4,30 @@ defmodule Transport.NeTEx.ArchiveParser do
 
   The current implementation is specialized into extracting `StopPlace`s, but the code
   will be generalized for other uses in a later PR.
+
+  Also provides conversion to GeoJSON via `to_geojson/1` and `to_geojson/2`.
   """
   require Logger
+
+  @doc """
+  Converts a NeTEx ZIP archive to a GeoJSON FeatureCollection.
+
+  This is a convenience facade for `Transport.NeTEx.ToGeoJSON.convert_archive/2`.
+
+  ## Options
+
+  - `:types` - List of element types to extract. Defaults to all types.
+    Available types: `:stop_places`, `:quays`, `:service_links`
+
+  ## Examples
+
+      {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson("/path/to/netex.zip")
+
+      {:ok, geojson} = Transport.NeTEx.ArchiveParser.to_geojson(path, types: [:stop_places, :quays])
+
+  """
+  @spec to_geojson(String.t(), keyword()) :: {:ok, map()} | {:error, String.t()}
+  defdelegate to_geojson(zip_path, opts \\ []), to: Transport.NeTEx.ToGeoJSON, as: :convert_archive
 
   @doc """
   Inside a zip archive opened with `Unzip`, parse a given file
@@ -179,21 +201,25 @@ defmodule Transport.NeTEx.ArchiveParser do
   end
 
   defp read_all(zip_file_name, reader) do
-    with_zip_file_handle(zip_file_name, fn unzip ->
-      unzip
-      |> Unzip.list_entries()
-      |> Enum.map(fn metadata ->
-        Logger.debug("Processing #{metadata.file_name}")
+    with_zip_file_handle(
+      zip_file_name,
+      fn unzip ->
+        unzip
+        |> Unzip.list_entries()
+        |> Enum.map(fn metadata ->
+          Logger.debug("Processing #{metadata.file_name}")
 
-        {
-          metadata.file_name,
-          reader.(unzip, metadata.file_name)
-        }
-      end)
-    end)
+          {
+            metadata.file_name,
+            reader.(unzip, metadata.file_name)
+          }
+        end)
+      end,
+      fn _error -> [] end
+    )
   end
 
-  defp with_zip_file_handle(zip_file_name, cb) do
+  def with_zip_file_handle(zip_file_name, cb, on_error) do
     zip_file = Unzip.LocalFile.open(zip_file_name)
 
     try do
@@ -203,7 +229,7 @@ defmodule Transport.NeTEx.ArchiveParser do
 
         {:error, message} ->
           Logger.error("Error while reading #{zip_file_name}: #{message}")
-          []
+          on_error.(message)
       end
     after
       Unzip.LocalFile.close(zip_file)

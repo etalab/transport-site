@@ -9,6 +9,8 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
   - it can keep track of source documentation for each rule to help maintain a user friendly interface
   """
 
+  use Gettext, backend: TransportWeb.Gettext
+
   def mandatory_attributes(parent, names, documentation_title, documentation_url) do
     %{
       type: :mandatory_attributes,
@@ -31,26 +33,41 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
     Enum.map(ruleset, &process_rule_context(sub_profile, &1))
   end
 
-  def document_ruleset(ruleset, device \\ :stdio) do
-    Enum.each(ruleset, &document_sub_profile(&1, device))
+  def document_ruleset(ruleset, device \\ :stdio, markdown_options \\ []) do
+    Enum.each(ruleset, &document_sub_profile(&1, device, markdown_options))
   end
 
-  def document_sub_profile(%{title: title, ruleset: ruleset}, device) do
-    IO.puts(device, "## #{title}")
-    IO.puts(device, "")
+  def document_sub_profile(%{title: title, ruleset: ruleset}, device, options) do
+    header_level = Keyword.get(options, :header_level, 1)
 
-    ruleset
-    |> Enum.each(fn rule_context ->
-      IO.puts(device, "In [#{rule_context.documentation_link.title}](#{rule_context.documentation_link.url}):")
+    if not Enum.empty?(ruleset) do
+      IO.puts(device, header(header_level, dgettext("netex-documentation", "Sub-profile “%{title}”", title: title)))
       IO.puts(device, "")
 
-      for name <- rule_context.names do
-        IO.puts(device, "- `//#{rule_context.parent}/#{name}` : `0:1` -> `1:1`")
-      end
+      ruleset
+      |> Enum.each(fn rule_context ->
+        IO.puts(device, dgettext("netex-documentation", "Section [%{title}](%{url}):", rule_context.documentation_link))
+        IO.puts(device, "")
 
-      IO.puts(device, "")
-    end)
+        for name <- rule_context.names do
+          IO.puts(
+            device,
+            "- #{dgettext("netex-documentation", "The element `%{name}` is required.", name: "#{rule_context.parent}/#{name}")}"
+          )
+        end
+
+        IO.puts(device, "")
+      end)
+    end
   end
+
+  defp header(level, text) when level in 1..6 do
+    symbol = "######" |> String.slice(0, level)
+
+    "#{symbol} #{text}"
+  end
+
+  defp header(_level, text), do: text
 
   def process_rule_context(sub_profile, %{type: :mandatory_attributes, parent: parent, names: names}) do
     %{

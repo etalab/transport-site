@@ -207,6 +207,30 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     assert emails_2 |> Enum.sort() == ["bar@example.fr", "baz@example.fr"]
   end
 
+  test "can download the datasets CSV", %{conn: conn} do
+    # Being an admin is not enough
+    assert %URI{path: "/login/explanation"} =
+             conn
+             |> setup_admin_in_session()
+             |> get(Routes.backoffice_page_path(conn, :download_datasets_csv))
+             |> redirected_to(302)
+             |> URI.parse()
+
+    # Can download the CSV if you provide the secret key in the URL
+    assert "fake_export_secret_key" == Application.fetch_env!(:transport, :export_secret_key)
+
+    response =
+      conn
+      |> get(Routes.backoffice_page_path(conn, :download_datasets_csv), %{"export_key" => "fake_export_secret_key"})
+
+    assert response(response, 200)
+    assert response_content_type(response, :csv) == "text/csv; charset=utf-8"
+
+    assert Plug.Conn.get_resp_header(response, "content-disposition") == [
+             ~s(attachment; filename="datasets-#{Date.utc_today() |> Date.to_iso8601()}.csv")
+           ]
+  end
+
   test "can download the resources CSV", %{conn: conn} do
     # Being an admin is not enough
     assert %URI{path: "/login/explanation"} =

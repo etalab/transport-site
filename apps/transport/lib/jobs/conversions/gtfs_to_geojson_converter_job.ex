@@ -1,6 +1,6 @@
 defmodule Transport.Jobs.GTFSToGeoJSONConverterJob do
   @moduledoc """
-  This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory
+  This will enqueue GTFS -> GeoJSON conversion jobs for all GTFS resources found in ResourceHistory.
   """
   use Oban.Worker, tags: ["conversions"], max_attempts: 3
   alias Transport.Jobs.GTFSGenericConverter
@@ -13,7 +13,7 @@ end
 
 defmodule Transport.Jobs.SingleGTFSToGeoJSONConverterJob do
   @moduledoc """
-  Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3
+  Conversion Job of a GTFS to a GeoJSON, saving the resulting file in S3.
   """
   use Oban.Worker, tags: ["conversions"], max_attempts: 3
   alias Transport.Jobs.GTFSGenericConverter

@@ -1,13 +1,14 @@
 defmodule Unlock.BatchMetricsTest do
   use ExUnit.Case, async: false
   import DB.Factory
+  import Transport.Test.TestUtils, only: [wait_until: 1]
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
-    # because the upserts happen in a separate process (the GenServer),
-    # we must tweak the sandbox to be able to see them from here
-    pid = Process.whereis(Unlock.BatchMetrics)
-    Ecto.Adapters.SQL.Sandbox.allow(DB.Repo, self(), pid)
+    # The GenServer fires `Task.start/1` for each upsert, and `$callers` propagation
+    # to those transient tasks is racy under load. Shared mode covers the GenServer
+    # AND its spawned tasks. Locks this file in async: false (already the case).
+    Ecto.Adapters.SQL.Sandbox.mode(DB.Repo, {:shared, self()})
     :ok
   end
 
@@ -24,7 +25,8 @@ defmodule Unlock.BatchMetricsTest do
     assert %{{"foo", "external"} => 3, {"bar", "internal"} => 1} == :sys.get_state(Unlock.BatchMetrics)
 
     send(Unlock.BatchMetrics, :work)
-    :timer.sleep(100)
+    # upserts run in async tasks — poll until the records have been inserted
+    wait_until(fn -> DB.Repo.aggregate(DB.Metrics, :count) == 2 end)
 
     assert [
              # Metric has been updated

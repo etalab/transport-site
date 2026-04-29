@@ -90,13 +90,7 @@ defmodule Transport.Jobs.CleanMultiValidationJob do
     :ok
   end
 
-  def max_records do
-    if Mix.env() == :test do
-      1
-    else
-      @max_records
-    end
-  end
+  def max_records, do: Application.get_env(:transport, :clean_multi_validation_max_records, @max_records)
 
   defp archive_records(ids) do
     DB.MultiValidation.base_query()

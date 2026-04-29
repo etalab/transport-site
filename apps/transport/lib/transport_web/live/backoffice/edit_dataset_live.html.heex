@@ -120,6 +120,9 @@
           pattern: "\\d{9,9}"
         )}
       </label>
+      <%= if @company do %>
+        <span>{@company.nom_complet}</span>
+      <% end %>
     </div>
   </div>
 

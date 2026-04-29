@@ -86,9 +86,45 @@ msgid "Size:"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "CSV report"
+msgid "Occurrences of the %{element} element."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Parquet report"
+msgid "number of lines:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of quays:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "number of stop places:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "NeTEx features:"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "accessibility"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "fares"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "networks"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "parkings"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "stops"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "timetables"
 msgstr ""

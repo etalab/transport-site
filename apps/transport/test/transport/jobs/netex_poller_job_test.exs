@@ -6,7 +6,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup do

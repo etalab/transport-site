@@ -55,7 +55,7 @@ iex_started? = Code.ensure_loaded?(IEx) && IEx.started?()
 # https://www.clever-cloud.com/doc/reference/reference-environment-variables/#set-by-the-deployment-process
 # They should not run in an iex session either.
 if config_env() == :prod && !iex_started? && worker && System.fetch_env!("INSTANCE_NUMBER") == "0" do
-  config :transport, Transport.Scheduler, jobs: Transport.Scheduler.scheduled_jobs()
+  config :transport, Transport.QuantumScheduler, jobs: Transport.QuantumScheduler.scheduled_jobs()
 end
 
 # Make sure that APP_ENV is set in production to distinguish
@@ -85,7 +85,8 @@ domain_name =
 config :transport, domain_name: domain_name
 
 config :transport,
-  app_env: app_env
+  app_env: app_env,
+  mix_env: config_env()
 
 # Override configuration specific to staging
 if app_env == :staging do
@@ -106,19 +107,19 @@ base_oban_conf = [repo: DB.Repo, insert_trigger: false]
 #
 # - There is "app_env :prod" in contrast to :staging (ie production website vs prochainement)
 #   and "config_env :prod" in contrast to :dev et :test
-# - ⚠️ There is another legacy crontab in `Transport.Scheduler`, see `scheduler.ex`
+# - ⚠️ There is another (in-memory) crontab in `Transport.QuantumScheduler`, see `quantum_scheduler.ex`
 # See https://hexdocs.pm/oban/Oban.html#module-cron-expressions
 oban_prod_crontab = [
   {"0 */6 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob},
   {"0 4,16 * * *", Transport.Jobs.ResourceHistoryAndValidationDispatcherJob, args: %{mode: :reuser_improved_data}},
   {"30 */6 * * *", Transport.Jobs.GTFSToGeoJSONConverterJob},
+  {"30 */6 * * *", Transport.Jobs.NeTExToGeoJSONConverterJob},
   {"0 4 * * *", Transport.Jobs.GTFSImportStopsJob},
   {"20 8 * * *", Transport.Jobs.CleanOrphanConversionsJob},
   {"0 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob},
   {"*/10 * * * *", Transport.Jobs.ResourcesUnavailableDispatcherJob, args: %{only_unavailable: true}},
   {"20 */2 * * *", Transport.Jobs.GTFSRTMetadataDispatcherJob},
   {"30 */6 * * *", Transport.Jobs.BNLCToGeoData},
-  {"30 */6 * * *", Transport.Jobs.ParkingsRelaisToGeoData},
   {"30 */6 * * *", Transport.Jobs.LowEmissionZonesToGeoData},
   {"30 */6 * * *", Transport.Jobs.IRVEToGeoData},
   {"30 6 * * *", Transport.Jobs.GBFSStationsToGeoData},
@@ -150,6 +151,7 @@ oban_prod_crontab = [
   {"45 2 * * *", Transport.Jobs.RemoveHistoryJob, args: %{schema_name: "etalab/schema-irve-dynamique", days_limit: 7}},
   {"0 16 * * *", Transport.Jobs.DatasetQualityScoreDispatcher},
   {"40 3 * * *", Transport.Jobs.UpdateContactsJob},
+  {"0 3 * * *", Transport.Jobs.ImportCompaniesJob},
   {"40 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "set_default_token_for_contacts"}},
   {"50 3 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_organizations"}},
   {"30 4 * * *", Transport.Jobs.CreateTokensJob, args: %{action: "create_tokens_for_contacts_without_org"}},

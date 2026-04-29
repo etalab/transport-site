@@ -111,15 +111,18 @@ defmodule Unlock.Controller do
       # NOTE: we catch the exception to return a controlled/blank answer in production.
       Logger.error("An exception occurred (#{exception |> inspect}")
 
-      cond do
+      case Application.fetch_env!(:transport, :unlock_controller_rescue_mode) do
         # give a bit more context when working in development
-        Mix.env() == :dev ->
+        :verbose ->
           Logger.error(Exception.format_stacktrace())
 
-        # in test, it is inconvenient to receive a 500, instead we
-        # re-raise to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
-        Mix.env() == :test ->
+        # in test, it is inconvenient to receive a 500, instead we re-raise
+        # to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
+        :reraise ->
           reraise exception, __STACKTRACE__
+
+        :silent ->
+          :ok
       end
 
       conn
@@ -147,7 +150,7 @@ defmodule Unlock.Controller do
   ```
   """
   def override_resp_headers_if_configured(conn, %module{} = item)
-      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS] do
+      when module in [Unlock.Config.Item.Generic.HTTP, Unlock.Config.Item.GBFS, Unlock.Config.Item.S3] do
     Enum.reduce(item.response_headers, conn, fn {header, value}, conn ->
       conn
       |> put_resp_header(header |> String.downcase(), value)
@@ -185,7 +188,11 @@ defmodule Unlock.Controller do
     Unlock.Telemetry.trace_request(item.identifier, :external)
 
     displayed_filename = Path.basename(item.path)
-    conn = conn |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+
+    conn =
+      conn
+      |> put_resp_header("content-disposition", "attachment; filename=#{displayed_filename}")
+      |> override_resp_headers_if_configured(item)
 
     case fetch_remote(item) do
       %Unlock.HTTP.Response{status: 200} = response ->

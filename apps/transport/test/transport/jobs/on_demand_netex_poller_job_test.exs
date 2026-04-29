@@ -5,7 +5,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   import ExUnit.CaptureLog
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
   alias Transport.Validators.NeTEx.Validator
 
   setup :verify_on_exit!
