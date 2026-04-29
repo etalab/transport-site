@@ -311,6 +311,10 @@ iframe#email_preview {
     padding: var(--space-xs) var(--space-s);
   }
 
+  table tr th {
+    text-wrap: nowrap;
+  }
+
   table tr td {
     vertical-align: top;
 
