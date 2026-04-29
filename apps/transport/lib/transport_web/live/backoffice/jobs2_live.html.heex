@@ -26,7 +26,7 @@
   </.form>
 
   <%= if @listing do %>
-    <.live_component module={JobsTableComponent} jobs={@jobs} id="live_jobs" />
+    <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" />
   <% else %>
     <table class="table">
       <thead>

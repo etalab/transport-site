@@ -186,7 +186,11 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
       end
 
     # "#{date} between #{format_time(from)} and #{format_time(to)}"
-    dgettext("backoffice", "%{date} between %{from} and %{to}", date: date, from: format_time(from), to: format_time(to))
+    dgettext("backoffice", "%{date} between %{from} and %{to}",
+      date: date,
+      from: format_time(from),
+      to: format_time(to)
+    )
   end
 
   defp format_time(dt) do
