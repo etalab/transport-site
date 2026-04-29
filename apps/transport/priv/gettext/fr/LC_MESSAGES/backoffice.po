@@ -357,3 +357,19 @@ msgstr[1] "total : %{n_jobs} jobs"
 #, elixir-autogen, elixir-format
 msgid "Reset"
 msgstr "Valeurs par défaut"
+
+#, elixir-autogen, elixir-format
+msgid "Today"
+msgstr "Aujourd’hui"
+
+#, elixir-autogen, elixir-format
+msgid "Tomorrow"
+msgstr "Demain"
+
+#, elixir-autogen, elixir-format
+msgid "Yesterday"
+msgstr "Hier"
+
+#, elixir-autogen, elixir-format
+msgid "%{date} between %{from} and %{to}"
+msgstr "%{date} entre %{from} et %{to}"
