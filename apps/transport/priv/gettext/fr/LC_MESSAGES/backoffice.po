@@ -349,5 +349,11 @@ msgid "listing"
 msgstr "liste"
 
 #, elixir-autogen, elixir-format, fuzzy
-msgid "total:"
-msgstr "total :"
+msgid "total: %{n_jobs} job"
+msgid_plural "total: %{n_jobs} jobs"
+msgstr[0] "total : %{n_jobs} job"
+msgstr[1] "total : %{n_jobs} jobs"
+
+#, elixir-autogen, elixir-format
+msgid "Reset"
+msgstr "Valeurs par défaut"
