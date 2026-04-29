@@ -304,6 +304,32 @@ iframe#email_preview {
     --taint: color-mix(red 70%, white);
   }
 
+  span.timestamp {
+    cursor: help;
+
+    &::before {
+      content: attr(data-datetime);
+      position-anchor: --timestamp;
+      position: fixed;
+      display: none;
+      bottom: calc(anchor(top) + 4px);
+      justify-self: anchor-center;
+      background: white;
+      border: 1px solid var(--light-grey);
+      border-radius: calc(var(--space-xs) / 2);
+      box-shadow: 0 0 15px $box-shadow;
+      padding: calc(var(--space-xs) / 2) var(--space-xs);
+    }
+
+    &:hover {
+      anchor-name: --timestamp;
+    }
+
+    &:hover::before {
+      display: block;
+    }
+  }
+
   table tr th,
   table tr td {
     font-size: 0.9rem;

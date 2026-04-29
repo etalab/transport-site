@@ -26,7 +26,10 @@
   </.form>
 
   <%= if @listing do %>
-    <.live_component module={JobsTableComponent} jobs={@jobs} id="live_jobs" />
+    <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" />
+    <div :if={@count_jobs > length(@jobs)} class="small is-centered">
+      {dgettext("backoffice", "truncated (%{hidden} jobs hidden)", hidden: @count_jobs - length(@jobs))}
+    </div>
   <% else %>
     <table class="table">
       <thead>
@@ -40,7 +43,7 @@
         <%= for {hour, rows} <- @jobs_count do %>
           <tr :for={{row, index} <- Enum.with_index(rows)}>
             <td :if={index == 0} rowspan={Enum.count(rows)}>
-              {format_1_hour_range(hour)}
+              {format_1_hour_range(hour, @locale)}
             </td>
             <td>{row.worker}</td>
             <td>{Helpers.format_number(row.count)}</td>

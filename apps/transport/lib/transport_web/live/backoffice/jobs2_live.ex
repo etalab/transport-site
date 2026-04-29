@@ -172,20 +172,25 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
     {:noreply, socket}
   end
 
-  def format_1_hour_range(from) do
+  def format_1_hour_range(from, locale) do
     to = DateTime.add(from, 1, :hour)
 
     days_diff = from |> DateTime.to_date() |> Date.diff(Date.utc_today())
 
     date =
       case days_diff do
-        0 -> "Today"
-        -1 -> "Yesterday"
-        1 -> "Tomorrow"
-        _ -> Shared.DateTimeDisplay.format_date(from, "en")
+        0 -> dgettext("backoffice", "Today")
+        -1 -> dgettext("backoffice", "Yesterday")
+        1 -> dgettext("backoffice", "Tomorrow")
+        _ -> Shared.DateTimeDisplay.format_date(from, locale)
       end
 
-    "#{date} between #{format_time(from)} and #{format_time(to)}"
+    # "#{date} between #{format_time(from)} and #{format_time(to)}"
+    dgettext("backoffice", "%{date} between %{from} and %{to}",
+      date: date,
+      from: format_time(from),
+      to: format_time(to)
+    )
   end
 
   defp format_time(dt) do
