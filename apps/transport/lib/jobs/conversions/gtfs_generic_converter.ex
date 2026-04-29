@@ -1,9 +1,6 @@
 defmodule Transport.Jobs.GTFSGenericConverter do
   @moduledoc """
   Provides some functions to convert GTFS to another format.
-
-  Note that the EnRoute's GTFS to NeTEx converter does not use this class
-  because the conversion is not done locally but through an API.
   """
   alias Transport.Jobs.GenericConverter
 

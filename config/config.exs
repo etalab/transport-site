@@ -177,7 +177,6 @@ config :transport,
   proxy_config_secret_key: System.get_env("PROXY_CONFIG_SECRET_KEY"),
   # Expected format: `client1:secret_token;client2:other_token`
   api_auth_clients: System.get_env("API_AUTH_CLIENTS"),
-  enroute_token: System.get_env("ENROUTE_TOKEN"),
   enroute_validation_token: System.get_env("ENROUTE_VALIDATION_TOKEN"),
   enroute_rulesets_token: System.get_env("ENROUTE_RULESETS_TOKEN"),
   max_import_concurrent_jobs: (System.get_env("MAX_IMPORT_CONCURRENT_JOBS") || "1") |> String.to_integer(),
