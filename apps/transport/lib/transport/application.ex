@@ -17,12 +17,8 @@ defmodule Transport.Application do
   def cache_name, do: @cache_name
 
   def start(_type, _args) do
-    unless Mix.env() == :test do
-      cond do
-        worker_only?() -> Logger.info("Booting in worker-only mode...")
-        webserver_only?() -> Logger.info("Booting in webserver-only mode...")
-        dual_mode?() -> Logger.info("Booting in worker+webserver mode...")
-      end
+    if worker_enabled?() or webserver_enabled?() do
+      Logger.info("Booting in #{boot_mode_label()} mode...")
     end
 
     children =
@@ -51,8 +47,8 @@ defmodule Transport.Application do
         Unlock.BatchMetrics,
         Unlock.DynamicIRVESupervisor
       ]
-      |> add_scheduler()
-      |> add_if(fn -> run_realtime_poller?() end, Transport.RealtimePoller)
+      |> add_quantum_scheduler()
+      |> add_if(fn -> run_explore_vehicle_positions_poller?() end, Transport.ExploreVehiclePositionsPoller)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveHomeStatsCache)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveAPICache)
       |> add_if(fn -> preemptive_caching?() end, Transport.PreemptiveStatsCache)
@@ -71,13 +67,22 @@ defmodule Transport.Application do
     Supervisor.start_link(children, opts)
   end
 
+  defp boot_mode_label do
+    cond do
+      worker_only?() -> "worker-only"
+      webserver_only?() -> "webserver-only"
+      dual_mode?() -> "worker+webserver"
+    end
+  end
+
   def webserver_enabled?, do: Application.fetch_env!(:transport, :webserver)
   def worker_enabled?, do: Application.fetch_env!(:transport, :worker)
   def worker_only?, do: worker_enabled?() && !webserver_enabled?()
   def webserver_only?, do: webserver_enabled?() && !worker_enabled?()
   def dual_mode?, do: worker_enabled?() && webserver_enabled?()
 
-  def run_realtime_poller?, do: webserver_enabled?() && Mix.env() != :test
+  def run_explore_vehicle_positions_poller?,
+    do: webserver_enabled?() && Application.fetch_env!(:transport, :explore_vehicle_positions_poller_enabled)
 
   def preemptive_caching?,
     do: webserver_enabled?() && Application.fetch_env!(:transport, :app_env) in [:production, :staging]
@@ -90,9 +95,9 @@ defmodule Transport.Application do
     end
   end
 
-  defp add_scheduler(children) do
-    if Mix.env() != :test do
-      [Transport.Scheduler | children]
+  defp add_quantum_scheduler(children) do
+    if Application.fetch_env!(:transport, :quantum_scheduler_enabled) do
+      [Transport.QuantumScheduler | children]
     else
       children
     end

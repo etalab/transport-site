@@ -111,15 +111,18 @@ defmodule Unlock.Controller do
       # NOTE: we catch the exception to return a controlled/blank answer in production.
       Logger.error("An exception occurred (#{exception |> inspect}")
 
-      cond do
+      case Application.fetch_env!(:transport, :unlock_controller_rescue_mode) do
         # give a bit more context when working in development
-        Mix.env() == :dev ->
+        :verbose ->
           Logger.error(Exception.format_stacktrace())
 
-        # in test, it is inconvenient to receive a 500, instead we
-        # re-raise to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
-        Mix.env() == :test ->
+        # in test, it is inconvenient to receive a 500, instead we re-raise
+        # to make it easier to do ExUnit assertions & avoid swallowed Mox expectations
+        :reraise ->
           reraise exception, __STACKTRACE__
+
+        :silent ->
+          :ok
       end
 
       conn

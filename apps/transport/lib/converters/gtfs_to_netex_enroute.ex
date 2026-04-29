@@ -2,6 +2,10 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
   @moduledoc """
   A client of for the EnRoute's Conversions API.
   Documentation: https://documenter.getpostman.com/view/9203997/SzmfXwrp
+
+  TODO: this module is currently orphaned (no caller, no test). It was added in
+  PR #3542 then bypassed by PR #3613 (default converter changed).
+  GTFS to NeTEx conversions are not planned anymore afaik, so we'll decommission it.
   """
   require Logger
   @behaviour Transport.Converters.Converter
@@ -78,16 +82,7 @@ defmodule Transport.Converters.GTFSToNeTExEnRoute do
   @impl Transport.Converters.Converter
   def converter_version, do: "current"
 
-  defp base_url do
-    # Use Bypass with Req in the test environment, we need to change the base URL
-    bypass = Process.get(:req_bypass)
-
-    if Mix.env() == :test and not is_nil(bypass) do
-      "http://localhost:#{bypass.port}"
-    else
-      @base_url
-    end
-  end
+  defp base_url, do: @base_url
 
   defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
 

@@ -235,6 +235,7 @@ defmodule TransportWeb.Router do
 
       live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
         live("/jobs", JobsLive)
+        live("/jobs/experimental", Jobs2Live)
       end
 
       live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
@@ -373,7 +374,7 @@ defmodule TransportWeb.Router do
   # private
 
   defp assign_mix_env(conn, _) do
-    assign(conn, :mix_env, Mix.env())
+    assign(conn, :mix_env, Application.fetch_env!(:transport, :mix_env))
   end
 
   defp assign_current_user(conn, _) do

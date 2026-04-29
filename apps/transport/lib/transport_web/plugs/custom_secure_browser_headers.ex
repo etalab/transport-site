@@ -9,7 +9,14 @@ defmodule TransportWeb.Plugs.CustomSecureBrowserHeaders do
 
   def call(conn, _opts) do
     nonce = generate_nonce()
-    csp_headers = csp_headers(Mix.env(), Application.fetch_env!(:transport, :app_env), nonce)
+
+    csp_headers =
+      csp_headers(
+        Application.fetch_env!(:transport, :mix_env),
+        Application.fetch_env!(:transport, :app_env),
+        nonce
+      )
+
     headers = Map.merge(csp_headers, %{"x-frame-options" => "DENY"})
 
     conn
