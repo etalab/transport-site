@@ -313,6 +313,8 @@ iframe#email_preview {
 
   table tr th {
     text-wrap: nowrap;
+    position: sticky;
+    top: 0;
   }
 
   table tr td {
