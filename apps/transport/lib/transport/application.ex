@@ -44,7 +44,8 @@ defmodule Transport.Application do
            expiration: expiration(default: :timer.seconds(Unlock.Shared.default_cache_expiration_seconds()))},
           id: :unlock_cachex
         ),
-        Unlock.BatchMetrics
+        Unlock.BatchMetrics,
+        Unlock.DynamicIRVESupervisor
       ]
       |> add_quantum_scheduler()
       |> add_if(fn -> run_explore_vehicle_positions_poller?() end, Transport.ExploreVehiclePositionsPoller)
