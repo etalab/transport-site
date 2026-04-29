@@ -21,7 +21,7 @@ defmodule Transport.Scheduler do
       {"0 3 * * *", {Transport.LogCleaner, :clean_old_logs, []}},
       # compute some global stats and store them in the DB
       {"0 20 * * *", {Transport.StatsHandler, :store_stats, []}},
-      {"0 * * * *", {Transport.ImportData, :refresh_places, []}}
+      {"0 * * * *", {Transport.ImportData, :refresh_autocomplete, []}}
     ]
   end
 end
