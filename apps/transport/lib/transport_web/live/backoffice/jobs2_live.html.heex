@@ -18,7 +18,9 @@
       </label>
       <div :if={@listing and @count_jobs} class="vsep"></div>
       <div :if={@listing and @count_jobs} class="total">
-        {dgettext("backoffice", "total:")} {Helpers.format_number(@count_jobs)}
+        {dngettext("backoffice", "total: %{n_jobs} job", "total: %{n_jobs} jobs", @count_jobs,
+          n_jobs: Helpers.format_number(@count_jobs)
+        )}
       </div>
     </div>
   </.form>
