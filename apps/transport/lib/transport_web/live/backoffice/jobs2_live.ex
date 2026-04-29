@@ -156,9 +156,15 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   end
 
   @impl true
-  def handle_event("filter", params, socket) do
-    update = extract_params(params) |> drop_defaults()
+  def handle_event("filter", %{"_target" => ["reset"]} = _params, socket) do
+    %{} |> sync_query_params(socket)
+  end
 
+  def handle_event("filter", params, socket) do
+    extract_params(params) |> drop_defaults() |> sync_query_params(socket)
+  end
+
+  defp sync_query_params(update, socket) do
     socket =
       socket
       |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.Jobs2Live, update))
@@ -215,6 +221,5 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
     Map.reject(updates, fn {_key, value} ->
       value == true or value == ""
     end)
-
   end
 end
