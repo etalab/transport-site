@@ -373,3 +373,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "%{date} between %{from} and %{to}"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "truncated (%{hidden} jobs hidden)"
+msgstr ""

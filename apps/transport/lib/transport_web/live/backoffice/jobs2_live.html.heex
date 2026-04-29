@@ -27,6 +27,9 @@
 
   <%= if @listing do %>
     <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" />
+    <div :if={@count_jobs > length(@jobs)} class="small is-centered">
+      {dgettext("backoffice", "truncated (%{hidden} jobs hidden)", hidden: @count_jobs - length(@jobs))}
+    </div>
   <% else %>
     <table class="table">
       <thead>
