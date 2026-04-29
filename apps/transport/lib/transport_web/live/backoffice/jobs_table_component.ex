@@ -27,9 +27,9 @@ defmodule JobsTableComponent do
           <td>{job.queue}</td>
           <td>{job.worker}</td>
           <td>{inspect(job.args)}</td>
-          <td>{format_datetime(job.inserted_at)}</td>
+          <td>{format_time(job.inserted_at)}</td>
           <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}><.compact_errors errors={job.errors} /></td>
-          <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>{format_datetime(job.scheduled_at)}</td>
+          <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>{format_time(job.scheduled_at)}</td>
         </tr>
       </tbody>
     </table>
@@ -40,7 +40,7 @@ defmodule JobsTableComponent do
     render(Map.merge(%{state: nil}, assigns))
   end
 
-  defp format_datetime(dt) do
+  defp format_time(dt) do
     Shared.DateTimeDisplay.format_time_to_paris(dt, "en", no_timezone: true, with_seconds: true)
   end
 
@@ -58,7 +58,7 @@ defmodule JobsTableComponent do
 
   defp split_error(error) do
     %{
-      at: Map.get(error, "at") |> maybe(&format_datetime/1),
+      at: Map.get(error, "at") |> maybe(&format_time/1),
       error: Map.get(error, "error", "") |> extract_message()
     }
   end
