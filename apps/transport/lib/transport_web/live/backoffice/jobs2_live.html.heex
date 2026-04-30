@@ -26,10 +26,52 @@
   </.form>
 
   <%= if @listing do %>
-    <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" />
+    <.live_component module={JobsTableComponent} jobs={@jobs} locale={@locale} id="live_jobs" supports_details />
     <div :if={@count_jobs > length(@jobs)} class="small is-centered">
       {dgettext("backoffice", "truncated (%{hidden} jobs hidden)", hidden: @count_jobs - length(@jobs))}
     </div>
+
+    <dialog :if={@selected_job} id="job-details" open class="panel right-side">
+      <div class="header_with_action_bar">
+        <h2>{dgettext("backoffice", "Job #%{job_id}", job_id: @selected_job.id)}</h2>
+        <button phx-click="unload-details" class="button-outline secondary small"><i class="fa fa-close"></i></button>
+      </div>
+
+      <h3>{dgettext("backoffice", "Properties")}</h3>
+      <table>
+        <tr>
+          <td>{dgettext("backoffice", "worker")}</td>
+          <td>{@selected_job.worker}</td>
+        </tr>
+        <tr>
+          <td>{dgettext("backoffice", "state")}</td>
+          <td><span class={"job-state job-state-#{@selected_job.state}"}>{@selected_job.state}</span></td>
+        </tr>
+        <tr>
+          <td>{dgettext("backoffice", "queue")}</td>
+          <td>{@selected_job.queue}</td>
+        </tr>
+        <tr>
+          <td>{dgettext("backoffice", "inserted_at")}</td>
+          <td>{format_datetime(@selected_job.inserted_at, @locale)}</td>
+        </tr>
+        <tr>
+          <td>{dgettext("backoffice", "scheduled_at")}</td>
+          <td>{format_datetime(@selected_job.scheduled_at, @locale)}</td>
+        </tr>
+      </table>
+
+      <h3>{dgettext("backoffice", "Arguments")}</h3>
+      <pre><code>{inspect(@selected_job.args)}</code></pre>
+
+      <%= if length(@selected_job.errors) > 0 do %>
+        <h3>{dgettext("backoffice", "Errors")}</h3>
+        <%= for error <- @selected_job.errors do %>
+          <h4>{error["attempt"]} - {format_datetime(error["at"], @locale)}</h4>
+          <pre><code>{error["error"]}</code></pre>
+        <% end %>
+      <% end %>
+    </dialog>
   <% else %>
     <table class="table">
       <thead>

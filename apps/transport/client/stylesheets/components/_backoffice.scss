@@ -353,13 +353,13 @@ iframe#email_preview {
       li {
         margin: 0;
         padding: 0;
-
-        code {
-          font-size: 0.75rem;
-          line-height: 1rem;
-        }
       }
     }
+  }
+
+  code {
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
 
   form.jobs-filter {
@@ -431,6 +431,47 @@ iframe#email_preview {
            opacity: 1;
          }
       }
+    }
+  }
+
+  dialog.right-side {
+    position: fixed;
+    z-index: 200;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin-right: 0;
+    height: 100vh;
+    min-width: 30vw;
+    max-width: 90vw;
+    box-shadow: 0 0 15px $box-shadow;
+    border-radius: 0;
+
+    .header_with_action_bar {
+      align-items: center;
+    }
+
+    code {
+      max-width: 80ch;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin-bottom: 0;
+    }
+  }
+
+  button.show-details {
+    border: none;
+    background: none;
+    text-decoration: underline;
+    color: var(--theme-primary);
+
+    &:hover {
+      color: var(--dark-blue);
+      background-color: var(--lighter-grey);
+      text-decoration: none;
+      border-radius: var(--theme-border-radius);
     }
   }
 }

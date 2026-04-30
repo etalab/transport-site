@@ -22,7 +22,7 @@ defmodule JobsTableComponent do
       </thead>
       <tbody>
         <tr :for={job <- @jobs}>
-          <td>{job.id}</td>
+          <td><.show_details supports_details={assigns[:supports_details] || false} job_id={job.id} /></td>
           <td :if={is_nil(@state)}><span class={"job-state job-state-#{job.state}"}>{job.state}</span></td>
           <td>{job.queue}</td>
           <td>{job.worker}</td>
@@ -42,6 +42,18 @@ defmodule JobsTableComponent do
 
   def render(%{jobs: _, locale: _} = assigns) do
     render(Map.merge(%{state: nil}, assigns))
+  end
+
+  defp show_details(%{supports_details: true, job_id: _} = assigns) do
+    ~H"""
+    <button class="show-details" phx-click="show-details" phx-value-job_id={@job_id}>{@job_id}</button>
+    """
+  end
+
+  defp show_details(%{job_id: _} = assigns) do
+    ~H"""
+    {@job_id}
+    """
   end
 
   defp timestamp(%{dt: _, locale: _} = assigns) do

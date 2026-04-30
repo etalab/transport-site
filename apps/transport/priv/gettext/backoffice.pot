@@ -377,3 +377,19 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "truncated (%{hidden} jobs hidden)"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Arguments"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Errors"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Job #%{job_id}"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Properties"
+msgstr ""
