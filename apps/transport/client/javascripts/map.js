@@ -31,7 +31,7 @@ const makeMapOnView = (id, view) => {
 // helper function to add legends
 const getLegend = (title, colorClasses, labels) => {
     const legend = Leaflet.control({ position: 'bottomright' })
-    legend.onAdd = (_map) => {
+    legend.onAdd = _map => {
         const div = Leaflet.DomUtil.create('div', 'info legend')
         div.innerHTML += title
         // loop through our density intervals and generate a label with a colored square for each interval
@@ -49,27 +49,27 @@ let aomStats = null
 let vehiclesSharingStats = null
 let qualityStats = null
 
-function getAomsFG (featureFunction, style, filter = null) {
+function getAomsFG(featureFunction, style, filter = null) {
     const aomsFeatureGroup = Leaflet.featureGroup()
 
     if (aomStats == null) {
-        aomStats = fetch(aomsUrl)
-            .then(response => { return response.json() })
-    }
-    aomStats
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: featureFunction,
-                style,
-                filter,
-                pane: 'aoms'
-            })
-            aomsFeatureGroup.addLayer(geoJSON)
+        aomStats = fetch(aomsUrl).then(response => {
+            return response.json()
         })
+    }
+    aomStats.then(response => {
+        const geoJSON = Leaflet.geoJSON(response, {
+            onEachFeature: featureFunction,
+            style,
+            filter,
+            pane: 'aoms'
+        })
+        aomsFeatureGroup.addLayer(geoJSON)
+    })
     return aomsFeatureGroup
 }
 
-function displayVehiclesSharing (map, featureFunction) {
+function displayVehiclesSharing(map, featureFunction) {
     if (vehiclesSharingStats == null) {
         vehiclesSharingStats = fetch(vehiclesSharingUrl).then(response => {
             return response.json()
@@ -90,44 +90,43 @@ function displayVehiclesSharing (map, featureFunction) {
     })
 }
 
-function displayQuality (featureFunction, style) {
+function displayQuality(featureFunction, style) {
     const qualityFeatureGroup = Leaflet.featureGroup()
 
     if (qualityStats == null) {
-        qualityStats = fetch(qualityUrl)
-            .then(response => { return response.json() })
-    }
-    qualityStats
-        .then(response => {
-            const geoJSON = Leaflet.geoJSON(response, {
-                onEachFeature: featureFunction,
-                style
-            })
-            qualityFeatureGroup.addLayer(geoJSON)
+        qualityStats = fetch(qualityUrl).then(response => {
+            return response.json()
         })
+    }
+    qualityStats.then(response => {
+        const geoJSON = Leaflet.geoJSON(response, {
+            onEachFeature: featureFunction,
+            style
+        })
+        qualityFeatureGroup.addLayer(geoJSON)
+    })
     return qualityFeatureGroup
 }
 
-function searchURL (insee) {
+function searchURL(insee) {
     if (insee === '11') {
         return `/datasets/region/${insee}?type=public-transit`
     }
     return `/datasets/epci/${insee}?type=public-transit`
 }
 
-function addStaticPTMapAOMS (id, view) {
+function addStaticPTMapAOMS(id, view) {
     const map = makeMapOnView(id, view)
 
-    function onEachAomFeature (feature, layer) {
+    function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const count = feature.properties.nb
-        const text = count === 0
-            ? 'Aucun jeu de données'
-            : count === 1
-                ? 'Un jeu de données'
-                : `${count} jeux de données`
+        const text =
+            count === 0 ? 'Aucun jeu de données' : count === 1 ? 'Un jeu de données' : `${count} jeux de données`
         const insee = feature.properties.insee
-        layer.bindPopup(`<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="${searchURL(insee)}">Voir les jeux de données</a>`)
+        layer.bindPopup(
+            `<strong>${name}</strong><br>${text} propre à l'AOM.<br><a href="${searchURL(insee)}">Voir les jeux de données</a>`
+        )
     }
 
     const styles = {
@@ -164,10 +163,10 @@ function addStaticPTMapAOMS (id, view) {
     }
 }
 
-function addStaticPTUpToDate (id, view) {
+function addStaticPTUpToDate(id, view) {
     const map = makeMapOnView(id, view)
 
-    function onEachAomFeature (feature, layer) {
+    function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const expiredFrom = feature.properties.quality.expired_from
         let text = ''
@@ -226,10 +225,10 @@ function addStaticPTUpToDate (id, view) {
     }
 }
 
-function addStaticPTQuality (id, view) {
+function addStaticPTQuality(id, view) {
     const map = makeMapOnView(id, view)
 
-    function onEachAomFeature (feature, layer) {
+    function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const errorLevel = feature.properties.quality.error_level
         let text = ''
@@ -307,9 +306,9 @@ function addStaticPTQuality (id, view) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addRealTimePtFormatMap (id, view) {
+function addRealTimePtFormatMap(id, view) {
     const map = makeMapOnView(id, view)
-    function onEachAomFeature (feature, layer) {
+    function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const format = feature.properties
         const gtfsRT = format.gtfs_rt ?? 0
@@ -342,8 +341,24 @@ function addRealTimePtFormatMap (id, view) {
 
         layer.bindPopup(bind)
     }
-    const smallStripes = new Leaflet.StripePattern({ angle: -45, color: lightGreen, spaceColor: 'blue', spaceOpacity: 1, weight: 1, spaceWeight: 1, height: 2 })
-    const bigStripes = new Leaflet.StripePattern({ angle: -45, color: lightGreen, spaceColor: 'blue', spaceOpacity: 1, weight: 4, spaceWeight: 4, height: 8 })
+    const smallStripes = new Leaflet.StripePattern({
+        angle: -45,
+        color: lightGreen,
+        spaceColor: 'blue',
+        spaceOpacity: 1,
+        weight: 1,
+        spaceWeight: 1,
+        height: 2
+    })
+    const bigStripes = new Leaflet.StripePattern({
+        angle: -45,
+        color: lightGreen,
+        spaceColor: 'blue',
+        spaceOpacity: 1,
+        weight: 4,
+        spaceWeight: 4,
+        height: 8
+    })
     smallStripes.addTo(map)
     bigStripes.addTo(map)
     const legends = {
@@ -420,9 +435,7 @@ function addRealTimePtFormatMap (id, view) {
 
     const filter = feature => {
         const formats = feature.properties
-        return formats.gtfs_rt > 0 ||
-            formats.siri > 0 ||
-            formats.siri_lite > 0
+        return formats.gtfs_rt > 0 || formats.siri > 0 || formats.siri_lite > 0
     }
     const aomsFG = getAomsFG(onEachAomFeature, style(map.getZoom()), filter)
     map.on('zoomend', () => aomsFG.setStyle(style(map.getZoom())))
@@ -432,8 +445,8 @@ function addRealTimePtFormatMap (id, view) {
     if (view.display_legend) {
         getLegend(
             '<h4>Format des données temps réel</h4>',
-            Object.entries(legends).map(([key, legend]) => legend.color),
-            Object.entries(legends).map(([key, legend]) => legend.label)
+            Object.entries(legends).map(([_key, legend]) => legend.color),
+            Object.entries(legends).map(([_key, legend]) => legend.label)
         ).addTo(map)
     }
 }
@@ -443,7 +456,7 @@ function addRealTimePtFormatMap (id, view) {
  * @param  {String} id Dom element id, where the map is to be bound.
  * @param  {String} aomsUrl Url exposing a {FeatureCollection}.
  */
-function addPtFormatMap (id, view) {
+function addPtFormatMap(id, view) {
     const map = makeMapOnView(id, view)
 
     const styles = {
@@ -512,7 +525,7 @@ function addPtFormatMap (id, view) {
     }
 }
 
-function addVehiclesSharingMap (id, view) {
+function addVehiclesSharingMap(id, view) {
     const map = makeMapOnView(id, view)
 
     displayVehiclesSharing(map, (feature, layer) => {
@@ -529,7 +542,7 @@ const droms = {
         zoom: 7
     },
     guyane: {
-        center: [3.830, -53.097],
+        center: [3.83, -53.097],
         zoom: 6
     },
     nouvelle_caledonie: {
@@ -537,7 +550,7 @@ const droms = {
         zoom: 6
     },
     metropole: {
-        center: [44.670, 2.087],
+        center: [44.67, 2.087],
         zoom: 5,
         display_legend: true
     },

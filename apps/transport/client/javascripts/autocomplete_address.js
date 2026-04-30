@@ -1,12 +1,13 @@
 const AutoComplete = require('@tarekraafat/autocomplete.js/dist/autoComplete')
 
-// eslint-disable-next-line no-new
 new AutoComplete({
     data: {
         src: async () => {
             const query = document.querySelector('#autoComplete').value
             // See https://geoservices.ign.fr/documentation/services/services-geoplateforme/autocompletion
-            const source = await fetch(`https://data.geopf.fr/geocodage/completion/?text=${query}&poiType=administratif&type=StreetAddress&maximumResponses=5`)
+            const source = await fetch(
+                `https://data.geopf.fr/geocodage/completion/?text=${query}&poiType=administratif&type=StreetAddress&maximumResponses=5`
+            )
             const data = await source.json()
             return data.results
         },

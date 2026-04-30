@@ -10,7 +10,7 @@ const DEFAULT_LAT = 48.8575
 const DEFAULT_LNG = 2.3514
 const DEFAULT_ZOOM = 6
 
-function getMapParamsFromUrlPath () {
+function getMapParamsFromUrlPath() {
     // Example Path: /gtfs-stops?@34.0522,-118.2437,10
     const path = window.location.search
     const parts = path.split('?@')
@@ -37,7 +37,7 @@ Leaflet.tileLayer(IGN.url, IGN.config).addTo(map)
 
 let currentPopup = null
 
-function showPopup (info) {
+function showPopup(info) {
     if (currentPopup) {
         currentPopup.remove()
         currentPopup = null
@@ -66,14 +66,14 @@ const deckGLLayer = new LeafletLayer({
 })
 map.addLayer(deckGLLayer)
 
-map.on('movestart', function (event) {
+map.on('movestart', function (_event) {
     deckGLLayer.setProps({
         layers: deckGLLayer.props.layers.map(l => l.clone({ visible: false }))
     })
 })
 
 // triggered both by "zoomend" and the end of move
-map.on('moveend', function (event) {
+map.on('moveend', function (_event) {
     const bounds = map.getBounds()
     const a = map.latLngToLayerPoint([bounds.getNorth(), bounds.getWest()])
     const b = map.latLngToLayerPoint([bounds.getSouth(), bounds.getEast()])
@@ -93,7 +93,17 @@ map.on('moveend', function (event) {
     const url = `/api/gtfs-stops?${params}`
 
     // https://coolors.co/gradient-palette/2655ff-ff9822?number=5 and https://coolors.co/gradient-palette/ff9822-ce1313?number=5
-    const palette = [[38, 85, 255], [92, 102, 200], [147, 119, 145], [201, 135, 89], [255, 152, 34], [243, 119, 30], [231, 86, 27], [218, 52, 23], [206, 19, 19]]
+    const palette = [
+        [38, 85, 255],
+        [92, 102, 200],
+        [147, 119, 145],
+        [201, 135, 89],
+        [255, 152, 34],
+        [243, 119, 30],
+        [231, 86, 27],
+        [218, 52, 23],
+        [206, 19, 19]
+    ]
 
     const colorFunc = function (v) {
         return palette[Math.min(Math.floor(v * 9), 8)]
@@ -106,7 +116,9 @@ map.on('moveend', function (event) {
             let tooltip = null
             // clustered response is marked with a special type so that we can recognize it here
             if (jsonResponse.type === 'clustered') {
-                const data = jsonResponse.data.map(x => { return { lat: x[0], lon: x[1], count: x[2] } })
+                const data = jsonResponse.data.map(x => {
+                    return { lat: x[0], lon: x[1], count: x[2] }
+                })
                 const maxCount = Math.max(...data.map(a => a.count))
                 const scatterplotLayer = new ScatterplotLayer({
                     id: 'scatterplot-layer',
@@ -119,7 +131,7 @@ map.on('moveend', function (event) {
                     radiusScale: 1,
                     lineWidthMinPixels: 1,
                     getPosition: d => [d.lon, d.lat],
-                    getRadius: d => 2,
+                    getRadius: _d => 2,
                     getFillColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount),
                     getLineColor: d => colorFunc(maxCount < 3 ? 0 : d.count / maxCount),
                     onClick: showPopup
@@ -132,7 +144,8 @@ map.on('moveend', function (event) {
                         return false
                     }
                 }
-            } else if (jsonResponse.type === 'FeatureCollection') { // non-clustered response is GeoJSON, also with a "type" marker
+            } else if (jsonResponse.type === 'FeatureCollection') {
+                // non-clustered response is GeoJSON, also with a "type" marker
                 const data = jsonResponse
                 const geoJsonLayer = new GeoJsonLayer({
                     id: 'geojson-layer',
@@ -156,7 +169,9 @@ map.on('moveend', function (event) {
                 layer = geoJsonLayer
                 tooltip = function (d) {
                     if (d.picked) {
-                        return { html: `${d.object.properties.d_title} - ${d.object.properties.stop_id} <pre><code>${JSON.stringify(d.object, null, 4)}</code></pre>` }
+                        return {
+                            html: `${d.object.properties.d_title} - ${d.object.properties.stop_id} <pre><code>${JSON.stringify(d.object, null, 4)}</code></pre>`
+                        }
                     }
                 }
             }
@@ -169,7 +184,7 @@ map.on('moveend', function (event) {
         .catch(e => console.log(e))
 })
 
-function updateUrl () {
+function updateUrl() {
     const center = map.getCenter()
     const zoom = map.getZoom()
 
@@ -180,11 +195,7 @@ function updateUrl () {
     const newPath = `?@${lat},${lng},${z}`
     const currentPath = window.location.pathname.split('?@')[0]
 
-    window.history.pushState(
-        { lat, lng, z },
-        '',
-        currentPath + newPath
-    )
+    window.history.pushState({ lat, lng, z }, '', currentPath + newPath)
 }
 
 map.on('moveend', updateUrl)

@@ -9,9 +9,14 @@ import { Mapbox } from './map-config'
 const socket = new Socket('/socket', { params: { token: window.userToken } })
 socket.connect()
 const channel = socket.channel('explore', {})
-channel.join()
-    .receive('ok', resp => { console.log('Joined successfully', resp) })
-    .receive('error', resp => { console.log('Unable to join', resp) })
+channel
+    .join()
+    .receive('ok', resp => {
+        console.log('Joined successfully', resp)
+    })
+    .receive('error', resp => {
+        console.log('Unable to join', resp)
+    })
 
 let gtfsChannelRef
 
@@ -20,7 +25,7 @@ const DEFAULT_LAT = 48.8575
 const DEFAULT_LNG = 2.3514
 const DEFAULT_ZOOM = 6
 
-function getMapParamsFromUrlPath () {
+function getMapParamsFromUrlPath() {
     // Example Path: /explore?@34.0522,-118.2437,10
     const path = decodeURIComponent(window.location.search)
     const parts = path.split('@')
@@ -53,7 +58,7 @@ Leaflet.tileLayer(Mapbox.url, {
 
 const visibility = { gtfsrt: document.getElementById('gtfs-rt-check').checked }
 
-function prepareGTFSRTLayer (layerData) {
+function prepareGTFSRTLayer(layerData) {
     return new ScatterplotLayer({
         id: 'gtfs-rt',
         data: layerData,
@@ -68,9 +73,9 @@ function prepareGTFSRTLayer (layerData) {
         getPosition: d => {
             return [d.position.longitude, d.position.latitude]
         },
-        getRadius: d => 1000,
-        getFillColor: d => [0, 150, 136, 150],
-        getLineColor: d => [0, 150, 136]
+        getRadius: _d => 1000,
+        getFillColor: _d => [0, 150, 136, 150],
+        getLineColor: _d => [0, 150, 136]
     })
 }
 
@@ -81,7 +86,7 @@ const deckGLLayer = new LeafletLayer({
 })
 map.addLayer(deckGLLayer)
 
-function getTooltip ({ object, layer }) {
+function getTooltip({ object, layer }) {
     if (object) {
         if (layer.id === 'bnlc-layer') {
             return { html: `<strong>Aire de covoiturage</strong><br>${object.properties.nom_lieu}` }
@@ -102,7 +107,9 @@ function getTooltip ({ object, layer }) {
             Nombre de points de charge&nbsp;: ${object.properties.nbre_pdc}`
             }
         } else {
-            return { html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}` }
+            return {
+                html: `<strong>Position temps-réel</strong><br>transport_resource: ${object.transport.resource_id}<br>id: ${object.vehicle.id}`
+            }
         }
     }
 }
@@ -110,38 +117,33 @@ function getTooltip ({ object, layer }) {
 let GTFSRTData = {}
 const layers = { gtfsrt: undefined, bnlc: undefined, zfe: undefined, gbfs_stations: undefined }
 
-function getLayers (layers) {
-    return [
-        layers.gtfsrt,
-        layers.zfe,
-        layers.bnlc,
-        layers.irve,
-        layers.gbfs_stations
-    ]
+function getLayers(layers) {
+    return [layers.gtfsrt, layers.zfe, layers.bnlc, layers.irve, layers.gbfs_stations]
 }
 
-function withQueryParams (alter) {
+function withQueryParams(alter) {
     const params = new URLSearchParams(window.location.search)
     alter(params)
-    const newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + params.toString()
+    const newurl =
+        window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + params.toString()
     window.history.pushState({ path: newurl }, '', newurl)
 }
 
-function setQueryFlag (key) {
+function setQueryFlag(key) {
     withQueryParams(params => params.set(key, 'yes'))
 }
 
-function setQueryParam (key, value) {
+function setQueryParam(key, value) {
     withQueryParams(params => params.set(key, value))
 }
 
-function unsetQueryFlag (key) {
+function unsetQueryFlag(key) {
     withQueryParams(params => params.delete(key))
 }
 
 // handle GTFS-RT toggle
 const gtfsrtCheckbox = document.getElementById('gtfs-rt-check')
-gtfsrtCheckbox.addEventListener('change', (event) => {
+gtfsrtCheckbox.addEventListener('change', event => {
     if (event.currentTarget.checked) {
         setQueryFlag('gtfs-rt')
         startGTFSRT()
@@ -151,7 +153,7 @@ gtfsrtCheckbox.addEventListener('change', (event) => {
     }
 })
 
-function startGTFSRT () {
+function startGTFSRT() {
     visibility.gtfsrt = true
 
     gtfsChannelRef = channel.on('vehicle-positions', payload => {
@@ -165,7 +167,7 @@ function startGTFSRT () {
     })
 }
 
-function stopGTFSRT () {
+function stopGTFSRT() {
     visibility.gtfsrt = false
     channel.off('vehicle-positions', gtfsChannelRef)
     GTFSRTData = {}
@@ -174,7 +176,7 @@ function stopGTFSRT () {
 }
 
 // Handle BNLC toggle
-document.getElementById('bnlc-check').addEventListener('change', (event) => {
+document.getElementById('bnlc-check').addEventListener('change', event => {
     if (event.currentTarget.checked) {
         setQueryFlag('bnlc')
         startBNLC()
@@ -184,14 +186,13 @@ document.getElementById('bnlc-check').addEventListener('change', (event) => {
     }
 })
 
-function startBNLC () {
+function startBNLC() {
     trackEvent('bnlc')
-    fetch('/api/geo-query?data=bnlc')
-        .then(data => updateBNLCLayer(data.json()))
+    fetch('/api/geo-query?data=bnlc').then(data => updateBNLCLayer(data.json()))
 }
 
 // Handle ZFE toggle
-document.getElementById('zfe-check').addEventListener('change', (event) => {
+document.getElementById('zfe-check').addEventListener('change', event => {
     if (event.currentTarget.checked) {
         setQueryFlag('zfe')
         startZFE()
@@ -201,14 +202,13 @@ document.getElementById('zfe-check').addEventListener('change', (event) => {
     }
 })
 
-function startZFE () {
+function startZFE() {
     trackEvent('zfe')
-    fetch('/api/geo-query?data=zfe')
-        .then(data => updateZFELayer(data.json()))
+    fetch('/api/geo-query?data=zfe').then(data => updateZFELayer(data.json()))
 }
 
 // Handle IRVE toggle
-document.getElementById('irve-check').addEventListener('change', (event) => {
+document.getElementById('irve-check').addEventListener('change', event => {
     if (event.currentTarget.checked) {
         setQueryFlag('irve')
         startIRVE()
@@ -218,14 +218,13 @@ document.getElementById('irve-check').addEventListener('change', (event) => {
     }
 })
 
-function startIRVE () {
+function startIRVE() {
     trackEvent('irve')
-    fetch('/api/geo-query?data=irve')
-        .then(data => updateIRVELayer(data.json()))
+    fetch('/api/geo-query?data=irve').then(data => updateIRVELayer(data.json()))
 }
 
 // Handle GBFS stations toggle
-document.getElementById('gbfs_stations-check').addEventListener('change', (event) => {
+document.getElementById('gbfs_stations-check').addEventListener('change', event => {
     if (event.currentTarget.checked) {
         setQueryFlag('gbfs-stations')
         startGBFS()
@@ -235,10 +234,9 @@ document.getElementById('gbfs_stations-check').addEventListener('change', (event
     }
 })
 
-function startGBFS () {
+function startGBFS() {
     trackEvent('gbfs-stations')
-    fetch('/api/geo-query?data=gbfs_stations')
-        .then(data => updateGBFSStationsLayer(data.json()))
+    fetch('/api/geo-query?data=gbfs_stations').then(data => updateGBFSStationsLayer(data.json()))
 }
 
 const bootSequence = {
@@ -258,24 +256,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })
 
-function updateBNLCLayer (geojson) {
+function updateBNLCLayer(geojson) {
     layers.bnlc = createPointsLayer(geojson, 'bnlc-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
-function updateZFELayer (geojson) {
+function updateZFELayer(geojson) {
     layers.zfe = createPointsLayer(geojson, 'zfe-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
-function updateIRVELayer (geojson) {
+function updateIRVELayer(geojson) {
     layers.irve = createPointsLayer(geojson, 'irve-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
-function updateGBFSStationsLayer (geojson) {
+function updateGBFSStationsLayer(geojson) {
     layers.gbfs_stations = createPointsLayer(geojson, 'gbfs_stations-layer')
     deckGLLayer.setProps({ layers: getLayers(layers) })
 }
 
-function trackEvent (layer) {
+function trackEvent(layer) {
     // https://matomo.org/faq/reports/implement-event-tracking-with-matomo/#how-to-set-up-matomo-event-tracking-with-javascript
     // `window._paq` is only defined in production (in templates/layout/app.html.heex)
     if (window._paq) {
@@ -283,7 +281,7 @@ function trackEvent (layer) {
     }
 }
 
-function createPointsLayer (geojson, id) {
+function createPointsLayer(geojson, id) {
     const fillColor = {
         'bnlc-layer': [255, 174, 0, 100],
         'zfe-layer': [52, 8, 143, 100],
@@ -309,7 +307,7 @@ function createPointsLayer (geojson, id) {
     })
 }
 
-function updateUrl () {
+function updateUrl() {
     const center = map.getCenter()
     const zoom = map.getZoom()
 

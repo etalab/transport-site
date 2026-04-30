@@ -6,7 +6,7 @@ import { IGN } from './map-config'
 const latLabels = ['Lat', 'Ylat', 'Ylatitude', 'consolidated_latitude']
 const lonLabels = ['Lng', 'Xlong', 'Xlongitude', 'consolidated_longitude']
 
-function getLabel (obj, labelsList) {
+function getLabel(obj, labelsList) {
     for (const label of labelsList) {
         if (Object.keys(obj).indexOf(label) >= 0) {
             return label
@@ -15,7 +15,7 @@ function getLabel (obj, labelsList) {
     return undefined
 }
 
-function initilizeMap (id) {
+function initilizeMap(id) {
     const map = L.map(id, { preferCanvas: true }).setView([46.505, 2], 5)
     L.tileLayer(IGN.url, IGN.config).addTo(map)
 
@@ -23,11 +23,11 @@ function initilizeMap (id) {
     return { map, fg }
 }
 
-function coordinatesAreCorrect (lat, lon) {
+function coordinatesAreCorrect(lat, lon) {
     return !isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
 }
 
-function displayData (data, fg, { latField, lonField }) {
+function displayData(data, fg, { latField, lonField }) {
     const markerOptions = {
         fillColor: '#0066db',
         radius: 5,
@@ -40,14 +40,14 @@ function displayData (data, fg, { latField, lonField }) {
                 L.circleMarker([m[latField], m[lonField]], markerOptions)
                     .bindPopup(`<pre>${JSON.stringify(m, null, 2)}</pre>`)
                     .addTo(fg)
-            } catch (error) {
+            } catch (_error) {
                 console.log('There is some invalid lat/lon data in the file')
             }
         }
     }
 }
 
-function setZoomEvents (map, fg) {
+function setZoomEvents(map, fg) {
     map.on('zoomend', () => {
         if (map.getZoom() > 12) {
             fg.setStyle({ fillOpacity: 0.4, radius: 10 })
@@ -59,7 +59,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function createCSVmap (id, resourceUrl) {
+function createCSVmap(id, resourceUrl) {
     Papa.parse(resourceUrl, {
         download: true,
         header: true,
@@ -78,7 +78,7 @@ function createCSVmap (id, resourceUrl) {
     })
 }
 
-function setGBFSStationStyle (feature, layer, field) {
+function setGBFSStationStyle(feature, layer, field) {
     const stationStatus = feature.properties.station_status
 
     if (stationStatus) {
@@ -95,9 +95,7 @@ function setGBFSStationStyle (feature, layer, field) {
             } else if (N < 3) {
                 opacity = 0.6
             }
-            layer
-                .unbindTooltip()
-                .setStyle({ fillOpacity: opacity })
+            layer.unbindTooltip().setStyle({ fillOpacity: opacity })
             if (N !== '') {
                 layer.bindTooltip(`${N}`, { permanent: true, className: 'leaflet-tooltip', direction: 'center' })
             }
@@ -106,27 +104,27 @@ function setGBFSStationStyle (feature, layer, field) {
     }
 }
 
-function setGBFSFreeFloatingStyle (feature, layer) {
+function setGBFSFreeFloatingStyle(feature, layer) {
     const properties = feature.properties
     let popupContent
 
     if (properties.is_disabled) {
         const color = 'red'
-        layer
-            .unbindTooltip()
-            .setStyle({ fillColor: color })
-        popupContent = JSON.stringify(properties, null, 2).replace('"is_disabled": true', `<strong class="map-color-${color}">"is_disabled": true</strong>`)
+        layer.unbindTooltip().setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace(
+            '"is_disabled": true',
+            `<strong class="map-color-${color}">"is_disabled": true</strong>`
+        )
     } else if (properties.is_reserved) {
         const color = 'orange'
-        layer
-            .unbindTooltip()
-            .setStyle({ fillColor: color })
-        popupContent = JSON.stringify(properties, null, 2).replace('"is_reserved": true', `<strong class="map-color-${color}">"is_reserved": true</strong>`)
+        layer.unbindTooltip().setStyle({ fillColor: color })
+        popupContent = JSON.stringify(properties, null, 2).replace(
+            '"is_reserved": true',
+            `<strong class="map-color-${color}">"is_reserved": true</strong>`
+        )
     } else {
         const color = 'blue'
-        layer
-            .unbindTooltip()
-            .setStyle({ fillColor: 'blue' })
+        layer.unbindTooltip().setStyle({ fillColor: 'blue' })
         popupContent = JSON.stringify(properties, null, 2)
             .replace('"is_reserved": false', `<strong class="map-color-${color}">"is_reserved": false</strong>`)
             .replace('"is_disabled": false', `<strong class="map-color-${color}">"is_disabled": false</strong>`)
@@ -134,25 +132,34 @@ function setGBFSFreeFloatingStyle (feature, layer) {
     layer.bindPopup(`<pre>${popupContent}</pre>`)
 }
 
-function setGBFSGeofencingStyle (feature, layer, globalRules) {
+function setGBFSGeofencingStyle(feature, layer, globalRules) {
     const rules = feature.properties.rules
-    const rule = (rules && rules.length > 0) ? rules[0] : globalRules
+    const rule = rules && rules.length > 0 ? rules[0] : globalRules
     let color, opacity, popupContent
 
     if (rule) {
         if (rule.ride_through_allowed === false) {
             color = 'red'
             opacity = 0.6
-            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_through_allowed": false', `<strong class="map-color-${color}">"ride_through_allowed": false</strong>`)
+            popupContent = JSON.stringify(feature.properties, null, 2).replace(
+                '"ride_through_allowed": false',
+                `<strong class="map-color-${color}">"ride_through_allowed": false</strong>`
+            )
         } else if (rule.ride_allowed === false) {
             color = 'orange'
             opacity = 0.6
-            popupContent = JSON.stringify(feature.properties, null, 2).replace('"ride_allowed": false', `<strong class="map-color-${color}">"ride_allowed": false</strong>`)
+            popupContent = JSON.stringify(feature.properties, null, 2).replace(
+                '"ride_allowed": false',
+                `<strong class="map-color-${color}">"ride_allowed": false</strong>`
+            )
         } else {
             color = 'green'
             opacity = 0.4
             popupContent = JSON.stringify(feature.properties, null, 2)
-                .replace('"ride_through_allowed": true', `<strong class="map-color-${color}">"ride_through_allowed": true</strong>`)
+                .replace(
+                    '"ride_through_allowed": true',
+                    `<strong class="map-color-${color}">"ride_through_allowed": true</strong>`
+                )
                 .replace('"ride_allowed": true', `<strong class="map-color-${color}">"ride_allowed": true</strong>`)
         }
     }
@@ -161,7 +168,7 @@ function setGBFSGeofencingStyle (feature, layer, globalRules) {
         .setStyle({ fillColor: color, color, fillOpacity: opacity, stroke: false })
 }
 
-function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
+function fillStations(stationsGeojson, bikesAvailable, docksAvailable) {
     L.geoJSON(stationsGeojson, {
         pointToLayer: function (geoJsonPoint, latlng) {
             return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.8 })
@@ -177,13 +184,13 @@ function fillStations (stationsGeojson, bikesAvailable, docksAvailable) {
     }).addTo(docksAvailable)
 }
 
-function clearFeatureGroups (featureGroups) {
+function clearFeatureGroups(featureGroups) {
     for (const fg in featureGroups) {
         featureGroups[fg].clearLayers()
     }
 }
 
-function fillFreeFloating (geojson, freeFloating) {
+function fillFreeFloating(geojson, freeFloating) {
     L.geoJSON(geojson, {
         pointToLayer: function (geoJsonPoint, latlng) {
             return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
@@ -192,7 +199,7 @@ function fillFreeFloating (geojson, freeFloating) {
     }).addTo(freeFloating)
 }
 
-function fillGeofencingZones (geojson, geoFencingZones) {
+function fillGeofencingZones(geojson, geoFencingZones) {
     // According to GBFS specification, in case of conflicting rules
     // the first rule in the GeoJSON takes precedence
     // see https://github.com/MobilityData/gbfs/blob/v2.2/gbfs.md#geofencing_zonesjson-added-in-v21
@@ -205,7 +212,7 @@ function fillGeofencingZones (geojson, geoFencingZones) {
     }).addTo(geoFencingZones)
 }
 
-function fillGBFSMap (resourceUrl, fg, map, lang, firstCall = false) {
+function fillGBFSMap(resourceUrl, fg, map, lang, firstCall = false) {
     const geojsonUrl = `/tools/gbfs/geojson_convert?url=${resourceUrl}`
     fetch(geojsonUrl)
         .then(response => response.json())
@@ -245,7 +252,7 @@ function fillGBFSMap (resourceUrl, fg, map, lang, firstCall = false) {
 }
 
 // I have removed custom text for vehicle types for the moment.
-function setGBFSLayersControl (fg, map, lang) {
+function setGBFSLayersControl(fg, map, lang) {
     if (!map.controlLayers) {
         const control = {}
         if ('bikesAvailable' in fg) {
@@ -267,7 +274,7 @@ function setGBFSLayersControl (fg, map, lang) {
     }
 }
 
-function addCountdownDiv (id, refreshInterval) {
+function addCountdownDiv(id, refreshInterval) {
     const node = document.createElement('div')
     node.style.position = 'relative'
     node.style.zIndex = '1000'
@@ -278,8 +285,7 @@ function addCountdownDiv (id, refreshInterval) {
     document.getElementById('map').appendChild(node)
 }
 
-function createGBFSmap (id, resourceUrl, lang) {
-    // eslint-disable-next-line no-unused-vars
+function createGBFSmap(id, resourceUrl, lang) {
     const { map, _ } = initilizeMap(id)
     const featureGroups = {}
     const refreshInterval = 60
@@ -297,14 +303,14 @@ function createGBFSmap (id, resourceUrl, lang) {
     const interval = setInterval(() => {
         const el = document.getElementById('coutdown')
         if (el) {
-            el.innerHTML = (countdown-- <= 3 ? 'mise à jour' : countdown)
+            el.innerHTML = countdown-- <= 3 ? 'mise à jour' : countdown
         } else {
             clearInterval(interval)
         }
     }, 1000)
 }
 
-function createGeojsonMap (id, resourceUrl) {
+function createGeojsonMap(id, resourceUrl) {
     const { map, fg } = initilizeMap(id)
     fetch(resourceUrl)
         .then(data => data.json())
@@ -315,7 +321,7 @@ function createGeojsonMap (id, resourceUrl) {
         .catch(e => removeViz(e))
 }
 
-function removeViz (consoleMsg) {
+function removeViz(consoleMsg) {
     const vis = document.querySelector('#dataset-visualisation')
     if (vis) {
         vis.remove()
@@ -327,7 +333,7 @@ function removeViz (consoleMsg) {
     console.log(consoleMsg)
 }
 
-function createMap (id, resourceUrl, resourceFormat, lang = 'fr') {
+function createMap(id, resourceUrl, resourceFormat, lang = 'fr') {
     if (resourceUrl.endsWith('.csv') || resourceFormat === 'csv') {
         createCSVmap(id, resourceUrl)
     } else if (resourceFormat === 'gbfs' || resourceUrl.endsWith('gbfs.json')) {

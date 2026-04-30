@@ -5,16 +5,16 @@ import format from 'xml-formatter'
 
 const Hooks = {}
 Hooks.SyntaxColoring = {
-    mounted () {
+    mounted() {
         this.updated()
     },
-    updated () {
+    updated() {
         const element = this.el
         const target = document.getElementById(element.dataset.code)
         try {
             target.textContent = format(element.value, {
                 indentation: '  ',
-                filter: (node) => node.type !== 'Comment',
+                filter: node => node.type !== 'Comment',
                 collapseContent: true,
                 lineSeparator: '\n'
             })
@@ -28,7 +28,7 @@ Hooks.SyntaxColoring = {
     }
 }
 Hooks.TextareaAutoexpand = {
-    mounted () {
+    mounted() {
         this.el.addEventListener('input', event => {
             event.target.parentNode.dataset.replicatedValue = event.target.value
         })
@@ -59,7 +59,7 @@ window.addEventListener('phx:gtfs-diff:scroll-to-steps', () => {
     document.getElementById('gtfs-diff-steps').parentElement.scrollIntoView({ behavior: 'smooth' })
 })
 
-const csrfToken = document.querySelector('meta[name=\'csrf\']').getAttribute('content')
+const csrfToken = document.querySelector("meta[name='csrf']").getAttribute('content')
 const liveSocket = new LiveSocket('/live', Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 liveSocket.connect()
 
