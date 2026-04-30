@@ -1,5 +1,6 @@
 defmodule TransportWeb.Backoffice.CacheLiveTest do
-  use ExUnit.Case, async: true
+  # async: false: the LiveView reads the global Cachex state, polluted by other async tests.
+  use ExUnit.Case, async: false
   use TransportWeb.LiveCase
   import TransportWeb.ConnCase, only: [setup_admin_in_session: 1]
   import Transport.Application, only: [cache_name: 0]
