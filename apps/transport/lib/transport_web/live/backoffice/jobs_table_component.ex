@@ -61,24 +61,21 @@ defmodule JobsTableComponent do
   defp compact_errors(%{errors: _, locale: _} = assigns) do
     ~H"""
     <ol class="errors">
-      <li :for={error <- split_errors(@errors, @locale)}>
+      <li :for={error <- split_errors(@errors)}>
         <.timestamp dt={error.at} locale={@locale} /> : <code>{error.error}</code>
       </li>
     </ol>
     """
   end
 
-  defp split_errors(errors, locale), do: Enum.map(errors, &split_error(&1, locale))
+  defp split_errors(errors), do: Enum.map(errors, &split_error/1)
 
-  defp split_error(error, locale) do
+  defp split_error(error) do
     %{
       at: Map.get(error, "at"),
       error: Map.get(error, "error", "") |> extract_message()
     }
   end
-
-  defp maybe(nil, _f), do: nil
-  defp maybe(value, f), do: f.(value)
 
   defp extract_message(message) do
     message |> String.split("\n") |> List.first("") |> String.trim_leading("** ")
