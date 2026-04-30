@@ -446,6 +446,8 @@ iframe#email_preview {
     max-width: 90vw;
     box-shadow: 0 0 15px $box-shadow;
     border-radius: 0;
+    overflow-y: scroll;
+    overscroll-behavior: contain;
 
     .header_with_action_bar {
       align-items: center;
