@@ -46,8 +46,14 @@ const autoCompletejs = new AutoComplete({
     searchEngine: (query, record) => {
         record = record.name
         // inspired by the 'loose' searchEngine, but that always matches
-        query = query.replace(/ /g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        const recordLowerCase = record.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        query = query
+            .replace(/ /g, '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+        const recordLowerCase = record
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
         const fullMatchPos = recordLowerCase.indexOf(query)
         if (fullMatchPos >= 0) {
             // full query match has priority
@@ -57,10 +63,7 @@ const autoCompletejs = new AutoComplete({
             let searchPosition = 0
             for (let number = 0; number < recordLowerCase.length; number++) {
                 let recordChar = record[number]
-                if (
-                    searchPosition < query.length &&
-                    recordLowerCase[number] === query[searchPosition]
-                ) {
+                if (searchPosition < query.length && recordLowerCase[number] === query[searchPosition]) {
                     recordChar = `<span class="autoComplete_highlighted">${recordChar}</span>`
                     searchPosition++
                 }
@@ -71,21 +74,21 @@ const autoCompletejs = new AutoComplete({
     },
     events: {
         input: {
-            keydown (event) {
+            keydown(event) {
                 switch (event.keyCode) {
-                // Down/Up arrow
-                case 40:
-                case 38:
-                    event.preventDefault()
-                    event.keyCode === 40 ? autoCompletejs.next() : autoCompletejs.previous()
-                    break
-                // Enter
-                case 13:
-                    if (autoCompletejs.cursor >= 0) {
+                    // Down/Up arrow
+                    case 40:
+                    case 38:
                         event.preventDefault()
-                        autoCompletejs.select(event)
-                    }
-                    break
+                        event.keyCode === 40 ? autoCompletejs.next() : autoCompletejs.previous()
+                        break
+                    // Enter
+                    case 13:
+                        if (autoCompletejs.cursor >= 0) {
+                            event.preventDefault()
+                            autoCompletejs.select(event)
+                        }
+                        break
                 }
             }
         }

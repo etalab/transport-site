@@ -1,7 +1,7 @@
 import L from 'leaflet'
 import { IGN } from './map-config'
 
-function initializeMap (id) {
+function initializeMap(id) {
     const map = L.map(id, { renderer: L.canvas() }).setView([46.505, 2], 5)
     L.tileLayer(IGN.url, IGN.config).addTo(map)
 
@@ -10,7 +10,7 @@ function initializeMap (id) {
     return { map, markersfg, linesfg }
 }
 
-function TransitLinesStyle (feature) {
+function TransitLinesStyle(feature) {
     if (feature.geometry.type !== 'Point') {
         return { color: feature.properties.route_color, weight: 5 }
     } else {
@@ -18,11 +18,11 @@ function TransitLinesStyle (feature) {
     }
 }
 
-function createStopsMarkers (_geoJsonPoint, latlng) {
+function createStopsMarkers(_geoJsonPoint, latlng) {
     return L.circleMarker(latlng, { fillColor: 'white', color: 'black', fillOpacity: 1, weight: 3, radius: 5 })
 }
 
-function setZoomEvents (map, fg) {
+function setZoomEvents(map, fg) {
     map.on('zoomend', () => {
         if (map.getZoom() >= 14) {
             fg.setStyle({ fillColor: 'white', color: 'black', fillOpacity: 1, weight: 3, radius: 5 })
@@ -32,7 +32,7 @@ function setZoomEvents (map, fg) {
     })
 }
 
-function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2) {
+function GeojsonMap(fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2) {
     const sizeMB = filesize / 1024 / 1024
     const infoDiv = document.getElementById(infoDivId)
     const mapDiv = document.getElementById(mapDivId)
@@ -55,7 +55,7 @@ function GeojsonMap (fillMapFunction, mapDivId, infoDivId, geojsonUrl, filesize,
     }
 }
 
-function TransitMap (mapDivId, geojsonUrl) {
+function TransitMap(mapDivId, geojsonUrl) {
     const { map, markersfg, linesfg } = initializeMap(mapDivId)
     fetch(geojsonUrl)
         .then(data => data.json())
@@ -63,14 +63,16 @@ function TransitMap (mapDivId, geojsonUrl) {
             const stops = L.geoJSON(geojson, {
                 pointToLayer: createStopsMarkers,
                 style: TransitLinesStyle,
-                filter: (feature) => feature.geometry.type === 'Point'
+                filter: feature => feature.geometry.type === 'Point'
             }).addTo(markersfg)
 
-            stops.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
+            stops.bindPopup(layer => {
+                return formatPopupContent(layer.feature.properties)
+            })
 
             const lines = L.geoJSON(geojson, {
                 style: TransitLinesStyle,
-                filter: (feature) => feature.geometry.type !== 'Point',
+                filter: feature => feature.geometry.type !== 'Point',
                 onEachFeature: (_feature, layer) => {
                     layer.on('mouseover', () => {
                         layer.bringToFront()
@@ -84,7 +86,9 @@ function TransitMap (mapDivId, geojsonUrl) {
                 }
             }).addTo(linesfg)
 
-            lines.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
+            lines.bindPopup(layer => {
+                return formatPopupContent(layer.feature.properties)
+            })
 
             lines.bringToBack()
             stops.bringToFront()
@@ -99,36 +103,38 @@ function TransitMap (mapDivId, geojsonUrl) {
         .catch(_ => console.log('invalid geojson'))
 }
 
-function GenericLinesStyle (_feature) {
+function GenericLinesStyle(_feature) {
     return { weight: 3 }
 }
 
-function createPointsMarkers (_geoJsonPoint, latlng) {
+function createPointsMarkers(_geoJsonPoint, latlng) {
     return L.circleMarker(latlng, { stroke: false, color: '#0066db', fillOpacity: 0.7 })
 }
 
-function formatPopupContent (content) {
+function formatPopupContent(content) {
     return `<pre>${JSON.stringify(content, null, 2)}</pre>`
 }
 
-function GenericMap (mapDivId, geojsonUrl) {
+function GenericMap(mapDivId, geojsonUrl) {
     const { map, markersfg, linesfg } = initializeMap(mapDivId)
     fetch(geojsonUrl)
         .then(data => data.json())
         .then(geojson => {
             const markers = L.geoJSON(geojson, {
                 pointToLayer: createPointsMarkers,
-                filter: (feature) => feature.geometry.type === 'Point'
+                filter: feature => feature.geometry.type === 'Point'
             }).addTo(markersfg)
 
             markers.bindPopup(layer => formatPopupContent(layer.feature.properties))
 
             const lines = L.geoJSON(geojson, {
                 style: GenericLinesStyle,
-                filter: (feature) => feature.geometry.type !== 'Point'
+                filter: feature => feature.geometry.type !== 'Point'
             }).addTo(linesfg)
 
-            lines.bindPopup(layer => { return formatPopupContent(layer.feature.properties) })
+            lines.bindPopup(layer => {
+                return formatPopupContent(layer.feature.properties)
+            })
 
             lines.bringToBack()
             markers.bringToFront()
@@ -142,11 +148,11 @@ function GenericMap (mapDivId, geojsonUrl) {
         .catch(_ => console.log('invalid geojson'))
 }
 
-function TransitGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function TransitGeojsonMap(mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
     GeojsonMap(TransitMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
-function GenericGeojsonMap (mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
+function GenericGeojsonMap(mapDivId, infoDivId, geojsonUrl, filesize = 0, msg1 = '', msg2 = '') {
     GeojsonMap(GenericMap, mapDivId, infoDivId, geojsonUrl, filesize, msg1, msg2)
 }
 
