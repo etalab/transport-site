@@ -22,17 +22,17 @@ defmodule JobsTableComponent do
       </thead>
       <tbody>
         <tr :for={job <- @jobs}>
-          <td>{job.id}</td>
+          <td><.show_details supports_details={assigns[:supports_details] || false} job_id={job.id} /></td>
           <td :if={is_nil(@state)}><span class={"job-state job-state-#{job.state}"}>{job.state}</span></td>
           <td>{job.queue}</td>
           <td>{job.worker}</td>
           <td>{inspect(job.args)}</td>
-          <td><.timestamp dt={job.inserted_at} } locale={@locale} /></td>
+          <td><.timestamp dt={job.inserted_at} locale={@locale} /></td>
           <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}>
             <.compact_errors errors={job.errors} locale={@locale} />
           </td>
           <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>
-            <.timestamp dt={job.scheduled_at} } locale={@locale} />
+            <.timestamp dt={job.scheduled_at} locale={@locale} />
           </td>
         </tr>
       </tbody>
@@ -42,6 +42,18 @@ defmodule JobsTableComponent do
 
   def render(%{jobs: _, locale: _} = assigns) do
     render(Map.merge(%{state: nil}, assigns))
+  end
+
+  defp show_details(%{supports_details: true, job_id: _} = assigns) do
+    ~H"""
+    <button class="show-details" phx-click="show-details" phx-value-job_id={@job_id}>{@job_id}</button>
+    """
+  end
+
+  defp show_details(%{job_id: _} = assigns) do
+    ~H"""
+    {@job_id}
+    """
   end
 
   defp timestamp(%{dt: _, locale: _} = assigns) do
@@ -61,24 +73,21 @@ defmodule JobsTableComponent do
   defp compact_errors(%{errors: _, locale: _} = assigns) do
     ~H"""
     <ol class="errors">
-      <li :for={error <- split_errors(@errors, @locale)}>
+      <li :for={error <- split_errors(@errors)}>
         <.timestamp dt={error.at} locale={@locale} /> : <code>{error.error}</code>
       </li>
     </ol>
     """
   end
 
-  defp split_errors(errors, locale), do: Enum.map(errors, &split_error(&1, locale))
+  defp split_errors(errors), do: Enum.map(errors, &split_error/1)
 
-  defp split_error(error, locale) do
+  defp split_error(error) do
     %{
       at: Map.get(error, "at"),
       error: Map.get(error, "error", "") |> extract_message()
     }
   end
-
-  defp maybe(nil, _f), do: nil
-  defp maybe(value, f), do: f.(value)
 
   defp extract_message(message) do
     message |> String.split("\n") |> List.first("") |> String.trim_leading("** ")
