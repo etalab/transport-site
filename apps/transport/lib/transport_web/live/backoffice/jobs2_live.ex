@@ -19,7 +19,8 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
     state =
       %{
         locale: Map.get(session, "locale", "fr"),
-        states: @states
+        states: @states,
+        selected_job: nil
       }
       |> Map.merge(extract_params(params))
 
@@ -53,6 +54,14 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
   defp schedule_next_update_data do
     Process.send_after(self(), :update_data, 1000)
+  end
+
+  defp load_job(job_id) do
+    from(j in "oban_jobs",
+      select: map(j, [:id, :state, :queue, :worker, :args, :inserted_at, :scheduled_at, :errors])
+    )
+    |> where([o], o.id == ^job_id)
+    |> oban_one()
   end
 
   def last_jobs_query(n) do
@@ -106,6 +115,8 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
   def oban_query(query), do: Oban.config() |> Oban.Repo.all(query)
 
+  def oban_one(query), do: Oban.config() |> Oban.Repo.one(query)
+
   def last_jobs(n, condition), do: last_jobs_query(n) |> apply_condition(condition) |> oban_query
 
   def count_jobs(condition), do: count_jobs_query() |> apply_condition(condition) |> oban_query |> Enum.at(0)
@@ -121,13 +132,19 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
     condition = {socket.assigns[:worker], socket.assigns |> active_states()}
 
+    selected_job = socket.assigns[:selected_job] |> maybe(fn job -> load_job(job.id) end)
+
     assign(socket,
       last_updated_at: DateTime.utc_now() |> format_datetime(locale),
       jobs: last_jobs(@max_jobs, condition),
       count_jobs: count_jobs(condition),
-      jobs_count: jobs_count(condition)
+      jobs_count: jobs_count(condition),
+      selected_job: selected_job
     )
   end
+
+  defp maybe(nil, _f), do: nil
+  defp maybe(v, f), do: f.(v)
 
   defp active_states(assigns) do
     @states
@@ -162,6 +179,20 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
   def handle_event("filter", params, socket) do
     extract_params(params) |> drop_defaults() |> sync_query_params(socket)
+  end
+
+  def handle_event("show-details", %{"job_id" => job_id} = _params, socket) do
+    socket =
+      case Integer.parse(job_id) do
+        {job_id, _} -> socket |> assign(%{selected_job: load_job(job_id)})
+        _ -> socket
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("unload-details", %{} = _params, socket) do
+    {:noreply, socket |> assign(%{selected_job: nil})}
   end
 
   defp sync_query_params(update, socket) do
