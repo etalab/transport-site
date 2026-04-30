@@ -1,0 +1,10 @@
+node_modules/
+priv/
+build/
+dist/
+yarn.lock
+package.json
+
+# styles handled by stylelint, not prettier
+*.css
+*.scss
