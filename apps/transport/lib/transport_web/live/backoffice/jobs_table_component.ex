@@ -27,12 +27,12 @@ defmodule JobsTableComponent do
           <td>{job.queue}</td>
           <td>{job.worker}</td>
           <td>{inspect(job.args)}</td>
-          <td><.timestamp dt={job.inserted_at} } locale={@locale} /></td>
+          <td><.timestamp dt={job.inserted_at} locale={@locale} /></td>
           <td :if={is_nil(@state) or @state in ["discarded", "retryable"]}>
             <.compact_errors errors={job.errors} locale={@locale} />
           </td>
           <td :if={is_nil(@state) or @state in ["scheduled", "retryable"]}>
-            <.timestamp dt={job.scheduled_at} } locale={@locale} />
+            <.timestamp dt={job.scheduled_at} locale={@locale} />
           </td>
         </tr>
       </tbody>
