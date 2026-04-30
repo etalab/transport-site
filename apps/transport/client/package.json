@@ -8,10 +8,12 @@
     "watch": "webpack --watch-options-stdin --color --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "errors": "webpack --display-error-details --config webpack.dev.js",
-    "linter:ecma": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js .",
-    "linter:ecma:fix": "eslint -c .eslintrc.json --resolve-plugins-relative-to ./apps/transport/client/node_modules --ext .js . --fix",
+    "linter:ecma": "eslint .",
+    "linter:ecma:fix": "eslint . --fix",
     "linter:sass": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss'",
-    "linter:sass:fix": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss' --fix"
+    "linter:sass:fix": "stylelint --config '../../../.stylelintrc.json' 'stylesheets/**/*.scss' --fix",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "dependencies": {
     "@deck.gl/core": "^8.7.0",
