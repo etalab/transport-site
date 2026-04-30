@@ -8,3 +8,6 @@ package.json
 # styles handled by stylelint, not prettier
 *.css
 *.scss
+
+# build configs: keep diffs readable, not worth the formatting churn
+webpack.*.js
