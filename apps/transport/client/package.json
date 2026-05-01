@@ -32,9 +32,9 @@
     "prismjs": "^1.30.0",
     "regenerator-runtime": "^0.14.1",
     "template.data.gouv.fr": "^1.2.1",
-    "vega": "^5.32.0",
-    "vega-embed": "^6.22.2",
-    "vega-lite": "^5.14.1",
+    "vega": "^6.2.0",
+    "vega-embed": "^7.1.0",
+    "vega-lite": "^6.4.3",
     "xml-formatter": "^3.7.0"
   },
   "devDependencies": {
