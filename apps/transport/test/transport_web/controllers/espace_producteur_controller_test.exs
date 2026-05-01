@@ -184,7 +184,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
            {"td", [],
             [
               {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+               [{"i", [{"class", "fa fa-arrow-up-right-from-square"}], []}, "\n      Hello\n    "]}
             ]},
            {"td", [], []},
            {"td", [], ["Discussions sans réponse"]},
@@ -208,7 +208,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
            {"td", [],
             [
               {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
-               [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+               [{"i", [{"class", "fa fa-arrow-up-right-from-square"}], []}, "\n      Hello\n    "]}
             ]},
            {"td", [], ["GTFS Super ", {"span", [{"class", "label"}], ["GTFS"]}]},
            {"td", [], ["Ressource indisponible"]},
@@ -222,7 +222,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                  {"data-tracking-action", "important_information_edit_resource_button"}
                ],
                [
-                 {"i", [{"class", "fa fa-edit"}], []},
+                 {"i", [{"class", "fa fa-pen-to-square"}], []},
                  "Modifier la ressource\n  "
                ]}
             ]}
@@ -285,7 +285,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                 {"td", [],
                  [
                    {"a", [{"href", dataset_path(TransportWeb.Endpoint, :details, dataset.slug)}, {"target", "_blank"}],
-                    [{"i", [{"class", "fa fa-external-link"}], []}, "\n      Hello\n    "]}
+                    [{"i", [{"class", "fa fa-arrow-up-right-from-square"}], []}, "\n      Hello\n    "]}
                  ]},
                 {"td", [],
                  [
@@ -313,7 +313,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       {"class", "button-outline primary small"},
                       {"data-tracking-category", "espace_producteur"},
                       {"data-tracking-action", "important_information_edit_resource_button"}
-                    ], [{"i", [{"class", "fa fa-edit"}], []}, "Modifier la ressource\n  "]}
+                    ], [{"i", [{"class", "fa fa-pen-to-square"}], []}, "Modifier la ressource\n  "]}
                  ]}
               ]}
            ]
@@ -1423,7 +1423,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                          [
                            {"a", [{"href", dataset_path(conn, :details, dataset.slug)}, {"target", "_blank"}],
                             [
-                              {"i", [{"class", "fa fa-external-link"}], []},
+                              {"i", [{"class", "fa fa-arrow-up-right-from-square"}], []},
                               "\n                    Hello\n                  "
                             ]}
                          ]},
