@@ -146,7 +146,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
       <li :for={column <- @column_differences}>
         <code>{column}</code>
         <span :if={not standard_column?(@selected_file, column)}>
-          <i class="symbol fa fa-warning orange"></i> {dgettext("gtfs-diff", "non standard column")}
+          <i class="symbol fa fa-triangle-exclamation orange"></i> {dgettext("gtfs-diff", "non standard column")}
         </span>
       </li>
     </ul>
