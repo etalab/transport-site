@@ -1,5 +1,4 @@
 import Leaflet from 'leaflet'
-import 'leaflet.pattern'
 import { Mapbox } from './map-config'
 
 const aomsUrl = '/api/stats/'
@@ -7,6 +6,58 @@ const vehiclesSharingUrl = '/api/stats/vehicles-sharing'
 const qualityUrl = '/api/stats/quality'
 
 const lightGreen = '#BCE954'
+
+// Native replacement for the leaflet.pattern plugin (orphan upstream since 2018).
+// Diagonal stripe SVG patterns for polygon fills; style options can pass
+// `fillPattern: '<patternId>'` to apply `fill="url(#<patternId>)"` on the path.
+const SVG_NS = 'http://www.w3.org/2000/svg'
+const svgEl = (name, attrs) => {
+    const el = document.createElementNS(SVG_NS, name)
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v)
+    return el
+}
+
+// Diagonal stripe: one stripe + one gap of equal `weight`, repeated.
+const makeStripePattern = (id, weight) => {
+    const size = 2 * weight
+    const pattern = svgEl('pattern', {
+        id,
+        patternUnits: 'userSpaceOnUse',
+        width: size,
+        height: size,
+        patternTransform: 'rotate(-45)'
+    })
+    pattern.appendChild(svgEl('path', { d: `M0 ${weight / 2} H ${size}`, stroke: lightGreen, 'stroke-width': weight }))
+    pattern.appendChild(
+        svgEl('path', { d: `M0 ${weight + weight / 2} H ${size}`, stroke: 'blue', 'stroke-width': weight })
+    )
+    return pattern
+}
+
+const STRIPE_PATTERNS = { 'stripes-small': 1, 'stripes-big': 4 }
+
+function defineStripePatterns(map) {
+    if (map._stripePatternsInstalled) return
+    map._stripePatternsInstalled = true
+    const renderer = Leaflet.svg().addTo(map)
+    const defs = svgEl('defs', {})
+    for (const [id, weight] of Object.entries(STRIPE_PATTERNS)) {
+        defs.appendChild(makeStripePattern(id, weight))
+    }
+    renderer._container.insertBefore(defs, renderer._container.firstChild)
+}
+
+const originalUpdateStyle = Leaflet.SVG.prototype._updateStyle
+if (!originalUpdateStyle._stripePatched) {
+    Leaflet.SVG.prototype._updateStyle = function (layer) {
+        originalUpdateStyle.call(this, layer)
+        const fillPattern = layer.options?.fillPattern
+        if (fillPattern && layer._path) {
+            layer._path.setAttribute('fill', `url(#${fillPattern})`)
+        }
+    }
+    Leaflet.SVG.prototype._updateStyle._stripePatched = true
+}
 
 const makeMapOnView = (id, view) => {
     const map = Leaflet.map(id, {
@@ -341,26 +392,7 @@ function addRealTimePtFormatMap(id, view) {
 
         layer.bindPopup(bind)
     }
-    const smallStripes = new Leaflet.StripePattern({
-        angle: -45,
-        color: lightGreen,
-        spaceColor: 'blue',
-        spaceOpacity: 1,
-        weight: 1,
-        spaceWeight: 1,
-        height: 2
-    })
-    const bigStripes = new Leaflet.StripePattern({
-        angle: -45,
-        color: lightGreen,
-        spaceColor: 'blue',
-        spaceOpacity: 1,
-        weight: 4,
-        spaceWeight: 4,
-        height: 8
-    })
-    smallStripes.addTo(map)
-    bigStripes.addTo(map)
+    defineStripePatterns(map)
     const legends = {
         gtfs_rt: { label: 'GTFS-RT', color: 'blue' },
         siri: { label: 'SIRI', color: 'light-green' },
@@ -395,13 +427,13 @@ function addRealTimePtFormatMap(id, view) {
                 weight: 1,
                 color: 'blue',
                 fillOpacity: 0.6,
-                fillPattern: smallStripes
+                fillPattern: 'stripes-small'
             },
             bigStripes: {
                 weight: 1,
                 color: 'blue',
                 fillOpacity: 0.6,
-                fillPattern: bigStripes
+                fillPattern: 'stripes-big'
             }
         },
         unavailable: {
