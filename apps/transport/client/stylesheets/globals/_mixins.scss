@@ -1,25 +1,27 @@
+@use "variables";
+
 // Useful mixins to DRY.
 
 @mixin mobile {
-  @media (max-width: $breakpoint-tablet) {
+  @media (max-width: variables.$breakpoint-tablet) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media (max-width: $breakpoint-desktop) {
+  @media (max-width: variables.$breakpoint-desktop) {
     @content;
   }
 }
 
 @mixin media-tablet-up {
-  @media (min-width: $breakpoint-tablet) {
+  @media (min-width: variables.$breakpoint-tablet) {
     @content;
   }
 }
 
 @mixin media-desktop-up {
-  @media (min-width: $breakpoint-desktop) {
+  @media (min-width: variables.$breakpoint-desktop) {
     @content;
   }
 }

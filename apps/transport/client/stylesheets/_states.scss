@@ -1,6 +1,8 @@
+@use "globals/variables";
+
 .is-active {
-  background: $background-color;
-  color: $white;
+  background: variables.$background-color;
+  color: variables.$white;
 }
 
 .is-centered {

@@ -1,59 +1,59 @@
 // Global styles: variables, mixins, external libraries, and so on.
-@import 'globals/variables';
-@import 'globals/externals';
-@import 'globals/mixins';
+@use 'globals/variables';
+@use 'globals/externals';
+@use 'globals/mixins';
 
 // Components: abstract building blocks as buttons, navigation, etc...
-@import 'components/aom_table';
-@import 'components/autocomplete';
-@import 'components/backoffice';
-@import 'components/blog';
-@import 'components/choose_file';
-@import 'components/colorful-button';
-@import 'components/community-resources';
-@import 'components/dataset-details';
-@import 'components/discussions';
-@import 'components/download_availability';
-@import 'components/error';
-@import 'components/explore';
-@import 'components/fullscreen-wrapper';
-@import 'components/gtfs_diff';
-@import 'components/guide';
-@import 'components/icons';
-@import 'components/legal';
-@import 'components/login';
-@import 'components/logo';
-@import 'components/landing_page_vls';
-@import 'components/mail';
-@import 'components/mailing-list';
-@import 'components/map-js';
-@import 'components/message';
-@import 'components/notification';
-@import 'components/pagination';
-@import 'components/resource-details';
-@import 'components/search';
-@import 'components/shortlist';
-@import 'components/stats';
-@import 'components/tooltip';
-@import 'components/validation';
-@import 'components/feedback';
+@use 'components/aom_table';
+@use 'components/autocomplete';
+@use 'components/backoffice';
+@use 'components/blog';
+@use 'components/choose_file';
+@use 'components/colorful-button';
+@use 'components/community-resources';
+@use 'components/dataset-details';
+@use 'components/discussions';
+@use 'components/download_availability';
+@use 'components/error';
+@use 'components/explore';
+@use 'components/fullscreen-wrapper';
+@use 'components/gtfs_diff';
+@use 'components/guide';
+@use 'components/icons';
+@use 'components/legal';
+@use 'components/login';
+@use 'components/logo';
+@use 'components/landing_page_vls';
+@use 'components/mail';
+@use 'components/mailing-list';
+@use 'components/map-js';
+@use 'components/message';
+@use 'components/notification';
+@use 'components/pagination';
+@use 'components/resource-details';
+@use 'components/search';
+@use 'components/shortlist';
+@use 'components/stats';
+@use 'components/tooltip';
+@use 'components/validation';
+@use 'components/feedback';
 
 // States: microinteractions...
-@import 'states';
+@use 'states';
 
-@import 'main';
+@use 'main';
 
 // Pages
-@import 'home';
-@import 'datasets';
-@import 'producteurs';
-@import 'espace_producteur';
-@import 'reuser_space';
-@import 'reuses';
+@use 'home';
+@use 'datasets';
+@use 'producteurs';
+@use 'espace_producteur';
+@use 'reuser_space';
+@use 'reuses';
 
 // Prism for syntax coloring ; TODO: cherry-pick from the npm package instead
 // (and remove the manual download)
-@import 'prism';
+@use 'prism';
 
 .siri_xml {
   pre {
