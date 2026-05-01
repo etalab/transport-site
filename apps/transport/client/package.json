@@ -40,7 +40,7 @@
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.29.3",
-    "@eslint/js": "^9.25.1",
+    "@eslint/js": "^10.0.1",
     "babel-loader": "^10.1.1",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.4",
