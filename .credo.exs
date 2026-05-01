@@ -117,6 +117,7 @@
         {Credo.Check.Warning.UnusedTupleOperation},
         {Credo.Check.Warning.RaiseInsideRescue},
         {Credo.Check.Warning.MixEnv},
+        {Credo.Check.Warning.ApplicationConfigInModuleAttribute},
 
         # Controversial and experimental checks (opt-in, just remove `, false`)
         #
