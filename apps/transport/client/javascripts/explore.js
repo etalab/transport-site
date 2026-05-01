@@ -1,6 +1,6 @@
 import { Socket } from 'phoenix'
 import Leaflet from 'leaflet'
-import { LeafletLayer } from 'deck.gl-leaflet'
+import { DeckOverlay } from '@deck.gl-community/leaflet'
 import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
@@ -79,7 +79,7 @@ function prepareGTFSRTLayer(layerData) {
     })
 }
 
-const deckGLLayer = new LeafletLayer({
+const deckGLLayer = new DeckOverlay({
     views: [new MapView({ repeat: true })],
     layers: [],
     getTooltip
