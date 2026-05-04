@@ -169,7 +169,7 @@ function addStaticPTUpToDate(id, view) {
     function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const expiredFrom = feature.properties.quality.expired_from
-        let text = ''
+        let text
         if (expiredFrom.status === 'outdated') {
             text = `Les données ne sont plus à jour depuis ${expiredFrom.nb_days} jour`
             if (expiredFrom.nb_days > 1) {
@@ -231,7 +231,7 @@ function addStaticPTQuality(id, view) {
     function onEachAomFeature(feature, layer) {
         const name = feature.properties.nom
         const errorLevel = feature.properties.quality.error_level
-        let text = ''
+        let text
         if (errorLevel === 'Error') {
             text = 'Les données contiennent des erreurs.'
         } else if (errorLevel === 'Warning') {

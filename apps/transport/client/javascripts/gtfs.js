@@ -1,5 +1,5 @@
 import Leaflet from 'leaflet'
-import { LeafletLayer } from 'deck.gl-leaflet'
+import { DeckOverlay } from '@deck.gl-community/leaflet'
 import { ScatterplotLayer, GeoJsonLayer } from '@deck.gl/layers'
 
 import { MapView } from '@deck.gl/core'
@@ -60,7 +60,7 @@ function showPopup(info) {
     }
 }
 
-const deckGLLayer = new LeafletLayer({
+const deckGLLayer = new DeckOverlay({
     views: [new MapView({ repeat: true })],
     layers: []
 })
