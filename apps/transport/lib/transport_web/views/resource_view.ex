@@ -179,18 +179,18 @@ defmodule TransportWeb.ResourceView do
   # credo:disable-for-next-line
   def service_alert_icon(%{cause: cause}) do
     case cause do
-      :UNKNOWN_CAUSE -> "fa fa-question-circle"
-      :OTHER_CAUSE -> "fa fa-question-circle"
-      :TECHNICAL_PROBLEM -> "fa fa-exclamation-triangle"
-      :STRIKE -> "fa fa-fist-raised"
+      :UNKNOWN_CAUSE -> "fa fa-circle-question"
+      :OTHER_CAUSE -> "fa fa-circle-question"
+      :TECHNICAL_PROBLEM -> "fa fa-triangle-exclamation"
+      :STRIKE -> "fa fa-hand-fist"
       :DEMONSTRATION -> "fa fa-bullhorn"
-      :ACCIDENT -> "fa fa-car-crash"
+      :ACCIDENT -> "fa fa-car-burst"
       :HOLIDAY -> "fa fa-calendar"
       :WEATHER -> "fa fa-cloud-rain"
       :MAINTENANCE -> "fa fa-wrench"
-      :CONSTRUCTION -> "fa fa-hard-hat"
+      :CONSTRUCTION -> "fa fa-helmet-safety"
       :POLICE_ACTIVITY -> "fa fa-user-shield"
-      :MEDICAL_EMERGENCY -> "fa fa-ambulance"
+      :MEDICAL_EMERGENCY -> "fa fa-truck-medical"
     end
   end
 

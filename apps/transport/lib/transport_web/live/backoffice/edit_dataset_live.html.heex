@@ -17,7 +17,7 @@
   </h1>
   <%= unless is_nil(assigns[:dataset]) do %>
     <div class="pb-24">
-      <i class="fa fa-external-link-alt"></i>
+      <i class="fa fa-up-right-from-square"></i>
       {link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id))}
     </div>
   <% end %>

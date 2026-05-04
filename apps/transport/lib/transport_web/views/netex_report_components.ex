@@ -210,7 +210,7 @@ defmodule TransportWeb.NeTExReportComponents do
       <div class="header_with_action_bar">
         <h5><.download_popup_title /></h5>
         <button popovertarget="download-popup" popovertargetaction="hide" class="small secondary">
-          <i class="fa fa-close"></i>
+          <i class="fa fa-xmark"></i>
         </button>
       </div>
       <.download_popup_content url={@validation_report_url} />
@@ -295,7 +295,7 @@ defmodule TransportWeb.NeTExReportComponents do
       <div class="header_with_action_bar">
         <h5>{dgettext("validations", "List of French Profile rules currently checked")}</h5>
         <button popovertarget="french-profile-rules" popovertargetaction="hide" class="small secondary">
-          <i class="fa fa-close"></i>
+          <i class="fa fa-xmark"></i>
         </button>
       </div>
       <% markdown = with_string(&french_profile.markdown(&1, header_level: 6)) %>
