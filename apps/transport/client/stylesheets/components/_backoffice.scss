@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 .dataset_import_validations_logs {
   display: flex;
   flex-direction: column;
@@ -317,7 +319,7 @@ iframe#email_preview {
       background: white;
       border: 1px solid var(--light-grey);
       border-radius: calc(var(--space-xs) / 2);
-      box-shadow: 0 0 15px $box-shadow;
+      box-shadow: 0 0 15px variables.$box-shadow;
       padding: calc(var(--space-xs) / 2) var(--space-xs);
     }
 
@@ -444,7 +446,7 @@ iframe#email_preview {
     height: 100vh;
     min-width: 30vw;
     max-width: 90vw;
-    box-shadow: 0 0 15px $box-shadow;
+    box-shadow: 0 0 15px variables.$box-shadow;
     border-radius: 0;
     overflow-y: scroll;
     overscroll-behavior: contain;

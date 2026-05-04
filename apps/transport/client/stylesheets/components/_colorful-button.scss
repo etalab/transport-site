@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 /* Colorful link or button
  *
  * Defaults to blue.
@@ -18,8 +20,8 @@ a.colorful, button.colorful {
 
   display: inline-flex;
   line-height: normal;
-  font-size: $font-size;
-  font-family: $font-family-primary;
+  font-size: variables.$font-size;
+  font-family: variables.$font-family-primary;
   gap: var(--space-xs);
   padding: var(--padding-block) var(--padding-inline);
   background-color: var(--light-taint);

@@ -1,3 +1,5 @@
+@use "../globals/mixins";
+
 .shortlist {
   display: flex;
 }
@@ -190,7 +192,7 @@
   }
 }
 
-@include tablet {
+@include mixins.tablet {
   .shortlist {
     flex-direction: column;
   }
@@ -206,7 +208,7 @@
   }
 }
 
-@include mobile {
+@include mixins.mobile {
   .dataset__panel .dataset__title h3 {
     margin: 0;
     font-size: 1em;

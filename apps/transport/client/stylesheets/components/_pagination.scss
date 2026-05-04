@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 ul.pagination {
   list-style-type: none;
   margin: 0;
@@ -14,8 +16,8 @@ ul.pagination {
       display: inline-block;
       padding: 0.2em 0.5em;
       margin: 0.2em;
-      color: $blue;
-      background-color: $white;
+      color: variables.$blue;
+      background-color: variables.$white;
       border-radius: 3px;
       border: 0;
       position: relative;
@@ -24,14 +26,14 @@ ul.pagination {
       text-decoration: none;
 
       &:hover {
-        background-color: $lighter-blue;
-        color: $blue;
+        background-color: variables.$lighter-blue;
+        color: variables.$blue;
       }
     }
 
     &.active a {
-      color: $white;
-      background-color: $blue;
+      color: variables.$white;
+      background-color: variables.$blue;
     }
   }
 }

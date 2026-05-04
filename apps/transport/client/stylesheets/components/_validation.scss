@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 nav.validation {
   padding: 10px;
   h4 {
@@ -27,7 +29,7 @@ nav.validation {
 .validation-issue {
   padding: 12px 48px;
   border-radius: 10px;
-  @media (max-width: $breakpoint-tablet) {
+  @media (max-width: variables.$breakpoint-tablet) {
     padding: 10px;
   }
 }
@@ -75,7 +77,7 @@ nav.validation {
   box-shadow: 0 4px 8px 0 rgb(0 0 0 / 0.2);
   padding: 60px 40px;
   border-radius: 10px;
-  @media (max-width: $breakpoint-tablet) {
+  @media (max-width: variables.$breakpoint-tablet) {
     padding: 10px;
   }
 }

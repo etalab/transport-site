@@ -1,10 +1,12 @@
+@use "../globals/variables";
+
 .aom_table {
   td {
     padding: 10px;
   }
 
   tr:nth-child(odd) {
-    background-color: $lighter-grey;
+    background-color: variables.$lighter-grey;
   }
 
   th {
@@ -13,7 +15,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: $light-grey;
+      background-color: variables.$light-grey;
     }
 
     &::after {

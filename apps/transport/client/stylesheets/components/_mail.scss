@@ -1,8 +1,11 @@
+@use "../globals/mixins";
+@use "../globals/variables";
+
 a.mail__button {
-  background-color: $blue;
+  background-color: variables.$blue;
   border-radius: 50px;
   bottom: 1em;
-  color: $white;
+  color: variables.$white;
   font-size: 1.5em;
   position: fixed;
   right: 1em;
@@ -21,7 +24,7 @@ a.mail__button {
 
 a.mail__button:hover {
   width: auto;
-  background-color: $blue;
+  background-color: variables.$blue;
 }
 
 .mail__button span {
@@ -38,8 +41,8 @@ a.mail__button:hover {
 }
 
 .footer__contact {
-  background-color: $background-grey;
-  border: 1px solid $border-active;
+  background-color: variables.$background-grey;
+  border: 1px solid variables.$border-active;
   bottom: 1em;
   padding: 2em;
   position: fixed;
@@ -49,11 +52,11 @@ a.mail__button:hover {
   overflow-y: auto;
 
   h3 {
-    color: $blue;
+    color: variables.$blue;
   }
 
   p {
-    color: $dark-text;
+    color: variables.$dark-text;
   }
 
   textarea {
@@ -74,7 +77,7 @@ a.mail__button:hover {
   font-size: 1.3em;
 
   &:hover {
-    color: $dark-blue;
+    color: variables.$dark-blue;
   }
 }
 
@@ -82,7 +85,7 @@ a.mail__button:hover {
   float: right;
 }
 
-@include media-desktop-up {
+@include mixins.media-desktop-up {
   .footer__contact {
     width: 30em;
     bottom: 1em;
