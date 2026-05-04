@@ -96,7 +96,7 @@
                   data-tracking-action="update_resource_button"
                   class="button-outline primary small"
                 >
-                  <i class="icon fa fa-edit"></i>{dgettext("espace-producteurs", "Edit resource")}
+                  <i class="icon fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "Edit resource")}
                 </a>
                 <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
                   {link(dgettext("espace-producteurs", "Reuser GTFS"),

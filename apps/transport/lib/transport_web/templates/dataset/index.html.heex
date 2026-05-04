@@ -201,13 +201,13 @@
                         </a>
                         <%= if TransportWeb.Session.admin?(@conn) do %>
                           <span class="dataset-backoffice-link">
-                            <i class="fa fa-external-link-alt"></i>
+                            <i class="fa fa-up-right-from-square"></i>
                             {link("backoffice", to: backoffice_page_path(@conn, :edit, dataset.id))}
                           </span>
                         <% end %>
                       </h3>
                       <div class="dataset-localization">
-                        <i class="icon fa fa-map-marker-alt" />{Dataset.get_covered_area_or_nil(dataset)}
+                        <i class="icon fa fa-location-dot" />{Dataset.get_covered_area_or_nil(dataset)}
                       </div>
                     </div>
                   </div>
@@ -251,7 +251,7 @@
       </div>
 
       <div class="api-link">
-        <i class="fas fa-cogs"></i>
+        <i class="fas fa-gears"></i>
         <% # NOTE: the syntax_highlight flag is there just because otherwise we get a match error
         # due to how OpenAPISpex register routes (I think) %>
         {link(

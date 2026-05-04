@@ -38,12 +38,12 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               <div class="dataset__infos">
                 <h3 class="dataset__title">
                   <a href={dataset_path(@socket, :details, dataset.slug)} target="_blank">
-                    <i class="fa fa-external-link-alt" aria-hidden="true"></i>
+                    <i class="fa fa-up-right-from-square" aria-hidden="true"></i>
                     {dataset.custom_title}
                   </a>
                 </h3>
                 <div class="dataset-localization">
-                  <i class="icon fa fa-map-marker-alt" />{DB.Dataset.get_covered_area_or_nil(dataset)}
+                  <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area_or_nil(dataset)}
                 </div>
               </div>
             </div>

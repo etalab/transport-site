@@ -1,6 +1,11 @@
 // External styles and libraries.
 
+// Font Awesome 7 uses Sass modules (@use); override $font-path on the
+// shared variables module so the font-face URLs resolve to node_modules.
+// @use rules must precede any @import in the file.
+@use '~@fortawesome/fontawesome-free/scss/variables' with ($font-path: '~@fortawesome/fontawesome-free/webfonts');
+@use '~@fortawesome/fontawesome-free/scss/fontawesome';
+@use '~@fortawesome/fontawesome-free/scss/solid';
+
 @import '~leaflet/dist/leaflet';
-@import '~@fortawesome/fontawesome-free/scss/fontawesome';
-@import '~@fortawesome/fontawesome-free/scss/solid';
 @import '~template.data.gouv.fr/dist/main.css';

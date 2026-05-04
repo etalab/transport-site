@@ -34,7 +34,7 @@
     <dialog :if={@selected_job} id="job-details" open class="panel right-side">
       <div class="header_with_action_bar">
         <h2>{dgettext("backoffice", "Job #%{job_id}", job_id: @selected_job.id)}</h2>
-        <button phx-click="unload-details" class="button-outline secondary small"><i class="fa fa-close"></i></button>
+        <button phx-click="unload-details" class="button-outline secondary small"><i class="fa fa-xmark"></i></button>
       </div>
 
       <h3>{dgettext("backoffice", "Properties")}</h3>

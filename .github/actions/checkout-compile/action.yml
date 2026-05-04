@@ -73,7 +73,13 @@ runs:
       shell: bash
 
     - name: Install yarn dependencies
-      run: cd apps/transport/client && yarn install
+      # --frozen-lockfile: fail if package.json and yarn.lock disagree
+      # (catches forgotten yarn install after dep edit, bad merge resolution
+      # leaving an inconsistent pair).
+      # --check-files: verify each installed file matches the lockfile
+      # expectation (defends against a stale node_modules restored via
+      # cache restore-keys prefix matching).
+      run: cd apps/transport/client && yarn install --frozen-lockfile --check-files
       shell: bash
 
     - name: Compile assets

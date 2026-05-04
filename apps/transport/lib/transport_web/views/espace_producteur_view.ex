@@ -70,7 +70,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <tr>
       <td>
         <a href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
-          <i class="fa fa-external-link"></i>
+          <i class="fa fa-arrow-up-right-from-square"></i>
           {@dataset.custom_title}
         </a>
       </td>
@@ -144,7 +144,7 @@ defmodule TransportWeb.EspaceProducteurView do
         data-tracking-category="espace_producteur"
         data-tracking-action="important_information_edit_resource_button"
       >
-        <i class="fa fa-edit"></i>{dgettext("espace-producteurs", "Edit resource")}
+        <i class="fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "Edit resource")}
       </a>
     </td>
     """
