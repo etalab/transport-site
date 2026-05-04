@@ -1,3 +1,5 @@
+@use "globals/variables";
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 25px;
@@ -19,14 +21,14 @@ html {
 .hero p,
 .hero h1 {
   font-style: normal;
-  color: $dark-text;
+  color: variables.$dark-text;
 }
 
 .hero form {
   margin: 0;
 }
 
-@media (max-width: $breakpoint-tablet) {
+@media (max-width: variables.$breakpoint-tablet) {
   #close-menu {
     margin: 20px 40px 0 0;
   }
@@ -40,7 +42,7 @@ html {
 }
 
 button.dropdown {
-  font-family: $font-family-primary;
+  font-family: variables.$font-family-primary;
   font-size: 16px;
   line-height: 1.5em;
   background: unset;
@@ -121,7 +123,7 @@ button.dropdown {
     top: anchor(bottom);
     left: anchor(left);
   }
-  @media (max-width: $breakpoint-tablet) {
+  @media (max-width: variables.$breakpoint-tablet) {
     .dropdown-content {
       left: auto;
       right: auto;
@@ -202,7 +204,7 @@ button.dropdown {
 }
 
 a.tile {
-  color: $almost-black;
+  color: variables.$almost-black;
   text-decoration: none;
   display: flex;
   flex-direction: row;
@@ -212,7 +214,7 @@ a.tile {
 }
 
 a.tile:hover {
-  background: $lighter-blue;
+  background: variables.$lighter-blue;
   border-radius: 0;
 }
 
@@ -255,7 +257,7 @@ a.tile.sub_tile {
   margin-top: 5em;
 
   .grid {
-    color: $grey;
+    color: variables.$grey;
     gap: 1.5em !important;
 
     .tile {
@@ -273,7 +275,7 @@ a.tile.sub_tile {
     }
 
     a {
-      color: $grey;
+      color: variables.$grey;
     }
 
     a .text-center {

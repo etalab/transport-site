@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 .deployment .hero__container {
   min-height: 15em;
   width: 80%;
@@ -86,7 +88,7 @@
 
   .description {
     padding: 2em;
-    background-color: $white;
+    background-color: variables.$white;
     flex-grow: 1;
     position: relative;
 
@@ -136,7 +138,7 @@
     display: flex;
     flex-direction: row;
     margin-top: 1em;
-    background-color: $white;
+    background-color: variables.$white;
     flex-wrap: wrap;
     width: 100%;
 
@@ -194,11 +196,11 @@
 
     .item {
       height: 1.5em;
-      background-color: $blue;
+      background-color: variables.$blue;
       flex-grow: 1;
 
       &.netex {
-        background-color: $grey;
+        background-color: variables.$grey;
       }
     }
   }
@@ -238,6 +240,6 @@
 }
 .proxy-legend {
   text-align: center;
-  color: $dark-grey;
+  color: variables.$dark-grey;
   margin-bottom: 1em;
 }

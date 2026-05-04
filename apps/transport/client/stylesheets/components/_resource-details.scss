@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 #resource-geojson {
   .leaflet-popup-content {
     overflow: auto;
@@ -18,10 +20,10 @@
   column-gap: 10px;
   row-gap: 3px;
   .outdated {
-    color: $red;
+    color: variables.$red;
   }
   .valid-not-for-long {
-    color: $orange;
+    color: variables.$orange;
   }
 }
 
