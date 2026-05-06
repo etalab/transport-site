@@ -7,15 +7,15 @@
 @use '@fortawesome/fontawesome-free/scss/variables' as fa-vars;
 
 @function fa-glyph($name) {
-  $codepoint: map.get(fa-vars.$icons, $name);
-  @if $codepoint == null {
+  @if not map.has-key(fa-vars.$icons, $name) {
     @error "Unknown Font Awesome glyph: #{$name}";
   }
-  @return string.unquote('"#{$codepoint}"');
+  @return string.unquote('"#{map.get(fa-vars.$icons, $name)}"');
 }
 
 .icon {
-  @include fa.fa-icon();
+  @include fa.fa-icon;
+
   margin-right: 0.5em;
 
   &::before {
@@ -46,6 +46,7 @@
 
 .icon--logout {
   --fa: #{fa-glyph("sign-out-alt")};
+
   margin: 0;
 }
 
