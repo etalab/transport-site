@@ -37,7 +37,7 @@ defmodule Unlock.Controller do
 
   Configuration items are strongly typed, such as:
   - `%Unlock.Config.Item.Generic.HTTP{}` for HTTP-provided single GTFS-RT & CSV feeds
-  - `%Unlock.Config.Item.Aggregate{}` for multi-HTTP-sources aggregate (dynamic IRVE feed only)
+  - `%Unlock.Config.Item.DynamicIRVEAggregate{}` for the on-the-fly dynamic IRVE consolidation
   - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
   - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
   - `%Unlock.Config.Item.GBFS{}` for GBFS feeds (with multiple endpoints)
