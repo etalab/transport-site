@@ -37,17 +37,6 @@ defmodule Unlock.Config do
     defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
   end
 
-  defmodule Item.Aggregate do
-    @moduledoc """
-    Intermediate structure for aggregated configured items.
-
-    Feeds (sub-items) are strongly typed
-    """
-    @enforce_keys [:identifier, :feeds]
-
-    defstruct [:identifier, :feeds, :ttl]
-  end
-
   defmodule Item.DynamicIRVEAggregate do
     @moduledoc """
     Intermediate structure for dynamic IRVE aggregated configured items.
