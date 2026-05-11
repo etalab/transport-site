@@ -1,93 +1,53 @@
+// `@extend .fa-X` doesn't reach FA's glyph rules: they're generated in an
+// `@each` (interpolated selectors aren't extendable) and `content` lives
+// under `:is(...)`. We pull codepoints from `$icons` instead.
+@use 'sass:map';
+@use 'sass:string';
+@use '@fortawesome/fontawesome-free/scss/mixins' as fa;
+@use '@fortawesome/fontawesome-free/scss/variables' as fa-vars;
+
+@function fa-glyph($name) {
+  @if not map.has-key(fa-vars.$icons, $name) {
+    @error "Unknown Font Awesome glyph: #{$name}";
+  }
+  @return string.unquote('"#{map.get(fa-vars.$icons, $name)}"');
+}
+
 .icon {
-  @extend .fas !optional;
+  @include fa.fa-icon;
 
   margin-right: 0.5em;
+
+  &::before {
+    content: var(--fa);
+  }
 }
 
-.icon--badge {
-  @extend .fa-id-badge !optional;
-}
-
-.icon--cubes {
-  @extend .fa-cubes !optional;
-}
-
-.icon--download {
-  @extend .fa-download !optional;
-}
-
-.icon--hand-up {
-  @extend .fa-hand-point-up !optional;
-}
-
-.icon--link {
-  @extend .fa-external-link-alt !optional;
-}
-
-.icon--login {
-  @extend .fa-sign-in-alt !optional;
-}
+.icon--badge        { --fa: #{fa-glyph("id-badge")}; }
+.icon--book         { --fa: #{fa-glyph("book")}; }
+.icon--calendar-alt { --fa: #{fa-glyph("calendar-alt")}; }
+.icon--chart-line   { --fa: #{fa-glyph("chart-line")}; }
+.icon--cubes        { --fa: #{fa-glyph("cubes")}; }
+.icon--download     { --fa: #{fa-glyph("download")}; }
+.icon--envelope     { --fa: #{fa-glyph("envelope")}; }
+.icon--file         { --fa: #{fa-glyph("file")}; }
+.icon--hand-up      { --fa: #{fa-glyph("hand-point-up")}; }
+.icon--link         { --fa: #{fa-glyph("external-link-alt")}; }
+.icon--login        { --fa: #{fa-glyph("sign-in-alt")}; }
+.icon--magnifier    { --fa: #{fa-glyph("search")}; }
+.icon--open         { --fa: #{fa-glyph("folder-open")}; }
+.icon--plus         { --fa: #{fa-glyph("plus")}; }
+.icon--reuse        { --fa: #{fa-glyph("mobile-alt")}; }
+.icon--right-arrow  { --fa: #{fa-glyph("long-arrow-alt-right")}; }
+.icon--sync-alt     { --fa: #{fa-glyph("sync-alt")}; }
+.icon--table        { --fa: #{fa-glyph("table")}; }
+.icon--times-circle { --fa: #{fa-glyph("times-circle")}; }
+.icon--user-plus    { --fa: #{fa-glyph("user-plus")}; }
 
 .icon--logout {
-  @extend .fa-sign-out-alt !optional;
+  --fa: #{fa-glyph("sign-out-alt")};
 
   margin: 0;
-}
-
-.icon--open {
-  @extend .fa-folder-open !optional;
-}
-
-.icon--reuse {
-  @extend .fa-mobile-alt !optional;
-}
-
-.icon--user-plus {
-  @extend .fa-user-plus !optional;
-}
-
-.icon--book {
-  @extend .fa-book !optional;
-}
-
-.icon--file {
-  @extend .fa-file !optional;
-}
-
-.icon--envelope {
-  @extend .fa-envelope !optional;
-}
-
-.icon--magnifier {
-  @extend .fa-search !optional;
-}
-
-.icon--times-circle {
-  @extend .fa-times-circle !optional;
-}
-
-.icon--chart-line {
-  @extend .fa-chart-line !optional;
-}
-
-.icon--right-arrow {
-  @extend .fa-long-arrow-alt-right !optional;
-}
-
-.icon--calendar-alt {
-  @extend .fa-calendar-alt !optional;
-}
-
-.icon--plus {
-  @extend .fa-plus !optional;
-}
-
-.icon--sync-alt {
-  @extend .fa-sync-alt !optional;
-}
-
-.icon--table {
-  @extend .fa-table !optional;
 }
 
 .icon--uptime {
