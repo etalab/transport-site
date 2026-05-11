@@ -95,16 +95,6 @@ defmodule Unlock.Config do
       |> convert_yaml_item_to_struct()
     end
 
-    def convert_yaml_item_to_struct(%{"type" => "aggregate"} = item) do
-      %Item.Aggregate{
-        identifier: Map.fetch!(item, "identifier"),
-        # NOTE: ultimately a map (key = identifier) would be better than an array here,
-        # but that will do for now as the number of items is low
-        feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1)),
-        ttl: Map.get(item, "ttl", 10)
-      }
-    end
-
     def convert_yaml_item_to_struct(%{"type" => "dynamic-irve-aggregate"} = item) do
       %Item.DynamicIRVEAggregate{
         identifier: Map.fetch!(item, "identifier"),
