@@ -60,46 +60,6 @@ defmodule Unlock.EnforceTTLTest do
     assert "no_prefix" in Cachex.keys!(cache_name())
   end
 
-  test "supports aggregate sub-keys" do
-    ttl_config_value = 10
-    slug = "some-slug"
-
-    setup_proxy_config(%{
-      "aggregate" => %Unlock.Config.Item.Aggregate{
-        identifier: slug,
-        ttl: ttl_config_value,
-        feeds: [
-          %Unlock.Config.Item.Generic.HTTP{
-            identifier: "first-remote",
-            target_url: "http://localhost:1234",
-            ttl: ttl_config_value
-          },
-          %Unlock.Config.Item.Generic.HTTP{
-            identifier: "second-remote",
-            target_url: "http://localhost:1234",
-            ttl: ttl_config_value
-          }
-        ]
-      }
-    })
-
-    assert ttl_config_value < Unlock.Shared.default_cache_expiration_seconds()
-
-    # create a cache entry without cachex TTL to reproduce the bug
-    # this case uses composite keys (for aggregate support)
-    cache_put(cache_key("aggregate:first-remote"), nil)
-    # create a non-bogus entry with proper Cachex TTL
-    cache_put(cache_key("aggregate:second-remote"), :timer.seconds(5))
-
-    assert ["resource:aggregate:first-remote", "resource:aggregate:second-remote"] == cache_keys()
-    Unlock.EnforceTTL.handle_info(:work, %{})
-
-    # bogus cache key should have been removed
-    refute "resource:aggregate:first-remote" in cache_keys()
-    # the other one should remain
-    assert ["resource:aggregate:second-remote"] == cache_keys()
-  end
-
   test "supports GBFS" do
     ttl_config_value = 10
     slug = "some-slug"

@@ -57,7 +57,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
         target_url: "http://localhost/some-siri-resource",
         requestor_ref: "secret"
       },
-      aggregate_slug => %Unlock.Config.Item.Aggregate{
+      aggregate_slug => %Unlock.Config.Item.DynamicIRVEAggregate{
         identifier: aggregate_slug,
         feeds: []
       },
@@ -107,7 +107,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     # NOTE: alphabetical slug order
     assert [
              %{
-               "Type" => "Aggregate",
+               "Type" => "DynamicIRVEAggregate",
                "Identifiant" => "aggregate-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "N/C"
@@ -163,7 +163,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
              {"select", [{"id", "backoffice_search_container_type"}, {"name", "type"}],
               [
                 {"option", [{"selected", ""}, {"value", ""}], ["Tout"]},
-                {"option", [{"value", "Aggregate"}], ["Aggregate"]},
+                {"option", [{"value", "DynamicIRVEAggregate"}], ["DynamicIRVEAggregate"]},
                 {"option", [{"value", "HTTP"}], ["HTTP"]},
                 {"option", [{"value", "S3"}], ["S3"]},
                 {"option", [{"value", "SIRI"}], ["SIRI"]}
