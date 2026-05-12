@@ -75,10 +75,18 @@ defmodule Transport.GBFSMetadata do
   end
 
   @doc """
+  Detects the operator of a GBFS feed via a URL → name mapping (apps/transport/priv/gbfs_operators.csv).
+
+  The result is used to pre-fill the organization of imported contacts, to detect feeds
+  whose operator is not mapped (team notification), and is persisted alongside validation
+  metadata for analytical use (e.g. Metabase).
+
   iex> operator("https://api.cyclocity.fr/contracts/nantes/gbfs/gbfs.json")
   "JC Decaux"
   iex> operator("https://example.com/gbfs.json")
   "Example"
+  iex> operator("https://services.rideyego.com/gbfs/2-2/paris/fr/gbfs")
+  "Yego"
   iex> operator("https://404.fr")
   nil
   """
