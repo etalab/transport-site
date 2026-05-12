@@ -79,6 +79,8 @@ defmodule Transport.GBFSMetadata do
   "JC Decaux"
   iex> operator("https://example.com/gbfs.json")
   "Example"
+  iex> operator("https://services.rideyego.com/gbfs/2-2/paris/fr/gbfs")
+  "Yego"
   iex> operator("https://404.fr")
   nil
   """
