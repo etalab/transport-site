@@ -80,8 +80,8 @@ defmodule Transport.DataFrame.Validation.Primitives do
       iex> email?(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
       [true, false]
 
-      iex> email?(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
-      [true, false]
+      iex> email?(build_series(["test@foo.bar", "hello@fool", "test@foo.bar>"])) |> Series.to_list()
+      [true, false, false]
   """
   def email?(series) do
     Series.re_contains(series, @simple_email_pattern)
