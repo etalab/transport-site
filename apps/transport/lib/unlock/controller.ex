@@ -37,7 +37,7 @@ defmodule Unlock.Controller do
 
   Configuration items are strongly typed, such as:
   - `%Unlock.Config.Item.Generic.HTTP{}` for HTTP-provided single GTFS-RT & CSV feeds
-  - `%Unlock.Config.Item.Aggregate{}` for multi-HTTP-sources aggregate (dynamic IRVE feed only)
+  - `%Unlock.Config.Item.DynamicIRVEAggregate{}` for the on-the-fly dynamic IRVE consolidation
   - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
   - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
   - `%Unlock.Config.Item.GBFS{}` for GBFS feeds (with multiple endpoints)
@@ -157,30 +157,9 @@ defmodule Unlock.Controller do
     end)
   end
 
-  import Unlock.Params, only: [to_boolean: 1, to_nil_or_integer: 1]
-
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.DynamicIRVEAggregate{} = item) do
     Unlock.Telemetry.trace_request(item.identifier, :external)
     Unlock.DynamicIRVE.Controller.serve(conn, item)
-  end
-
-  # `process_resource` variant for aggregated CSV item (dynamic IRVE consolidation).
-  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.Aggregate{} = item) do
-    Unlock.Telemetry.trace_request(item.identifier, :external)
-    # NOTE: required for tests to work, and doesn't hurt in production (idempotent afaik)
-    conn = conn |> Plug.Conn.fetch_query_params()
-
-    options = [
-      limit_per_source: conn.query_params["limit_per_source"] |> to_nil_or_integer(),
-      include_origin: conn.query_params["include_origin"] |> to_boolean()
-    ]
-
-    body_response = Unlock.AggregateProcessor.process_resource(item, options)
-    filename = "#{item.identifier}-#{DateTime.utc_now() |> DateTime.to_iso8601()}.csv"
-
-    conn
-    |> put_resp_header("content-disposition", "attachment; filename=#{filename}")
-    |> send_resp(200, body_response)
   end
 
   # `process_resource` variant for `Item.S3` items.

@@ -137,13 +137,13 @@ defmodule Unlock.ConfigFetcherTest do
     end
   end
 
-  describe "for aggregated items" do
+  describe "for dynamic IRVE aggregated items" do
     test "it parses basic information" do
       yaml_config = """
       ---
       feeds:
-        - identifier: "consolidation"
-          type: "aggregate"
+        - identifier: "dynamic-irve-consolidation"
+          type: "dynamic-irve-aggregate"
           feeds:
             - identifier: abdcd
               slug: foo
@@ -155,9 +155,8 @@ defmodule Unlock.ConfigFetcherTest do
       """
 
       assert parse_config(yaml_config) == [
-               %Unlock.Config.Item.Aggregate{
-                 identifier: "consolidation",
-                 ttl: 10,
+               %Unlock.Config.Item.DynamicIRVEAggregate{
+                 identifier: "dynamic-irve-consolidation",
                  feeds: [
                    %Unlock.Config.Item.Generic.HTTP{
                      identifier: "abdcd",
