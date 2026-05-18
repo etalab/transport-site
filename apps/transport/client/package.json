@@ -62,6 +62,8 @@
     "webpack-merge": "^6.0.1"
   },
   "resolutions": {
-    "kind-of": "^6.0.3"
+    "kind-of": "^6.0.3",
+    "fast-uri": "^3.1.2",
+    "@babel/plugin-transform-modules-systemjs": "^7.29.4"
   }
 }
