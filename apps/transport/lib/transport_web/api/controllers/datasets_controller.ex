@@ -320,7 +320,19 @@ defmodule TransportWeb.API.DatasetController do
     }
     |> Enum.filter(fn {_, v} -> !is_nil(v) end)
     |> Enum.into(%{})
+    |> maybe_add_requestor_ref(resource)
   end
+
+  # NOTE: requestor_ref is currently stored as a dataset-level custom_tag,
+  # so all SIRI resources of a dataset share the same value.
+  defp maybe_add_requestor_ref(payload, %Resource{format: "SIRI"} = resource) do
+    case DB.Resource.requestor_ref(resource) do
+      nil -> payload
+      ref -> Map.put(payload, "requestor_ref", ref)
+    end
+  end
+
+  defp maybe_add_requestor_ref(payload, %Resource{}), do: payload
 
   defp use_download_url?(%DB.Resource{} = resource) do
     DB.Resource.pan_resource?(resource) or DB.Resource.served_by_proxy?(resource) or
