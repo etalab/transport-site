@@ -526,6 +526,10 @@ defmodule TransportWeb.API.Schemas do
         schema_version: %Schema{
           type: :string,
           description: "Version of the data schema followed by the resource"
+        },
+        requestor_ref: %Schema{
+          type: :string,
+          description: "SIRI requestor_ref to use when querying this feed (SIRI resources only)"
         }
       }
 
@@ -582,6 +586,7 @@ defmodule TransportWeb.API.Schemas do
         :metadata,
         :modes,
         :original_resource_url,
+        :requestor_ref,
         :schema_name,
         :schema_version
       ]

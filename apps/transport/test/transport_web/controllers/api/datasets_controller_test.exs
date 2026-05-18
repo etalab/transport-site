@@ -413,6 +413,16 @@ defmodule TransportWeb.API.DatasetControllerTest do
     assert_schema(json, "DatasetsResponse", TransportWeb.API.Spec.spec())
   end
 
+  test "GET /api/datasets exposes SIRI requestor_ref when the dataset carries the tag", %{conn: conn} do
+    insert(:resource,
+      dataset: insert(:dataset, custom_tags: ["requestor_ref:foo"]),
+      format: "SIRI"
+    )
+
+    assert [%{"resources" => [%{"format" => "SIRI", "requestor_ref" => "foo"}]}] =
+             conn |> get(Helpers.dataset_path(conn, :datasets)) |> json_response(200)
+  end
+
   test "GET /api/datasets without the experimental tagged datasets", %{conn: conn} do
     insert(:resource,
       dataset:
