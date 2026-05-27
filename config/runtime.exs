@@ -53,6 +53,12 @@ config :transport,
     System.get_env("GBFS_VALIDATOR_URL", "https://gbfs-validator.netlify.app/.netlify/functions/validator"),
   gbfs_validator_website: System.get_env("GBFS_VALIDATOR_WEBSITE", "https://gbfs-validator.netlify.app")
 
+# In :test, gtfs_validator_url is set in test.exs.
+if config_env() != :test do
+  config :transport,
+    gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL", "https://validation.transport.data.gouv.fr")
+end
+
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
