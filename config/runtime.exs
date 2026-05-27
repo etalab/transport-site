@@ -46,6 +46,13 @@ config :transport,
   dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30)),
   dynamic_irve_initial_sync: config_env() != :test
 
+config :transport,
+  # This endpoint is not really public but we can use it for now
+  # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
+  gbfs_validator_url:
+    System.get_env("GBFS_VALIDATOR_URL", "https://gbfs-validator.netlify.app/.netlify/functions/validator"),
+  gbfs_validator_website: System.get_env("GBFS_VALIDATOR_WEBSITE", "https://gbfs-validator.netlify.app")
+
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
