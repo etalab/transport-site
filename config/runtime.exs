@@ -236,6 +236,12 @@ if config_env() == :dev do
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
 
+if config_env() == :dev do
+  config :transport, DB.Repo,
+    url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo",
+    pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer()
+end
+
 if config_env() == :prod do
   pool_size =
     case app_env do

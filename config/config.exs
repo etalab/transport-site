@@ -232,10 +232,12 @@ config :appsignal, :config,
     "Unlock.Controller#fetch"
   ]
 
+config :transport, DB.Repo, types: DB.PostgrexTypes
+config :transport, ecto_repos: [DB.Repo]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
-import_config "database.exs"
 import_config "gtfs_validator.exs"
 import_config "gbfs_validator.exs"
 import_config "mail.exs"
