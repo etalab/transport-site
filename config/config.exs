@@ -77,6 +77,8 @@ config :phoenix, :template_engines,
 
 config :phoenix_markdown, :server_tags, :all
 
+config :transport, gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPValidatorClient
+
 config :transport,
   cache_impl: Transport.Cache.Cachex,
   ex_aws_impl: ExAws,
@@ -238,8 +240,6 @@ config :transport, ecto_repos: [DB.Repo]
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "datagouvfr.exs"
-import_config "gtfs_validator.exs"
-import_config "gbfs_validator.exs"
 import_config "mail.exs"
 import_config "data_sharing_pilot.exs"
 import_config "#{config_env()}.exs"
