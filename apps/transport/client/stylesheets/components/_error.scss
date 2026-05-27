@@ -1,3 +1,5 @@
+@use "../globals/mixins";
+
 .error {
   margin-top: 48px;
   text-align: center;
@@ -18,13 +20,13 @@
   min-height: 90vw;
 }
 
-@include media-tablet-up {
+@include mixins.media-tablet-up {
   .error__background {
     min-height: 45vw;
   }
 }
 
-@include media-desktop-up {
+@include mixins.media-desktop-up {
   .error__background {
     min-height: 25vw;
   }

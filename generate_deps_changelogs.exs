@@ -10,7 +10,7 @@
 # and automatically edit the PR description with this.
 #
 
-Mix.install([:jason, :req])
+Mix.install([:jason])
 
 defmodule Scanner do
   def scan(mix_lock_content) do
@@ -71,62 +71,93 @@ end)
 defmodule YarnScanner do
   @path "apps/transport/client"
 
-  def at(:local),
-    do: parse(File.read!("#{@path}/yarn.lock"), File.read!("#{@path}/package.json"))
+  # name => sorted unique list of resolved versions (a name may appear at
+  # several versions, since we bundle multiple versions at times).
+  def versions(:local), do: parse(File.read!("#{@path}/yarn.lock"))
 
-  def at(ref) do
-    {pj, 0} = System.cmd("git", ["show", "#{ref}:#{@path}/package.json"])
+  def versions(ref) do
     {yl, 0} = System.cmd("git", ["show", "#{ref}:#{@path}/yarn.lock"])
-    parse(yl, pj)
+    parse(yl)
   end
 
+  # Names declared top-level in a ref's package.json (deps / devDeps /
+  # resolutions). Used only to classify a dep into the top-level vs the
+  # transitive section — not to filter anything out.
+  def direct(:local), do: parse_direct(File.read!("#{@path}/package.json"))
+
+  def direct(ref) do
+    {pj, 0} = System.cmd("git", ["show", "#{ref}:#{@path}/package.json"])
+    parse_direct(pj)
+  end
+
+  defp parse_direct(json) do
+    json
+    |> Jason.decode!()
+    |> Map.take(~w(dependencies devDependencies resolutions))
+    |> Map.values()
+    |> Enum.flat_map(&Map.keys/1)
+    |> MapSet.new()
+  end
+
+  # npmdiff.dev diffs the published tarballs (the npm equivalent of
+  # diff.hex.pm). Scoped names need the scope slash percent-encoded.
   def diff_url(name, v1, v2) do
-    with {:ok, %{status: 200, body: body}} <- Req.get("https://registry.npmjs.org/#{name}"),
-         url <- get_in(body, ["repository", "url"]) || "",
-         [_, owner, repo] <- Regex.run(~r{github\.com[/:]([^/]+)/([^/.]+)}, url) do
-      "https://github.com/#{owner}/#{repo}/compare/v#{v1}...v#{v2}"
-    else
-      _ -> "https://www.npmjs.com/package/#{name}?activeTab=versions"
-    end
+    "https://npmdiff.dev/#{String.replace(name, "/", "%2F")}/#{v1}/#{v2}/"
   end
 
-  defp parse(lock, json) do
-    direct =
-      json
-      |> Jason.decode!()
-      |> Map.take(~w(dependencies devDependencies resolutions))
-      |> Map.values()
-      |> Enum.flat_map(&Map.keys/1)
-      |> MapSet.new()
-
+  defp parse(lock) do
     lock
     |> String.split("\n\n")
     |> Enum.reduce(%{}, fn block, acc ->
       with [_, name] <- Regex.run(~r/^"?((?:@[^\/"]+\/)?[^@"\s]+)@/m, block),
-           true <- MapSet.member?(direct, name),
            [_, ver] <- Regex.run(~r/version "([^"]+)"/, block) do
-        Map.put(acc, name, ver)
+        Map.update(acc, name, [ver], &Enum.uniq([ver | &1]))
       else
         _ -> acc
       end
     end)
+    |> Map.new(fn {name, vers} -> {name, Enum.sort(vers)} end)
   end
 end
 
-IO.puts "\n### JS dependencies (top-level only)"
-IO.puts "(may include duplicates, since we bundle multiple versions at times)\n"
-yarn_master = YarnScanner.at("master")
-yarn_current = YarnScanner.at(:local)
+yarn_master = YarnScanner.versions("master")
+yarn_current = YarnScanner.versions(:local)
+# Union of both refs so a name dropped from resolutions on one side is still
+# classified the same way.
+direct = MapSet.union(YarnScanner.direct("master"), YarnScanner.direct(:local))
 
-(Map.keys(yarn_master) ++ Map.keys(yarn_current))
-|> Enum.uniq()
-|> Enum.sort()
-|> Enum.each(fn name ->
-  case {yarn_master[name], yarn_current[name]} do
-    {v1, v2} when not is_nil(v1) and not is_nil(v2) and v1 != v2 ->
-      IO.puts "* #{YarnScanner.diff_url(name, v1, v2)}"
-    {nil, v2} when not is_nil(v2) -> IO.puts "* ADDED: #{name}@#{v2}"
-    {v1, nil} when not is_nil(v1) -> IO.puts "* REMOVED: #{name}@#{v1}"
-    _ -> :ok
+# Same treatment for everyone; only the section a line lands in differs.
+render = fn name ->
+  case {Map.get(yarn_master, name), Map.get(yarn_current, name)} do
+    {same, same} ->
+      nil
+
+    {nil, news} ->
+      "* ADDED: #{name}@#{Enum.join(news, ", ")}"
+
+    {olds, nil} ->
+      "* REMOVED: #{name}@#{Enum.join(olds, ", ")}"
+
+    {[old], [new]} ->
+      "* #{YarnScanner.diff_url(name, old, new)}"
+
+    {olds, news} ->
+      # Multi-version (bundled duplicates): no single tarball diff applies.
+      "* #{name}: #{Enum.join(olds, ", ")} → #{Enum.join(news, ", ")}"
   end
-end)
+end
+
+{top_level, lock_only} =
+  (Map.keys(yarn_master) ++ Map.keys(yarn_current))
+  |> Enum.uniq()
+  |> Enum.sort()
+  |> Enum.map(&{&1, render.(&1)})
+  |> Enum.reject(fn {_name, line} -> is_nil(line) end)
+  |> Enum.split_with(fn {name, _line} -> MapSet.member?(direct, name) end)
+
+IO.puts "\n### JS dependencies — top-level (package.json: dependencies / devDependencies / resolutions)\n"
+Enum.each(top_level, fn {_name, line} -> IO.puts(line) end)
+
+IO.puts "\n### JS dependencies — transitive (yarn.lock only)"
+IO.puts "(may include duplicates, since we bundle multiple versions at times)\n"
+Enum.each(lock_only, fn {_name, line} -> IO.puts(line) end)

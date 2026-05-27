@@ -175,7 +175,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp extract_config(proxy_base_url, %module{} = resource)
-       when module in [Unlock.Config.Item.Aggregate, Unlock.Config.Item.DynamicIRVEAggregate] do
+       when module == Unlock.Config.Item.DynamicIRVEAggregate do
     %{
       unique_slug: resource.identifier,
       proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),

@@ -1,3 +1,5 @@
+@use "../globals/variables";
+
 .feedback-selector {
     input {
         display: none;
@@ -16,7 +18,7 @@
 
     input:checked + label {
         filter: none;
-        color: $primary;
+        color: variables.$primary;
     }
 
     .feedback-emojis {

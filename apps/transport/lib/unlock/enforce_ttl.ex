@@ -68,20 +68,9 @@ defmodule Unlock.EnforceTTL do
     Map.fetch!(config, identifier)
   end
 
-  # "aggregate" sub-items (`resource:identifier:sub_identifier`)
   # "gbfs" sub feeds (`resource:identifier:gbfs.json`)
-  def proxy_config_item(config, [identifier, sub_identifier]) do
-    case Map.get(config, identifier) do
-      %Unlock.Config.Item.Aggregate{} ->
-        config
-        |> Map.fetch!(identifier)
-        |> Map.fetch!(:feeds)
-        |> Enum.filter(&(&1.identifier == sub_identifier))
-        |> hd()
-
-      %Unlock.Config.Item.GBFS{} ->
-        config |> Map.fetch!(identifier)
-    end
+  def proxy_config_item(config, [identifier, _sub_identifier]) do
+    %Unlock.Config.Item.GBFS{} = Map.fetch!(config, identifier)
   end
 
   defp schedule_work do

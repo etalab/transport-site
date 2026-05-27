@@ -61,7 +61,7 @@ defmodule Transport.DataFrame.Validation.Primitives do
     Series.re_contains(series, pattern)
   end
 
-  @simple_email_pattern ~S/(?i)\A[^@\s]+@[^@\s]+\.[^@\s]+\z/
+  @simple_email_pattern ~S/(?i)\A[^@\s]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\z/
 
   @doc """
   Get the simple email validation pattern.
@@ -80,8 +80,8 @@ defmodule Transport.DataFrame.Validation.Primitives do
       iex> email?(build_series(["hello@example.com", "invalid"])) |> Series.to_list()
       [true, false]
 
-      iex> email?(build_series(["test@foo.bar", "hello@fool"])) |> Series.to_list()
-      [true, false]
+      iex> email?(build_series(["test@foo.bar", "hello@fool", "test@foo.bar>"])) |> Series.to_list()
+      [true, false, false]
   """
   def email?(series) do
     Series.re_contains(series, @simple_email_pattern)
