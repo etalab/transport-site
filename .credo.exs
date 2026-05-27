@@ -27,8 +27,6 @@
           ~r"/deps/",
           ~r"/apps/transport/client/",
           "apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex",
-          # The allowed location for env reads — our custom check skips it anyway.
-          "config/runtime.exs",
           # Template only — copied by devs to dev.secret.exs (gitignored), never loaded at runtime.
           "config/dev.secret.template.exs"
         ]
