@@ -1,6 +1,6 @@
 defmodule Credo.Check.Custom.NoSystemEnvAtCompileTime do
   @moduledoc "Make sure to keep an env-free compilation (for GitHub releases)."
-  use Credo.Check, base_priority: :high, category: :warning
+  use Credo.Check, base_priority: :normal, category: :refactor
 
   @forbidden ~w(get_env fetch_env fetch_env!)a
 
