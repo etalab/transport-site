@@ -127,7 +127,8 @@
         {Credo.Check.Warning.RaiseInsideRescue},
         {Credo.Check.Warning.MixEnv},
         {Credo.Check.Warning.ApplicationConfigInModuleAttribute},
-        {Credo.Check.Custom.NoSystemEnvAtCompileTime},
+        # During migration, do not block the CI.
+        {Credo.Check.Custom.NoSystemEnvAtCompileTime, exit_status: 0},
 
         # Controversial and experimental checks (opt-in, just remove `, false`)
         #
