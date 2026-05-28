@@ -14,7 +14,7 @@ defmodule Unlock.Controller do
 
   use Phoenix.Controller, formats: [html: "View", json: "View"]
   require Logger
-  import Unlock.GunzipTools
+  import Unlock.GunzipTools, only: [lowercase_headers: 1]
 
   @doc """
   A simple index "page", useful to verify that the proxy is up, since it is served
@@ -39,7 +39,6 @@ defmodule Unlock.Controller do
   - `%Unlock.Config.Item.Generic.HTTP{}` for HTTP-provided single GTFS-RT & CSV feeds
   - `%Unlock.Config.Item.DynamicIRVEAggregate{}` for the on-the-fly dynamic IRVE consolidation
   - `%Unlock.Config.Item.S3{}` for internal-S3-backed single file feeds (CSV or anything really)
-  - `%Unlock.Config.Item.SIRI{}` for SIRI proxying (experimental)
   - `%Unlock.Config.Item.GBFS{}` for GBFS feeds (with multiple endpoints)
 
   Once the item is found in configuration, different `process_resource` pattern-matching variants
@@ -203,41 +202,6 @@ defmodule Unlock.Controller do
 
   defp process_resource(conn, %Unlock.Config.Item.Generic.HTTP{}), do: send_not_allowed(conn)
 
-  # NOTE: this code is designed for private use for now. I have tracked
-  # what is required or useful for public opening later here:
-  # https://github.com/etalab/transport-site/issues/2476
-  #
-  # SIRI support is experimental. For now we are encouraging instead SIRI provider to
-  # get their game up and improve their ops & software, so that they can directly handle
-  # SIRI loads without the proxy.
-  #
-  # For SIRI, only `POST` is allowed since this is the protocol.
-  #
-  # The code analyses the incoming XML payload, & replace the `requestor_ref` (used sometimes
-  # as an API key) transparently with the one we have configured.
-  #
-  defp process_resource(%Plug.Conn{method: "POST"} = conn, %Unlock.Config.Item.SIRI{} = item) do
-    {:ok, body, conn} = Plug.Conn.read_body(conn, length: 1_000_000)
-
-    parsed = Unlock.SIRI.parse_incoming(body)
-
-    {modified_xml, external_requestor_refs} =
-      Unlock.SIRI.RequestorRefReplacer.replace_requestor_ref(parsed, item.requestor_ref)
-
-    # NOTE: here we assert both that the requestor ref is what is expected, but also that it
-    # is met once only. I am not deduping them at the moment on purpose, maybe we'll do that
-    # later based on experience.
-    if external_requestor_refs == [Application.fetch_env!(:transport, :unlock_siri_public_requestor_ref)] do
-      handle_authorized_siri_call(conn, item, modified_xml)
-    else
-      send_resp(conn, 403, "Forbidden")
-    end
-  end
-
-  # Forbid `GET` calls for SIRI, explicitely, since this is not the way to issue a SIRI call.
-  defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.SIRI{}),
-    do: send_not_allowed(conn)
-
   defp process_resource(%Plug.Conn{method: "GET"} = conn, %Unlock.Config.Item.GBFS{endpoint: nil}) do
     conn |> send_resp(404, "Not Found")
   end
@@ -275,30 +239,6 @@ defmodule Unlock.Controller do
     # if the content-type is incorrect, but is better than nothing.
     |> put_resp_header("content-disposition", "attachment")
     |> override_resp_headers_if_configured(item)
-  end
-
-  @spec handle_authorized_siri_call(Plug.Conn.t(), Unlock.Config.Item.SIRI.t(), Saxy.XML.element()) :: Plug.Conn.t()
-  # The SIRI query is serialized into iodata, then a `POST` query is issued.
-  #
-  # On completion, we unzip if needed to smooth out implementations, filter response headers,
-  # and send back the answer to the client.
-  defp handle_authorized_siri_call(conn, %Unlock.Config.Item.SIRI{} = item, xml) do
-    body = Saxy.encode_to_iodata!(xml, version: "1.0")
-
-    response = Unlock.HTTP.Client.impl().post!(item.target_url, item.request_headers, body)
-
-    headers = response.headers |> lowercase_headers()
-
-    # NOTE: for now, we unzip systematically. This will make it easier
-    # to analyse payloads & later remove sensitive data, even if we
-    # re-zip afterwards.
-    body = maybe_gunzip(response.body, headers)
-
-    headers
-    |> filter_response_headers()
-    |> Enum.reduce(conn, fn {h, v}, c -> put_resp_header(c, h, v) end)
-    # No content-disposition as attachment for now
-    |> send_resp(response.status, body)
   end
 
   # A wrapper grouping reused logic for two cases:
