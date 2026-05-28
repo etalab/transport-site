@@ -27,16 +27,6 @@ defmodule Unlock.Config do
     ]
   end
 
-  defmodule Item.SIRI do
-    @moduledoc """
-    Intermediate structure for SIRI configured items.
-    """
-    @enforce_keys [:identifier, :target_url, :requestor_ref]
-
-    @type t :: %__MODULE__{identifier: binary(), target_url: binary(), requestor_ref: binary(), request_headers: list()}
-    defstruct [:identifier, :target_url, :requestor_ref, request_headers: []]
-  end
-
   defmodule Item.DynamicIRVEAggregate do
     @moduledoc """
     Intermediate structure for dynamic IRVE aggregated configured items.
@@ -99,15 +89,6 @@ defmodule Unlock.Config do
       %Item.DynamicIRVEAggregate{
         identifier: Map.fetch!(item, "identifier"),
         feeds: item |> Map.fetch!("feeds") |> Enum.map(&convert_aggregate_sub_item(&1))
-      }
-    end
-
-    def convert_yaml_item_to_struct(%{"type" => "siri"} = item) do
-      %Item.SIRI{
-        identifier: Map.fetch!(item, "identifier"),
-        target_url: Map.fetch!(item, "target_url"),
-        requestor_ref: Map.fetch!(item, "requestor_ref"),
-        request_headers: parse_config_http_headers(Map.get(item, "request_headers", []))
       }
     end
 
