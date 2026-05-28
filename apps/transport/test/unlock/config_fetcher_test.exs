@@ -116,27 +116,6 @@ defmodule Unlock.ConfigFetcherTest do
     end
   end)
 
-  describe "for SIRI items" do
-    test "it parses basic information" do
-      yaml_config = """
-      ---
-      feeds:
-        - identifier: "httpbin-get"
-          type: "siri"
-          target_url: "https://httpbin.org/get"
-          requestor_ref: the-ref
-      """
-
-      assert parse_config(yaml_config) == [
-               %Unlock.Config.Item.SIRI{
-                 identifier: "httpbin-get",
-                 target_url: "https://httpbin.org/get",
-                 requestor_ref: "the-ref"
-               }
-             ]
-    end
-  end
-
   describe "for dynamic IRVE aggregated items" do
     test "it parses basic information" do
       yaml_config = """

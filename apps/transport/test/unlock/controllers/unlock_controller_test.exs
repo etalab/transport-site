@@ -2,7 +2,6 @@ defmodule Unlock.ControllerTest do
   # async false until we stub Cachex calls or use per-test cache name
   # and also due to our current global mox use, and capture_log
   use TransportWeb.ConnCase, async: false
-  import Plug.Conn
 
   import ExUnit.CaptureLog
 
@@ -15,9 +14,6 @@ defmodule Unlock.ControllerTest do
     Cachex.clear(Unlock.Shared.cache_name())
     setup_telemetry_handler()
   end
-
-  @the_good_requestor_ref "transport-data-gouv-fr"
-  @a_bad_requestor_ref "I-can-haz-icecream"
 
   test "GET /" do
     output =
@@ -49,154 +45,6 @@ defmodule Unlock.ControllerTest do
 
     Unlock.HTTP.Client.Mock
     |> expect(:get!, responses |> Map.keys() |> length(), response_function)
-  end
-
-  describe "SIRI item support" do
-    test "denies GET query" do
-      slug = "an-existing-identifier"
-
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.SIRI{
-          identifier: slug,
-          target_url: "http://localhost/some-remote-resource",
-          requestor_ref: "the-secret-ref",
-          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
-        }
-      })
-
-      resp =
-        proxy_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> get("/resource/#{slug}", "Test")
-
-      assert resp.status == 405
-    end
-
-    test "forwards POST query to the remote server" do
-      slug = "an-existing-identifier"
-
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.SIRI{
-          identifier: slug,
-          target_url: target_url = "http://localhost/some-remote-resource",
-          requestor_ref: target_requestor_ref = "the-secret-ref",
-          request_headers: configured_request_headers = [{"Content-Type", "text/xml; charset=utf-8"}]
-        }
-      })
-
-      timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-      incoming_requestor_ref = @the_good_requestor_ref
-      message_id = "Test::Message::#{Ecto.UUID.generate()}"
-      stop_ref = "SomeStopRef"
-
-      incoming_query =
-        SIRIQueries.siri_query_from_builder(
-          timestamp,
-          incoming_requestor_ref,
-          message_id,
-          stop_ref
-        )
-
-      # we simulate an incoming payload where the caller did not provide a prolog, to verify
-      # later that we always add it with explicit version ourselves (see note below)
-      refute incoming_query |> String.contains?("<?xml")
-
-      expected_forwarded_response_headers = [
-        {"content-type", "application/soap+xml"},
-        {"content-length", "7350"},
-        {"date", "Thu, 10 Jun 2021 19:45:14 GMT"}
-      ]
-
-      expect(Unlock.HTTP.Client.Mock, :post!, fn remote_url, headers, body_sent_to_remote_server ->
-        assert remote_url == target_url
-        assert headers == configured_request_headers
-
-        # We have decided to always add the prolog with explicit version
-        # when forwarding to the remote server.
-        # See https://github.com/etalab/transport-site/pull/2459#discussion_r925613234 for in-depth discussion.
-        body_sent_to_remote_server = body_sent_to_remote_server |> IO.iodata_to_binary()
-
-        assert body_sent_to_remote_server |> String.contains?(~s(<?xml version="1.0"))
-
-        assert body_sent_to_remote_server ==
-                 SIRIQueries.siri_query_from_builder(
-                   timestamp,
-                   # requestor_ref must have been changed from the incoming one
-                   target_requestor_ref,
-                   message_id,
-                   stop_ref,
-                   # prolog must be there with explicit version
-                   version: "1.0"
-                 )
-
-        %{
-          body: "<Everything></Everything>" |> :zlib.gzip(),
-          headers:
-            expected_forwarded_response_headers ++
-              [
-                # some headers we do not want to forward to the client
-                {"x-amzn-request-id", "11111111-2222-3333-4444-f4c5846f0a85"},
-                {"x-cache", "Miss from cloudfront"},
-                # NOTE: testing the edge case where the response is gzipped ;
-                # the header should be interpreted and the response decompressed
-                {"Content-Encoding", "gzip"}
-              ],
-          status: 200
-        }
-      end)
-
-      resp =
-        proxy_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/an-existing-identifier", incoming_query)
-
-      assert resp.status == 200
-      # unzipped for now
-      assert resp.resp_body == "<Everything></Everything>"
-
-      remaining_headers =
-        resp.resp_headers
-        |> Enum.reject(fn {h, _v} -> Enum.member?(existing_proxy_headers(), h) end)
-
-      assert remaining_headers == expected_forwarded_response_headers
-    end
-
-    test "forbids query when incorrect input requestor ref is provided" do
-      slug = "an-existing-identifier"
-
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.SIRI{
-          identifier: slug,
-          target_url: "http://localhost/some-remote-resource",
-          requestor_ref: "the-secret-ref",
-          request_headers: [{"Content-Type", "text/xml; charset=utf-8"}]
-        }
-      })
-
-      timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
-      incoming_requestor_ref = @a_bad_requestor_ref
-      message_id = "Test::Message::#{Ecto.UUID.generate()}"
-      stop_ref = "SomeStopRef"
-
-      query =
-        SIRIQueries.siri_query_from_builder(
-          timestamp,
-          incoming_requestor_ref,
-          message_id,
-          stop_ref
-        )
-
-      resp =
-        proxy_conn()
-        # NOTE: required due to plug testing, not by the actual server
-        |> put_req_header("content-type", "application/soap+xml")
-        |> post("/resource/an-existing-identifier", query)
-
-      assert resp.status == 403
-      assert resp.resp_body == "Forbidden"
-    end
   end
 
   describe "GTFS-RT item support" do

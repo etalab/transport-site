@@ -164,16 +164,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     }
   end
 
-  defp extract_config(proxy_base_url, %Unlock.Config.Item.SIRI{} = resource) do
-    %{
-      unique_slug: resource.identifier,
-      proxy_url: Transport.Proxy.resource_url(proxy_base_url, resource.identifier),
-      original_url: resource.target_url,
-      ttl: nil,
-      type: "SIRI"
-    }
-  end
-
   defp extract_config(proxy_base_url, %module{} = resource)
        when module == Unlock.Config.Item.DynamicIRVEAggregate do
     %{

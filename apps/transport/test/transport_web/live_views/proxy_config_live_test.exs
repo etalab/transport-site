@@ -15,7 +15,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     end
 
     test "returns zeros when no items have cache_size_bytes" do
-      config = [%{type: "HTTP"}, %{type: "SIRI"}]
+      config = [%{type: "HTTP"}, %{type: "GBFS"}]
       assert {"0 B", "0 B"} = ProxyConfigLive.total_cache_sizes(config)
     end
 
@@ -44,18 +44,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   setup :verify_on_exit!
 
-  def setup_proxy_config(slug, siri_slug, aggregate_slug, s3_slug) do
+  def setup_proxy_config(slug, aggregate_slug, s3_slug) do
     config = %{
       slug => %Unlock.Config.Item.Generic.HTTP{
         identifier: slug,
         target_url: "http://localhost/some-remote-resource",
         ttl: 10,
         caching: "disk"
-      },
-      siri_slug => %Unlock.Config.Item.SIRI{
-        identifier: siri_slug,
-        target_url: "http://localhost/some-siri-resource",
-        requestor_ref: "secret"
       },
       aggregate_slug => %Unlock.Config.Item.DynamicIRVEAggregate{
         identifier: aggregate_slug,
@@ -91,10 +86,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
 
   test "disconnected and connected mount refresh stats", %{conn: conn} do
     item_id = "gtfs-rt-slug"
-    siri_item_id = "siri-slug"
     aggregate_item_id = "aggregate-slug"
     s3_item_id = "s3-slug"
-    setup_proxy_config(item_id, siri_item_id, aggregate_item_id, s3_item_id)
+    setup_proxy_config(item_id, aggregate_item_id, s3_item_id)
 
     add_events(item_id)
 
@@ -123,11 +117,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Identifiant" => "s3-slug",
                "Req ext 7j" => "0",
                "Req int 7j" => "0"
-             },
-             %{
-               "Identifiant" => "siri-slug",
-               "Req ext 7j" => "0",
-               "Req int 7j" => "0"
              }
            ] = extract_data_from_html(response)
 
@@ -145,17 +134,15 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                "Req ext 7j" => "4",
                "Req int 7j" => "2"
              },
-             _siri_item,
              _s3_item
            ] = extract_data_from_html(render(view))
   end
 
   test "can search feeds", %{conn: conn} do
     item_id = "gtfs-rt-slug"
-    siri_item_id = "siri-slug"
     aggregate_item_id = "aggregate-slug"
     s3_item_id = "s3-slug"
-    setup_proxy_config(item_id, siri_item_id, aggregate_item_id, s3_item_id)
+    setup_proxy_config(item_id, aggregate_item_id, s3_item_id)
 
     {:ok, view, _html} = conn |> setup_admin_in_session() |> get(@url) |> live()
 
@@ -165,12 +152,11 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
                 {"option", [{"selected", ""}, {"value", ""}], ["Tout"]},
                 {"option", [{"value", "DynamicIRVEAggregate"}], ["DynamicIRVEAggregate"]},
                 {"option", [{"value", "HTTP"}], ["HTTP"]},
-                {"option", [{"value", "S3"}], ["S3"]},
-                {"option", [{"value", "SIRI"}], ["SIRI"]}
+                {"option", [{"value", "S3"}], ["S3"]}
               ]}
            ] == view |> element("form select") |> render() |> Floki.parse_document!()
 
-    assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug", "siri-slug"] == slugs(view)
+    assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug"] == slugs(view)
 
     form = view |> element("form")
 
@@ -181,17 +167,13 @@ defmodule TransportWeb.Backoffice.ProxyConfigLiveTest do
     # Reset the form
     form |> search_by_type("")
 
-    assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
-    assert_patch(view, @url <> "?search=siri&type=&disk=false")
-
-    form |> search_by_type("SIRI")
-    assert ["siri-slug"] == form |> search_by_value("siri") |> slugs()
-    assert_patch(view, @url <> "?search=siri&type=SIRI&disk=false")
+    assert ["aggregate-slug"] == form |> search_by_value("agg") |> slugs()
+    assert_patch(view, @url <> "?search=agg&type=&disk=false")
 
     assert [] == form |> search_by_value("other") |> slugs()
     form |> search_by_type("")
 
-    assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug", "siri-slug"] == form |> search_by_value("slug") |> slugs()
+    assert ["aggregate-slug", "gtfs-rt-slug", "s3-slug"] == form |> search_by_value("slug") |> slugs()
     assert_patch(view, @url <> "?search=slug&type=&disk=false")
 
     # Search by disk using the checkbox
