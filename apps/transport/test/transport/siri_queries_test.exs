@@ -23,9 +23,8 @@ defmodule Transport.SIRITest do
   Elixir structures, and removing the non-significant newlines.
   """
   def parse_xml(payload) do
-    payload
-    |> Unlock.SIRI.parse_incoming()
-    |> XMLNewlinesRemover.filter_newlines_from_model()
+    {:ok, parsed} = Saxy.SimpleForm.parse_string(payload, cdata_as_characters: false)
+    XMLNewlinesRemover.filter_newlines_from_model(parsed)
   end
 
   test "CheckStatus" do
