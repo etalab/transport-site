@@ -60,13 +60,38 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  # IRVE statique validation doesn’t use an Oban job and doesn’t store anything
-  # It’s just a display and forget validation, and it’s quick enough so that it can be done synchronously
-  # This clause intercepts the validation instead of sending to Validata like other TableSchema validations
+  # Intercepts IRVE before it falls through to the TableSchema path, because
+  # it uses a dedicated validator and oban_args format.
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
-    validate_irve_statique(conn, file_path, filename, File.stat!(file_path).size)
+    if File.stat!(file_path).size > @max_irve_file_size_bytes do
+      conn
+      |> put_flash(
+        :error,
+        dgettext("validations", "File is too large, must be <%{max_file_size}.",
+          max_file_size: Sizeable.filesize(@max_irve_file_size_bytes)
+        )
+      )
+      |> redirect(
+        to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
+      )
+    else
+      token = Ecto.UUID.generate()
+      summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
+
+      validation =
+        %MultiValidation{
+          validator: "on-demand-irve-statique",
+          validation_timestamp: DateTime.utc_now(),
+          oban_args: %{"type" => "on-demand-irve-statique", "state" => "completed", "secret_url_token" => token},
+          result: Map.from_struct(summary),
+          validated_data_name: filename || "upload.csv"
+        }
+        |> Repo.insert!()
+
+      redirect_to_validation_show(conn, validation)
+    end
   end
 
   def validate(%Plug.Conn{} = conn, %{
@@ -96,28 +121,6 @@ defmodule TransportWeb.ValidationController do
     conn |> bad_request()
   end
 
-  defp validate_irve_statique(conn, _file_path, _filename, size) when size > @max_irve_file_size_bytes do
-    conn
-    |> put_flash(
-      :error,
-      dgettext("validations", "File is too large, must be <%{max_file_size}.",
-        max_file_size: Sizeable.filesize(@max_irve_file_size_bytes)
-      )
-    )
-    |> redirect(
-      to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
-    )
-  end
-
-  defp validate_irve_statique(conn, file_path, filename, _size) do
-    summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
-
-    conn
-    |> assign(:summary, summary)
-    |> assign(:filename, filename || "upload.csv")
-    |> render("show_irve_statique.html")
-  end
-
   defp irve_extension(filename) when is_binary(filename) and filename != "" do
     case Path.extname(filename) do
       "" -> ".csv"
@@ -134,6 +137,7 @@ defmodule TransportWeb.ValidationController do
     redirect(conn, to: validation_path(conn, :show, id, token: token))
   end
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
 
@@ -200,6 +204,12 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_report_url, validation_report_url)
         |> assign(:xsd_errors, xsd_errors)
         |> render(template)
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "on-demand-irve-statique"}} = validation ->
+        conn
+        |> assign(:summary, validation.result)
+        |> assign(:filename, validation.validated_data_name)
+        |> render("show_irve_statique.html")
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas
@@ -382,12 +392,9 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  # For IRVE statique, we don’t use Oban to perform validation
-  # This function is just here to log the usage
-  # This allows the feature usage metadata to be different from other TableSchema validations
-  # See TransportWeb.ValidationController.log_usage/2
+  # Used only by log_usage/2 to track feature usage with type metadata.
   defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
-    %{"type" => "irve-statique"}
+    %{"type" => "on-demand-irve-statique"}
   end
 
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
