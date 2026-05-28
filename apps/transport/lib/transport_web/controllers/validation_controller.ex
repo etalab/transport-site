@@ -60,8 +60,8 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  # Intercepts IRVE before it falls through to the TableSchema path, because
-  # it uses a dedicated validator and oban_args format.
+  # This clause intercepts IRVE statique validation instead of sending to Validata like other TableSchema validations
+  # IRVE statique validation doesn’t use an Oban job, as it’s quick enough so that it can be done synchronously.
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
@@ -392,7 +392,10 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  # Used only by log_usage/2 to track feature usage with type metadata.
+  # For IRVE statique, we don’t use Oban to perform validation
+  # This function is just here to log the usage
+  # This allows the feature usage metadata to be different from other TableSchema validations
+  # See TransportWeb.ValidationController.log_usage/2
   defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
     %{"type" => "on-demand-irve-statique"}
   end
