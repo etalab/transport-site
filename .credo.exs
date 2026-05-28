@@ -21,14 +21,21 @@
         # You can give explicit globs or simply directories.
         # In the latter case `**/*.{ex,exs}` will be used.
         #
-        included: ["lib/", "src/", "web/", "apps/"],
-        excluded: [~r"/_build/", ~r"/deps/", ~r"/apps/transport/client/", "apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex"]
+        included: ["lib/", "src/", "web/", "apps/", "config/"],
+        excluded: [
+          ~r"/_build/",
+          ~r"/deps/",
+          ~r"/apps/transport/client/",
+          "apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex",
+          # Template only — copied by devs to dev.secret.exs (gitignored), never loaded at runtime.
+          "config/dev.secret.template.exs"
+        ]
       },
       #
       # If you create your own checks, you must specify the source files for
       # them here, so they can be loaded by Credo before running the analysis.
       #
-      requires: [],
+      requires: ["credo_checks/no_system_env_at_compile_time.ex"],
       #
       # If you want to enforce a style guide and need a more traditional linting
       # experience, you can change `strict` to `true` below:
@@ -117,6 +124,9 @@
         {Credo.Check.Warning.UnusedTupleOperation},
         {Credo.Check.Warning.RaiseInsideRescue},
         {Credo.Check.Warning.MixEnv},
+        {Credo.Check.Warning.ApplicationConfigInModuleAttribute},
+        # During migration, do not block the CI.
+        {Credo.Check.Custom.NoSystemEnvAtCompileTime, exit_status: 0},
 
         # Controversial and experimental checks (opt-in, just remove `, false`)
         #

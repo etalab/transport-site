@@ -46,6 +46,19 @@ config :transport,
   dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30)),
   dynamic_irve_initial_sync: config_env() != :test
 
+config :transport,
+  # This endpoint is not really public but we can use it for now
+  # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
+  gbfs_validator_url:
+    System.get_env("GBFS_VALIDATOR_URL", "https://gbfs-validator.netlify.app/.netlify/functions/validator"),
+  gbfs_validator_website: System.get_env("GBFS_VALIDATOR_WEBSITE", "https://gbfs-validator.netlify.app")
+
+# In :test, gtfs_validator_url is set in test.exs.
+if config_env() != :test do
+  config :transport,
+    gtfs_validator_url: System.get_env("GTFS_VALIDATOR_URL", "https://validation.transport.data.gouv.fr")
+end
+
 # Inside IEx, we do not want jobs to start processing, nor plugins working.
 # The jobs can be heavy and for instance in production, one person could
 # unknowningly create duplicate RAM heavy jobs. With this trick, we can still
@@ -236,6 +249,12 @@ if config_env() == :dev do
     watchers: if(webserver, do: [npm: ["run", "--prefix", "apps/transport/client", "watch"]], else: [])
 end
 
+if config_env() == :dev do
+  config :transport, DB.Repo,
+    url: System.get_env("PG_URL") || "ecto://postgres:postgres@localhost/transport_repo",
+    pool_size: (System.get_env("PG_POOL_SIZE") || "10") |> String.to_integer()
+end
+
 if config_env() == :prod do
   pool_size =
     case app_env do
@@ -262,8 +281,10 @@ if config_env() == :prod do
     ],
     socket_options: [keepalive: true],
     # See https://hexdocs.pm/db_connection/DBConnection.html#start_link/2-queue-config
-    # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system described in DBConnection.start_link/2
-    # under "Queue config". For most users, configuring :timeout is enough, as it now includes both queue and query time
+    # [Ecto.Repo] :pool_timeout is no longer supported in favor of a new queue system
+    # described in DBConnection.start_link/2
+    # under "Queue config". For most users, configuring :timeout is enough,
+    # as it now includes both queue and query time
     timeout: 15_000
 
   config :transport, TransportWeb.Endpoint,
