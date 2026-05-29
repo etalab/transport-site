@@ -84,7 +84,8 @@ defmodule TransportWeb.ValidationController do
         %MultiValidation{
           validator: "on-demand-irve-statique",
           validation_timestamp: DateTime.utc_now(),
-          oban_args: %{"type" => "on-demand-irve-statique", "state" => "completed", "secret_url_token" => token},
+          # This is needed as the #show route patterns match on secret_url_token
+          oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => token},
           result: Map.from_struct(summary),
           validated_data_name: filename || "upload.csv"
         }
@@ -205,7 +206,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:xsd_errors, xsd_errors)
         |> render(template)
 
-      %MultiValidation{oban_args: %{"state" => "completed", "type" => "on-demand-irve-statique"}} = validation ->
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
         conn
         |> assign(:summary, validation.result)
         |> assign(:filename, validation.validated_data_name)
@@ -397,7 +398,7 @@ defmodule TransportWeb.ValidationController do
   # This allows the feature usage metadata to be different from other TableSchema validations
   # See TransportWeb.ValidationController.log_usage/2
   defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
-    %{"type" => "on-demand-irve-statique"}
+    %{"type" => "irve-statique"}
   end
 
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
@@ -457,11 +458,14 @@ defmodule TransportWeb.ValidationController do
   def temporary_on_demand_validator_name, do: "on demand validation requested"
 
   defp log_usage(%Plug.Conn{} = conn, _options) do
+    # dbg(conn)
+
     DB.FeatureUsage.insert!(
       :on_demand_validation,
       get_in(conn.assigns.current_contact.id),
       build_oban_args(conn.params["upload"])
       |> Map.take(["type", "schema_name"])
+      # |> dbg()
     )
 
     conn

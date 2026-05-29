@@ -256,7 +256,7 @@ defmodule TransportWeb.ValidationControllerTest do
         assert 1 == count_validations()
 
         assert %{
-                 oban_args: %{"state" => "completed", "type" => "on-demand-irve-statique", "secret_url_token" => token},
+                 oban_args: %{"state" => "completed", "type" => "irve-statique", "secret_url_token" => token},
                  result: %{"valid" => true},
                  validator: "on-demand-irve-statique",
                  validated_data_name: "irve.csv",
@@ -270,7 +270,7 @@ defmodule TransportWeb.ValidationControllerTest do
                  %DB.FeatureUsage{
                    feature: :on_demand_validation,
                    contact_id: nil,
-                   metadata: %{"type" => "on-demand-irve-statique"}
+                   metadata: %{"type" => "irve-statique"}
                  }
                ] = DB.FeatureUsage |> DB.Repo.all()
       end)
@@ -294,7 +294,7 @@ defmodule TransportWeb.ValidationControllerTest do
         assert 1 == count_validations()
 
         assert %{
-                 oban_args: %{"state" => "completed", "type" => "on-demand-irve-statique"},
+                 oban_args: %{"state" => "completed", "type" => "irve-statique"},
                  result: %{"valid" => false}
                } = DB.MultiValidation.with_result() |> DB.Repo.one!()
 
@@ -827,7 +827,7 @@ defmodule TransportWeb.ValidationControllerTest do
         insert(:multi_validation,
           oban_args: %{
             "state" => "completed",
-            "type" => "on-demand-irve-statique",
+            "type" => "irve-statique",
             "secret_url_token" => token
           },
           result: %{
