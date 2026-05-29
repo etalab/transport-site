@@ -393,14 +393,6 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
-  # For IRVE statique, we don’t use Oban to perform validation
-  # This function is just here to log the usage
-  # This allows the feature usage metadata to be different from other TableSchema validations
-  # See TransportWeb.ValidationController.log_usage/2
-  defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
-    %{"type" => "irve-statique"}
-  end
-
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
 
   defp build_oban_args(type) do
@@ -458,16 +450,19 @@ defmodule TransportWeb.ValidationController do
   def temporary_on_demand_validator_name, do: "on demand validation requested"
 
   defp log_usage(%Plug.Conn{} = conn, _options) do
-    # dbg(conn)
-
     DB.FeatureUsage.insert!(
       :on_demand_validation,
       get_in(conn.assigns.current_contact.id),
-      build_oban_args(conn.params["upload"])
-      |> Map.take(["type", "schema_name"])
-      # |> dbg()
+      type_and_schema_for_stats(conn.params["upload"])
     )
 
     conn
+  end
+
+  defp type_and_schema_for_stats(upload_params) do
+    case upload_params do
+      %{"type" => "etalab/schema-irve-statique"} -> %{"type" => "irve-statique"}
+      _ -> build_oban_args(upload_params) |> Map.take(["type", "schema_name"])
+    end
   end
 end
