@@ -138,7 +138,6 @@ defmodule TransportWeb.ValidationController do
     redirect(conn, to: validation_path(conn, :show, id, token: token))
   end
 
-  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def show(%Plug.Conn{} = conn, %{} = params) do
     token = params["token"]
 
@@ -147,82 +146,106 @@ defmodule TransportWeb.ValidationController do
       |> preload(:metadata)
       |> Repo.get(params["id"])
 
-    case validation do
-      nil ->
-        not_found(conn)
+    show_validation(conn, params, token, validation)
+  end
 
-      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
-      when expected_token != token ->
-        unauthorized(conn)
+  defp show_validation(conn, _params, _token, nil) do
+    not_found(conn)
+  end
 
-      %MultiValidation{oban_args: %{"state" => "completed"}, binary_result: nil, result: nil} = validation ->
-        conn |> assign(:validation, validation) |> render("expired.html")
+  defp show_validation(conn, _params, token, %MultiValidation{oban_args: %{"secret_url_token" => expected_token}})
+       when expected_token != token do
+    unauthorized(conn)
+  end
 
-      %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
-        validator = Transport.Validators.GTFSTransport
-        current_issues = validator.get_issues(validation.result, params)
+  defp show_validation(
+         conn,
+         _params,
+         _token,
+         %MultiValidation{
+           oban_args: %{"state" => "completed"},
+           binary_result: nil,
+           result: nil
+         } = validation
+       ) do
+    conn |> assign(:validation, validation) |> render("expired.html")
+  end
 
-        issue_type =
-          case params["issue_type"] do
-            nil -> validator.issue_type(current_issues)
-            issue_type -> issue_type
-          end
+  defp show_validation(
+         conn,
+         params,
+         _token,
+         %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation
+       ) do
+    validator = Transport.Validators.GTFSTransport
+    current_issues = validator.get_issues(validation.result, params)
 
-        conn
-        |> assign_base_validation_details(params)
-        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-        |> assign(:validator, validator)
-        |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:modes, validation.metadata.modes)
-        |> assign(:data_vis, data_vis(validation, issue_type))
-        |> assign(:validation_summary, validator.summary(validation.result))
-        |> assign(:severities_count, validator.count_by_severity(validation.result))
-        |> render("show_gtfs.html")
+    issue_type =
+      case params["issue_type"] do
+        nil -> validator.issue_type(current_issues)
+        issue_type -> issue_type
+      end
 
-      %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        config = make_pagination_config(params)
+    conn
+    |> assign_base_validation_details(params)
+    |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
+    |> assign(:validator, validator)
+    |> assign(:metadata, validation.metadata.metadata)
+    |> assign(:modes, validation.metadata.modes)
+    |> assign(:data_vis, data_vis(validation, issue_type))
+    |> assign(:validation_summary, validator.summary(validation.result))
+    |> assign(:severities_count, validator.count_by_severity(validation.result))
+    |> render("show_gtfs.html")
+  end
 
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
+  defp show_validation(
+         conn,
+         params,
+         _token,
+         %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation
+       ) do
+    config = make_pagination_config(params)
+    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
+    template = pick_netex_template(validation.validator_version)
+    pagination_config = make_pagination_config(params, @netex_issues_page_size)
+    {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
+    validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+    xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
 
-        template = pick_netex_template(validation.validator_version)
+    conn
+    |> assign_base_validation_details(params)
+    |> assign(:filter, filter)
+    |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
+    |> assign(:results_adapter, results_adapter)
+    |> assign(:metadata, validation.metadata.metadata)
+    |> assign(:max_severity, validation.digest["max_severity"])
+    |> assign(:validation_summary, validation.digest["summary"])
+    |> assign(:severities_count, validation.digest["stats"])
+    |> assign(:validation_report_url, validation_report_url)
+    |> assign(:xsd_errors, xsd_errors)
+    |> render(template)
+  end
 
-        pagination_config = make_pagination_config(params, @netex_issues_page_size)
-        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
+  defp show_validation(
+         conn,
+         _params,
+         _token,
+         %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation
+       ) do
+    conn
+    |> assign(:summary, validation.result)
+    |> assign(:filename, validation.validated_data_name)
+    |> render("show_irve_statique.html")
+  end
 
-        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
-
-        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
-
-        conn
-        |> assign_base_validation_details(params)
-        |> assign(:filter, filter)
-        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
-        |> assign(:results_adapter, results_adapter)
-        |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:max_severity, validation.digest["max_severity"])
-        |> assign(:validation_summary, validation.digest["summary"])
-        |> assign(:severities_count, validation.digest["stats"])
-        |> assign(:validation_report_url, validation_report_url)
-        |> assign(:xsd_errors, xsd_errors)
-        |> render(template)
-
-      %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
-        conn
-        |> assign(:summary, validation.result)
-        |> assign(:filename, validation.validated_data_name)
-        |> render("show_irve_statique.html")
-
-      # Handles waiting for validation to complete, errors and
-      # validation for schemas
-      _ ->
-        live_render(conn, TransportWeb.Live.OnDemandValidationLive,
-          session: %{
-            "validation_id" => params["id"],
-            "issue_type" => params["issue_type"],
-            "current_url" => validation_path(conn, :show, params["id"], token: token)
-          }
-        )
-    end
+  defp show_validation(conn, params, token, _validation) do
+    live_render(conn, TransportWeb.Live.OnDemandValidationLive,
+      session: %{
+        "validation_id" => params["id"],
+        "issue_type" => params["issue_type"],
+        "current_url" => validation_path(conn, :show, params["id"], token: token)
+      }
+    )
   end
 
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{} = params) do
