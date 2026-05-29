@@ -1,5 +1,4 @@
 # DataProfiling id_pdc_itinerance duplication in the dynamic IRVE consolidated feed.
-# Ref: travaux-irve-v3 a observé ~17.8% de doublons, ~30 patterns d'origines.
 
 Mix.install([
   {:req, "~> 0.5.15"},
