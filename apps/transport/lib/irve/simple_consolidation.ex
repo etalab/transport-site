@@ -75,7 +75,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
-    |> Transport.IRVE.RawStaticConsolidation.exclude_irrelevant_resources()
+    |> Transport.IRVE.Extractor.exclude_irrelevant_resources()
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
