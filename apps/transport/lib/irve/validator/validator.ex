@@ -24,7 +24,7 @@ defmodule Transport.IRVE.Validator do
     body = File.read!(path)
     Transport.IRVE.Static.Probes.run_cheap_blocking_checks(body, extension)
     # TODO: accumulate warnings
-    body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
+    body = Transport.IRVE.Transcoder.ensure_utf8(body)
     # TODO: accumulate warnings
 
     body
