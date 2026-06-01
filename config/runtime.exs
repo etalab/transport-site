@@ -185,7 +185,6 @@ oban_prod_crontab = [
   {"0 8 * * *", Transport.Jobs.WarnUserInactivityJob},
   {"*/5 * * * *", Transport.Jobs.UpdateCounterCacheJob},
   {"0 4 * * *", Transport.Jobs.StopsRegistrySnapshotJob},
-  {"30 2 * * *", Transport.Jobs.IRVERawConsolidationJob},
   {"45 4 * * *", Transport.Jobs.IRVESimpleConsolidationJob},
   {"10 * * * *", Transport.Jobs.DefaultTokensJob},
   {"0 2 * * *", Transport.Jobs.CleanOnDemandValidationJob},
