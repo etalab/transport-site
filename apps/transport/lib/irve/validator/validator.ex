@@ -22,7 +22,7 @@ defmodule Transport.IRVE.Validator do
     # NOTE: for now, load the body in memory, because refactoring to get full streaming
     # is too involved for the current sprint deadline.
     body = File.read!(path)
-    Transport.IRVE.RawStaticConsolidation.run_cheap_blocking_checks(body, extension)
+    Transport.IRVE.Static.Probes.run_cheap_blocking_checks(body, extension)
     # TODO: accumulate warnings
     body = Transport.IRVE.RawStaticConsolidation.ensure_utf8(body)
     # TODO: accumulate warnings

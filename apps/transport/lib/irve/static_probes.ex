@@ -3,6 +3,30 @@ defmodule Transport.IRVE.Static.Probes do
   This module groups functions related to IRVE-specific CSV handling.
   """
 
+  def run_cheap_blocking_checks(body, extension) do
+    if Transport.ZipProbe.likely_zip_content?(body) do
+      raise("the content is likely to be a zip file, not uncompressed CSV data")
+    end
+
+    if String.downcase(extension) not in ["", ".csv"] do
+      raise("the content is likely not a CSV file (extension is #{extension})")
+    end
+
+    if probably_v1_schema(body) do
+      raise("looks like a v1 irve")
+    end
+
+    if !has_id_pdc_itinerance(body) do
+      raise("content has no id_pdc_itinerance in first line")
+    end
+
+    header_separator = hint_header_separator(body)
+
+    unless header_separator in [";", ","] do
+      raise("unsupported column separator #{header_separator}")
+    end
+  end
+
   @doc """
   A quick way to grab the first line of a CSV (in order to analyze headers without going through a proper parser)
 
