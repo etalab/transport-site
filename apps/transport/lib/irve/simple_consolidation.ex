@@ -232,7 +232,6 @@ defmodule Transport.IRVE.SimpleConsolidation do
     end
   end
 
-
   defp ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
 
   defp ensure_producer_is_org!(_row), do: :ok
