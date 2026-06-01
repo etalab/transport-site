@@ -15,13 +15,13 @@ list_of_datagouv_ids =
   |> Explorer.Series.to_list()
   |> MapSet.new()
 
-list_of_simple_consolidation_ids =
+list_of_consolidation_ids =
   transport_df["datagouv_resource_id"]
   |> Explorer.Series.distinct()
   |> Explorer.Series.to_list()
   |> MapSet.new()
 
-only_in_datagouv = MapSet.difference(list_of_datagouv_ids, list_of_simple_consolidation_ids)
+only_in_datagouv = MapSet.difference(list_of_datagouv_ids, list_of_consolidation_ids)
 
 IO.inspect(MapSet.size(only_in_datagouv), label: "Only in datagouv consolidation")
 
@@ -39,6 +39,6 @@ lines_per_id =
   |> Explorer.DataFrame.summarise(line_count: Explorer.Series.size(datagouv_resource_id))
   |> Explorer.DataFrame.sort_by(desc: line_count)
 
-IO.puts("\nNumber of lines per datagouv_resource_id (only those in datagouv but not in simple consolidation):")
+IO.puts("\nNumber of lines per datagouv_resource_id (only those in datagouv but not in consolidation):")
 
 Explorer.DataFrame.print(lines_per_id, limit: :infinity)

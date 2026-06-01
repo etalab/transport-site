@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.SimpleReportItem do
+defmodule Transport.IRVE.ReportItem do
   @moduledoc """
   Quick & dirty structure to massage the processing outcome of a single
   IRVE file into a structure with all the same keys.

@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.SimpleConsolidation do
+defmodule Transport.IRVE.Consolidation do
   @moduledoc """
   This module:
   - takes the list of relevant IRVE resources from data.gouv.fr,
@@ -38,7 +38,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # If a task times out, we get {:exit, :timeout} instead of {:ok, result} and the following line will crash.
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
-      |> Stream.map(&Transport.IRVE.SimpleReportItem.from_result/1)
+      |> Stream.map(&Transport.IRVE.ReportItem.from_result/1)
       |> maybe_log_items(debug)
       |> Enum.into([])
 
@@ -54,7 +54,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     write_consolidated_file(consolidated_df, @consolidated_file_base_name, destination)
 
-    Logger.info("IRVE simple consolidation process completed.")
+    Logger.info("IRVE consolidation process completed.")
     {:ok, report}
   end
 
@@ -134,7 +134,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def generate_report(report_rows, destination: destination) do
     report_df =
       report_rows
-      |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
+      |> Enum.map(&Transport.IRVE.ReportItem.to_map/1)
       |> Explorer.DataFrame.new()
       # `select` orders columns in the provided order
       # (https://github.com/elixir-explorer/explorer/issues/1126)

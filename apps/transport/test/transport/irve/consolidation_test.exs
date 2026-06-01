@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.SimpleConsolidationTest do
+defmodule Transport.IRVE.ConsolidationTest do
   use ExUnit.Case, async: true
   import Mox
   import Ecto.Query
@@ -201,7 +201,7 @@ defmodule Transport.IRVE.SimpleConsolidationTest do
       )
 
       # Run the consolidation process
-      {:ok, %Explorer.DataFrame{}} = Transport.IRVE.SimpleConsolidation.process()
+      {:ok, %Explorer.DataFrame{}} = Transport.IRVE.Consolidation.process()
 
       # Check that we have imported a file and its unique PDC in the DB
       [first_import_file] =
