@@ -114,7 +114,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
         # it is done after downloading the file in order to be able to report on the potential
         # loss of PDC count.
-        Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+        ensure_producer_is_org!(resource)
 
         validation_result = Transport.IRVE.Validator.validate(path, extension)
         file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
@@ -231,4 +231,9 @@ defmodule Transport.IRVE.SimpleConsolidation do
       raise "Error processing resource (#{resource_id}) (http_status=#{status})"
     end
   end
+
+
+  defp ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+
+  defp ensure_producer_is_org!(_row), do: :ok
 end
