@@ -56,7 +56,7 @@ defmodule Transport.IRVE.DatabaseImporter do
       ) do
     content =
       File.read!(file_path)
-      |> Transport.IRVE.RawStaticConsolidation.ensure_utf8()
+      |> Transport.IRVE.Transcoder.ensure_utf8()
 
     rows_stream =
       content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows_stream()

@@ -11,6 +11,11 @@ defmodule Transport.IRVE.Extractor do
 
   @static_irve_datagouv_url "https://www.data.gouv.fr/api/1/datasets/?schema=etalab/schema-irve-statique"
 
+  # needed to filter out the existing, data-gouv provided consolidation
+  @datagouv_organization_id Application.compile_env!(:transport, :datagouvfr_publisher_id)
+  # Filter also our own consolidation!
+  @transport_organization_id Application.compile_env!(:transport, :datagouvfr_transport_publisher_id)
+
   @doc """
   Fetches the list of all `schema-irve-statique` resources from data gouv, using parallelized pagination.
 
@@ -27,6 +32,13 @@ defmodule Transport.IRVE.Extractor do
     |> Stream.map(&remap_fields/1)
     |> Stream.filter(fn x -> x[:schema_name] == "etalab/schema-irve-statique" end)
     |> Enum.into([])
+  end
+
+  def exclude_irrelevant_resources(stream) do
+    stream
+    # exclude data gouv generated consolidation
+    |> Enum.reject(fn r -> r.dataset_organisation_id == @datagouv_organization_id end)
+    |> Enum.reject(fn r -> r.dataset_organisation_id == @transport_organization_id end)
   end
 
   @doc """

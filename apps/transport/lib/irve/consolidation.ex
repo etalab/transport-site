@@ -1,4 +1,4 @@
-defmodule Transport.IRVE.SimpleConsolidation do
+defmodule Transport.IRVE.Consolidation do
   @moduledoc """
   This module:
   - takes the list of relevant IRVE resources from data.gouv.fr,
@@ -38,7 +38,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
       # If a task times out, we get {:exit, :timeout} instead of {:ok, result} and the following line will crash.
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
-      |> Stream.map(&Transport.IRVE.SimpleReportItem.from_result/1)
+      |> Stream.map(&Transport.IRVE.ReportItem.from_result/1)
       |> maybe_log_items(debug)
       |> Enum.into([])
 
@@ -54,7 +54,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
     write_consolidated_file(consolidated_df, @consolidated_file_base_name, destination)
 
-    Logger.info("IRVE simple consolidation process completed.")
+    Logger.info("IRVE consolidation process completed.")
     {:ok, report}
   end
 
@@ -75,7 +75,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
 
   def resource_list do
     Transport.IRVE.Extractor.datagouv_resources()
-    |> Transport.IRVE.RawStaticConsolidation.exclude_irrelevant_resources()
+    |> Transport.IRVE.Extractor.exclude_irrelevant_resources()
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
@@ -114,7 +114,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
         # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
         # it is done after downloading the file in order to be able to report on the potential
         # loss of PDC count.
-        Transport.IRVE.RawStaticConsolidation.ensure_producer_is_org!(resource)
+        ensure_producer_is_org!(resource)
 
         validation_result = Transport.IRVE.Validator.validate(path, extension)
         file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
@@ -134,7 +134,7 @@ defmodule Transport.IRVE.SimpleConsolidation do
   def generate_report(report_rows, destination: destination) do
     report_df =
       report_rows
-      |> Enum.map(&Transport.IRVE.SimpleReportItem.to_map/1)
+      |> Enum.map(&Transport.IRVE.ReportItem.to_map/1)
       |> Explorer.DataFrame.new()
       # `select` orders columns in the provided order
       # (https://github.com/elixir-explorer/explorer/issues/1126)
@@ -231,4 +231,8 @@ defmodule Transport.IRVE.SimpleConsolidation do
       raise "Error processing resource (#{resource_id}) (http_status=#{status})"
     end
   end
+
+  defp ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+
+  defp ensure_producer_is_org!(_row), do: :ok
 end
