@@ -168,11 +168,7 @@ defmodule TransportWeb.ValidationController do
         validator = Transport.Validators.GTFSTransport
         current_issues = validator.get_issues(validation.result, params)
 
-        issue_type =
-          case params["issue_type"] do
-            nil -> validator.issue_type(current_issues)
-            issue_type -> issue_type
-          end
+        issue_type = params["issue_type"] || validator.issue_type(current_issues)
 
         conn
         |> assign_base_validation_details(params)
