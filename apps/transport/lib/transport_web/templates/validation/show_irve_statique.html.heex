@@ -92,9 +92,9 @@
             </thead>
             <tbody>
               <tr :for={sample <- @summary.error_samples}>
-                <td>{sample["id_pdc_itinerance"]}</td>
-                <td>{sample["column"]}</td>
-                <td>{sample["value"]}</td>
+                <td>{sample.id_pdc_itinerance}</td>
+                <td>{sample.column}</td>
+                <td>{sample.value}</td>
               </tr>
             </tbody>
           </table>
