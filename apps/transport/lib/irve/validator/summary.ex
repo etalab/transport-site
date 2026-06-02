@@ -24,13 +24,9 @@ defmodule Transport.IRVE.Validator.Summary do
   ]
 
   @doc """
-  Rebuilds a `%Summary{}` from its persisted map (string keys, as read back from the
-  database `result` column). Uses `struct!/2` so a drifted/missing top-level key raises
-  loudly instead of silently rendering as `nil`.
-
-  `error_samples` rows are re-keyed to atoms too: their keys are a fixed set
-  (`id_pdc_itinerance`, `column`, `value`) so the template keeps plain dot access.
-  `column_errors` keys stay strings (they are field names, not a fixed atom set).
+  Rebuilds a `%Summary{}` from its persisted (JSONB, string-keyed) `result` map. `struct!/2`
+  makes an unexpected top-level key raise rather than silently render as `nil`; `error_samples` rows
+  are re-keyed to atoms too (fixed key set) so the template keeps plain dot access.
   """
   def from_result(result) when is_map(result) do
     result
