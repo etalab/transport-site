@@ -115,14 +115,13 @@ defmodule TransportWeb.ValidationController do
 
   defp validate_irve_statique(conn, file_path, filename, _size) do
     summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
-    token = Ecto.UUID.generate()
 
     validation =
       %MultiValidation{
         validator: "on-demand-irve-statique",
         validation_timestamp: DateTime.utc_now(),
-        # This is needed as the #show route patterns match on secret_url_token
-        oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => token},
+        # The #show route patterns match on secret_url_token
+        oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => Ecto.UUID.generate()},
         result: Map.from_struct(summary),
         validated_data_name: filename || "upload.csv"
       }
