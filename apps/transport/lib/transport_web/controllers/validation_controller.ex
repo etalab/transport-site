@@ -60,9 +60,12 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  # IRVE statique validation doesn’t use an Oban job and doesn’t store anything
-  # It’s just a display and forget validation, and it’s quick enough so that it can be done synchronously
-  # This clause intercepts the validation instead of sending to Validata like other TableSchema validations
+  # This clause intercepts IRVE statique validation instead of routing it to Validata like the other
+  # TableSchema validations, running it synchronously on the web server (which enables the permalink below)
+  # rather than on a worker. The catch: it takes an order of magnitude more RAM than the raw CSV (at time of
+  # writing), and the web node should stay isolated from that pressure to keep serving requests, so it would
+  # be a good idea not to reproduce this pattern:
+  # https://github.com/etalab/transport-site/pull/5524#pullrequestreview-4407262217
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
@@ -112,10 +115,18 @@ defmodule TransportWeb.ValidationController do
   defp validate_irve_statique(conn, file_path, filename, _size) do
     summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
 
-    conn
-    |> assign(:summary, summary)
-    |> assign(:filename, filename || "upload.csv")
-    |> render("show_irve_statique.html")
+    validation =
+      %MultiValidation{
+        validator: "on-demand-irve-statique",
+        validation_timestamp: DateTime.utc_now(),
+        # The #show route patterns match on secret_url_token
+        oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => Ecto.UUID.generate()},
+        result: Map.from_struct(summary),
+        validated_data_name: filename || "upload.csv"
+      }
+      |> Repo.insert!()
+
+    redirect_to_validation_show(conn, validation)
   end
 
   defp irve_extension(filename) when is_binary(filename) and filename != "" do
@@ -157,11 +168,7 @@ defmodule TransportWeb.ValidationController do
         validator = Transport.Validators.GTFSTransport
         current_issues = validator.get_issues(validation.result, params)
 
-        issue_type =
-          case params["issue_type"] do
-            nil -> validator.issue_type(current_issues)
-            issue_type -> issue_type
-          end
+        issue_type = params["issue_type"] || validator.issue_type(current_issues)
 
         conn
         |> assign_base_validation_details(params)
@@ -200,6 +207,12 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validation_report_url, validation_report_url)
         |> assign(:xsd_errors, xsd_errors)
         |> render(template)
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
+        conn
+        |> assign(:summary, Transport.IRVE.Validator.Summary.from_result(validation.result))
+        |> assign(:filename, validation.validated_data_name)
+        |> render("show_irve_statique.html")
 
       # Handles waiting for validation to complete, errors and
       # validation for schemas

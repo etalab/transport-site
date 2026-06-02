@@ -253,11 +253,18 @@ defmodule TransportWeb.ValidationControllerTest do
             }
           })
 
-        response = html_response(conn, 200)
-        assert response =~ "icon--validation\">✅</span>"
-        assert response =~ "validata.fr/table-schema"
+        assert 1 == count_validations()
 
-        assert 0 == count_validations()
+        assert %{
+                 oban_args: %{"state" => "completed", "type" => "irve-statique", "secret_url_token" => token},
+                 result: %{"valid" => true},
+                 validator: "on-demand-irve-statique",
+                 validated_data_name: "irve.csv",
+                 id: validation_id
+               } = DB.MultiValidation.with_result() |> DB.Repo.one!()
+
+        assert [] == all_enqueued(worker: Transport.Jobs.OnDemandValidationJob, queue: :on_demand_validation)
+        assert redirected_to(conn, 302) == validation_path(conn, :show, validation_id, token: token)
 
         assert [
                  %DB.FeatureUsage{
@@ -284,11 +291,14 @@ defmodule TransportWeb.ValidationControllerTest do
             }
           })
 
-        response = html_response(conn, 200)
-        assert response =~ "icon--validation\">❌</span>"
-        assert response =~ "puissance_nominale"
+        assert 1 == count_validations()
 
-        assert 0 == count_validations()
+        assert %{
+                 oban_args: %{"state" => "completed", "type" => "irve-statique"},
+                 result: %{"valid" => false}
+               } = DB.MultiValidation.with_result() |> DB.Repo.one!()
+
+        assert redirected_to(conn, 302) =~ "/validation/"
       end)
     end
 
@@ -808,6 +818,34 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert render(view) =~ "2 erreurs"
       assert render(view) =~ "Value is not allowed in enum."
+    end
+
+    test "with a completed IRVE Statique validation", %{conn: conn} do
+      token = Ecto.UUID.generate()
+
+      mv =
+        insert(:multi_validation,
+          oban_args: %{
+            "state" => "completed",
+            "type" => "irve-statique",
+            "secret_url_token" => token
+          },
+          result: %{
+            "valid" => true,
+            "valid_row_count" => 1,
+            "invalid_row_count" => 0,
+            "total_row_count" => 1,
+            "file_level_errors" => [],
+            "column_errors" => %{},
+            "error_samples" => []
+          },
+          validated_data_name: "irve.csv"
+        )
+
+      response = conn |> get(validation_path(conn, :show, mv.id, token: token)) |> html_response(200)
+      assert response =~ "icon--validation\">✅</span>"
+      assert response =~ "validata.fr/table-schema"
+      assert response =~ "irve.csv"
     end
 
     test "with a GTFS-RT validation", %{conn: conn} do
