@@ -70,34 +70,7 @@ defmodule TransportWeb.ValidationController do
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
-    if File.stat!(file_path).size > @max_irve_file_size_bytes do
-      conn
-      |> put_flash(
-        :error,
-        dgettext("validations", "File is too large, must be <%{max_file_size}.",
-          max_file_size: Sizeable.filesize(@max_irve_file_size_bytes)
-        )
-      )
-      |> redirect(
-        to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
-      )
-    else
-      token = Ecto.UUID.generate()
-      summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
-
-      validation =
-        %MultiValidation{
-          validator: "on-demand-irve-statique",
-          validation_timestamp: DateTime.utc_now(),
-          # This is needed as the #show route patterns match on secret_url_token
-          oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => token},
-          result: Map.from_struct(summary),
-          validated_data_name: filename || "upload.csv"
-        }
-        |> Repo.insert!()
-
-      redirect_to_validation_show(conn, validation)
-    end
+    validate_irve_statique(conn, file_path, filename, File.stat!(file_path).size)
   end
 
   def validate(%Plug.Conn{} = conn, %{
@@ -127,6 +100,37 @@ defmodule TransportWeb.ValidationController do
     conn |> bad_request()
   end
 
+  defp validate_irve_statique(conn, _file_path, _filename, size) when size > @max_irve_file_size_bytes do
+    conn
+    |> put_flash(
+      :error,
+      dgettext("validations", "File is too large, must be <%{max_file_size}.",
+        max_file_size: Sizeable.filesize(@max_irve_file_size_bytes)
+      )
+    )
+    |> redirect(
+      to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
+    )
+  end
+
+  defp validate_irve_statique(conn, file_path, filename, _size) do
+    summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
+    token = Ecto.UUID.generate()
+
+    validation =
+      %MultiValidation{
+        validator: "on-demand-irve-statique",
+        validation_timestamp: DateTime.utc_now(),
+        # This is needed as the #show route patterns match on secret_url_token
+        oban_args: %{"type" => "irve-statique", "state" => "completed", "secret_url_token" => token},
+        result: Map.from_struct(summary),
+        validated_data_name: filename || "upload.csv"
+      }
+      |> Repo.insert!()
+
+    redirect_to_validation_show(conn, validation)
+  end
+
   defp irve_extension(filename) when is_binary(filename) and filename != "" do
     case Path.extname(filename) do
       "" -> ".csv"
@@ -151,106 +155,82 @@ defmodule TransportWeb.ValidationController do
       |> preload(:metadata)
       |> Repo.get(params["id"])
 
-    show_validation(conn, params, token, validation)
-  end
+    case validation do
+      nil ->
+        not_found(conn)
 
-  defp show_validation(conn, _params, _token, nil) do
-    not_found(conn)
-  end
+      %MultiValidation{oban_args: %{"secret_url_token" => expected_token}}
+      when expected_token != token ->
+        unauthorized(conn)
 
-  defp show_validation(conn, _params, token, %MultiValidation{oban_args: %{"secret_url_token" => expected_token}})
-       when expected_token != token do
-    unauthorized(conn)
-  end
+      %MultiValidation{oban_args: %{"state" => "completed"}, binary_result: nil, result: nil} = validation ->
+        conn |> assign(:validation, validation) |> render("expired.html")
 
-  defp show_validation(
-         conn,
-         _params,
-         _token,
-         %MultiValidation{
-           oban_args: %{"state" => "completed"},
-           binary_result: nil,
-           result: nil
-         } = validation
-       ) do
-    conn |> assign(:validation, validation) |> render("expired.html")
-  end
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation ->
+        validator = Transport.Validators.GTFSTransport
+        current_issues = validator.get_issues(validation.result, params)
 
-  defp show_validation(
-         conn,
-         params,
-         _token,
-         %MultiValidation{oban_args: %{"state" => "completed", "type" => "gtfs"}} = validation
-       ) do
-    validator = Transport.Validators.GTFSTransport
-    current_issues = validator.get_issues(validation.result, params)
+        issue_type =
+          case params["issue_type"] do
+            nil -> validator.issue_type(current_issues)
+            issue_type -> issue_type
+          end
 
-    issue_type =
-      case params["issue_type"] do
-        nil -> validator.issue_type(current_issues)
-        issue_type -> issue_type
-      end
+        conn
+        |> assign_base_validation_details(params)
+        |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
+        |> assign(:validator, validator)
+        |> assign(:metadata, validation.metadata.metadata)
+        |> assign(:modes, validation.metadata.modes)
+        |> assign(:data_vis, data_vis(validation, issue_type))
+        |> assign(:validation_summary, validator.summary(validation.result))
+        |> assign(:severities_count, validator.count_by_severity(validation.result))
+        |> render("show_gtfs.html")
 
-    conn
-    |> assign_base_validation_details(params)
-    |> assign(:issues, Scrivener.paginate(current_issues, make_pagination_config(params)))
-    |> assign(:validator, validator)
-    |> assign(:metadata, validation.metadata.metadata)
-    |> assign(:modes, validation.metadata.modes)
-    |> assign(:data_vis, data_vis(validation, issue_type))
-    |> assign(:validation_summary, validator.summary(validation.result))
-    |> assign(:severities_count, validator.count_by_severity(validation.result))
-    |> render("show_gtfs.html")
-  end
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
+        config = make_pagination_config(params)
 
-  defp show_validation(
-         conn,
-         params,
-         _token,
-         %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation
-       ) do
-    config = make_pagination_config(params)
-    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
-    template = pick_netex_template(validation.validator_version)
-    pagination_config = make_pagination_config(params, @netex_issues_page_size)
-    {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
-    validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
-    xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
+        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
 
-    conn
-    |> assign_base_validation_details(params)
-    |> assign(:filter, filter)
-    |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
-    |> assign(:results_adapter, results_adapter)
-    |> assign(:metadata, validation.metadata.metadata)
-    |> assign(:max_severity, validation.digest["max_severity"])
-    |> assign(:validation_summary, validation.digest["summary"])
-    |> assign(:severities_count, validation.digest["stats"])
-    |> assign(:validation_report_url, validation_report_url)
-    |> assign(:xsd_errors, xsd_errors)
-    |> render(template)
-  end
+        template = pick_netex_template(validation.validator_version)
 
-  defp show_validation(
-         conn,
-         _params,
-         _token,
-         %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation
-       ) do
-    conn
-    |> assign(:summary, validation.result)
-    |> assign(:filename, validation.validated_data_name)
-    |> render("show_irve_statique.html")
-  end
+        pagination_config = make_pagination_config(params, @netex_issues_page_size)
+        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
 
-  defp show_validation(conn, params, token, _validation) do
-    live_render(conn, TransportWeb.Live.OnDemandValidationLive,
-      session: %{
-        "validation_id" => params["id"],
-        "issue_type" => params["issue_type"],
-        "current_url" => validation_path(conn, :show, params["id"], token: token)
-      }
-    )
+        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+
+        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
+
+        conn
+        |> assign_base_validation_details(params)
+        |> assign(:filter, filter)
+        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
+        |> assign(:results_adapter, results_adapter)
+        |> assign(:metadata, validation.metadata.metadata)
+        |> assign(:max_severity, validation.digest["max_severity"])
+        |> assign(:validation_summary, validation.digest["summary"])
+        |> assign(:severities_count, validation.digest["stats"])
+        |> assign(:validation_report_url, validation_report_url)
+        |> assign(:xsd_errors, xsd_errors)
+        |> render(template)
+
+      %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
+        conn
+        |> assign(:summary, Transport.IRVE.Validator.Summary.from_result(validation.result))
+        |> assign(:filename, validation.validated_data_name)
+        |> render("show_irve_statique.html")
+
+      # Handles waiting for validation to complete, errors and
+      # validation for schemas
+      _ ->
+        live_render(conn, TransportWeb.Live.OnDemandValidationLive,
+          session: %{
+            "validation_id" => params["id"],
+            "issue_type" => params["issue_type"],
+            "current_url" => validation_path(conn, :show, params["id"], token: token)
+          }
+        )
+    end
   end
 
   def download_validation_report(%Plug.Conn{method: "GET"} = conn, %{} = params) do
@@ -421,6 +401,14 @@ defmodule TransportWeb.ValidationController do
     %{"type" => "gbfs", "state" => "submitted", "feed_url" => url}
   end
 
+  # For IRVE statique, we don’t use Oban to perform validation
+  # This function is just here to log the usage
+  # This allows the feature usage metadata to be different from other TableSchema validations
+  # See TransportWeb.ValidationController.log_usage/2
+  defp build_oban_args(%{"type" => "etalab/schema-irve-statique"}) do
+    %{"type" => "irve-statique"}
+  end
+
   defp build_oban_args(%{"type" => type}), do: build_oban_args(type)
 
   defp build_oban_args(type) do
@@ -481,16 +469,10 @@ defmodule TransportWeb.ValidationController do
     DB.FeatureUsage.insert!(
       :on_demand_validation,
       get_in(conn.assigns.current_contact.id),
-      type_and_schema_for_stats(conn.params["upload"])
+      build_oban_args(conn.params["upload"])
+      |> Map.take(["type", "schema_name"])
     )
 
     conn
-  end
-
-  defp type_and_schema_for_stats(upload_params) do
-    case upload_params do
-      %{"type" => "etalab/schema-irve-statique"} -> %{"type" => "irve-statique"}
-      _ -> build_oban_args(upload_params) |> Map.take(["type", "schema_name"])
-    end
   end
 end
