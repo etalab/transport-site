@@ -60,10 +60,13 @@ defmodule TransportWeb.ValidationController do
     end
   end
 
-  # This clause intercepts IRVE statique validation instead of sending to Validata like other TableSchema validations.
-  # IRVE statique validation doesn’t use an Oban job, as it’s quick enough so that it can be done synchronously,
-  # and it avoids passing files through S3 between servers.
-  # To be noted: the validation is processed directly on the web server.
+  # This clause intercepts IRVE statique validation instead of sending it to Validata like other TableSchema
+  # validations. It runs synchronously on the web server (no S3 round-trip, and it enables the permalink below),
+  # whereas every other on-demand validation runs on a worker. The catch: the processing takes a fair bit of RAM
+  # (an order of magnitude more than the raw CSV, at time of writing) for different reasons, and the web node
+  # should stay isolated from that memory pressure to keep serving requests (availability), so it would be a
+  # good idea not to reproduce this pattern:
+  # https://github.com/etalab/transport-site/pull/5524#pullrequestreview-4407262217
   def validate(%Plug.Conn{} = conn, %{
         "upload" => %{"file" => %{path: file_path, filename: filename}, "type" => "etalab/schema-irve-statique"}
       }) do
