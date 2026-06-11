@@ -66,7 +66,8 @@ defmodule Transport.IRVE.ProcessingTest do
                # This was added and coordonneesXY removed
                "longitude" => -0.799141,
                # Same
-               "latitude" => 45.91914
+               "latitude" => 45.91914,
+               "consolidated_is_lon_lat_correct" => true
              }
            ]
   end

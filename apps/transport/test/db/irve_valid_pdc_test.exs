@@ -12,6 +12,14 @@ defmodule DB.IRVEValidPDCTest do
 
     assert official_schema_fields -- ["coordonneesXY"] ==
              ecto_schema_fields --
-               ["id", "irve_valid_file_id", "inserted_at", "updated_at", "longitude", "latitude"]
+               [
+                 "id",
+                 "irve_valid_file_id",
+                 "inserted_at",
+                 "updated_at",
+                 "longitude",
+                 "latitude",
+                 "consolidated_is_lon_lat_correct"
+               ]
   end
 end
