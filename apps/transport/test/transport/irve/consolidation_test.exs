@@ -129,6 +129,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           |> Map.put("datagouv_organization_or_owner", "the-org")
           |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
           |> Map.put("deduplication_status", "unique")
+          |> Map.put("consolidated_is_lon_lat_correct", true)
         ]
         |> Explorer.DataFrame.new()
         # Use the same column order as in the actual implementation
@@ -137,6 +138,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           |> Enum.concat([
             "consolidated_longitude",
             "consolidated_latitude",
+            "consolidated_is_lon_lat_correct",
             "datagouv_dataset_id",
             "datagouv_resource_id",
             "dataset_title",
@@ -158,7 +160,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         start_path: "consolidation_transport_avec_doublons_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "6c76cfc5918ead5a10e36f39e34995370184c47801c7568e5b7b2dc2a2a75714"
+        file_content: sha256_of(consolidation_content)
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -185,7 +187,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         start_path: "consolidation_transport_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: "6c76cfc5918ead5a10e36f39e34995370184c47801c7568e5b7b2dc2a2a75714"
+        file_content: sha256_of(consolidation_content)
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -279,5 +281,9 @@ defmodule Transport.IRVE.ConsolidationTest do
     body = DB.Factory.IRVE.to_csv_body(rows)
     File.write!(path, body)
     %Req.Response{status: 200, body: File.stream!(path)}
+  end
+
+  defp sha256_of(content) do
+    :crypto.hash(:sha256, content) |> Base.encode16() |> String.downcase()
   end
 end

@@ -58,7 +58,7 @@ defmodule Transport.IRVE.DatabaseExporter do
   def database_field_list do
     Transport.IRVE.StaticIRVESchema.field_names_list()
     |> Enum.reject(&(&1 == "coordonneesXY"))
-    |> Enum.concat(["longitude", "latitude"])
+    |> Enum.concat(["longitude", "latitude", "consolidated_is_lon_lat_correct"])
   end
 
   def additional_file_field_list do
@@ -78,7 +78,7 @@ defmodule Transport.IRVE.DatabaseExporter do
   """
   def export_field_list do
     Transport.IRVE.StaticIRVESchema.field_names_list()
-    |> Enum.concat(["consolidated_longitude", "consolidated_latitude"])
+    |> Enum.concat(["consolidated_longitude", "consolidated_latitude", "consolidated_is_lon_lat_correct"])
     |> Enum.concat(additional_file_field_list())
   end
 end
