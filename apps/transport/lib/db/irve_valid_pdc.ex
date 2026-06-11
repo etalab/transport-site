@@ -31,7 +31,7 @@ defmodule DB.IRVEValidPDC do
     field(:nbre_pdc, :integer, null: false)
     field(:id_pdc_itinerance, :string, null: false)
     field(:id_pdc_local, :string)
-    field(:puissance_nominale, :decimal, null: false)
+    field(:puissance_nominale, :float, null: false)
     field(:prise_type_ef, :boolean, null: false)
     field(:prise_type_2, :boolean, null: false)
     field(:prise_type_combo_ccs, :boolean, null: false)
