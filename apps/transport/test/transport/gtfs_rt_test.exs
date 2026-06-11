@@ -198,6 +198,23 @@ defmodule Transport.GTFSRTTest do
            "Protobuf file seems to have been updated. Consider updating it. See https://github.com/google/transit/tree/master/gtfs-realtime/proto and https://github.com/etalab/transport-site/issues/3891"
   end
 
+  @tag :ci_only_on_mondays
+  test "generated .pb.ex version matches mix.lock" do
+    mix_lock_content = File.read!("#{__DIR__}/../../../../mix.lock")
+
+    generated_content =
+      File.read!("#{__DIR__}/../../lib/transport/protobuf/gtfs-realtime.pb.ex")
+
+    [_, mix_lock_version] =
+      Regex.run(~r/"protobuf": \{:hex, :protobuf, "([^"]+)"/, mix_lock_content)
+
+    [_, generated_version] =
+      Regex.run(~r/protoc_gen_elixir_version:\s*"([^"]+)"/, generated_content)
+
+    assert generated_version == mix_lock_version,
+           "Generated protobuf version (#{generated_version}) does not match mix.lock protobuf version (#{mix_lock_version}). Re-generate apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex with the version from mix.lock."
+  end
+
   def timerange(start_date, end_date) do
     %TimeRange{start: unix_seconds_delta(start_date), end: unix_seconds_delta(end_date)}
   end
