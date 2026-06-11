@@ -116,17 +116,9 @@ defmodule Transport.IRVE.DataFrame do
 
   Congratulations for reading this far.
   """
+
   def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
-    dtypes =
-      schema
-      |> Map.fetch!("fields")
-      |> Enum.map(fn %{"name" => name, "type" => type} ->
-        {
-          String.to_atom(name),
-          String.to_atom(type)
-          |> Transport.IRVE.DataFrame.remap_schema_type(strict)
-        }
-      end)
+    dtypes = schema_dtypes(schema, strict)
 
     delimiter = guess_delimiter!(body)
 
@@ -135,6 +127,26 @@ defmodule Transport.IRVE.DataFrame do
       {:ok, df} -> df
       {:error, error} -> raise(error)
     end
+  end
+
+  @doc """
+  Computes Explorer dtypes from a TableSchema, using `remap_schema_type/2`.
+
+  iex> Transport.IRVE.DataFrame.schema_dtypes() |> Keyword.fetch!(:puissance_nominale)
+  {:f, 64}
+  iex> Transport.IRVE.DataFrame.schema_dtypes() |> Keyword.fetch!(:id_pdc_itinerance)
+  :string
+  """
+  def schema_dtypes(schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
+    schema
+    |> Map.fetch!("fields")
+    |> Enum.map(fn %{"name" => name, "type" => type} ->
+      {
+        String.to_atom(name),
+        String.to_atom(type)
+        |> Transport.IRVE.DataFrame.remap_schema_type(strict)
+      }
+    end)
   end
 
   defmodule ColumnDelimiterGuessError do

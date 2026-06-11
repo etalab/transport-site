@@ -30,7 +30,7 @@ defmodule Transport.IRVE.DatabaseExporter do
             stream
             |> Stream.map(&Map.merge(elem(&1, 0), elem(&1, 1)))
             |> Enum.into([])
-            |> Explorer.DataFrame.new()
+            |> Explorer.DataFrame.new(dtypes: Transport.IRVE.DataFrame.schema_dtypes())
 
           {:ok, result}
         end,
