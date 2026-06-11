@@ -198,7 +198,6 @@ defmodule Transport.GTFSRTTest do
            "Protobuf file seems to have been updated. Consider updating it. See https://github.com/google/transit/tree/master/gtfs-realtime/proto and https://github.com/etalab/transport-site/issues/3891"
   end
 
-  @tag :ci_only_on_mondays
   test "generated .pb.ex version matches mix.lock" do
     mix_lock_content = File.read!("#{__DIR__}/../../../../mix.lock")
 
