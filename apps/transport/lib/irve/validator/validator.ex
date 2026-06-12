@@ -9,6 +9,7 @@ defmodule Transport.IRVE.Validator do
     df
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_field_validation_columns(schema)
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
+    |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_warning_columns()
   end
 
   @doc """

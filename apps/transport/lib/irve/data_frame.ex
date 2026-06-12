@@ -280,6 +280,14 @@ defmodule Transport.IRVE.DataFrame do
       longitude f64 [43.306241]
       latitude f64 [-0.332879]
     >
+
+  The function is resilient to weird values:
+  iex> Explorer.DataFrame.new([%{coordonneesXY: ""}, %{coordonneesXY: "[hello, 9]"}, %{coordonneesXY: "hello"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
+  #Explorer.DataFrame<
+    Polars[3 x 2]
+    longitude f64 [nil, nil, nil]
+    latitude f64 [nil, 9.0, nil]
+  >
   """
   def preprocess_xy_coordinates(df) do
     df
