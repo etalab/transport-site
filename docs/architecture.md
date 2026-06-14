@@ -12,6 +12,7 @@ flowchart LR
     users((Utilisateurs))
     dns[DNS]
     github[GitHub<br/>source + docker]
+    proxyconfig[GitHub<br/>config privée proxy]
     datagouv[data.gouv.fr]
     enroute[enRoute<br/>validation / conv. NeTEx]
     validata[validata]
@@ -39,8 +40,10 @@ flowchart LR
         b2[backups postgres<br/>hors site — Scaleway]
     end
 
-    blog[blog.transport.data.gouv.fr]
-    normes[normes.transport.data.gouv.fr]
+    subgraph netlify[Netlify]
+        blog[blog.transport.data.gouv.fr]
+        normes[normes.transport.data.gouv.fr]
+    end
 
     users --> dns --> site
     site --> pg
@@ -50,7 +53,12 @@ flowchart LR
     worker --> tools
     site & worker --> validator
     site & worker --> enroute
+    site --> proxyconfig
+    site <--> datagouv
+    site & worker --> appsignal & sentry & mailjet & validata
+    updown --> site
     pg --> replica
     pg --> b1 --> b2
     replica --> metabase --> metabasepg
+    metabasepg ~~~ netlify
 ```
