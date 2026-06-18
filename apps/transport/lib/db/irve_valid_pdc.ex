@@ -56,6 +56,7 @@ defmodule DB.IRVEValidPDC do
     field(:cable_t2_attache, :boolean)
     field(:longitude, :decimal, null: false)
     field(:latitude, :decimal, null: false)
+    field(:consolidated_is_lon_lat_correct, :boolean, null: false)
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -75,5 +76,7 @@ defmodule DB.IRVEValidPDC do
   end
 
   defp valid_fields,
-    do: Transport.IRVE.StaticIRVESchema.field_names_list() ++ ["id", "irve_valid_file_id", "longitude", "latitude"]
+    do:
+      Transport.IRVE.StaticIRVESchema.field_names_list() ++
+        ["id", "irve_valid_file_id", "longitude", "latitude", "consolidated_is_lon_lat_correct"]
 end

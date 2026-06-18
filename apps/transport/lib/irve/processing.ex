@@ -12,6 +12,7 @@ defmodule Transport.IRVE.Processing do
     |> convert_to_dataframe!()
     |> add_missing_optional_columns()
     |> preprocess_coordinates()
+    |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
     |> preprocess_boolean_fields()
     |> select_fields()
   end
@@ -88,7 +89,7 @@ defmodule Transport.IRVE.Processing do
     |> Explorer.DataFrame.select(
       (Transport.IRVE.StaticIRVESchema.field_names_list() --
          ["coordonneesXY", "cable_t2_attache"]) ++
-        ["longitude", "latitude"]
+        ["longitude", "latitude", "consolidated_is_lon_lat_correct"]
     )
   end
 end
