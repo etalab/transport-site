@@ -64,7 +64,8 @@ defmodule Transport.IRVE.Validator do
       total_row_count: valid_count + invalid_count,
       file_level_errors: [],
       column_errors: column_errors,
-      error_samples: error_samples
+      error_samples: error_samples,
+      warnings: summarize_warnings(df)
     }
   end
 
@@ -92,8 +93,20 @@ defmodule Transport.IRVE.Validator do
         total_row_count: nil,
         file_level_errors: [Exception.message(error)],
         column_errors: %{},
-        error_samples: []
+        error_samples: [],
+        warnings: %{}
       }
+  end
+
+  defp summarize_warnings(df) do
+    df
+    |> Explorer.DataFrame.names()
+    |> Enum.filter(&String.starts_with?(&1, "warning_"))
+    |> Enum.flat_map(fn col ->
+      count = df[col] |> Explorer.Series.sum()
+      if count > 0, do: [{String.replace_prefix(col, "warning_", ""), count}], else: []
+    end)
+    |> Map.new()
   end
 
   defp summarize_total_counts(df) do
