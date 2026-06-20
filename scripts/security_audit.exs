@@ -3,7 +3,7 @@
 # advisories on still-published versions (e.g. req CVE-2026-49755) sit in the
 # hex.pm API. Run via `mix run --no-start` (no DB/app boot needed).
 {:ok, _} = Application.ensure_all_started(:req)
-{lock, _} = Code.eval_file("mix.lock")
+lock = Mix.Dep.Lock.read()
 
 hits =
   for {_, t} when elem(t, 0) == :hex <- lock,
