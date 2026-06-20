@@ -19,6 +19,9 @@ jobs:
       - name: Checkout and compile
         uses: ./.github/actions/checkout-compile
 
+      - name: Run security advisory scan
+        run: mix run --no-start scripts/security_audit.exs
+
       - name: Run gettext check
         run: mix gettext.extract --check-up-to-date
 
