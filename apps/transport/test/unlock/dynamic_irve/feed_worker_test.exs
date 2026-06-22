@@ -1,5 +1,6 @@
 defmodule Unlock.DynamicIRVE.FeedWorkerTest do
   use ExUnit.Case, async: false
+  import ExUnit.CaptureLog
 
   import Mox
 
@@ -44,15 +45,20 @@ defmodule Unlock.DynamicIRVE.FeedWorkerTest do
       %Req.Response{status: 500, body: "oops"}
     end)
 
-    {:ok, pid} = FeedWorker.start_link({"parent", feed})
-    send(pid, :tick)
-    await_genserver_messages_processed(pid)
+    logs =
+      capture_log(fn ->
+        {:ok, pid} = FeedWorker.start_link({"parent", feed})
+        send(pid, :tick)
+        await_genserver_messages_processed(pid)
 
-    assert_received {:fetched, url}
-    assert url == feed.target_url
+        assert_received {:fetched, url}
+        assert url == feed.target_url
 
-    assert %{error: "HTTP 500", last_errored_at: %DateTime{}} = FeedStore.get_feed("parent", "slug-002")
-    assert Process.alive?(pid)
+        assert %{error: "HTTP 500", last_errored_at: %DateTime{}} = FeedStore.get_feed("parent", "slug-002")
+        assert Process.alive?(pid)
+      end)
+
+    assert logs =~ "[warning] [DynamicIRVE] parent/slug-002 => HTTP 500"
   end
 
   # Sync barrier: a GenServer handles one message at a time, in FIFO order from
