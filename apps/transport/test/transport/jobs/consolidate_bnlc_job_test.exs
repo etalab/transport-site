@@ -7,7 +7,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   alias Transport.Jobs.ConsolidateBNLCJob
 
   @target_schema "etalab/schema-lieux-covoiturage"
-  @tmp_path System.tmp_dir!() |> Path.join("bnlc.csv")
   @csv_latin1_path "#{__DIR__}/../../fixture/files/csv_latin1.csv"
   @csv_utf8_path "#{__DIR__}/../../fixture/files/csv_utf8.csv"
 
@@ -454,7 +453,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "dataset_id" => other_dataset_id,
                "resource_id" => other_resource_id
              }
-           ] == @tmp_path |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
+           ] ==
+             System.tmp_dir!()
+             |> Path.join("bnlc.csv")
+             |> File.stream!()
+             |> CSV.decode!(headers: true)
+             |> Enum.to_list()
 
     # From https://datatracker.ietf.org/doc/html/rfc4180#section-2
     # > Each record is located on a separate line, delimited by a line break (CRLF)
@@ -468,7 +472,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            21231-2,4,5,6,21231,2,#{dataset_id},#{resource_id}\r
            21231-3,a,b,c,21231,3,#{other_dataset_id},#{other_resource_id}\r
            21231-4,d,e,f,21231,4,#{other_dataset_id},#{other_resource_id}\r
-           """ == File.read!(@tmp_path)
+           """ == File.read!(System.tmp_dir!() |> Path.join("bnlc.csv"))
 
     # Temporary files have been removed
     [{_, r1}, {_, r2}] = res
@@ -590,6 +594,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       assert_ok_email_sent()
       expect_job_scheduled_to_remove_file()
 
+      tmp_path = System.tmp_dir!() |> Path.join("bnlc.csv")
       # CSV content is fine
       assert """
              id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
@@ -598,7 +603,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
              21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
              21231-3,1,2,3,21231,3,#{bar_dataset_id},#{bar_resource_id}\r
-             """ == File.read!(@tmp_path)
+             """ == File.read!(tmp_path)
     end
 
     test "stops when the schema validator is down" do
@@ -756,24 +761,26 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_job_scheduled_to_remove_file()
 
+      tmp_path = System.tmp_dir!() |> Path.join("bnlc.csv")
+
       assert """
              id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
              21231-3,I,Love,CSV,21231,3,bnlc_github,bnlc_github\r
              21231-4,Very,Much,So,21231,4,bnlc_github,bnlc_github\r
              21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
              21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
-             """ == File.read!(@tmp_path)
+             """ == File.read!(tmp_path)
     end
   end
 
   test "replace_file_on_datagouv" do
-    File.write!(@tmp_path, "fake_content")
+    tmp_path = System.tmp_dir!() |> Path.join("bnlc.csv")
 
     expect_datagouv_upload_file_http_call()
 
     ConsolidateBNLCJob.replace_file_on_datagouv()
 
-    refute File.exists?(@tmp_path)
+    refute File.exists?(tmp_path)
   end
 
   test "perform and update file on data.gouv.fr" do
@@ -809,7 +816,8 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     expect_job_scheduled_to_remove_file()
 
-    refute File.exists?(@tmp_path)
+    tmp_path = System.tmp_dir!() |> Path.join("bnlc.csv")
+    refute File.exists?(tmp_path)
   end
 
   describe "deleting a temporary file" do
@@ -851,7 +859,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   end
 
   defp expect_datagouv_upload_file_http_call do
-    tmp_path = @tmp_path
+    tmp_path = System.tmp_dir!() |> Path.join("bnlc.csv")
 
     expected_url =
       "https://demo.data.gouv.fr/api/1/datasets/bnlc_fake_dataset_id/resources/bnlc_fake_resource_id/upload/"

@@ -28,7 +28,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   # slugs from `datagouv_dataset_slugs`
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
   @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-  @bnlc_path System.tmp_dir!() |> Path.join("bnlc.csv")
   # The S3 bucket to use to upload the consolidated file, sent to our team for review.
   # We use the `:on_demand_validation` one because this is a bucket holding temporary
   # files.
@@ -116,14 +115,16 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   def replace_file_on_datagouv do
     %{dataset_id: dataset_id, resource_id: resource_id} = consolidation_configuration()
 
+    bnlc_path = System.tmp_dir!() |> Path.join("bnlc.csv")
+
     Datagouvfr.Client.Resources.update(%{
       "dataset_id" => dataset_id,
       "resource_id" => resource_id,
-      "resource_file" => %{path: @bnlc_path, filename: "bnlc.csv"}
+      "resource_file" => %{path: bnlc_path, filename: "bnlc.csv"}
     })
 
     Logger.info("Updated file on data.gouv.fr")
-    File.rm!(@bnlc_path)
+    File.rm!(bnlc_path)
   end
 
   defp validator_unavailable?(validation_errors) do
@@ -133,9 +134,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   defp upload_temporary_file do
+    bnlc_path = System.tmp_dir!() |> Path.join("bnlc.csv")
+
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
     filename = "bnlc-#{now}.csv"
-    Transport.S3.stream_to_s3!(@s3_bucket, @bnlc_path, filename, acl: :public_read)
+    Transport.S3.stream_to_s3!(@s3_bucket, bnlc_path, filename, acl: :public_read)
     filename
   end
 
@@ -296,12 +299,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @doc """
   Given a list of resources, previously prepared by `download_resources/1`,
-  creates the BNLC final file and write on the local disk at `@bnlc_path`.
+  creates the BNLC final file and write on the local disk at `System.tmp_dir!() |> Path.join("bnlc.csv")`.
 
   It downloads the BNLC from GitHub and reads other files from the disk.
   """
   def consolidate_resources(resources_details) do
-    file = File.open!(@bnlc_path, [:write, :utf8])
+    bnlc_path = System.tmp_dir!() |> Path.join("bnlc.csv")
+
+    file = File.open!(bnlc_path, [:write, :utf8])
     bnlc_headers = bnlc_csv_headers()
     final_headers = final_csv_headers(bnlc_headers)
 
