@@ -59,7 +59,7 @@ Alternatively, you can use Docker, see the [Docker section](#docker-installation
 
 ### Creating a database
 
-Make sure you have a postgres user with postgres password, and that the identification methode is set to md5 in your `pg_hba.conf` file.
+Make sure you have a postgres user with postgres password, and that the identification method is set to scram-sha-256 in your `pg_hba.conf` file.
 
 Create the database with the command `mix ecto.create`.
 
@@ -105,7 +105,7 @@ Run the server with `mix phx.server` and you can visit [`127.0.0.1:5000`](http:/
 
 ## Usage of the Elixir Proxy
 
-[`apps/unlock`](https://github.com/etalab/transport-site/tree/master/apps/unlock) is a sub-part of the "umbrella app", which is served on its own subdomain (https://proxy.transport.data.gouv.fr for production, https://proxy.prochainement.transport.data.gouv.fr/ for staging).
+[`apps/transport/lib/unlock`](https://github.com/etalab/transport-site/tree/master/apps/transport/lib/unlock) contains code related to the proxy, which is served on its own subdomain (https://proxy.transport.data.gouv.fr for production, https://proxy.prochainement.transport.data.gouv.fr/ for staging).
 
 The proxy relies on this [yaml configuration](https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml) which is currently fetched at runtime once (but can be hot-reloaded via this [backoffice page](https://transport.data.gouv.fr/backoffice/proxy-config)).
 
@@ -265,7 +265,7 @@ For the tests you also need to add an environment variable:
   The Dockerfile needed to run the continuous integration is in the project:
   https://github.com/etalab/transport-ops
 
-  Update it if needed (e.g. updating Elixir’s version) and then update `.circleci/config.yml`.
+  Update it if needed (e.g. updating Elixir’s version).
 
 # Domain names
 
@@ -278,7 +278,7 @@ The following domain names are currently in use by the deployed Elixir app:
 * Staging
   * site: https://prochainement.transport.data.gouv.fr
   * jobs: https://workers.prochainement.transport.data.gouv.fr
-  * proxy: https://proxy.prochainement.transport.gouv.fr
+  * proxy: https://proxy.prochainement.transport.data.gouv.fr
 
 These names are [configured via a CNAME on Clever Cloud](https://www.clever-cloud.com/doc/administrate/domain-names/#using-personal-domain-names).
 
