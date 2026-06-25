@@ -63,7 +63,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, args: %{"action" => "datagouv_update"} = args}) do
-    bnlc_path = args["path"] || System.tmp_dir!() |> Path.join("bnlc.csv")
+    bnlc_path = args["path"] || tmp_file!()
 
     return_value = consolidate(bnlc_path)
 
@@ -77,17 +77,19 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @impl Oban.Worker
   def perform(%Oban.Job{id: job_id, args: args}) do
-    bnlc_path = args["path"] || System.tmp_dir!() |> Path.join("bnlc.csv")
+    bnlc_path = args["path"] || tmp_file!()
 
     return_value = consolidate(bnlc_path)
     Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
     return_value
   end
 
+  defp tmp_file! do
+    System.tmp_dir!() |> Path.join("bnlc.csv")
+  end
+
   @spec consolidate(bnlc_path :: Path.t()) :: :ok | {:discard, binary()}
   defp consolidate(bnlc_path) do
-    # bnlc_path = System.tmp_dir!() |> Path.join("bnlc.csv")
-
     Logger.info("Starting consolidation…")
     Logger.info("Extracting configured datasets & retrieving data from data.gouv…")
     %{ok: datasets_details, errors: dataset_errors} = datagouv_dataset_slugs() |> extract_dataset_details()

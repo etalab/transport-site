@@ -390,7 +390,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    path = System.tmp_dir!() |> Path.join("consolidate_resources-bnlc.csv")
+    path = tmp_file!()
 
     assert :ok == ConsolidateBNLCJob.consolidate_resources(res, path)
 
@@ -590,7 +590,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_s3_stream_upload()
 
-      tmp_path = System.tmp_dir!() |> Path.join("job-success-bnlc.csv")
+      tmp_path = tmp_file!()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{"path" => tmp_path})
 
@@ -756,7 +756,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_s3_stream_upload()
 
-      tmp_path = System.tmp_dir!() |> Path.join("job-invalid-resource-bnlc.csv")
+      tmp_path = tmp_file!()
 
       assert :ok == perform_job(ConsolidateBNLCJob, %{"path" => tmp_path})
 
@@ -775,7 +775,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   end
 
   test "replace_file_on_datagouv" do
-    tmp_path = System.tmp_dir!() |> Path.join("replace_file_on_datagouv-bnlc.csv")
+    tmp_path = tmp_file!()
 
     expect_datagouv_upload_file_http_call(tmp_path)
 
@@ -810,7 +810,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
     expect_s3_stream_upload()
 
-    path = System.tmp_dir!() |> Path.join("update_datagouv-bnlc.csv")
+    path = tmp_file!()
 
     expect_datagouv_upload_file_http_call(path)
 
@@ -917,5 +917,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       assert html_body =~
                ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
     end)
+  end
+
+  defp tmp_file! do
+    System.tmp_dir!() |> Path.join("#{Ecto.UUID.generate()}.csv")
   end
 end
