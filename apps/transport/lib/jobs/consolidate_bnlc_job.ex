@@ -28,7 +28,6 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   # slugs from `datagouv_dataset_slugs`
   @datasets_list_csv_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/datasets.csv"
   @bnlc_github_url "https://raw.githubusercontent.com/etalab/transport-base-nationale-covoiturage/main/bnlc-.csv"
-  @bnlc_path System.tmp_dir!() |> Path.join("bnlc.csv")
   # The S3 bucket to use to upload the consolidated file, sent to our team for review.
   # We use the `:on_demand_validation` one because this is a bucket holding temporary
   # files.
@@ -63,11 +62,13 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{id: job_id, args: %{"action" => "datagouv_update"}}) do
-    return_value = consolidate()
+  def perform(%Oban.Job{id: job_id, args: %{"action" => "datagouv_update"} = args}) do
+    bnlc_path = args["path"] || tmp_file!()
+
+    return_value = consolidate(bnlc_path)
 
     if return_value == :ok do
-      replace_file_on_datagouv()
+      replace_file_on_datagouv(bnlc_path)
     end
 
     Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
@@ -75,14 +76,20 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   end
 
   @impl Oban.Worker
-  def perform(%Oban.Job{id: job_id}) do
-    return_value = consolidate()
+  def perform(%Oban.Job{id: job_id, args: args}) do
+    bnlc_path = args["path"] || tmp_file!()
+
+    return_value = consolidate(bnlc_path)
     Oban.Notifier.notify(Oban, :gossip, %{complete: job_id})
     return_value
   end
 
-  @spec consolidate() :: :ok | {:discard, binary()}
-  def consolidate do
+  defp tmp_file! do
+    System.tmp_dir!() |> Path.join("bnlc.csv")
+  end
+
+  @spec consolidate(bnlc_path :: Path.t()) :: :ok | {:discard, binary()}
+  defp consolidate(bnlc_path) do
     Logger.info("Starting consolidation…")
     Logger.info("Extracting configured datasets & retrieving data from data.gouv…")
     %{ok: datasets_details, errors: dataset_errors} = datagouv_dataset_slugs() |> extract_dataset_details()
@@ -96,11 +103,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
       Logger.info("Downloading resources…")
       %{ok: download_details, errors: download_or_decode_errors} = download_resources(resources_details)
       Logger.info("Creating a single file")
-      consolidate_resources(download_details)
+      consolidate_resources(download_details, bnlc_path)
 
       Logger.info("Sending the email recap")
 
-      upload_temporary_file()
+      upload_temporary_file(bnlc_path)
       |> schedule_deletion()
       |> send_email_recap(%{
         dataset_errors: dataset_errors,
@@ -113,17 +120,17 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     end
   end
 
-  def replace_file_on_datagouv do
+  def replace_file_on_datagouv(bnlc_path) do
     %{dataset_id: dataset_id, resource_id: resource_id} = consolidation_configuration()
 
     Datagouvfr.Client.Resources.update(%{
       "dataset_id" => dataset_id,
       "resource_id" => resource_id,
-      "resource_file" => %{path: @bnlc_path, filename: "bnlc.csv"}
+      "resource_file" => %{path: bnlc_path, filename: "bnlc.csv"}
     })
 
     Logger.info("Updated file on data.gouv.fr")
-    File.rm!(@bnlc_path)
+    File.rm!(bnlc_path)
   end
 
   defp validator_unavailable?(validation_errors) do
@@ -132,10 +139,10 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
     |> Enum.any?()
   end
 
-  defp upload_temporary_file do
+  defp upload_temporary_file(bnlc_path) do
     now = DateTime.utc_now() |> DateTime.truncate(:microsecond) |> DateTime.to_string() |> String.replace(" ", "_")
     filename = "bnlc-#{now}.csv"
-    Transport.S3.stream_to_s3!(@s3_bucket, @bnlc_path, filename, acl: :public_read)
+    Transport.S3.stream_to_s3!(@s3_bucket, bnlc_path, filename, acl: :public_read)
     filename
   end
 
@@ -296,12 +303,12 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
 
   @doc """
   Given a list of resources, previously prepared by `download_resources/1`,
-  creates the BNLC final file and write on the local disk at `@bnlc_path`.
+  creates the BNLC final file and write on the local disk at `System.tmp_dir!() |> Path.join("bnlc.csv")`.
 
   It downloads the BNLC from GitHub and reads other files from the disk.
   """
-  def consolidate_resources(resources_details) do
-    file = File.open!(@bnlc_path, [:write, :utf8])
+  def consolidate_resources(resources_details, bnlc_path) do
+    file = File.open!(bnlc_path, [:write, :utf8])
     bnlc_headers = bnlc_csv_headers()
     final_headers = final_csv_headers(bnlc_headers)
 
@@ -494,10 +501,11 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   @spec download_resources([map()]) :: %{ok: [], errors: [decode_error() | download_error()]}
   def download_resources(resources_details) do
     resources_details
-    |> Enum.map(fn {dataset_details, %{"url" => resource_url} = resource} ->
+    |> Enum.map(fn {dataset_details, %{"url" => resource_url, "id" => resource_id} = resource} ->
       case http_client().get(resource_url, [], follow_redirect: true) do
         {:ok, %HTTPoison.Response{status_code: 200} = response} ->
-          guess_csv_details_and_decode({dataset_details, resource}, response)
+          path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
+          guess_csv_details_and_decode({dataset_details, resource}, response, path)
 
         _ ->
           {:errors, {:download, {dataset_details, resource}}}
@@ -512,11 +520,14 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   - guess the file encoding
   - decode the CSV file with the guessed separator
   """
-  def guess_csv_details_and_decode({dataset_details, %{"id" => resource_id} = resource}, %HTTPoison.Response{
-        status_code: 200,
-        body: body
-      }) do
-    path = System.tmp_dir!() |> Path.join("consolidate_bnlc_#{resource_id}")
+  def guess_csv_details_and_decode(
+        {dataset_details, %{} = resource},
+        %HTTPoison.Response{
+          status_code: 200,
+          body: body
+        },
+        path
+      ) do
     File.write!(path, body)
 
     resource =

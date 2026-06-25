@@ -7,7 +7,6 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
   alias Transport.Jobs.ConsolidateBNLCJob
 
   @target_schema "etalab/schema-lieux-covoiturage"
-  @tmp_path System.tmp_dir!() |> Path.join("bnlc.csv")
   @csv_latin1_path "#{__DIR__}/../../fixture/files/csv_latin1.csv"
   @csv_utf8_path "#{__DIR__}/../../fixture/files/csv_utf8.csv"
 
@@ -391,7 +390,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       end
     )
 
-    assert :ok == ConsolidateBNLCJob.consolidate_resources(res)
+    path = tmp_file!()
+
+    assert :ok == ConsolidateBNLCJob.consolidate_resources(res, path)
 
     assert [
              %{
@@ -454,7 +455,11 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                "dataset_id" => other_dataset_id,
                "resource_id" => other_resource_id
              }
-           ] == @tmp_path |> File.stream!() |> CSV.decode!(headers: true) |> Enum.to_list()
+           ] ==
+             path
+             |> File.stream!()
+             |> CSV.decode!(headers: true)
+             |> Enum.to_list()
 
     # From https://datatracker.ietf.org/doc/html/rfc4180#section-2
     # > Each record is located on a separate line, delimited by a line break (CRLF)
@@ -468,7 +473,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
            21231-2,4,5,6,21231,2,#{dataset_id},#{resource_id}\r
            21231-3,a,b,c,21231,3,#{other_dataset_id},#{other_resource_id}\r
            21231-4,d,e,f,21231,4,#{other_dataset_id},#{other_resource_id}\r
-           """ == File.read!(@tmp_path)
+           """ == File.read!(path)
 
     # Temporary files have been removed
     [{_, r1}, {_, r2}] = res
@@ -585,11 +590,12 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_s3_stream_upload()
 
-      assert :ok == perform_job(ConsolidateBNLCJob, %{})
+      tmp_path = tmp_file!()
+
+      assert :ok == perform_job(ConsolidateBNLCJob, %{"path" => tmp_path})
 
       assert_ok_email_sent()
       expect_job_scheduled_to_remove_file()
-
       # CSV content is fine
       assert """
              id_lieu,foo,bar,baz,insee,id_local,dataset_id,resource_id\r
@@ -598,7 +604,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
              21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
              21231-3,1,2,3,21231,3,#{bar_dataset_id},#{bar_resource_id}\r
-             """ == File.read!(@tmp_path)
+             """ == File.read!(tmp_path)
     end
 
     test "stops when the schema validator is down" do
@@ -750,7 +756,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
 
       expect_s3_stream_upload()
 
-      assert :ok == perform_job(ConsolidateBNLCJob, %{})
+      tmp_path = tmp_file!()
+
+      assert :ok == perform_job(ConsolidateBNLCJob, %{"path" => tmp_path})
 
       assert_ko_email_sent()
 
@@ -762,18 +770,18 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
              21231-4,Very,Much,So,21231,4,bnlc_github,bnlc_github\r
              21231-1,a,b,c,21231,1,#{foo_dataset_id},#{foo_resource_id}\r
              21231-2,d,e,f,21231,2,#{foo_dataset_id},#{foo_resource_id}\r
-             """ == File.read!(@tmp_path)
+             """ == File.read!(tmp_path)
     end
   end
 
   test "replace_file_on_datagouv" do
-    File.write!(@tmp_path, "fake_content")
+    tmp_path = tmp_file!()
 
-    expect_datagouv_upload_file_http_call()
+    expect_datagouv_upload_file_http_call(tmp_path)
 
-    ConsolidateBNLCJob.replace_file_on_datagouv()
+    ConsolidateBNLCJob.replace_file_on_datagouv(tmp_path)
 
-    refute File.exists?(@tmp_path)
+    refute File.exists?(tmp_path)
   end
 
   test "perform and update file on data.gouv.fr" do
@@ -801,15 +809,17 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     )
 
     expect_s3_stream_upload()
-    expect_datagouv_upload_file_http_call()
 
-    assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "datagouv_update"})
+    path = tmp_file!()
+
+    expect_datagouv_upload_file_http_call(path)
+
+    assert :ok == perform_job(ConsolidateBNLCJob, %{"action" => "datagouv_update", "path" => path})
 
     assert_ok_email_sent()
 
     expect_job_scheduled_to_remove_file()
-
-    refute File.exists?(@tmp_path)
+    refute File.exists?(path)
   end
 
   describe "deleting a temporary file" do
@@ -850,9 +860,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
     end)
   end
 
-  defp expect_datagouv_upload_file_http_call do
-    tmp_path = @tmp_path
-
+  defp expect_datagouv_upload_file_http_call(tmp_path) do
     expected_url =
       "https://demo.data.gouv.fr/api/1/datasets/bnlc_fake_dataset_id/resources/bnlc_fake_resource_id/upload/"
 
@@ -863,6 +871,7 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
                            [{"content-type", "multipart/form-data"}, {"X-API-KEY", "fake-datagouv-api-key"}],
                            [follow_redirect: true] ->
       {:multipart, [{:file, ^tmp_path, {"form-data", [name: "file", filename: "bnlc.csv"]}, []}]} = args
+      File.touch!(tmp_path)
       {:ok, %HTTPoison.Response{body: "", status_code: 200}}
     end)
   end
@@ -908,5 +917,9 @@ defmodule Transport.Test.Transport.Jobs.ConsolidateBNLCJobTest do
       assert html_body =~
                ~r{🔗 <a href="https://transport-data-gouv-fr-on-demand-validation-test.cellar-c2.services.clever-cloud.com/bnlc-.*\.csv">Fichier consolidé</a>}
     end)
+  end
+
+  defp tmp_file! do
+    System.tmp_dir!() |> Path.join("#{Ecto.UUID.generate()}.csv")
   end
 end
