@@ -11,7 +11,8 @@ defmodule Transport.IRVE.Validator.Summary do
     :file_level_errors,
     :column_errors,
     :error_samples,
-    :warnings
+    :warnings,
+    :warning_samples
   ]
 
   defstruct [
@@ -22,7 +23,8 @@ defmodule Transport.IRVE.Validator.Summary do
     :file_level_errors,
     :column_errors,
     :error_samples,
-    :warnings
+    :warnings,
+    :warning_samples
   ]
 
   @doc """
@@ -34,7 +36,9 @@ defmodule Transport.IRVE.Validator.Summary do
     result
     |> atomize_keys()
     |> Map.put_new(:warnings, %{})
+    |> Map.put_new(:warning_samples, [])
     |> Map.update!(:error_samples, fn samples -> Enum.map(samples, &atomize_keys/1) end)
+    |> Map.update!(:warning_samples, fn samples -> Enum.map(samples, &atomize_keys/1) end)
     |> then(&struct!(__MODULE__, &1))
   end
 

@@ -56,6 +56,7 @@ defmodule Transport.IRVE.Validator do
     {valid_count, invalid_count} = summarize_total_counts(df)
     column_errors = summarize_column_errors(df)
     error_samples = error_samples(df, column_errors)
+    warnings = summarize_warnings(df)
 
     %Transport.IRVE.Validator.Summary{
       valid: invalid_count == 0,
@@ -65,7 +66,8 @@ defmodule Transport.IRVE.Validator do
       file_level_errors: [],
       column_errors: column_errors,
       error_samples: error_samples,
-      warnings: summarize_warnings(df)
+      warnings: warnings,
+      warning_samples: warning_samples(df, warnings)
     }
   end
 
@@ -94,9 +96,12 @@ defmodule Transport.IRVE.Validator do
         file_level_errors: [Exception.message(error)],
         column_errors: %{},
         error_samples: [],
-        warnings: %{}
+        warnings: %{},
+        warning_samples: []
       }
   end
+
+  @warning_value_columns %{"lon_lat_inverted" => "coordonneesXY"}
 
   defp summarize_warnings(df) do
     df
@@ -107,6 +112,22 @@ defmodule Transport.IRVE.Validator do
       if count > 0, do: [{String.replace_prefix(col, "warning_", ""), count}], else: []
     end)
     |> Map.new()
+  end
+
+  defp warning_samples(df, warnings) do
+    warnings
+    |> Enum.flat_map(fn {warning_name, _count} ->
+      value_col = Map.fetch!(@warning_value_columns, warning_name)
+
+      df
+      |> Explorer.DataFrame.filter_with(& &1["warning_#{warning_name}"])
+      |> Explorer.DataFrame.select(["id_pdc_itinerance", value_col])
+      |> Explorer.DataFrame.head(5)
+      |> Explorer.DataFrame.to_rows()
+      |> Enum.map(fn row ->
+        %{id_pdc_itinerance: row["id_pdc_itinerance"], warning: warning_name, value: row[value_col]}
+      end)
+    end)
   end
 
   defp summarize_total_counts(df) do
