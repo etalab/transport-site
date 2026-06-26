@@ -24,6 +24,11 @@ defmodule TransportWeb.ValidationView do
   def has_errors?([]), do: false
   def has_errors?(summary) when is_list(summary), do: true
 
+  def warning_label("lon_lat_inverted"),
+    do: dgettext("validations", "Longitude and latitude coordinates inverted")
+
+  def warning_label(warning) when is_binary(warning), do: warning
+
   def netex_pagination_links(conn, issues, validation_id, current_category) do
     pagination_links(conn, issues, [validation_id],
       issues_category: current_category,
