@@ -879,7 +879,7 @@ defmodule TransportWeb.ValidationControllerTest do
         )
 
       response = conn |> get(validation_path(conn, :show, mv.id, token: token)) |> html_response(200)
-      assert response =~ "Longitude and latitude coordinates inverted"
+      assert response =~ "Coordonnées de longitude et latitude inversées"
       assert response =~ "FRPAN99E00000001"
       assert response =~ "[45.91914, -0.799141]"
     end
