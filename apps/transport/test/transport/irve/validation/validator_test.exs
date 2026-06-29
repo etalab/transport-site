@@ -235,4 +235,31 @@ defmodule Transport.IRVE.ValidatorTest do
       assert error_message =~ "zip"
     end)
   end
+
+  test "validate_and_summarize/1 returns a summary (no raise) on an unexpected downstream error" do
+    # passes every file-level probe (has id_pdc_itinerance, comma-separated, .csv, v2 schema)
+    # but a required column is missing, which blows up deeper in the validation pipeline
+    csv_content =
+      [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert %Transport.IRVE.Validator.Summary{
+               valid: false,
+               valid_row_count: nil,
+               invalid_row_count: nil,
+               total_row_count: nil,
+               column_errors: %{},
+               error_samples: [],
+               file_level_errors: [message]
+             } = summary
+
+      # marked as unexpected (vs a known schema-level problem) ...
+      assert String.starts_with?(message, "Unexpected error: ")
+      # ... and the full message also lists every available column, which is too brittle to assert on
+      assert message =~ ~s|could not find column name "nom_station"|
+    end)
+  end
 end

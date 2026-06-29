@@ -3,6 +3,8 @@ defmodule Transport.IRVE.Validator do
   Central entry point for IRVE file validation (currently working on `DataFrame`).
   """
 
+  @unexpected_error_prefix "Unexpected error: "
+
   def compute_validation(%Explorer.DataFrame{} = df) do
     schema = Transport.IRVE.StaticIRVESchema.schema_content()
 
@@ -24,6 +26,16 @@ defmodule Transport.IRVE.Validator do
     # is too involved for the current sprint deadline.
     body = File.read!(path)
     Transport.IRVE.Static.Probes.run_cheap_blocking_checks(body, extension)
+    validate_body(body)
+  end
+
+  @doc """
+  Validate an already-loaded in-memory body, returning a DataFrame with validation results.
+
+  Unlike `validate/2`, this does not run the cheap file-level probes: callers that need
+  those should go through `validate_and_summarize/2`.
+  """
+  def validate_body(body) do
     # TODO: accumulate warnings
     body = Transport.IRVE.Transcoder.ensure_utf8(body)
     # TODO: accumulate warnings
@@ -72,33 +84,46 @@ defmodule Transport.IRVE.Validator do
   end
 
   @doc """
-  Combines `validate/2` and `summarize/1` into a single call, catching any file-level error
-  (bad encoding, wrong format, missing columns, etc.) instead of raising.
+  The non-raising entry point for IRVE validation: turns a file into a `%Summary{}`.
 
-  Returns the same map as `summarize/1` with an additional `file_level_error` key:
-  - `nil` when validation ran successfully (the file could still be invalid row-by-row)
-  - an error message string when a hard file-level error was caught
+  Known file-level problems (zip, wrong format, v1 schema, …) are detected up-front by
+  `Transport.IRVE.Static.Probes.file_level_errors/2` and reported in `file_level_errors`.
+
+  Any *unexpected* error raised deeper in the pipeline (arbitrary input can be anything)
+  is caught as a last-resort safety net and folded into `file_level_errors`, prefixed with
+  `#{@unexpected_error_prefix}` so the report can later tell these apart from known,
+  schema-level problems.
 
   On a file-level error, `valid_row_count`, `invalid_row_count`, `column_errors`, and
   `error_samples` are all `nil`/empty since there is no DataFrame to summarize from.
   """
   def validate_and_summarize(path, extension \\ ".csv") do
-    path
-    |> validate(extension)
-    |> summarize()
+    body = File.read!(path)
+
+    case Transport.IRVE.Static.Probes.file_level_errors(body, extension) do
+      [] ->
+        body |> validate_body() |> summarize()
+
+      file_level_errors ->
+        summary_with_file_level_errors(file_level_errors)
+    end
   rescue
     error ->
-      %Transport.IRVE.Validator.Summary{
-        valid: false,
-        valid_row_count: nil,
-        invalid_row_count: nil,
-        total_row_count: nil,
-        file_level_errors: [Exception.message(error)],
-        column_errors: %{},
-        error_samples: [],
-        warnings: %{},
-        warning_samples: []
-      }
+      summary_with_file_level_errors([@unexpected_error_prefix <> Exception.message(error)])
+  end
+
+  defp summary_with_file_level_errors(file_level_errors) do
+    %Transport.IRVE.Validator.Summary{
+      valid: false,
+      valid_row_count: nil,
+      invalid_row_count: nil,
+      total_row_count: nil,
+      file_level_errors: file_level_errors,
+      column_errors: %{},
+      error_samples: [],
+      warnings: %{},
+      warning_samples: []
+    }
   end
 
   @max_samples_per_group 5
