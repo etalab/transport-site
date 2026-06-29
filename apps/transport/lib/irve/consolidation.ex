@@ -105,24 +105,21 @@ defmodule Transport.IRVE.Consolidation do
         |> Map.put(:estimated_pdc_count, estimated_pdc_count)
         |> Map.put(:file_extension, extension)
 
-      # The code is convoluted mostly because we didn't go far enough on the validator work.
-      # The validator will ultimately stop raising exceptions, and will instead return structures.
-      # But currently if a cheap check fails, an exception is thrown, and we would lose the estimated PDC count,
-      # something which is essential to report on for our current work.
+      # The producer-is-org check is not part of file validation: it concerns how the resource
+      # is published on data.gouv.fr, not its content. It runs after download so we can still
+      # report the estimated PDC count for skipped resources.
+      #
+      # The single catch-all rescue now means exactly one thing: an unexpected error (in practice
+      # the DB write — validation no longer raises). Keeping it here preserves the enriched
+      # `resource` (esp. estimated_pdc_count) in the report rather than the un-enriched one that
+      # `process_or_rescue/1` would catch.
       try do
-        # Raise if the producer is not an organization. This check is not in the validator itself:
-        # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
-        # it is done after downloading the file in order to be able to report on the potential
-        # loss of PDC count.
-        ensure_producer_is_org!(resource)
-
-        validation_result = Transport.IRVE.Validator.validate(path, extension)
-        file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
-
-        if file_valid? do
+        with true <- producer_is_org?(resource),
+             %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension) do
           {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
         else
-          {:not_compliant_with_schema, resource}
+          false -> {:producer_not_an_organization, resource}
+          %{file_level_errors: errors} -> {:not_compliant_with_schema, resource, errors}
         end
       rescue
         error ->
@@ -232,7 +229,7 @@ defmodule Transport.IRVE.Consolidation do
     end
   end
 
-  defp ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+  defp producer_is_org?(%{dataset_organisation_id: "???"}), do: false
 
-  defp ensure_producer_is_org!(_row), do: :ok
+  defp producer_is_org?(_row), do: true
 end

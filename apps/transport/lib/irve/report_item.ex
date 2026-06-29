@@ -20,11 +20,15 @@ defmodule Transport.IRVE.ReportItem do
   ]
 
   def from_result({:error_occurred, error, resource}) do
-    new(resource, :error_occurred, error)
+    new(resource, :error_occurred, Exception.message(error), inspect(error.__struct__))
+  end
+
+  def from_result({:not_compliant_with_schema, resource, file_level_errors}) do
+    new(resource, :not_compliant_with_schema, Enum.join(file_level_errors, "\n"), nil)
   end
 
   def from_result({status, resource}) do
-    new(resource, status, nil)
+    new(resource, status, nil, nil)
   end
 
   def to_map(%__MODULE__{} = report_row) do
@@ -33,7 +37,7 @@ defmodule Transport.IRVE.ReportItem do
     |> Map.update!(:status, &to_string/1)
   end
 
-  defp new(resource, status, error) do
+  defp new(resource, status, error_message, error_type) do
     %__MODULE__{
       dataset_id: resource.dataset_id,
       resource_id: resource.resource_id,
@@ -43,15 +47,9 @@ defmodule Transport.IRVE.ReportItem do
       datagouv_last_modified: resource.datagouv_last_modified,
       status: status,
       estimated_pdc_count: resource[:estimated_pdc_count],
-      error_message: maybe_error_message(error),
-      error_type: maybe_error_type(error),
+      error_message: error_message,
+      error_type: error_type,
       file_extension: resource[:file_extension]
     }
   end
-
-  defp maybe_error_message(nil), do: nil
-  defp maybe_error_message(error), do: Exception.message(error)
-
-  defp maybe_error_type(nil), do: nil
-  defp maybe_error_type(error), do: error.__struct__ |> inspect()
 end
