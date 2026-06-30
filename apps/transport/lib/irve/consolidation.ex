@@ -114,11 +114,11 @@ defmodule Transport.IRVE.Consolidation do
       # `resource` (esp. estimated_pdc_count) in the report rather than the un-enriched one that
       # `process_or_rescue/1` would catch.
       try do
-        with true <- producer_is_org?(resource),
+        with :producer_is_an_organization <- producer_is_org(resource),
              %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension) do
           {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
         else
-          false -> {:producer_not_an_organization, resource}
+          :producer_not_an_organization -> {:producer_not_an_organization, resource}
           %{file_level_errors: errors} -> {:not_compliant_with_schema, resource, errors}
         end
       rescue
@@ -229,7 +229,7 @@ defmodule Transport.IRVE.Consolidation do
     end
   end
 
-  defp producer_is_org?(%{dataset_organisation_id: "???"}), do: false
-
-  defp producer_is_org?(_row), do: true
+  defp producer_is_org(%{dataset_organisation_id: org_id}) do
+    if org_id == "???", do: :producer_not_an_organization, else: :producer_is_an_organization
+  end
 end
