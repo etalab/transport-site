@@ -252,9 +252,41 @@ defmodule Transport.IRVE.Validator.DataFrameValidationTest do
   defp to_boolean(:valid), do: true
   defp to_boolean(:invalid), do: false
 
-  defp stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
+  def stringify_row(row), do: row |> Enum.map(fn {a, b} -> {a, b |> to_string} end)
 
   defp run_dataframe_validators(rows) do
     Transport.IRVE.Validator.compute_validation(rows |> Explorer.DataFrame.new())
+  end
+end
+
+defmodule Transport.IRVE.Validator.DataFrameValidation.WarningsTest do
+  use ExUnit.Case, async: true
+
+  alias Transport.IRVE.Validator.DataFrameValidationTest, as: Parent
+
+  test "warning_lon_lat_inverted is false for correct mainland France coordinates" do
+    result = run_with_xy("[2.35, 48.85]")
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
+  end
+
+  test "warning_lon_lat_inverted is true for inverted mainland France coordinates" do
+    result = run_with_xy("[48.85, 2.35]")
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [true]
+  end
+
+  test "warning_lon_lat_inverted is false when coordonneesXY is invalid (not a warning)" do
+    result = run_with_xy("[invalid, 9]")
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
+  end
+
+  test "warning_lon_lat_inverted is false for Réunion correct coordinates" do
+    result = run_with_xy("[55.4, -21.1]")
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
+  end
+
+  defp run_with_xy(xy) do
+    [DB.Factory.IRVE.generate_row(%{"coordonneesXY" => xy}) |> Parent.stringify_row()]
+    |> Explorer.DataFrame.new()
+    |> Transport.IRVE.Validator.compute_validation()
   end
 end

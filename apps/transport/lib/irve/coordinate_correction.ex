@@ -62,6 +62,8 @@ defmodule Transport.IRVE.CoordinateCorrection do
       [false, true, false, true]
 
   """
+  def inverted?(%DF{} = df), do: inverted?(df["longitude"], df["latitude"])
+
   def inverted?(lon_series, lat_series) do
     lon_in_lat_range =
       Series.and(

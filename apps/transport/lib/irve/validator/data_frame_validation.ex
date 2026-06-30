@@ -81,4 +81,24 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
       %{"check_row_valid" => row_valid}
     end)
   end
+
+  @doc """
+  Adds custom warning columns.
+  We only apply warnings to valid values to avoid noise.
+  """
+  def setup_computed_warning_columns(%Explorer.DataFrame{} = df) do
+    df
+    |> setup_inverted_lon_lat_warning_column()
+  end
+
+  def setup_inverted_lon_lat_warning_column(%Explorer.DataFrame{} = df) do
+    warning =
+      Explorer.DataFrame.select(df, ["coordonneesXY"])
+      # The next line is safe and shouldn’t raise errors even with weird values.
+      |> Transport.IRVE.Processing.preprocess_coordinates()
+      |> Transport.IRVE.CoordinateCorrection.inverted?()
+      |> Explorer.Series.and(df["check_column_coordonneesXY_valid"])
+
+    Explorer.DataFrame.put(df, "warning_lon_lat_inverted", warning)
+  end
 end

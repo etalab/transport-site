@@ -152,7 +152,9 @@ defmodule Transport.IRVE.ValidatorTest do
                total_row_count: 1,
                file_level_errors: [],
                column_errors: %{},
-               error_samples: []
+               error_samples: [],
+               warnings: %{},
+               warning_samples: []
              } == summary
     end)
   end
@@ -180,6 +182,29 @@ defmodule Transport.IRVE.ValidatorTest do
 
       assert [%{column: "nbre_pdc", value: "not-a-number", id_pdc_itinerance: _}] =
                Enum.filter(summary.error_samples, &(&1.column == "nbre_pdc"))
+    end)
+  end
+
+  test "summarize/1 reports inverted lon/lat coordinates as a warning" do
+    inverted_row =
+      DB.Factory.IRVE.generate_row(%{
+        "id_pdc_itinerance" => "FRPAN99E00000001",
+        "coordonneesXY" => "[45.91914, -0.799141]"
+      })
+
+    valid_row = DB.Factory.IRVE.generate_row()
+    csv_content = [inverted_row, valid_row] |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
+
+      assert summary.valid == true
+      assert summary.column_errors == %{}
+      assert summary.warnings == %{"lon_lat_inverted" => 1}
+
+      assert summary.warning_samples == [
+               %{id_pdc_itinerance: "FRPAN99E00000001", warning: "lon_lat_inverted", value: "[45.91914, -0.799141]"}
+             ]
     end)
   end
 

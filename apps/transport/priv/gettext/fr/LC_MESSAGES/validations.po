@@ -513,3 +513,25 @@ msgstr "Vous pouvez toujours utiliser l'ancien <a href=\"%{url}\" target=\"_blan
 #, elixir-autogen, elixir-format
 msgid "File is too large, must be <%{max_file_size}."
 msgstr "Fichier trop gros, doit peser moins de %{max_file_size}."
+
+#, elixir-autogen, elixir-format
+msgid "%{count} warning detected."
+msgid_plural "%{count} warnings detected."
+msgstr[0] "%{count} avertissement détecté."
+msgstr[1] "%{count} avertissements détectés."
+
+#, elixir-autogen, elixir-format
+msgid "Longitude and latitude coordinates inverted"
+msgstr "Coordonnées de longitude et latitude inversées"
+
+#, elixir-autogen, elixir-format
+msgid "Rows"
+msgstr "Lignes"
+
+#, elixir-autogen, elixir-format
+msgid "Warning"
+msgstr "Avertissement"
+
+#, elixir-autogen, elixir-format
+msgid "Warning samples"
+msgstr "Exemples d'avertissements"
