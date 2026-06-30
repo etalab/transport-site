@@ -101,6 +101,7 @@ defmodule Transport.IRVE.Validator do
       }
   end
 
+  # Maps each warning to the raw input column (not immediately constructed from the warning name)
   @warning_value_columns %{"lon_lat_inverted" => "coordonneesXY"}
 
   defp summarize_warnings(df) do
