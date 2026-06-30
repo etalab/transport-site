@@ -34,17 +34,6 @@ defmodule Transport.IRVE.Static.Probes do
   end
 
   @doc """
-  Raising shim over `file_level_errors/2`, kept while callers are migrated away
-  from exception-driven control flow.
-  """
-  def run_cheap_blocking_checks(body, extension) do
-    case file_level_errors(body, extension) do
-      [] -> :ok
-      [message | _] -> raise(message)
-    end
-  end
-
-  @doc """
   A quick way to grab the first line of a CSV (in order to analyze headers without going through a proper parser)
 
   iex> first_line("first,line\\nsome,data")

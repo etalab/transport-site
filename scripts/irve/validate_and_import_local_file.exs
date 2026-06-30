@@ -9,7 +9,13 @@ file_path = "mobilize.csv"
 
 Transport.LogTimeTaken.log_time_taken("Validating #{file_path}", fn ->
   IO.puts("Starting validating (#{file_path})…")
-  df = Transport.IRVE.Validator.validate(file_path)
+
+  df =
+    file_path
+    |> File.read!()
+    |> Transport.IRVE.Transcoder.ensure_utf8()
+    |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+    |> Transport.IRVE.Validator.compute_validation()
 
   IO.puts("Is the full file valid? #{df |> Transport.IRVE.Validator.full_file_valid?()}")
 

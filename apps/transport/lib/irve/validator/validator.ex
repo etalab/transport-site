@@ -15,37 +15,6 @@ defmodule Transport.IRVE.Validator do
   end
 
   @doc """
-  Validate an IRVE file located at `path`, returning a DataFrame with validation results.
-  This wrapper includes some pre-processing steps before actual validation.
-  These preprocessing steps do not output any warning and are silent,
-  so files that are not strictly valid may be considered as valid without any notice by this function.
-  If you want to call a strict validator (no preprocessing), use `compute_validation/1` instead.
-  """
-  def validate(path, extension \\ ".csv") do
-    # NOTE: for now, load the body in memory, because refactoring to get full streaming
-    # is too involved for the current sprint deadline.
-    body = File.read!(path)
-    Transport.IRVE.Static.Probes.run_cheap_blocking_checks(body, extension)
-    validate_body(body)
-  end
-
-  @doc """
-  Validate an already-loaded in-memory body, returning a DataFrame with validation results.
-
-  Unlike `validate/2`, this does not run the cheap file-level probes: callers that need
-  those should go through `validate_and_summarize/2`.
-  """
-  def validate_body(body) do
-    # TODO: accumulate warnings
-    body = Transport.IRVE.Transcoder.ensure_utf8(body)
-    # TODO: accumulate warnings
-
-    body
-    |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
-    |> compute_validation()
-  end
-
-  @doc """
   Says from the dataframe output of compute_validation/1 if all rows are valid.
   """
   def full_file_valid?(%Explorer.DataFrame{} = df) do
@@ -102,7 +71,12 @@ defmodule Transport.IRVE.Validator do
 
     case Transport.IRVE.Static.Probes.file_level_errors(body, extension) do
       [] ->
-        body |> validate_body() |> summarize()
+        body
+        # TODO: accumulate warnings (transcoding, delimiter, …) instead of silently fixing
+        |> Transport.IRVE.Transcoder.ensure_utf8()
+        |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+        |> compute_validation()
+        |> summarize()
 
       file_level_errors ->
         summary_with_file_level_errors(file_level_errors)

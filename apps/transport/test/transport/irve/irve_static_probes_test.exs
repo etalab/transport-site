@@ -72,16 +72,4 @@ defmodule Transport.IRVE.Static.ProbesTest do
       assert message =~ "could not hint header separator"
     end
   end
-
-  describe "run_cheap_blocking_checks/2 (raising shim)" do
-    test "returns :ok for a valid body" do
-      assert Probes.run_cheap_blocking_checks(valid_body(), ".csv") == :ok
-    end
-
-    test "raises the first file-level error" do
-      assert_raise RuntimeError, "the content is likely to be a zip file, not uncompressed CSV data", fn ->
-        Probes.run_cheap_blocking_checks("PK\x03\x04" <> "some content", ".csv")
-      end
-    end
-  end
 end

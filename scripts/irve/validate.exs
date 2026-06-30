@@ -27,7 +27,13 @@ test_resources
 
   Transport.LogTimeTaken.log_time_taken("Validating #{path}", fn ->
     IO.puts("Starting validating downloaded copy of #{url} (#{path})…")
-    df = Transport.IRVE.Validator.validate(path)
+
+    df =
+      path
+      |> File.read!()
+      |> Transport.IRVE.Transcoder.ensure_utf8()
+      |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+      |> Transport.IRVE.Validator.compute_validation()
 
     IO.puts("Is the full file valid? #{df |> Transport.IRVE.Validator.full_file_valid?()}")
 
