@@ -84,6 +84,16 @@ defmodule Transport.IRVE.Consolidation do
     process_resource(resource)
   rescue
     error ->
+      Logger.error(
+        "IRVE consolidation: unexpected error for resource #{resource.resource_id} (#{resource.url})\n" <>
+          Exception.format(:error, error, __STACKTRACE__)
+      )
+
+      Sentry.capture_exception(error,
+        stacktrace: __STACKTRACE__,
+        extra: %{resource_id: resource.resource_id, url: resource.url}
+      )
+
       {:error_occurred, error, resource}
   end
 
