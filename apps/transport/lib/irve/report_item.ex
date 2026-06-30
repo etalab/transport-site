@@ -23,6 +23,10 @@ defmodule Transport.IRVE.ReportItem do
     new(resource, :error_occurred, Exception.message(error), inspect(error.__struct__))
   end
 
+  def from_result({:download_failed, resource, message}) do
+    new(resource, :download_failed, message, nil)
+  end
+
   def from_result({:file_level_errors, resource, file_level_errors}) do
     new(resource, :file_level_errors, Enum.join(file_level_errors, "\n"), nil)
   end

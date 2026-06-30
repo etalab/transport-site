@@ -198,28 +198,35 @@ defmodule Transport.IRVE.Consolidation do
   # regular workflow: process the file then delete it afterwards, no matter what, to ensure
   # the files do not stack up on the production disk.
   def with_maybe_cached_download_on_disk(resource, file_path, extension, false = _use_permanent_disk_cache, work_fn) do
-    download!(resource.resource_id, resource.url, file_path)
-    # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
-    # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
-    # to keep the extension around)
-    work_fn.(file_path, extension)
+    case download(resource.resource_id, resource.url, file_path) do
+      # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
+      # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
+      # to keep the extension around)
+      :ok -> work_fn.(file_path, extension)
+      {:error, message} -> {:download_failed, resource, message}
+    end
   after
     File.rm!(file_path)
   end
 
   # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)
   def with_maybe_cached_download_on_disk(resource, file_path, extension, true = _use_permanent_disk_cache, work_fn) do
-    if !File.exists?(file_path), do: download!(resource.resource_id, resource.url, file_path)
-    work_fn.(file_path, extension)
+    download_result =
+      if File.exists?(file_path), do: :ok, else: download(resource.resource_id, resource.url, file_path)
+
+    case download_result do
+      :ok -> work_fn.(file_path, extension)
+      {:error, message} -> {:download_failed, resource, message}
+    end
   end
 
-  def download!(resource_id, url, file) do
+  # Returns `:ok` on success, or `{:error, message}` for a non-200 response.
+  # Timeouts / transport errors still raise for now (caught upstream as `:error_occurred`).
+  def download(resource_id, url, file) do
     Logger.info("Processing resource #{resource_id} (url=#{url})")
     %{status: status} = Transport.HTTPClient.get!(url, compressed: false, decode_body: false, into: File.stream!(file))
 
-    unless status == 200 do
-      raise "Error processing resource (#{resource_id}) (http_status=#{status})"
-    end
+    if status == 200, do: :ok, else: {:error, "http_status=#{status}"}
   end
 
   defp producer_is_org(%{dataset_organisation_id: org_id}) do
