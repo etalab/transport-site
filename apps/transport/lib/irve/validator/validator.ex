@@ -53,26 +53,33 @@ defmodule Transport.IRVE.Validator do
   end
 
   @doc """
-  The non-raising entry point for IRVE validation: turns a file into a `%Summary{}`.
+  The main entry point for IRVE validation: turns a file into a `%Summary{}`.
+  Used by on demand validation as well as the consolidation pipeline.
+
+  If you want to call a strict validator (no preprocessing, no file-level error handling),
+  or want to have access to line by line details, use `compute_validation/1` instead,
+  as this function doesn’t output the whole validation report, only a summary.
 
   Known file-level problems (zip, wrong format, v1 schema, …) are detected up-front by
   `Transport.IRVE.Static.Probes.file_level_errors/2` and reported in `file_level_errors`.
+  In this case, `valid_row_count`, `invalid_row_count`, `column_errors`, and
+  `error_samples` are all `nil`/empty as the file was not processed at all.
 
-  Any *unexpected* error raised deeper in the pipeline (arbitrary input can be anything)
-  is caught as a last-resort safety net and folded into `file_level_errors`, prefixed with
-  `#{@unexpected_error_prefix}` so the report can later tell these apart from known,
-  schema-level problems.
-
-  On a file-level error, `valid_row_count`, `invalid_row_count`, `column_errors`, and
-  `error_samples` are all `nil`/empty since there is no DataFrame to summarize from.
+  Unexpected errors anywhere in the pipeline are also caught and reported in `file_level_errors`
+  and prefixed with `#{@unexpected_error_prefix}` to tell them apart.
   """
   def validate_and_summarize(path, extension \\ ".csv") do
+    # Known problem: whole file is loaded in memory, no streaming.
+    # We could change that by having probes use only the first lines,
+    # stream the utf8 conversion,
+    # and finally cast to a dataframe in a streaming way (Explorer.DataFrame.from_csv/2 supports streaming).
     body = File.read!(path)
 
+    # TODO: wrong delimiter is silently fixed, should send a file-level warning instead
     case Transport.IRVE.Static.Probes.file_level_errors(body, extension) do
       [] ->
         body
-        # TODO: accumulate warnings (transcoding, delimiter, …) instead of silently fixing
+        # TODO: send a file level warning instead of silently fixing
         |> Transport.IRVE.Transcoder.ensure_utf8()
         |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
         |> compute_validation()
