@@ -23,8 +23,8 @@ defmodule Transport.IRVE.ReportItem do
     new(resource, :error_occurred, Exception.message(error), inspect(error.__struct__))
   end
 
-  def from_result({:not_compliant_with_schema, resource, file_level_errors}) do
-    new(resource, :not_compliant_with_schema, Enum.join(file_level_errors, "\n"), nil)
+  def from_result({:file_level_errors, resource, file_level_errors}) do
+    new(resource, :file_level_errors, Enum.join(file_level_errors, "\n"), nil)
   end
 
   def from_result({status, resource}) do

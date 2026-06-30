@@ -123,7 +123,8 @@ defmodule Transport.IRVE.Consolidation do
           {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
         else
           :producer_not_an_organization -> {:producer_not_an_organization, resource}
-          %{file_level_errors: errors} -> {:not_compliant_with_schema, resource, errors}
+          %{file_level_errors: [_ | _] = errors} -> {:file_level_errors, resource, errors}
+          %{file_level_errors: []} -> {:not_compliant_with_schema, resource}
         end
       rescue
         error ->

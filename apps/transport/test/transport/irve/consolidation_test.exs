@@ -33,7 +33,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "another-dataset-id",
             "resource_id" => "another-resource-id",
-            "status" => "not_compliant_with_schema",
+            "status" => "file_level_errors",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
             "file_extension" => ".csv",
