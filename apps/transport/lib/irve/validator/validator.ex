@@ -101,6 +101,8 @@ defmodule Transport.IRVE.Validator do
       }
   end
 
+  @max_samples_per_group 5
+
   # Maps each warning to the raw input column (not immediately constructed from the warning name)
   @warning_value_columns %{"lon_lat_inverted" => "coordonneesXY"}
 
@@ -120,12 +122,7 @@ defmodule Transport.IRVE.Validator do
 
       df
       |> Explorer.DataFrame.filter_with(& &1["warning_#{warning_name}"])
-      |> Explorer.DataFrame.select(["id_pdc_itinerance", value_col])
-      |> Explorer.DataFrame.head(5)
-      |> Explorer.DataFrame.to_rows()
-      |> Enum.map(fn row ->
-        %{id_pdc_itinerance: row["id_pdc_itinerance"], warning: warning_name, value: row[value_col]}
-      end)
+      |> take_samples(value_col, :warning, warning_name)
     end)
   end
 
@@ -148,17 +145,19 @@ defmodule Transport.IRVE.Validator do
   defp error_samples(df, column_errors) do
     column_errors
     |> Enum.flat_map(fn {field_name, _error_count} ->
-      check_col = "check_column_#{field_name}_valid"
-
       df
-      |> Explorer.DataFrame.filter_with(&(&1[check_col] |> Explorer.Series.not()))
-      |> Explorer.DataFrame.select(["id_pdc_itinerance", field_name])
-      # Limit to 5 samples per error column
-      |> Explorer.DataFrame.head(5)
-      |> Explorer.DataFrame.to_rows()
-      |> Enum.map(fn row ->
-        %{id_pdc_itinerance: row["id_pdc_itinerance"], column: field_name, value: row[field_name]}
-      end)
+      |> Explorer.DataFrame.filter_with(&Explorer.Series.not(&1["check_column_#{field_name}_valid"]))
+      |> take_samples(field_name, :column, field_name)
+    end)
+  end
+
+  defp take_samples(df, value_col, tag_key, name) do
+    df
+    |> Explorer.DataFrame.select(["id_pdc_itinerance", value_col])
+    |> Explorer.DataFrame.head(@max_samples_per_group)
+    |> Explorer.DataFrame.to_rows()
+    |> Enum.map(fn row ->
+      %{:id_pdc_itinerance => row["id_pdc_itinerance"], tag_key => name, :value => row[value_col]}
     end)
   end
 end
