@@ -513,3 +513,25 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "File is too large, must be <%{max_file_size}."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "%{count} warning detected."
+msgid_plural "%{count} warnings detected."
+msgstr[0] ""
+msgstr[1] ""
+
+#, elixir-autogen, elixir-format
+msgid "Longitude and latitude coordinates inverted"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Rows"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Warning"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Warning samples"
+msgstr ""

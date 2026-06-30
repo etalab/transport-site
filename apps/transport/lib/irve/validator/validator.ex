@@ -9,6 +9,7 @@ defmodule Transport.IRVE.Validator do
     df
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_field_validation_columns(schema)
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
+    |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_warning_columns()
   end
 
   @doc """
@@ -55,6 +56,7 @@ defmodule Transport.IRVE.Validator do
     {valid_count, invalid_count} = summarize_total_counts(df)
     column_errors = summarize_column_errors(df)
     error_samples = error_samples(df, column_errors)
+    warnings = summarize_warnings(df)
 
     %Transport.IRVE.Validator.Summary{
       valid: invalid_count == 0,
@@ -63,7 +65,9 @@ defmodule Transport.IRVE.Validator do
       total_row_count: valid_count + invalid_count,
       file_level_errors: [],
       column_errors: column_errors,
-      error_samples: error_samples
+      error_samples: error_samples,
+      warnings: warnings,
+      warning_samples: warning_samples(df, warnings)
     }
   end
 
@@ -91,8 +95,35 @@ defmodule Transport.IRVE.Validator do
         total_row_count: nil,
         file_level_errors: [Exception.message(error)],
         column_errors: %{},
-        error_samples: []
+        error_samples: [],
+        warnings: %{},
+        warning_samples: []
       }
+  end
+
+  @max_samples_per_group 5
+
+  # Maps each warning to the raw input column (not immediately constructed from the warning name)
+  @warning_value_columns %{"lon_lat_inverted" => "coordonneesXY"}
+
+  defp summarize_warnings(df) do
+    warnings = Explorer.DataFrame.select(df, &String.starts_with?(&1, "warning_"))
+
+    warnings
+    |> Explorer.DataFrame.names()
+    |> Map.new(fn col -> {String.replace_prefix(col, "warning_", ""), Explorer.Series.sum(warnings[col])} end)
+    |> Map.reject(fn {_name, count} -> count == 0 end)
+  end
+
+  defp warning_samples(df, warnings) do
+    warnings
+    |> Enum.flat_map(fn {warning_name, _count} ->
+      value_col = Map.fetch!(@warning_value_columns, warning_name)
+
+      df
+      |> Explorer.DataFrame.filter_with(& &1["warning_#{warning_name}"])
+      |> take_samples(value_col, :warning, warning_name)
+    end)
   end
 
   defp summarize_total_counts(df) do
@@ -114,17 +145,19 @@ defmodule Transport.IRVE.Validator do
   defp error_samples(df, column_errors) do
     column_errors
     |> Enum.flat_map(fn {field_name, _error_count} ->
-      check_col = "check_column_#{field_name}_valid"
-
       df
-      |> Explorer.DataFrame.filter_with(&(&1[check_col] |> Explorer.Series.not()))
-      |> Explorer.DataFrame.select(["id_pdc_itinerance", field_name])
-      # Limit to 5 samples per error column
-      |> Explorer.DataFrame.head(5)
-      |> Explorer.DataFrame.to_rows()
-      |> Enum.map(fn row ->
-        %{id_pdc_itinerance: row["id_pdc_itinerance"], column: field_name, value: row[field_name]}
-      end)
+      |> Explorer.DataFrame.filter_with(&Explorer.Series.not(&1["check_column_#{field_name}_valid"]))
+      |> take_samples(field_name, :column, field_name)
+    end)
+  end
+
+  defp take_samples(df, value_col, tag_key, name) do
+    df
+    |> Explorer.DataFrame.select(["id_pdc_itinerance", value_col])
+    |> Explorer.DataFrame.head(@max_samples_per_group)
+    |> Explorer.DataFrame.to_rows()
+    |> Enum.map(fn row ->
+      %{:id_pdc_itinerance => row["id_pdc_itinerance"], tag_key => name, :value => row[value_col]}
     end)
   end
 end

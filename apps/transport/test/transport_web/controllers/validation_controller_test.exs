@@ -848,6 +848,42 @@ defmodule TransportWeb.ValidationControllerTest do
       assert response =~ "irve.csv"
     end
 
+    test "with a completed IRVE Statique validation reporting a warning", %{conn: conn} do
+      token = Ecto.UUID.generate()
+
+      mv =
+        insert(:multi_validation,
+          oban_args: %{
+            "state" => "completed",
+            "type" => "irve-statique",
+            "secret_url_token" => token
+          },
+          result: %{
+            "valid" => true,
+            "valid_row_count" => 1,
+            "invalid_row_count" => 0,
+            "total_row_count" => 1,
+            "file_level_errors" => [],
+            "column_errors" => %{},
+            "error_samples" => [],
+            "warnings" => %{"lon_lat_inverted" => 1},
+            "warning_samples" => [
+              %{
+                "id_pdc_itinerance" => "FRPAN99E00000001",
+                "warning" => "lon_lat_inverted",
+                "value" => "[45.91914, -0.799141]"
+              }
+            ]
+          },
+          validated_data_name: "irve.csv"
+        )
+
+      response = conn |> get(validation_path(conn, :show, mv.id, token: token)) |> html_response(200)
+      assert response =~ "Coordonnées de longitude et latitude inversées"
+      assert response =~ "FRPAN99E00000001"
+      assert response =~ "[45.91914, -0.799141]"
+    end
+
     test "with a GTFS-RT validation", %{conn: conn} do
       gtfs_rt_url = "https://example.com/gtfs-rt"
 
