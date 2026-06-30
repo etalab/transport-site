@@ -105,15 +105,19 @@ defmodule Transport.IRVE.Consolidation do
         |> Map.put(:estimated_pdc_count, estimated_pdc_count)
         |> Map.put(:file_extension, extension)
 
-      # The producer-is-org check is not part of file validation: it concerns how the resource
-      # is published on data.gouv.fr, not its content. It runs after download so we can still
-      # report the estimated PDC count for skipped resources.
-      #
-      # The single catch-all rescue now means exactly one thing: an unexpected error (in practice
-      # the DB write — validation no longer raises). Keeping it here preserves the enriched
-      # `resource` (esp. estimated_pdc_count) in the report rather than the un-enriched one that
-      # `process_or_rescue/1` would catch.
+      # In theory, there should not be any reason left to have an error raising here.
+      # The validation doesn’t raise anymore and has it’s own rescue mechanism in validate_and_summarize/2.
+      # The only possible case is a valid file not being inserted in the database correctly.
+      # But let’s keep it for now, ceinture et bretelles.
+      # Keeping it here allows to keep the estimated_pdc_count in the report.
+      # There is another upper level rescue with process_and_rescue/1 that doesn’t have the pdc_count.
+      # At one point we may drop this inner rescue and rely only on the outer process_and_rescue one,
+      # plus the rescue mechanism in validate_and_summarize/2, but for now let’s keep it.
       try do
+        # This producer_is_org_check is not in the validator itself:
+        # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+        # it is done after downloading the file in order to be able to report on the potential
+        # loss of PDC count.
         with :producer_is_an_organization <- producer_is_org(resource),
              %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension) do
           {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
