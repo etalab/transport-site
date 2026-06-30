@@ -107,7 +107,8 @@ defmodule Transport.IRVE.Consolidation do
 
       # In theory, there should not be any reason left to have an error raising here.
       # The validation doesn’t raise anymore and has it’s own rescue mechanism in validate_and_summarize/2.
-      # The only possible case is a valid file not being inserted in the database correctly.
+      # The only possible case is a valid file not being inserted in the database correctly
+      # (see the reraise in DatabaseImporter.write_to_db/2).
       # But let’s keep it for now, ceinture et bretelles.
       # Keeping it here allows to keep the estimated_pdc_count in the report.
       # There is another upper level rescue with process_and_rescue/1 that doesn’t have the pdc_count.
@@ -119,8 +120,9 @@ defmodule Transport.IRVE.Consolidation do
         # it is done after downloading the file in order to be able to report on the potential
         # loss of PDC count.
         with :producer_is_an_organization <- producer_is_org(resource),
-             %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension) do
-          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
+             %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension),
+             import_status <- Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource) do
+          {import_status, resource}
         else
           :producer_not_an_organization -> {:producer_not_an_organization, resource}
           %{file_level_errors: [_ | _] = errors} -> {:file_level_errors, resource, errors}
