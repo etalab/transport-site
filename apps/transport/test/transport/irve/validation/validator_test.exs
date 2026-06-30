@@ -83,6 +83,15 @@ defmodule Transport.IRVE.ValidatorTest do
     end)
   end
 
+  test "A single-column file with no detectable separator is reported as a file-level error" do
+    with_tmp_file("id_pdc_itinerance\nFRPAN99E12345678", fn path ->
+      assert %{valid: false, file_level_errors: [message]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert message =~ "could not hint header separator"
+    end)
+  end
+
   test "A Latin-1-encoded file should be considered valid & its data transcoded to UTF-8" do
     # `é` is encoded differently in UTF-8 vs Latin-1, allowing us to verify transcoding
     # `€` doesn't exist in Latin-1, so we use `EUR` instead
