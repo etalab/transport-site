@@ -105,14 +105,12 @@ defmodule Transport.IRVE.Validator do
   @warning_value_columns %{"lon_lat_inverted" => "coordonneesXY"}
 
   defp summarize_warnings(df) do
-    df
+    warnings = Explorer.DataFrame.select(df, &String.starts_with?(&1, "warning_"))
+
+    warnings
     |> Explorer.DataFrame.names()
-    |> Enum.filter(&String.starts_with?(&1, "warning_"))
-    |> Enum.flat_map(fn col ->
-      count = df[col] |> Explorer.Series.sum()
-      if count > 0, do: [{String.replace_prefix(col, "warning_", ""), count}], else: []
-    end)
-    |> Map.new()
+    |> Map.new(fn col -> {String.replace_prefix(col, "warning_", ""), Explorer.Series.sum(warnings[col])} end)
+    |> Map.reject(fn {_name, count} -> count == 0 end)
   end
 
   defp warning_samples(df, warnings) do
