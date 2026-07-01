@@ -128,8 +128,24 @@
     fr: |
         Les jeux de données de cette catégorie décrivent les lignes de covoiturage en France.
 
+        Une ligne de covoiturage désigne un service de mobilité structuré autour d’un itinéraire défini, facilitant la mise en relation entre      conducteurs et passagers pour la réalisation de trajets partagés. Elle participe à l’intégration du covoiturage dans l’offre globale de transport.
+
+        Les données associées à une ligne de covoiturage décrivent notamment son tracé, les points d’arrêt permettant la montée et la descente des passagers, ainsi que les caractéristiques du service lorsqu’elles sont connues : horaires de fonctionnement, fréquence de passage moyenne des véhicules, tarif...
+
+        Le format attendu est le profil France de la norme NeTEx. En attendant sa mise en place, il est possible d'utiliser la spécification technique GTFS en renseignant à titre expérimental la valeur 1550 dans le champ route_type du fichier routes.txt afin d'identifier qu'il s'agit bien d'une ligne de covoiturage.
+
+        Plus d’informations [ici](https://github.com/google/transit/issues/430#issuecomment-4432430607).
+
     en: |
         The datasets in this category describe carpooling lines in France.
+
+        A carpooling line refers to a mobility service structured around a defined route, facilitating connections between drivers and passengers for shared trips. It contributes to the integration of carpooling into the overall transport offering.
+
+        The data associated with a carpooling line typically describes its route, the stops where passengers can board and alight, as well as service characteristics when available: operating hours, average vehicle frequency, fares, etc.
+
+        The expected format is the France profile of the NeTEx standard. Until it is implemented, it is possible to use the GTFS technical specification by setting, on an experimental basis, the value 1550 in the route_type field of the routes.txt file to identify it as a carpooling line.
+
+        More information [here](https://github.com/google/transit/issues/430#issuecomment-4432430607).
 
 - category: carpooling-offers
   search_params:
