@@ -28,7 +28,14 @@
           ~r"/apps/transport/client/",
           "apps/transport/lib/transport/protobuf/gtfs-realtime.pb.ex",
           # Template only — copied by devs to dev.secret.exs (gitignored), never loaded at runtime.
-          "config/dev.secret.template.exs"
+          "config/dev.secret.template.exs",
+          # Config files using System.get_env/fetch_env are expected for now. Proper fix coming later.
+          "config/config.exs",
+          "config/datagouvfr.exs",
+          "config/dev.exs",
+          "config/dev.secret.exs",
+          "config/prod.exs",
+          "config/test.exs"
         ]
       },
       #
