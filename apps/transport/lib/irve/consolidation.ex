@@ -84,6 +84,16 @@ defmodule Transport.IRVE.Consolidation do
     process_resource(resource)
   rescue
     error ->
+      Logger.error(
+        "IRVE consolidation: unexpected error for resource #{resource.resource_id} (#{resource.url})\n" <>
+          Exception.format(:error, error, __STACKTRACE__)
+      )
+
+      Sentry.capture_exception(error,
+        stacktrace: __STACKTRACE__,
+        extra: %{resource_id: resource.resource_id, url: resource.url}
+      )
+
       {:error_occurred, error, resource}
   end
 
@@ -105,28 +115,18 @@ defmodule Transport.IRVE.Consolidation do
         |> Map.put(:estimated_pdc_count, estimated_pdc_count)
         |> Map.put(:file_extension, extension)
 
-      # The code is convoluted mostly because we didn't go far enough on the validator work.
-      # The validator will ultimately stop raising exceptions, and will instead return structures.
-      # But currently if a cheap check fails, an exception is thrown, and we would lose the estimated PDC count,
-      # something which is essential to report on for our current work.
-      try do
-        # Raise if the producer is not an organization. This check is not in the validator itself:
-        # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
-        # it is done after downloading the file in order to be able to report on the potential
-        # loss of PDC count.
-        ensure_producer_is_org!(resource)
-
-        validation_result = Transport.IRVE.Validator.validate(path, extension)
-        file_valid? = validation_result |> Transport.IRVE.Validator.full_file_valid?()
-
-        if file_valid? do
-          {Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource), resource}
-        else
-          {:not_compliant_with_schema, resource}
-        end
-      rescue
-        error ->
-          {:error_occurred, error, resource}
+      # This producer_is_org_check is not in the validator itself:
+      # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+      # it is done after downloading the file in order to be able to report on the potential
+      # loss of PDC count.
+      with :producer_is_an_organization <- producer_is_org(resource),
+           %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension),
+           import_status <- Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource) do
+        {import_status, resource}
+      else
+        :producer_not_an_organization -> {:producer_not_an_organization, resource}
+        %{file_level_errors: [_ | _] = errors} -> {:file_level_errors, resource, errors}
+        %{file_level_errors: []} -> {:not_compliant_with_schema, resource}
       end
     end)
   end
@@ -208,31 +208,38 @@ defmodule Transport.IRVE.Consolidation do
   # regular workflow: process the file then delete it afterwards, no matter what, to ensure
   # the files do not stack up on the production disk.
   def with_maybe_cached_download_on_disk(resource, file_path, extension, false = _use_permanent_disk_cache, work_fn) do
-    download!(resource.resource_id, resource.url, file_path)
-    # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
-    # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
-    # to keep the extension around)
-    work_fn.(file_path, extension)
+    case download(resource.resource_id, resource.url, file_path) do
+      # NOTE: we need to pass the original extension (provided in the URL) because some heuristics use it afterwards.
+      # but the caching mechanism stores everything under the same `.dat` extension (so the file path is not enough
+      # to keep the extension around)
+      :ok -> work_fn.(file_path, extension)
+      {:error, message} -> {:download_failed, resource, message}
+    end
   after
     File.rm!(file_path)
   end
 
   # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)
   def with_maybe_cached_download_on_disk(resource, file_path, extension, true = _use_permanent_disk_cache, work_fn) do
-    if !File.exists?(file_path), do: download!(resource.resource_id, resource.url, file_path)
-    work_fn.(file_path, extension)
-  end
+    download_result =
+      if File.exists?(file_path), do: :ok, else: download(resource.resource_id, resource.url, file_path)
 
-  def download!(resource_id, url, file) do
-    Logger.info("Processing resource #{resource_id} (url=#{url})")
-    %{status: status} = Transport.HTTPClient.get!(url, compressed: false, decode_body: false, into: File.stream!(file))
-
-    unless status == 200 do
-      raise "Error processing resource (#{resource_id}) (http_status=#{status})"
+    case download_result do
+      :ok -> work_fn.(file_path, extension)
+      {:error, message} -> {:download_failed, resource, message}
     end
   end
 
-  defp ensure_producer_is_org!(%{dataset_organisation_id: "???"}), do: raise("producer is not an organization")
+  # Returns `:ok` on success, or `{:error, message}` for a non-200 response.
+  # Timeouts / transport errors still raise for now (caught upstream as `:error_occurred`).
+  def download(resource_id, url, file) do
+    Logger.info("Processing resource #{resource_id} (url=#{url})")
+    %{status: status} = Transport.HTTPClient.get!(url, compressed: false, decode_body: false, into: File.stream!(file))
 
-  defp ensure_producer_is_org!(_row), do: :ok
+    if status == 200, do: :ok, else: {:error, "http_status=#{status}"}
+  end
+
+  defp producer_is_org(%{dataset_organisation_id: org_id}) do
+    if org_id == "???", do: :producer_not_an_organization, else: :producer_is_an_organization
+  end
 end

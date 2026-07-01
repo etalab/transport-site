@@ -9,31 +9,10 @@ file_path = "mobilize.csv"
 
 Transport.LogTimeTaken.log_time_taken("Validating #{file_path}", fn ->
   IO.puts("Starting validating (#{file_path})…")
-  df = Transport.IRVE.Validator.validate(file_path)
 
-  IO.puts("Is the full file valid? #{df |> Transport.IRVE.Validator.full_file_valid?()}")
+  summary = Transport.IRVE.Validator.validate_and_summarize(file_path)
 
-  IO.puts("Validation summary (how many rows are valid or invalid):")
-
-  df["check_row_valid"]
-  |> Explorer.Series.frequencies()
-  |> IO.inspect(IEx.inspect_opts())
-
-  report_columns = Transport.IRVE.StaticIRVESchema.field_names_list() |> Enum.map(&"check_column_#{&1}_valid")
-
-  columns_with_false =
-    report_columns
-    |> Enum.reject(fn col ->
-      df[col]
-      |> Explorer.Series.all?()
-    end)
-
-  IO.puts("Columns with at least one invalid value: #{inspect(columns_with_false)}")
-
-  report_path = Path.rootname(file_path) <> "-validation-report.csv"
-  IO.puts("Writing validation report to #{report_path}")
-
-  df |> Explorer.DataFrame.to_csv!(report_path)
+  IO.inspect(summary, IEx.inspect_opts())
 
   # Now trying to import
   Transport.LogTimeTaken.log_time_taken("Importing #{file_path}", fn ->
