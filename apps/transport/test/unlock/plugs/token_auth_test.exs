@@ -18,7 +18,7 @@ defmodule Unlock.Plugs.TokenAuthTest do
       setup_token_auth_enabled(true)
     end
 
-    test "valid token passed: request is logged" do
+    test "valid token passed: request goes through" do
       slug = "valid-token-logged-#{Ecto.UUID.generate()}"
       %DB.Token{id: token_id} = token = insert_token()
 
@@ -40,10 +40,6 @@ defmodule Unlock.Plugs.TokenAuthTest do
 
       assert resp.resp_body == "somebody-to-love"
       assert %DB.Token{id: ^token_id} = resp.assigns[:token]
-
-      assert [
-               %DB.ProxyRequest{proxy_id: ^slug, token_id: ^token_id}
-             ] = DB.ProxyRequest |> DB.Repo.all()
     end
 
     test "no token passed" do
@@ -67,8 +63,6 @@ defmodule Unlock.Plugs.TokenAuthTest do
 
       assert resp.resp_body == "somebody-to-love"
       assert is_nil(resp.assigns[:token])
-
-      assert [] = DB.ProxyRequest |> DB.Repo.all()
     end
 
     test "invalid token passed" do
@@ -76,38 +70,12 @@ defmodule Unlock.Plugs.TokenAuthTest do
 
       assert resp.status == 401
       assert resp.resp_body == ~s|{"error":"You must set a valid token in the query parameters"}|
-
-      assert DB.ProxyRequest |> DB.Repo.all() == []
     end
   end
 
   describe "when disabled" do
     setup do
       setup_token_auth_enabled(false)
-    end
-
-    test "valid token passed: no requests logged" do
-      slug = "valid-token-not-logged-#{Ecto.UUID.generate()}"
-      token = insert_token()
-
-      setup_proxy_config(%{
-        slug => %Unlock.Config.Item.Generic.HTTP{
-          identifier: slug,
-          target_url: target_url = "http://localhost/some-remote-resource",
-          ttl: 30
-        }
-      })
-
-      Unlock.HTTP.Client.Mock
-      |> expect(:get!, fn url, _headers = [], _options = [] ->
-        assert url == target_url
-        %Unlock.HTTP.Response{body: "somebody-to-love", status: 200, headers: []}
-      end)
-
-      resp = proxy_conn() |> get("/resource/#{slug}?token=#{token.secret}")
-      assert resp.resp_body == "somebody-to-love"
-
-      assert [] = DB.ProxyRequest |> DB.Repo.all()
     end
 
     test "invalid token passes through without authentication" do
@@ -132,8 +100,6 @@ defmodule Unlock.Plugs.TokenAuthTest do
       assert resp.status == 200
       assert resp.resp_body == "somebody-to-love"
       assert is_nil(resp.assigns[:token])
-
-      assert [] = DB.ProxyRequest |> DB.Repo.all()
     end
   end
 

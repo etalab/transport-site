@@ -30,7 +30,6 @@ defmodule Unlock.Plugs.TokenAuth do
 
     case find_client(Map.get(conn.query_params, "token")) do
       {:ok, token} ->
-        log_request(conn, token)
         conn |> assign(:token, token)
 
       :error ->
@@ -49,19 +48,4 @@ defmodule Unlock.Plugs.TokenAuth do
   end
 
   defp find_client(_), do: {:ok, nil}
-
-  defp log_request(%Plug.Conn{} = conn, %DB.Token{} = token) do
-    if conn.request_path |> String.starts_with?("/resource/") do
-      slug = conn.request_path |> String.trim_leading("/resource/")
-
-      Ecto.Changeset.change(%DB.ProxyRequest{}, %{
-        time: DateTime.utc_now(),
-        token_id: token.id,
-        proxy_id: slug
-      })
-      |> DB.Repo.insert!()
-    end
-  end
-
-  defp log_request(%Plug.Conn{}, nil), do: :ok
 end
