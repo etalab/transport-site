@@ -43,9 +43,12 @@ defmodule Transport.Test.S3TestUtils do
                               src: src = %File.Stream{},
                               bucket: ^expected_bucket,
                               path: path,
-                              opts: [acl: ^expected_acl],
+                              opts: opts,
                               service: :s3
                             } ->
+      # match `acl` within the opts rather than the whole list, so callers may pass extra
+      # options (e.g. `timeout:`) without breaking this expectation
+      assert Keyword.get(opts, :acl) == expected_acl
       assert String.starts_with?(path, expected_start_path)
       assert src |> Enum.join("\n") == expected_file_content
     end)

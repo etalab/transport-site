@@ -35,10 +35,15 @@ defmodule Transport.S3 do
     bucket |> ExAws.S3.delete_object(path) |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  @spec stream_to_s3!(bucket_feature(), binary(), binary(), acl: atom(), cache_control: binary()) :: any()
+  @spec stream_to_s3!(bucket_feature(), binary(), binary(),
+          acl: atom(),
+          cache_control: binary(),
+          timeout: pos_integer(),
+          max_concurrency: pos_integer()
+        ) :: any()
   def stream_to_s3!(feature, local_path, upload_path, options \\ []) do
     Logger.debug("Streaming #{local_path} to #{upload_path}")
-    options = Keyword.validate!(options, [:cache_control, {:acl, :private}])
+    options = Keyword.validate!(options, [:cache_control, :timeout, :max_concurrency, {:acl, :private}])
 
     local_path
     |> ExAws.S3.Upload.stream_file()
