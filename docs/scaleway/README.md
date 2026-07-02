@@ -51,7 +51,7 @@ aws --endpoint-url "https://s3.fr-par.scw.cloud" --region fr-par s3api \
   --policy file://docs/scaleway/bucket_policy_production.json
 ```
 
-[Using bucket policies]: https://www.scaleway.com/en/docs/storage/object/api-cli/using-bucket-policies/
+[Using bucket policies]: https://www.scaleway.com/en/docs/object-storage/api-cli/create-bucket-policy/
 [Managing the lifecycle of objects]: https://www.scaleway.com/en/docs/storage/object/api-cli/lifecycle-rules-api/
 [See the GitHub issue comment]: https://github.com/etalab/transport-site/issues/1548#issuecomment-1083189225
 [install the AWS CLI]: https://www.scaleway.com/en/docs/storage/object/api-cli/object-storage-aws-cli/
