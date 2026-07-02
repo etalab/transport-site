@@ -9,35 +9,41 @@ defmodule Transport.IRVE.ValidatorTest do
   use ExUnit.Case, async: true
   import Transport.TmpFile
 
-  test "validate/1 returns a dataframe with validation columns" do
+  test "validate_and_summarize/1 returns a valid summary for a valid file" do
     csv_content = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      result = Transport.IRVE.Validator.validate(path)
-
-      assert %Explorer.DataFrame{} = result
-      assert "check_row_valid" in Explorer.DataFrame.names(result)
-      assert Transport.IRVE.Validator.full_file_valid?(result)
+      assert %Transport.IRVE.Validator.Summary{
+               valid: true,
+               valid_row_count: 1,
+               invalid_row_count: 0,
+               total_row_count: 1,
+               file_level_errors: [],
+               column_errors: %{},
+               error_samples: [],
+               warnings: %{},
+               warning_samples: []
+             } == Transport.IRVE.Validator.validate_and_summarize(path)
     end)
   end
 
-  test "a ZIP file should raise an error" do
+  test "a ZIP file is reported as a file-level error" do
     with_tmp_file(_zip_content = "PK\x03\x04" <> "some content", fn path ->
-      assert_raise RuntimeError, ~r/content is likely to be a zip file/, fn ->
-        Transport.IRVE.Validator.validate(path)
-      end
+      assert %{valid: false, file_level_errors: [message]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert message =~ "content is likely to be a zip file"
     end)
   end
 
-  test "a non-CSV file should raise an error" do
+  test "a non-CSV file is reported as a file-level error" do
     with_tmp_file("non-csv-content", fn path ->
-      assert_raise RuntimeError, "the content is likely not a CSV file (extension is .pdf)", fn ->
-        Transport.IRVE.Validator.validate(path, ".pdf")
-      end
+      assert %{valid: false, file_level_errors: ["the content is likely not a CSV file (extension is .pdf)"]} =
+               Transport.IRVE.Validator.validate_and_summarize(path, ".pdf")
     end)
   end
 
-  test "A schema V1 file should raise an error" do
+  test "A schema V1 file is reported as a file-level error" do
     v1_like_row =
       DB.Factory.IRVE.generate_row()
       |> Map.put("n_operateur", Map.get(DB.Factory.IRVE.generate_row(), "nom_operateur"))
@@ -46,13 +52,12 @@ defmodule Transport.IRVE.ValidatorTest do
     csv_content = [v1_like_row] |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      assert_raise RuntimeError, "looks like a v1 irve", fn ->
-        Transport.IRVE.Validator.validate(path)
-      end
+      assert %{valid: false, file_level_errors: ["looks like a v1 irve"]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
     end)
   end
 
-  test "A file without id_pdc_itinerance should raise an error" do
+  test "A file without id_pdc_itinerance is reported as a file-level error" do
     v1_like_row =
       DB.Factory.IRVE.generate_row()
       |> Map.put("id_pdc", Map.get(DB.Factory.IRVE.generate_row(), "id_pdc_itinerance"))
@@ -61,22 +66,29 @@ defmodule Transport.IRVE.ValidatorTest do
     csv_content = [v1_like_row] |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      assert_raise RuntimeError, "content has no id_pdc_itinerance in first line", fn ->
-        Transport.IRVE.Validator.validate(path)
-      end
+      assert %{valid: false, file_level_errors: ["content has no id_pdc_itinerance in first line"]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
     end)
   end
 
-  test "A file with a tabulation as separator should raise an error" do
+  test "A file with a tabulation as separator is reported as a file-level error" do
     csv_content =
       [DB.Factory.IRVE.generate_row()]
       |> CSV.encode(separator: ?\t, delimiter: "\n", headers: true)
       |> Enum.join()
 
     with_tmp_file(csv_content, fn path ->
-      assert_raise RuntimeError, "unsupported column separator \t", fn ->
-        Transport.IRVE.Validator.validate(path)
-      end
+      assert %{valid: false, file_level_errors: ["unsupported column separator \t"]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
+    end)
+  end
+
+  test "A single-column file with no detectable separator is reported as a file-level error" do
+    with_tmp_file("id_pdc_itinerance\nFRPAN99E12345678", fn path ->
+      assert %{valid: false, file_level_errors: [message]} =
+               Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert message =~ "could not hint header separator"
     end)
   end
 
@@ -94,10 +106,7 @@ defmodule Transport.IRVE.ValidatorTest do
     assert latin1_content =~ <<"Ma station accentu", 0xE9, "e">>
 
     with_tmp_file(latin1_content, fn path ->
-      result = Transport.IRVE.Validator.validate(path)
-      assert Transport.IRVE.Validator.full_file_valid?(result)
-      # and here we're back to UTF-8
-      assert result["nom_station"] |> Explorer.Series.to_list() == ["Ma station accentuée"]
+      assert Transport.IRVE.Validator.validate_and_summarize(path).valid
     end)
   end
 
@@ -108,8 +117,7 @@ defmodule Transport.IRVE.ValidatorTest do
       |> Enum.join()
 
     with_tmp_file(csv_content, fn path ->
-      result = Transport.IRVE.Validator.validate(path)
-      assert Transport.IRVE.Validator.full_file_valid?(result)
+      assert Transport.IRVE.Validator.validate_and_summarize(path).valid
     end)
   end
 
@@ -121,8 +129,7 @@ defmodule Transport.IRVE.ValidatorTest do
       |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      result = Transport.IRVE.Validator.validate(path)
-      assert Transport.IRVE.Validator.full_file_valid?(result)
+      assert Transport.IRVE.Validator.validate_and_summarize(path).valid
     end)
   end
 
@@ -134,39 +141,18 @@ defmodule Transport.IRVE.ValidatorTest do
       |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      result = Transport.IRVE.Validator.validate(path)
-      assert Transport.IRVE.Validator.full_file_valid?(result)
+      assert Transport.IRVE.Validator.validate_and_summarize(path).valid
     end)
   end
 
-  test "summarize/1 returns a valid summary for a valid file" do
-    csv_content = [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body()
-
-    with_tmp_file(csv_content, fn path ->
-      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
-
-      assert %Transport.IRVE.Validator.Summary{
-               valid: true,
-               valid_row_count: 1,
-               invalid_row_count: 0,
-               total_row_count: 1,
-               file_level_errors: [],
-               column_errors: %{},
-               error_samples: [],
-               warnings: %{},
-               warning_samples: []
-             } == summary
-    end)
-  end
-
-  test "summarize/1 reports column errors and caps error samples to 5 per column" do
+  test "validate_and_summarize/1 reports column errors and caps error samples to 5 per column" do
     # 10 rows with invalid puissance_nominale, 1 row with invalid nbre_pdc (valid puissance_nominale)
     invalid_puissance_rows = for _ <- 1..10, do: DB.Factory.IRVE.generate_row(%{"puissance_nominale" => "not-a-number"})
     invalid_nbre_pdc_row = DB.Factory.IRVE.generate_row(%{"nbre_pdc" => "not-a-number"})
     csv_content = (invalid_puissance_rows ++ [invalid_nbre_pdc_row]) |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
 
       assert summary.valid == false
       assert summary.valid_row_count == 0
@@ -185,7 +171,7 @@ defmodule Transport.IRVE.ValidatorTest do
     end)
   end
 
-  test "summarize/1 reports inverted lon/lat coordinates as a warning" do
+  test "validate_and_summarize/1 reports inverted lon/lat coordinates as a warning" do
     inverted_row =
       DB.Factory.IRVE.generate_row(%{
         "id_pdc_itinerance" => "FRPAN99E00000001",
@@ -196,7 +182,7 @@ defmodule Transport.IRVE.ValidatorTest do
     csv_content = [inverted_row, valid_row] |> DB.Factory.IRVE.to_csv_body()
 
     with_tmp_file(csv_content, fn path ->
-      summary = Transport.IRVE.Validator.validate(path) |> Transport.IRVE.Validator.summarize()
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
 
       assert summary.valid == true
       assert summary.column_errors == %{}
@@ -233,6 +219,33 @@ defmodule Transport.IRVE.ValidatorTest do
              } = summary
 
       assert error_message =~ "zip"
+    end)
+  end
+
+  test "validate_and_summarize/1 returns a summary (no raise) on an unexpected downstream error" do
+    # passes every file-level probe (has id_pdc_itinerance, comma-separated, .csv, v2 schema)
+    # but a required column is missing, which blows up deeper in the validation pipeline
+    csv_content =
+      [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    with_tmp_file(csv_content, fn path ->
+      summary = Transport.IRVE.Validator.validate_and_summarize(path)
+
+      assert %Transport.IRVE.Validator.Summary{
+               valid: false,
+               valid_row_count: nil,
+               invalid_row_count: nil,
+               total_row_count: nil,
+               column_errors: %{},
+               error_samples: [],
+               file_level_errors: [message]
+             } = summary
+
+      # marked as unexpected (vs a known schema-level problem) ...
+      assert String.starts_with?(message, "Unexpected error: ")
+      # ... and the full message also lists every available column, which is too brittle to assert on
+      assert message =~ ~s|could not find column name "nom_station"|
     end)
   end
 end

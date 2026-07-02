@@ -3,28 +3,34 @@ defmodule Transport.IRVE.Static.Probes do
   This module groups functions related to IRVE-specific CSV handling.
   """
 
-  def run_cheap_blocking_checks(body, extension) do
-    if Transport.ZipProbe.likely_zip_content?(body) do
-      raise("the content is likely to be a zip file, not uncompressed CSV data")
-    end
+  def file_level_errors(body, extension) do
+    cond do
+      Transport.ZipProbe.likely_zip_content?(body) ->
+        ["the content is likely to be a zip file, not uncompressed CSV data"]
 
-    if String.downcase(extension) not in ["", ".csv"] do
-      raise("the content is likely not a CSV file (extension is #{extension})")
-    end
+      String.downcase(extension) not in ["", ".csv"] ->
+        ["the content is likely not a CSV file (extension is #{extension})"]
 
-    if probably_v1_schema(body) do
-      raise("looks like a v1 irve")
-    end
+      probably_v1_schema(body) ->
+        ["looks like a v1 irve"]
 
-    if !has_id_pdc_itinerance(body) do
-      raise("content has no id_pdc_itinerance in first line")
-    end
+      !has_id_pdc_itinerance(body) ->
+        ["content has no id_pdc_itinerance in first line"]
 
-    header_separator = hint_header_separator(body)
-
-    unless header_separator in [";", ","] do
-      raise("unsupported column separator #{header_separator}")
+      true ->
+        separator_errors(body)
     end
+  end
+
+  # `hint_header_separator/1` raises when it cannot find a separator at all
+  # (e.g. single-column file); we catch that so this stays non-raising.
+  defp separator_errors(body) do
+    case hint_header_separator(body) do
+      sep when sep in [";", ","] -> []
+      sep -> ["unsupported column separator #{sep}"]
+    end
+  rescue
+    error -> [Exception.message(error)]
   end
 
   @doc """
