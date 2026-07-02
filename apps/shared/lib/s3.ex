@@ -53,6 +53,8 @@ defmodule Transport.S3 do
     # ExAws uploads multipart parts via `Task.async_stream`; a large/slow upload can hit its
     # timeout, which surfaces as a process *exit* (not an exception, so it escapes `rescue` and
     # `Sentry.capture_exception`). Report it for observability, then let it propagate unchanged.
+    # NOTE: relies on current internal behaviour of ExAws here:
+    # https://github.com/ex-aws/ex_aws_s3/blob/v2.5.9/lib/ex_aws/s3/upload.ex#L133-L141
     :exit, reason ->
       Sentry.capture_message("S3 upload failed (exit), likely a timeout",
         level: :error,
