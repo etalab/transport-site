@@ -3,11 +3,15 @@ defmodule Transport.S3.AggregatesUploader do
   Helpers to upload a file, computes its sha256, and update a "latest" file.
   """
 
-  @spec upload_aggregate!(Path.t(), String.t(), String.t()) :: :ok
+  @spec upload_aggregate!(Path.t(), String.t(), String.t(), Keyword.t()) :: :ok
   @doc """
   This method takes a local `file` and upload 4 different files to our S3 `aggregates` bucket (the bucket is expected to exist):
   - the `remote_path` and `remote_latest_path` containing the data from `file`
   - two companions files with `.sha256sum` extension appended (SHA256 sum is computed on the fly)
+
+  `options` are forwarded to `Transport.S3.stream_to_s3!/4`. Useful options:
+  - `timeout:` it applies to each part of the multipart upload (and not the whole file!). Defaults to 30s, but may be increased for large files.
+  - `max_concurrency:` it applies to the number of concurrent parts uploaded. Defaults to 4.
 
   Example
 
@@ -16,11 +20,11 @@ defmodule Transport.S3.AggregatesUploader do
       upload_aggregate!(file, "aggregate-20250127193035.csv", "aggregate-latest.csv")
     end)
   """
-  def upload_aggregate!(file, remote_path, remote_latest_path) do
+  def upload_aggregate!(file, remote_path, remote_latest_path, options \\ []) do
     with_tmp_file(fn checksum_file ->
       sha256!(file, checksum_file)
 
-      upload_files!(file, checksum_file, remote_path)
+      upload_files!(file, checksum_file, remote_path, options)
       |> update_latest_files!(remote_latest_path)
     end)
   end
@@ -61,11 +65,11 @@ defmodule Transport.S3.AggregatesUploader do
     File.write!(checksum_file, hash)
   end
 
-  defp upload_files!(file, checksum_file, remote_path) do
+  defp upload_files!(file, checksum_file, remote_path, options) do
     remote_checksum_path = checksum_filename(remote_path)
 
-    stream_upload!(file, remote_path)
-    stream_upload!(checksum_file, remote_checksum_path)
+    stream_upload!(file, remote_path, options)
+    stream_upload!(checksum_file, remote_checksum_path, options)
 
     {remote_path, remote_checksum_path}
   end
@@ -83,8 +87,8 @@ defmodule Transport.S3.AggregatesUploader do
     "#{base_filename}.sha256sum"
   end
 
-  defp stream_upload!(file, filename) do
-    Transport.S3.stream_to_s3!(:aggregates, file, filename)
+  defp stream_upload!(file, filename, options) do
+    Transport.S3.stream_to_s3!(:aggregates, file, filename, options)
   end
 
   defp copy!(s3_path, filename) do

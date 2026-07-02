@@ -19,6 +19,12 @@ defmodule Transport.IRVE.Consolidation do
   @consolidated_file_no_dedup_base_name "consolidation_transport_avec_doublons_irve_statique"
   @consolidated_file_base_name "consolidation_transport_irve_statique"
 
+  # The consolidated files can be large; uploading them can exceed ExAws' default 30s multipart
+  # timeout. We lower the concurrency of the per-file parts (each part then gets more bandwidth
+  # and uploads faster) and give each part a 1 minute ceiling.
+  @s3_upload_timeout :timer.minutes(1)
+  @s3_upload_max_concurrency 2
+
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
@@ -164,7 +170,9 @@ defmodule Transport.IRVE.Consolidation do
           upload_aggregate!(
             report_file,
             "#{@report_output_base_name}_#{timestamp()}.csv",
-            "#{@report_output_base_name}.csv"
+            "#{@report_output_base_name}.csv",
+            timeout: @s3_upload_timeout,
+            max_concurrency: @s3_upload_max_concurrency
           )
         end)
 
@@ -186,7 +194,9 @@ defmodule Transport.IRVE.Consolidation do
       upload_aggregate!(
         consolidation_file,
         "#{base_name}_#{timestamp()}.csv",
-        "#{base_name}.csv"
+        "#{base_name}.csv",
+        timeout: @s3_upload_timeout,
+        max_concurrency: @s3_upload_max_concurrency
       )
     end)
   end
