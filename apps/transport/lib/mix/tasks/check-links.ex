@@ -100,6 +100,7 @@ defmodule Mix.Tasks.CheckLinks do
       |> Enum.map(fn [_full | rest] -> List.last(rest) end)
       |> Enum.map(&strip_trailing_punctuation/1)
       |> Enum.reject(&localhost?/1)
+      |> Enum.reject(&private_repository?/1)
       |> Enum.reject(&skipped_host?/1)
       |> Enum.map(&{&1, file})
     end)
@@ -115,6 +116,8 @@ defmodule Mix.Tasks.CheckLinks do
     do: Regex.replace(~r/[.,;!)>?]$/, url, "")
 
   defp localhost?(url), do: url =~ ~r/^https?:\/\/(127\.|localhost)/
+
+  defp private_repository?(url), do: String.starts_with?(url, "https://github.com/transportdatagouvfr/proxy-config")
 
   defp skipped_host?(url) do
     host = parse_host(url)
