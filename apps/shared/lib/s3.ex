@@ -35,15 +35,34 @@ defmodule Transport.S3 do
     bucket |> ExAws.S3.delete_object(path) |> Transport.Wrapper.ExAWS.impl().request!()
   end
 
-  @spec stream_to_s3!(bucket_feature(), binary(), binary(), acl: atom(), cache_control: binary()) :: any()
+  @spec stream_to_s3!(bucket_feature(), binary(), binary(),
+          acl: atom(),
+          cache_control: binary(),
+          timeout: pos_integer(),
+          max_concurrency: pos_integer()
+        ) :: any()
   def stream_to_s3!(feature, local_path, upload_path, options \\ []) do
     Logger.debug("Streaming #{local_path} to #{upload_path}")
-    options = Keyword.validate!(options, [:cache_control, {:acl, :private}])
+    options = Keyword.validate!(options, [:cache_control, :timeout, :max_concurrency, {:acl, :private}])
 
     local_path
     |> ExAws.S3.Upload.stream_file()
     |> ExAws.S3.upload(Transport.S3.bucket_name(feature), upload_path, options)
     |> Transport.Wrapper.ExAWS.impl().request!()
+  catch
+    # ExAws uploads multipart parts via `Task.async_stream`; a large/slow upload can hit its
+    # timeout, which surfaces as a process *exit* (not an exception, so it escapes `rescue` and
+    # `Sentry.capture_exception`). Report it for observability, then let it propagate unchanged.
+    # NOTE: relies on current internal behaviour of ExAws here:
+    # https://github.com/ex-aws/ex_aws_s3/blob/v2.5.9/lib/ex_aws/s3/upload.ex#L133-L141
+    :exit, reason ->
+      Sentry.capture_message("S3 upload failed (exit), likely a timeout",
+        level: :error,
+        result: :sync,
+        extra: %{feature: inspect(feature), upload_path: upload_path, reason: inspect(reason)}
+      )
+
+      exit(reason)
   end
 
   @spec download_file(bucket_feature(), binary(), binary()) :: any()
