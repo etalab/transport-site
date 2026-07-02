@@ -155,7 +155,7 @@ config :oauth2, Datagouvfr.Authentication,
 
 Run the tests with `mix test`
 
-The application is an [umbrella app](https://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-projects.html). It means that it is split into several sub-projects (that you can see under `/apps`).
+The application is an [umbrella app](https://mix.hexdocs.pm/Mix.Project.html#module-umbrella-projects). It means that it is split into several sub-projects (that you can see under `/apps`).
 
 To run tests for a specific app, for example the `transport` or `unlock` app, use this command:
 
