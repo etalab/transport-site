@@ -103,7 +103,7 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 ### Learn about the GTFS and GTFS-RT specifications
 
 * @thbar bought https://gumroad.com/l/gtfsbundle (available to the team on demand)
-* Download a tiny GTFS ([example](https://transport.data.gouv.fr/datasets/horaires-theoriques-et-temps-reel-des-navettes-de-la-station-de-tignes-gtfs-gtfs-rt/))
+* Download a tiny GTFS ([example](https://transport.data.gouv.fr/datasets/navettes-tignes))
 * Check out this [diagram](https://www.researchgate.net/figure/Modele-de-donnees-GTFS_fig7_268333353)
 * Read the GTFS guide
 * Read the GTFS-realtime guide
