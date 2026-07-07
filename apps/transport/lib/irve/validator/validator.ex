@@ -53,7 +53,8 @@ defmodule Transport.IRVE.Validator do
   end
 
   @doc """
-  The main entry point for IRVE validation: turns a file into a `%Summary{}`.
+  The main entry point for IRVE validation: turns a raw file `body` into a
+  `{%Summary{}, validated DataFrame | nil}` tuple.
   Used by on demand validation as well as the consolidation pipeline.
 
   If you want to call a strict validator (no preprocessing, no file-level error handling),
@@ -67,30 +68,33 @@ defmodule Transport.IRVE.Validator do
 
   Unexpected errors anywhere in the pipeline are also caught and reported in `file_level_errors`
   and prefixed with `#{@unexpected_error_prefix}` to tell them apart.
+
+  In case of known or unkwon file-level errors, the second element of the returned tuple is `nil`.
   """
-  def validate_and_summarize(path, extension \\ ".csv") do
+  def validate_and_summarize(body, extension \\ ".csv") do
     # Known problem: whole file is loaded in memory, no streaming.
     # We could change that by having probes use only the first lines,
     # stream the utf8 conversion,
     # and finally cast to a dataframe in a streaming way (Explorer.DataFrame.from_csv/2 supports streaming).
-    body = File.read!(path)
 
     # TODO: wrong delimiter is silently fixed, should send a file-level warning instead
     case Transport.IRVE.Static.Probes.file_level_errors(body, extension) do
       [] ->
-        body
-        # TODO: send a file level warning instead of silently fixing
-        |> Transport.IRVE.Transcoder.ensure_utf8()
-        |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
-        |> compute_validation()
-        |> summarize()
+        validated_df =
+          body
+          # TODO: send a file level warning instead of silently fixing encoding issues
+          |> Transport.IRVE.Transcoder.ensure_utf8()
+          |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+          |> compute_validation()
+
+        {summarize(validated_df), validated_df}
 
       file_level_errors ->
-        summary_with_file_level_errors(file_level_errors)
+        {summary_with_file_level_errors(file_level_errors), nil}
     end
   rescue
     error ->
-      summary_with_file_level_errors([@unexpected_error_prefix <> Exception.message(error)])
+      {summary_with_file_level_errors([@unexpected_error_prefix <> Exception.message(error)]), nil}
   end
 
   defp summary_with_file_level_errors(file_level_errors) do

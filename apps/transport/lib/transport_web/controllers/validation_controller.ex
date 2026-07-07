@@ -113,7 +113,10 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp validate_irve_statique(conn, file_path, filename, _size) do
-    summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
+    {summary, _validated_df} =
+      file_path
+      |> File.read!()
+      |> Transport.IRVE.Validator.validate_and_summarize(irve_extension(filename))
 
     validation =
       %MultiValidation{
