@@ -71,4 +71,54 @@ defmodule Transport.IRVE.ProcessingTest do
              }
            ]
   end
+
+  defp assert_cast_equivalent_to_typed_parse(body) do
+    expected = Transport.IRVE.Processing.read_as_data_frame(body)
+
+    result =
+      body
+      |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+      |> Transport.IRVE.Validator.compute_validation()
+      |> Transport.IRVE.Processing.cast_validated_frame()
+
+    assert Explorer.DataFrame.to_rows(result) == Explorer.DataFrame.to_rows(expected)
+
+    # `to_rows` compares values, not dtypes, and can't tell `:null` from `:string` on an all-nil
+    # column — so also assert the cast frame is fully typed (the legacy parse leaves such columns
+    # `:null`; the cast path types them properly).
+    refute :null in Map.values(Explorer.DataFrame.dtypes(result))
+  end
+
+  test "cast_validated_frame/1 equals the typed parse for a factory row" do
+    assert_cast_equivalent_to_typed_parse([DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body())
+  end
+
+  test "cast_validated_frame/1 equals the typed parse with a missing optional column" do
+    body = [DB.Factory.IRVE.generate_row() |> Map.delete("tarification")] |> DB.Factory.IRVE.to_csv_body()
+    assert_cast_equivalent_to_typed_parse(body)
+  end
+
+  test "cast_validated_frame/1 equals the typed parse with non-canonical booleans" do
+    body =
+      [DB.Factory.IRVE.generate_row(%{"prise_type_ef" => "VRAI", "gratuit" => "0"})]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    assert_cast_equivalent_to_typed_parse(body)
+  end
+
+  test "cast_validated_frame/1 equals the typed parse with inverted coordinates" do
+    body =
+      [DB.Factory.IRVE.generate_row(%{"coordonneesXY" => "[45.91914, -0.799141]"})]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    assert_cast_equivalent_to_typed_parse(body)
+  end
+
+  test "cast_validated_frame/1 equals the typed parse with empty optional values" do
+    body =
+      [DB.Factory.IRVE.generate_row(%{"gratuit" => "", "observations" => ""})]
+      |> DB.Factory.IRVE.to_csv_body()
+
+    assert_cast_equivalent_to_typed_parse(body)
+  end
 end

@@ -33,6 +33,62 @@ defmodule Transport.IRVE.Processing do
     # TODO: take care of field / column selection
   end
 
+  @doc """
+  Casts an uncasted (all-strings) DataFrame — the output of `read_as_uncasted_data_frame/1`,
+  possibly enriched with validation columns — to the same typed, insert-ready shape as
+  `read_as_data_frame/1`, without re-parsing the CSV.
+
+  Only fully-valid frames are expected here (whole-file gate): every value is castable by
+  construction. A cast failure means the validator and this cast disagree, which is a bug —
+  we let it raise.
+  """
+  def cast_validated_frame(dataframe) do
+    dataframe
+    |> cast_to_schema_dtypes()
+    |> preprocess_coordinates()
+    |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
+    |> select_fields()
+  end
+
+  # The uncasted path materializes missing values as `""` (see `keep_as_string` variants above),
+  # while the typed parse produces `nil` — so normalize before casting.
+  defp cast_to_schema_dtypes(dataframe) do
+    Transport.IRVE.DataFrame.schema_dtypes()
+    |> Enum.reduce(dataframe, fn {column, dtype}, df_acc ->
+      series =
+        df_acc[Atom.to_string(column)]
+        # TODO: fix casting / validator to avoid recreating nil values from empty strings
+        |> empty_strings_as_nil()
+        |> cast_series(dtype)
+
+      Explorer.DataFrame.put(df_acc, column, series)
+    end)
+  end
+
+  @doc """
+  Replaces empty strings (`""`) with `nil` in a string series, leaving every other value
+  (including existing `nil`s) untouched.
+
+  iex> Explorer.Series.from_list(["hello", "", nil, "world"]) |> empty_strings_as_nil() |> Explorer.Series.to_list()
+  ["hello", nil, nil, "world"]
+  """
+  def empty_strings_as_nil(series) do
+    # `equal` yields nil for nil cells so we fill nills with false
+    is_an_empty_string = series |> Explorer.Series.equal("") |> Explorer.Series.fill_missing(false)
+    nil_string = Explorer.Series.from_list([nil], dtype: :string)
+    Explorer.Series.select(is_an_empty_string, nil_string, series)
+  end
+
+  @doc """
+  Casts a string series to the given dtype.
+  Polars does not support casting strings to booleans, so we implement it manually here.
+
+  iex> Explorer.Series.from_list(["true", "false", nil]) |> cast_series(:boolean) |> Explorer.Series.to_list()
+  [true, false, nil]
+  """
+  def cast_series(series, :boolean), do: Explorer.Series.equal(series, "true")
+  def cast_series(series, dtype), do: Explorer.Series.cast(series, dtype)
+
   def convert_to_dataframe!(body) do
     # TODO: be smooth about `cable_t2_attache` - only added in v2.1.0 (https://github.com/etalab/schema-irve/releases/tag/v2.1.0)
     # and often not provided
