@@ -122,14 +122,14 @@ defmodule Transport.IRVE.Consolidation do
         |> Map.put(:file_extension, extension)
 
       body = File.read!(path)
-
       # This producer_is_org_check is not in the validator itself:
       # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
       # it is done after downloading the file in order to be able to report on the potential
       # loss of PDC count.
       with :producer_is_an_organization <- producer_is_org(resource),
-           {%{valid: true}, _validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
-           import_status <- Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource) do
+           {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
+           checksum <- Transport.IRVE.DatabaseImporter.compute_checksum(body),
+           import_status <- Transport.IRVE.DatabaseImporter.try_write_untyped_df(validated_df, checksum, resource) do
         {import_status, resource}
       else
         :producer_not_an_organization -> {:producer_not_an_organization, resource}

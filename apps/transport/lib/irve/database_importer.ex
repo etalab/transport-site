@@ -1,11 +1,15 @@
 defmodule Transport.IRVE.DatabaseImporter do
   @moduledoc """
-  A module to import IRVE data files and their PDC into the database, through it’s main function `write_to_db/3`.
-  This function assumes you have a path to a valid IRVE data file stored on the disk (e.g. temp folder).
-  It also assumes that you have checked that you haven’t imported yet this exact version of the file before.
-  If you try to import the same version again (same resource_id and checksum), it will raise an error.
-  When you import a new version of an existing file (same resource_id but different checksum), inside the same transaction,
-  it will insert a new file (different record ID) and it’s PDCs, then delete the previous file and its PDCs.
+  A module to import validated, IRVE files and their PDC into the database.
+
+  There are two ways to use this module, either through `try_write_uncasted_df/3` (entry point for the consolidation)
+  or through it’s main function `write_to_db/7`.
+
+  Importing the same `(resource_id, checksum)` again raises a unique-constraint error.
+
+  When you import a new version of an existing file (same resource_id but different checksum),
+  it will insert a new file (different record ID) and it’s PDCs, then delete the previous file and its PDCs
+  inside a single transaction.
   """
 
   import Ecto.Query
@@ -20,15 +24,18 @@ defmodule Transport.IRVE.DatabaseImporter do
   # - `:already_in_db` if the same content (based on file checksum) is in db for
   #     the provided combination of ids
   # (else raise an error)
-  def try_write_to_db(file_path, %{
+  def try_write_untyped_df(untyped_df, checksum, %{
         dataset_id: datagouv_dataset_id,
         resource_id: datagouv_resource_id,
         dataset_title: dataset_title,
         datagouv_organization_or_owner: datagouv_organization_or_owner,
         datagouv_last_modified: datagouv_last_modified
       }) do
+    typed_df = Transport.IRVE.Processing.cast_validated_frame(untyped_df)
+
     write_to_db(
-      file_path,
+      typed_df,
+      checksum,
       datagouv_dataset_id,
       datagouv_resource_id,
       dataset_title,
@@ -47,21 +54,15 @@ defmodule Transport.IRVE.DatabaseImporter do
   end
 
   def write_to_db(
-        file_path,
+        typed_df,
+        checksum,
         datagouv_dataset_id,
         datagouv_resource_id,
         dataset_title,
         datagouv_organization_or_owner,
         datagouv_last_modified
       ) do
-    content =
-      File.read!(file_path)
-      |> Transport.IRVE.Transcoder.ensure_utf8()
-
-    rows_stream =
-      content |> Transport.IRVE.Processing.read_as_data_frame() |> Explorer.DataFrame.to_rows_stream()
-
-    checksum = :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)
+    rows_stream = Explorer.DataFrame.to_rows_stream(typed_df)
 
     DB.Repo.transaction(
       fn ->
@@ -83,6 +84,10 @@ defmodule Transport.IRVE.DatabaseImporter do
       end,
       timeout: @import_timeout
     )
+  end
+
+  def compute_checksum(body) do
+    :crypto.hash(:sha256, body) |> Base.encode16(case: :lower)
   end
 
   defp write_new_file!(
