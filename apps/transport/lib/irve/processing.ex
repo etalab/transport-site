@@ -5,7 +5,8 @@ defmodule Transport.IRVE.Processing do
   """
 
   @doc """
-  Reads a CSV body into an all-strings DataFrame (no type casting), for validation purposes.
+  Prepares the DataFrame without any type casting, all columns remain strings.
+  This is useful for validation purposes.
   """
   def read_as_uncasted_data_frame(body) do
     body
