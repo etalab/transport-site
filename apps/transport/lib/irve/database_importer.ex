@@ -90,6 +90,17 @@ defmodule Transport.IRVE.DatabaseImporter do
     :crypto.hash(:sha256, body) |> Base.encode16(case: :lower)
   end
 
+  @doc """
+  True if a file with this exact content (same `datagouv_resource_id` and `checksum`) is already stored.
+
+  Lets the consolidation skip validating and inserting content that hasn't changed since the last run.
+  """
+  def already_in_db?(datagouv_resource_id, checksum) do
+    DB.IRVEValidFile
+    |> where(datagouv_resource_id: ^datagouv_resource_id, checksum: ^checksum)
+    |> DB.Repo.exists?()
+  end
+
   defp write_new_file!(
          datagouv_dataset_id,
          datagouv_resource_id,

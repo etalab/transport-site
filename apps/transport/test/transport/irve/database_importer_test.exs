@@ -102,4 +102,18 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     assert second_import_pdc.id_pdc_itinerance == "FRPAN99E87654321"
     assert second_import_pdc.gratuit
   end
+
+  test "already_in_db?/2 matches on (resource_id, checksum)" do
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "checksum")
+
+    DB.Repo.insert!(%DB.IRVEValidFile{
+      datagouv_dataset_id: "dataset-id",
+      datagouv_resource_id: "resource-id",
+      checksum: "checksum"
+    })
+
+    assert Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "checksum")
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "other-checksum")
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("other-resource-id", "checksum")
+  end
 end

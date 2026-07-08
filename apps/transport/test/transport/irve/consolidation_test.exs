@@ -224,6 +224,40 @@ defmodule Transport.IRVE.ConsolidationTest do
     end
   end
 
+  describe "process_resource/1" do
+    test "skips validation and insertion when the same content is already in db" do
+      content = DB.Factory.IRVE.to_csv_body([DB.Factory.IRVE.generate_row()])
+      checksum = Transport.IRVE.DatabaseImporter.compute_checksum(content)
+
+      resource = %{
+        resource_id: "already-imported-resource-id",
+        url: "https://static.data.gouv.fr/resources/already-imported/data.csv",
+        dataset_id: "a-dataset-id",
+        dataset_title: "a-dataset-title",
+        dataset_organisation_id: "an-org-id",
+        datagouv_organization_or_owner: "an-org",
+        datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00"
+      }
+
+      DB.Repo.insert!(%DB.IRVEValidFile{
+        datagouv_dataset_id: resource.dataset_id,
+        datagouv_resource_id: resource.resource_id,
+        checksum: checksum
+      })
+
+      Transport.Req.Mock
+      |> expect(:get!, fn _url, options ->
+        File.write!(options[:into].path, content)
+        %Req.Response{status: 200, body: File.stream!(options[:into].path)}
+      end)
+
+      assert {:already_in_db, %{resource_id: "already-imported-resource-id"}} =
+               Transport.IRVE.Consolidation.process_resource(resource)
+
+      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
+    end
+  end
+
   defp mock_datagouv_resources do
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
