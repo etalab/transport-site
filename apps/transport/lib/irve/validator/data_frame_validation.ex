@@ -83,22 +83,29 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
   end
 
   @doc """
-  Adds custom warning columns.
+  Adds custom warning columns, and corrects the data in-place for the next steps of the pipeline.
   We only apply warnings to valid values to avoid noise.
   """
-  def setup_computed_warning_columns(%Explorer.DataFrame{} = df) do
+  def setup_warning_columns_and_correct_data(%Explorer.DataFrame{} = df) do
     df
-    |> setup_inverted_lon_lat_warning_column()
+    |> inverted_lon_lat_setup_warning_and_correct_data()
   end
 
-  def setup_inverted_lon_lat_warning_column(%Explorer.DataFrame{} = df) do
-    warning =
-      Explorer.DataFrame.select(df, ["coordonneesXY"])
-      # The next line is safe and shouldn’t raise errors even with weird values.
-      |> Transport.IRVE.Processing.preprocess_coordinates()
-      |> Transport.IRVE.CoordinateCorrection.inverted?()
-      |> Explorer.Series.and(df["check_column_coordonneesXY_valid"])
+  @doc """
+  Parses and corrects the coordinates once, here in the validation pipeline: adds
+  `longitude`/`latitude` (swapped where inverted) and `consolidated_is_lon_lat_correct`,
+  so the cast step can reuse them instead of recomputing the correction.
 
-    Explorer.DataFrame.put(df, "warning_lon_lat_inverted", warning)
+  `warning_lon_lat_inverted` is the exact negation of `consolidated_is_lon_lat_correct`.
+  Rows whose coordinates don't parse are reported as correct, so they don't raise a warning.
+  """
+  def inverted_lon_lat_setup_warning_and_correct_data(%Explorer.DataFrame{} = df) do
+    df
+    # The next line is safe and shouldn’t raise errors even with weird values.
+    |> Transport.IRVE.Processing.preprocess_coordinates()
+    |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
+    |> Explorer.DataFrame.mutate_with(fn df ->
+      %{"warning_lon_lat_inverted" => Explorer.Series.not(df["consolidated_is_lon_lat_correct"])}
+    end)
   end
 end

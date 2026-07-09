@@ -28,12 +28,21 @@ defmodule Transport.IRVE.CoordinateCorrection do
       iex> Explorer.Series.to_list(r["consolidated_is_lon_lat_correct"])
       [true, false, true]
 
+  Rows whose coordinates don't parse (`nil`) are left untouched and reported as correct:
+
+      iex> df = Explorer.DataFrame.new(longitude: [2.35, nil], latitude: [48.85, nil])
+      iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df)
+      iex> Explorer.Series.to_list(r["consolidated_is_lon_lat_correct"])
+      [true, true]
+
   """
   def detect_and_correct(%DF{} = df) do
     DF.mutate_with(df, fn df ->
       lon = df["longitude"]
       lat = df["latitude"]
-      inverted = inverted?(lon, lat)
+      # `nil` coordinates yield a `nil` predicate, which would make `Series.select/3` panic;
+      # treat them as "not inverted" (no swap, no warning).
+      inverted = inverted?(lon, lat) |> Series.fill_missing(false)
 
       %{
         longitude: Series.select(inverted, lat, lon),
