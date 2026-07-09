@@ -4,6 +4,8 @@ defmodule Transport.IRVE.Processing do
   and preprocess (to some extent) a raw CSV binary body.
   """
 
+  require Explorer.DataFrame
+
   @doc """
   Prepares the DataFrame without any type casting, all columns remain strings.
   This is useful for validation purposes.
@@ -32,6 +34,7 @@ defmodule Transport.IRVE.Processing do
   """
   def cast_validated_frame(dataframe) do
     dataframe
+    |> Explorer.DataFrame.mutate(consolidated_is_lon_lat_correct: not warning_lon_lat_inverted)
     |> cast_to_schema_dtypes()
     |> select_fields()
   end

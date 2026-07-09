@@ -17,7 +17,8 @@ defmodule Transport.IRVE.CoordinateCorrection do
 
   @doc """
   Corrects inverted coordinates in a DataFrame with `longitude` and `latitude` float
-  columns. Adds `consolidated_is_lon_lat_correct` (`false` = row was swapped).
+  columns. Adds `warning_lon_lat_inverted` (`true` = row was swapped). The
+  `consolidated_is_lon_lat_correct` flag is derived later in the pipeline as its negation.
 
       iex> df = Explorer.DataFrame.new(longitude: [2.35, 48.85, 55.4], latitude: [48.85, 2.35, -21.1])
       iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df)
@@ -25,15 +26,15 @@ defmodule Transport.IRVE.CoordinateCorrection do
       [2.35, 2.35, 55.4]
       iex> Explorer.Series.to_list(r["latitude"])
       [48.85, 48.85, -21.1]
-      iex> Explorer.Series.to_list(r["consolidated_is_lon_lat_correct"])
-      [true, false, true]
+      iex> Explorer.Series.to_list(r["warning_lon_lat_inverted"])
+      [false, true, false]
 
-  Rows whose coordinates don't parse (`nil`) are left untouched and reported as correct:
+  Rows whose coordinates don't parse (`nil`) are left untouched and raise no warning:
 
       iex> df = Explorer.DataFrame.new(longitude: [2.35, nil], latitude: [48.85, nil])
       iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df)
-      iex> Explorer.Series.to_list(r["consolidated_is_lon_lat_correct"])
-      [true, true]
+      iex> Explorer.Series.to_list(r["warning_lon_lat_inverted"])
+      [false, false]
 
   """
   def detect_and_correct(%DF{} = df) do
@@ -47,7 +48,7 @@ defmodule Transport.IRVE.CoordinateCorrection do
       %{
         longitude: Series.select(inverted, lat, lon),
         latitude: Series.select(inverted, lon, lat),
-        consolidated_is_lon_lat_correct: Series.not(inverted)
+        warning_lon_lat_inverted: inverted
       }
     end)
   end

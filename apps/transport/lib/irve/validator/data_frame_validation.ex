@@ -93,19 +93,13 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
 
   @doc """
   Parses and corrects the coordinates once, here in the validation pipeline: adds
-  `longitude`/`latitude` (swapped where inverted) and `consolidated_is_lon_lat_correct`,
-  so the cast step can reuse them instead of recomputing the correction.
-
-  `warning_lon_lat_inverted` is the exact negation of `consolidated_is_lon_lat_correct`.
-  Rows whose coordinates don't parse are reported as correct, so they don't raise a warning.
+  `longitude`/`latitude` (swapped where inverted) and `warning_lon_lat_inverted`.
+  If the coordinates can’t be parsed, there is no warning.
   """
   def inverted_lon_lat_setup_warning_and_correct_data(%Explorer.DataFrame{} = df) do
     df
     # The next line is safe and shouldn’t raise errors even with weird values.
     |> Transport.IRVE.Processing.preprocess_coordinates()
     |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
-    |> Explorer.DataFrame.mutate_with(fn df ->
-      %{"warning_lon_lat_inverted" => Explorer.Series.not(df["consolidated_is_lon_lat_correct"])}
-    end)
   end
 end
