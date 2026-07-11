@@ -5,6 +5,7 @@ defmodule Transport.MixProject do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
+      hex: [cooldown: "7d"],
       deps: deps(),
       aliases: aliases(Mix.env()),
       test_coverage: [tool: ExCoveralls],
