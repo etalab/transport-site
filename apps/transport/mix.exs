@@ -94,7 +94,6 @@ defmodule Transport.Mixfile do
       {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 3.0"},
-      {:exvcr, "~> 0.13", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
