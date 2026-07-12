@@ -13,10 +13,6 @@ defmodule Transport.Mixfile do
       lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
       preferred_cli_env: [
-        vcr: :test,
-        "vcr.delete": :test,
-        "vcr.check": :test,
-        "vcr.show": :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
