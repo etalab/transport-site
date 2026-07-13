@@ -15,6 +15,11 @@ defmodule Transport.MixProject do
         #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
         #  - decimal: DoS fixed only in decimal 3.x, blocked by deps still pinning ~> 2.0 (ecto etc.).
         #    Revisit once the ecosystem allows decimal 3.x; check for untrusted decimal parsing meanwhile.
+        #  - cowlib: 2 CRLF-injection advisories, no released fix (2.18.0 is latest under cowboy 2.17),
+        #    but a patch is in progress upstream. Only exploitable if untrusted data reaches response
+        #    headers/cookies, which app code doesn't do. Tracking:
+        #    https://github.com/ninenines/cowlib/issues/152 (EEF-CVE-2026-43969, cookie injection)
+        #    https://osv.dev/vulnerability/EEF-CVE-2026-43966 (response splitting)
         ignore_advisories: [
           # hackney (upgrade to 4.x)
           "EEF-CVE-2026-47069",
@@ -24,7 +29,10 @@ defmodule Transport.MixProject do
           # earmark stored XSS (migrate to MDEx)
           "EEF-CVE-2026-48591",
           # decimal DoS (fix needs 3.x, blocked by ecosystem)
-          "EEF-CVE-2026-32686"
+          "EEF-CVE-2026-32686",
+          # cowlib injection (no fix published yet)
+          "EEF-CVE-2026-43966",
+          "EEF-CVE-2026-43969"
         ],
         # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
         ignore_retirements: [:earmark]
