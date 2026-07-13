@@ -5,7 +5,18 @@ defmodule Transport.MixProject do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
-      hex: [cooldown: "7d"],
+      hex: [
+        cooldown: "7d",
+        # hackney's advisories are only fixed in hackney 4.x (major release adding HTTP/2/3),
+        # which needs a dedicated upgrade PR (hackney is used directly and as httpoison/tesla adapter).
+        # Acknowledged here until then. https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
+        ignore_advisories: [
+          "EEF-CVE-2026-47069",
+          "EEF-CVE-2026-47071",
+          "EEF-CVE-2026-47075",
+          "EEF-CVE-2026-47076"
+        ]
+      ],
       deps: deps(),
       aliases: aliases(Mix.env()),
       test_coverage: [tool: ExCoveralls],
