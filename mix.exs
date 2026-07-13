@@ -13,6 +13,8 @@ defmodule Transport.MixProject do
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
         #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
         #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
+        #  - decimal: DoS fixed only in decimal 3.x, blocked by deps still pinning ~> 2.0 (ecto etc.).
+        #    Revisit once the ecosystem allows decimal 3.x; check for untrusted decimal parsing meanwhile.
         ignore_advisories: [
           # hackney (upgrade to 4.x)
           "EEF-CVE-2026-47069",
@@ -20,7 +22,9 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-47075",
           "EEF-CVE-2026-47076",
           # earmark stored XSS (migrate to MDEx)
-          "EEF-CVE-2026-48591"
+          "EEF-CVE-2026-48591",
+          # decimal DoS (fix needs 3.x, blocked by ecosystem)
+          "EEF-CVE-2026-32686"
         ],
         # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
         ignore_retirements: [:earmark]
