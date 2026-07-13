@@ -4,7 +4,7 @@ defmodule Transport.IRVE.ReportItem do
   IRVE file into a structure with all the same keys.
   (as expected by the `DataFrame` that we use to create the CSV file).
   """
-  @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :status, :estimated_pdc_count]
+  @enforce_keys [:dataset_id, :resource_id, :url, :dataset_title, :consolidation_status, :estimated_pdc_count]
   defstruct [
     :dataset_id,
     :resource_id,
@@ -12,7 +12,7 @@ defmodule Transport.IRVE.ReportItem do
     :dataset_title,
     :datagouv_organization_or_owner,
     :datagouv_last_modified,
-    :status,
+    :consolidation_status,
     :error_message,
     :error_type,
     :estimated_pdc_count,
@@ -38,7 +38,7 @@ defmodule Transport.IRVE.ReportItem do
   def to_map(%__MODULE__{} = report_row) do
     report_row
     |> Map.from_struct()
-    |> Map.update!(:status, &to_string/1)
+    |> Map.update!(:consolidation_status, &to_string/1)
   end
 
   defp new(resource, status, error_message, error_type) do
@@ -49,7 +49,7 @@ defmodule Transport.IRVE.ReportItem do
       dataset_title: resource.dataset_title,
       datagouv_organization_or_owner: resource.datagouv_organization_or_owner,
       datagouv_last_modified: resource.datagouv_last_modified,
-      status: status,
+      consolidation_status: status,
       estimated_pdc_count: resource[:estimated_pdc_count],
       error_message: error_message,
       error_type: error_type,

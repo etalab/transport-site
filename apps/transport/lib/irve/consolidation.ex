@@ -154,7 +154,7 @@ defmodule Transport.IRVE.Consolidation do
       |> Explorer.DataFrame.select([
         "dataset_id",
         "resource_id",
-        "status",
+        "consolidation_status",
         "error_type",
         "estimated_pdc_count",
         "file_extension",

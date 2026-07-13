@@ -33,7 +33,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "another-dataset-id",
             "resource_id" => "another-resource-id",
-            "status" => "file_level_errors",
+            "consolidation_status" => "file_level_errors",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
             "file_extension" => ".csv",
@@ -50,7 +50,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "individual-published-dataset-id",
             "resource_id" => "individual-published-resource-id",
-            "status" => "producer_not_an_organization",
+            "consolidation_status" => "producer_not_an_organization",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
             "file_extension" => ".csv",
@@ -63,7 +63,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "the-dataset-id",
             "resource_id" => "the-resource-id",
-            "status" => "import_successful",
+            "consolidation_status" => "import_successful",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
             "file_extension" => ".csv",
@@ -79,7 +79,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         |> Explorer.DataFrame.select([
           "dataset_id",
           "resource_id",
-          "status",
+          "consolidation_status",
           "error_type",
           "estimated_pdc_count",
           "file_extension",
