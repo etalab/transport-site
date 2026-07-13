@@ -1,7 +1,7 @@
 defmodule Transport.IRVE.Consolidation do
   @moduledoc """
   This module:
-  - takes the list of relevant IRVE resources from data.gouv.fr,
+  - takes the list of relevant IRVE datagouv_resources from data.gouv.fr,
   - downloads each resource file,
   - validates it,
   - and if valid writes the PDCs and file to the database.
@@ -29,8 +29,13 @@ defmodule Transport.IRVE.Consolidation do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
 
-    report_rows =
-      resource_list()
+    datagouv_resources = resource_list()
+    datagouv_resource_ids = MapSet.new(datagouv_resources, & &1.resource_id)
+    # Snapshot before processing mutates the DB, so `resource_status` reflects the pre-run state.
+    db_resource_ids = DB.IRVEValidFile.existing_datagouv_resource_ids()
+
+    processed_rows =
+      datagouv_resources
       |> maybe_limit(opts[:limit])
       |> Task.async_stream(
         &process_or_rescue/1,
@@ -45,8 +50,11 @@ defmodule Transport.IRVE.Consolidation do
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&Transport.IRVE.ReportItem.from_result/1)
+      |> Stream.map(&Transport.IRVE.ReportItem.put_resource_status(&1, db_resource_ids))
       |> maybe_log_items(debug)
       |> Enum.into([])
+
+    report_rows = processed_rows ++ orphan_report_rows(db_resource_ids, datagouv_resource_ids)
 
     report = generate_report(report_rows, destination: destination)
 
@@ -83,6 +91,17 @@ defmodule Transport.IRVE.Consolidation do
     Transport.IRVE.Extractor.datagouv_resources()
     |> Transport.IRVE.Extractor.exclude_irrelevant_resources()
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
+  end
+
+  # Resources still in the DB but no longer listed on data.gouv.fr, appended as a block after the
+  # processed rows (which are not processed this run, so they carry no consolidation outcome).
+  def orphan_report_rows(db_resource_ids, datagouv_resource_ids) do
+    db_resource_ids
+    |> MapSet.difference(datagouv_resource_ids)
+    |> MapSet.to_list()
+    |> DB.IRVEValidFile.orphan_files()
+    |> Enum.sort_by(&{&1.datagouv_dataset_id, &1.datagouv_resource_id})
+    |> Enum.map(&Transport.IRVE.ReportItem.from_orphan_file/1)
   end
 
   # safety wrapper that we can use inside `Task.async_stream`
@@ -154,6 +173,7 @@ defmodule Transport.IRVE.Consolidation do
       |> Explorer.DataFrame.select([
         "dataset_id",
         "resource_id",
+        "resource_status",
         "consolidation_status",
         "error_type",
         "estimated_pdc_count",

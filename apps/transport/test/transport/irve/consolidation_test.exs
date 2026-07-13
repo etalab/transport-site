@@ -33,6 +33,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "another-dataset-id",
             "resource_id" => "another-resource-id",
+            "resource_status" => "on_datagouv_not_in_db",
             "consolidation_status" => "file_level_errors",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
@@ -50,6 +51,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "individual-published-dataset-id",
             "resource_id" => "individual-published-resource-id",
+            "resource_status" => "on_datagouv_not_in_db",
             "consolidation_status" => "producer_not_an_organization",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
@@ -63,6 +65,7 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "the-dataset-id",
             "resource_id" => "the-resource-id",
+            "resource_status" => "on_datagouv_not_in_db",
             "consolidation_status" => "import_successful",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
@@ -79,6 +82,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         |> Explorer.DataFrame.select([
           "dataset_id",
           "resource_id",
+          "resource_status",
           "consolidation_status",
           "error_type",
           "estimated_pdc_count",
@@ -222,6 +226,79 @@ defmodule Transport.IRVE.ConsolidationTest do
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
     end
+
+    test "reports the presence delta between data.gouv.fr and the database" do
+      mock_datagouv_resources()
+      mock_resource_downloads()
+
+      on_exit(fn ->
+        ~w(
+          consolidation_transport_irve_statique_rapport.csv
+          consolidation_transport_avec_doublons_irve_statique.csv
+          consolidation_transport_irve_statique.csv
+        )
+        |> Enum.each(&File.rm/1)
+      end)
+
+      # Still in the DB but no longer listed on data.gouv.fr, with 2 stored PDCs.
+      seed_file_with_pdcs("deleted-dataset-id", "deleted-resource-id", 2)
+
+      # Already in the DB (older version) and still listed on data.gouv.fr.
+      DB.Repo.insert!(%DB.IRVEValidFile{
+        datagouv_dataset_id: "the-dataset-id",
+        datagouv_resource_id: "the-resource-id",
+        checksum: "old-checksum"
+      })
+
+      {:ok, report_df} = Transport.IRVE.Consolidation.process(destination: :local_disk)
+
+      rows_by_id =
+        report_df
+        |> Explorer.DataFrame.to_rows()
+        |> Map.new(fn row -> {row["resource_id"], row} end)
+
+      # Had a version in the DB, imported a new one this run.
+      assert rows_by_id["the-resource-id"]["resource_status"] == "on_datagouv_and_in_db"
+      assert rows_by_id["the-resource-id"]["consolidation_status"] == "import_successful"
+
+      # Brand-new resources (nothing in the DB before this run).
+      assert rows_by_id["another-resource-id"]["resource_status"] == "on_datagouv_not_in_db"
+      assert rows_by_id["individual-published-resource-id"]["resource_status"] == "on_datagouv_not_in_db"
+
+      # Invariant: cannot be up-to-date without being in the DB.
+      refute Enum.any?(rows_by_id, fn {_id, row} ->
+               row["resource_status"] == "on_datagouv_not_in_db" and
+                 row["consolidation_status"] == "already_up_to_date"
+             end)
+
+      orphan = rows_by_id["deleted-resource-id"]
+      assert orphan["resource_status"] == "in_db_deleted_from_datagouv"
+      assert is_nil(orphan["consolidation_status"])
+      assert orphan["estimated_pdc_count"] == 2
+      assert orphan["dataset_id"] == "deleted-dataset-id"
+    end
+  end
+
+  defp seed_file_with_pdcs(dataset_id, resource_id, pdc_count) do
+    rows =
+      for i <- 1..pdc_count do
+        DB.Factory.IRVE.generate_row(%{"id_pdc_itinerance" => "FRPAN99E0000000#{i}"})
+      end
+
+    content = DB.Factory.IRVE.to_csv_body(rows)
+    {_summary, validated_df} = Transport.IRVE.Validator.validate_and_summarize(content)
+    casted_df = Transport.IRVE.Processing.cast_validated_frame(validated_df)
+    checksum = Transport.IRVE.DatabaseImporter.compute_checksum(content)
+
+    Transport.IRVE.DatabaseImporter.write_to_db(
+      casted_df,
+      checksum,
+      dataset_id,
+      resource_id,
+      "#{dataset_id}-title",
+      "#{dataset_id}-org",
+      "2024-01-01T10:00:00+00:00"
+    )
   end
 
   describe "process_resource/1" do
