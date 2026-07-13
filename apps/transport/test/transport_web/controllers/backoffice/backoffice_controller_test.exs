@@ -1,7 +1,6 @@
 defmodule TransportWeb.BackofficeControllerTest do
   use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
   alias DB.{Repo, Resource}
 
