@@ -12,7 +12,7 @@ defmodule Transport.MixProject do
         #    (hackney is used directly and as httpoison/tesla adapter).
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
         #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
-        #    Tracking issue: https://github.com/etalab/transport-site/issues/ISSUE_NUMBER (TODO: fill once created)
+        #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
         ignore_advisories: [
           # hackney (upgrade to 4.x)
           "EEF-CVE-2026-47069",
