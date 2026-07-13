@@ -7,15 +7,23 @@ defmodule Transport.MixProject do
       start_permanent: Mix.env() == :prod,
       hex: [
         cooldown: "7d",
-        # hackney's advisories are only fixed in hackney 4.x (major release adding HTTP/2/3),
-        # which needs a dedicated upgrade PR (hackney is used directly and as httpoison/tesla adapter).
-        # Acknowledged here until then. https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
+        # Advisories acknowledged because no drop-in fix is available yet:
+        #  - hackney: fixed only in 4.x (major release adding HTTP/2/3), needs a dedicated upgrade PR
+        #    (hackney is used directly and as httpoison/tesla adapter).
+        #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
+        #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
+        #    Tracking issue: https://github.com/etalab/transport-site/issues/ISSUE_NUMBER (TODO: fill once created)
         ignore_advisories: [
+          # hackney (upgrade to 4.x)
           "EEF-CVE-2026-47069",
           "EEF-CVE-2026-47071",
           "EEF-CVE-2026-47075",
-          "EEF-CVE-2026-47076"
-        ]
+          "EEF-CVE-2026-47076",
+          # earmark stored XSS (migrate to MDEx)
+          "EEF-CVE-2026-48591"
+        ],
+        # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
+        ignore_retirements: [:earmark]
       ],
       deps: deps(),
       aliases: aliases(Mix.env()),
