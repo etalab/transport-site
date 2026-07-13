@@ -2,6 +2,7 @@ defmodule TransportWeb.BackofficeControllerTest do
   use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: false
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  import Plug.Test, only: [init_test_session: 2]
   alias DB.{Repo, Resource}
 
   import Mox
