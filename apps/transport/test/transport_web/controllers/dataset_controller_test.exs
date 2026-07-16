@@ -1,7 +1,7 @@
 defmodule TransportWeb.DatasetControllerTest do
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  import Plug.Test, only: [init_test_session: 2]
   import DB.Factory
   import ExUnit.CaptureLog
 

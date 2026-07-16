@@ -2,7 +2,7 @@ import Config
 
 alias Datagouvfr.Authentication
 
-# avoid test failures with VCR, as tzdata tries to update
+# tzdata autoupdate would hit the network during tests
 config :tzdata, :autoupdate, :disabled
 
 # We don't run a server during test. If one is required,
@@ -92,10 +92,6 @@ config :oauth2, Authentication,
   client_id: "my_client_id",
   client_secret: "my_client_secret"
 
-config :exvcr,
-  vcr_cassette_library_dir: "test/fixture/cassettes",
-  filter_request_headers: ["authorization"]
-
 config :transport, DB.Repo,
   url:
     System.get_env("PG_URL_TEST") || System.get_env("PG_URL") ||
@@ -109,8 +105,6 @@ config :transport,
   resource_unavailable_skip_resource_ids: [],
   datagouvfr_site: "https://demo.data.gouv.fr",
   datagouvfr_apikey: "fake-datagouv-api-key",
-  # NOTE: some tests still rely on ExVCR cassettes at the moment. We configure the
-  # expected host here, until we move to a behaviour-based testing instead.
   gtfs_validator_url: "https://validation.transport.data.gouv.fr",
   consolidation: %{
     zfe: %{
