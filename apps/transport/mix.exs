@@ -13,10 +13,6 @@ defmodule Transport.Mixfile do
       lockfile: "../../mix.lock",
       gettext: [{:write_reference_comments, false}],
       preferred_cli_env: [
-        vcr: :test,
-        "vcr.delete": :test,
-        "vcr.check": :test,
-        "vcr.show": :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
@@ -94,7 +90,6 @@ defmodule Transport.Mixfile do
       {:castore, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:cors_plug, "~> 3.0"},
-      {:exvcr, "~> 0.13", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},

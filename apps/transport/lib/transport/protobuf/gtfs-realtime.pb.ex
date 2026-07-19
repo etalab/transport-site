@@ -400,7 +400,20 @@ defmodule TransitRealtime.Alert do
   field(:active_period, 1,
     repeated: true,
     type: TransitRealtime.TimeRange,
-    json_name: "activePeriod"
+    json_name: "activePeriod",
+    deprecated: true
+  )
+
+  field(:communication_period, 2,
+    repeated: true,
+    type: TransitRealtime.TimeRange,
+    json_name: "communicationPeriod"
+  )
+
+  field(:impact_period, 3,
+    repeated: true,
+    type: TransitRealtime.TimeRange,
+    json_name: "impactPeriod"
   )
 
   field(:informed_entity, 5,

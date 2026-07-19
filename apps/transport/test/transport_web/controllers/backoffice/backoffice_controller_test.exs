@@ -1,8 +1,8 @@
 defmodule TransportWeb.BackofficeControllerTest do
   use Oban.Testing, repo: DB.Repo
   use TransportWeb.ConnCase, async: false
-  use TransportWeb.ExternalCase
   use TransportWeb.DatabaseCase, cleanup: [:datasets]
+  import Plug.Test, only: [init_test_session: 2]
   alias DB.{Repo, Resource}
 
   import Mox
@@ -130,17 +130,33 @@ defmodule TransportWeb.BackofficeControllerTest do
 
     resource_url = "http://www.metromobilite.fr/data/Horaires/SEM-GTFS.zip"
     dataset = %{@dataset | "region_id" => nil}
+    datagouv_id = "5760038cc751df708cac31a0"
 
-    use_cassette "dataset/dataset_twice" do
-      conn = post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
-      query = from(r in Resource, where: r.url == ^resource_url)
-      assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-      assert query |> Repo.all() |> length() == 1
+    # `stub` (not `expect`): the same form is posted twice below, so each mock is hit twice.
+    # Slug resolution (get_id_from_url).
+    Transport.HTTPoison.Mock
+    |> stub(:request, fn :get, _url, _body, _headers, _options ->
+      {:ok, %HTTPoison.Response{status_code: 200, body: Jason.encode!(%{"id" => datagouv_id})}}
+    end)
 
+    # Dataset fetch (import_from_data_gouv), carrying a single GTFS resource.
+    Transport.HTTPoison.Mock
+    |> stub(:get!, fn "https://demo.data.gouv.fr/api/1/datasets/" <> _, [], _ ->
+      resources = [DB.Factory.generate_resource_payload(url: resource_url, format: "GTFS")]
+      body = datagouv_id |> DB.Factory.generate_dataset_payload(resources) |> Jason.encode!()
+      %HTTPoison.Response{status_code: 200, body: body}
+    end)
+
+    Datagouvfr.Client.CommunityResources.Mock |> stub(:get, fn _dataset_id -> {:ok, []} end)
+
+    post_dataset = fn ->
       conn = post(conn, backoffice_dataset_path(conn, :post), %{"form" => dataset})
-      query = from(r in Resource, where: r.url == ^resource_url)
       assert redirected_to(conn, 302) == backoffice_page_path(conn, :index)
-      assert query |> Repo.all() |> length() == 1
+      Resource |> where([r], r.url == ^resource_url) |> Repo.all() |> length()
     end
+
+    # Posting the same dataset twice must not duplicate its resource (insert_or_update on datagouv_id).
+    assert post_dataset.() == 1
+    assert post_dataset.() == 1
   end
 end
