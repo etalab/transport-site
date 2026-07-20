@@ -15,15 +15,19 @@ defmodule DB.IRVEValidFileTest do
     })
   end
 
-  describe "existing_datagouv_resource_ids/0" do
-    test "returns the distinct set of datagouv_resource_ids" do
+  describe "existing_datagouv_resource_ids_and_checksums/0" do
+    test "returns the set of {datagouv_resource_id, checksum} pairs" do
       insert_file!("resource-a")
       insert_file!("resource-b")
-      # same resource, another version: must be deduplicated
+      # same resource, another version: a distinct checksum is a distinct pair
       insert_file!("resource-a", %{checksum: "checksum-a-2"})
 
-      assert DB.IRVEValidFile.existing_datagouv_resource_ids() ==
-               MapSet.new(["resource-a", "resource-b"])
+      assert DB.IRVEValidFile.existing_datagouv_resource_ids_and_checksums() ==
+               MapSet.new([
+                 {"resource-a", "checksum-resource-a"},
+                 {"resource-b", "checksum-resource-b"},
+                 {"resource-a", "checksum-a-2"}
+               ])
     end
   end
 

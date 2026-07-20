@@ -32,13 +32,14 @@ defmodule Transport.IRVE.Consolidation do
     datagouv_resources = resource_list()
     datagouv_resource_ids = MapSet.new(datagouv_resources, & &1.resource_id)
     # Snapshot before processing mutates the DB, so `resource_status` reflects the pre-run state.
-    db_resource_ids = DB.IRVEValidFile.existing_datagouv_resource_ids()
+    db_ids_and_checksums = DB.IRVEValidFile.existing_datagouv_resource_ids_and_checksums()
+    db_resource_ids = MapSet.new(db_ids_and_checksums, fn {resource_id, _checksum} -> resource_id end)
 
     processed_rows =
       datagouv_resources
       |> maybe_limit(opts[:limit])
       |> Task.async_stream(
-        &process_or_rescue/1,
+        &process_or_rescue(&1, db_ids_and_checksums),
         ordered: true,
         on_timeout: :kill_task,
         # Underlying DB operation has 90 seconds timeout, see DatabaseImporter
@@ -105,8 +106,8 @@ defmodule Transport.IRVE.Consolidation do
   end
 
   # safety wrapper that we can use inside `Task.async_stream`
-  def process_or_rescue(resource) do
-    process_resource(resource)
+  def process_or_rescue(resource, db_ids_and_checksums) do
+    process_resource(resource, db_ids_and_checksums)
   rescue
     error ->
       Logger.error(
@@ -122,7 +123,7 @@ defmodule Transport.IRVE.Consolidation do
       {:error_occurred, error, resource}
   end
 
-  def process_resource(resource) do
+  def process_resource(resource, db_ids_and_checksums) do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
 
@@ -148,7 +149,7 @@ defmodule Transport.IRVE.Consolidation do
            body = File.read!(path),
            checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body),
            # Same content already stored: skip validation and insertion entirely.
-           false <- Transport.IRVE.DatabaseImporter.already_in_db?(resource.resource_id, checksum),
+           false <- MapSet.member?(db_ids_and_checksums, {resource.resource_id, checksum}),
            {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
            import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
         {import_status, resource}

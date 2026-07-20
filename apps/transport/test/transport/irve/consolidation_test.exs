@@ -301,7 +301,7 @@ defmodule Transport.IRVE.ConsolidationTest do
     )
   end
 
-  describe "process_resource/1" do
+  describe "process_resource/2" do
     test "skips validation and insertion when the same content is already in db" do
       content = DB.Factory.IRVE.to_csv_body([DB.Factory.IRVE.generate_row()])
       checksum = Transport.IRVE.DatabaseImporter.compute_checksum(content)
@@ -328,8 +328,10 @@ defmodule Transport.IRVE.ConsolidationTest do
         %Req.Response{status: 200, body: File.stream!(options[:into].path)}
       end)
 
+      db_ids_and_checksums = DB.IRVEValidFile.existing_datagouv_resource_ids_and_checksums()
+
       assert {:already_up_to_date, %{resource_id: "already-imported-resource-id"}} =
-               Transport.IRVE.Consolidation.process_resource(resource)
+               Transport.IRVE.Consolidation.process_resource(resource, db_ids_and_checksums)
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
     end
