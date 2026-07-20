@@ -20,6 +20,13 @@ defmodule Transport.MixProject do
         #    headers/cookies, which app code doesn't do. Tracking:
         #    https://github.com/ninenines/cowlib/issues/152 (EEF-CVE-2026-43969, cookie injection)
         #    https://osv.dev/vulnerability/EEF-CVE-2026-43966 (response splitting)
+        #  - req: both fixes land in the 0.6 series, which we deliberately stay off for now.
+        #    https://github.com/etalab/transport-site/issues/5570
+        #    Multipart injection does not apply: we never build multipart requests.
+        #    Decompression bomb: the paths fetching producer-supplied urls (resource history,
+        #    GTFS diff, GTFS-RT validation) already pass `compressed: false, decode_body: false`
+        #    and stream `into:` a file. The exception is the dynamic IRVE feed worker, which
+        #    decompresses in memory — see the TODO in unlock/dynamic_irve/feed_worker.ex.
         ignore_advisories: [
           # hackney (upgrade to 4.x)
           "EEF-CVE-2026-47069",
@@ -32,7 +39,10 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-32686",
           # cowlib injection (no fix published yet)
           "EEF-CVE-2026-43966",
-          "EEF-CVE-2026-43969"
+          "EEF-CVE-2026-43969",
+          # req multipart injection (not applicable) & decompression bomb (fixes need 0.6)
+          "EEF-CVE-2026-49756",
+          "EEF-CVE-2026-49755"
         ],
         # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
         ignore_retirements: [:earmark]
