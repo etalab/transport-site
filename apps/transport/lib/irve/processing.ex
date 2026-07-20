@@ -67,10 +67,26 @@ defmodule Transport.IRVE.Processing do
   Casts a string series to the given dtype.
   Polars does not support casting strings to booleans, so we implement it manually here.
 
+  Only `"true"`, `"false"` and `nil` are accepted. Anything else (e.g. `"TRUE"`) would silently
+  become `false`, so we raise instead to avoid corrupting data if unvalidated input reaches us.
+
   iex> Explorer.Series.from_list(["true", "false", nil]) |> cast_series(:boolean) |> Explorer.Series.to_list()
   [true, false, nil]
+
+  iex> Explorer.Series.from_list(["true", "TRUE"]) |> cast_series(:boolean)
+  ** (ArgumentError) cannot cast to :boolean: expected only "true", "false" or nil
   """
-  def cast_series(series, :boolean), do: Explorer.Series.equal(series, "true")
+  def cast_series(series, :boolean) do
+    # `in` yields nil for nil cells, which are allowed, so fill them as known before checking.
+    known = series |> Explorer.Series.in(["true", "false"]) |> Explorer.Series.fill_missing(true)
+
+    unless Explorer.Series.all?(known) do
+      raise ArgumentError, ~s(cannot cast to :boolean: expected only "true", "false" or nil)
+    end
+
+    Explorer.Series.equal(series, "true")
+  end
+
   def cast_series(series, dtype), do: Explorer.Series.cast(series, dtype)
 
   defp convert_to_uncasted_dataframe!(body) do
