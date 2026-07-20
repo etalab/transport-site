@@ -131,7 +131,7 @@ defmodule Transport.IRVE.Consolidation do
            # Same content already stored: skip validation and insertion entirely.
            false <- Transport.IRVE.DatabaseImporter.already_in_db?(resource.resource_id, checksum),
            {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
-           import_status <- Transport.IRVE.DatabaseImporter.try_write_untyped_df(validated_df, checksum, resource) do
+           import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
         {import_status, resource}
       else
         :producer_not_an_organization -> {:producer_not_an_organization, resource}

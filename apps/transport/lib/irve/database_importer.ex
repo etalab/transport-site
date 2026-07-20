@@ -24,17 +24,17 @@ defmodule Transport.IRVE.DatabaseImporter do
   # - `:already_in_db` if the same content (based on file checksum) is in db for
   #     the provided combination of ids
   # (else raise an error)
-  def try_write_untyped_df(untyped_df, checksum, %{
+  def try_write_uncasted_df(uncasted_df, checksum, %{
         dataset_id: datagouv_dataset_id,
         resource_id: datagouv_resource_id,
         dataset_title: dataset_title,
         datagouv_organization_or_owner: datagouv_organization_or_owner,
         datagouv_last_modified: datagouv_last_modified
       }) do
-    typed_df = Transport.IRVE.Processing.cast_validated_frame(untyped_df)
+    casted_df = Transport.IRVE.Processing.cast_validated_frame(uncasted_df)
 
     write_to_db(
-      typed_df,
+      casted_df,
       checksum,
       datagouv_dataset_id,
       datagouv_resource_id,
@@ -54,7 +54,7 @@ defmodule Transport.IRVE.DatabaseImporter do
   end
 
   def write_to_db(
-        typed_df,
+        casted_df,
         checksum,
         datagouv_dataset_id,
         datagouv_resource_id,
@@ -62,7 +62,7 @@ defmodule Transport.IRVE.DatabaseImporter do
         datagouv_organization_or_owner,
         datagouv_last_modified
       ) do
-    rows_stream = Explorer.DataFrame.to_rows_stream(typed_df)
+    rows_stream = Explorer.DataFrame.to_rows_stream(casted_df)
 
     DB.Repo.transaction(
       fn ->
