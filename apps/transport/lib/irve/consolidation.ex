@@ -126,13 +126,18 @@ defmodule Transport.IRVE.Consolidation do
       # it is done after downloading the file in order to be able to report on the potential
       # loss of PDC count.
       with :producer_is_an_organization <- producer_is_org(resource),
-           %{valid: true} <- Transport.IRVE.Validator.validate_and_summarize(path, extension),
-           import_status <- Transport.IRVE.DatabaseImporter.try_write_to_db(path, resource) do
+           body = File.read!(path),
+           checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body),
+           # Same content already stored: skip validation and insertion entirely.
+           false <- Transport.IRVE.DatabaseImporter.already_in_db?(resource.resource_id, checksum),
+           {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
+           import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
         {import_status, resource}
       else
         :producer_not_an_organization -> {:producer_not_an_organization, resource}
-        %{file_level_errors: [_ | _] = errors} -> {:file_level_errors, resource, errors}
-        %{file_level_errors: []} -> {:not_compliant_with_schema, resource}
+        true -> {:already_in_db, resource}
+        {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
+        {%{file_level_errors: []}, _validated_df} -> {:not_compliant_with_schema, resource}
       end
     end)
   end
