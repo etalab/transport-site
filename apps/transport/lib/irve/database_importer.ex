@@ -1,14 +1,14 @@
 defmodule Transport.IRVE.DatabaseImporter do
   @moduledoc """
-  A module to import validated, IRVE files and their PDC into the database.
+  A module to import validated IRVE files and their PDC into the database.
 
   There are two ways to use this module, either through `try_write_uncasted_df/3` (entry point for the consolidation)
-  or through it’s main function `write_to_db/7`.
+  or through its main function `write_to_db/7`.
 
   Importing the same `(resource_id, checksum)` again raises a unique-constraint error.
 
   When you import a new version of an existing file (same resource_id but different checksum),
-  it will insert a new file (different record ID) and it’s PDCs, then delete the previous file and its PDCs
+  it will insert a new file (different record ID) and its PDCs, then delete the previous file and its PDCs
   inside a single transaction.
   """
 

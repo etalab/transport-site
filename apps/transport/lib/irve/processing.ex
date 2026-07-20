@@ -57,7 +57,7 @@ defmodule Transport.IRVE.Processing do
   ["hello", nil, nil, "world"]
   """
   def empty_strings_as_nil(series) do
-    # `equal` yields nil for nil cells so we fill nills with false
+    # `equal` yields nil for nil cells so we fill nils with false
     is_an_empty_string = series |> Explorer.Series.equal("") |> Explorer.Series.fill_missing(false)
     nil_string = Explorer.Series.from_list([nil], dtype: :string)
     Explorer.Series.select(is_an_empty_string, nil_string, series)

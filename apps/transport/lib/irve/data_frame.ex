@@ -322,7 +322,7 @@ defmodule Transport.IRVE.DataFrame do
 
   @doc """
   If a given column doesn't exist in the dataframe, add it & populate it
-  with nil values.
+  with empty string values.
 
   This is useful to smooth out the rare cases where optional columns are missing
   from data files.

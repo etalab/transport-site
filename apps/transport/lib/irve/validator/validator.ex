@@ -69,7 +69,7 @@ defmodule Transport.IRVE.Validator do
   Unexpected errors anywhere in the pipeline are also caught and reported in `file_level_errors`
   and prefixed with `#{@unexpected_error_prefix}` to tell them apart.
 
-  In case of known or unkwon file-level errors, the second element of the returned tuple is `nil`.
+  In case of known or unknown file-level errors, the second element of the returned tuple is `nil`.
   """
   def validate_and_summarize(body, extension \\ ".csv") do
     # Known problem: whole file is loaded in memory, no streaming.
