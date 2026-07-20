@@ -34,6 +34,22 @@ jobs:
       - name: Run formatter
         run: mix format --check-formatted --dry-run
 
+  check_links:
+    name: 🔗 Check markdown links
+    runs-on: ubuntu-latest
+    container: ghcr.io/transportdatagouvfr/ops:elixir-1.19.4-erlang-27.3.4.1-ubuntu-noble-20251013-transport-tools-2.0.0
+    env:
+      LINK_CHECK_SKIP_HOSTS: www.researchgate.net,marketplace.visualstudio.com
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Checkout and compile
+        uses: ./.github/actions/checkout-compile
+
+      - name: Run link check
+        run: mix check_links
+
   test:
     name: ⚙️ Run the test suite
     runs-on: ubuntu-latest
