@@ -2,7 +2,14 @@ defmodule Transport.IRVE.ProcessingTest do
   use ExUnit.Case, async: true
   doctest Transport.IRVE.Processing, import: true
 
-  test "Read as DataFrame" do
+  defp build_typed_frame(body) do
+    body
+    |> Transport.IRVE.Processing.read_as_uncasted_data_frame()
+    |> Transport.IRVE.Validator.compute_validation()
+    |> Transport.IRVE.Processing.cast_validated_frame()
+  end
+
+  test "cast_validated_frame/1 produces the typed, insert-ready frame" do
     row =
       DB.Factory.IRVE.generate_row(%{
         "prise_type_ef" => "FAUX",
@@ -14,8 +21,7 @@ defmodule Transport.IRVE.ProcessingTest do
       })
       |> Map.delete("tarification")
 
-    body = [row] |> DB.Factory.IRVE.to_csv_body()
-    df = Transport.IRVE.Processing.read_as_data_frame(body)
+    df = build_typed_frame([row] |> DB.Factory.IRVE.to_csv_body())
     maps = Explorer.DataFrame.to_rows(df)
 
     assert maps == [
@@ -70,5 +76,28 @@ defmodule Transport.IRVE.ProcessingTest do
                "consolidated_is_lon_lat_correct" => true
              }
            ]
+  end
+
+  test "cast_validated_frame/1 corrects inverted coordinates" do
+    body =
+      [DB.Factory.IRVE.generate_row(%{"coordonneesXY" => "[45.91914, -0.799141]"})] |> DB.Factory.IRVE.to_csv_body()
+
+    [row] = build_typed_frame(body) |> Explorer.DataFrame.to_rows()
+
+    assert row["longitude"] == -0.799141
+    assert row["latitude"] == 45.91914
+    assert row["consolidated_is_lon_lat_correct"] == false
+  end
+
+  test "cast_validated_frame/1 maps empty values to nil, fully typed" do
+    body = [DB.Factory.IRVE.generate_row(%{"gratuit" => "", "observations" => ""})] |> DB.Factory.IRVE.to_csv_body()
+
+    df = build_typed_frame(body)
+    [row] = Explorer.DataFrame.to_rows(df)
+
+    assert row["gratuit"] == nil
+    assert row["observations"] == nil
+    refute :null in Map.values(Explorer.DataFrame.dtypes(df))
+    assert Explorer.DataFrame.dtypes(df)["date_maj"] == :date
   end
 end

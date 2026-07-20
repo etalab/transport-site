@@ -10,7 +10,8 @@ file_path = "mobilize.csv"
 Transport.LogTimeTaken.log_time_taken("Validating #{file_path}", fn ->
   IO.puts("Starting validating (#{file_path})…")
 
-  summary = Transport.IRVE.Validator.validate_and_summarize(file_path)
+  body = File.read!(file_path)
+  {summary, validated_df} = Transport.IRVE.Validator.validate_and_summarize(body)
 
   IO.inspect(summary, IEx.inspect_opts())
 
@@ -18,10 +19,17 @@ Transport.LogTimeTaken.log_time_taken("Validating #{file_path}", fn ->
   Transport.LogTimeTaken.log_time_taken("Importing #{file_path}", fn ->
     IO.puts("Starting importing (#{file_path})…")
 
+    typed_df = Transport.IRVE.Processing.cast_validated_frame(validated_df)
+    checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body)
+
     Transport.IRVE.DatabaseImporter.write_to_db(
-      file_path,
+      typed_df,
+      checksum,
       "test-dataset-id",
-      "test-resource-id"
+      "test-resource-id",
+      "test-title",
+      "test-org",
+      "2024-01-01T00:00:00+00:00"
     )
 
     IO.puts("Importing done.")

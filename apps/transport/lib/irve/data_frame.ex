@@ -23,7 +23,7 @@ defmodule Transport.IRVE.DataFrame do
   is inferred from the first line of the file. An exception will be raised
   if an unsupported separator is encountered.
 
-  In strict mode (the default), the types are remapped as follow:
+  The types are remapped as follow:
 
   iex> Transport.IRVE.DataFrame.remap_schema_type(:geopoint)
   :string
@@ -33,28 +33,11 @@ defmodule Transport.IRVE.DataFrame do
   :boolean
   iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything)
   :literally_anything
-
-  In non-strict mode (used by the current prototype), we read some types as `:string`
-  in order to apply clean-up before casting to the actual target type manually:
-
-  iex> Transport.IRVE.DataFrame.remap_schema_type(:boolean, _strict = false)
-  :string
-  iex> Transport.IRVE.DataFrame.remap_schema_type(:literally_anything, _strict = false)
-  :literally_anything
   """
-  def remap_schema_type(input_type, strict \\ true)
-
-  def remap_schema_type(input_type, true = _strict) do
+  def remap_schema_type(input_type) do
     case input_type do
       :geopoint -> :string
       :number -> {:f, 64}
-      type -> type
-    end
-  end
-
-  def remap_schema_type(input_type, false = _strict) do
-    case remap_schema_type(input_type, true) do
-      :boolean -> :string
       type -> type
     end
   end
@@ -117,8 +100,8 @@ defmodule Transport.IRVE.DataFrame do
   Congratulations for reading this far.
   """
 
-  def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
-    dtypes = schema_dtypes(schema, strict)
+  def dataframe_from_csv_body!(body, schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
+    dtypes = schema_dtypes(schema)
 
     delimiter = guess_delimiter!(body)
 
@@ -130,22 +113,18 @@ defmodule Transport.IRVE.DataFrame do
   end
 
   @doc """
-  Computes Explorer dtypes from a TableSchema, using `remap_schema_type/2`.
+  Computes Explorer dtypes from a TableSchema, using `remap_schema_type/1`.
 
   iex> Transport.IRVE.DataFrame.schema_dtypes() |> Keyword.fetch!(:puissance_nominale)
   {:f, 64}
   iex> Transport.IRVE.DataFrame.schema_dtypes() |> Keyword.fetch!(:id_pdc_itinerance)
   :string
   """
-  def schema_dtypes(schema \\ Transport.IRVE.StaticIRVESchema.schema_content(), strict \\ true) do
+  def schema_dtypes(schema \\ Transport.IRVE.StaticIRVESchema.schema_content()) do
     schema
     |> Map.fetch!("fields")
     |> Enum.map(fn %{"name" => name, "type" => type} ->
-      {
-        String.to_atom(name),
-        String.to_atom(type)
-        |> Transport.IRVE.DataFrame.remap_schema_type(strict)
-      }
+      {String.to_atom(name), String.to_atom(type) |> Transport.IRVE.DataFrame.remap_schema_type()}
     end)
   end
 
@@ -328,15 +307,10 @@ defmodule Transport.IRVE.DataFrame do
   # experimental, I think Explorer lacks a feature to allow this operation within Polars.
   # For now, using `transform`, which is a costly operation comparatively
   # https://hexdocs.pm/explorer/Explorer.DataFrame.html#transform/3
-  def preprocess_boolean(df, field_name, keep_as_string \\ false) do
+  def preprocess_boolean(df, field_name) do
     df
     |> Explorer.DataFrame.transform([names: [field_name]], fn row ->
-      remapped =
-        if keep_as_string do
-          Map.fetch!(@boolean_mappings, row[field_name]) |> to_string()
-        else
-          Map.fetch!(@boolean_mappings, row[field_name])
-        end
+      remapped = Map.fetch!(@boolean_mappings, row[field_name]) |> to_string()
 
       %{
         (field_name <> "_remapped") => remapped
@@ -348,7 +322,7 @@ defmodule Transport.IRVE.DataFrame do
 
   @doc """
   If a given column doesn't exist in the dataframe, add it & populate it
-  with nil values.
+  with empty string values.
 
   This is useful to smooth out the rare cases where optional columns are missing
   from data files.
@@ -356,7 +330,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> df = Explorer.DataFrame.new(%{"id_pdc_itinerance" => ["value"]})
   iex> result = add_empty_column_if_missing(df, "tarification")
   iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
-  %{id_pdc_itinerance: ["value"], tarification: [nil]}
+  %{id_pdc_itinerance: ["value"], tarification: [""]}
 
   If the column exists, don't change anything:
 
@@ -365,17 +339,12 @@ defmodule Transport.IRVE.DataFrame do
   iex> Explorer.DataFrame.to_columns(result, atom_keys: true)
   %{id_pdc_itinerance: ["value"]}
   """
-  def add_empty_column_if_missing(dataframe, field_name, keep_as_string \\ false) do
+  def add_empty_column_if_missing(dataframe, field_name) do
     if field_name in Explorer.DataFrame.names(dataframe) do
       dataframe
     else
-      if keep_as_string do
-        dataframe
-        |> Explorer.DataFrame.mutate(%{^field_name => ""})
-      else
-        dataframe
-        |> Explorer.DataFrame.mutate(%{^field_name => nil})
-      end
+      dataframe
+      |> Explorer.DataFrame.mutate(%{^field_name => ""})
     end
   end
 end
