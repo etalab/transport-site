@@ -154,7 +154,7 @@ defmodule Transport.IRVE.Consolidation do
         {import_status, resource}
       else
         :producer_not_an_organization -> {:producer_not_an_organization, resource}
-        true -> {:already_in_db, resource}
+        true -> {:already_up_to_date, resource}
         {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
         {%{file_level_errors: []}, _validated_df} -> {:not_compliant_with_schema, resource}
       end

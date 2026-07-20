@@ -328,7 +328,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         %Req.Response{status: 200, body: File.stream!(options[:into].path)}
       end)
 
-      assert {:already_in_db, %{resource_id: "already-imported-resource-id"}} =
+      assert {:already_up_to_date, %{resource_id: "already-imported-resource-id"}} =
                Transport.IRVE.Consolidation.process_resource(resource)
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
