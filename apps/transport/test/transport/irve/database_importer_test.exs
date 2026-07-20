@@ -6,12 +6,19 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
+  # Mirror the consolidation flow: validate the body, cast the validated frame, checksum the raw bytes.
+  defp build(content) do
+    {_summary, validated_df} = Transport.IRVE.Validator.validate_and_summarize(content)
+    casted_df = Transport.IRVE.Processing.cast_validated_frame(validated_df)
+    checksum = Transport.IRVE.DatabaseImporter.compute_checksum(content)
+    {casted_df, checksum}
+  end
+
   test "Import new file, then import again (no change) and import with change" do
     csv_content =
       DB.Factory.IRVE.to_csv_body([DB.Factory.IRVE.generate_row(%{"id_pdc_itinerance" => "FRPAN99E87654321"})])
 
-    temp_path = System.tmp_dir!() |> Path.join("irve_test_#{Ecto.UUID.generate()}.csv")
-    File.write!(temp_path, csv_content)
+    {casted_df, checksum} = build(csv_content)
 
     dataset_id = "datagouv_dataset_id"
     resource_id = "datagouv_resource_id"
@@ -26,7 +33,8 @@ defmodule Transport.IRVE.DatabaseImporterTest do
 
     {:ok, _transaction_result} =
       Transport.IRVE.DatabaseImporter.write_to_db(
-        temp_path,
+        casted_df,
+        checksum,
         dataset_id,
         resource_id,
         dataset_title,
@@ -46,10 +54,11 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     assert first_import_pdc.id_pdc_itinerance == "FRPAN99E87654321"
     refute first_import_pdc.gratuit
 
-    # Second import with same file should raise a constraint error
+    # Second import with same content should raise a constraint error
     assert_raise Ecto.ConstraintError, ~r/irve_valid_file_datagouv_resource_id_checksum_index/, fn ->
       Transport.IRVE.DatabaseImporter.write_to_db(
-        temp_path,
+        casted_df,
+        checksum,
         dataset_id,
         resource_id,
         dataset_title,
@@ -68,11 +77,12 @@ defmodule Transport.IRVE.DatabaseImporterTest do
         })
       ])
 
-    File.write!(temp_path, updated_csv_content)
+    {updated_casted_df, updated_checksum} = build(updated_csv_content)
 
     {:ok, _transaction_result} =
       Transport.IRVE.DatabaseImporter.write_to_db(
-        temp_path,
+        updated_casted_df,
+        updated_checksum,
         dataset_id,
         resource_id,
         dataset_title,
@@ -86,13 +96,24 @@ defmodule Transport.IRVE.DatabaseImporterTest do
     refute first_import_file.checksum == second_import_file.checksum
 
     # Same, this wouldn’t match if there was more than a single PDC.
-
     %DB.IRVEValidPDC{} = second_import_pdc = DB.Repo.one!(DB.IRVEValidPDC)
 
     refute first_import_pdc.id == second_import_pdc.id
     assert second_import_pdc.id_pdc_itinerance == "FRPAN99E87654321"
     assert second_import_pdc.gratuit
+  end
 
-    File.rm(temp_path)
+  test "already_in_db?/2 matches on (resource_id, checksum)" do
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "checksum")
+
+    DB.Repo.insert!(%DB.IRVEValidFile{
+      datagouv_dataset_id: "dataset-id",
+      datagouv_resource_id: "resource-id",
+      checksum: "checksum"
+    })
+
+    assert Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "checksum")
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("resource-id", "other-checksum")
+    refute Transport.IRVE.DatabaseImporter.already_in_db?("other-resource-id", "checksum")
   end
 end
