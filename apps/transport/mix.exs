@@ -138,7 +138,8 @@ defmodule Transport.Mixfile do
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.8.1"},
       {:vega_lite, "~> 0.1.7"},
-      {:req, "~> 0.5"},
+      # check https://github.com/etalab/transport-site/issues/5570 before upgrading
+      {:req, "~> 0.5.16"},
       {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:swoosh, "~> 1.18"},
