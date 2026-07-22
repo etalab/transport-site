@@ -284,6 +284,13 @@ defmodule Transport.IRVE.Validator.DataFrameValidation.WarningsTest do
     assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
   end
 
+  test "corrects coordinates and exposes a warning" do
+    result = run_with_xy("[48.85, 2.35]")
+    assert Explorer.Series.to_list(result["longitude"]) == [2.35]
+    assert Explorer.Series.to_list(result["latitude"]) == [48.85]
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [true]
+  end
+
   defp run_with_xy(xy) do
     [DB.Factory.IRVE.generate_row(%{"coordonneesXY" => xy}) |> Parent.stringify_row()]
     |> Explorer.DataFrame.new()

@@ -225,10 +225,12 @@ defmodule Transport.IRVE.DataFrame do
   https://schema.data.gouv.fr/etalab/schema-irve-statique/2.3.1/documentation.html#propriete-coordonneesxy
 
   The `preprocess_xy_coordinates` method attempts to remap that to 2 separate `x`, `y` fields, properly parsed.
+  The original `coordonneesXY` field is kept for reference, as it is used in the validation summary for warning samples.
 
   iex> Explorer.DataFrame.new([%{coordonneesXY: "[47.39,-0.80]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
-    Polars[1 x 2]
+    Polars[1 x 3]
+    coordonneesXY string ["[47.39,-0.80]"]
     longitude f64 [47.39]
     latitude f64 [-0.8]
   >
@@ -237,7 +239,8 @@ defmodule Transport.IRVE.DataFrame do
 
   iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.958037, 4.764347]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
-    Polars[1 x 2]
+    Polars[1 x 3]
+    coordonneesXY string ["[43.958037, 4.764347]"]
     longitude f64 [43.958037]
     latitude f64 [4.764347]
   >
@@ -246,7 +249,8 @@ defmodule Transport.IRVE.DataFrame do
 
   iex> Explorer.DataFrame.new([%{coordonneesXY: " [6.128405 , 48.658737] "}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
-    Polars[1 x 2]
+    Polars[1 x 3]
+    coordonneesXY string [" [6.128405 , 48.658737] "]
     longitude f64 [6.128405]
     latitude f64 [48.658737]
   >
@@ -255,7 +259,8 @@ defmodule Transport.IRVE.DataFrame do
 
     iex> Explorer.DataFrame.new([%{coordonneesXY: "[43.306241,\t-0.332879]"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
     #Explorer.DataFrame<
-      Polars[1 x 2]
+      Polars[1 x 3]
+      coordonneesXY string ["[43.306241,\\t-0.332879]"]
       longitude f64 [43.306241]
       latitude f64 [-0.332879]
     >
@@ -263,17 +268,18 @@ defmodule Transport.IRVE.DataFrame do
   The function is resilient to weird values:
   iex> Explorer.DataFrame.new([%{coordonneesXY: ""}, %{coordonneesXY: "[hello, 9]"}, %{coordonneesXY: "hello"}]) |> Transport.IRVE.DataFrame.preprocess_xy_coordinates()
   #Explorer.DataFrame<
-    Polars[3 x 2]
+    Polars[3 x 3]
+    coordonneesXY string ["", "[hello, 9]", "hello"]
     longitude f64 [nil, nil, nil]
     latitude f64 [nil, 9.0, nil]
   >
   """
   def preprocess_xy_coordinates(df) do
     df
-    |> Explorer.DataFrame.mutate(coordonneesXY: coordonneesXY |> strip("[] "))
     |> Explorer.DataFrame.mutate_with(fn df ->
       %{
-        coords: Explorer.Series.split_into(df[:coordonneesXY], ",", [:longitude, :latitude])
+        coords:
+          Explorer.Series.split_into(df[:coordonneesXY] |> Explorer.Series.strip("[] "), ",", [:longitude, :latitude])
       }
     end)
     |> Explorer.DataFrame.unnest(:coords)
@@ -285,7 +291,6 @@ defmodule Transport.IRVE.DataFrame do
         latitude: Explorer.Series.cast(df[:latitude], {:f, 64})
       ]
     end)
-    |> Explorer.DataFrame.discard(:coordonneesXY)
   end
 
   # just what we've needed so far
