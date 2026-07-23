@@ -5,6 +5,48 @@ defmodule Transport.MixProject do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
+      hex: [
+        cooldown: "7d",
+        # Advisories acknowledged because no drop-in fix is available yet:
+        #  - hackney: fixed only in 4.x (major release adding HTTP/2/3), needs a dedicated upgrade PR
+        #    (hackney is used directly and as httpoison/tesla adapter).
+        #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
+        #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
+        #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
+        #  - decimal: DoS fixed only in decimal 3.x, blocked by deps still pinning ~> 2.0 (ecto etc.).
+        #    Revisit once the ecosystem allows decimal 3.x; check for untrusted decimal parsing meanwhile.
+        #  - cowlib: 2 CRLF-injection advisories, no released fix (2.18.0 is latest under cowboy 2.17),
+        #    but a patch is in progress upstream. Only exploitable if untrusted data reaches response
+        #    headers/cookies, which app code doesn't do. Tracking:
+        #    https://github.com/ninenines/cowlib/issues/152 (EEF-CVE-2026-43969, cookie injection)
+        #    https://osv.dev/vulnerability/EEF-CVE-2026-43966 (response splitting)
+        #  - req: both fixes land in the 0.6 series, which we deliberately stay off for now.
+        #    https://github.com/etalab/transport-site/issues/5570
+        #    Multipart injection does not apply: we never build multipart requests.
+        #    Decompression bomb: the paths fetching producer-supplied urls (resource history,
+        #    GTFS diff, GTFS-RT validation) already pass `compressed: false, decode_body: false`
+        #    and stream `into:` a file. The exception is the dynamic IRVE feed worker, which
+        #    decompresses in memory — see the TODO in unlock/dynamic_irve/feed_worker.ex.
+        ignore_advisories: [
+          # hackney (upgrade to 4.x)
+          "EEF-CVE-2026-47069",
+          "EEF-CVE-2026-47071",
+          "EEF-CVE-2026-47075",
+          "EEF-CVE-2026-47076",
+          # earmark stored XSS (migrate to MDEx)
+          "EEF-CVE-2026-48591",
+          # decimal DoS (fix needs 3.x, blocked by ecosystem)
+          "EEF-CVE-2026-32686",
+          # cowlib injection (no fix published yet)
+          "EEF-CVE-2026-43966",
+          "EEF-CVE-2026-43969",
+          # req multipart injection (not applicable) & decompression bomb (fixes need 0.6)
+          "EEF-CVE-2026-49756",
+          "EEF-CVE-2026-49755"
+        ],
+        # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
+        ignore_retirements: [:earmark]
+      ],
       deps: deps(),
       aliases: aliases(Mix.env()),
       test_coverage: [tool: ExCoveralls],
