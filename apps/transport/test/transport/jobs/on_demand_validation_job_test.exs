@@ -549,8 +549,8 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                  "stats" => %{"error" => 3, "warning" => 1},
                  "summary" => [
                    %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-                   %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}}
+                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}},
+                   %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
                  ]
                },
                max_error: "error",

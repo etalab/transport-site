@@ -223,6 +223,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   def french_profile, do: nil
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def preferred_category_order, do: ["xsd-schema", "base-rules"]
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do
     %{
       "summary" => summary(validation_result),
