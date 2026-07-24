@@ -34,7 +34,7 @@ defmodule Transport.Jobs.CleanMultiValidationJob do
       from(mv in DB.MultiValidation,
         join: rh in DB.ResourceHistory,
         on: rh.id == mv.resource_history_id,
-        where: not is_nil(mv.result) and is_nil(mv.resource_id),
+        where: (not is_nil(mv.result) or not is_nil(mv.binary_result)) and is_nil(mv.resource_id),
         select: %{
           id: mv.id,
           row_number: row_number() |> over(partition_by: rh.resource_id, order_by: {:desc, mv.inserted_at})

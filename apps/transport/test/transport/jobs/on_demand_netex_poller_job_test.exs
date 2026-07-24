@@ -79,7 +79,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              max_error: "NoError",
              metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
-             result: %{},
+             result: nil,
              binary_result: binary_result,
              digest: digest,
              validation_timestamp: date,
@@ -128,18 +128,18 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              max_error: "error",
              metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
-             result: result,
+             result: nil,
              binary_result: binary_result,
              digest: digest,
              validation_timestamp: date
            } = validation |> reload_validation()
 
-    assert %{"xsd-schema" => a1, "base-rules" => a2} = result
-    assert ResultsAdapter.to_binary_result(result) == binary_result
-    assert ResultsAdapter.digest(result) == digest
+    expected_result =
+      errors
+      |> Transport.Validators.NeTEx.ResultsAdapters.V0_2_2.index_messages()
 
-    assert length(a1) == 1
-    assert length(a2) == 3
+    assert ResultsAdapter.to_binary_result(expected_result) == binary_result
+    assert ResultsAdapter.digest(expected_result) == digest
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
   end
