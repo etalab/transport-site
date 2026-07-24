@@ -738,6 +738,8 @@ defmodule TransportWeb.ResourceControllerTest do
           end
 
         results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+        errors = result |> Map.values() |> List.flatten()
+        df = results_adapter.to_dataframe(errors)
 
         networks = ["Réseau urbain", "Réseau inter-urbain"]
         modes = ["bus", "ferry"]
@@ -746,8 +748,8 @@ defmodule TransportWeb.ResourceControllerTest do
           resource_history_id: resource_history_id,
           validator: Transport.Validators.NeTEx.Validator.validator_name(),
           validator_version: version,
-          digest: results_adapter.digest(result),
-          binary_result: results_adapter.to_binary_result(result),
+          digest: results_adapter.digest(df),
+          binary_result: results_adapter.to_binary_result(errors),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
             metadata: %{
@@ -1577,14 +1579,16 @@ defmodule TransportWeb.ResourceControllerTest do
     result = %{"xsd-schema" => issues}
 
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+    errors = result |> Map.values() |> List.flatten()
+    df = results_adapter.to_dataframe(errors)
 
-    binary_result = if with_binary_result, do: results_adapter.to_binary_result(result)
+    binary_result = if with_binary_result, do: results_adapter.to_binary_result(errors)
 
     insert(:multi_validation, %{
       resource_history: resource_history,
       validator: Transport.Validators.NeTEx.Validator.validator_name(),
       validator_version: version,
-      digest: results_adapter.digest(result),
+      digest: results_adapter.digest(df),
       binary_result: binary_result,
       max_error: "error"
     })
@@ -1593,8 +1597,8 @@ defmodule TransportWeb.ResourceControllerTest do
   def expected_netex_report_content(version, opts \\ [])
 
   def expected_netex_report_content("0.1.0", opts) do
+    # V0_1.0 now also includes categories (categorized by code prefix: xsd-* -> xsd-schema, else -> base-rules)
     expected_netex_report_content("0.2.1", opts)
-    |> Enum.map(&Map.delete(&1, "category"))
   end
 
   def expected_netex_report_content(_, opts) do

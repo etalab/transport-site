@@ -88,8 +88,9 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
-    assert ResultsAdapter.to_binary_result(%{}) == binary_result
-    assert ResultsAdapter.digest(%{}) == digest
+    assert ResultsAdapter.to_binary_result([]) == binary_result
+    df = ResultsAdapter.to_dataframe([])
+    assert ResultsAdapter.digest(df) == digest
   end
 
   test "error" do
@@ -134,12 +135,10 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              validation_timestamp: date
            } = validation |> reload_validation()
 
-    expected_result =
-      errors
-      |> Transport.Validators.NeTEx.ResultsAdapters.V0_2_2.index_messages()
-
-    assert ResultsAdapter.to_binary_result(expected_result) == binary_result
-    assert ResultsAdapter.digest(expected_result) == digest
+    # digest and binary_result are now built from raw flat error list, not grouped map
+    assert ResultsAdapter.to_binary_result(errors) == binary_result
+    df = ResultsAdapter.to_dataframe(errors)
+    assert ResultsAdapter.digest(df) == digest
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
   end

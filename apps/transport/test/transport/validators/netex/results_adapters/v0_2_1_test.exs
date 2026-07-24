@@ -78,10 +78,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
 
   defp result_factory(counts) do
     counts
-    |> Enum.map(fn {category, count} ->
-      {Atom.to_string(category), error_factory(category, count)}
+    |> Enum.flat_map(fn {category, count} ->
+      error_factory(category, count)
     end)
-    |> Map.new()
   end
 
   defp error_factory(:"xsd-schema", count), do: repeated(@xsd, count)

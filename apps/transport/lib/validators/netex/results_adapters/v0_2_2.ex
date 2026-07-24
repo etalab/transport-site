@@ -18,7 +18,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   # Following functions are all delegated to V0_2_1
 
-  @spec get_max_severity_error(map()) :: binary()
   defdelegate get_max_severity_error(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -27,7 +26,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate no_error?(severity), to: Previous
 
-  @spec severity_level(binary()) :: integer()
   defdelegate severity_level(key), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -35,8 +33,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_severity(validation_result), to: Previous
-
-  defdelegate index_messages(messages), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate summary(validation_result), to: Previous

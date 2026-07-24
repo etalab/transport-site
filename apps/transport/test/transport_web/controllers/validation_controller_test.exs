@@ -451,14 +451,16 @@ defmodule TransportWeb.ValidationControllerTest do
       }
 
       results_adapter = ResultsAdapter.resolve("0.1.0")
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: "0.1.0",
           result: nil,
-          digest: results_adapter.digest(result),
-          binary_result: results_adapter.to_binary_result(result),
+          digest: results_adapter.digest(df),
+          binary_result: results_adapter.to_binary_result(errors),
           max_error: "warning"
         }
       )
@@ -495,14 +497,16 @@ defmodule TransportWeb.ValidationControllerTest do
       }
 
       results_adapter = ResultsAdapter.resolve(validator_version)
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: validator_version,
           result: nil,
-          digest: results_adapter.digest(result),
-          binary_result: results_adapter.to_binary_result(result),
+          digest: results_adapter.digest(df),
+          binary_result: results_adapter.to_binary_result(errors),
           max_error: "error"
         }
       )

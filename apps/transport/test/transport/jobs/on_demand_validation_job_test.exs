@@ -536,10 +536,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
-      expected_result =
-        errors
-        |> ResultsAdapter.index_messages()
-
+      # digest and binary_result are now built directly from raw errors (flat list)
       assert %{
                validation_timestamp: date,
                result: nil,
@@ -559,7 +556,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                data_vis: nil
              } = validation |> reload() |> DB.Repo.preload(:metadata)
 
-      assert ResultsAdapter.to_binary_result(expected_result) == binary_result
+      assert ResultsAdapter.to_binary_result(errors) == binary_result
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
