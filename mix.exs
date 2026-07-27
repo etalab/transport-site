@@ -13,8 +13,10 @@ defmodule Transport.MixProject do
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
         #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
         #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
-        #  - decimal: DoS fixed only in decimal 3.x, blocked by deps still pinning ~> 2.0 (ecto etc.).
-        #    Revisit once the ecosystem allows decimal 3.x; check for untrusted decimal parsing meanwhile.
+        #  - decimal: DoS fixed only in decimal 3.x (no 2.x backport). Resolution to 3.x does succeed,
+        #    but it requires bumping ecto, explorer and the whole ex_cldr family together, and
+        #    explorer 0.12 breaks Transport.IRVE.Deduplicator (mutate_with/3 shape mismatch).
+        #    https://github.com/etalab/transport-site/issues/5579
         #  - cowlib: 2 CRLF-injection advisories, no released fix (2.18.0 is latest under cowboy 2.17),
         #    but a patch is in progress upstream. Only exploitable if untrusted data reaches response
         #    headers/cookies, which app code doesn't do. Tracking:
@@ -35,7 +37,7 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-47076",
           # earmark stored XSS (migrate to MDEx)
           "EEF-CVE-2026-48591",
-          # decimal DoS (fix needs 3.x, blocked by ecosystem)
+          # decimal DoS (fix is 3.x, held back by an explorer 0.12 regression — see above)
           "EEF-CVE-2026-32686",
           # cowlib injection (no fix published yet)
           "EEF-CVE-2026-43966",
