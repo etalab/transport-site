@@ -44,6 +44,19 @@ defmodule Transport.Test.Transport.Jobs.CleanOnDemandValidationJobTest do
            ] = all_enqueued()
   end
 
+  # NeTEx validations only fill `binary_result`, `result` stays nil
+  test "enqueues jobs for rows having only a binary_result" do
+    three_months_ago = DateTime.utc_now() |> DateTime.add(-90, :day)
+
+    insert_on_demand_validation(result: nil, inserted_at: three_months_ago)
+
+    assert :ok == perform_job(CleanOnDemandValidationJob, %{})
+
+    three_months_ago_date = three_months_ago |> to_iso_date()
+
+    assert [%Oban.Job{state: "scheduled", args: %{"date" => ^three_months_ago_date}}] = all_enqueued()
+  end
+
   test "archives rows for a given day" do
     test_datetime = DateTime.utc_now() |> DateTime.add(-31, :day)
     other_datetime = test_datetime |> DateTime.add(-1, :day)
@@ -67,6 +80,19 @@ defmodule Transport.Test.Transport.Jobs.CleanOnDemandValidationJobTest do
 
     assert %DB.MultiValidation{result: %{"result" => 42}, binary_result: <<42>>, data_vis: %{"data_vis" => 42}} =
              load_multivalidation(mv3_id)
+  end
+
+  test "archives rows having only a binary_result" do
+    test_datetime = DateTime.utc_now() |> DateTime.add(-31, :day)
+
+    %{id: mv_id} = insert_on_demand_validation(result: nil, inserted_at: test_datetime)
+
+    # Without this, the assertion below would also hold for a row we failed to load
+    assert %DB.MultiValidation{binary_result: <<42>>} = load_multivalidation(mv_id)
+
+    assert :ok == archive_day(test_datetime)
+
+    assert %DB.MultiValidation{binary_result: nil, data_vis: nil} = load_multivalidation(mv_id)
   end
 
   test "does not try to archive if not past the retention period" do
