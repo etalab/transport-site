@@ -1,4 +1,4 @@
-`gtfs-realtime.pb.ex` is the compiled result of `gtfs-realtime.proto` via the Elixir protobuf compiler plugin.
+`transit_realtime/gtfs-realtime.pb.ex` is the compiled result of `gtfs-realtime.proto` via the Elixir protobuf compiler plugin. The plugin nests the output in a directory named after the proto package (`transit_realtime`).
 
 Do not edit it by hand please!
 

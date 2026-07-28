@@ -25,6 +25,12 @@ jobs:
       - name: Run credo
         run: mix credo --strict
 
+      - name: Check dependencies for security advisories
+        # Bump Hex: advisory scanning (not just retirements) landed in 2.5.0.
+        run: |
+          mix local.hex 2.5.1 --force
+          mix hex.audit
+
       - name: Run javascript linter
         run: mix npm "run linter:ecma"
 

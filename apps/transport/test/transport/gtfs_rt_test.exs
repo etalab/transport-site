@@ -200,7 +200,7 @@ defmodule Transport.GTFSRTTest do
 
   test "generated .pb.ex version matches mix.lock" do
     generated_content =
-      File.read!("#{__DIR__}/../../lib/transport/protobuf/gtfs-realtime.pb.ex")
+      File.read!("#{__DIR__}/../../lib/transport/protobuf/transit_realtime/gtfs-realtime.pb.ex")
 
     [_, generated_version] =
       Regex.run(~r/protoc_gen_elixir_version:\s*"([^"]+)"/, generated_content)
