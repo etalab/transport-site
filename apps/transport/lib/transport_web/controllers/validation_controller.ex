@@ -311,6 +311,7 @@ defmodule TransportWeb.ValidationController do
     )
   end
 
+  defp pick_netex_template("0.2.2"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
