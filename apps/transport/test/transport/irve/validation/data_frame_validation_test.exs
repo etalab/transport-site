@@ -279,6 +279,14 @@ defmodule Transport.IRVE.Validator.DataFrameValidation.WarningsTest do
     assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
   end
 
+  test "schema-invalid cell that parses once stripped is neither corrected nor warned" do
+    result = run_with_xy("[[48.85,2.35]]")
+    assert Explorer.Series.to_list(result["check_column_coordonneesXY_valid"]) == [false]
+    assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]
+    assert Explorer.Series.to_list(result["longitude"]) == [48.85]
+    assert Explorer.Series.to_list(result["latitude"]) == [2.35]
+  end
+
   test "warning_lon_lat_inverted is false for Réunion correct coordinates" do
     result = run_with_xy("[55.4, -21.1]")
     assert Explorer.Series.to_list(result["warning_lon_lat_inverted"]) == [false]

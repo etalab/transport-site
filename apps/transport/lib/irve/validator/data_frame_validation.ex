@@ -84,7 +84,8 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
 
   @doc """
   Adds custom warning columns, and corrects the data in-place for the next steps of the pipeline.
-  We only apply warnings to valid values to avoid noise.
+  Warnings and corrections are only applied to valid values, to avoid noise
+  and to never silently rewrite a value that is already reported as an error.
   """
   def setup_warning_columns_and_correct_data(%Explorer.DataFrame{} = df) do
     df
@@ -94,12 +95,16 @@ defmodule Transport.IRVE.Validator.DataFrameValidation do
   @doc """
   Parses and corrects the coordinates once, here in the validation pipeline: adds
   `longitude`/`latitude` (swapped where inverted) and `warning_lon_lat_inverted`.
-  If the coordinates can’t be parsed, there is no warning.
+
+  Correction and warning only apply to rows whose `coordonneesXY` cell passes schema
+  validation (`check_column_coordonneesXY_valid`). A cell that parses once stripped but is
+  schema-invalid (e.g. `"[[48.85,2.35]]"`) is reported as an error and left untouched.
+  Coordinates that can’t be parsed yield no warning either.
   """
   def inverted_lon_lat_setup_warning_and_correct_data(%Explorer.DataFrame{} = df) do
     df
     # The next line is safe and shouldn’t raise errors even with weird values.
     |> Transport.IRVE.Processing.preprocess_coordinates()
-    |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
+    |> Transport.IRVE.CoordinateCorrection.detect_and_correct(only_where: "check_column_coordonneesXY_valid")
   end
 end
