@@ -16,7 +16,7 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     unique: [fields: [:args, :worker]]
 
   alias Transport.Jobs.OnDemandValidationHelpers, as: Helpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsWriter
   alias Transport.Validators.NeTEx.Validator
 
   # Override the backoff to play nice and avoiding falling in very slow retry
@@ -76,17 +76,20 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
   end
 
   defp build_successful_validation_result(%{"validations" => errors, "metadata" => metadata}, url) do
-    df = ResultsAdapter.to_dataframe(errors)
+    version = Validator.validator_version()
+    writer = ResultsWriter.resolve(version)
+
+    df = writer.to_dataframe(errors)
 
     %{
-      binary_result: ResultsAdapter.to_binary_result(errors),
-      digest: ResultsAdapter.digest(df),
+      binary_result: writer.to_binary_result(errors),
+      digest: writer.digest(df),
       metadata: metadata,
       data_vis: nil,
       validator: Validator.validator_name(),
-      validator_version: Validator.validator_version(),
+      validator_version: version,
       validated_data_name: url,
-      max_error: ResultsAdapter.get_max_severity_error(df),
+      max_error: writer.get_max_severity_error(df),
       oban_args: Helpers.completed()
     }
   end

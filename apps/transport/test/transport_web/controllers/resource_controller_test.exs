@@ -7,6 +7,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import NeTExValidationReportHelpers
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
   import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
+  alias Transport.Validators.NeTEx.ResultsWriter
 
   setup :verify_on_exit!
 
@@ -737,9 +738,9 @@ defmodule TransportWeb.ResourceControllerTest do
             _ -> %{"xsd-schema" => issues}
           end
 
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+        writer = ResultsWriter.resolve(version)
         errors = result |> Map.values() |> List.flatten()
-        df = results_adapter.to_dataframe(errors)
+        df = writer.to_dataframe(errors)
 
         networks = ["Réseau urbain", "Réseau inter-urbain"]
         modes = ["bus", "ferry"]
@@ -748,8 +749,8 @@ defmodule TransportWeb.ResourceControllerTest do
           resource_history_id: resource_history_id,
           validator: Transport.Validators.NeTEx.Validator.validator_name(),
           validator_version: version,
-          digest: results_adapter.digest(df),
-          binary_result: results_adapter.to_binary_result(errors),
+          digest: writer.digest(df),
+          binary_result: writer.to_binary_result(errors),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
             metadata: %{
@@ -1578,17 +1579,17 @@ defmodule TransportWeb.ResourceControllerTest do
 
     result = %{"xsd-schema" => issues}
 
-    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+    writer = ResultsWriter.resolve(version)
     errors = result |> Map.values() |> List.flatten()
-    df = results_adapter.to_dataframe(errors)
+    df = writer.to_dataframe(errors)
 
-    binary_result = if with_binary_result, do: results_adapter.to_binary_result(errors)
+    binary_result = if with_binary_result, do: writer.to_binary_result(errors)
 
     insert(:multi_validation, %{
       resource_history: resource_history,
       validator: Transport.Validators.NeTEx.Validator.validator_name(),
       validator_version: version,
-      digest: results_adapter.digest(df),
+      digest: writer.digest(df),
       binary_result: binary_result,
       max_error: "error"
     })
