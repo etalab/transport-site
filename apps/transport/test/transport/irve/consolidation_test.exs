@@ -2,6 +2,7 @@ defmodule Transport.IRVE.ConsolidationTest do
   use ExUnit.Case, async: true
   import Mox
   import Ecto.Query
+  import DB.Factory
 
   setup do
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
@@ -241,14 +242,17 @@ defmodule Transport.IRVE.ConsolidationTest do
       end)
 
       # Still in the DB but no longer listed on data.gouv.fr, with 2 stored PDCs.
-      seed_file_with_pdcs("deleted-dataset-id", "deleted-resource-id", 2)
+      orphan =
+        insert(:irve_valid_file, datagouv_dataset_id: "deleted-dataset-id", datagouv_resource_id: "deleted-resource-id")
+
+      insert_list(2, :irve_valid_pdc, irve_valid_file: orphan)
 
       # Already in the DB (older version) and still listed on data.gouv.fr.
-      DB.Repo.insert!(%DB.IRVEValidFile{
+      insert(:irve_valid_file,
         datagouv_dataset_id: "the-dataset-id",
         datagouv_resource_id: "the-resource-id",
         checksum: "old-checksum"
-      })
+      )
 
       {:ok, report_df} = Transport.IRVE.Consolidation.process(destination: :local_disk)
 
@@ -277,28 +281,6 @@ defmodule Transport.IRVE.ConsolidationTest do
       assert orphan["estimated_pdc_count"] == 2
       assert orphan["dataset_id"] == "deleted-dataset-id"
     end
-  end
-
-  defp seed_file_with_pdcs(dataset_id, resource_id, pdc_count) do
-    rows =
-      for i <- 1..pdc_count do
-        DB.Factory.IRVE.generate_row(%{"id_pdc_itinerance" => "FRPAN99E0000000#{i}"})
-      end
-
-    content = DB.Factory.IRVE.to_csv_body(rows)
-    {_summary, validated_df} = Transport.IRVE.Validator.validate_and_summarize(content)
-    casted_df = Transport.IRVE.Processing.cast_validated_frame(validated_df)
-    checksum = Transport.IRVE.DatabaseImporter.compute_checksum(content)
-
-    Transport.IRVE.DatabaseImporter.write_to_db(
-      casted_df,
-      checksum,
-      dataset_id,
-      resource_id,
-      "#{dataset_id}-title",
-      "#{dataset_id}-org",
-      "2024-01-01T10:00:00+00:00"
-    )
   end
 
   describe "process_resource/2" do
