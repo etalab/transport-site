@@ -38,7 +38,7 @@
     "xml-formatter": "^3.7.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.29.3",
     "@eslint/js": "^10.0.1",
     "babel-loader": "^10.1.1",
@@ -62,11 +62,14 @@
     "webpack-merge": "^6.0.1"
   },
   "resolutions": {
+    "@babel/core": "^7.29.6",
     "kind-of": ">=6.0.3",
     "fast-uri": ">=3.1.4",
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
     "brace-expansion": ">=5.0.8",
     "js-yaml": ">=4.3.0",
-    "immutable": ">=5.1.8"
+    "immutable": ">=5.1.8",
+    "postcss": ">=8.5.18",
+    "svgo": ">=4.0.2"
   }
 }
