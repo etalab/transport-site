@@ -24,6 +24,26 @@ defmodule Transport.IRVE.ConsolidationTest do
       assert DB.Repo.aggregate(DB.IRVEValidFile, :count, :id) == 0
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
+      # Pre-existing DB state to exercise the data.gouv.fr/DB presence delta:
+      # - an orphan resource, no longer listed on data.gouv.fr (reported, still exported)
+      # - an older version of `the-resource-id`, still listed (so it gets re-imported below)
+      orphan_file =
+        insert(:irve_valid_file,
+          datagouv_dataset_id: "deleted-dataset-id",
+          datagouv_resource_id: "deleted-resource-id",
+          dataset_title: "deleted-dataset-title",
+          datagouv_organization_or_owner: "deleted-org"
+        )
+
+      # distinct id_pdc_itinerance from the-resource-id's PDC, so it stays a separate PDC in the export
+      insert(:irve_valid_pdc, irve_valid_file: orphan_file, id_pdc_itinerance: "FRPAN99E87654321")
+
+      insert(:irve_valid_file,
+        datagouv_dataset_id: "the-dataset-id",
+        datagouv_resource_id: "the-resource-id",
+        checksum: "old-checksum"
+      )
+
       # Check the content on S3
       bucket_name = "transport-data-gouv-fr-aggregates-test"
       date = Calendar.strftime(Date.utc_today(), "%Y%m%d")
@@ -66,7 +86,8 @@ defmodule Transport.IRVE.ConsolidationTest do
           %{
             "dataset_id" => "the-dataset-id",
             "resource_id" => "the-resource-id",
-            "resource_status" => "on_datagouv_not_in_db",
+            # already had an (older) version in the DB, re-imported this run
+            "resource_status" => "on_datagouv_and_in_db",
             "consolidation_status" => "import_successful",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
@@ -75,6 +96,22 @@ defmodule Transport.IRVE.ConsolidationTest do
             "dataset_title" => "the-dataset-title",
             "datagouv_organization_or_owner" => "the-org",
             "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
+            "error_message" => nil
+          },
+          # Orphan row: still in the DB but no longer on data.gouv.fr, so it was not processed
+          # this run (empty consolidation_status). Appended after the processed rows.
+          %{
+            "dataset_id" => "deleted-dataset-id",
+            "resource_id" => "deleted-resource-id",
+            "resource_status" => "in_db_deleted_from_datagouv",
+            "consolidation_status" => nil,
+            "error_type" => nil,
+            "estimated_pdc_count" => "1",
+            "file_extension" => nil,
+            "url" => nil,
+            "dataset_title" => "deleted-dataset-title",
+            "datagouv_organization_or_owner" => "deleted-org",
+            "datagouv_last_modified" => nil,
             "error_message" => nil
           }
         ]
@@ -124,6 +161,41 @@ defmodule Transport.IRVE.ConsolidationTest do
 
       consolidation_content =
         [
+          # The orphan file's PDC is still exported even though the resource is gone from data.gouv.fr.
+          # It comes first (inserted before the import below) and mirrors the `irve_valid_pdc` factory:
+          # optional fields it does not set are empty, and it carries its own `id_pdc_itinerance`.
+          DB.Factory.IRVE.generate_row()
+          |> Map.merge(%{
+            "nom_amenageur" => nil,
+            "siren_amenageur" => nil,
+            "contact_amenageur" => nil,
+            "nom_operateur" => nil,
+            "telephone_operateur" => nil,
+            "id_station_local" => nil,
+            "code_insee_commune" => nil,
+            "id_pdc_local" => nil,
+            "gratuit" => nil,
+            "paiement_cb" => nil,
+            "paiement_autre" => nil,
+            "tarification" => nil,
+            "raccordement" => nil,
+            "num_pdl" => nil,
+            "date_mise_en_service" => nil,
+            "observations" => nil,
+            "cable_t2_attache" => nil,
+            "id_pdc_itinerance" => "FRPAN99E87654321",
+            "puissance_nominale" => "22.0",
+            "coordonneesXY" => "[-0.79914, 45.91914]",
+            "consolidated_longitude" => "-0.79914",
+            "consolidated_latitude" => "45.91914",
+            "consolidated_is_lon_lat_correct" => true,
+            "datagouv_dataset_id" => "deleted-dataset-id",
+            "datagouv_resource_id" => "deleted-resource-id",
+            "dataset_title" => "deleted-dataset-title",
+            "datagouv_organization_or_owner" => "deleted-org",
+            "datagouv_last_modified" => nil,
+            "deduplication_status" => "unique"
+          }),
           DB.Factory.IRVE.generate_row()
           |> Map.put("puissance_nominale", "22.0")
           |> Map.put("consolidated_longitude", "-0.79914")
@@ -182,7 +254,7 @@ defmodule Transport.IRVE.ConsolidationTest do
         "consolidation_transport_avec_doublons_irve_statique.csv.sha256sum"
       )
 
-      # Dedup file is the same here as there is only one PDC.
+      # Dedup file is the same here as both PDCs are unique (distinct id_pdc_itinerance).
       Transport.Test.S3TestUtils.s3_mock_stream_file(
         start_path: "consolidation_transport_irve_statique_#{date}",
         bucket: bucket_name,
@@ -212,74 +284,19 @@ defmodule Transport.IRVE.ConsolidationTest do
       # Run the consolidation process
       {:ok, %Explorer.DataFrame{}} = Transport.IRVE.Consolidation.process()
 
-      # Check that we have imported a file and its unique PDC in the DB
-      [first_import_file] =
+      # The orphan file is untouched; `the-resource-id`'s old version was replaced by the new import.
+      import_files =
         DB.IRVEValidFile
         |> order_by([f], asc: f.datagouv_dataset_id)
         |> DB.Repo.all()
 
-      assert first_import_file.datagouv_dataset_id == "the-dataset-id"
-      assert first_import_file.datagouv_resource_id == "the-resource-id"
+      assert Enum.map(import_files, & &1.datagouv_resource_id) == ["deleted-resource-id", "the-resource-id"]
 
-      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 1
+      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 2
 
       # There should be no leftover temporary files
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-another-resource-id.dat"))
-    end
-
-    test "reports the presence delta between data.gouv.fr and the database" do
-      mock_datagouv_resources()
-      mock_resource_downloads()
-
-      on_exit(fn ->
-        ~w(
-          consolidation_transport_irve_statique_rapport.csv
-          consolidation_transport_avec_doublons_irve_statique.csv
-          consolidation_transport_irve_statique.csv
-        )
-        |> Enum.each(&File.rm/1)
-      end)
-
-      # Still in the DB but no longer listed on data.gouv.fr, with 2 stored PDCs.
-      orphan =
-        insert(:irve_valid_file, datagouv_dataset_id: "deleted-dataset-id", datagouv_resource_id: "deleted-resource-id")
-
-      insert_list(2, :irve_valid_pdc, irve_valid_file: orphan)
-
-      # Already in the DB (older version) and still listed on data.gouv.fr.
-      insert(:irve_valid_file,
-        datagouv_dataset_id: "the-dataset-id",
-        datagouv_resource_id: "the-resource-id",
-        checksum: "old-checksum"
-      )
-
-      {:ok, report_df} = Transport.IRVE.Consolidation.process(destination: :local_disk)
-
-      rows_by_id =
-        report_df
-        |> Explorer.DataFrame.to_rows()
-        |> Map.new(fn row -> {row["resource_id"], row} end)
-
-      # Had a version in the DB, imported a new one this run.
-      assert rows_by_id["the-resource-id"]["resource_status"] == "on_datagouv_and_in_db"
-      assert rows_by_id["the-resource-id"]["consolidation_status"] == "import_successful"
-
-      # Brand-new resources (nothing in the DB before this run).
-      assert rows_by_id["another-resource-id"]["resource_status"] == "on_datagouv_not_in_db"
-      assert rows_by_id["individual-published-resource-id"]["resource_status"] == "on_datagouv_not_in_db"
-
-      # Invariant: cannot be up-to-date without being in the DB.
-      refute Enum.any?(rows_by_id, fn {_id, row} ->
-               row["resource_status"] == "on_datagouv_not_in_db" and
-                 row["consolidation_status"] == "already_up_to_date"
-             end)
-
-      orphan = rows_by_id["deleted-resource-id"]
-      assert orphan["resource_status"] == "in_db_deleted_from_datagouv"
-      assert is_nil(orphan["consolidation_status"])
-      assert orphan["estimated_pdc_count"] == 2
-      assert orphan["dataset_id"] == "deleted-dataset-id"
     end
   end
 
