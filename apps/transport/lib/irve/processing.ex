@@ -26,7 +26,8 @@ defmodule Transport.IRVE.Processing do
   `read_as_uncasted_data_frame/1` enriched with validation columns — to a typed, insert-ready frame.
 
   Coordinates are already parsed and corrected during validation (`longitude`/`latitude` +
-  `consolidated_is_lon_lat_correct`), so we only cast the remaining schema columns here.
+  `warning_lon_lat_inverted`); here we just derive `consolidated_is_lon_lat_correct` from that
+  warning and cast the remaining schema columns.
 
   Only fully-valid frames are expected here (whole-file gate): every value is castable by
   construction. A cast failure means the validator and this cast disagree, which is a bug —
