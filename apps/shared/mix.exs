@@ -38,7 +38,8 @@ defmodule Shared.MixProject do
     [
       {:timex, ">= 0.0.0"},
       {:httpoison, ">= 0.0.0"},
-      {:req, "~> 0.5"},
+      # check https://github.com/etalab/transport-site/issues/5570 before upgrading
+      {:req, "~> 0.5.16"},
       {:bypass, "~> 2.1", only: :test},
       {:mox, "~> 1.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency

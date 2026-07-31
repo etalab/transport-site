@@ -728,6 +728,9 @@ defmodule TransportWeb.DatasetView do
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
+  @moduledoc """
+  Sorts resources so that the "main" ones come first, then by last update.
+  """
   def compare({left_type, left_last_update}, {right_type, right_last_update}) do
     cond do
       left_type == right_type -> DateTime.compare(left_last_update, right_last_update)
