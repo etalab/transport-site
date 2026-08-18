@@ -17,11 +17,9 @@ defmodule Transport.MixProject do
         #    but it requires bumping ecto, explorer and the whole ex_cldr family together, and
         #    explorer 0.12 breaks Transport.IRVE.Deduplicator (mutate_with/3 shape mismatch).
         #    https://github.com/etalab/transport-site/issues/5579
-        #  - cowlib: 2 CRLF-injection advisories, no released fix (2.18.0 is latest under cowboy 2.17),
-        #    but a patch is in progress upstream. Only exploitable if untrusted data reaches response
-        #    headers/cookies, which app code doesn't do. Tracking:
-        #    https://github.com/ninenines/cowlib/issues/152 (EEF-CVE-2026-43969, cookie injection)
-        #    https://osv.dev/vulnerability/EEF-CVE-2026-43966 (response splitting)
+        #  - cowlib: CRLF-injection advisories (EEF-CVE-2026-43966, EEF-CVE-2026-43969) are now fixed
+        #    by upgrading cowlib to 2.19.0+ (shipped with cowboy 2.18.0+).
+        #    https://github.com/ninenines/cowlib/issues/152
         #  - req: both fixes land in the 0.6 series, which we deliberately stay off for now.
         #    https://github.com/etalab/transport-site/issues/5570
         #    Multipart injection does not apply: we never build multipart requests.
@@ -39,7 +37,7 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-48591",
           # decimal DoS (fix is 3.x, held back by an explorer 0.12 regression — see above)
           "EEF-CVE-2026-32686",
-          # cowlib injection (no fix published yet)
+          # cowlib CRLF-injection (no fix yet in 2.19.x)
           "EEF-CVE-2026-43966",
           "EEF-CVE-2026-43969",
           # req multipart injection (not applicable) & decompression bomb (fixes need 0.6)
@@ -72,7 +70,9 @@ defmodule Transport.MixProject do
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:ecto_erd, "~> 0.6.0", only: [:dev]}
+      {:ecto_erd, "~> 0.6.0", only: [:dev]},
+      {:cowboy, "~> 2.18.0"},
+      {:cowlib, "~> 2.19.0"}
     ]
   end
 
