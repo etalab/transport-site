@@ -476,6 +476,10 @@ defmodule TransportWeb.ValidationControllerTest do
       render_netex_validation(conn, "0.2.1")
     end
 
+    test "with a NeTEx - 0.2.2", %{conn: conn} do
+      render_netex_validation(conn, "0.2.2")
+    end
+
     def render_netex_validation(conn, validator_version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
