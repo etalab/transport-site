@@ -23,8 +23,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   @categories_preferred_order [
     @xsd_schema_category,
-    @french_profile_category,
-    @base_rules_category
+    @base_rules_category,
+    @french_profile_category
   ]
 
   @spec get_max_severity_error(map()) :: binary()
@@ -76,14 +76,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   iex> summary(validation_result)
   [
     %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-    %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "error"}},
-    %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
+    %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}},
+    %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "error"}}
   ]
   iex> summary(%{})
   [
     %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-    %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-    %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
+    %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+    %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
   ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -157,6 +157,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile, do: Transport.NeTEx.FrenchProfile.V1
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def preferred_category_order, do: @categories_preferred_order
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(validation_result) do

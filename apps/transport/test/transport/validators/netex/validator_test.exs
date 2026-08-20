@@ -68,7 +68,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.1"
+      assert multi_validation.validator_version == "0.2.2"
       assert multi_validation.result == nil
       assert multi_validation.digest == ResultsAdapter.digest(%{})
       assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
@@ -175,7 +175,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.1"
+      assert multi_validation.validator_version == "0.2.2"
 
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
