@@ -20,7 +20,7 @@ defmodule DB.IRVEValidFile do
 
   @doc """
   Set of `{datagouv_resource_id, checksum}` pairs currently present in the database. Meant to be
-  snapshotted before a consolidation run, to tell (without an extra per-resource query) whether a
+  snapshot before a consolidation run, to tell (without an extra per-resource query) whether a
   datagouv resource already had a version imported and whether its exact content is already stored.
   """
   def existing_datagouv_resource_ids_and_checksums do
