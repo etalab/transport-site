@@ -114,7 +114,7 @@ defmodule TransportWeb.NeTExReportComponents do
     ~H"""
     <div id="categories">
       <.netex_errors_category
-        :for={%{"category" => category, "stats" => stats} <- sort_categories(@validation_summary)}
+        :for={%{"category" => category, "stats" => stats} <- sort_categories(@validation_summary, @results_adapter)}
         conn={@conn}
         results_adapter={@results_adapter}
         category={category}
@@ -125,17 +125,12 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  defp sort_categories(summary) do
-    category_position = fn category ->
-      case category do
-        "xsd-schema" -> 1
-        "base-rules" -> 2
-        _ -> 3
-      end
-    end
+  defp sort_categories(summary, results_adapter) do
+    order = results_adapter.preferred_category_order()
+    ordered_map = Enum.with_index(order) |> Map.new()
 
     summary
-    |> Enum.sort_by(fn %{"category" => category} -> {category_position.(category), category} end)
+    |> Enum.sort_by(fn %{"category" => category} -> {Map.get(ordered_map, category, :infinity), category} end)
   end
 
   defp netex_validation_selected_category(

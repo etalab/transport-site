@@ -35,7 +35,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validator_name, do: @validator_name
 
   # This will change with an actual versioning of the validator
-  def validator_version, do: "0.2.1"
+  def validator_version, do: "0.2.2"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do

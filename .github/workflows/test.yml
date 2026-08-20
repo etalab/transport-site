@@ -25,6 +25,14 @@ jobs:
       - name: Run credo
         run: mix credo --strict
 
+      - name: Check dependencies for security advisories
+        # Bump Hex: advisory scanning (not just retirements) landed in 2.5.0.
+        # For now, continue on error, to avoid blocking each PR. We will move it to a separate worfklow.
+        continue-on-error: true
+        run: |
+          mix local.hex 2.5.1 --force
+          mix hex.audit
+
       - name: Run javascript linter
         run: mix npm "run linter:ecma"
 
