@@ -3,7 +3,20 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   Collection of helpers to be used by all results adapters.
   """
   require Explorer.DataFrame, as: DF
-  alias Explorer.Series, as: S
+
+  @no_error "NoError"
+
+  @xsd_schema_category "xsd-schema"
+  @base_rules_category "base-rules"
+
+  @doc false
+  def xsd_schema_category, do: @xsd_schema_category
+
+  @doc false
+  def base_rules_category, do: @base_rules_category
+
+  @doc false
+  def french_profile_category, do: "french-profile"
 
   @dtypes [
     category: :category,
@@ -18,9 +31,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   ]
 
   def to_dataframe(errors, extra_attributes_fun) do
-    errors
-    |> Enum.map(&project_error(&1, extra_attributes_fun))
-    |> DF.new(dtypes: @dtypes)
+    rows = Enum.map(errors, &project_error(&1, extra_attributes_fun))
+
+    if Enum.empty?(rows) do
+      # Create an empty DataFrame with proper column dtypes using keyword list syntax
+      DF.new(Enum.map(@dtypes, fn {name, _dtype} -> {name, []} end), dtypes: @dtypes)
+    else
+      DF.new(rows, dtypes: @dtypes)
+    end
   end
 
   defp project_error(entry, extra_attributes_fun) do
@@ -120,7 +138,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   end
 
   def count_and_slice(%Explorer.DataFrame{} = df, pagination_config) do
-    total_count = S.count(df["code"])
+    total_count = DF.n_rows(df)
 
     issues =
       df
@@ -145,5 +163,27 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     else
       []
     end
+  end
+
+  @doc false
+  def severity_level(key) do
+    case key do
+      "error" -> 1
+      "warning" -> 2
+      "information" -> 3
+      _ -> 4
+    end
+  end
+
+  @doc false
+  def get_worst_criticity(_cat_df, 0), do: @no_error
+
+  def get_worst_criticity(cat_df, _count) do
+    cat_df
+    |> DF.select(:criticity)
+    |> DF.distinct([:criticity])
+    |> DF.to_rows()
+    |> Enum.map(fn %{"criticity" => c} -> c end)
+    |> Enum.min_by(&severity_level/1, fn -> @no_error end)
   end
 end

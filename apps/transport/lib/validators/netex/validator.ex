@@ -145,23 +145,21 @@ defmodule Transport.Validators.NeTEx.Validator do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
-        # result_url in metadata?
         Logger.info("Result URL: #{result_url}")
 
         {:ok,
          %{
-           "validations" => ResultsAdapter.index_messages([]),
+           "validations" => [],
            "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
-
         Logger.info("Result URL: #{result_url}")
-        # result_url in metadata?
+
         {:ok,
          %{
-           "validations" => errors |> ResultsAdapter.index_messages(),
+           "validations" => errors,
            "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
@@ -216,7 +214,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
-    result = ResultsAdapter.index_messages(errors)
+    df = ResultsAdapter.to_dataframe(errors)
 
     resource_metadata =
       %DB.ResourceMetadata{
@@ -229,12 +227,12 @@ defmodule Transport.Validators.NeTEx.Validator do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: nil,
-      binary_result: ResultsAdapter.to_binary_result(result),
-      digest: ResultsAdapter.digest(result),
+      binary_result: ResultsAdapter.to_binary_result(errors),
+      digest: ResultsAdapter.digest(df),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: result_url,
-      max_error: ResultsAdapter.get_max_severity_error(result),
+      max_error: ResultsAdapter.get_max_severity_error(df),
       metadata: resource_metadata
     }
     |> DB.Repo.insert!()

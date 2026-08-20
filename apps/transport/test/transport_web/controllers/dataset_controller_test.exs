@@ -538,21 +538,22 @@ defmodule TransportWeb.DatasetControllerTest do
 
       resource_history = insert(:resource_history, resource: resource)
 
-      result =
+      grouped_result =
         case version do
           "0.1.0" -> %{"xsd-1871" => issues}
           _ -> %{"xsd-schema" => issues}
         end
 
       results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-
-      digest = results_adapter.digest(result)
+      errors = grouped_result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
+      digest = results_adapter.digest(df)
 
       insert(:multi_validation,
         resource_history: resource_history,
         validator: Transport.Validators.NeTEx.Validator.validator_name(),
         validator_version: version,
-        result: result,
+        result: grouped_result,
         digest: digest,
         metadata: %DB.ResourceMetadata{
           metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},

@@ -59,8 +59,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.validator == "enroute-chouette-netex-validator"
     assert multi_validation.validator_version == "0.2.2"
     assert multi_validation.result == nil
-    assert multi_validation.digest == ResultsAdapter.digest(%{})
-    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
+    df = ResultsAdapter.to_dataframe([])
+    assert multi_validation.digest == ResultsAdapter.digest(df)
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result([])
 
     assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
              multi_validation.metadata.metadata
@@ -89,40 +90,10 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
 
     assert multi_validation.result == nil
 
-    result = %{
-      "xsd-schema" => [
-        %{
-          "code" => "xsd-1871",
-          "criticity" => "error",
-          "message" =>
-            "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-        }
-      ],
-      "base-rules" => [
-        %{
-          "code" => "uic-operating-period",
-          "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-          "criticity" => "error"
-        },
-        %{
-          "code" => "valid-day-bits",
-          "message" => "Mandatory attribute valid_day_bits not found",
-          "criticity" => "error"
-        },
-        %{
-          "code" => "frame-arret-resources",
-          "message" => "Tag frame_id doesn't match ''",
-          "criticity" => "warning"
-        },
-        %{
-          "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-          "criticity" => "error"
-        }
-      ]
-    }
-
-    assert multi_validation.digest == ResultsAdapter.digest(result)
-    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
+    # digest and binary_result are now built from raw flat error list, not grouped map
+    df = ResultsAdapter.to_dataframe(@sample_error_messages)
+    assert multi_validation.digest == ResultsAdapter.digest(df)
+    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(@sample_error_messages)
   end
 
   test "pending validation" do
