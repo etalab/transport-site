@@ -240,6 +240,22 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
     end
 
+    test "nested archive" do
+      resource_history =
+        nested_archive_content()
+        |> mk_raw_netex_resource()
+        |> mk_netex_resource()
+
+      assert :ok == Validator.validate_and_save(resource_history)
+
+      multi_validation = load_multi_validation(resource_history.id)
+      result = %{"french-profile" => [nested_archive_error("payload.XML")]}
+
+      assert multi_validation.digest == ResultsAdapter.digest(result)
+      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
+      assert multi_validation.max_error == "error"
+    end
+
     defp load_multi_validation(resource_history_id) do
       DB.MultiValidation.base_query(include_binary_result: true)
       |> DB.Repo.get_by(resource_history_id: resource_history_id)
@@ -414,6 +430,28 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end
+
+    test "rejects every ZIP content member without relying on a lowercase zip extension" do
+      nested_archive = nested_archive_content()
+
+      resource_url =
+        mk_raw_netex_resource([
+          {"payload.XML", nested_archive},
+          {"SECOND", nested_archive}
+        ])
+
+      assert {:ok,
+              %{
+                "validations" => %{"french-profile" => errors},
+                "metadata" => _metadata
+              }} = Validator.validate(resource_url)
+
+      assert MapSet.new(errors) ==
+               MapSet.new([
+                 nested_archive_error("payload.XML"),
+                 nested_archive_error("SECOND")
+               ])
+    end
   end
 
   defp mk_line(public_code, mode) do
@@ -430,13 +468,17 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   end
 
   defp mk_netex_resource_with_calendar(start_date, end_date, network, lines) do
+    mk_netex(start_date, end_date, network, lines) |> mk_netex_resource()
+  end
+
+  defp mk_netex_resource(resource_url) do
     dataset = insert(:dataset)
 
     resource = insert(:resource, dataset_id: dataset.id, format: "NeTEx")
 
     insert(:resource_history,
       resource_id: resource.id,
-      payload: %{"permanent_url" => mk_netex(start_date, end_date, network, lines)}
+      payload: %{"permanent_url" => resource_url}
     )
   end
 
@@ -447,7 +489,11 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
         {"network.xml", network_content(network, lines)}
       ])
 
-  defp mk_raw_netex_resource(content) do
+  defp mk_raw_netex_resource(content) when is_binary(content) do
+    mk_raw_netex_resource([{"payload.XML", content}])
+  end
+
+  defp mk_raw_netex_resource(content) when is_list(content) do
     resource_url = generate_resource_url()
 
     expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, into}] ->
@@ -457,6 +503,19 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     end)
 
     resource_url
+  end
+
+  defp nested_archive_content do
+    ZipCreator.with_tmp_zip([{"resource.xml", "<PublicationDelivery />"}], &File.read!/1)
+  end
+
+  defp nested_archive_error(file_name) do
+    %{
+      "code" => "pan:french_profile:nested_archive",
+      "criticity" => "error",
+      "message" => "Nested archive #{file_name} is forbidden by the French NeTEx profile",
+      "resource" => %{"filename" => file_name}
+    }
   end
 
   defp zip_file(path, content) do

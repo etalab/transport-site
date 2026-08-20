@@ -30,6 +30,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def poll_interval(_), do: 20
 
   @validator_name "enroute-chouette-netex-validator"
+  @nested_archive_code "pan:french_profile:nested_archive"
 
   @impl Transport.Validators.Validator
   def validator_name, do: @validator_name
@@ -77,7 +78,7 @@ defmodule Transport.Validators.NeTEx.Validator do
         :ok
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
-        notify_success()
+        notify_success(result_url)
 
         insert_validation_results(
           resource_history_id,
@@ -155,9 +156,9 @@ defmodule Transport.Validators.NeTEx.Validator do
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
-        notify_success()
+        notify_success(result_url)
 
-        Logger.info("Result URL: #{result_url}")
+        log_result_url(result_url)
         # result_url in metadata?
         {:ok,
          %{
@@ -245,7 +246,53 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   defp validate_with_enroute(filepath, metadata) do
-    setup_validation(filepath) |> poll_validation_results(metadata, 0)
+    case nested_archive_errors(filepath) do
+      [] -> setup_validation(filepath) |> poll_validation_results(metadata, 0)
+      errors -> {:error, %{details: {nil, errors}, elapsed_seconds: 0, retries: 0}}
+    end
+  end
+
+  defp nested_archive_errors(filepath) do
+    zip_file = Unzip.LocalFile.open(filepath)
+
+    case Unzip.new(zip_file) do
+      {:ok, unzip} ->
+        unzip
+        |> Unzip.list_entries()
+        |> Enum.filter(&nested_archive?(unzip, &1.file_name))
+        |> Enum.map(&nested_archive_error(&1.file_name))
+
+      _ ->
+        []
+    end
+  after
+    Unzip.LocalFile.close(zip_file)
+  end
+
+  defp nested_archive?(unzip, file_name) do
+    unzip
+    |> Unzip.file_stream!(file_name, chunk_size: 4)
+    |> Enum.reduce_while(<<>>, fn chunk, prefix ->
+      prefix = prefix <> IO.iodata_to_binary(chunk)
+
+      if byte_size(prefix) >= 4 do
+        {:halt, binary_part(prefix, 0, 4)}
+      else
+        {:cont, prefix}
+      end
+    end)
+    |> Transport.ZipProbe.likely_zip_content?()
+  rescue
+    _ -> false
+  end
+
+  defp nested_archive_error(file_name) do
+    %{
+      "code" => @nested_archive_code,
+      "criticity" => "error",
+      "message" => "Nested archive #{file_name} is forbidden by the French NeTEx profile",
+      "resource" => %{"filename" => file_name}
+    }
   end
 
   defp setup_validation(filepath), do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug())
@@ -286,6 +333,12 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   defp notify_success, do: Appsignal.increment_counter("enroute_chouette_valid.success", 1)
+
+  defp notify_success(nil), do: :ok
+  defp notify_success(_result_url), do: notify_success()
+
+  defp log_result_url(nil), do: :ok
+  defp log_result_url(result_url), do: Logger.info("Result URL: #{result_url}")
 
   defp notify_invalid_api_call, do: Appsignal.increment_counter("enroute_chouette_valid.invalid_api_call", 1)
 
