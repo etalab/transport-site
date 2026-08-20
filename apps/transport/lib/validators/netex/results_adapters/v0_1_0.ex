@@ -103,12 +103,12 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
       iex> df = Explorer.DataFrame.new(code: [], criticity: [])
       iex> count_by_severity(df)
-      %{"max_level" => "NoError", "worst_occurrences" => 0}
+      %{}
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def count_by_severity(%Explorer.DataFrame{} = df) do
     if DF.n_rows(df) == 0 do
-      %{"max_level" => @no_error, "worst_occurrences" => 0}
+      %{}
     else
       df
       |> DF.frequencies([:criticity])
