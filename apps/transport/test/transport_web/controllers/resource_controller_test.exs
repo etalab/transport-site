@@ -710,7 +710,7 @@ defmodule TransportWeb.ResourceControllerTest do
         ]
         |> repeated(items)
 
-      for version <- ["0.1.0", "0.2.0", "0.2.1"],
+      for version <- ["0.1.0", "0.2.0", "0.2.1", "0.2.2"],
           params <- netex_params_for(version) do
         %{id: dataset_id} = insert(:dataset)
 
@@ -775,7 +775,7 @@ defmodule TransportWeb.ResourceControllerTest do
 
         rows = content |> Floki.parse_document!() |> Floki.find("table tr.message")
 
-        if version in ["0.2.0", "0.2.1"] do
+        if version in ["0.2.0", "0.2.1", "0.2.2"] do
           assert distinct_xsd_errors(issues) == Enum.count(rows)
         else
           assert page_size == Enum.count(rows)
@@ -790,7 +790,7 @@ defmodule TransportWeb.ResourceControllerTest do
         assert content =~ ~r"nombre de zones d’embarquement :(\s*)<strong>1 002</strong>"
         assert content =~ ~r"nombre de lieux d’arrêt :(\s*)<strong>103</strong>"
 
-        if version in ["0.2.0", "0.2.1"] do
+        if version in ["0.2.0", "0.2.1", "0.2.2"] do
           assert content =~ "Au format CSV :"
           assert content =~ "validation.csv"
 

@@ -13,6 +13,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile, do: Transport.NeTEx.FrenchProfile.V2
 
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate preferred_category_order(), to: Previous
+
   # Following functions are all delegated to V0_2_1
 
   @spec get_max_severity_error(map()) :: binary()

@@ -13,6 +13,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback no_error?(binary()) :: boolean()
   @callback french_profile_compliance_check() :: :none | :partial | :good_enough
   @callback french_profile() :: nil | module()
+  @callback preferred_category_order() :: [binary()]
   @callback to_dataframe(list()) :: Explorer.DataFrame.t()
   @callback to_binary_result(list()) :: binary()
   @callback summarize_xsd_errors(binary()) :: list()

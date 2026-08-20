@@ -269,6 +269,7 @@ defmodule TransportWeb.ResourceController do
      xsd_errors}
   end
 
+  defp pick_netex_errors_template("0.2.2"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
   defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
