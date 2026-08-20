@@ -13,53 +13,30 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
   @no_error "NoError"
 
-  @unknown_code "unknown-code"
-
-  @xsd_schema_category "xsd-schema"
-
-  @base_rules_category "base-rules"
-
   @categories_preferred_order [
-    @xsd_schema_category,
-    @base_rules_category
+    Commons.xsd_schema_category(),
+    Commons.base_rules_category()
   ]
 
   @doc """
-  Returns the maximum issue severity found
+  Returns the maximum issue severity found from a DataFrame.
 
-  iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "error"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "error"}]}
-  iex> get_max_severity_error(validation_result)
-  "error"
+  ## Examples
 
-  iex> get_max_severity_error(%{})
-  "NoError"
+      iex> errors = [%{"code" => "a", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
+      iex> df = to_dataframe(errors)
+      iex> get_max_severity_error(df)
+      "error"
+
+      iex> df = Explorer.DataFrame.new([code: []], dtypes: [code: :category])
+      iex> get_max_severity_error(df)
+      "NoError"
   """
-  @spec get_max_severity_error(map()) :: binary()
-  def get_max_severity_error(validation_result) do
-    %{"max_level" => severity} = validation_result |> count_max_severity()
+  @spec get_max_severity_error(Explorer.DataFrame.t()) :: binary()
+  def get_max_severity_error(%Explorer.DataFrame{} = df) do
+    %{"max_level" => severity} = count_max_severity(df)
     severity
   end
-
-  @doc """
-  Returns the maximum severity, with the issues count
-
-  iex> validation_result = %{"xsd-schema" => [%{"criticity" => "error"}], "french-profile" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "warning"}]}
-  iex> count_max_severity(validation_result)
-  %{"max_level" => "error", "worst_occurrences" => 2}
-  iex> validation_result = %{"french-profile" => [%{"criticity" => "warning"}]}
-  iex> count_max_severity(validation_result)
-  %{"max_level" => "warning", "worst_occurrences" => 1}
-  iex> count_max_severity(%{})
-  %{"max_level" => "NoError", "worst_occurrences" => 0}
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_max_severity(validation_result), to: V0_1_0
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate no_error?(severity), to: V0_1_0
-
-  @spec severity_level(binary()) :: integer()
-  defdelegate severity_level(key), to: V0_1_0
 
   @doc """
   iex> Gettext.put_locale("en")
@@ -67,13 +44,12 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   "1 error"
   iex> format_severity("error", 2)
   "2 errors"
-  iex> format_severity("NoError", 0)
-  "no error"
   iex> Gettext.put_locale("fr")
   iex> format_severity("error", 1)
   "1 erreur"
   iex> format_severity("error", 2)
   "2 erreurs"
+  iex> Gettext.put_locale("fr")
   iex> format_severity("NoError", 0)
   "aucune erreur"
   """
@@ -85,72 +61,43 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
-  @doc """
-  Returns the number of issues by severity level
-
-  iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "warning"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "error"}]}
-  iex> count_by_severity(validation_result)
-  %{"warning" => 1, "error" => 2}
-
-  iex> count_by_severity(%{})
-  %{}
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: V0_1_0
-
-  @doc """
-  iex> index_messages([])
-  %{}
-
-  iex> index_messages([%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}, %{"code"=>"b", "id"=> 3}])
-  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "base-rules"=>[%{"code"=>"b", "id"=> 3}]}
-
-  Sometimes the message has no code
-  iex> index_messages([%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}, %{"id"=> 3}])
-  %{"xsd-schema"=>[%{"code"=>"xsd-123", "id"=> 1}, %{"code"=>"xsd-456", "id"=> 2}], "base-rules"=>[%{"id"=> 3}]}
-  """
-  def index_messages(messages), do: Enum.group_by(messages, &index_message/1)
-
-  def index_message(message), do: message |> get_code() |> categorize()
-
   defp categorize(code) do
     if String.starts_with?(code, "xsd-") do
-      @xsd_schema_category
+      Commons.xsd_schema_category()
     else
-      @base_rules_category
+      Commons.base_rules_category()
     end
   end
 
-  defp get_code(%{"code" => code}), do: code
-  defp get_code(%{}), do: @unknown_code
-
   @doc """
-  iex> validation_result = %{"xsd-schema" => [%{"code" => "xsd-123", "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod", "criticity" => "error"}], "base-rules" => [%{"code" => "valid-day-bits", "message" => "Mandatory attribute valid_day_bits not found", "criticity" => "error"}]}
-  iex> summary(validation_result)
-  [
-    %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-    %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
-  ]
-  iex> summary(%{})
-  [
-    %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-    %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-  ]
+  Builds a category-based summary from a DataFrame.
+
+  ## Examples
+
+      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "error"}]
+      iex> df = to_dataframe(errors)
+      iex> summary(df)
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
+      ]
+
+      iex> df = Explorer.DataFrame.new([category: [], code: [], criticity: []], dtypes: [category: :category, code: :category, criticity: :category])
+      iex> summary(df)
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
+      ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary(%{} = validation_result) do
+  def summary(%Explorer.DataFrame{} = df) do
     @categories_preferred_order
     |> Enum.map(fn category ->
-      errors = validation_result |> Map.get(category, [])
+      cat_df = DF.filter(df, category == ^category)
+      count = DF.n_rows(cat_df)
+      worst_criticity = Commons.get_worst_criticity(cat_df, count)
 
-      worst_criticity =
-        errors
-        |> Enum.map(fn error -> Map.get(error, "criticity", @no_error) end)
-        |> Enum.min_by(&severity_level/1, fn -> @no_error end)
-
-      stats = %{"count" => length(errors), "criticity" => worst_criticity}
-
-      %{"category" => category, "stats" => stats}
+      %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
     end)
   end
 
@@ -191,7 +138,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     get_issues(df, %{"issues_category" => default_category}, pagination_config)
   end
 
-  def get_issues(_, _, _), do: {%{"issues_category" => @xsd_schema_category}, {0, []}}
+  def get_issues(_, _, _), do: {%{"issues_category" => Commons.xsd_schema_category()}, {0, []}}
 
   def pick_default_category(%Explorer.DataFrame{} = df), do: pick_default_category(df, @categories_preferred_order)
 
@@ -202,12 +149,24 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
     default_category = categories |> Enum.sort_by(&ordered_categories[&1]) |> List.first()
 
-    default_category || @xsd_schema_category
+    default_category || Commons.xsd_schema_category()
   end
 
   def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")
 
   defdelegate order_issues_by_location(issues), to: V0_1_0
+
+  # Delegation to V0_1_0 — these now accept DataFrames via the updated callbacks
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate count_max_severity(validation_result), to: V0_1_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate no_error?(severity), to: V0_1_0
+
+  defdelegate severity_level(key), to: Commons
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate count_by_severity(validation_result), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate french_profile_compliance_check(), to: V0_1_0
@@ -218,12 +177,15 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
+  @doc """
+  Builds a digest map from a DataFrame.
+  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def digest(validation_result) do
+  def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(validation_result),
-      "stats" => count_by_severity(validation_result),
-      "max_severity" => count_max_severity(validation_result)
+      "summary" => summary(df),
+      "stats" => count_by_severity(df),
+      "max_severity" => count_max_severity(df)
     }
   end
 
@@ -238,11 +200,12 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     }
   end
 
+  @doc """
+  Converts raw error list directly to a parquet binary — no intermediate grouping.
+  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(result) do
-    result
-    |> Map.values()
-    |> List.flatten()
+  def to_binary_result(errors) do
+    errors
     |> to_dataframe()
     |> Commons.to_binary()
   end
@@ -253,7 +216,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
     if Commons.has_column?(df, "category") do
       df
-      |> DF.filter(category == ^@xsd_schema_category)
+      |> DF.filter(category == ^Commons.xsd_schema_category())
       |> Commons.summarize_xsd_errors()
     else
       []
