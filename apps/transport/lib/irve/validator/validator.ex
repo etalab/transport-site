@@ -1,6 +1,13 @@
 defmodule Transport.IRVE.Validator do
   @moduledoc """
   Central entry point for IRVE file validation (currently working on `DataFrame`).
+  Use main function `validate_and_summarize/1` to get a summary of the validation and the validated DataFrame.
+  The validated DataFrame is not casted to the schema dtypes, but contains:
+  - the original columns, as strings (uncasted)
+  - additional columns for each field, indicating if the value is valid or not
+  - a `check_row_valid` column indicating if the row is valid or not
+  - additional columns for warnings, indicating if the value is valid but has a warning
+  - corrected values for some fields (e.g. inverted coordinates, missing optional columns, etc.)
   """
 
   @unexpected_error_prefix "Unexpected error: "
@@ -11,7 +18,7 @@ defmodule Transport.IRVE.Validator do
     df
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_field_validation_columns(schema)
     |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_row_validation_column()
-    |> Transport.IRVE.Validator.DataFrameValidation.setup_computed_warning_columns()
+    |> Transport.IRVE.Validator.DataFrameValidation.setup_warning_columns_and_correct_data()
   end
 
   @doc """
