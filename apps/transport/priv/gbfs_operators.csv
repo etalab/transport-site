@@ -13,7 +13,8 @@ data.mobilites-m.fr/api/gbfs/dott_grenoble;Dott
 data.mulhouse-alsace.fr;nextbike
 data.optymo.fr;SMTC 90
 donkey.bike;Donkey Republic
-download.data.grandlyon.com;JC Decaux
+download.data.grandlyon.com/files/rdata/jcd_jcdecaux;JC Decaux
+download.data.grandlyon.com/files/rdata/lag_leoandgo;Leo&Go
 ecovelo.mobi;Ecovélo
 eu.ftp.opendatasoft.com/star;Cykleo
 fifteen.eu;Fifteen
