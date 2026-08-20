@@ -93,7 +93,7 @@ defmodule Transport.GBFSMetadata do
   iex> operator("https://download.data.grandlyon.com/files/rdata/jcd_jcdecaux.jcdvelov/gbfs.json")
   "JC Decaux"
   iex> operator("https://download.data.grandlyon.com/files/rdata/lag_leoandgo.disponibilite/gbfs.json")
-  "LeoandGo"
+  "Leo&Go"
   iex> operator("https://404.fr")
   nil
   """
