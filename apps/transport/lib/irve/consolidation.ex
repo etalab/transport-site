@@ -1,7 +1,7 @@
 defmodule Transport.IRVE.Consolidation do
   @moduledoc """
   This module:
-  - takes the list of relevant IRVE resources from data.gouv.fr,
+  - takes the list of relevant IRVE datagouv_resources from data.gouv.fr,
   - downloads each resource file,
   - validates it,
   - and if valid writes the PDCs and file to the database.
@@ -29,11 +29,17 @@ defmodule Transport.IRVE.Consolidation do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
 
-    report_rows =
-      resource_list()
+    datagouv_resources = resource_list()
+    datagouv_resource_ids = MapSet.new(datagouv_resources, & &1.resource_id)
+    # Snapshot before processing mutates the DB, so `resource_status` reflects the pre-run state.
+    db_ids_and_checksums = DB.IRVEValidFile.existing_datagouv_resource_ids_and_checksums()
+    db_resource_ids = MapSet.new(db_ids_and_checksums, fn {resource_id, _checksum} -> resource_id end)
+
+    processed_rows =
+      datagouv_resources
       |> maybe_limit(opts[:limit])
       |> Task.async_stream(
-        &process_or_rescue/1,
+        &process_or_rescue(&1, db_ids_and_checksums),
         ordered: true,
         on_timeout: :kill_task,
         # Underlying DB operation has 90 seconds timeout, see DatabaseImporter
@@ -45,8 +51,11 @@ defmodule Transport.IRVE.Consolidation do
       # This is intentional, we want to be aware of such timeouts.
       |> Stream.map(fn {:ok, result} -> result end)
       |> Stream.map(&Transport.IRVE.ReportItem.from_result/1)
+      |> Stream.map(&Transport.IRVE.ReportItem.put_resource_status(&1, db_resource_ids))
       |> maybe_log_items(debug)
       |> Enum.into([])
+
+    report_rows = processed_rows ++ orphan_report_rows(db_resource_ids, datagouv_resource_ids)
 
     report = generate_report(report_rows, destination: destination)
 
@@ -85,9 +94,20 @@ defmodule Transport.IRVE.Consolidation do
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
+  # Resources still in the DB but no longer listed on data.gouv.fr, appended as a block after the
+  # processed rows (which are not processed this run, so they carry no consolidation outcome).
+  def orphan_report_rows(db_resource_ids, datagouv_resource_ids) do
+    db_resource_ids
+    |> MapSet.difference(datagouv_resource_ids)
+    |> MapSet.to_list()
+    |> DB.IRVEValidFile.orphan_files()
+    |> Enum.sort_by(&{&1.datagouv_dataset_id, &1.datagouv_resource_id})
+    |> Enum.map(&Transport.IRVE.ReportItem.from_orphan_file/1)
+  end
+
   # safety wrapper that we can use inside `Task.async_stream`
-  def process_or_rescue(resource) do
-    process_resource(resource)
+  def process_or_rescue(resource, db_ids_and_checksums) do
+    process_resource(resource, db_ids_and_checksums)
   rescue
     error ->
       Logger.error(
@@ -103,7 +123,7 @@ defmodule Transport.IRVE.Consolidation do
       {:error_occurred, error, resource}
   end
 
-  def process_resource(resource) do
+  def process_resource(resource, db_ids_and_checksums) do
     # optionally, for dev especially, we can keep files around until we manually delete them
     use_permanent_disk_cache = Application.get_env(:transport, :irve_consolidation_caching, false)
 
@@ -129,13 +149,13 @@ defmodule Transport.IRVE.Consolidation do
            body = File.read!(path),
            checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body),
            # Same content already stored: skip validation and insertion entirely.
-           false <- Transport.IRVE.DatabaseImporter.already_in_db?(resource.resource_id, checksum),
+           false <- MapSet.member?(db_ids_and_checksums, {resource.resource_id, checksum}),
            {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
            import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
         {import_status, resource}
       else
         :producer_not_an_organization -> {:producer_not_an_organization, resource}
-        true -> {:already_in_db, resource}
+        true -> {:already_up_to_date, resource}
         {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
         {%{file_level_errors: []}, _validated_df} -> {:not_compliant_with_schema, resource}
       end
@@ -154,7 +174,8 @@ defmodule Transport.IRVE.Consolidation do
       |> Explorer.DataFrame.select([
         "dataset_id",
         "resource_id",
-        "status",
+        "resource_status",
+        "consolidation_status",
         "error_type",
         "estimated_pdc_count",
         "file_extension",

@@ -21,7 +21,7 @@ defmodule Transport.IRVE.DatabaseImporter do
 
   # return:
   # - `:import_successful` if the import went fine
-  # - `:already_in_db` if the same content (based on file checksum) is in db for
+  # - `:already_up_to_date` if the same content (based on file checksum) is in db for
   #     the provided combination of ids
   # (else raise an error)
   def try_write_uncasted_df(uncasted_df, checksum, %{
@@ -47,7 +47,7 @@ defmodule Transport.IRVE.DatabaseImporter do
   rescue
     e in [Ecto.ConstraintError] ->
       if e.type == :unique && e.constraint == "irve_valid_file_datagouv_resource_id_checksum_index" do
-        :already_in_db
+        :already_up_to_date
       else
         reraise(e, __STACKTRACE__)
       end
@@ -88,17 +88,6 @@ defmodule Transport.IRVE.DatabaseImporter do
 
   def compute_checksum(body) do
     :crypto.hash(:sha256, body) |> Base.encode16(case: :lower)
-  end
-
-  @doc """
-  True if a file with this exact content (same `datagouv_resource_id` and `checksum`) is already stored.
-
-  Lets the consolidation skip validating and inserting content that hasn't changed since the last run.
-  """
-  def already_in_db?(datagouv_resource_id, checksum) do
-    DB.IRVEValidFile
-    |> where(datagouv_resource_id: ^datagouv_resource_id, checksum: ^checksum)
-    |> DB.Repo.exists?()
   end
 
   defp write_new_file!(
