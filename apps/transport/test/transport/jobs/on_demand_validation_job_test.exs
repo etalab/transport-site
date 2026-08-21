@@ -14,6 +14,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
