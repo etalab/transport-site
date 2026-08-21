@@ -77,6 +77,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 12,
+               "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
@@ -181,6 +182,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 31,
+               "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
@@ -245,6 +247,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 9,
+                  "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
@@ -293,6 +296,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 25,
+                  "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
@@ -332,6 +336,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       metadata = %{
         "start_date" => start_date,
         "end_date" => end_date,
+        "publication_date" => "2025-07-29",
         "networks" => [network],
         "modes" => modes,
         "stats" => %{
