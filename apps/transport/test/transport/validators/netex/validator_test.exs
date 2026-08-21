@@ -43,6 +43,58 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     }
   ]
 
+  describe "determine_xsd_version/2" do
+    test "uses publication_date when present and valid" do
+      metadata = %{"publication_date" => "2025-07-29"}
+      assert Validator.determine_xsd_version(metadata) == "v1.3.2"
+    end
+
+    test "publication_date is parsed from ISO 8601 with time component" do
+      metadata = %{"publication_date" => "2025-07-29T09:34:55Z"}
+      assert Validator.determine_xsd_version(metadata) == "v1.3.2"
+    end
+
+    test "falls back to inserted_at when publication_date is invalid" do
+      metadata = %{"publication_date" => "not-a-date"}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+
+    test "falls back to inserted_at when publication_date is missing" do
+      metadata = %{}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+
+    test "falls back to today when no resource_history is provided" do
+      metadata = %{}
+
+      assert Validator.determine_xsd_version(metadata) ==
+               Transport.NeTEx.SchemaVersionMapper.xsd_version_for_date(Date.utc_today())
+    end
+
+    test "nil publication_date falls back to inserted_at, not today" do
+      metadata = %{"publication_date" => nil}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+  end
+
   describe "existing resource" do
     test "valid NeTEx" do
       start_date = "2025-11-03"
