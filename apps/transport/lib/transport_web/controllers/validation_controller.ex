@@ -187,22 +187,22 @@ defmodule TransportWeb.ValidationController do
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
         config = make_pagination_config(params)
 
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
+        results_reader = Transport.Validators.NeTEx.ResultsReader.resolve(validation.validator_version)
 
         template = pick_netex_template(validation.validator_version)
 
         pagination_config = make_pagination_config(params, @netex_issues_page_size)
-        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
+        {filter, pagination} = results_reader.get_issues(validation.binary_result, params, pagination_config)
 
         validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
 
-        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
+        xsd_errors = results_reader.summarize_xsd_errors(validation.binary_result)
 
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
         |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
-        |> assign(:results_adapter, results_adapter)
+        |> assign(:results_reader, results_reader)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:max_severity, validation.digest["max_severity"])
         |> assign(:validation_summary, validation.digest["summary"])

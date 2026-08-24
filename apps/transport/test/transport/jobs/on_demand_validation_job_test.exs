@@ -8,7 +8,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   alias Transport.Jobs.OnDemandValidationJob
   alias Transport.Validators.GTFSRT
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsReader
 
   setup :verify_on_exit!
 
@@ -556,7 +556,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                data_vis: nil
              } = validation |> reload() |> DB.Repo.preload(:metadata)
 
-      assert ResultsAdapter.to_binary_result(errors) == binary_result
+      assert ResultsReader.to_binary_result(errors) == binary_result
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
@@ -611,14 +611,14 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   end
 
   def expect_netex_with_errors(messages) do
-    validation_id = expect_create_validation(ResultsAdapter.french_profile().slug())
+    validation_id = expect_create_validation(ResultsReader.french_profile().slug())
     expect_failed_validation(validation_id, 10)
 
     expect_get_messages(validation_id, messages)
   end
 
   def expect_netex_long_lasting do
-    expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+    expect_create_validation(ResultsReader.french_profile().slug()) |> expect_pending_validation()
   end
 
   defp run_job(%DB.MultiValidation{} = validation) do

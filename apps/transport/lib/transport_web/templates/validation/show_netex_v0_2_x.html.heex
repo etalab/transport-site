@@ -30,7 +30,7 @@
         current_category={current_category}
         xsd_errors={@xsd_errors}
         issues={@issues}
-        results_adapter={@results_adapter}
+        results_adapter={@results_reader}
         validation_report_url={@validation_report_url}
         validation_summary={@validation_summary}
         pagination={netex_pagination_links(@conn, @issues, @validation_id, current_category)}

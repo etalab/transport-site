@@ -5,7 +5,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsReader
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -60,7 +60,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
       validation_id =
-        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(12)
+        expect_create_validation(ResultsReader.french_profile().slug()) |> expect_successful_validation(12)
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -70,9 +70,9 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.validator == "enroute-chouette-netex-validator"
       assert multi_validation.validator_version == "0.2.2"
       assert multi_validation.result == nil
-      df = ResultsAdapter.to_dataframe([])
-      assert multi_validation.digest == ResultsAdapter.digest(df)
-      assert multi_validation.binary_result == ResultsAdapter.to_binary_result([])
+      df = ResultsReader.to_dataframe([])
+      assert multi_validation.digest == ResultsReader.digest(df)
+      assert multi_validation.binary_result == ResultsReader.to_binary_result([])
 
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
@@ -116,7 +116,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id = expect_create_validation(ResultsReader.french_profile().slug()) |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -166,7 +166,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
+      validation_id = expect_create_validation(ResultsReader.french_profile().slug()) |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -206,11 +206,11 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.result == nil
 
       # digest and binary_result are built from raw errors (flat list), not grouped map
-      df = ResultsAdapter.to_dataframe(@sample_error_messages)
-      assert multi_validation.digest == ResultsAdapter.digest(df)
+      df = ResultsReader.to_dataframe(@sample_error_messages)
+      assert multi_validation.digest == ResultsReader.digest(df)
 
       assert multi_validation.binary_result ==
-               ResultsAdapter.to_binary_result(@sample_error_messages)
+               ResultsReader.to_binary_result(@sample_error_messages)
     end
 
     defp load_multi_validation(resource_history_id) do
@@ -237,7 +237,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_successful_validation(9)
+      expect_create_validation(ResultsReader.french_profile().slug()) |> expect_successful_validation(9)
 
       assert {:ok,
               %{
@@ -283,7 +283,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
+      validation_id = expect_create_validation(ResultsReader.french_profile().slug()) |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -351,7 +351,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id = expect_create_validation(ResultsReader.french_profile().slug()) |> expect_pending_validation()
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end

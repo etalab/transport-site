@@ -5,7 +5,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   import ExUnit.CaptureLog
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsReader
   alias Transport.Validators.NeTEx.Validator
 
   setup :verify_on_exit!
@@ -88,9 +88,9 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
-    assert ResultsAdapter.to_binary_result([]) == binary_result
-    df = ResultsAdapter.to_dataframe([])
-    assert ResultsAdapter.digest(df) == digest
+    assert ResultsReader.to_binary_result([]) == binary_result
+    df = ResultsReader.to_dataframe([])
+    assert ResultsReader.digest(df) == digest
   end
 
   test "error" do
@@ -136,9 +136,9 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
            } = validation |> reload_validation()
 
     # digest and binary_result are now built from raw flat error list, not grouped map
-    assert ResultsAdapter.to_binary_result(errors) == binary_result
-    df = ResultsAdapter.to_dataframe(errors)
-    assert ResultsAdapter.digest(df) == digest
+    assert ResultsReader.to_binary_result(errors) == binary_result
+    df = ResultsReader.to_dataframe(errors)
+    assert ResultsReader.digest(df) == digest
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
   end

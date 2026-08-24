@@ -7,7 +7,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
   alias Transport.Validators.NeTEx.MetadataExtractor
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsWriter
 
   @behaviour Transport.Validators.Validator
 
@@ -214,7 +214,10 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
-    df = ResultsAdapter.to_dataframe(errors)
+    version = validator_version()
+    writer = ResultsWriter.resolve(version)
+
+    df = writer.to_dataframe(errors)
 
     resource_metadata =
       %DB.ResourceMetadata{
@@ -227,16 +230,20 @@ defmodule Transport.Validators.NeTEx.Validator do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: nil,
-      binary_result: ResultsAdapter.to_binary_result(errors),
-      digest: ResultsAdapter.digest(df),
+      binary_result: writer.to_binary_result(errors),
+      digest: writer.digest(df),
       resource_history_id: resource_history_id,
-      validator_version: validator_version(),
+      validator_version: version,
       command: result_url,
-      max_error: ResultsAdapter.get_max_severity_error(df),
+      max_error: writer.get_max_severity_error(df),
       metadata: resource_metadata
     }
     |> DB.Repo.insert!()
   end
+
+  defp setup_validation(filepath), do: client().create_a_validation(filepath, french_profile_slug())
+
+  defp french_profile_slug, do: Transport.NeTEx.FrenchProfile.V2.slug()
 
   defp features_list(%{} = features) do
     Enum.sort(for {feature, true} <- features, do: feature)
@@ -245,8 +252,6 @@ defmodule Transport.Validators.NeTEx.Validator do
   defp validate_with_enroute(filepath, metadata) do
     setup_validation(filepath) |> poll_validation_results(metadata, 0)
   end
-
-  defp setup_validation(filepath), do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug())
 
   def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do

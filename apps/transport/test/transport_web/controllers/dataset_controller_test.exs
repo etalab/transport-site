@@ -7,6 +7,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   import Mock
   import Mox
+  alias Transport.Validators.NeTEx.ResultsWriter
 
   @pan_org_id "5abca8d588ee386ee6ece479"
 
@@ -544,10 +545,10 @@ defmodule TransportWeb.DatasetControllerTest do
           _ -> %{"xsd-schema" => issues}
         end
 
-      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
       errors = grouped_result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
-      digest = results_adapter.digest(df)
+      writer = ResultsWriter.resolve(version)
+      df = writer.to_dataframe(errors)
+      digest = writer.digest(df)
 
       insert(:multi_validation,
         resource_history: resource_history,

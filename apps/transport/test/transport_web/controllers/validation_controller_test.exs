@@ -9,7 +9,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import TransportWeb.LiveViewTestHelpers
   import Transport.TmpFile
   alias Transport.Test.S3TestUtils
-  alias Transport.Validators.NeTEx.ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsWriter
   alias TransportWeb.Live.OnDemandValidationSelectLive
 
   setup :verify_on_exit!
@@ -450,17 +450,17 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
-      results_adapter = ResultsAdapter.resolve("0.1.0")
+      writer = ResultsWriter.resolve("0.1.0")
       errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
+      df = writer.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: "0.1.0",
           result: nil,
-          digest: results_adapter.digest(df),
-          binary_result: results_adapter.to_binary_result(errors),
+          digest: writer.digest(df),
+          binary_result: writer.to_binary_result(errors),
           max_error: "warning"
         }
       )
@@ -496,17 +496,17 @@ defmodule TransportWeb.ValidationControllerTest do
         ]
       }
 
-      results_adapter = ResultsAdapter.resolve(validator_version)
+      writer = ResultsWriter.resolve(validator_version)
       errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
+      df = writer.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: validator_version,
           result: nil,
-          digest: results_adapter.digest(df),
-          binary_result: results_adapter.to_binary_result(errors),
+          digest: writer.digest(df),
+          binary_result: writer.to_binary_result(errors),
           max_error: "error"
         }
       )

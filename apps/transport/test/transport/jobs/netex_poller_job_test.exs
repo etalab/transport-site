@@ -6,7 +6,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   import Mox
   import Transport.Test.EnRouteChouetteValidClientHelpers
 
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsReader
   alias Transport.Validators.NeTEx.Validator
 
   setup do
@@ -59,9 +59,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.validator == "enroute-chouette-netex-validator"
     assert multi_validation.validator_version == "0.2.2"
     assert multi_validation.result == nil
-    df = ResultsAdapter.to_dataframe([])
-    assert multi_validation.digest == ResultsAdapter.digest(df)
-    assert multi_validation.binary_result == ResultsAdapter.to_binary_result([])
+    df = ResultsReader.to_dataframe([])
+    assert multi_validation.digest == ResultsReader.digest(df)
+    assert multi_validation.binary_result == ResultsReader.to_binary_result([])
 
     assert %{"retries" => ^attempts, "elapsed_seconds" => ^duration, "end_date" => _} =
              multi_validation.metadata.metadata
@@ -91,9 +91,9 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
     assert multi_validation.result == nil
 
     # digest and binary_result are now built from raw flat error list, not grouped map
-    df = ResultsAdapter.to_dataframe(@sample_error_messages)
-    assert multi_validation.digest == ResultsAdapter.digest(df)
-    assert multi_validation.binary_result == ResultsAdapter.to_binary_result(@sample_error_messages)
+    df = ResultsReader.to_dataframe(@sample_error_messages)
+    assert multi_validation.digest == ResultsReader.digest(df)
+    assert multi_validation.binary_result == ResultsReader.to_binary_result(@sample_error_messages)
   end
 
   test "pending validation" do

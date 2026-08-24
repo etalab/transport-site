@@ -7,8 +7,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   require Explorer.DataFrame, as: DF
   alias Transport.Validators.NeTEx.ResultsAdapters.Commons
+  alias Transport.Validators.NeTEx.ResultsReader
+  alias Transport.Validators.NeTEx.ResultsWriter
 
-  @behaviour Transport.Validators.NeTEx.ResultsAdapter
+  @behaviour ResultsReader
+  @behaviour ResultsWriter
 
   @no_error "NoError"
 
@@ -19,42 +22,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     Commons.base_rules_category()
   ]
 
-  @doc """
-  Returns the maximum severity, with the issues count.
-
-  ## Examples
-
-      iex> errors = [%{"criticity" => "error"}, %{"criticity" => "error"}, %{"criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> count_max_severity(df)
-      %{"max_level" => "error", "worst_occurrences" => 2}
-
-      iex> errors = [%{"criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> count_max_severity(df)
-      %{"max_level" => "warning", "worst_occurrences" => 1}
-
-      iex> df = Explorer.DataFrame.new(code: [])
-      iex> count_max_severity(df)
-      %{"max_level" => "NoError", "worst_occurrences" => 0}
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_max_severity(%Explorer.DataFrame{} = df) do
-    case DF.n_rows(df) do
-      0 ->
-        %{"max_level" => @no_error, "worst_occurrences" => 0}
-
-      _ ->
-        {max_level, worst_occurrences} =
-          count_by_severity(df)
-          |> Enum.filter(fn {_severity, count} -> count > 0 end)
-          |> Enum.min_by(fn {severity, _count} -> severity_level(severity) end)
-
-        %{"max_level" => max_level, "worst_occurrences" => worst_occurrences}
-    end
-  end
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def no_error?(severity), do: @no_error == severity
 
   defdelegate severity_level(key), to: Commons
@@ -71,7 +39,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   iex> format_severity("error", 2)
   "2 erreurs"
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def format_severity(key, count) do
     case key do
       "error" ->
@@ -91,22 +59,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Returns the number of issues by severity level from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"criticity" => "warning"}, %{"criticity" => "error"}, %{"criticity" => "error"}]
-      iex> df = to_dataframe(errors)
-      iex> count_by_severity(df)
-      %{"warning" => 1, "error" => 2}
-
-      iex> df = Explorer.DataFrame.new(code: [], criticity: [])
-      iex> count_by_severity(df)
-      %{}
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_by_severity(%Explorer.DataFrame{} = df) do
+  @doc false
+  defp count_by_severity(%Explorer.DataFrame{} = df) do
     if DF.n_rows(df) == 0 do
       %{}
     else
@@ -118,24 +72,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Builds a severity-based summary from a DataFrame.
-
-  Returns items grouped by criticity (error/warning/information), as expected by the v0_1.0 template.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df) |> Enum.map(& &1["severity"])
-      ["error", "warning"]
-
-      iex> df = Explorer.DataFrame.new(code: [], criticity: [])
-      iex> summary(df)
-      []
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary(%Explorer.DataFrame{} = df) do
+  @doc false
+  defp summary(%Explorer.DataFrame{} = df) do
     errors = DF.to_rows(df)
 
     if Enum.empty?(errors) do
@@ -190,14 +128,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       @unknown_code => dgettext("netex-validator", "Unspecified error")
     }
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def issue_type([]), do: nil
   def issue_type([h | _]), do: h["code"] || @unknown_code
 
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
     binary
     |> Commons.from_binary()
@@ -230,25 +168,63 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
 
   def get_issues(_, _, _), do: {%{"issue_type" => ""}, {0, []}}
 
-  def pick_default_issue_type(%Explorer.DataFrame{} = df) do
+  defp pick_default_issue_type(%Explorer.DataFrame{} = df) do
     get_codes(df) |> List.first() || ""
   end
 
-  def get_codes(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "code")
+  defp get_codes(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "code")
 
-  def order_issues_by_location(%Explorer.DataFrame{} = df) do
+  defp order_issues_by_location(%Explorer.DataFrame{} = df) do
     df
     |> DF.sort_by(&[&1["resource.filename"], &1["resource.line"], &1["message"]])
   end
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def french_profile_compliance_check, do: :none
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def french_profile, do: nil
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsReader
   def preferred_category_order, do: @categories_preferred_order
+
+  @impl ResultsReader
+  def summarize_xsd_errors(_binary_result), do: []
+
+  @doc """
+  Returns the maximum severity, with the issues count.
+
+  ## Examples
+
+      iex> errors = [%{"criticity" => "error"}, %{"criticity" => "error"}, %{"criticity" => "warning"}]
+      iex> df = to_dataframe(errors)
+      iex> count_max_severity(df)
+      %{"max_level" => "error", "worst_occurrences" => 2}
+
+      iex> errors = [%{"criticity" => "warning"}]
+      iex> df = to_dataframe(errors)
+      iex> count_max_severity(df)
+      %{"max_level" => "warning", "worst_occurrences" => 1}
+
+      iex> df = Explorer.DataFrame.new(code: [])
+      iex> count_max_severity(df)
+      %{"max_level" => "NoError", "worst_occurrences" => 0}
+  """
+  @impl ResultsWriter
+  def count_max_severity(%Explorer.DataFrame{} = df) do
+    case DF.n_rows(df) do
+      0 ->
+        %{"max_level" => @no_error, "worst_occurrences" => 0}
+
+      _ ->
+        {max_level, worst_occurrences} =
+          count_by_severity(df)
+          |> Enum.filter(fn {_severity, count} -> count > 0 end)
+          |> Enum.min_by(fn {severity, _count} -> severity_level(severity) end)
+
+        %{"max_level" => max_level, "worst_occurrences" => worst_occurrences}
+    end
+  end
 
   @doc """
   Builds a digest map from a DataFrame.
@@ -260,7 +236,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       iex> digest(df) |> Map.keys() |> Enum.sort()
       ["max_severity", "stats", "summary"]
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsWriter
   def digest(%Explorer.DataFrame{} = df) do
     %{
       "summary" => summary(df),
@@ -269,7 +245,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     }
   end
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsWriter
   def to_dataframe(errors) do
     Commons.to_dataframe(errors, &build_synthetic_attributes/1)
   end
@@ -296,13 +272,16 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       iex> is_binary(binary)
       true
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  @impl ResultsWriter
   def to_binary_result(errors) do
     errors
     |> to_dataframe()
     |> Commons.to_binary()
   end
 
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summarize_xsd_errors(_binary_result), do: []
+  @impl ResultsWriter
+  def get_max_severity_error(df) do
+    %{"max_level" => severity} = count_max_severity(df)
+    severity
+  end
 end
