@@ -7,7 +7,10 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
   alias Transport.NeTEx.ArchiveParser
 
   def extract(filepath) do
-    Map.merge(extract_validity_dates(filepath), describe_content(filepath))
+    Map.merge(
+      extract_validity_dates(filepath),
+      Map.merge(describe_content(filepath), extract_publication_info(filepath))
+    )
   end
 
   def extract_validity_dates(filepath) do
@@ -69,6 +72,25 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
     end
   end
 
+  @doc """
+  Extract the earliest publication timestamp from all XML files in the archive.
+
+  Returns `%{"publication_date" => iso8601_string}` if any `PublicationTimestamp`
+  was found, or `%{}` otherwise. Fallbacks to upload date / today are handled
+  by `NeTEx.Validator.determine_xsd_version/2`.
+  """
+  def extract_publication_info(filepath) do
+    case earliest_publication_timestamp(filepath) do
+      %Date{} = date ->
+        %{"publication_date" => Date.to_iso8601(date)}
+
+      nil ->
+        %{}
+    end
+  rescue
+    _ -> %{}
+  end
+
   defp no_validity_dates, do: %{"no_validity_dates" => true}
 
   defp validity_dates(filepath) do
@@ -109,6 +131,20 @@ defmodule Transport.Validators.NeTEx.MetadataExtractor do
         _ -> acc
       end
     end)
+  end
+
+  defp earliest_publication_timestamp(filepath) do
+    timestamps =
+      filepath
+      |> ArchiveParser.read_all_publication_timestamps()
+      |> Enum.flat_map(fn {_filename, result} ->
+        case result do
+          {:ok, %Date{} = date} -> [date]
+          _ -> []
+        end
+      end)
+
+    if timestamps == [], do: nil, else: Enum.min(timestamps)
   end
 
   defp uniq(list), do: list |> MapSet.new() |> MapSet.to_list()
