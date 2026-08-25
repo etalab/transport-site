@@ -9,6 +9,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   alias Transport.Validators.NeTEx.Validator
 
   setup do
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -77,6 +78,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 12,
+               "xsd_version" => "v1.3.2",
                "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
@@ -117,7 +119,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -127,6 +130,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
           "metadata" => %{
+            "xsd_version" => "v1.3.2",
             "start_date" => start_date,
             "end_date" => end_date,
             "networks" => [network],
@@ -167,7 +171,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -182,6 +187,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 31,
+               "xsd_version" => "v1.3.2",
                "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
@@ -247,6 +253,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 9,
+                  "xsd_version" => "v1.3.2",
                   "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
@@ -286,7 +293,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -296,6 +304,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 25,
+                  "xsd_version" => "v1.3.2",
                   "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
@@ -334,6 +343,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       modes = lines |> modes()
 
       metadata = %{
+        "xsd_version" => "v1.3.2",
         "start_date" => start_date,
         "end_date" => end_date,
         "publication_date" => "2025-07-29",
@@ -356,7 +366,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end

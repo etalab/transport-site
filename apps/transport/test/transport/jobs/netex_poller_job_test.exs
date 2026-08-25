@@ -10,6 +10,7 @@ defmodule Transport.Jobs.NeTExPollerJobTest do
   alias Transport.Validators.NeTEx.Validator
 
   setup do
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
