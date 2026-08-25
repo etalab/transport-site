@@ -11,6 +11,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

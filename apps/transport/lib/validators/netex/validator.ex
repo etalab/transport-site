@@ -46,9 +46,15 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   def validate_resource_history(resource_history, filepath) do
     metadata = MetadataExtractor.extract(filepath)
+    xsd_version = "v1.3.2"
+    full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
-    validate_with_enroute(filepath, metadata)
-    |> handle_validation_results(resource_history.id, metadata, &enqueue_poller(resource_history.id, &1, metadata))
+    validate_with_enroute(filepath, metadata, xsd_version)
+    |> handle_validation_results(
+      resource_history.id,
+      full_metadata,
+      &enqueue_poller(resource_history.id, &1, full_metadata)
+    )
   end
 
   def enqueue_poller(resource_history_id, validation_id, metadata, attempt \\ 0) do
@@ -104,7 +110,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         :ok
 
-      {:pending, {validation_id, _metatada}} ->
+      {:pending, {validation_id, _metadata}} ->
         on_pending.(validation_id)
     end
   end
@@ -126,8 +132,11 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validate(url) do
     with_url(url, fn filepath ->
       metadata = MetadataExtractor.extract(filepath)
+      xsd_version = "v1.3.2"
+      full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
-      validate_with_enroute(filepath, metadata) |> handle_validation_results_on_demand(metadata)
+      validate_with_enroute(filepath, metadata, xsd_version)
+      |> handle_validation_results_on_demand(full_metadata)
     end)
   end
 
@@ -177,7 +186,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
 
-      {:pending, {validation_id, metadata}} ->
+      {:pending, {validation_id, _metadata}} ->
         {:pending, {validation_id, metadata}}
     end
   end
@@ -242,11 +251,12 @@ defmodule Transport.Validators.NeTEx.Validator do
     Enum.sort(for {feature, true} <- features, do: feature)
   end
 
-  defp validate_with_enroute(filepath, metadata) do
-    setup_validation(filepath) |> poll_validation_results(metadata, 0)
+  defp validate_with_enroute(filepath, metadata, xsd_version) do
+    setup_validation(filepath, xsd_version) |> poll_validation_results(metadata, 0)
   end
 
-  defp setup_validation(filepath), do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug())
+  defp setup_validation(filepath, xsd_version),
+    do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug(), xsd_version)
 
   def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do
