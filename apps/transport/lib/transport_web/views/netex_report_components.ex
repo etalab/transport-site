@@ -24,8 +24,24 @@ defmodule TransportWeb.NeTExReportComponents do
     doc: "List of issue maps with keys: message (string), resource (optional map with filename/line integers)"
   )
 
+  attr(:severities_count, :map, required: true, doc: "Map of severity counts per category")
+  attr(:results_adapter, :any, required: true, doc: "Results adapter module for formatting severities")
+
   def netex_generic_issues(assigns) do
+    severities_count = assigns[:severities_count]
+
+    filtered_severities =
+      severities_count
+      |> Enum.filter(fn {_k, v} -> is_integer(v) and v > 0 end)
+
+    assigns = assign(assigns, :filtered_severities, filtered_severities)
+
     ~H"""
+    <ul :if={Enum.any?(@filtered_severities)}>
+      <li :for={{severity, count} <- @filtered_severities}>
+        {@results_adapter.format_severity(severity, count)}
+      </li>
+    </ul>
     <table class="table netex_generic_issue">
       <colgroup>
         <col class="message" />
@@ -155,6 +171,8 @@ defmodule TransportWeb.NeTExReportComponents do
 
   attr(:pagination, :any, required: true, doc: "Pagination HTML rendered by netex_pagination_links/3")
   attr(:xsd_version, :string, default: nil, doc: "XSD schema version string")
+  attr(:severities_count, :map, required: true, doc: "Map of severity counts")
+  attr(:category_severity_counts, :map, required: true, doc: "Map of severity counts per category")
 
   def netex_validation_report_content(assigns) do
     ~H"""
@@ -177,6 +195,8 @@ defmodule TransportWeb.NeTExReportComponents do
       conn={@conn}
       compliance_check={compliance_check}
       current_category={@current_category}
+      severities_count={@severities_count}
+      category_severity_counts={@category_severity_counts}
       errors={errors}
       validation_report_url={@validation_report_url}
       pagination={@pagination}
@@ -214,6 +234,8 @@ defmodule TransportWeb.NeTExReportComponents do
            conn: _,
            compliance_check: _,
            current_category: _,
+           severities_count: _,
+           category_severity_counts: _,
            errors: _,
            validation_report_url: _,
            pagination: _,
@@ -258,7 +280,11 @@ defmodule TransportWeb.NeTExReportComponents do
           </table>
         <% else %>
           <.non_translated_messages locale={locale} />
-          <.netex_generic_issues issues={@errors} />
+          <.netex_generic_issues
+            issues={@errors}
+            severities_count={Map.get(@category_severity_counts, @current_category, %{})}
+            results_adapter={@results_adapter}
+          />
           {@pagination}
         <% end %>
       </div>

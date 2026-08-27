@@ -18,7 +18,7 @@ defmodule NeTExTestData do
   end
 
   # Errors in both XSD and base-rules categories with mixed severities.
-  # Used by category stats tests — summary_from_binary should report the worst
+  # Used by category stats tests — summary_by_category should report the worst
   # severity per category.
   def category_stats_result("0.2." <> _) do
     %{
@@ -113,9 +113,8 @@ defmodule NeTExTestData do
   def assert_netex_category_stats(body) do
     text_body = Floki.text(body)
 
-    # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
-    # base-rules shows warning with its single item
-    assert text_body =~ ~r{XSD\s+– 2 erreurs}
+    # XSD tab shows worst severity (error), base-rules shows warning
+    assert text_body =~ ~r{XSD\s+– 1 erreur}
     assert text_body =~ ~r{Règles de base\s+– 1 avertissement}
 
     # Check category tabs have correct icons and colors
