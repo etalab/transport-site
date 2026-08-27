@@ -198,6 +198,9 @@ defmodule TransportWeb.ValidationController do
 
         xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
 
+        category_severity_counts =
+          results_adapter.count_by_category_and_severity(validation.binary_result)
+
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
@@ -205,8 +208,10 @@ defmodule TransportWeb.ValidationController do
         |> assign(:results_adapter, results_adapter)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:max_severity, validation.digest["max_severity"])
-        |> assign(:validation_summary, validation.digest["summary"])
+        |> assign(:validation_summary, results_adapter.summary_from_binary(validation.binary_result))
         |> assign(:severities_count, validation.digest["stats"])
+        |> assign(:category_severity_counts, category_severity_counts)
+        |> assign(:pagination, pagination)
         |> assign(:validation_report_url, validation_report_url)
         |> assign(:xsd_errors, xsd_errors)
         |> render(template)
