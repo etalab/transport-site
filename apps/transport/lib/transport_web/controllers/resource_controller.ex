@@ -195,7 +195,7 @@ defmodule TransportWeb.ResourceController do
   defp render_netex_details(conn, params, resource, validation) do
     config = make_pagination_config(params, @netex_issues_page_size)
 
-    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
+    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors, category_severity_counts} =
       build_netex_validation_details(validation, params, config)
 
     {filter, pagination} = issues
@@ -215,6 +215,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:results_adapter, results_adapter)
     |> assign(:max_severity, max_severity)
     |> assign(:data_vis, nil)
+    |> assign(:category_severity_counts, category_severity_counts)
     |> render("netex_details.html")
   end
 
@@ -244,7 +245,7 @@ defmodule TransportWeb.ResourceController do
   end
 
   defp build_netex_validation_details(nil, _params, _pagination_config),
-    do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
+    do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, [], %{}}
 
   defp build_netex_validation_details(
          %{
@@ -257,16 +258,17 @@ defmodule TransportWeb.ResourceController do
          pagination_config
        ) do
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-    summary = digest["summary"]
+    summary = results_adapter.summary_from_binary(binary_result)
     stats = digest["stats"]
     errors_template = pick_netex_errors_template(version)
     max_severity = digest["max_severity"]
 
     issues = results_adapter.get_issues(binary_result, params, pagination_config)
     xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
+    category_severity_counts = results_adapter.count_by_category_and_severity(binary_result)
 
     {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity,
-     xsd_errors}
+     xsd_errors, category_severity_counts}
   end
 
   defp pick_netex_errors_template("0.2.2"), do: "_netex_validation_errors_v0_2_x.html"
