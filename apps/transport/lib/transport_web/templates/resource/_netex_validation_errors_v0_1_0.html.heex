@@ -13,8 +13,16 @@
     )}
   </nav>
   <% issue_type = @results_adapter.issue_type(@issues.entries) %>
+  <% current_category = Map.get(@filter, "issues_category") || "base-rules" %>
+  <% all_counts = @category_severity_counts || Map.new() %>
+  <% category_counts = Map.get(all_counts, current_category, Map.new()) %>
   <div class="main-pane">
     <.pagination conn={@conn} page={@issues} params={[issue_type: issue_type]} />
-    {render(netex_template(), issues: @issues, conn: @conn)}
+    {render(netex_template(),
+      issues: @issues,
+      severities_count: category_counts,
+      results_adapter: @results_adapter,
+      conn: @conn
+    )}
   </div>
 <% end %>
