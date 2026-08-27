@@ -48,7 +48,12 @@
                 action: :show
               ) %>
             {pagination}
-            {render(netex_template(), issues: @issues || [], conn: @conn)}
+            {render(netex_template(),
+              issues: @issues || [],
+              severities_count: @severities_count || %{},
+              results_adapter: @results_adapter,
+              conn: @conn
+            )}
             <div class="pt-24">{pagination}</div>
           <% else %>
             <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
