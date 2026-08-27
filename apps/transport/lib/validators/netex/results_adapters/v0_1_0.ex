@@ -213,7 +213,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       if Commons.has_column?(df, "code") do
         df
         |> DF.filter(code == ^issue_type)
-        |> order_issues_by_location()
         |> Commons.count_and_slice(pagination_config)
       else
         {0, []}
@@ -235,11 +234,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   end
 
   def get_codes(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "code")
-
-  def order_issues_by_location(%Explorer.DataFrame{} = df) do
-    df
-    |> DF.sort_by(&[&1["resource.filename"], &1["resource.line"], &1["message"]])
-  end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile_compliance_check, do: :none
