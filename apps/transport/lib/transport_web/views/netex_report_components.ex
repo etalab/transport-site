@@ -329,7 +329,13 @@ defmodule TransportWeb.NeTExReportComponents do
     ~H"""
     <.colorful_link
       href={netex_link_to_category(@conn, @category)}
-      valid={@stats["count"] == 0}
+      variant={
+        if @stats["count"] == 0 do
+          :valid
+        else
+          :error
+        end
+      }
       selected={@current_category == @category}
     >
       <:icon>
