@@ -82,6 +82,72 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
   defp error_factory(:"valid-day-bits", count), do: repeated(@rule, count)
   defp error_factory(_, _), do: []
 
+  test "count_by_category_and_severity returns correct counts per category and severity" do
+    # V0_1.0 synthesizes categories from code prefixes:
+    # - "xsd-*" codes → "xsd-schema" category
+    # - other codes → "base-rules" category
+    xsd_errors = [
+      %{
+        "code" => "xsd-1",
+        "criticity" => "error",
+        "message" => "XSD Error A",
+        "resource.filename" => "a.xml",
+        "resource.line" => 10
+      },
+      %{
+        "code" => "xsd-2",
+        "criticity" => "warning",
+        "message" => "XSD Warning A",
+        "resource.filename" => "a.xml",
+        "resource.line" => 20
+      }
+    ]
+
+    base_errors = [
+      %{
+        "code" => "rule-a",
+        "criticity" => "error",
+        "message" => "Error A",
+        "resource.filename" => "b.xml",
+        "resource.line" => 5
+      },
+      %{
+        "code" => "rule-b",
+        "criticity" => "information",
+        "message" => "Info A",
+        "resource.filename" => "c.xml",
+        "resource.line" => 30
+      }
+    ]
+
+    # Build result map like the validator would produce
+    result = %{
+      "xsd-schema" => xsd_errors,
+      "base-rules" => base_errors
+    }
+
+    binary_result = V0_1_0.to_binary_result(result)
+
+    # Call count_by_category_and_severity with the parquet file path (binary)
+    counts = V0_1_0.count_by_category_and_severity(binary_result)
+
+    # Verify structure: %{"xsd-schema" => %{...}, "base-rules" => %{...}}
+    assert Map.has_key?(counts, "xsd-schema")
+    assert Map.has_key?(counts, "base-rules")
+
+    xsd = counts["xsd-schema"]
+    assert is_map(xsd)
+    # 1 error, 1 warning in xsd-schema
+    assert xsd["error"] == 1
+    assert xsd["warning"] == 1
+
+    base = counts["base-rules"]
+    assert is_map(base)
+    # 1 error, 1 information in base-rules
+    assert base["error"] == 1
+    assert base["information"] == 1
+  end
+
   defp repeated(item, times) do
     [item]
     |> Stream.cycle()

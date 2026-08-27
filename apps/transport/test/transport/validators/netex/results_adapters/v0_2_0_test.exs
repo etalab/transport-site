@@ -2,6 +2,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0Test do
   use ExUnit.Case, async: true
   doctest Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, import: true
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
+  import Transport.Test.Validators.NeTEx.SummaryFromBinary
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
 
   @xsd %{
@@ -71,6 +72,19 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0Test do
              V0_2_0.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
   end
 
+  describe "summary_from_binary/1" do
+    test "counts only the most severe level per category" do
+      assert_summary_from_binary(V0_2_0, [
+        {"xsd-schema", %{"count" => 1, "criticity" => "error"}},
+        {"base-rules", %{"count" => 1, "criticity" => "warning"}}
+      ])
+    end
+
+    test "empty binary returns all categories with count 0 and NoError" do
+      assert_summary_from_binary_empty(V0_2_0, ["xsd-schema", "base-rules"])
+    end
+  end
+
   defp result_factory(counts) do
     counts
     |> Enum.flat_map(fn {category, count} ->
@@ -87,4 +101,5 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0Test do
     |> Stream.cycle()
     |> Enum.take(times)
   end
+
 end
