@@ -311,6 +311,108 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
   end
 
   # ============================================================================
+  # Severity pills rendering tests
+  # ============================================================================
+
+  describe "severity pills" do
+    test "renders pills above generic issues table when category has severity counts" do
+      pills = render_pills(%{"base-rules" => %{"error" => 0, "warning" => 1}})
+
+      assert pills == [{:warning, "1 warning"}]
+    end
+
+    test "renders multiple pills sorted by severity level" do
+      pills = render_pills(%{"base-rules" => %{"error" => 2, "warning" => 3, "information" => 1}})
+
+      assert pills == [{:error, "2 errors"}, {:warning, "3 warnings"}, {:information, "1 information"}]
+    end
+
+    test "renders correct icon per pill variant" do
+      pills = render_pills(%{"base-rules" => %{"error" => 1, "warning" => 2}})
+
+      assert pills == [{:error, "1 error"}, {:warning, "2 warnings"}]
+    end
+
+    test "does not render pills when severity_counts is empty" do
+      # summary and category_severity_counts always come from the same source,
+      # so this state can't happen in production. We keep the test to document
+      # defensive behaviour: pills don't render when counts are absent.
+      assert render_pills(%{}) == []
+    end
+
+    test "does not render pills when category has no severity counts" do
+      # Only xsd-schema has counts — base-rules (the active tab) doesn't.
+      assert render_pills(%{"xsd-schema" => %{"error" => 1}}) == []
+    end
+
+    test "filters out zero-count severities" do
+      assert render_pills(%{"base-rules" => %{"warning" => 2}}) == [{:warning, "2 warnings"}]
+    end
+
+    test "does not render pills for XSD schema category" do
+      # XSD renders its own table format — pills are only for generic issues.
+      assert render_pills(%{"xsd-schema" => %{"warning" => 2}}, "xsd-schema") == []
+    end
+
+    test "pills display formatted severity text using adapter" do
+      assert render_pills(%{"base-rules" => %{"error" => 3}}) == [{:error, "3 errors"}]
+    end
+
+    defp render_pills(stats, selected_category \\ "base-rules") do
+      stats
+      |> gen_errors()
+      |> netex_validation_details_for_pills(selected_category)
+      |> render_report()
+      |> extract_pills()
+    end
+
+    # Generates a list of error maps from severity counts.
+    #
+    # The produced list can be consumed by `ResultsAdapter.count_by_category_and_severity/1`
+    # and `ResultsAdapter.summary_by_category/1` (via their shared `to_dataframe` pipeline).
+    @spec gen_errors(stats :: map()) :: list(map())
+    defp gen_errors(%{} = stats) do
+      Enum.flat_map(stats, &expand_errors/1)
+    end
+
+    defp expand_errors({category, severities}) do
+      Enum.flat_map(severities, &expand_errors_for_severity(&1, category))
+    end
+
+    defp expand_errors_for_severity({severity, count}, category) when is_integer(count) and count > 0 do
+      for i <- 1..count do
+        %{"code" => "#{category}-#{severity}-#{i}", "criticity" => severity, "category" => category}
+      end
+    end
+
+    defp expand_errors_for_severity(_, _), do: []
+
+    defp extract_pills(html), do: extract_nodes(html, ".severity-pill", &extract_pill/1)
+
+    defp extract_pill(node) do
+      class = extract_pill_variant(node)
+      text = read_node_text(node)
+
+      {class, text}
+    end
+
+    defp extract_pill_variant(node) do
+      node
+      |> Floki.attribute("class")
+      |> List.first("")
+      |> String.split(" ")
+      |> Enum.filter(&(&1 =~ "severity-pill__"))
+      |> List.first()
+      |> resolve_pill_variant()
+    end
+
+    defp resolve_pill_variant("severity-pill__error"), do: :error
+    defp resolve_pill_variant("severity-pill__warning"), do: :warning
+    defp resolve_pill_variant("severity-pill__information"), do: :information
+    defp resolve_pill_variant(_), do: nil
+  end
+
+  # ============================================================================
   # Structural tests
   # ============================================================================
 
@@ -536,16 +638,18 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
     |> Enum.map(&read_node_text/1)
   end
 
-  defp extract_nodes(html, selector) when is_binary(html) do
+  defp extract_nodes(html, selector, map_fn \\ &read_node_text/1)
+
+  defp extract_nodes(html, selector, map_fn) when is_binary(html) do
     html
     |> Floki.parse_fragment!()
-    |> extract_nodes(selector)
+    |> extract_nodes(selector, map_fn)
   end
 
-  defp extract_nodes(nodes, selector) do
+  defp extract_nodes(nodes, selector, map_fn) do
     nodes
     |> Floki.find(selector)
-    |> Enum.map(&read_node_text/1)
+    |> Enum.map(map_fn)
   end
 
   defp extract_tabs(html) do

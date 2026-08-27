@@ -148,6 +148,44 @@ details > code {
     code { font-size: 0.75em; }
   }
 
+  .severity-pills {
+    margin-bottom: var(--space-s);
+  }
+
+  .severity-pill {
+    --taint: black;
+    --light-taint: color-mix(in oklab, var(--taint) 20%, white);
+    --padding-block: calc(var(--space-xs) / 2);
+    --padding-inline: var(--space-xs);
+
+    display: inline-flex;
+    line-height: normal;
+    gap: calc(var(--space-xs) / 2);
+    padding: var(--padding-block) var(--padding-inline);
+    color: var(--darkest-grey);
+    border: 1px solid var(--taint);
+    border-radius: 8px;
+    background-color: var(--light-taint);
+    font-size: variables.$font-size;
+    font-family: variables.$font-family-primary;
+
+    &.severity-pill__valid {
+      --taint: var(--green);
+    }
+
+    &.severity-pill__error {
+      --taint: var(--red);
+    }
+
+    &.severity-pill__warning {
+      --taint: var(--orange);
+    }
+
+    &.severity-pill__information {
+      --taint: var(--dark-blue);
+    }
+  }
+
   table.netex_generic_issue, table.netex_xsd_schema {
     tr.message td {
       vertical-align: top;
