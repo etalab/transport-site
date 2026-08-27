@@ -10,6 +10,8 @@
 <.netex_validation_report_content
   conn={@conn}
   current_category={current_category}
+  severities_count={@severities_count}
+  category_severity_counts={@category_severity_counts || %{}}
   xsd_errors={@xsd_errors}
   issues={@issues}
   results_adapter={@results_adapter}
