@@ -40,7 +40,9 @@ defmodule TransportWeb.NeTExReportComponentsTest do
               "message" => "Information 2",
               "resource" => %{"filename" => "data.xml", "line" => 100}
             }
-          ]
+          ],
+          severity_counts: %{"error" => 2, "warning" => 2, "information" => 2},
+          results_adapter: ResultsAdapter
         })
 
       assert extract_report_messages(html) == [
@@ -51,17 +53,30 @@ defmodule TransportWeb.NeTExReportComponentsTest do
                ["Information", "Information 1", "file.xml", "42"],
                ["Information", "Information 2", "data.xml", "100"]
              ]
+
+      # Severities stats should respect the severity level
+      assert extract_severities(html) == [
+               "2 errors",
+               "2 warnings",
+               "2 informations"
+             ]
     end
 
     test "renders 'Unknown location' when resource or filename/line is nil" do
       # Single nil resource
       html =
         render(&NeTExReportComponents.netex_generic_issues/1, %{
-          issues: [%{"criticity" => "error", "message" => "Error message", "resource" => nil}]
+          issues: [%{"criticity" => "error", "message" => "Error message", "resource" => nil}],
+          severity_counts: %{"error" => 1},
+          results_adapter: ResultsAdapter
         })
 
       assert extract_report_messages(html) == [
                ["Error", "Error message", "Unknown location"]
+             ]
+
+      assert extract_severities(html) == [
+               "1 error"
              ]
 
       # Nil filename and nil line (two issues)
@@ -70,19 +85,31 @@ defmodule TransportWeb.NeTExReportComponentsTest do
           issues: [
             %{"criticity" => "error", "message" => "a", "resource" => %{"filename" => nil, "line" => 10}},
             %{"criticity" => "error", "message" => "b", "resource" => %{"filename" => "f.xml", "line" => nil}}
-          ]
+          ],
+          severity_counts: %{"error" => 2},
+          results_adapter: ResultsAdapter
         })
 
       assert extract_report_messages(html) == [
                ["Error", "a", "Unknown location"],
                ["Error", "b", "Unknown location"]
              ]
+
+      assert extract_severities(html) == [
+               "2 errors"
+             ]
     end
 
     test "renders empty table when no issues" do
-      html = render(&NeTExReportComponents.netex_generic_issues/1, %{issues: []})
+      html =
+        render(&NeTExReportComponents.netex_generic_issues/1, %{
+          issues: [],
+          severity_counts: %{},
+          results_adapter: ResultsAdapter
+        })
 
       assert extract_report_messages(html) == []
+      assert extract_severities(html) == []
     end
 
     defp extract_report_messages(html) do
@@ -106,6 +133,14 @@ defmodule TransportWeb.NeTExReportComponentsTest do
         end
       end)
       |> List.flatten()
+    end
+
+    defp extract_severities(html) do
+      html
+      |> Floki.parse_fragment!()
+      |> Floki.find("ul li")
+      |> Enum.map(&Floki.text/1)
+      |> Enum.map(&String.trim/1)
     end
   end
 

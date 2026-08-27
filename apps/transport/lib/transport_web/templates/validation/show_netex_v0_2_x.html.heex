@@ -25,9 +25,11 @@
   <div id="validation-report" class="validation-content">
     <div id="issues" class="container">
       <% current_category = @filter["issues_category"] || "xsd-schema" %>
+      <% severity_counts = Map.get(@category_severity_counts || Map.new(), current_category, Map.new()) %>
       <.netex_validation_report_content
         conn={@conn}
         current_category={current_category}
+        severity_counts={severity_counts}
         xsd_errors={@xsd_errors}
         issues={@issues}
         results_adapter={@results_adapter}

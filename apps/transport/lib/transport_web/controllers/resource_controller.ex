@@ -221,6 +221,7 @@ defmodule TransportWeb.ResourceController do
     |> assign(:results_adapter, details.adapter)
     |> assign(:max_severity, details.max_severity)
     |> assign(:data_vis, nil)
+    |> assign(:category_severity_counts, details.category_severity_counts)
     |> render("netex_details.html")
   end
 

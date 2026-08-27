@@ -36,7 +36,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate format_severity(key, count), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(df), to: V0_2_0
+  defdelegate count_by_category_and_severity(validation_result), to: V0_2_0
+
+  # Internal helper used by digest/1 — no longer a public callback.
+  defp count_by_severity(df), do: V0_2_0.count_by_severity(df)
 
   defp categorize(code) do
     cond do
@@ -67,8 +70,29 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
         %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}},
         %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
       ]
+
+      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}], "french-profile" => [%{"code" => "pan:french_profile:1", "criticity" => "warning"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "information"}]})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "information"}},
+        %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "warning"}}
+      ]
+
+      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "xsd-2", "criticity" => "error"}], "french-profile" => [%{"code" => "pan:french_profile:1", "criticity" => "warning"}, %{"code" => "pan:french_profile:2", "criticity" => "warning"}, %{"code" => "pan:french_profile:3", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "information"}, %{"code" => "rule-2", "criticity" => "warning"}]})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 2, "criticity" => "error"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "warning"}},
+        %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "error"}}
+      ]
+
+      iex> summary(%{})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+        %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
+      ]
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 — no longer a public callback.
   def summary(%Explorer.DataFrame{} = df) do
     @categories_preferred_order
     |> Enum.map(fn category ->
@@ -78,6 +102,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
 
       %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
     end)
+  end
+
+  def summary(%{} = errors) when is_map(errors) do
+    # Accepts a category-keyed map (e.g. %{"xsd-schema" => [...], "french-profile" => [...], "base-rules" => [...]})
+    Commons.summary_map_errors(errors, @categories_preferred_order)
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -148,6 +177,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def digest(nil) do
+    %{
+      "summary" => [],
+      "stats" => %{},
+      "max_severity" => %{"max_level" => "NoError", "worst_occurrences" => 0}
+    }
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def digest(%{} = errors) when is_map(errors) do
+    # Accepts a category-keyed map (checked after DataFrame since structs are maps too)
+    df = to_dataframe(Map.values(errors) |> List.flatten())
+    digest(df)
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def to_dataframe(errors) do
     Commons.to_dataframe(errors, &build_synthetic_attributes/1)
   end
@@ -158,19 +203,17 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
     }
   end
 
-  @doc """
-  Converts raw error list directly to a parquet binary — no intermediate grouping.
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
-    errors
-    |> to_dataframe()
-    |> Commons.to_binary()
-  end
+  def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate summarize_xsd_errors(df), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate from_binary(binary), to: V0_2_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    Commons.summary_by_category(df, @categories_preferred_order)
+  end
 end
