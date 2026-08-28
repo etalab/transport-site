@@ -61,6 +61,35 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
+  @doc """
+  Returns the number of issues by severity level
+
+  iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "warning"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "error"}]}
+  iex> count_by_severity(validation_result)
+  %{"warning" => 1, "error" => 2}
+
+  iex> count_by_severity(%{})
+  %{}
+  """
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def count_by_severity(%Explorer.DataFrame{} = df) do
+    V0_1_0.count_by_severity(df)
+  end
+
+  def count_by_severity(%{} = errors) when is_map(errors) do
+    # Must check map before DataFrame since structs are maps too
+    # This clause only matches non-DataFrame maps
+    errors
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.group_by(&Map.get(&1, "criticity", "error"))
+    |> Enum.map(fn {severity, items} -> {severity, length(items)} end)
+    |> Map.new()
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate count_by_category_and_severity(validation_result), to: V0_1_0
+
   defp categorize(code) do
     if String.starts_with?(code, "xsd-") do
       Commons.xsd_schema_category()
@@ -88,6 +117,24 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
         %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
         %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
       ]
+
+      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "warning"}]})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "warning"}}
+      ]
+
+      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "xsd-2", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "information"}, %{"code" => "rule-2", "criticity" => "warning"}, %{"code" => "rule-3", "criticity" => "error"}]})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 2, "criticity" => "error"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
+      ]
+
+      iex> summary(%{})
+      [
+        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
+      ]
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def summary(%Explorer.DataFrame{} = df) do
@@ -99,6 +146,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
 
       %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
     end)
+  end
+
+  def summary(%{} = errors) when is_map(errors) do
+    # Accepts a category-keyed map (e.g. %{"xsd-schema" => [...], "base-rules" => [...]})
+    Commons.summary_map_errors(errors, @categories_preferred_order)
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -123,7 +175,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
       if Commons.has_column?(df, "category") do
         df
         |> DF.filter(category == ^issues_category)
-        |> order_issues_by_location()
         |> Commons.count_and_slice(pagination_config)
       else
         {0, []}
@@ -153,8 +204,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   end
 
   def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")
-
-  defdelegate order_issues_by_location(issues), to: V0_1_0
 
   # Delegation to V0_1_0 — these now accept DataFrames via the updated callbacks
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -204,8 +253,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   Converts raw error list directly to a parquet binary — no intermediate grouping.
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
+  def to_binary_result(nil) do
+    # Return empty binary for nil input (can be stored in Ecto binary field)
+    ""
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def to_binary_result(errors) when is_list(errors) do
     errors
+    |> to_dataframe()
+    |> Commons.to_binary()
+  end
+
+  def to_binary_result(errors) when is_map(errors) do
+    # Category-keyed map (e.g. %{"xsd-schema" => [...], "base-rules" => [...]})
+    errors
+    |> Commons.flatten_map_errors()
     |> to_dataframe()
     |> Commons.to_binary()
   end
@@ -221,5 +284,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     else
       []
     end
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_from_binary(binary_result) when is_binary(binary_result) do
+    Commons.summary_from_binary(binary_result, @categories_preferred_order)
   end
 end
