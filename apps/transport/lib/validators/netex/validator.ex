@@ -6,6 +6,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
+  alias Transport.NeTEx.SchemaVersionMapper
   alias Transport.Validators.NeTEx.MetadataExtractor
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
 
@@ -46,7 +47,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   def validate_resource_history(resource_history, filepath) do
     metadata = MetadataExtractor.extract(filepath)
-    xsd_version = "v1.3.2"
+    xsd_version = determine_xsd_version(metadata, resource_history)
     full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
     validate_with_enroute(filepath, metadata, xsd_version)
@@ -132,7 +133,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validate(url) do
     with_url(url, fn filepath ->
       metadata = MetadataExtractor.extract(filepath)
-      xsd_version = "v1.3.2"
+      xsd_version = determine_xsd_version(metadata)
       full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
       validate_with_enroute(filepath, metadata, xsd_version)
@@ -257,6 +258,42 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   defp setup_validation(filepath, xsd_version),
     do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug(), xsd_version)
+
+  @doc """
+  Determine the XSD version to use for validation based on a fallback chain:
+
+  1. Earliest `PublicationTimestamp` from XML files (in metadata[\"publication_date\"])
+  2. Fallback: `resource_history.inserted_at` (upload date)
+  3. Fallback: `Date.utc_today()` (on-demand validation, no resource history)
+  """
+  def determine_xsd_version(metadata, resource_history \\ nil) do
+    date =
+      case metadata["publication_date"] do
+        iso when is_binary(iso) ->
+          case Date.from_iso8601(iso) do
+            {:ok, date} -> date
+            _ -> fallback_date(resource_history)
+          end
+
+        _ ->
+          fallback_date(resource_history)
+      end
+
+    SchemaVersionMapper.xsd_version_for_date(date)
+  end
+
+  defp fallback_date(%DB.ResourceHistory{inserted_at: %DateTime{} = dt}) do
+    DateTime.to_date(dt)
+  end
+
+  defp fallback_date(%DB.ResourceHistory{inserted_at: inserted_at}) do
+    case Date.from_iso8601(inserted_at) do
+      {:ok, date} -> date
+      _ -> Date.utc_today()
+    end
+  end
+
+  defp fallback_date(_), do: Date.utc_today()
 
   def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do
