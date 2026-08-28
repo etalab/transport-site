@@ -67,22 +67,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
           "code" => "rule-a",
           "criticity" => "information",
           "message" => "Info A",
-          "resource.filename" => "b.xml",
-          "resource.line" => 10
+          "resource" => %{"filename" => "b.xml", "line" => 10},
+          "class" => nil
         },
         %{
           "code" => "rule-b",
           "criticity" => "warning",
           "message" => "Warning B",
-          "resource.filename" => "a.xml",
-          "resource.line" => 5
+          "resource" => %{"filename" => "a.xml", "line" => 5},
+          "class" => nil
         },
         %{
           "code" => "rule-c",
           "criticity" => "error",
           "message" => "Error C",
-          "resource.filename" => "c.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "c.xml", "line" => 1},
+          "class" => nil
         }
       ]
 
@@ -94,7 +94,80 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       assert criticity_order == ["error", "warning", "information"]
     end
 
-    test "sorts by message as tiebreaker when severity, filename and line are equal" do
+    test "sorts filenames alphabetically, not by insertion order" do
+      # All same severity → tiebreaker is filename. Must sort alphabetically,
+      # not by the category column's internal code (insertion) order.
+      pagination_config = make_pagination_config(%{"page_size" => "10"})
+
+      errors = [
+        %{
+          "code" => "r0",
+          "criticity" => "error",
+          "message" => "m",
+          "resource" => %{"filename" => "zebra.xml", "line" => 1},
+          "class" => nil
+        },
+        %{
+          "code" => "r1",
+          "criticity" => "error",
+          "message" => "m",
+          "resource" => %{"filename" => "alpha.xml", "line" => 1},
+          "class" => nil
+        },
+        %{
+          "code" => "r2",
+          "criticity" => "error",
+          "message" => "m",
+          "resource" => %{"filename" => "mid.xml", "line" => 1},
+          "class" => nil
+        }
+      ]
+
+      df = errors |> Commons.to_dataframe(fn _ -> %{} end)
+
+      assert {3, issues} = Commons.count_and_slice(df, pagination_config)
+
+      filenames = Enum.map(issues, & &1["resource"]["filename"])
+      assert filenames == ["alpha.xml", "mid.xml", "zebra.xml"]
+    end
+
+    test "sorts by line number as secondary tiebreaker after filename" do
+      # Same severity + same filename → sort by line number ascending
+      pagination_config = make_pagination_config(%{"page_size" => "10"})
+
+      errors = [
+        %{
+          "code" => "r3",
+          "criticity" => "error",
+          "message" => "Line 3",
+          "resource" => %{"filename" => "a.xml", "line" => 30},
+          "class" => nil
+        },
+        %{
+          "code" => "r1",
+          "criticity" => "error",
+          "message" => "Line 1",
+          "resource" => %{"filename" => "a.xml", "line" => 10},
+          "class" => nil
+        },
+        %{
+          "code" => "r2",
+          "criticity" => "error",
+          "message" => "Line 2",
+          "resource" => %{"filename" => "a.xml", "line" => 20},
+          "class" => nil
+        }
+      ]
+
+      df = errors |> Commons.to_dataframe(fn _ -> %{} end)
+
+      assert {3, issues} = Commons.count_and_slice(df, pagination_config)
+
+      lines = Enum.map(issues, & &1["resource"]["line"])
+      assert lines == [10, 20, 30]
+    end
+
+    test "sorts by message as final tiebreaker when severity, filename and line are equal" do
       pagination_config = make_pagination_config(%{"page_size" => "10"})
 
       errors = [
@@ -102,22 +175,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
           "code" => "rule-3",
           "criticity" => "error",
           "message" => "Third message",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "rule-1",
           "criticity" => "error",
           "message" => "Alpha message",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "rule-2",
           "criticity" => "error",
           "message" => "Middle message",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         }
       ]
 
@@ -138,36 +211,36 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
           "code" => "r1",
           "criticity" => "error",
           "message" => "E1",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "r2",
           "criticity" => "warning",
           "message" => "W1",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "r3",
           "criticity" => "error",
           "message" => "E2",
-          "resource.filename" => "b.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "b.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "r4",
           "criticity" => "information",
           "message" => "I1",
-          "resource.filename" => "a.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "a.xml", "line" => 1},
+          "class" => nil
         },
         %{
           "code" => "r5",
           "criticity" => "error",
           "message" => "E3",
-          "resource.filename" => "c.xml",
-          "resource.line" => 1
+          "resource" => %{"filename" => "c.xml", "line" => 1},
+          "class" => nil
         }
       ]
 
