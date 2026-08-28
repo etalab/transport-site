@@ -97,7 +97,13 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   defp sorted_slice(df, %Scrivener.Config{} = config) do
     df
     |> DF.select(["code", "criticity", "message", "resource.filename", "resource.line"])
-    |> DF.mutate(_severity: if(criticity == "error", do: 1, else: if(criticity == "warning", do: 2, else: 3)))
+    |> DF.mutate(
+      # Aligns with severity_level/1: error=1, warning=2, information=3, unknown=4.
+      # We can't call severity_level/1 here — this is a lazy Explorer expression tree,
+      # not Elixir code executed per row. Inlining keeps it efficient and avoids
+      # having to wrap it in apply_everywhere or similar machinery.
+      _severity: if(criticity == "error", do: 1, else: if(criticity == "warning", do: 2, else: 4))
+    )
     |> DF.sort_with(
       &[{:asc, &1["_severity"]}, {:asc, &1["resource.filename"]}, {:asc, &1["resource.line"]}, {:asc, &1["message"]}]
     )
@@ -170,6 +176,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     end
   end
 
+  # NOTE: any change to this function must be mirrored in sorted_slice/2 which
+  # uses the same mapping inline (see comment there). They are the only two
+  # consumers and must stay in sync.
   @doc false
   def severity_level(key) do
     case key do

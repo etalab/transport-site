@@ -58,8 +58,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
 
   describe "count_and_slice/2" do
     test "sorts by criticity severity (error > warning > information), not lexicographically" do
-      # Lexicographic order would give: error < information < warning
-      # Severity order should be: error > warning > information
+      # Severity order: error(1) > warning(2) > information(3)
+      # Input is interleaved to ensure the sort actually reorders them
       pagination_config = make_pagination_config(%{"page_size" => "10"})
 
       errors = [
