@@ -27,7 +27,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     "resource.column": {:u, 8},
     "resource.filename": :category,
     "resource.id": :string,
-    "resource.line": {:u, 16}
+    "resource.line": {:u, 32}
   ]
 
   def to_dataframe(errors, extra_attributes_fun) do
