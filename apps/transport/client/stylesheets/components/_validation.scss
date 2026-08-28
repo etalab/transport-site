@@ -217,7 +217,7 @@ details > code {
     container-type: inline-size;
     container-name: issues-list;
 
-    &:has(a.colorful.invalid) {
+    &:has(:not(a.colorful.variant-valid)) {
       min-height: 80vh;
     }
 
