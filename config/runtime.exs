@@ -296,6 +296,10 @@ if config_env() == :prod do
       signing_salt: System.get_env("SECRET_KEY_BASE")
     ]
 
+  Enum.each(Transport.AppConfig.Prod.build(:prod, System.get_env()), fn {root_key, opts} ->
+    config root_key, opts
+  end)
+
   if app_env == :production do
     # data.gouv.fr IDs for national databases created automatically and
     # published by us on data.gouv.fr.
