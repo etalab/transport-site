@@ -1,5 +1,6 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
+  require Logger
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
   alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
@@ -650,6 +651,13 @@ defmodule TransportWeb.DatasetView do
       # MobilityData validator.
       DB.Resource.gtfs?(resource) and Enum.count(validations) == 2 ->
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
+
+      true ->
+        Logger.warning(
+          "[DatasetView.latest_validation/2] unexpected: #{Enum.count(validations)} validations for resource #{resource_id}"
+        )
+
+        nil
     end
   end
 
