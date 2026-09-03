@@ -133,9 +133,9 @@
                 dgettext("validations", ~s(This resource should follow its schema %{link}.),
                   link:
                     safe_to_string(
-                      link(oban_args["schema_name"],
-                        to: Transport.Schemas.documentation_url(oban_args["schema_name"]),
-                        target: "_blank"
+                      schema_documentation_link(
+                        oban_args["schema_name"],
+                        Transport.Schemas.documentation_url(oban_args["schema_name"])
                       )
                     )
                 )

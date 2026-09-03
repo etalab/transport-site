@@ -127,7 +127,7 @@ defmodule Transport.Validators.TableSchema do
         payload: %{"permanent_url" => url, "schema_name" => schema_name, "schema_version" => schema_version} = payload
       })
       when is_binary(schema_name) do
-    schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date", "latest")
+    schema_version = schema_version || Map.get(payload, "latest_schema_version_to_date") || "latest"
     validation_result = perform_validation(schema_name, url, schema_version)
 
     result = validation_result |> normalize_validation_result()

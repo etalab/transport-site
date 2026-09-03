@@ -12,10 +12,14 @@ defmodule Transport.Schemas.Wrapper do
 
   def known_schema?(schema_name), do: Map.has_key?(transport_schemas(), schema_name)
 
+  @doc """
+  The type of a schema, `nil` when it is missing from the catalog.
+  """
   def schema_type(schema_name) do
     cond do
       tableschema?(schema_name) -> "tableschema"
       jsonschema?(schema_name) -> "jsonschema"
+      true -> nil
     end
   end
 
@@ -28,20 +32,20 @@ defmodule Transport.Schemas.Wrapper do
   end
 
   @doc """
-  Get the latest version for a given schema name.
+  Get the latest version for a given schema name, `nil` when it is missing from the catalog.
   """
   def latest_version(schema_name) when is_binary(schema_name) do
     schema_name |> schema_versions() |> Enum.at(-1)
   end
 
   @doc """
-  Fetches all the version numbers for a given schema name.
+  Fetches all the version numbers for a given schema name, `[]` when it is missing from the catalog.
   """
   def schema_versions(schema_name) when is_binary(schema_name) do
-    transport_schemas()
-    |> Map.fetch!(schema_name)
-    |> Map.fetch!("versions")
-    |> Enum.map(& &1["version_name"])
+    case transport_schemas() do
+      %{^schema_name => schema} -> schema |> Map.fetch!("versions") |> Enum.map(& &1["version_name"])
+      _ -> []
+    end
   end
 end
 
@@ -69,21 +73,22 @@ defmodule Transport.Schemas do
     )
   end
 
+  @doc """
+  The documentation URL for a schema, `nil` when the schema (or this version) is missing
+  from the https://schema.data.gouv.fr catalog.
+  """
   def documentation_url(schema_name), do: documentation_url(schema_name, nil)
 
   def documentation_url(schema_name, nil = _schema_version) do
-    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
-    "https://schema.data.gouv.fr/#{schema_name}/"
+    if Wrapper.known_schema?(schema_name) do
+      "https://schema.data.gouv.fr/#{schema_name}/"
+    end
   end
 
   def documentation_url(schema_name, schema_version) when not is_nil(schema_version) do
-    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
-
-    unless Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
-      raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
+    if Wrapper.known_schema?(schema_name) and Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
+      "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
     end
-
-    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
   end
 
   @impl true

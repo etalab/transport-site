@@ -13,7 +13,14 @@ defmodule TransportWeb.ResourceView do
     ]
 
   import TransportWeb.DatasetView,
-    only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
+    only: [
+      documentation_url: 1,
+      schema_documentation_link: 2,
+      errors_count: 1,
+      warnings_count: 1,
+      multi_validation_performed?: 1,
+      description: 1
+    ]
 
   import DB.ResourceUnavailability, only: [floor_float: 2]
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2, format_duration: 2]

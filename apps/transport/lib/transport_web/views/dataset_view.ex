@@ -531,6 +531,14 @@ defmodule TransportWeb.DatasetView do
 
   def schema_label(%{schema_name: schema_name}), do: schema_name
 
+  @doc """
+  The schema name linking to its documentation, or as plain text when the schema is not in the catalog.
+  """
+  def schema_documentation_link(label, nil = _documentation_url), do: html_escape(label)
+
+  def schema_documentation_link(label, documentation_url),
+    do: link(label, to: documentation_url, target: "_blank")
+
   def has_validity_period?(history_resources) when is_list(history_resources) do
     history_resources |> Enum.map(&has_validity_period?/1) |> Enum.any?()
   end
