@@ -17,7 +17,7 @@
 
   <div :if={not is_nil(@resource.schema_name)} title={dgettext("page-dataset-details", "Resource declared schema")}>
     <i class="icon icon--table" aria-hidden="true"></i>
-    {link(schema_label(@resource), to: documentation_url(@resource), target: "_blank")}
+    {schema_documentation_link(schema_label(@resource), documentation_url(@resource))}
   </div>
 
   <.validity_dates :if={tc?} multi_validation={validation} locale={locale} />

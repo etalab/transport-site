@@ -652,6 +652,26 @@ defmodule TransportWeb.DatasetControllerTest do
     conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
   end
 
+  test "the schema name is not a link when the schema is missing from the catalog", %{conn: conn} do
+    %{id: dataset_id} = insert(:dataset, slug: slug = "dataset-slug")
+
+    insert(:resource,
+      dataset_id: dataset_id,
+      format: "geojson",
+      schema_name: "etalab/schema-zfe",
+      url: "https://example.com/file"
+    )
+
+    Transport.Schemas.Mock |> expect(:transport_schemas, 1, fn -> %{} end)
+
+    mock_empty_history_resources()
+
+    html = conn |> get(dataset_path(conn, :details, slug)) |> html_response(200)
+
+    assert html =~ "etalab/schema-zfe"
+    refute html =~ "https://schema.data.gouv.fr/etalab/schema-zfe/"
+  end
+
   test "with an inactive dataset", %{conn: conn} do
     insert(:dataset, is_active: false, slug: slug = "dataset-slug")
 

@@ -8,6 +8,7 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   use Gettext, backend: TransportWeb.Gettext
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 3]
   import Transport.Validators.TableSchema, only: [validata_web_url: 1]
+  import TransportWeb.DatasetView, only: [schema_documentation_link: 2]
   import Ecto.Query
 
   def mount(

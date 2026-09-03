@@ -61,14 +61,10 @@ defmodule Transport.SchemasTest do
       assert "https://schema.data.gouv.fr/etalab/schema-zfe/0.7.2/" == documentation_url("etalab/schema-zfe", "0.7.2")
     end
 
-    test "makes sure schema and version are valid" do
-      assert_raise KeyError, ~r(^key "foo" not found in), fn ->
-        documentation_url("foo", "latest")
-      end
-
-      assert_raise KeyError, "foo is not a valid version for etalab/schema-zfe", fn ->
-        documentation_url("etalab/schema-zfe", "foo")
-      end
+    test "nil when the schema or the version is missing from the catalog" do
+      assert is_nil(documentation_url("foo"))
+      assert is_nil(documentation_url("foo", "latest"))
+      assert is_nil(documentation_url("etalab/schema-zfe", "foo"))
     end
   end
 

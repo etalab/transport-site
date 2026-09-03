@@ -69,21 +69,22 @@ defmodule Transport.Schemas do
     )
   end
 
+  @doc """
+  The documentation URL for a schema, `nil` when the schema (or this version) is missing
+  from the https://schema.data.gouv.fr catalog.
+  """
   def documentation_url(schema_name), do: documentation_url(schema_name, nil)
 
   def documentation_url(schema_name, nil = _schema_version) do
-    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
-    "https://schema.data.gouv.fr/#{schema_name}/"
+    if Wrapper.known_schema?(schema_name) do
+      "https://schema.data.gouv.fr/#{schema_name}/"
+    end
   end
 
   def documentation_url(schema_name, schema_version) when not is_nil(schema_version) do
-    _ = Map.fetch!(Wrapper.transport_schemas(), schema_name)
-
-    unless Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
-      raise KeyError, "#{schema_version} is not a valid version for #{schema_name}"
+    if Wrapper.known_schema?(schema_name) and Enum.member?(Wrapper.schema_versions(schema_name), schema_version) do
+      "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
     end
-
-    "https://schema.data.gouv.fr/#{schema_name}/#{schema_version}/"
   end
 
   @impl true
