@@ -155,7 +155,8 @@ defmodule Transport.Mixfile do
       {:vex, "~> 0.9"},
       {:oauth2, "~> 2.1"},
       {:logger_backends, "~> 1.0"},
-      {:lazy_html, ">= 0.1.0", only: :test}
+      {:lazy_html, ">= 0.1.0", only: :test},
+      {:stream_data, "~> 1.0", only: [:dev, :test]}
     ]
   end
 end
