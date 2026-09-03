@@ -102,7 +102,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
       # We can't call severity_level/1 here — this is a lazy Explorer expression tree,
       # not Elixir code executed per row. Inlining keeps it efficient and avoids
       # having to wrap it in apply_everywhere or similar machinery.
-      _severity: if(criticity == "error", do: 1, else: if(criticity == "warning", do: 2, else: 4)),
+      _severity:
+        if(criticity == "error",
+          do: 1,
+          else: if(criticity == "warning", do: 2, else: if(criticity == "information", do: 3, else: 4))
+        ),
       _filename: cast(col("resource.filename"), :string)
     )
     |> DF.sort_with(
