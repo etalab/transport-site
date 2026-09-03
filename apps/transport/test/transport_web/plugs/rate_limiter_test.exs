@@ -44,14 +44,15 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
     test "with keywords" do
       assert [
                allow_user_agents: [],
-               log_user_agent: false,
-               block_user_agent_keywords: ["foo", "bar"]
+               block_user_agent_keywords: ["foo", "bar"],
+               log_user_agent: false
              ] ==
                RateLimiter.init(
                  block_user_agent_keywords: ["foo", "bar"],
                  log_user_agent: false,
                  allow_user_agents: []
                )
+               |> Enum.sort()
     end
 
     test "use env variables" do
