@@ -594,6 +594,33 @@ defmodule Transport.Test.Transport.Jobs.ResourceHistoryJobTest do
       refute is_nil(last_up_to_date_at)
     end
 
+    test "the schema is missing from the catalog" do
+      %DB.Resource{id: resource_id} =
+        insert(:resource,
+          url: resource_url = "https://example.com/file.csv",
+          latest_url: "https://example.com/#{Ecto.UUID.generate()}",
+          dataset: insert(:dataset, is_active: true),
+          format: "csv",
+          title: "title",
+          is_community_resource: false,
+          datagouv_id: Ecto.UUID.generate(),
+          schema_name: "etalab/schema-lieux-covoiturage",
+          schema_version: "0.4.1"
+        )
+
+      setup_req_mock(resource_url, "col1,col2\nval1,val2")
+      setup_aws_mock(resource_id)
+
+      Transport.Schemas.Mock |> expect(:transport_schemas, 1, fn -> %{} end)
+
+      assert :ok == perform_job(ResourceHistoryJob, %{resource_id: resource_id})
+
+      assert %DB.ResourceHistory{payload: %{"latest_schema_version_to_date" => nil}} =
+               DB.ResourceHistory |> DB.Repo.one!()
+
+      ensure_no_tmp_files!("resource_")
+    end
+
     test "discards the job when the resource should not be historicised" do
       %DB.Resource{} =
         resource =

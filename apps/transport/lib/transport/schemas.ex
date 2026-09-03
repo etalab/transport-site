@@ -12,10 +12,14 @@ defmodule Transport.Schemas.Wrapper do
 
   def known_schema?(schema_name), do: Map.has_key?(transport_schemas(), schema_name)
 
+  @doc """
+  The type of a schema, `nil` when it is missing from the catalog.
+  """
   def schema_type(schema_name) do
     cond do
       tableschema?(schema_name) -> "tableschema"
       jsonschema?(schema_name) -> "jsonschema"
+      true -> nil
     end
   end
 
@@ -28,20 +32,20 @@ defmodule Transport.Schemas.Wrapper do
   end
 
   @doc """
-  Get the latest version for a given schema name.
+  Get the latest version for a given schema name, `nil` when it is missing from the catalog.
   """
   def latest_version(schema_name) when is_binary(schema_name) do
     schema_name |> schema_versions() |> Enum.at(-1)
   end
 
   @doc """
-  Fetches all the version numbers for a given schema name.
+  Fetches all the version numbers for a given schema name, `[]` when it is missing from the catalog.
   """
   def schema_versions(schema_name) when is_binary(schema_name) do
-    transport_schemas()
-    |> Map.fetch!(schema_name)
-    |> Map.fetch!("versions")
-    |> Enum.map(& &1["version_name"])
+    case transport_schemas() do
+      %{^schema_name => schema} -> schema |> Map.fetch!("versions") |> Enum.map(& &1["version_name"])
+      _ -> []
+    end
   end
 end
 

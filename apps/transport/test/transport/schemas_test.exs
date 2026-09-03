@@ -27,6 +27,22 @@ defmodule Transport.SchemasTest do
     assert ["etalab/schema-lieux-covoiturage"] == Map.keys(schemas_by_type("tableschema"))
   end
 
+  test "schema_type" do
+    assert "jsonschema" == Transport.Schemas.Wrapper.schema_type("etalab/schema-zfe")
+    assert "tableschema" == Transport.Schemas.Wrapper.schema_type("etalab/schema-lieux-covoiturage")
+    assert is_nil(Transport.Schemas.Wrapper.schema_type("foo"))
+  end
+
+  test "latest_version" do
+    assert "0.7.2" == Transport.Schemas.Wrapper.latest_version("etalab/schema-zfe")
+    assert is_nil(Transport.Schemas.Wrapper.latest_version("foo"))
+  end
+
+  test "schema_versions" do
+    assert ["0.6.1", "0.7.0", "0.7.1", "0.7.2"] == Transport.Schemas.Wrapper.schema_versions("etalab/schema-zfe")
+    assert [] == Transport.Schemas.Wrapper.schema_versions("foo")
+  end
+
   describe "schema_url" do
     test "simple case" do
       assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
