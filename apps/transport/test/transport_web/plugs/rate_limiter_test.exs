@@ -26,6 +26,7 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
                  block_user_agent_keywords: "",
                  allow_user_agents: ""
                )
+               |> Enum.sort()
 
       assert [
                allow_user_agents: ["bar", "baz"],
@@ -37,6 +38,7 @@ defmodule TransportWeb.Plugs.RateLimiterTest do
                  block_user_agent_keywords: "foo|bar",
                  allow_user_agents: "bar|baz"
                )
+               |> Enum.sort()
     end
 
     test "with keywords" do
