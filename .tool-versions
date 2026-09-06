@@ -16,7 +16,7 @@ elixir 1.20.4-otp-27
 # - Blog, e.g. https://www.erlang.org/blog/my-otp-25-highlights/
 # - https://github.com/erlang/otp/blob/master/otp_versions.table
 # - `asdf list all erlang`
-erlang 27.3.4.16
+erlang 27.3.4.17
 
 # Take an LTS version on https://nodejs.org/
 nodejs 24.20.0
