@@ -3,7 +3,7 @@
 ExUnit.start()
 
 Mix.install([
-  {:req, "~> 0.5.16"},
+  {:req, "~> 0.6.3"},
   {:dns, "~> 2.4.0"}
 ])
 
