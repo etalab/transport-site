@@ -1,7 +1,7 @@
 defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
   use ExUnit.Case, async: true
-  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   alias Explorer.DataFrame, as: DF
+  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
 
   @xsd %{
     "code" => "xsd-123",
