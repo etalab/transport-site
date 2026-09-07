@@ -178,7 +178,7 @@ defmodule TransportWeb.ResourceController do
     |> assign_base_resource_details(resource, validation_details)
     |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validator, Transport.Validators.GTFSTransport)
-    |> assign(:data_vis, encoded_data_vis(issue_type, validation))
+    |> assign(:data_vis, DataVisualization.encoded_data_vis(validation, issue_type))
     |> render("gtfs_details.html")
   end
 
@@ -285,19 +285,6 @@ defmodule TransportWeb.ResourceController do
     |> assign(:severities_count, severities_count)
     |> assign(:metadata, metadata)
     |> assign(:modes, modes)
-  end
-
-  def encoded_data_vis(_, nil), do: nil
-
-  def encoded_data_vis(issue_type, validation) do
-    issue_data_vis = validation.data_vis[issue_type]
-    has_features = DataVisualization.has_features(issue_data_vis["geojson"])
-
-    case {has_features, Jason.encode(issue_data_vis)} do
-      {false, _} -> nil
-      {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-      _ -> nil
-    end
   end
 
   @doc """
