@@ -69,7 +69,10 @@ module.exports = {
                     }, {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true
+                            sourceMap: true,
+                            // Compressed Dart Sass output starts with a BOM, which lands mid-file after
+                            // concatenation and breaks the following rule (#5614)
+                            sassOptions: { charset: false }
                         }
                     }
                 ]
