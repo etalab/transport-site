@@ -38,7 +38,7 @@ defmodule Unlock.DynamicIRVESupervisor do
   Fetches the current proxy config, terminates all running feed workers, then
   starts one per feed across all `DynamicIRVEAggregate` items. Called at boot
   and on backoffice reload. No-op when polling is disabled (everywhere but
-  production, see `config/runtime.exs`).
+  production webserver nodes, see `config/runtime.exs`).
 
   The brute-force approach avoids edge cases (renamed slug, changed URL, partial
   drift) at the cost of a short data gap — acceptable for now.

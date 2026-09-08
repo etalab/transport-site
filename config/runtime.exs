@@ -101,8 +101,9 @@ config :transport,
 config :transport,
   unlock_enforce_ttl: webserver,
   dynamic_irve_tick_interval: :timer.seconds(30),
-  # Only production polls the third-party IRVE feeds: staging and dev nodes would add to the load on producers
-  dynamic_irve_polling_enabled: app_env == :production
+  # Only production webserver nodes poll the third-party IRVE feeds: staging and dev would add to the load
+  # on producers, and worker-only nodes never serve the proxy so their feed store would go unread.
+  dynamic_irve_polling_enabled: webserver and app_env == :production
 
 # Override configuration specific to staging
 if app_env == :staging do
