@@ -5,7 +5,9 @@ defmodule TransportWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_transport_key",
+    # see https://plug.hexdocs.pm/Plug.Session.COOKIE.html
     signing_salt: "wqoqbzqj",
+    encryption_salt: "vr9k2xqm",
     same_site: "Lax",
     # 15 days
     max_age: 24 * 60 * 60 * 15
