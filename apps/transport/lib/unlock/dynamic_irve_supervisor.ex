@@ -26,8 +26,9 @@ defmodule Unlock.DynamicIRVESupervisor do
       # Calls `sync_feeds/0` once at boot in a separate short-lived process: fetches
       # the config (HTTP to GitHub) and (re)starts one poller per feed in the
       # DynamicSupervisor above.
-      # `:temporary` → a failure is not restarted and does not affect sibling boot.
-      {Task, &initial_sync/0}
+      # `sync_feeds/0` may raise (HTTP to GitHub) — let it crash: `:temporary` → a failure
+      # is not restarted and does not affect sibling boot, and the stack trace bubbles up to Sentry.
+      {Task, &sync_feeds/0}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -36,20 +37,25 @@ defmodule Unlock.DynamicIRVESupervisor do
   @doc """
   Fetches the current proxy config, terminates all running feed workers, then
   starts one per feed across all `DynamicIRVEAggregate` items. Called at boot
-  and on backoffice reload.
+  and on backoffice reload. No-op when polling is disabled (everywhere but
+  production, see `config/runtime.exs`).
 
   The brute-force approach avoids edge cases (renamed slug, changed URL, partial
   drift) at the cost of a short data gap — acceptable for now.
   """
   def sync_feeds do
-    config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
+    if Application.fetch_env!(:transport, :dynamic_irve_polling_enabled) do
+      config = Application.fetch_env!(:transport, :unlock_config_fetcher).fetch_config!()
 
-    stop_all(Unlock.DynamicIRVE.FeedSupervisor)
+      stop_all(Unlock.DynamicIRVE.FeedSupervisor)
 
-    for item <- Map.values(config),
-        match?(%Unlock.Config.Item.DynamicIRVEAggregate{}, item),
-        feed <- item.feeds,
-        do: start_feed(item.identifier, feed)
+      for item <- Map.values(config),
+          match?(%Unlock.Config.Item.DynamicIRVEAggregate{}, item),
+          feed <- item.feeds,
+          do: start_feed(item.identifier, feed)
+    else
+      Logger.info("[DynamicIRVE] Polling disabled, not starting feed workers")
+    end
   end
 
   @doc """
@@ -64,13 +70,6 @@ defmodule Unlock.DynamicIRVESupervisor do
     # inside ETS without copying the table.
     # See https://hexdocs.pm/elixir/Registry.html#select/2
     Registry.select(Unlock.DynamicIRVE.Registry, [{{:"$1", :_, :_}, [], [:"$1"]}])
-  end
-
-  # `sync_feeds/0` may raise (HTTP to GitHub) — let it crash: the `:temporary` Task
-  # isolates the failure (boot is unaffected) and the stack trace bubbles up to Sentry.
-  # Disabled in test so the config fetcher Mox mock needs no default expectation.
-  defp initial_sync do
-    if Application.fetch_env!(:transport, :dynamic_irve_initial_sync), do: sync_feeds()
   end
 
   defp stop_all(supervisor) do
