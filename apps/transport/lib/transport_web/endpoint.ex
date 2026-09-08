@@ -7,7 +7,9 @@ defmodule TransportWeb.Endpoint do
     key: "_transport_key",
     # see https://plug.hexdocs.pm/Plug.Session.COOKIE.html
     signing_salt: "wqoqbzqj",
-    encryption_salt: "vr9k2xqm",
+    # reportedly does not have to be secret
+    # generated with `:crypto.strong_rand_bytes(8) |> Base.encode64(padding: false) |> binary_part(0, 8)`
+    encryption_salt: "mtPNrNTK",
     same_site: "Lax",
     # 15 days
     max_age: 24 * 60 * 60 * 15
