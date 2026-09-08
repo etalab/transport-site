@@ -28,6 +28,11 @@ config :transport, TransportWeb.Endpoint,
 # if you need to work on IRVE dashboard, turn this on
 config :transport, :irve_consolidation_caching, true
 
+# Uncomment if you need to work on the dynamic IRVE concentrator: polls the feeds of the
+# `dynamic-irve-aggregate` items of your `config/proxy-config.yml` (off outside production,
+# so avoid pointing at real producers' feeds unless needed)
+# config :transport, dynamic_irve_polling_enabled: true
+
 # for minio local S3 support. See `.miniorc`
 config :ex_aws,
   access_key_id: System.fetch_env!("MINIO_ROOT_USER"),

@@ -23,7 +23,10 @@ config :transport,
     "https://raw.githubusercontent.com/transportdatagouvfr/proxy-config/refs/heads/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
   unlock_event_incrementer: Unlock.BatchMetrics,
-  unlock_token_auth_enabled: false
+  unlock_token_auth_enabled: false,
+  dynamic_irve_tick_interval: :timer.seconds(30),
+  # Turned on for production webserver nodes only in `runtime.exs`. For local work, see `dev.secret.template.exs`.
+  dynamic_irve_polling_enabled: false
 
 config :transport, Unlock.Endpoint, []
 
