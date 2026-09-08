@@ -24,7 +24,6 @@ defmodule Datagouvfr.Client.Reuses do
   A client to manipulate https://www.data.gouv.fr/api/1/reuses endpoints
   """
   alias Datagouvfr.Client.API, as: Client
-  require Logger
   @behaviour Datagouvfr.Client.Reuses.Wrapper
 
   @endpoint "reuses"

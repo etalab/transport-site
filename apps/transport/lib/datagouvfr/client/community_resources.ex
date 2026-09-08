@@ -17,7 +17,6 @@ defmodule Datagouvfr.Client.CommunityResources.API do
   @moduledoc """
     Actual implementation to interact with community resources through data.gouv.fr API
   """
-  require Logger
 
   @behaviour Datagouvfr.Client.CommunityResources
   @endpoint "/datasets/community_resources/"

@@ -4,7 +4,6 @@ defmodule Transport.Jobs.BNLCToGeoData do
   in the `geo_data` table
   """
   use Oban.Worker, max_attempts: 3
-  require Logger
 
   @impl Oban.Worker
   def perform(%{}) do
