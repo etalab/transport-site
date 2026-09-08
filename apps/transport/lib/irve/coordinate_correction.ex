@@ -12,7 +12,7 @@ defmodule Transport.IRVE.CoordinateCorrection do
   @metro_lat_min 41.0
   @metro_lat_max 51.5
 
-  require Explorer.DataFrame, as: DF
+  alias Explorer.DataFrame, as: DF
   alias Explorer.Series
 
   @doc """
