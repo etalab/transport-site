@@ -10,21 +10,25 @@ defmodule TransportWeb.ReusesLive do
     ~H"""
     <section class="white pt-48" id="dataset-reuses">
       <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
-      <%= if @loading do %>
-        <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
-      <% else %>
-        <p>
-          {dgettext(
-            "page-dataset-details",
-            "You will find below reuses created by individuals or organizations based on this dataset."
-          )}
-        </p>
-        <div :if={@fetch_reuses_error} class="panel reuses_not_available">
-          🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
-        </div>
-        <div :if={@reuses != []} class="reuses">
-          <.reuse :for={reuse <- @reuses} reuse={reuse} />
-        </div>
+      <%= cond do %>
+        <% @loading -> %>
+          <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
+        <% @fetch_reuses_error -> %>
+          <div :if={@fetch_reuses_error} class="panel reuses_not_available">
+            🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
+          </div>
+        <% @reuses != [] -> %>
+          <p>
+            {dgettext(
+              "page-dataset-details",
+              "You will find below reuses created by individuals or organizations based on this dataset."
+            )}
+          </p>
+          <div class="reuses">
+            <.reuse :for={reuse <- @reuses} reuse={reuse} />
+          </div>
+        <% true -> %>
+          <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
       <% end %>
     </section>
     """
@@ -105,9 +109,14 @@ defmodule TransportWeb.CountReusesLive do
 
   def render(assigns) do
     ~H"""
-    <%= if assigns[:count] && @count > 0 do %>
-      <div class="menu-item"><a href="#dataset-reuses">{dgettext("page-dataset-details", "Reuses")} ({@count})</a></div>
-    <% end %>
+    <div class="menu-item">
+      <a href="#dataset-reuses">
+        {dgettext("page-dataset-details", "Reuses")}
+        <%= if assigns[:count] && @count > 0 do %>
+          ({@count})
+        <% end %>
+      </a>
+    </div>
     """
   end
 

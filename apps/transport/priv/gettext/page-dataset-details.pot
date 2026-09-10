@@ -737,3 +737,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Loading reuses…"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "No known reuse on this dataset."
+msgstr ""
