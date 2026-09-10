@@ -106,7 +106,7 @@ defmodule TransportWeb.CountReusesLive do
   def render(assigns) do
     ~H"""
     <%= if assigns[:count] && @count > 0 do %>
-      <div class="menu-item"><a href="#dataset-reuses">{dgettext("page-dataset-details", "Reuses")}</a></div>
+      <div class="menu-item"><a href="#dataset-reuses">{dgettext("page-dataset-details", "Reuses")} ({@count})</a></div>
     <% end %>
     """
   end
