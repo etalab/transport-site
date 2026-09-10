@@ -733,3 +733,7 @@ msgstr "Télécharger au format GeoJSON"
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
 msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment. <a href=\"%{url}\">En savoir plus</a>."
+
+#, elixir-autogen, elixir-format
+msgid "Loading reuses…"
+msgstr "Chargement des réutilisations…"

@@ -8,9 +8,11 @@ defmodule TransportWeb.ReusesLive do
 
   def render(assigns) do
     ~H"""
-    <%= unless @loading and @reuses == [] and !@fetch_reuses_error do %>
-      <section class="white pt-48" id="dataset-reuses">
-        <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+    <section class="white pt-48" id="dataset-reuses">
+      <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+      <%= if @loading do %>
+        <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
+      <% else %>
         <p>
           {dgettext(
             "page-dataset-details",
@@ -20,11 +22,11 @@ defmodule TransportWeb.ReusesLive do
         <div :if={@fetch_reuses_error} class="panel reuses_not_available">
           🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
         </div>
-        <div class="reuses">
+        <div :if={@reuses != []} class="reuses">
           <.reuse :for={reuse <- @reuses} reuse={reuse} />
         </div>
-      </section>
-    <% end %>
+      <% end %>
+    </section>
     """
   end
 

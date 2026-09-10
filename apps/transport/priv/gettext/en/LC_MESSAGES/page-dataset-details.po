@@ -733,3 +733,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Loading reuses…"
+msgstr ""
