@@ -318,12 +318,18 @@
   background-color: var(--lighter-blue);
 }
 
+#dataset-reuses {
+  container-type: inline-size;
+}
+
 .reuses {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
+
+  @container (width < 800px) {
+    grid-template-columns: 1fr;
+  }
 
   .panel + * {
     margin-top: unset;
