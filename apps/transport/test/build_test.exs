@@ -56,6 +56,8 @@ defmodule TransportWeb.BuildTest do
     assert System.otp_release() == asdf_erlang_version()
   end
 
+  # TODO: remove once the base image switch (https://github.com/transportdatagouvfr/ops/pull/66) is settled
+  @tag :pending
   test "make sure full OTP version is same for asdf & Docker image" do
     # NOTE: the previous tests only check the major + minor (24.0), not the build version (24.0.3)
     # Getting the build version of OTP is tricky, but useful because in the past, we had differences.

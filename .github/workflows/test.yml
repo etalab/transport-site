@@ -11,7 +11,7 @@ jobs:
   lint:
     name: 💅 Run lint tests
     runs-on: ubuntu-latest
-    container: ghcr.io/transportdatagouvfr/ops:elixir-1.19.4-erlang-27.3.4.1-ubuntu-noble-20251013-transport-tools-2.0.0
+    container: ghcr.io/transportdatagouvfr/ops:pr-66
 
     steps:
       - uses: actions/checkout@v6
@@ -45,7 +45,7 @@ jobs:
   test:
     name: ⚙️ Run the test suite
     runs-on: ubuntu-latest
-    container: ghcr.io/transportdatagouvfr/ops:elixir-1.19.4-erlang-27.3.4.1-ubuntu-noble-20251013-transport-tools-2.0.0
+    container: ghcr.io/transportdatagouvfr/ops:pr-66
     env:
       PG_URL_TEST: "ecto://postgres:postgres@postgres/transport_test"
 

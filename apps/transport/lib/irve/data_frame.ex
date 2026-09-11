@@ -171,7 +171,7 @@ defmodule Transport.IRVE.DataFrame do
 
   An attempt to remove quotes, whitespaces, and UTF-8 BOM is done:
 
-  iex> guess_delimiter!("\\uFEFF\\"hello_foobar  \\",  world, again\r")
+  iex> guess_delimiter!("\\uFEFF\\"hello_foobar  \\",  world, again\\r")
   ","
 
   """
@@ -209,7 +209,7 @@ defmodule Transport.IRVE.DataFrame do
   iex> Transport.IRVE.DataFrame.separators_frequencies("hello;world;nice")
   %{";" => 2}
 
-  iex> Transport.IRVE.DataFrame.separators_frequencies("hello,\\"world\\";nice, extra \r")
+  iex> Transport.IRVE.DataFrame.separators_frequencies("hello,\\"world\\";nice, extra \\r")
   %{";" => 1, "," => 2}
   """
   def separators_frequencies(string) do
