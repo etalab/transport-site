@@ -56,7 +56,8 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
         }
       )
 
-    refute render(view) =~ "Réutilisations"
+    assert render(view) =~ "Réutilisations"
+    refute render(view) =~ ~r/Réutilisations\s*\(10\)/
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
@@ -64,7 +65,8 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
       {:count, 10}
     )
 
-    refute render(view) =~ "Réutilisations"
+    assert render(view) =~ "Réutilisations"
+    refute render(view) =~ ~r/Réutilisations\s*\(10\)/
 
     Phoenix.PubSub.broadcast(
       TransportWeb.PubSub,
@@ -72,7 +74,7 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
       {:count, 10}
     )
 
-    assert render(view) =~ "Réutilisations"
+    assert render(view) =~ ~r/Réutilisations\s*\(10\)/
   end
 
   defp reuses do

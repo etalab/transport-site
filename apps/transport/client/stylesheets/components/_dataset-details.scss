@@ -318,47 +318,65 @@
   background-color: var(--lighter-blue);
 }
 
+#dataset-reuses {
+  container-type: inline-size;
+}
+
 .reuses {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: stretch;
-  margin: -12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @container (width < 800px) {
+    grid-template-columns: 1fr;
+  }
+
+  .panel + * {
+    margin-top: unset;
+  }
 }
 
 .reuse {
-  margin: 12px;
   flex-basis: 450px;
-  // min-width: 450px;
   flex-grow: 1;
-  min-height: 300px;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-areas:
+    "logo  details"
+    "owner details"
+    "links details";
+  grid-template-rows: min-content min-content 1fr;
+  grid-template-columns: 120px auto;
+  gap: 24px;
+
   img {
-    width: 25%;
-    height: 100px;
+    grid-area: logo;
+    max-width: 100%;
     object-fit: cover;
-    padding-right: 24px;
+  }
+
+  .reuse__owner {
+    grid-area: owner;
   }
 
   .reuse__links {
-    width: 25%;
-    height: 100px;
+    grid-area: links;
     display: flex;
     flex-direction: column;
+    gap: 12px;
 
     a {
       line-height: 1.1em;
-      padding-top: 1em;
     }
   }
+
   .reuse__details {
-    min-height: 200px;
-    width: 75%;
-    flex-basis: 100%;
+    grid-area: details;
     overflow: auto;
+    max-height: 40em;
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
   }
 }
 

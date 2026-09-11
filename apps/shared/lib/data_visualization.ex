@@ -4,10 +4,12 @@ defmodule Transport.DataVisualization do
   """
   @callback has_features(map() | nil) :: boolean()
   @callback validation_data_vis(any) :: nil | map
+  @callback encoded_data_vis(map() | nil, String.t()) :: nil | binary()
 
   defp impl, do: Application.get_env(:transport, :data_visualization)
   def has_features(validations), do: impl().has_features(validations)
   def validation_data_vis(validations), do: impl().validation_data_vis(validations)
+  def encoded_data_vis(validation, issue_type), do: impl().encoded_data_vis(validation, issue_type)
 end
 
 defmodule Transport.DataVisualization.Impl do
@@ -20,6 +22,21 @@ defmodule Transport.DataVisualization.Impl do
   @impl Transport.DataVisualization
   def has_features(nil), do: false
   def has_features(data_visualization), do: not Enum.empty?(data_visualization["features"])
+
+  @impl Transport.DataVisualization
+  @spec encoded_data_vis(map() | nil, String.t()) :: nil | binary()
+  def encoded_data_vis(nil, _issue_type), do: nil
+
+  def encoded_data_vis(validation, issue_type) do
+    issue_data_vis = validation.data_vis[issue_type]
+    has_features = has_features(issue_data_vis["geojson"])
+
+    case {has_features, Jason.encode(issue_data_vis, escape: :html_safe)} do
+      {false, _} -> nil
+      {true, {:ok, encoded}} -> encoded
+      _ -> nil
+    end
+  end
 
   @impl Transport.DataVisualization
   @spec validation_data_vis(any) :: nil | map
