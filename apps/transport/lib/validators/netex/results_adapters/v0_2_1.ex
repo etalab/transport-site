@@ -102,7 +102,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
       if Commons.has_column?(df, "category") do
         df
         |> DF.filter(category == ^issues_category)
-        |> order_issues_by_location()
         |> Commons.count_and_slice(pagination_config)
       else
         {0, []}
@@ -126,8 +125,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   end
 
   defdelegate pick_default_category(df, categories_preferred_order), to: V0_2_0
-
-  defdelegate order_issues_by_location(issues), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile_compliance_check, do: :partial

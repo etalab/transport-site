@@ -47,8 +47,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   defdelegate pick_default_category(df, categories_preferred_order), to: Previous
 
-  defdelegate order_issues_by_location(issues), to: Previous
-
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate digest(validation_result), to: Previous
 
