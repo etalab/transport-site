@@ -42,11 +42,6 @@ config :transport,
   disable_netex_validator: System.get_env("DISABLE_NETEX_VALIDATOR") in ["1", "true"]
 
 config :transport,
-  unlock_enforce_ttl: webserver,
-  dynamic_irve_tick_interval: :timer.seconds(if(config_env() == :dev, do: 10, else: 30)),
-  dynamic_irve_initial_sync: config_env() != :test
-
-config :transport,
   # This endpoint is not really public but we can use it for now
   # See https://github.com/MobilityData/gbfs-validator/issues/53#issuecomment-957917240
   gbfs_validator_url:
@@ -102,6 +97,14 @@ config :transport, domain_name: domain_name
 config :transport,
   app_env: app_env,
   mix_env: config_env()
+
+config :transport, unlock_enforce_ttl: webserver
+
+# Only production webserver nodes poll the third-party IRVE feeds: staging and dev would add to the load
+# on producers, and worker-only nodes never serve the proxy so their feed store would go unread.
+if webserver and app_env == :production do
+  config :transport, dynamic_irve_polling_enabled: true
+end
 
 # Override configuration specific to staging
 if app_env == :staging do
