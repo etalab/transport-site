@@ -551,7 +551,7 @@ msgid "transport.data.gouv.fr automatically sends notifications to data producer
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "loading discussions..."
+msgid "Loading discussions…"
 msgstr ""
 
 #, elixir-autogen, elixir-format

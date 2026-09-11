@@ -12,7 +12,9 @@ defmodule TransportWeb.ReusesLive do
       <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
       <%= cond do %>
         <% @loading -> %>
-          <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
+          <div class="panel">
+            <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
+          </div>
         <% @fetch_reuses_error -> %>
           <div class="panel reuses_not_available">
             🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
