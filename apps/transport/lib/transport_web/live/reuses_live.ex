@@ -47,10 +47,34 @@ defmodule TransportWeb.ReusesLive do
       </div>
       <div class="reuse__details">
         <h3>{@reuse["title"]}</h3>
-        {MarkdownHandler.markdown_to_safe_html!(@reuse["description"])}
+        {MarkdownHandler.markdown_to_safe_html!(@reuse["description"], &shift_headings/1)}
       </div>
     </div>
     """
+  end
+
+  # Shift headings to fit inside a reuse card (titled with <h3>).
+  # h1→h4, h2→h5, h3→h6 so they don't clash with the page heading hierarchy.
+  defp shift_headings(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.traverse_and_update(&shift_headings_tag/1)
+    |> Floki.raw_html()
+  end
+
+  defp shift_headings_tag({tag, attrs, children}) do
+    tag =
+      case tag do
+        "h1" -> "h4"
+        "h2" -> "h5"
+        "h3" -> "h6"
+        "h4" -> "h6"
+        "h5" -> "h6"
+        "h6" -> "h6"
+        unaltered -> unaltered
+      end
+
+    {tag, attrs, children}
   end
 
   def mount(
