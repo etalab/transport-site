@@ -897,17 +897,9 @@ defmodule DB.Dataset do
     end
   end
 
-  @spec get_covered_area(__MODULE__.t()) :: {:ok, binary()} | {:error, binary()}
+  @spec get_covered_area(__MODULE__.t()) :: binary()
   def get_covered_area(%__MODULE__{declarative_spatial_areas: declarative_spatial_areas}) do
-    {:ok, declarative_spatial_areas |> DB.AdministrativeDivision.names()}
-  end
-
-  @spec get_covered_area_or_nil(__MODULE__.t()) :: binary() | nil
-  def get_covered_area_or_nil(%__MODULE__{} = d) do
-    case get_covered_area(d) do
-      {:ok, t} -> t
-      _ -> nil
-    end
+    DB.AdministrativeDivision.names(declarative_spatial_areas)
   end
 
   @spec official_resources(__MODULE__.t()) :: list(Resource.t())
