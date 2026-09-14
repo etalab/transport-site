@@ -21,7 +21,7 @@ function getColor(severity) {
 function createValidationMap(divId, dataVis) {
     const { map, fg } = initilizeMap(divId)
     const gs = L.geoJSON(dataVis.geojson, {
-        pointToLayer(feature, latlng) {
+        pointToLayer(_feature, latlng) {
             const marker = L.circleMarker(latlng, {
                 radius: 5,
                 fillColor: 'white',
@@ -40,7 +40,7 @@ function createValidationMap(divId, dataVis) {
                 }
             }
         },
-        onEachFeature(feature, layer) {
+        onEachFeature(_feature, layer) {
             layer.on('mouseover', () => {
                 layer.setStyle({ weight: 5, radius: 7 })
             })

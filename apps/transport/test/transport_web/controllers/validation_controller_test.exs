@@ -223,7 +223,8 @@ defmodule TransportWeb.ValidationControllerTest do
       })
       |> DB.Repo.update!()
 
-      Transport.DataVisualization.Mock |> expect(:has_features, fn _ -> false end)
+      Transport.DataVisualization.Mock
+      |> expect(:encoded_data_vis, fn _, _ -> nil end)
 
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
       assert conn2 |> html_response(200) =~ "bus, ferry"

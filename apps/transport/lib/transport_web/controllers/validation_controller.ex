@@ -179,7 +179,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validator, validator)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
-        |> assign(:data_vis, data_vis(validation, issue_type))
+        |> assign(:data_vis, DataVisualization.encoded_data_vis(validation, issue_type))
         |> assign(:validation_summary, validator.summary(validation.result))
         |> assign(:severities_count, validator.count_by_severity(validation.result))
         |> render("show_gtfs.html")
@@ -321,17 +321,6 @@ defmodule TransportWeb.ValidationController do
     |> assign(:validation_id, params["id"])
     |> assign(:other_resources, [])
     |> assign(:token, params["token"])
-  end
-
-  defp data_vis(%MultiValidation{} = validation, issue_type) do
-    data_vis = validation.data_vis[issue_type]
-    has_features = DataVisualization.has_features(data_vis["geojson"])
-
-    case {has_features, Jason.encode(data_vis)} do
-      {false, _} -> nil
-      {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-      _ -> nil
-    end
   end
 
   defp filepath(type) do
