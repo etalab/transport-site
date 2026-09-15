@@ -84,8 +84,12 @@
   }
 }
 
+.dataset__resources, #dataset-reuses {
+  container-type: inline-size;
+}
+
 .dataset__resources ~ .dataset__resources {
-  padding-top: 1vh;
+  padding-top: 2rem;
 }
 
 .dataset__resources .information-message {
@@ -153,13 +157,17 @@
 }
 
 .ressources-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  margin: 0 -12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 
-  .panel {
-    margin: 12px;
+  @container (width < 750px) {
+    grid-template-columns: 1fr;
+    padding-inline: 12px;
+  }
+
+  .panel + * {
+    margin-top: unset;
   }
 }
 
@@ -189,8 +197,6 @@
 }
 
 .resource {
-  flex-basis: calc(45% - 24px);
-  min-width: 400px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -318,10 +324,6 @@
   background-color: var(--lighter-blue);
 }
 
-#dataset-reuses {
-  container-type: inline-size;
-}
-
 .reuses {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -396,10 +398,6 @@
 @media (max-width: 749px) {
   .community-resource-detail {
     text-align: center !important;
-  }
-
-  .ressources-list {
-    justify-content: center;
   }
 
   .resource__header,
