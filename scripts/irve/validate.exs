@@ -27,7 +27,7 @@ test_resources
 
   Transport.LogTimeTaken.log_time_taken("Validating #{path}", fn ->
     IO.puts("Starting validating downloaded copy of #{url} (#{path})…")
-    summary = Transport.IRVE.Validator.validate_and_summarize(path)
+    {summary, _validated_df} = File.read!(path) |> Transport.IRVE.Validator.validate_and_summarize()
     IO.inspect(summary, IEx.inspect_opts())
   end)
 end)

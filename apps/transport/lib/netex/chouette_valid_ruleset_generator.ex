@@ -49,6 +49,7 @@ defmodule Transport.NeTEx.ChouetteValidRulesetGenerator do
         IO.puts(device, dgettext("netex-documentation", "Section [%{title}](%{url}):", rule_context.documentation_link))
         IO.puts(device, "")
 
+        # credo:disable-for-next-line Credo.Check.Refactor.Nesting
         for name <- rule_context.names do
           IO.puts(
             device,

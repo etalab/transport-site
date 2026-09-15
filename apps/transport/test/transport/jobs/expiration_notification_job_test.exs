@@ -169,6 +169,9 @@ defmodule Transport.Test.Transport.Jobs.ExpirationNotificationJobTest do
 
         assert html_body =~
                  ~s(<a href="https://doc.transport.data.gouv.fr/administration-des-donnees/procedures-de-publication/mettre-a-jour-des-donnees#remplacer-un-jeu-de-donnees-existant-plutot-quen-creer-un-nouveau">remplaçant la ressource périmée par la nouvelle</a>)
+
+        assert html_body =~
+                 ~s(laisser un message dans <a href="http://127.0.0.1:5100/datasets/#{dataset.slug}#dataset-discussions">l’espace de discussion du jeu de données</a>)
       end)
 
       # Notification logs

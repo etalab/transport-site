@@ -9,6 +9,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
   alias Transport.Validators.NeTEx.Validator
 
   setup do
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -42,6 +43,58 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
     }
   ]
 
+  describe "determine_xsd_version/2" do
+    test "uses publication_date when present and valid" do
+      metadata = %{"publication_date" => "2025-07-29"}
+      assert Validator.determine_xsd_version(metadata) == "v1.3.2"
+    end
+
+    test "publication_date is parsed from ISO 8601 with time component" do
+      metadata = %{"publication_date" => "2025-07-29T09:34:55Z"}
+      assert Validator.determine_xsd_version(metadata) == "v1.3.2"
+    end
+
+    test "falls back to inserted_at when publication_date is invalid" do
+      metadata = %{"publication_date" => "not-a-date"}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+
+    test "falls back to inserted_at when publication_date is missing" do
+      metadata = %{}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+
+    test "falls back to today when no resource_history is provided" do
+      metadata = %{}
+
+      assert Validator.determine_xsd_version(metadata) ==
+               Transport.NeTEx.SchemaVersionMapper.xsd_version_for_date(Date.utc_today())
+    end
+
+    test "nil publication_date falls back to inserted_at, not today" do
+      metadata = %{"publication_date" => nil}
+
+      resource_history =
+        insert(:resource_history,
+          inserted_at: "2026-11-15T10:00:00Z"
+        )
+
+      assert Validator.determine_xsd_version(metadata, resource_history) == "v1.3.2"
+    end
+  end
+
   describe "existing resource" do
     test "valid NeTEx" do
       start_date = "2025-11-03"
@@ -68,14 +121,17 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.1"
+      assert multi_validation.validator_version == "0.2.2"
       assert multi_validation.result == nil
-      assert multi_validation.digest == ResultsAdapter.digest(%{})
-      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(%{})
+      df = ResultsAdapter.to_dataframe([])
+      assert multi_validation.digest == ResultsAdapter.digest(df)
+      assert multi_validation.binary_result == ResultsAdapter.to_binary_result([])
 
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 12,
+               "xsd_version" => "v1.3.2",
+               "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
@@ -115,7 +171,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert :ok == Validator.validate_and_save(resource_history)
 
@@ -125,6 +182,7 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
           "validation_id" => validation_id,
           "resource_history_id" => resource_history.id,
           "metadata" => %{
+            "xsd_version" => "v1.3.2",
             "start_date" => start_date,
             "end_date" => end_date,
             "networks" => [network],
@@ -165,7 +223,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_history = mk_netex_resource_with_calendar(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(31)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
@@ -175,11 +234,13 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert multi_validation.command == "http://localhost:9999/chouette-valid/#{validation_id}/messages"
       assert multi_validation.validator == "enroute-chouette-netex-validator"
-      assert multi_validation.validator_version == "0.2.1"
+      assert multi_validation.validator_version == "0.2.2"
 
       assert multi_validation.metadata.metadata == %{
                "retries" => 0,
                "elapsed_seconds" => 31,
+               "xsd_version" => "v1.3.2",
+               "publication_date" => "2025-07-29",
                "start_date" => start_date,
                "end_date" => end_date,
                "networks" => [network],
@@ -202,42 +263,14 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       assert multi_validation.metadata.modes == modes
       assert multi_validation.metadata.features == ["networks"]
 
-      result = %{
-        "xsd-schema" => [
-          %{
-            "code" => "xsd-1871",
-            "criticity" => "error",
-            "message" =>
-              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-          }
-        ],
-        "base-rules" => [
-          %{
-            "code" => "uic-operating-period",
-            "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-            "criticity" => "error"
-          },
-          %{
-            "code" => "valid-day-bits",
-            "message" => "Mandatory attribute valid_day_bits not found",
-            "criticity" => "error"
-          },
-          %{
-            "code" => "frame-arret-resources",
-            "message" => "Tag frame_id doesn't match ''",
-            "criticity" => "warning"
-          },
-          %{
-            "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-            "criticity" => "error"
-          }
-        ]
-      }
-
       assert multi_validation.result == nil
 
-      assert multi_validation.digest == ResultsAdapter.digest(result)
-      assert multi_validation.binary_result == ResultsAdapter.to_binary_result(result)
+      # digest and binary_result are built from raw errors (flat list), not grouped map
+      df = ResultsAdapter.to_dataframe(@sample_error_messages)
+      assert multi_validation.digest == ResultsAdapter.digest(df)
+
+      assert multi_validation.binary_result ==
+               ResultsAdapter.to_binary_result(@sample_error_messages)
     end
 
     defp load_multi_validation(resource_history_id) do
@@ -268,10 +301,12 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       assert {:ok,
               %{
-                "validations" => %{},
+                "validations" => [],
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 9,
+                  "xsd_version" => "v1.3.2",
+                  "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
@@ -310,48 +345,19 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_failed_validation(25)
 
       expect_get_messages(validation_id, @sample_error_messages)
 
-      validation_result = %{
-        "xsd-schema" => [
-          %{
-            "code" => "xsd-1871",
-            "criticity" => "error",
-            "message" =>
-              "Element '{http://www.netex.org.uk/netex}OppositeDIrectionRef': This element is not expected. Expected is ( {http://www.netex.org.uk/netex}OppositeDirectionRef )."
-          }
-        ],
-        "base-rules" => [
-          %{
-            "code" => "uic-operating-period",
-            "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
-            "criticity" => "error"
-          },
-          %{
-            "code" => "valid-day-bits",
-            "message" => "Mandatory attribute valid_day_bits not found",
-            "criticity" => "error"
-          },
-          %{
-            "code" => "frame-arret-resources",
-            "message" => "Tag frame_id doesn't match ''",
-            "criticity" => "warning"
-          },
-          %{
-            "message" => "Reference MOBIITI:Quay:104325 doesn't match any existing Resource",
-            "criticity" => "error"
-          }
-        ]
-      }
-
       assert {:ok,
               %{
-                "validations" => validation_result,
+                "validations" => @sample_error_messages,
                 "metadata" => %{
                   :retries => 0,
                   :elapsed_seconds => 25,
+                  "xsd_version" => "v1.3.2",
+                  "publication_date" => "2025-07-29",
                   "start_date" => start_date,
                   "end_date" => end_date,
                   "networks" => [network],
@@ -389,8 +395,10 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
       modes = lines |> modes()
 
       metadata = %{
+        "xsd_version" => "v1.3.2",
         "start_date" => start_date,
         "end_date" => end_date,
+        "publication_date" => "2025-07-29",
         "networks" => [network],
         "modes" => modes,
         "stats" => %{
@@ -410,7 +418,8 @@ defmodule Transport.Validators.NeTEx.ValidatorTest do
 
       resource_url = mk_netex(start_date, end_date, network, lines)
 
-      validation_id = expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
+      validation_id =
+        expect_create_validation(ResultsAdapter.french_profile().slug()) |> expect_pending_validation()
 
       assert {:pending, {validation_id, metadata}} == Validator.validate(resource_url)
     end

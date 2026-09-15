@@ -11,6 +11,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
   setup :verify_on_exit!
 
   setup do
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -60,7 +61,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
                       digest: nil,
                       validation_timestamp: date,
                       validator: "enroute-chouette-netex-validator",
-                      validator_version: "0.2.1"
+                      validator_version: "0.2.2"
                     } = validation |> reload_validation()
 
              assert DateTime.diff(date, DateTime.utc_now()) <= 1
@@ -79,17 +80,18 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              max_error: "NoError",
              metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
-             result: %{},
+             result: nil,
              binary_result: binary_result,
              digest: digest,
              validation_timestamp: date,
              validator: "enroute-chouette-netex-validator",
-             validator_version: "0.2.1"
+             validator_version: "0.2.2"
            } = validation |> reload_validation()
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
-    assert ResultsAdapter.to_binary_result(%{}) == binary_result
-    assert ResultsAdapter.digest(%{}) == digest
+    assert ResultsAdapter.to_binary_result([]) == binary_result
+    df = ResultsAdapter.to_dataframe([])
+    assert ResultsAdapter.digest(df) == digest
   end
 
   test "error" do
@@ -128,18 +130,16 @@ defmodule Transport.Test.Transport.Jobs.OnDemandNeTExPollerJobTest do
              max_error: "error",
              metadata: %DB.ResourceMetadata{metadata: %{"end_date" => _}},
              oban_args: %{"state" => "completed", "type" => "netex"},
-             result: result,
+             result: nil,
              binary_result: binary_result,
              digest: digest,
              validation_timestamp: date
            } = validation |> reload_validation()
 
-    assert %{"xsd-schema" => a1, "base-rules" => a2} = result
-    assert ResultsAdapter.to_binary_result(result) == binary_result
-    assert ResultsAdapter.digest(result) == digest
-
-    assert length(a1) == 1
-    assert length(a2) == 3
+    # digest and binary_result are now built from raw flat error list, not grouped map
+    assert ResultsAdapter.to_binary_result(errors) == binary_result
+    df = ResultsAdapter.to_dataframe(errors)
+    assert ResultsAdapter.digest(df) == digest
 
     assert DateTime.diff(date, DateTime.utc_now()) <= 1
   end

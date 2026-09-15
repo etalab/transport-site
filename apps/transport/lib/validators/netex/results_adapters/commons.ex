@@ -3,7 +3,20 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   Collection of helpers to be used by all results adapters.
   """
   require Explorer.DataFrame, as: DF
-  alias Explorer.Series, as: S
+
+  @no_error "NoError"
+
+  @xsd_schema_category "xsd-schema"
+  @base_rules_category "base-rules"
+
+  @doc false
+  def xsd_schema_category, do: @xsd_schema_category
+
+  @doc false
+  def base_rules_category, do: @base_rules_category
+
+  @doc false
+  def french_profile_category, do: "french-profile"
 
   @dtypes [
     category: :category,
@@ -14,13 +27,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     "resource.column": {:u, 8},
     "resource.filename": :category,
     "resource.id": :string,
-    "resource.line": {:u, 16}
+    "resource.line": {:u, 32}
   ]
 
   def to_dataframe(errors, extra_attributes_fun) do
-    errors
-    |> Enum.map(&project_error(&1, extra_attributes_fun))
-    |> DF.new(dtypes: @dtypes)
+    rows = Enum.map(errors, &project_error(&1, extra_attributes_fun))
+
+    if Enum.empty?(rows) do
+      # Create an empty DataFrame with proper column dtypes using keyword list syntax
+      DF.new(Enum.map(@dtypes, fn {name, _dtype} -> {name, []} end), dtypes: @dtypes)
+    else
+      DF.new(rows, dtypes: @dtypes)
+    end
   end
 
   defp project_error(entry, extra_attributes_fun) do
@@ -76,10 +94,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     DF.load_parquet!(binary)
   end
 
-  defp slice(df, %Scrivener.Config{} = config) do
+  defp sorted_slice(df, %Scrivener.Config{} = config) do
     df
-    |> DF.slice(page(config))
     |> DF.select(["code", "criticity", "message", "resource.filename", "resource.line"])
+    |> DF.mutate(
+      # Aligns with severity_level/1: error=1, warning=2, information=3, unknown=4.
+      # We can't call severity_level/1 here — this is a lazy Explorer expression tree,
+      # not Elixir code executed per row. Inlining keeps it efficient and avoids
+      # having to wrap it in apply_everywhere or similar machinery.
+      _severity: if(criticity == "error", do: 1, else: if(criticity == "warning", do: 2, else: 4)),
+      _filename: cast(col("resource.filename"), :string)
+    )
+    |> DF.sort_with(
+      &[{:asc, &1["_severity"]}, {:asc, &1["_filename"]}, {:asc, &1["resource.line"]}, {:asc, &1["message"]}]
+    )
+    |> DF.discard([:_severity, :_filename])
+    |> DF.slice(page(config))
     |> DF.to_rows()
   end
 
@@ -120,11 +150,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   end
 
   def count_and_slice(%Explorer.DataFrame{} = df, pagination_config) do
-    total_count = S.count(df["code"])
+    total_count = DF.n_rows(df)
 
     issues =
       df
-      |> slice(pagination_config)
+      |> sorted_slice(pagination_config)
       |> to_issues()
 
     {total_count, issues}
@@ -145,5 +175,30 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     else
       []
     end
+  end
+
+  # NOTE: any change to this function must be mirrored in sorted_slice/2 which
+  # uses the same mapping inline (see comment there). They are the only two
+  # consumers and must stay in sync.
+  @doc false
+  def severity_level(key) do
+    case key do
+      "error" -> 1
+      "warning" -> 2
+      "information" -> 3
+      _ -> 4
+    end
+  end
+
+  @doc false
+  def get_worst_criticity(_cat_df, 0), do: @no_error
+
+  def get_worst_criticity(cat_df, _count) do
+    cat_df
+    |> DF.select(:criticity)
+    |> DF.distinct([:criticity])
+    |> DF.to_rows()
+    |> Enum.map(fn %{"criticity" => c} -> c end)
+    |> Enum.min_by(&severity_level/1, fn -> @no_error end)
   end
 end

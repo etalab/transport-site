@@ -223,7 +223,8 @@ defmodule TransportWeb.ValidationControllerTest do
       })
       |> DB.Repo.update!()
 
-      Transport.DataVisualization.Mock |> expect(:has_features, fn _ -> false end)
+      Transport.DataVisualization.Mock
+      |> expect(:encoded_data_vis, fn _, _ -> nil end)
 
       conn2 = conn |> get(validation_path(conn, :show, validation_id, token: token))
       assert conn2 |> html_response(200) =~ "bus, ferry"
@@ -451,14 +452,16 @@ defmodule TransportWeb.ValidationControllerTest do
       }
 
       results_adapter = ResultsAdapter.resolve("0.1.0")
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: "0.1.0",
           result: nil,
-          digest: results_adapter.digest(result),
-          binary_result: results_adapter.to_binary_result(result),
+          digest: results_adapter.digest(df),
+          binary_result: results_adapter.to_binary_result(errors),
           max_error: "warning"
         }
       )
@@ -476,6 +479,10 @@ defmodule TransportWeb.ValidationControllerTest do
       render_netex_validation(conn, "0.2.1")
     end
 
+    test "with a NeTEx - 0.2.2", %{conn: conn} do
+      render_netex_validation(conn, "0.2.2")
+    end
+
     def render_netex_validation(conn, validator_version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
@@ -491,14 +498,16 @@ defmodule TransportWeb.ValidationControllerTest do
       }
 
       results_adapter = ResultsAdapter.resolve(validator_version)
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
 
       mark_netex_validation_completed(
         multi_validation,
         %{
           validator_version: validator_version,
           result: nil,
-          digest: results_adapter.digest(result),
-          binary_result: results_adapter.to_binary_result(result),
+          digest: results_adapter.digest(df),
+          binary_result: results_adapter.to_binary_result(errors),
           max_error: "error"
         }
       )

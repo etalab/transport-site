@@ -7,7 +7,7 @@ defmodule TransportWeb.Components.ColorfulButton do
 
   use Phoenix.Component
 
-  attr(:valid, :boolean, default: true)
+  attr(:variant, :atom, default: :valid)
   attr(:striped, :boolean, default: false)
   attr(:selected, :boolean, default: false)
   attr(:href, :string, required: true)
@@ -17,7 +17,7 @@ defmodule TransportWeb.Components.ColorfulButton do
 
   def colorful_link(assigns) do
     ~H"""
-    <.link class={classnames(@valid, @striped, @selected)} href={@href}>
+    <.link class={classnames(@variant, @striped, @selected)} href={@href}>
       {render_slot(@icon)}
       <span>
         {render_slot(@label)}
@@ -26,28 +26,30 @@ defmodule TransportWeb.Components.ColorfulButton do
     """
   end
 
-  defp classnames(valid, striped, selected) do
-    validity =
-      if valid do
-        ["valid"]
-      else
-        ["invalid"]
+  def classnames(variant, striped, selected) do
+    variant_class =
+      case variant do
+        :valid -> ["variant-valid"]
+        :error -> ["variant-error"]
+        :warning -> ["variant-warning"]
+        :information -> ["variant-information"]
+        _ -> ["variant-valid"]
       end
 
-    variant =
+    striped_class =
       if striped do
         ["striped"]
       else
         []
       end
 
-    selected =
+    selected_class =
       if selected do
         ["selected"]
       else
         []
       end
 
-    Enum.join(["colorful"] ++ validity ++ variant ++ selected, " ")
+    Enum.join(["colorful"] ++ variant_class ++ striped_class ++ selected_class, " ")
   end
 end

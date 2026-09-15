@@ -32,6 +32,13 @@ defmodule Transport.IRVE.DatabaseExporter do
     stream =
       DB.IRVEValidPDC
       |> join(:inner, [p], f in DB.IRVEValidFile, on: p.irve_valid_file_id == f.id)
+      # Deterministic order to have a more stable CSV output
+      |> order_by([p, f],
+        asc: f.datagouv_dataset_id,
+        asc: f.datagouv_resource_id,
+        asc: p.id_pdc_itinerance,
+        asc: p.id
+      )
       |> select([p, f], {map(p, ^fields), map(f, ^additionnal_file_fields)})
       |> DB.Repo.stream(max_rows: @chunk_size)
 

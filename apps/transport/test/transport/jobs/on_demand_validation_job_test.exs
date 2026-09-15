@@ -14,6 +14,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
+    Mox.stub_with(Transport.EnRouteChouetteValidClient.Mock, Transport.Test.EnRouteChouetteValidClientHelpers)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -536,16 +537,18 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
 
       assert :ok == run_job(validation)
 
+      # digest and binary_result are now built directly from raw errors (flat list)
       assert %{
                validation_timestamp: date,
-               result: result,
+               result: nil,
+               binary_result: binary_result,
                digest: %{
                  "max_severity" => %{"max_level" => "error", "worst_occurrences" => 3},
                  "stats" => %{"error" => 3, "warning" => 1},
                  "summary" => [
                    %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-                   %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}}
+                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}},
+                   %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
                  ]
                },
                max_error: "error",
@@ -554,11 +557,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                data_vis: nil
              } = validation |> reload() |> DB.Repo.preload(:metadata)
 
-      assert %{"xsd-schema" => a1, "base-rules" => a2} =
-               result
-
-      assert length(a1) == 1
-      assert length(a2) == 3
+      assert ResultsAdapter.to_binary_result(errors) == binary_result
 
       assert DateTime.diff(date, DateTime.utc_now()) <= 1
     end
@@ -641,7 +640,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   end
 
   defp reload(validation) do
-    DB.MultiValidation.with_result()
+    DB.MultiValidation.base_query(include_result: true, include_binary_result: true)
     |> DB.Repo.get(validation.id)
   end
 end

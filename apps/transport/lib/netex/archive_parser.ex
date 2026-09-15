@@ -163,6 +163,37 @@ defmodule Transport.NeTEx.ArchiveParser do
     read_all(zip_file_name, &read_description!/2)
   end
 
+  @doc """
+  Inside a zip archive opened with `Unzip`, parse a given file (pointed by
+  `file_name`) and extract the publication timestamp. The file is read in
+  streaming fashion.
+  """
+  def read_publication_timestamp(%Unzip{} = unzip, file_name) do
+    parse_stream(unzip, file_name, Transport.NeTEx.PublicationTimestampParser)
+  end
+
+  @doc """
+  Like read_publication_timestamp/2 but raises on errors.
+  """
+  def read_publication_timestamp!(%Unzip{} = unzip, file_name) do
+    parse_stream!(unzip, file_name, Transport.NeTEx.PublicationTimestampParser)
+  end
+
+  @doc """
+  A higher level method. Given a NeTEx zip archive stored on disk, return the
+  publication timestamp per XML file contained in the archive.
+  """
+  def read_all_publication_timestamps(zip_file_name) do
+    read_all(zip_file_name, &read_publication_timestamp/2)
+  end
+
+  @doc """
+  Like read_all_publication_timestamps/1 but raises on error.
+  """
+  def read_all_publication_timestamps!(zip_file_name) do
+    read_all(zip_file_name, &read_publication_timestamp!/2)
+  end
+
   defp parse_stream(unzip, file_name, parser) do
     extension = Path.extname(file_name)
 

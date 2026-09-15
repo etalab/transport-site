@@ -8,44 +8,48 @@ defmodule TransportWeb.ReusesLive do
 
   def render(assigns) do
     ~H"""
-    <%= unless @loading do %>
-      <%= unless @reuses == [] and !@fetch_reuses_error do %>
-        <section class="white pt-48" id="dataset-reuses">
-          <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+    <section class="white pt-48" id="dataset-reuses">
+      <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+      <%= cond do %>
+        <% @loading -> %>
+          <p>{dgettext("page-dataset-details", "Loading reuses…")}</p>
+        <% @fetch_reuses_error -> %>
+          <div class="panel reuses_not_available">
+            🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
+          </div>
+        <% @reuses != [] -> %>
           <p>
             {dgettext(
               "page-dataset-details",
               "You will find below reuses created by individuals or organizations based on this dataset."
             )}
           </p>
-          <%= if @fetch_reuses_error do %>
-            <div class="panel reuses_not_available">
-              🔌 {dgettext("page-dataset-details", "Reuses are temporarily unavailable")}
-            </div>
-          <% end %>
           <div class="reuses">
-            <%= for reuse <- @reuses do %>
-              <div class="panel reuse">
-                <img src={reuse["image"]} alt={reuse["title"]} />
-                <div class="mt-12">{Phoenix.HTML.raw(owner(reuse))}</div>
-                <div class="reuse__links">
-                  <.link href={reuse["url"]}>{dgettext("page-dataset-details", "Website")}</.link>
-                  <.link href={reuse["page"]} target="_blank">
-                    {dgettext("page-dataset-details", "See on data.gouv.fr")}
-                  </.link>
-                </div>
-                <div class="reuse__details">
-                  <div>
-                    <h3>{reuse["title"]}</h3>
-                    <p>{MarkdownHandler.markdown_to_safe_html!(reuse["description"])}</p>
-                  </div>
-                </div>
-              </div>
-            <% end %>
+            <.reuse :for={reuse <- @reuses} reuse={reuse} />
           </div>
-        </section>
+        <% true -> %>
+          <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
       <% end %>
-    <% end %>
+    </section>
+    """
+  end
+
+  defp reuse(%{reuse: _} = assigns) do
+    ~H"""
+    <div class="panel reuse">
+      <img src={@reuse["image"]} alt={@reuse["title"]} />
+      <div class="reuse__owner">{Phoenix.HTML.raw(owner(@reuse))}</div>
+      <div class="reuse__links">
+        <.link href={@reuse["url"]}>{dgettext("page-dataset-details", "Website")}</.link>
+        <.link href={@reuse["page"]} target="_blank">
+          {dgettext("page-dataset-details", "See on data.gouv.fr")}
+        </.link>
+      </div>
+      <div class="reuse__details">
+        <h3>{@reuse["title"]}</h3>
+        {MarkdownHandler.markdown_to_safe_html!(@reuse["description"])}
+      </div>
+    </div>
     """
   end
 
@@ -105,9 +109,14 @@ defmodule TransportWeb.CountReusesLive do
 
   def render(assigns) do
     ~H"""
-    <%= if assigns[:count] && @count > 0 do %>
-      <div class="menu-item"><a href="#dataset-reuses">{dgettext("page-dataset-details", "Reuses")}</a></div>
-    <% end %>
+    <div class="menu-item">
+      <a href="#dataset-reuses">
+        {dgettext("page-dataset-details", "Reuses")}
+        <%= if assigns[:count] && @count > 0 do %>
+          ({@count})
+        <% end %>
+      </a>
+    </div>
     """
   end
 

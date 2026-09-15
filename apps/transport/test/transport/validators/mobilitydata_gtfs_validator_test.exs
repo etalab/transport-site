@@ -180,6 +180,35 @@ defmodule Transport.Validators.MobilityDataGTFSValidatorTest do
     refute TransportWeb.DatasetView.multi_validation_performed?(mv)
   end
 
+  describe "rule_for_code/1" do
+    test "returns the rule for a known code" do
+      rule = MobilityDataGTFSValidator.rule_for_code("attribution_without_role")
+
+      assert rule["code"] == "attribution_without_role"
+      assert rule["severityLevel"] == "WARNING"
+      assert rule["shortSummary"] == "Attribution with no role."
+      assert rule["deprecated"] == false
+    end
+
+    test "returns a safe fallback for an unknown code instead of crashing" do
+      rule = MobilityDataGTFSValidator.rule_for_code("totally_new_rule_that_does_not_exist")
+
+      assert rule["code"] == "totally_new_rule_that_does_not_exist"
+      assert rule["shortSummary"] == "Unknown rule: totally_new_rule_that_does_not_exist"
+      assert rule["description"] == nil
+      assert rule["properties"] == %{}
+      assert rule["severityLevel"] == "WARNING"
+      assert rule["deprecated"] == false
+
+      assert rule["references"] == %{
+               "fileReferences" => [],
+               "bestPracticesFileReferences" => [],
+               "sectionReferences" => [],
+               "urlReferences" => []
+             }
+    end
+  end
+
   test "validate_and_save when unexpected_validation_status" do
     gtfs_url = "https://example.com/gtfs"
     job_id = Ecto.UUID.generate()

@@ -17,7 +17,8 @@ defmodule Transport.IRVE.CoordinateCorrection do
 
   @doc """
   Corrects inverted coordinates in a DataFrame with `longitude` and `latitude` float
-  columns. Adds `consolidated_is_lon_lat_correct` (`false` = row was swapped).
+  columns. Adds `warning_lon_lat_inverted` (`true` = row was swapped). The
+  `consolidated_is_lon_lat_correct` flag is derived later in the pipeline as its negation.
 
       iex> df = Explorer.DataFrame.new(longitude: [2.35, 48.85, 55.4], latitude: [48.85, 2.35, -21.1])
       iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df)
@@ -25,20 +26,49 @@ defmodule Transport.IRVE.CoordinateCorrection do
       [2.35, 2.35, 55.4]
       iex> Explorer.Series.to_list(r["latitude"])
       [48.85, 48.85, -21.1]
-      iex> Explorer.Series.to_list(r["consolidated_is_lon_lat_correct"])
-      [true, false, true]
+      iex> Explorer.Series.to_list(r["warning_lon_lat_inverted"])
+      [false, true, false]
+
+  Rows whose coordinates don't parse (`nil`) are left untouched and raise no warning:
+
+      iex> df = Explorer.DataFrame.new(longitude: [2.35, nil], latitude: [48.85, nil])
+      iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df)
+      iex> Explorer.Series.to_list(r["warning_lon_lat_inverted"])
+      [false, false]
+
+  With `only_where:`, corrections and warnings are restricted to rows where the named
+  boolean column is `true`:
+
+      iex> df = Explorer.DataFrame.new(longitude: [48.85, 48.85], latitude: [2.35, 2.35], valid: [true, false])
+      iex> r = Transport.IRVE.CoordinateCorrection.detect_and_correct(df, only_where: "valid")
+      iex> Explorer.Series.to_list(r["warning_lon_lat_inverted"])
+      [true, false]
+      iex> Explorer.Series.to_list(r["longitude"])
+      [2.35, 48.85]
 
   """
-  def detect_and_correct(%DF{} = df) do
+  def detect_and_correct(%DF{} = df, opts \\ []) do
+    valid_column = Keyword.get(opts, :only_where)
+
     DF.mutate_with(df, fn df ->
       lon = df["longitude"]
       lat = df["latitude"]
-      inverted = inverted?(lon, lat)
+      # `nil` coordinates yield a `nil` predicate, which would make `Series.select/3` panic;
+      # treat them as "not inverted" (no swap, no warning).
+      inverted = inverted?(lon, lat) |> Series.fill_missing(false)
+
+      # Only correct/warn rows the caller marks valid: a schema-invalid cell is reported as
+      # an error elsewhere and must never be silently swapped.
+      inverted =
+        case valid_column do
+          nil -> inverted
+          col -> Series.and(inverted, df[col])
+        end
 
       %{
         longitude: Series.select(inverted, lat, lon),
         latitude: Series.select(inverted, lon, lat),
-        consolidated_is_lon_lat_correct: Series.not(inverted)
+        warning_lon_lat_inverted: inverted
       }
     end)
   end

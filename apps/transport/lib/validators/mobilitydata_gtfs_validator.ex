@@ -278,7 +278,29 @@ defmodule Transport.Validators.MobilityDataGTFSValidator do
   ["code", "deprecated", "description", "properties", "references", "severityLevel", "shortSummary", "type"]
   """
   @spec rule_for_code(binary()) :: map()
-  def rule_for_code(code), do: Map.fetch!(@rules, code)
+  def rule_for_code(code) do
+    case Map.fetch(@rules, code) do
+      {:ok, rule} ->
+        rule
+
+      :error ->
+        %{
+          "code" => code,
+          "deprecated" => false,
+          "description" => nil,
+          "properties" => %{},
+          "references" => %{
+            "fileReferences" => [],
+            "bestPracticesFileReferences" => [],
+            "sectionReferences" => [],
+            "urlReferences" => []
+          },
+          "severityLevel" => "WARNING",
+          "shortSummary" => "Unknown rule: #{code}",
+          "type" => "object"
+        }
+    end
+  end
 
   defp validator_client, do: Transport.Validators.MobilityDataGTFSValidatorClient.Wrapper.impl()
 

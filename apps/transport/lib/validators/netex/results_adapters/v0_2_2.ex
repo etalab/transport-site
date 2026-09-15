@@ -13,9 +13,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile, do: Transport.NeTEx.FrenchProfile.V2
 
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate preferred_category_order(), to: Previous
+
   # Following functions are all delegated to V0_2_1
 
-  @spec get_max_severity_error(map()) :: binary()
   defdelegate get_max_severity_error(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -24,7 +26,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate no_error?(severity), to: Previous
 
-  @spec severity_level(binary()) :: integer()
   defdelegate severity_level(key), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -32,8 +33,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_severity(validation_result), to: Previous
-
-  defdelegate index_messages(messages), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate summary(validation_result), to: Previous
@@ -47,8 +46,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate get_categories(df), to: Previous
 
   defdelegate pick_default_category(df, categories_preferred_order), to: Previous
-
-  defdelegate order_issues_by_location(issues), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate digest(validation_result), to: Previous

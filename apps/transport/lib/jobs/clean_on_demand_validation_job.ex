@@ -56,6 +56,6 @@ defmodule Transport.Jobs.CleanOnDemandValidationJob do
     # is an on-demand validation
     |> where([mv], not is_nil(mv.oban_args) and is_nil(mv.resource_id) and is_nil(mv.resource_history_id))
     # has not been cleaned yet
-    |> where([mv], not is_nil(mv.result))
+    |> where([mv], not is_nil(mv.result) or not is_nil(mv.binary_result))
   end
 end

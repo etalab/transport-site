@@ -1,5 +1,5 @@
 defmodule Transport.Jobs.WorkflowTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Oban.Testing, repo: DB.Repo
   import Transport.Jobs.Workflow
   import Ecto.Adapters.SQL.Sandbox

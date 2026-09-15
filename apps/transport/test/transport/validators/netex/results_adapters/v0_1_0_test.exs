@@ -19,7 +19,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
     pagination_config = make_pagination_config(%{})
 
     binary_result =
-      result_factory("xsd-123": 41, "valid-day-bits": 41)
+      result_factory("valid-day-bits": 41, "xsd-123": 41)
       |> V0_1_0.to_binary_result()
 
     assert {%{"issue_type" => "valid-day-bits"}, {41, repeated(@rule, 20)}} ==
@@ -73,10 +73,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
 
   defp result_factory(counts) do
     counts
-    |> Enum.map(fn {category, count} ->
-      {Atom.to_string(category), error_factory(category, count)}
+    |> Enum.flat_map(fn {category, count} ->
+      error_factory(category, count)
     end)
-    |> Map.new()
   end
 
   defp error_factory(:"xsd-123", count), do: repeated(@xsd, count)

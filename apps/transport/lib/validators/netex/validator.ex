@@ -6,6 +6,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
+  alias Transport.NeTEx.SchemaVersionMapper
   alias Transport.Validators.NeTEx.MetadataExtractor
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
 
@@ -35,7 +36,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validator_name, do: @validator_name
 
   # This will change with an actual versioning of the validator
-  def validator_version, do: "0.2.1"
+  def validator_version, do: "0.2.2"
 
   @impl Transport.Validators.Validator
   def validate_and_save(%DB.ResourceHistory{} = resource_history) do
@@ -46,9 +47,15 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   def validate_resource_history(resource_history, filepath) do
     metadata = MetadataExtractor.extract(filepath)
+    xsd_version = determine_xsd_version(metadata, resource_history)
+    full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
-    validate_with_enroute(filepath, metadata)
-    |> handle_validation_results(resource_history.id, metadata, &enqueue_poller(resource_history.id, &1, metadata))
+    validate_with_enroute(filepath, metadata, xsd_version)
+    |> handle_validation_results(
+      resource_history.id,
+      full_metadata,
+      &enqueue_poller(resource_history.id, &1, full_metadata)
+    )
   end
 
   def enqueue_poller(resource_history_id, validation_id, metadata, attempt \\ 0) do
@@ -104,7 +111,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         :ok
 
-      {:pending, {validation_id, _metatada}} ->
+      {:pending, {validation_id, _metadata}} ->
         on_pending.(validation_id)
     end
   end
@@ -126,8 +133,11 @@ defmodule Transport.Validators.NeTEx.Validator do
   def validate(url) do
     with_url(url, fn filepath ->
       metadata = MetadataExtractor.extract(filepath)
+      xsd_version = determine_xsd_version(metadata)
+      full_metadata = Map.put(metadata, "xsd_version", xsd_version)
 
-      validate_with_enroute(filepath, metadata) |> handle_validation_results_on_demand(metadata)
+      validate_with_enroute(filepath, metadata, xsd_version)
+      |> handle_validation_results_on_demand(full_metadata)
     end)
   end
 
@@ -145,23 +155,21 @@ defmodule Transport.Validators.NeTEx.Validator do
     case validation_results do
       {:ok, %{url: result_url, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
-        # result_url in metadata?
         Logger.info("Result URL: #{result_url}")
 
         {:ok,
          %{
-           "validations" => ResultsAdapter.index_messages([]),
+           "validations" => [],
            "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
       {:error, %{details: {result_url, errors}, elapsed_seconds: elapsed_seconds, retries: retries}} ->
         notify_success()
-
         Logger.info("Result URL: #{result_url}")
-        # result_url in metadata?
+
         {:ok,
          %{
-           "validations" => errors |> ResultsAdapter.index_messages(),
+           "validations" => errors,
            "metadata" => Map.merge(metadata, %{elapsed_seconds: elapsed_seconds, retries: retries})
          }}
 
@@ -179,7 +187,7 @@ defmodule Transport.Validators.NeTEx.Validator do
 
         {:error, %{message: "enRoute Chouette Valid: Timeout while fetching results", retries: retries}}
 
-      {:pending, {validation_id, metadata}} ->
+      {:pending, {validation_id, _metadata}} ->
         {:pending, {validation_id, metadata}}
     end
   end
@@ -216,7 +224,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   def insert_validation_results(resource_history_id, result_url, metadata, errors \\ []) do
-    result = ResultsAdapter.index_messages(errors)
+    df = ResultsAdapter.to_dataframe(errors)
 
     resource_metadata =
       %DB.ResourceMetadata{
@@ -229,12 +237,12 @@ defmodule Transport.Validators.NeTEx.Validator do
       validation_timestamp: DateTime.utc_now(),
       validator: validator_name(),
       result: nil,
-      binary_result: ResultsAdapter.to_binary_result(result),
-      digest: ResultsAdapter.digest(result),
+      binary_result: ResultsAdapter.to_binary_result(errors),
+      digest: ResultsAdapter.digest(df),
       resource_history_id: resource_history_id,
       validator_version: validator_version(),
       command: result_url,
-      max_error: ResultsAdapter.get_max_severity_error(result),
+      max_error: ResultsAdapter.get_max_severity_error(df),
       metadata: resource_metadata
     }
     |> DB.Repo.insert!()
@@ -244,11 +252,48 @@ defmodule Transport.Validators.NeTEx.Validator do
     Enum.sort(for {feature, true} <- features, do: feature)
   end
 
-  defp validate_with_enroute(filepath, metadata) do
-    setup_validation(filepath) |> poll_validation_results(metadata, 0)
+  defp validate_with_enroute(filepath, metadata, xsd_version) do
+    setup_validation(filepath, xsd_version) |> poll_validation_results(metadata, 0)
   end
 
-  defp setup_validation(filepath), do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug())
+  defp setup_validation(filepath, xsd_version),
+    do: client().create_a_validation(filepath, ResultsAdapter.french_profile().slug(), xsd_version)
+
+  @doc """
+  Determine the XSD version to use for validation based on a fallback chain:
+
+  1. Earliest `PublicationTimestamp` from XML files (in metadata[\"publication_date\"])
+  2. Fallback: `resource_history.inserted_at` (upload date)
+  3. Fallback: `Date.utc_today()` (on-demand validation, no resource history)
+  """
+  def determine_xsd_version(metadata, resource_history \\ nil) do
+    date =
+      case metadata["publication_date"] do
+        iso when is_binary(iso) ->
+          case Date.from_iso8601(iso) do
+            {:ok, date} -> date
+            _ -> fallback_date(resource_history)
+          end
+
+        _ ->
+          fallback_date(resource_history)
+      end
+
+    SchemaVersionMapper.xsd_version_for_date(date)
+  end
+
+  defp fallback_date(%DB.ResourceHistory{inserted_at: %DateTime{} = dt}) do
+    DateTime.to_date(dt)
+  end
+
+  defp fallback_date(%DB.ResourceHistory{inserted_at: inserted_at}) do
+    case Date.from_iso8601(inserted_at) do
+      {:ok, date} -> date
+      _ -> Date.utc_today()
+    end
+  end
+
+  defp fallback_date(_), do: Date.utc_today()
 
   def poll_validation_results(validation_id, metadata, retries) do
     case client().get_a_validation(validation_id) do

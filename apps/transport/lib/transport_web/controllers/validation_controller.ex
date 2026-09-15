@@ -113,7 +113,10 @@ defmodule TransportWeb.ValidationController do
   end
 
   defp validate_irve_statique(conn, file_path, filename, _size) do
-    summary = Transport.IRVE.Validator.validate_and_summarize(file_path, irve_extension(filename))
+    {summary, _validated_df} =
+      file_path
+      |> File.read!()
+      |> Transport.IRVE.Validator.validate_and_summarize(irve_extension(filename))
 
     validation =
       %MultiValidation{
@@ -176,7 +179,7 @@ defmodule TransportWeb.ValidationController do
         |> assign(:validator, validator)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:modes, validation.metadata.modes)
-        |> assign(:data_vis, data_vis(validation, issue_type))
+        |> assign(:data_vis, DataVisualization.encoded_data_vis(validation, issue_type))
         |> assign(:validation_summary, validator.summary(validation.result))
         |> assign(:severities_count, validator.count_by_severity(validation.result))
         |> render("show_gtfs.html")
@@ -308,6 +311,7 @@ defmodule TransportWeb.ValidationController do
     )
   end
 
+  defp pick_netex_template("0.2.2"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
@@ -317,17 +321,6 @@ defmodule TransportWeb.ValidationController do
     |> assign(:validation_id, params["id"])
     |> assign(:other_resources, [])
     |> assign(:token, params["token"])
-  end
-
-  defp data_vis(%MultiValidation{} = validation, issue_type) do
-    data_vis = validation.data_vis[issue_type]
-    has_features = DataVisualization.has_features(data_vis["geojson"])
-
-    case {has_features, Jason.encode(data_vis)} do
-      {false, _} -> nil
-      {true, {:ok, encoded_data_vis}} -> encoded_data_vis
-      _ -> nil
-    end
   end
 
   defp filepath(type) do

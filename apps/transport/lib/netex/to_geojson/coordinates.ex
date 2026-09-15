@@ -126,6 +126,7 @@ defmodule Transport.NeTEx.ToGeoJSON.Coordinates do
       values
       |> Enum.chunk_every(2)
       |> Enum.reduce_while({:ok, []}, fn [lat_str, lon_str], {:ok, acc} ->
+        # credo:disable-for-next-line Credo.Check.Refactor.Nesting
         with {:ok, lat} <- parse_float(lat_str),
              {:ok, lon} <- parse_float(lon_str) do
           # Convert from GML lat/lon to GeoJSON lon/lat
