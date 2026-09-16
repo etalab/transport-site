@@ -535,3 +535,7 @@ msgstr ""
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Warning samples"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-version"
+msgstr "Validated against NeTEx XSD %{version}."
