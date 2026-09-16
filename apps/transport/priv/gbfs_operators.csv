@@ -2,7 +2,6 @@ url;operator
 example.com;Example
 _ecovelo/gbfs;Ecovélo
 api.cyclocity.fr;JC Decaux
-api.saint-etienne-metropole.fr;Fifteen
 backend.citiz.fr;Citiz
 bdx.mecatran.com;Cykleo
 bird.co;Bird
@@ -29,6 +28,7 @@ media.ilevia.fr/opendata;Cykleo
 nextbike.net;nextbike
 opendata.agglo-larochelle.fr;Yélo VLS
 proxy.transport.data.gouv.fr/resource/pony-;Pony
+saint-etienne-metropole.fr;Fifteen
 services.rideyego.com;Yego
 smovengo.cloud;Smovengo
 stce.transdev-hdf.fr;Transdev
