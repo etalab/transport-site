@@ -79,7 +79,8 @@ defmodule TransportWeb.NeTExReportComponents do
           validation_report_url: _,
           validation_summary: _,
           xsd_errors: _,
-          pagination: _
+          pagination: _,
+          xsd_version: _
         } = assigns
       ) do
     ~H"""
@@ -106,6 +107,7 @@ defmodule TransportWeb.NeTExReportComponents do
       validation_report_url={@validation_report_url}
       pagination={@pagination}
       results_adapter={@results_adapter}
+      xsd_version={@xsd_version}
     />
     """
   end
@@ -141,7 +143,8 @@ defmodule TransportWeb.NeTExReportComponents do
            errors: _,
            validation_report_url: _,
            pagination: _,
-           results_adapter: _
+           results_adapter: _,
+           xsd_version: _
          } =
            assigns
        ) do
@@ -153,6 +156,7 @@ defmodule TransportWeb.NeTExReportComponents do
         compliance_check={@compliance_check}
         conn={@conn}
         results_adapter={@results_adapter}
+        xsd_version={@xsd_version}
       />
       <.netex_category_comment count={Enum.count(@errors)} category={@current_category} />
 
@@ -364,10 +368,12 @@ defmodule TransportWeb.NeTExReportComponents do
     Map.reject(query_params, fn {_, v} -> is_nil(v) end)
   end
 
-  defp netex_category_description(%{category: _, compliance_check: _, conn: _, results_adapter: _} = assigns) do
+  defp netex_category_description(
+         %{category: _, compliance_check: _, conn: _, results_adapter: _, xsd_version: _} = assigns
+       ) do
     ~H"""
     <% url = netex_link_to_category(@conn, "french-profile") %>
-    <% description = netex_category_description_html(@category, url) %>
+    <% description = netex_category_description_html(@category, url, @xsd_version) %>
     <p :if={description}>
       {raw(description)}
     </p>
@@ -427,12 +433,23 @@ defmodule TransportWeb.NeTExReportComponents do
   defp netex_category_label("base-rules"), do: dgettext("validations", "Base rules")
   defp netex_category_label(_), do: dgettext("validations", "Other errors")
 
-  defp netex_category_description_html("xsd-schema", category_french_profile),
-    do: dgettext("validations", "xsd-schema-description", category_french_profile: category_french_profile)
+  defp netex_category_description_html("xsd-schema", category_french_profile, xsd_version) do
+    base = dgettext("validations", "xsd-schema-description", category_french_profile: category_french_profile)
 
-  defp netex_category_description_html("french-profile", _), do: dgettext("validations", "french-profile-description")
-  defp netex_category_description_html("base-rules", _), do: dgettext("validations", "base-rules-description")
-  defp netex_category_description_html(_, _), do: nil
+    if xsd_version do
+      base <>
+        " " <>
+        dgettext("validations", "xsd-schema-version", version: xsd_version)
+    else
+      base
+    end
+  end
+
+  defp netex_category_description_html("french-profile", _, _),
+    do: dgettext("validations", "french-profile-description")
+
+  defp netex_category_description_html("base-rules", _, _), do: dgettext("validations", "base-rules-description")
+  defp netex_category_description_html(_, _, _), do: nil
 
   defp netex_category_hints_html("xsd-schema"), do: dgettext("validations", "xsd-schema-hints")
   defp netex_category_hints_html(_), do: nil

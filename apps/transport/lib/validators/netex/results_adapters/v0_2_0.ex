@@ -123,7 +123,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
       if Commons.has_column?(df, "category") do
         df
         |> DF.filter(category == ^issues_category)
-        |> order_issues_by_location()
         |> Commons.count_and_slice(pagination_config)
       else
         {0, []}
@@ -153,8 +152,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   end
 
   def get_categories(%Explorer.DataFrame{} = df), do: Commons.get_values(df, "category")
-
-  defdelegate order_issues_by_location(issues), to: V0_1_0
 
   # Delegation to V0_1_0 — these now accept DataFrames via the updated callbacks
   @impl Transport.Validators.NeTEx.ResultsAdapter

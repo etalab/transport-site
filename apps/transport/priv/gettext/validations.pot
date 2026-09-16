@@ -533,3 +533,7 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Warning samples"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-version"
+msgstr ""
