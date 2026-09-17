@@ -222,13 +222,7 @@
           </b>
         </div>
       </div>
-      <div
-        :if={
-          Enum.count(@dataset.legal_owners_aom) > 0 || Enum.count(@dataset.legal_owners_region) > 0 ||
-            not is_nil(@dataset.legal_owner_company_siren)
-        }
-        class="pt-12"
-      >
+      <div :if={has_legal_owners?(@dataset)} class="pt-12">
         <span class="dataset-metas-info-title">
           {dgettext("page-dataset-details", "Data under the responsibility of")}
         </span>
