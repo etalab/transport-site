@@ -50,7 +50,7 @@ defmodule TransportWeb.DiscussionsLive do
       </div>
     <% else %>
       <div>
-        {dgettext("page-dataset-details", "loading discussions...")}
+        {dgettext("page-dataset-details", "Loading discussions…")}
       </div>
     <% end %>
     """

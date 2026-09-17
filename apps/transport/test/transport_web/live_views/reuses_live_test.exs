@@ -29,6 +29,30 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
     assert render(view) =~ "Bornes et station de recharge pour véhicules électriques"
   end
 
+  test "shifts heading levels in reuse descriptions", %{conn: conn} do
+    insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
+
+    Datagouvfr.Client.Reuses.Mock
+    |> expect(:get, 1, fn %{datagouv_id: ^datagouv_id} ->
+      {:ok, [reuse_with_headings()]}
+    end)
+
+    {:ok, view, _html} =
+      live_isolated(conn, TransportWeb.ReusesLive,
+        session: %{
+          "dataset_datagouv_id" => datagouv_id,
+          "locale" => "fr"
+        }
+      )
+
+    rendered = render(view)
+
+    # h1 in markdown → h4 in rendered reuse card (card itself uses h3 for title)
+    assert rendered =~ ~r/<h4>(?s).*Section principale<\/h4>/
+    # h2 in markdown → h5
+    assert rendered =~ ~r/<h5>(?s).*Sous-section<\/h5>/
+  end
+
   test "renders even if data.gouv is down", %{conn: conn} do
     insert(:dataset, datagouv_id: datagouv_id = Ecto.UUID.generate())
 
@@ -75,6 +99,16 @@ defmodule Transport.TransportWeb.ReusesLiveTest do
     )
 
     assert render(view) =~ ~r/Réutilisations\s*\(10\)/
+  end
+
+  defp reuse_with_headings do
+    Map.put(
+      hd(reuses()),
+      "description",
+      "# Section principale\nParagraphe.
+
+## Sous-section\nAutre paragraphe."
+    )
   end
 
   defp reuses do

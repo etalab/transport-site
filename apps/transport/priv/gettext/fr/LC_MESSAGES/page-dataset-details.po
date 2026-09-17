@@ -551,8 +551,8 @@ msgid "transport.data.gouv.fr automatically sends notifications to data producer
 msgstr "transport.data.gouv.fr envoie automatiquement des notifications au producteur du jeu de données afin d'en améliorer la qualité. Les notifications suivantes ont été envoyées au cours des %{nb} derniers jours."
 
 #, elixir-autogen, elixir-format
-msgid "loading discussions..."
-msgstr "chargement des discussions..."
+msgid "Loading discussions…."
+msgstr "Chargement des discussions…"
 
 #, elixir-autogen, elixir-format
 msgid "This transport service operates seasonally. The associated resources may be outdated depending on the time of year. Contact the data producer through Discussions for more information."

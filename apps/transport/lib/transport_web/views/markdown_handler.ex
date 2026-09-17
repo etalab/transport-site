@@ -6,16 +6,28 @@ defmodule TransportWeb.MarkdownHandler do
   alias Phoenix.HTML
 
   @doc """
-  transform an external markdown content into safe HTML
+  Transform an external markdown content into safe HTML.
   """
   @spec markdown_to_safe_html!(binary() | nil) :: HTML.safe()
   def markdown_to_safe_html!(nil), do: HTML.raw(nil)
 
   def markdown_to_safe_html!(md) do
+    markdown_to_safe_html!(md, &Function.identity/1)
+  end
+
+  @doc """
+  Transform markdown to safe HTML with a custom transform applied after Earmark.
+  The transform receives sanitized HTML and returns the final HTML string.
+  """
+  @spec markdown_to_safe_html!(binary(), (String.t() -> String.t())) :: HTML.safe()
+  def markdown_to_safe_html!(nil, _transform), do: HTML.raw(nil)
+
+  def markdown_to_safe_html!(md, transform) do
     {:safe, txt} =
       md
       |> Earmark.as_html!(gfm_tables: true, breaks: true)
       |> HtmlSanitizeEx.basic_html()
+      |> transform.()
       |> HTML.raw()
 
     {:safe, String.replace(txt, "<table>", ~s(<table class="table">), global: true)}
