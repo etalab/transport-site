@@ -1,0 +1,38 @@
+<div class="ctx-menu">
+  <button class="ctx-menu__trigger" tabindex="0" title={dgettext("backoffice", "Actions")}>
+    <i class="fas fa-ellipsis-v"></i>
+  </button>
+  <div class="ctx-menu__content">
+    <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank">
+      <i class="fa fa-link"></i> {dgettext("backoffice", "View on the PAN")}
+    </a>
+
+    <a href={Dataset.datagouv_url(@dataset)} target="_blank">
+      <i class="fa fa-link"></i> {dgettext("backoffice", "View on data.gouv.fr")}
+    </a>
+
+    <hr />
+
+    <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+      <button type="submit">
+        <i class="fas fa-download"></i> {dgettext("backoffice", "Import")}
+      </button>
+    <% end %>
+
+    <span class="ctx-menu__validate-wrapper">
+      {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
+    </span>
+
+    <a href={backoffice_page_path(@conn, :edit, @dataset.id)}>
+      <i class="fas fa-pencil"></i> {dgettext("backoffice", "Edit")}
+    </a>
+
+    <hr />
+
+    <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+      <button type="submit" class="ctx-menu__delete">
+        <i class="fas fa-trash"></i> {dgettext("backoffice", "Remove")}
+      </button>
+    <% end %>
+  </div>
+</div>

@@ -393,3 +393,27 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "Properties"
 msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Import"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Remove"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "View on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "View on the PAN"
+msgstr ""
