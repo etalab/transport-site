@@ -118,9 +118,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Builds a severity-based summary from a DataFrame.
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate count_by_category_and_severity(binary), to: Commons
 
+  @doc """
   Returns items grouped by criticity (error/warning/information), as expected by the v0_1.0 template.
 
   ## Examples
@@ -197,6 +198,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @doc """
   Get issues from validation results. For a specific issue type if specified, or the most severe.
   """
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def get_issues(<<>>, _filter, _pagination_config), do: {%{}, {0, []}}
+
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
     binary
@@ -280,23 +284,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Converts raw error list directly to a parquet binary — no intermediate grouping.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}]
-      iex> binary = to_binary_result(errors)
-      iex> is_binary(binary)
-      true
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
-    errors
-    |> to_dataframe()
-    |> Commons.to_binary()
-  end
+  def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def summarize_xsd_errors(_binary_result), do: []
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_from_binary(binary_result) when is_binary(binary_result) do
+    binary_result |> Commons.from_binary() |> summary()
+  end
 end

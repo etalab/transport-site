@@ -3,6 +3,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
   doctest Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, import: true
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2
+  import Transport.Test.Validators.NeTEx.SummaryFromBinary
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
 
   @xsd %{
@@ -73,6 +74,19 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
 
       assert {%{"issues_category" => "base-rules"}, {0, repeated(@rule, 0)}} ==
                module.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
+    end
+  end
+
+  describe "summary_from_binary/1" do
+    test "counts only the most severe level per category" do
+      assert_summary_from_binary(V0_2_1, [
+        {"xsd-schema", %{"count" => 1, "criticity" => "error"}},
+        {"base-rules", %{"count" => 1, "criticity" => "warning"}}
+      ])
+    end
+
+    test "empty binary returns all categories with count 0 and NoError" do
+      assert_summary_from_binary_empty(V0_2_1, ["xsd-schema", "french-profile", "base-rules"])
     end
   end
 
