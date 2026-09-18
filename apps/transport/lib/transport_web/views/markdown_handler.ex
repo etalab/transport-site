@@ -2,7 +2,6 @@ defmodule TransportWeb.MarkdownHandler do
   @moduledoc """
   A module to handle external markdown, sanitize it and mark it safe
   """
-  require HtmlSanitizeEx
   alias Phoenix.HTML
 
   @doc """

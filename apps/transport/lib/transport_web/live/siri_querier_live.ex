@@ -6,8 +6,6 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   import TransportWeb.Router.Helpers, only: [live_path: 3, static_path: 2]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
 
-  require Logger
-
   @request_headers [{"content-type", "text/xml"}]
   @supported_url_parameters [
     :endpoint_url,

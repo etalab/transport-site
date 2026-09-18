@@ -38,9 +38,10 @@ defmodule Transport.Test.Transport.Jobs.CustomLogoConversionJobTest do
                                  src: %File.Stream{},
                                  bucket: "transport-data-gouv-fr-logos-test",
                                  path: path,
-                                 opts: [cache_control: "public, max-age=604800", acl: :public_read],
+                                 opts: opts,
                                  service: :s3
                                } ->
+      assert [acl: :public_read, cache_control: "public, max-age=604800"] == Enum.sort(opts)
       assert Enum.member?([logo_filename, full_logo_filename], path)
     end)
 

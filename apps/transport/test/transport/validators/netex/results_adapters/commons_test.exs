@@ -1,7 +1,7 @@
 defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
   use ExUnit.Case, async: true
+  alias Explorer.DataFrame, as: DF
   alias Transport.Validators.NeTEx.ResultsAdapters.Commons
-  require Explorer.DataFrame, as: DF
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1, make_pagination_config: 2]
 
   @xsd %{

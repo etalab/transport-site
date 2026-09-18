@@ -43,7 +43,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
                   </a>
                 </h3>
                 <div class="dataset-localization">
-                  <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area_or_nil(dataset)}
+                  <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area(dataset)}
                 </div>
               </div>
             </div>

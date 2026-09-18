@@ -40,8 +40,7 @@ defmodule Datagouvfr.Client.ReusesTest do
         params: %{dataset: "id"}
       )
 
-      {:error, message} = Reuses.get(%{datagouv_id: "id"})
-      assert String.starts_with?(message, "Unable to get reuses of dataset id because of %Jason.DecodeError")
+      assert {:error, "Unable to get reuses of dataset id could not decode JSON"} == Reuses.get(%{datagouv_id: "id"})
     end
   end
 end
