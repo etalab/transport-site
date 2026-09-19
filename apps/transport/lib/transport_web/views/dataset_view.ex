@@ -123,6 +123,18 @@ defmodule TransportWeb.DatasetView do
     end
   end
 
+  @doc """
+  Returns true if the dataset has legal owners to display (AOM, region, or company).
+  """
+  @spec has_legal_owners?(Dataset.t()) :: boolean
+  def has_legal_owners?(%Dataset{
+        legal_owners_aom: aom,
+        legal_owners_region: region,
+        legal_owner_company_siren: siren
+      }) do
+    aom |> Enum.any?() or region |> Enum.any?() or not is_nil(siren)
+  end
+
   def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
     legal_owners_region
     |> Enum.sort_by(& &1.nom)
