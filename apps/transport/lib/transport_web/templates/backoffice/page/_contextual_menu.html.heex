@@ -32,9 +32,7 @@
       </button>
     <% end %>
 
-    <span class="ctx-menu__validate-wrapper">
-      {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
-    </span>
+    {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
 
     <a href={backoffice_page_path(@conn, :edit, @dataset.id)} role="menuitem">
       <i class="fas fa-pencil"></i> {dgettext("backoffice", "Edit")}

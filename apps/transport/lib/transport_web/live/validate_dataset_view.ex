@@ -10,6 +10,7 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     ~H"""
     <button
       phx-click="validate_dataset"
+      role="menuitem"
       class={"ctx-menu__validate #{state_class(@step)}"}
     >
       <i class={"fas fa-#{icon_for_state(@step)}"}></i>

@@ -37,9 +37,7 @@
     border-radius: var(--theme-border-radius);
     z-index: 10;
 
-    & > a,
-    & > form > button,
-    & > .ctx-menu__validate-wrapper button {
+    [role="menuitem"] {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -72,8 +70,7 @@
     }
 
     // Delete action — red styling overrides
-    & > form > button.ctx-menu__delete,
-    & > .ctx-menu__validate-wrapper button.ctx-menu__delete {
+    [role="menuitem"].ctx-menu__delete {
       color: #d32f2f;
 
       &:hover {
