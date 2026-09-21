@@ -226,7 +226,7 @@
   </div>
 
   <div class="pt-48" id="backoffice-datasets-table">
-    {pagination_links(@conn, @datasets)}
+    {pagination_links(@conn, @datasets, "backoffice-datasets-table")}
   </div>
   <table class="backoffice-results">
     <colgroup>
@@ -251,6 +251,6 @@
     <% end %>
   </table>
   <div class="pt-48">
-    {pagination_links(@conn, @datasets)}
+    {pagination_links(@conn, @datasets, "backoffice-datasets-table")}
   </div>
 </section>
