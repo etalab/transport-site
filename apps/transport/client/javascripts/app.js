@@ -35,6 +35,51 @@ Hooks.TextareaAutoexpand = {
     }
 }
 
+Hooks.CtxMenu = {
+    mounted() {
+        const trigger = this.el.querySelector('.ctx-menu__trigger')
+        if (!trigger) return
+
+        // Toggle open/close on click
+        trigger.addEventListener('click', (e) => {
+            e.preventDefault()
+            const isOpen = this.el.dataset.open === 'true'
+            this.el.dataset.open = String(!isOpen)
+            trigger.setAttribute('aria-expanded', String(!isOpen))
+        })
+
+        // Close on Escape
+        this.handleEvent('keydown', (e) => {
+            if (e.key === 'Escape' && this.el.dataset.open === 'true') {
+                this.el.dataset.open = 'false'
+                trigger.setAttribute('aria-expanded', 'false')
+                trigger.focus()
+            }
+        })
+
+        // Close when clicking outside
+        this.closeOutside = (e) => {
+            if (!this.el.contains(e.target)) {
+                this.el.dataset.open = 'false'
+                trigger.setAttribute('aria-expanded', 'false')
+            }
+        }
+        document.addEventListener('mousedown', this.closeOutside)
+
+        // Close when focus leaves the menu (keyboard navigation)
+        this.el.addEventListener('focusout', (e) => {
+            if (this.el.dataset.open === 'true' && !this.el.contains(e.relatedTarget)) {
+                this.el.dataset.open = 'false'
+                trigger.setAttribute('aria-expanded', 'false')
+            }
+        })
+    },
+
+    destroyed() {
+        document.removeEventListener('mousedown', this.closeOutside)
+    }
+}
+
 window.addEventListener('phx:backoffice-form-reset', () => {
     document.getElementById('custom_tag').value = ''
 })

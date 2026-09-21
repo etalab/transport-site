@@ -87,31 +87,22 @@
     }
   }
 
-  // Anchor positioning (modern browsers)
+  // Anchor positioning with position-try fallbacks (modern browsers)
   @supports (top: anchor(bottom)) {
-    &:focus,
-    &:has(:focus),
-    :not(:has(:focus)):hover {
-      .ctx-menu__content {
-        display: block;
-        position: absolute;
-        top: anchor(--ctx-menu-anchor bottom);
-        right: anchor(--ctx-menu-anchor right);
-        position-try-fallbacks: --top-aligned;
-      }
+    .ctx-menu__content {
+      top: anchor(--ctx-menu-anchor bottom);
+      right: anchor(--ctx-menu-anchor right);
+      position-try-fallbacks: --top-aligned;
+    }
 
-      @position-try --top-aligned {
-        top: auto;
-        bottom: anchor(--ctx-menu-anchor top);
-      }
+    @position-try --top-aligned {
+      top: auto;
+      bottom: anchor(--ctx-menu-anchor top);
     }
   }
 
-  // Fallback for browsers without anchor positioning
-  @supports not (top: anchor(bottom)) {
-    &:hover .ctx-menu__content,
-    &:focus .ctx-menu__content {
-      display: block;
-    }
+  // Open state driven by data attribute (JS hook)
+  [data-open="true"] &__content {
+    display: block;
   }
 }

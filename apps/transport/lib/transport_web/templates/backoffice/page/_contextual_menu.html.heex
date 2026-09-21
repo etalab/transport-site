@@ -1,20 +1,33 @@
-<div class="ctx-menu">
-  <button class="ctx-menu__trigger" tabindex="0" title={dgettext("backoffice", "Actions")}>
+<div id={"ctx-menu-#{@dataset.id}"} class="ctx-menu" data-open="false" phx-hook="CtxMenu">
+  <button
+    id={"ctx-menu-trigger-#{@dataset.id}"}
+    class="ctx-menu__trigger"
+    type="button"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={"ctx-menu-content-#{@dataset.id}"}
+    title={dgettext("backoffice", "Actions")}
+  >
     <i class="fas fa-ellipsis-v"></i>
+    <span class="sr-only">{dgettext("backoffice", "Actions")}</span>
   </button>
-  <div class="ctx-menu__content">
-    <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank">
+  <div
+    id={"ctx-menu-content-#{@dataset.id}"}
+    class="ctx-menu__content"
+    role="menu"
+  >
+    <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank" role="menuitem">
       <i class="fa fa-link"></i> {dgettext("backoffice", "View on the PAN")}
     </a>
 
-    <a href={Dataset.datagouv_url(@dataset)} target="_blank">
+    <a href={Dataset.datagouv_url(@dataset)} target="_blank" role="menuitem">
       <i class="fa fa-link"></i> {dgettext("backoffice", "View on data.gouv.fr")}
     </a>
 
     <hr />
 
     <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-      <button type="submit">
+      <button type="submit" role="menuitem">
         <i class="fas fa-download"></i> {dgettext("backoffice", "Import")}
       </button>
     <% end %>
@@ -23,14 +36,14 @@
       {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
     </span>
 
-    <a href={backoffice_page_path(@conn, :edit, @dataset.id)}>
+    <a href={backoffice_page_path(@conn, :edit, @dataset.id)} role="menuitem">
       <i class="fas fa-pencil"></i> {dgettext("backoffice", "Edit")}
     </a>
 
     <hr />
 
     <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-      <button type="submit" class="ctx-menu__delete">
+      <button type="submit" class="ctx-menu__delete" role="menuitem">
         <i class="fas fa-trash"></i> {dgettext("backoffice", "Remove")}
       </button>
     <% end %>
