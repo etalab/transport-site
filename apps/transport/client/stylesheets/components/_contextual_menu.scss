@@ -15,9 +15,12 @@
     border-radius: var(--theme-border-radius);
     anchor-name: --ctx-menu-anchor;
 
-    &:hover,
-    &:focus {
+    &:hover {
       background-color: var(--light-grey);
+    }
+
+    &:focus {
+      background-color: var(--lighter-grey);
     }
   }
 
@@ -101,5 +104,9 @@
   // Open state driven by data attribute (JS hook)
   [data-open="true"] &__content {
     display: block;
+  }
+
+  [data-open="true"] &__trigger {
+      background-color: var(--light-grey);
   }
 }
