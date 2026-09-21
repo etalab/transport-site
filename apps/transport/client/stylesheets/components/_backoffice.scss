@@ -33,6 +33,10 @@
   tr {
     padding: 6px;
     height: 50px;
+
+    &.hidden > td.title {
+      color: var(--darker-grey);
+    }
   }
   tr:hover {
     background-color: #ebebeb;

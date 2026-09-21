@@ -1,14 +1,20 @@
-<tr>
-  <td>
+<tr class={if @dataset.is_hidden, do: "hidden"}>
+  <td class="title">
     <img
       :if={DB.Dataset.climate_resilience_bill?(@dataset)}
       class="icon---climate-resilience-bill small"
       src={static_path(@conn, "/images/loi-climat-resilience.png")}
     />
+    <span
+      :if={@dataset.is_hidden}
+      title={dgettext("backoffice", "Hidden")}
+      aria-label={dgettext("backoffice", "Hidden")}
+    >
+      <i class="fa fa-eye-slash icon---hidden"></i>
+    </span>
     <strong>
       {@dataset.custom_title}
     </strong>
-    <span :if={@dataset.is_hidden} class="label">{dgettext("backoffice", "Hidden")}</span>
   </td>
   <td>
     {@dataset.organization}
