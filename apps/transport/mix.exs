@@ -55,7 +55,7 @@ defmodule Transport.Mixfile do
   defp deps do
     [
       {:csv, "~> 3.0"},
-      {:earmark, "~> 1.4"},
+      {:mdex, "~> 0.13"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.8.3"},

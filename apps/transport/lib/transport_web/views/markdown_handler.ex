@@ -5,6 +5,15 @@ defmodule TransportWeb.MarkdownHandler do
   require HtmlSanitizeEx
   alias Phoenix.HTML
 
+  # Mirrors what Earmark used to provide: GFM tables, single line breaks, bare URLs turned
+  # into links, strikethrough and smart punctuation. Raw HTML is kept and `HtmlSanitizeEx`
+  # remains the security boundary.
+  @options [
+    extension: [table: true, autolink: true, strikethrough: true],
+    parse: [smart: true],
+    render: [hardbreaks: true, unsafe: true]
+  ]
+
   @doc """
   Transform an external markdown content into safe HTML.
   """
@@ -16,7 +25,7 @@ defmodule TransportWeb.MarkdownHandler do
   end
 
   @doc """
-  Transform markdown to safe HTML with a custom transform applied after Earmark.
+  Transform markdown to safe HTML with a custom transform applied after the Markdown rendering.
   The transform receives sanitized HTML and returns the final HTML string.
   """
   @spec markdown_to_safe_html!(binary(), (String.t() -> String.t())) :: HTML.safe()
@@ -25,7 +34,7 @@ defmodule TransportWeb.MarkdownHandler do
   def markdown_to_safe_html!(md, transform) do
     {:safe, txt} =
       md
-      |> Earmark.as_html!(gfm_tables: true, breaks: true)
+      |> MDEx.to_html!(@options)
       |> HtmlSanitizeEx.basic_html()
       |> transform.()
       |> HTML.raw()
@@ -34,7 +43,7 @@ defmodule TransportWeb.MarkdownHandler do
   end
 
   def to_html_with_anchors(markdown) do
-    {:ok, html, _} = Earmark.as_html(markdown)
+    {:ok, html} = MDEx.to_html(markdown, @options)
 
     html
     |> Floki.parse_fragment!()
