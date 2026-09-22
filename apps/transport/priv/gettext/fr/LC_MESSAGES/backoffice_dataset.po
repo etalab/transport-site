@@ -55,9 +55,9 @@ msgstr "Valider"
 msgid "Validated"
 msgstr "Validé"
 
-#, elixir-autogen, elixir-format
-msgid "Validating"
-msgstr "En cours"
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validation in progress…"
+msgstr "Validation en cours…"
 
 #, elixir-autogen, elixir-format
 msgid "Check the dataset page"

@@ -58,4 +58,42 @@ defmodule TransportWeb.MarkdownHandlerTest do
              ~s(<table class="table">\n  <thead>\n    <tr>\n      <th>\nState      </th>\n      <th>\nAbbrev      </th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>\nTexas      </td>\n      <td>\nTX      </td>\n    </tr>\n  </tbody>\n</table>\n)
            }
   end
+
+  describe "markdown_to_safe_html!/2 with transform" do
+    # Shift function matching ReusesLive.shift_headings/1
+    defp shift_headings(html) do
+      html
+      |> Floki.parse_fragment!()
+      |> Floki.traverse_and_update(&shift_headings_tag/1)
+      |> Floki.raw_html()
+    end
+
+    defp shift_headings_tag({tag, attrs, children}) do
+      tag =
+        case tag do
+          "h1" -> "h4"
+          unaltered -> unaltered
+        end
+
+      {tag, attrs, children}
+    end
+
+    test "shifts h1 to h4" do
+      content = "# Titre principal"
+      {:safe, html} = MarkdownHandler.markdown_to_safe_html!(content, &shift_headings/1)
+      assert html =~ ~r/<h4>(?s).*(?:\n)?Titre principal<\/h4>/
+    end
+
+    test "sanitizes dangerous HTML" do
+      content = "# Titre<svg/onload=alert(1)>\nParagraph"
+
+      {:safe, html} = MarkdownHandler.markdown_to_safe_html!(content, &shift_headings/1)
+      refute html =~ ~r/<svg/
+      assert html =~ ~r/<h4>/
+    end
+
+    test "returns safe empty string for nil input" do
+      assert MarkdownHandler.markdown_to_safe_html!(nil, &Function.identity/1) == {:safe, ""}
+    end
+  end
 end

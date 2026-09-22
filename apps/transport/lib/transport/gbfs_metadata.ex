@@ -96,6 +96,11 @@ defmodule Transport.GBFSMetadata do
   "Leo&Go"
   iex> operator("https://404.fr")
   nil
+
+  Vélivert (Saint-Étienne) moved from `api.` to `bus-prod.`: the mapping is on the bare domain, not the host.
+
+  iex> operator("https://bus-prod.saint-etienne-metropole.fr/Public/velivert/api/gbfs.json")
+  "Fifteen"
   """
   def operator(url) do
     Transport.CachedFiles.gbfs_operators()

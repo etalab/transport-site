@@ -226,18 +226,20 @@
   </div>
 
   <div class="pt-48" id="backoffice-datasets-table">
-    {pagination_links(@conn, @datasets)}
+    {pagination_links(@conn, @datasets, "backoffice-datasets-table")}
   </div>
   <table class="backoffice-results">
+    <colgroup>
+      <col class="dataset" />
+      <col class="organisation" />
+      <col class="end_date" />
+      <col class="actions" />
+    </colgroup>
     <tr>
       <th class="sortable">{backoffice_sort_link(@conn, "Dataset", :custom_title, @order_by)}</th>
       <th class="sortable">{backoffice_sort_link(@conn, "Organisation", :organization, @order_by)}</th>
-      <th>transport</th>
-      <th>data.gouv.fr</th>
+
       <th class="sortable">{backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by)}</th>
-      <th class="bo_action_button"></th>
-      <th class="bo_action_button"></th>
-      <th class="bo_action_button"></th>
       <th class="bo_action_button"></th>
     </tr>
     <%= for dataset <- @datasets do %>
@@ -249,6 +251,6 @@
     <% end %>
   </table>
   <div class="pt-48">
-    {pagination_links(@conn, @datasets)}
+    {pagination_links(@conn, @datasets, "backoffice-datasets-table")}
   </div>
 </section>
