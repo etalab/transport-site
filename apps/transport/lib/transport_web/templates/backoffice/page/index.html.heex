@@ -162,9 +162,6 @@
   </h1>
 
   <%= form_for @conn, "#{backoffice_page_path(@conn, :index)}#list_datasets", [id: "backoffice_search_container", method: "get"], fn f -> %>
-    <%= if @conn.params["filter"] do %>
-      <input type="hidden" name="filter" value={@conn.params["filter"]} />
-    <% end %>
     <div class="search-filter-toolbar">
       <div class="search-section">
         {search_input(f, :q,
@@ -175,15 +172,15 @@
         <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
       </div>
       <div class="filter-section">
-        <%= for filter <- dataset_filters() do %>
-          <a
-            href={"#{backoffice_page_path(@conn, :index, Map.put(@conn.params, "filter", filter.key))}#list_datasets"}
-            class={"filter-pill #{if @conn.params["filter"] == filter.key, do: "active"}"}
-          >
-            {filter.label}
-          </a>
-        <% end %>
+        <a
+          :for={filter <- dataset_filters()}
+          href={"#{backoffice_page_path(@conn, :index, Map.put(@conn.params, "filter", filter.key))}#list_datasets"}
+          class={"filter-pill #{if @conn.params["filter"] == filter.key, do: "active"}"}
+        >
+          {filter.label}
+        </a>
         <%= if @conn.params["filter"] do %>
+          <input type="hidden" name="filter" value={@conn.params["filter"]} />
           <a
             href={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
             title={dgettext("backoffice", "Clear filter")}
