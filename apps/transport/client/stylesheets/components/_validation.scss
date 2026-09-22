@@ -163,15 +163,18 @@ details > code {
   }
 
   table.netex_generic_issue {
-    th, td {
-      &:nth-child(1) {
-        width: 60%;
-      }
-      &:nth-child(3) {
-        width: 10%;
-      }
+    col.level {
+      width: 5%;
     }
-
+    col.message {
+      width: 60%;
+    }
+    col.line {
+      width: 10%;
+    }
+    td.line {
+      text-align: right;
+    }
     tr.debug {
       &:hover {
         background: revert;
@@ -303,6 +306,10 @@ details > code {
   button[popovertarget="french-profile-rules"] {
     margin-left: 0.5em;
   }
+
+  .text-error { color: var(--red); }
+  .text-warning { color: var(--orange); }
+  .text-info { color: var(--dark-blue); }
 }
 
 blockquote {
