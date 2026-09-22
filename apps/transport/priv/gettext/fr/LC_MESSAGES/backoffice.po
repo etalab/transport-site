@@ -67,10 +67,6 @@ msgid "Outdated"
 msgstr "Périmés"
 
 #, elixir-autogen, elixir-format
-msgid "Show all datasets"
-msgstr "Montrer tous les jeux de données"
-
-#, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -121,10 +117,6 @@ msgstr "Sans licence spécifiée"
 #, elixir-autogen, elixir-format
 msgid "With more than 1 GTFS"
 msgstr "Ayant plus de 1 GTFS"
-
-#, elixir-autogen, elixir-format
-msgid "Show only datasets"
-msgstr "Montrer seulement les jeux de données"
 
 #, elixir-autogen, elixir-format
 msgid "Proxy configuration"
@@ -417,3 +409,7 @@ msgstr "Voir sur data.gouv.fr"
 #, elixir-autogen, elixir-format
 msgid "View on the PAN"
 msgstr "Voir sur le PAN"
+
+#, elixir-autogen, elixir-format
+msgid "Clear filter"
+msgstr "Effacer les filtres"
