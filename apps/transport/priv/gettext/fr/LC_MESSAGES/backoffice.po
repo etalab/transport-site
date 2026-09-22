@@ -393,3 +393,27 @@ msgstr "Job n°%{job_id}"
 #, elixir-autogen, elixir-format
 msgid "Properties"
 msgstr "Propriétés"
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Éditer"
+
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Import"
+msgstr "Importer"
+
+#, elixir-autogen, elixir-format
+msgid "Remove"
+msgstr "Déréférencer"
+
+#, elixir-autogen, elixir-format
+msgid "View on data.gouv.fr"
+msgstr "Voir sur data.gouv.fr"
+
+#, elixir-autogen, elixir-format
+msgid "View on the PAN"
+msgstr "Voir sur le PAN"

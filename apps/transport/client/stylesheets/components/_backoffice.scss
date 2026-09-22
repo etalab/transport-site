@@ -33,12 +33,19 @@
   tr {
     padding: 6px;
     height: 50px;
+
+    &.hidden > td.title {
+      color: var(--darker-grey);
+    }
   }
   tr:hover {
     background-color: #ebebeb;
   }
-  tr:first-of-type > th:first-of-type {
-    width: 250px;
+  col.dataset, col.name {
+    width: max(30%, 40ch);
+  }
+  col.end_date {
+    width: 20ch;
   }
 }
 

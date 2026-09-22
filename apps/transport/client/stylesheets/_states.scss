@@ -8,3 +8,16 @@
 .is-centered {
   text-align: center;
 }
+
+// Screen-reader only — visually hidden but accessible to assistive tech
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(100%);
+  white-space: nowrap;
+  border-width: 0;
+}

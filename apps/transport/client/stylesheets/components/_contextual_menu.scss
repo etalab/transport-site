@@ -1,0 +1,112 @@
+@use "../globals/variables";
+
+.ctx-menu {
+  position: relative;
+  display: inline-block;
+
+  &__trigger {
+    padding: 4px 6px;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font-size: inherit;
+    border-radius: var(--theme-border-radius);
+    anchor-name: --ctx-menu-anchor;
+
+    &:hover {
+      background-color: var(--light-grey);
+    }
+
+    &:focus {
+      background-color: var(--lighter-grey);
+    }
+  }
+
+  hr {
+    margin-block: 8px;
+  }
+
+  &__content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    background-color: #fff;
+    border: 1px solid var(--light-grey);
+    box-shadow: 0 8px 16px rgb(0 0 0 / 0.15);
+    border-radius: var(--theme-border-radius);
+    z-index: 10;
+
+    [role="menuitem"] {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1.2;
+      color: inherit;
+      text-decoration: none;
+      margin: 0;
+      font-family: variables.$font-family-primary;
+
+      &:focus, &:hover {
+        background-color: var(--lighter-grey);
+        padding: 8px 12px;
+        margin: 0;
+      }
+
+      i {
+        width: 16px;
+        height: 16px;
+        font-size: 0.9rem;
+        text-align: center;
+        flex-shrink: 0;
+      }
+    }
+
+    // Delete action — red styling overrides
+    [role="menuitem"].ctx-menu__delete {
+      color: #d32f2f;
+
+      &:hover {
+        background-color: #ffebee;
+        color: #b71c1c;
+      }
+
+      i {
+        color: inherit;
+      }
+    }
+  }
+
+  // Anchor positioning with position-try fallbacks (modern browsers)
+  @supports (top: anchor(bottom)) {
+    .ctx-menu__content {
+      top: anchor(--ctx-menu-anchor bottom);
+      right: anchor(--ctx-menu-anchor right);
+      position-try-fallbacks: --top-aligned;
+    }
+
+    @position-try --top-aligned {
+      top: auto;
+      bottom: anchor(--ctx-menu-anchor top);
+    }
+  }
+
+  // Open state driven by data attribute (JS hook)
+  [data-open="true"] &__content {
+    display: block;
+  }
+
+  [data-open="true"] &__trigger {
+      background-color: var(--light-grey);
+  }
+}

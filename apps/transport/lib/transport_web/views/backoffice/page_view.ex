@@ -4,8 +4,15 @@ defmodule TransportWeb.Backoffice.PageView do
   alias Plug.Conn.Query
   alias TransportWeb.PaginationHelpers
 
-  def pagination_links(conn, datasets) do
-    kwargs = [path: &backoffice_page_path/3] |> add_filter(conn.params)
+  def pagination_links(conn, datasets, anchor \\ "") do
+    custom_path =
+      if anchor != "" do
+        fn conn, action, params -> "#{backoffice_page_path(conn, action, params)}##{anchor}" end
+      else
+        &backoffice_page_path/3
+      end
+
+    kwargs = [path: custom_path] |> add_filter(conn.params)
 
     PaginationHelpers.pagination_links(conn, datasets, kwargs)
   end
