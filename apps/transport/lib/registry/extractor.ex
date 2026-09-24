@@ -3,8 +3,6 @@ defmodule Transport.Registry.Extractor do
   Interface and utilities for stops extractors.
   """
 
-  require Logger
-
   alias Transport.Registry.Model.DataSource
   alias Transport.Registry.Model.Stop
   alias Transport.Registry.Result

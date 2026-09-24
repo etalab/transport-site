@@ -128,12 +128,15 @@ defmodule Transport.Mixfile do
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
       {:ex_machina, "~> 2.4", only: :test},
+      # 1.3.0 crashes on nil hashed fields (SHA256.equal?/2), fix merged upstream but unreleased:
+      # https://github.com/danielberkompas/cloak_ecto/issues/53
+      # https://github.com/danielberkompas/cloak_ecto/issues/64
       {:cloak_ecto, "~> 1.2.0"},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 1.0"},
-      {:luhn, "~> 0.3.0"},
+      {:luhn, "~> 0.4"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.8.1"},

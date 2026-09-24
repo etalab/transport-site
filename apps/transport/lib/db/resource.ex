@@ -7,7 +7,6 @@ defmodule DB.Resource do
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
   import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3, resource_url: 4]
-  require Logger
 
   typed_schema "resource" do
     # The resource's real URL

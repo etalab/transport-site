@@ -4,7 +4,6 @@ defmodule Transport.StatsHandler do
   Also contains a function called periodically to store the stats in the DB
   """
   import Ecto.Query
-  require Logger
 
   @doc """
   Compute and store all stats as a snapshot of the database

@@ -63,7 +63,7 @@ locale = get_session(@conn, :locale) %>
               path: &resource_path/4,
               action: :details
             )}
-            {render(gtfs_template(@issues), issues: @issues || [], conn: @conn)}
+            {render(gtfs_template(@issues), issues: @issues, conn: @conn)}
           </div>
         <% end %>
         <p>
