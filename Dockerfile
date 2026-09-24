@@ -1,4 +1,4 @@
-FROM ghcr.io/transportdatagouvfr/ops:elixir-1.20.4-erlang-27.3.4.17-ubuntu-noble-20260905-transport-tools-2.0.0
+FROM ghcr.io/transportdatagouvfr/ops:elixir-1.20.4-erlang-27.3.4.18-ubuntu-noble-20260911-transport-tools-2.0.0
 
 RUN mkdir phoenixapp
 WORKDIR /phoenixapp
