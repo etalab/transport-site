@@ -4,7 +4,9 @@ defmodule TransportWeb.MarkdownHandlerTest do
 
   test "the sanitization of a markdown" do
     content = "# Bonjour\n<script>alert(\"xxx\")</script>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "<h1>Bonjour</h1>\nalert(\"xxx\")"}
+
+    assert content |> MarkdownHandler.markdown_to_safe_html!() ==
+             {:safe, "<h1>Bonjour</h1>\n&lt;script&gt;alert(\"xxx\")&lt;/script&gt;"}
   end
 
   test "a markdown keeps linebreaks" do
@@ -36,14 +38,14 @@ defmodule TransportWeb.MarkdownHandlerTest do
               "<p>Cela pourrait être une bonne chose de rajouter tout de meme l’url en <code>license_url</code> (du fichier <code>system_information.json</code>)</p>"}
   end
 
-  test "does render HTML elements inside Markdown code" do
+  test "escapes HTML elements inside Markdown" do
     content = "<h1>This is a title</h1>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "<h1>This is a title</h1>"}
+    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "&lt;h1&gt;This is a title&lt;/h1&gt;"}
   end
 
   test "does escape dangerous HTML tags" do
     content = "<script>alert('Boo!');</script>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "alert('Boo!');"}
+    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "&lt;script&gt;alert('Boo!');&lt;/script&gt;"}
   end
 
   test "renders tables" do

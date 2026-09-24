@@ -6,12 +6,15 @@ defmodule TransportWeb.MarkdownHandler do
   alias Phoenix.HTML
 
   # Mirrors what Earmark used to provide: GFM tables, single line breaks, bare URLs turned
-  # into links, strikethrough and smart punctuation. Raw HTML is kept and `HtmlSanitizeEx`
-  # remains the security boundary.
+  # into links, strikethrough and smart punctuation.
+  #
+  # `escape` keeps raw HTML as visible text instead of rendering it. Producers do write things
+  # like `<trip>` in their descriptions, and the other two modes would either render them or
+  # drop them silently. `HtmlSanitizeEx` stays in the pipeline as a second line of defence.
   @options [
     extension: [table: true, autolink: true, strikethrough: true],
     parse: [smart: true],
-    render: [hardbreaks: true, unsafe: true]
+    render: [hardbreaks: true, escape: true]
   ]
 
   @doc """

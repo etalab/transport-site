@@ -16,7 +16,7 @@ defmodule TransportWeb.DatasetViewTest do
   test "if the html produced is sanitized" do
     content = "<p \" onmouseout=\"alert('Gotcha!')\">coucou</p>"
     dataset = %DB.Dataset{description: content}
-    assert description(dataset) == {:safe, "<p>coucou</p>"}
+    assert description(dataset) == {:safe, "&lt;p \" onmouseout=\"alert('Gotcha!')\"&gt;coucou&lt;/p&gt;"}
   end
 
   test "resource to display for a low emission zone dataset" do

@@ -71,7 +71,7 @@ defmodule TransportWeb.AtomControllerTest do
                    {"id", [], ["http://127.0.0.1:5100/resources/#{resource_id}"]},
                    {"updated", [], [last_update |> DateTime.to_iso8601()]},
                    {"summary", [], ["Cette ressource fait partie du jeux de données Custom Title"]},
-                   {"content", [{"type", "html"}], ["\n        <p>Hello</p>\n      "]},
+                   {"content", [{"type", "html"}], ["\n        &lt;p&gt;Hello&lt;/p&gt;\n      "]},
                    {"author", [], [{"name", [], ["BusCorp"]}]}
                  ]}
               ]}
