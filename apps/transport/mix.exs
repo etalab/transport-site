@@ -133,7 +133,7 @@ defmodule Transport.Mixfile do
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 1.0"},
-      {:luhn, "~> 0.3.0"},
+      {:luhn, "~> 0.4"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.8.1"},
