@@ -20,7 +20,9 @@
       </div>
 
       <div>
-        {live_render(@conn, TransportWeb.Live.ValidateDatasetView, session: %{"dataset_id" => @dataset.id})}
+        {live_render(@conn, TransportWeb.Live.ValidateDatasetView,
+          session: %{"dataset_id" => @dataset.id, "base_classname" => "button"}
+        )}
       </div>
 
       <div>

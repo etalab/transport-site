@@ -68,7 +68,7 @@ Hooks.CtxMenu = {
 
         // Close when focus leaves the menu (keyboard navigation)
         this.el.addEventListener('focusout', (e) => {
-            if (this.el.dataset.open === 'true' && !this.el.contains(e.relatedTarget)) {
+            if (this.el.dataset.open === 'true' && e.relatedTarget && !this.el.contains(e.relatedTarget)) {
                 this.el.dataset.open = 'false'
                 trigger.setAttribute('aria-expanded', 'false')
             }
