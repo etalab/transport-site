@@ -39,6 +39,7 @@
       <.form
         :let={f}
         :if={@selected_subtile}
+        id="on_demand_validation_form"
         for={%{}}
         action={validation_path(@socket, :validate)}
         class="no-margin"

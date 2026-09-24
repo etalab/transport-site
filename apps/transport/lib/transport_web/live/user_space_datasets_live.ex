@@ -14,10 +14,11 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
   def render(assigns) do
     ~H"""
     <div class="pb-24">
-      <.form :let={f} for={%{}} phx-change="change" class="search-followed-datasets">
-        {search_input(f, :search, value: @search)}
+      <.form :let={f} id="followed_datasets_search_form" for={%{}} phx-change="change" class="search-followed-datasets">
+        {search_input(f, :search, id: "search", value: @search)}
         <%= if Enum.count(@select_options) > 1 do %>
           {select(f, :type, [{dgettext("reuser-space", "All"), ""}] ++ @select_options,
+            id: "type",
             selected: @type,
             label: dgettext("reuser-space", "Data type")
           )}

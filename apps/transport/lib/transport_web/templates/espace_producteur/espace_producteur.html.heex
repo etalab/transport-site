@@ -34,7 +34,10 @@
             {dgettext(
               "espace-producteurs",
               "Before we can reference your mobility data on the National Access Point, you need to upload it on data.gouv.fr by publishing a new dataset."
-            )}<a href="https://doc.transport.data.gouv.fr/administration-des-donnees"><%= dgettext("espace-producteurs", "Adding a dataset guidelines") %></a>
+            )}<a href="https://doc.transport.data.gouv.fr/administration-des-donnees">{dgettext(
+              "espace-producteurs",
+              "Adding a dataset guidelines"
+            )}</a>
           </div>
           <a href={dataset_creation_url()} class="button primary">
             {dgettext("espace-producteurs", "Publish a new dataset")}

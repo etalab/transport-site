@@ -29,7 +29,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
             <li class="autoComplete_result"></li>
             <li class="autoComplete_result"></li>
             <%= for match <- @administrative_division_search_matches do %>
-              <li class="autoComplete_result" phx-target={@myself} phx-click="select_division" phx-value-id={match.id} }>
+              <li class="autoComplete_result" phx-target={@myself} phx-click="select_division" phx-value-id={match.id}>
                 <div>
                   <span class="autocomplete_name">{match.nom}</span>
                   <span class="autocomplete_type">
