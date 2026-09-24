@@ -14,7 +14,7 @@
   <section class="producer-actions choose-file">
     <div class="container">
       <strong>
-        {@dataset.custom_title}<span :if={!new_resource}> > {@datagouv_resource["title"]}</span>
+        {@dataset.custom_title}<span :if={!new_resource}> > <%= @datagouv_resource["title"] %></span>
       </strong>
       <div class="pt-24">
         <h2>{title(@conn)}</h2>

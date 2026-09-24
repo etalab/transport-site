@@ -64,7 +64,7 @@ defmodule Transport.Mixfile do
       {:phoenix_markdown,
        git: "https://github.com/pzingg/phoenix_markdown.git",
        ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
-      {:phoenix_live_view, "~> 1.2.0"},
+      {:phoenix_live_view, "~> 1.1.19"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0"},
       {:plug_cowboy, "~> 2.3"},

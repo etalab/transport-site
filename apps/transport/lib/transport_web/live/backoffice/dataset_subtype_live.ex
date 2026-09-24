@@ -23,7 +23,8 @@ defmodule TransportWeb.DatasetSubtypeLive do
           <%= for {dataset_subtype, index} <- @dataset_subtypes |> Enum.sort_by(& &1.slug) |> Enum.with_index() do %>
             <span class="label custom-tag">
               {display(dataset_subtype)}
-              <span class="delete-tag" phx-click="remove_subtype" phx-value-slug={dataset_subtype.slug} phx-target={@myself}></span>
+              <span class="delete-tag" phx-click="remove_subtype" phx-value-slug={dataset_subtype.slug} phx-target={@myself}>
+              </span>
             </span>
             <% {field_name, field_value} = field_info(dataset_subtype, index) %>
             {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}

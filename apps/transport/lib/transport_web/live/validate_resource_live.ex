@@ -47,7 +47,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
-    <%= form_for @changeset, @action_path, [id: "resource_form", multipart: true, as: :form, phx_change: "change"], fn f -> %>
+    <%= form_for @changeset, @action_path, [multipart: true, as: :form, phx_change: "change"], fn f -> %>
       {text_input(f, :title,
         label: dgettext("espace-producteurs", "title"),
         placeholder: dgettext("espace-producteurs", "Example: Paris GTFS dataset"),

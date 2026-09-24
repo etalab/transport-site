@@ -31,7 +31,8 @@ defmodule TransportWeb.LegalOwnerSelectLive do
               phx-value-owner-id={owner.id}
               phx-value-owner-type={owner.type}
               phx-target={@myself}
-            ></span>
+            >
+            </span>
           </span>
           <% {field_name, field_value} = field_info(owner, index) %>
           {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
