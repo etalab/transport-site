@@ -98,4 +98,37 @@ defmodule TransportWeb.MarkdownHandlerTest do
       assert MarkdownHandler.markdown_to_safe_html!(nil, &Function.identity/1) == {:safe, ""}
     end
   end
+
+  test "vendored markdown renders HTML tables" do
+    content = "<table>\n<tr><td>Texas</td></tr>\n</table>"
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, ~s(<table class="table">\n<tr><td>Texas</td></tr>\n</table>)}
+  end
+
+  test "vendored markdown keeps single line breaks" do
+    content = "Première ligne\ndeuxième ligne."
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, "<p>Première ligne\ndeuxième ligne.</p>"}
+  end
+
+  test "vendored markdown renders inline code and links" do
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!("La clé `shape_dist_traveled` est requise.") ==
+             {:safe, "<p>La clé <code>shape_dist_traveled</code> est requise.</p>"}
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!("Voir [la doc](https://gtfs.org/reference).") ==
+             {:safe, ~s(<p>Voir <a href="https://gtfs.org/reference">la doc</a>.</p>)}
+  end
+
+  test "vendored markdown sanitizes dangerous HTML" do
+    content = "<img src=x onerror=alert(1)> <script>alert(1)</script>"
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, "<p><img src=\"x\" /> alert(1)</p>"}
+  end
+
+  test "vendored markdown returns safe empty string for nil input" do
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(nil) == {:safe, ""}
+  end
 end

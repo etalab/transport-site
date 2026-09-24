@@ -1,52 +1,42 @@
 defmodule TransportWeb.MarkdownHandler do
   @moduledoc """
-  A module to handle external markdown, sanitize it and mark it safe
+  Render Markdown as sanitized HTML, marked safe.
+
+  Two entry points depending on where the Markdown comes from: `markdown_to_safe_html!/1` for
+  content written by third parties, `vendored_markdown_to_safe_html!/1` for content we ship.
   """
   require HtmlSanitizeEx
   alias Phoenix.HTML
 
-  # Mirrors what Earmark used to provide: GFM tables, single line breaks, bare URLs turned
-  # into links, strikethrough and smart punctuation.
-  #
-  # `escape` keeps raw HTML as visible text instead of rendering it. Producers do write things
-  # like `<trip>` in their descriptions, and the other two modes would either render them or
-  # drop them silently. `HtmlSanitizeEx` stays in the pipeline as a second line of defence.
-  @options [
-    extension: [table: true, autolink: true, strikethrough: true],
-    parse: [smart: true],
-    render: [hardbreaks: true, escape: true]
-  ]
+  @common [extension: [table: true, autolink: true, strikethrough: true], parse: [smart: true]]
 
-  @doc """
-  Transform an external markdown content into safe HTML.
-  """
+  # Producers write things like `<trip>` as plain text in their descriptions: rendering raw HTML
+  # would make it disappear.
+  @external_options @common ++ [render: [hardbreaks: true, escape: true]]
+
+  # The MobilityData validator rules use HTML tables and links on purpose, and wrap their
+  # descriptions at a fixed width.
+  @vendored_options @common ++ [render: [unsafe: true]]
+
   @spec markdown_to_safe_html!(binary() | nil) :: HTML.safe()
-  def markdown_to_safe_html!(nil), do: HTML.raw(nil)
-
-  def markdown_to_safe_html!(md) do
-    markdown_to_safe_html!(md, &Function.identity/1)
-  end
+  def markdown_to_safe_html!(md), do: markdown_to_safe_html!(md, &Function.identity/1)
 
   @doc """
-  Transform markdown to safe HTML with a custom transform applied after the Markdown rendering.
   The transform receives sanitized HTML and returns the final HTML string.
   """
-  @spec markdown_to_safe_html!(binary(), (String.t() -> String.t())) :: HTML.safe()
+  @spec markdown_to_safe_html!(binary() | nil, (String.t() -> String.t())) :: HTML.safe()
   def markdown_to_safe_html!(nil, _transform), do: HTML.raw(nil)
+  def markdown_to_safe_html!(md, transform), do: to_safe_html(md, @external_options, transform)
 
-  def markdown_to_safe_html!(md, transform) do
-    {:safe, txt} =
-      md
-      |> MDEx.to_html!(@options)
-      |> HtmlSanitizeEx.basic_html()
-      |> transform.()
-      |> HTML.raw()
-
-    {:safe, String.replace(txt, "<table>", ~s(<table class="table">), global: true)}
-  end
+  @doc """
+  Renders raw HTML instead of escaping it, the content being ours. Still sanitized.
+  """
+  @spec vendored_markdown_to_safe_html!(binary() | nil) :: HTML.safe()
+  def vendored_markdown_to_safe_html!(nil), do: HTML.raw(nil)
+  def vendored_markdown_to_safe_html!(md), do: to_safe_html(md, @vendored_options, &Function.identity/1)
 
   def to_html_with_anchors(markdown) do
-    {:ok, html} = MDEx.to_html(markdown, @options)
+    {:ok, html} = MDEx.to_html(markdown, @external_options)
 
     html
     |> Floki.parse_fragment!()
@@ -69,6 +59,17 @@ defmodule TransportWeb.MarkdownHandler do
         other
     end)
     |> Floki.raw_html()
+  end
+
+  defp to_safe_html(md, options, transform) do
+    {:safe, txt} =
+      md
+      |> MDEx.to_html!(options)
+      |> HtmlSanitizeEx.basic_html()
+      |> transform.()
+      |> HTML.raw()
+
+    {:safe, String.replace(txt, "<table>", ~s(<table class="table">), global: true)}
   end
 
   defp slugify(text) do
