@@ -89,6 +89,25 @@ defmodule TransportWeb.Backoffice.PageView do
     |> :unicode.characters_to_nfc_binary()
   end
 
+  @doc """
+  Returns the list of dataset filters available in the backoffice index page.
+  Each filter has a `key` (used in query params), a `label` (displayed to user),
+  and whether it's active when selected.
+  """
+  def dataset_filters do
+    [
+      %{key: "outdated", label: dgettext("backoffice", "Outdated")},
+      %{key: "inactive", label: dgettext("backoffice", "Deleted")},
+      %{key: "archived", label: dgettext("backoffice", "Archived")},
+      %{key: "hidden", label: dgettext("backoffice", "Hidden datasets")},
+      %{key: "not_compliant", label: dgettext("backoffice", "GTFS with fatal failure")},
+      %{key: "licence_not_specified", label: dgettext("backoffice", "With licence unspecified")},
+      %{key: "multi_gtfs", label: dgettext("backoffice", "With more than 1 GTFS")},
+      %{key: "resource_not_available", label: dgettext("backoffice", "With a resource not available")},
+      %{key: "resource_under_90_availability", label: dgettext("backoffice", "With a resource under 90% availability")}
+    ]
+  end
+
   def notification_subscription_contact(%DB.NotificationSubscription{contact: %DB.Contact{} = contact}) do
     "#{DB.Contact.display_name(contact)} — #{contact.job_title} (#{contact.organization})"
   end
