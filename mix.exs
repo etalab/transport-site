@@ -70,7 +70,7 @@ defmodule Transport.MixProject do
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:ecto_erd, "~> 0.6.0", only: [:dev]},
+      {:ecto_erd, "~> 0.8.0", only: [:dev]},
       {:cowboy, "~> 2.19.0"},
       {:cowlib, "~> 2.20.0"}
     ]
