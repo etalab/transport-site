@@ -2,8 +2,20 @@ defmodule TransportWeb.MarkdownHandler do
   @moduledoc """
   Render Markdown as sanitized HTML, marked safe.
 
-  Two entry points depending on where the Markdown comes from: `markdown_to_safe_html!/1` for
-  content written by third parties, `vendored_markdown_to_safe_html!/1` for content we ship.
+  Two entry points depending on where the Markdown comes from:
+  * `markdown_to_safe_html!/1` for content written by third parties,
+    typically datagouv dataset descriptions, reuses, comments.
+    It escapes raw HTML and sanitizes the result.
+  * `vendored_markdown_to_safe_html!/1` for content we ship,
+    like the MobilityData validator rules.
+    It renders raw HTML baked inside markdown (tables…) and sanitizes the result.
+
+  `to_html_with_anchors/1` is separate: it adds heading anchors to our own `nouveautes.html.md`,
+  returns a plain string and does not sanitize.
+
+  This module is for rendering Markdown in the context of a Phoenix view or LiveView.
+  If instead you need to render a template (aka EEx) written in Markdown (emails, static pages…),
+  this will go through `TransportWeb.MarkdownTemplateEngine` (not called directly).
   """
   require HtmlSanitizeEx
   alias Phoenix.HTML

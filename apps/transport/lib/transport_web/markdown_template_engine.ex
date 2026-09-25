@@ -3,6 +3,9 @@ defmodule TransportWeb.MarkdownTemplateEngine do
   Template engine for `.md` templates, replacing `PhoenixMarkdown.Engine` which relied on
   the retired Earmark library.
 
+  This engine is not meant to be used directly. Phoenix uses it automatically when rendering `.md` templates.
+  Use `TransportWeb.MarkdownHandler` if you need to manually render Markdown in a view.
+
   Markdown is rendered at compile time, then the result is compiled by EEx. Since the Markdown
   renderer would escape or URL-encode EEx tags, they are swapped for inert placeholders before
   rendering and put back afterwards.
