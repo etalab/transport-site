@@ -74,10 +74,8 @@ config :scrivener_html,
 
 # Allow to have Markdown templates
 config :phoenix, :template_engines,
-  md: PhoenixMarkdown.Engine,
+  md: TransportWeb.MarkdownTemplateEngine,
   leex: Phoenix.LiveView.Engine
-
-config :phoenix_markdown, :server_tags, :all
 
 config :transport, gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPValidatorClient
 

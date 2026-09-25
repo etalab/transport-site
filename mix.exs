@@ -11,8 +11,6 @@ defmodule Transport.MixProject do
         #  - hackney: fixed only in 4.x (major release adding HTTP/2/3), needs a dedicated upgrade PR
         #    (hackney is used directly and as httpoison/tesla adapter).
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
-        #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
-        #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
         #  - decimal: DoS fixed only in decimal 3.x (no 2.x backport). Resolution to 3.x does succeed,
         #    but it requires bumping ecto, explorer and the whole ex_cldr family together, and
         #    explorer 0.12 breaks Transport.IRVE.Deduplicator (mutate_with/3 shape mismatch).
@@ -33,8 +31,6 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-47071",
           "EEF-CVE-2026-47075",
           "EEF-CVE-2026-47076",
-          # earmark stored XSS (migrate to MDEx)
-          "EEF-CVE-2026-48591",
           # decimal DoS (fix is 3.x, held back by an explorer 0.12 regression — see above)
           "EEF-CVE-2026-32686",
           # cowlib CRLF-injection (no fix yet in 2.19.x)
@@ -43,9 +39,7 @@ defmodule Transport.MixProject do
           # req multipart injection (not applicable) & decompression bomb (fixes need 0.6)
           "EEF-CVE-2026-49756",
           "EEF-CVE-2026-49755"
-        ],
-        # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
-        ignore_retirements: [:earmark]
+        ]
       ],
       deps: deps(),
       aliases: aliases(Mix.env()),
