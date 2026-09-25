@@ -2,13 +2,15 @@ defmodule TransportWeb.MarkdownHandler do
   @moduledoc """
   Render Markdown as sanitized HTML, marked safe.
 
-  Two entry points depending on where the Markdown comes from:
-  * `markdown_to_safe_html!/1` for content written by third parties,
-    typically datagouv dataset descriptions, reuses, comments.
-    It escapes raw HTML and sanitizes the result.
-  * `vendored_markdown_to_safe_html!/1` for content we ship,
-    like the MobilityData validator rules.
-    It renders raw HTML baked inside markdown (tables…) and sanitizes the result.
+  Two entry points, differing in how they treat raw HTML found inside the Markdown and line breaks.
+  Both sanitize the result.
+  * `markdown_to_safe_html!/1` escapes HTML/XML tags, and turns single line breaks into `<br>`.
+    For content written by third parties (datagouv dataset descriptions, reuses, comments),
+    where producers write things like `<trip>` as plain text. Some of our own content stays
+    here too, because it relies on single line breaks: `priv/search_custom_messages.yml`.
+  * `vendored_markdown_to_safe_html!/1` renders HTML found inside markdown, and ignores single line breaks.
+    Reserved for content we control, like the MobilityData validator rules, which use HTML
+    tables and links on purpose.
 
   `to_html_with_anchors/1` is separate: it adds heading anchors to our own `nouveautes.html.md`,
   returns a plain string and does not sanitize.
