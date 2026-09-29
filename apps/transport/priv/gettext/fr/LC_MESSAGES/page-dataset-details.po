@@ -179,8 +179,8 @@ msgid "Licence"
 msgstr "Licence"
 
 #, elixir-autogen, elixir-format
-msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
-msgstr "Vous réutilisez ce jeu de données ? %{a_start}Envoyez-nous un message%{a_end} afin que l’on puisse en discuter et mettre en avant votre réutilisation."
+msgid "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work."
+msgstr "Vous réutilisez ce jeu de données ? Rendez-vous sur la page %{a_start}Réutilisations déclarées%{a_end} pour mettre en avant votre projet."
 
 #, elixir-autogen, elixir-format
 msgid "Display more"

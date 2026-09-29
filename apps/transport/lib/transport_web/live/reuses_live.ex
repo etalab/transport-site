@@ -32,6 +32,15 @@ defmodule TransportWeb.ReusesLive do
         <% true -> %>
           <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
       <% end %>
+      <div class="information-message pt-24">
+        {dgettext(
+          "page-dataset-details",
+          "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work.",
+          a_start: ~s|<a href="/reuses">|,
+          a_end: "</a>"
+        )
+        |> Phoenix.HTML.raw()}
+      </div>
     </section>
     """
   end
