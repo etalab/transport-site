@@ -299,10 +299,6 @@ msgid "available"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Reuses are temporarily unavailable"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Resource declared schema"
 msgstr ""
 
@@ -735,9 +731,9 @@ msgid "Those resources are listed by the provider but are unreachable for now. <
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Loading reuses…"
+msgid "No known reuse on this dataset."
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "No known reuse on this dataset."
+msgid "Last updated: %{date}"
 msgstr ""

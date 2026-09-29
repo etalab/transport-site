@@ -44,7 +44,11 @@
         <a href="#dataset-documentation">{dgettext("page-dataset-details", "Documentation")}</a>
       </div>
 
-      {live_render(@conn, TransportWeb.CountReusesLive, session: %{"dataset_datagouv_id" => @dataset.datagouv_id})}
+      <div class="menu-item">
+        <a href="#dataset-reuses">
+          {dgettext("page-dataset-details", "Reuses")} ({@reuses_count})
+        </a>
+      </div>
 
       <div :if={Enum.count(@notifications_sent) > 0} class="menu-item">
         <a href="#notifications-sent">
@@ -158,7 +162,7 @@
       {render("_community_resources.html", dataset: @dataset)}
     </section>
 
-    {live_render(@conn, TransportWeb.ReusesLive, session: %{"dataset_datagouv_id" => @dataset.datagouv_id})}
+    <.reuses reuses={@reuses} locale={locale} />
 
     <%= unless Enum.empty?(@notifications_sent) do %>
       {render("_notifications_sent.html", notifications_sent: @notifications_sent, locale: locale, conn: @conn)}

@@ -71,6 +71,8 @@ defmodule TransportWeb.DatasetController do
   def details(%Plug.Conn{} = conn, %{"slug" => slug_or_id}) do
     case DB.Dataset.get_by_slug(slug_or_id) do
       {:ok, %DB.Dataset{} = dataset} ->
+        reuses = fetch_reuses(dataset.datagouv_id)
+
         conn
         |> assign(:dataset, dataset)
         |> assign(:site, Application.get_env(:oauth2, Authentication)[:site])
@@ -85,6 +87,8 @@ defmodule TransportWeb.DatasetController do
         )
         |> assign(:latest_resources_history_infos, DB.ResourceHistory.latest_dataset_resources_history_infos(dataset))
         |> assign(:notifications_sent, DB.Notification.recent_reasons(dataset, days_notifications_sent()))
+        |> assign(:reuses, reuses)
+        |> assign(:reuses_count, length(reuses))
         |> assign_scores(dataset)
         |> assign_is_producer(dataset)
         |> assign_follows_dataset(dataset)
@@ -593,6 +597,9 @@ defmodule TransportWeb.DatasetController do
       assign(conn, :dataset_heart_values, dataset_heart_values(current_user, datasets))
     end
   end
+
+  @spec fetch_reuses(binary()) :: [map()]
+  defp fetch_reuses(datagouv_id), do: DB.Reuse.by_dataset_datagouv_id(datagouv_id)
 
   @doc """
   Compute, for each dataset displayed on the current page, what the heart icon$

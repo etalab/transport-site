@@ -299,10 +299,6 @@ msgid "available"
 msgstr "disponible"
 
 #, elixir-autogen, elixir-format
-msgid "Reuses are temporarily unavailable"
-msgstr "Les réutilisations sont temporairement indisponibles"
-
-#, elixir-autogen, elixir-format
 msgid "Resource declared schema"
 msgstr "La ressource déclare utiliser ce schéma"
 
@@ -735,9 +731,9 @@ msgid "Those resources are listed by the provider but are unreachable for now. <
 msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pour le moment. <a href=\"%{url}\">En savoir plus</a>."
 
 #, elixir-autogen, elixir-format
-msgid "Loading reuses…"
-msgstr "Chargement des réutilisations…"
-
-#, elixir-autogen, elixir-format
 msgid "No known reuse on this dataset."
 msgstr "Aucune réutilisation connue pour ce jeu de données."
+
+#, elixir-autogen, elixir-format
+msgid "Last updated: %{date}"
+msgstr "Dernière mise à jour : %{date}"

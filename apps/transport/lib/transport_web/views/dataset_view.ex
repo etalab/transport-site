@@ -745,6 +745,110 @@ defmodule TransportWeb.DatasetView do
     </td>
     """
   end
+
+  @doc """
+  Renders the reuses section for a dataset.
+  """
+  def reuses(%{reuses: reuses, locale: locale}) do
+    latest =
+      reuses
+      |> Enum.filter(fn r -> not is_nil(r.last_modified) end)
+      |> Enum.map(& &1.last_modified)
+      |> Enum.sort()
+      |> List.last()
+
+    assigns = %{reuses: reuses, latest_last_modified: latest, locale: locale}
+
+    ~H"""
+    <section class="white pt-48" id="dataset-reuses">
+      <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+      <%= if @reuses != [] do %>
+        <p>
+          {dgettext(
+            "page-dataset-details",
+            "You will find below reuses created by individuals or organizations based on this dataset."
+          )}
+        </p>
+        <div class="reuses">
+          <div :for={reuse <- @reuses} class="panel reuse">
+            <%= if is_binary(reuse.image) and reuse.image != "" do %>
+              <img src={reuse.image} alt={reuse.title} />
+            <% else %>
+              <i class="fa fa-image"></i>
+            <% end %>
+            <div :if={owner = owner(reuse)} class="reuse__owner">{raw(owner)}</div>
+            <div class="reuse__links">
+              <a :if={is_binary(reuse.remote_url) and reuse.remote_url != ""} href={reuse.remote_url}>
+                {dgettext("page-dataset-details", "Website")}
+              </a>
+              <a href={"https://www.data.gouv.fr/fr/reuses/#{reuse.slug}"} target="_blank">
+                {dgettext("page-dataset-details", "See on data.gouv.fr")}
+              </a>
+            </div>
+            <div class="reuse__details">
+              <h3>{reuse.title}</h3>
+              {raw(MarkdownHandler.markdown_to_safe_html!(reuse.description, &shift_headings/1))}
+            </div>
+          </div>
+        </div>
+        <p :if={@latest_last_modified} class="reuses-last-updated">
+          {dgettext("page-dataset-details", "Last updated: %{date}",
+            date: Shared.DateTimeDisplay.format_date(@latest_last_modified, @locale)
+          )}
+        </p>
+      <% else %>
+        <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
+      <% end %>
+      <div class="information-message pt-24">
+        {dgettext(
+          "page-dataset-details",
+          "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work.",
+          a_start: ~s|<a href="/reuses">|,
+          a_end: "</a>"
+        )
+        |> Phoenix.HTML.raw()}
+      </div>
+    </section>
+    """
+  end
+
+  defp owner(%{organization: name}) when is_binary(name) do
+    ~s|<i class="fa fa-building icon"></i>| <> name
+  end
+
+  defp owner(%{owner: %{"name" => name}}) when is_binary(name) do
+    ~s|<i class="fa fa-user icon"></i>| <> name
+  end
+
+  defp owner(%{owner: owner}) when is_binary(owner) and owner != "" do
+    ~s|<i class="fa fa-user icon"></i>| <> owner
+  end
+
+  defp owner(_), do: nil
+
+  # Shift headings to fit inside a reuse card (titled with <h3>).
+  # h1→h4, h2→h5, h3→h6 so they don't clash with the page heading hierarchy.
+  defp shift_headings(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.traverse_and_update(&shift_headings_tag/1)
+    |> Floki.raw_html()
+  end
+
+  defp shift_headings_tag({tag, attrs, children}) do
+    tag =
+      case tag do
+        "h1" -> "h4"
+        "h2" -> "h5"
+        "h3" -> "h6"
+        "h4" -> "h6"
+        "h5" -> "h6"
+        "h6" -> "h6"
+        unaltered -> unaltered
+      end
+
+    {tag, attrs, children}
+  end
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do
