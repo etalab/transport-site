@@ -20,7 +20,7 @@ defmodule TransportWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, formats: [html: "View", json: "View"], layouts: [html: TransportWeb.LayoutView]
+      use Phoenix.Controller, formats: [html: "View", json: "View"]
       import Plug.Conn
       import TransportWeb.Router.Helpers
       use Gettext, backend: TransportWeb.Gettext

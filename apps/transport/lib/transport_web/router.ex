@@ -15,6 +15,7 @@ defmodule TransportWeb.Router do
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(:fetch_live_flash)
+    plug(:put_root_layout, html: {TransportWeb.LayoutView, :root})
     plug(:protect_from_forgery)
     plug(:assign_current_user)
     plug(:assign_current_contact)
@@ -90,7 +91,7 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:browser_no_csp, :authentication_required, :transport_data_gouv_member])
 
-      live_session :email_preview, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :email_preview do
         live("/email_preview", EmailPreviewLive)
       end
     end
@@ -138,7 +139,7 @@ defmodule TransportWeb.Router do
         end
       end
 
-      live_session :espace_producteur, session: %{"role" => :producer}, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :espace_producteur, session: %{"role" => :producer} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :espace_producteur)
       end
     end
@@ -156,7 +157,7 @@ defmodule TransportWeb.Router do
       delete("/settings/tokens/:id", ReuserSpaceController, :delete_token)
       post("/settings/tokens/:id/default_token", ReuserSpaceController, :default_token)
 
-      live_session :reuser_space, session: %{"role" => :reuser}, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :reuser_space, session: %{"role" => :reuser} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)
       end
     end
@@ -229,30 +230,30 @@ defmodule TransportWeb.Router do
         csp_nonce_assign_key: :csp_nonce_value
       )
 
-      live_session :backoffice_proxy_config, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :backoffice_proxy_config do
         live("/proxy-config", ProxyConfigLive)
       end
 
-      live_session :backoffice_jobs, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :backoffice_jobs do
         live("/jobs", JobsLive)
         live("/jobs/experimental", Jobs2Live)
       end
 
-      live_session :cache, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :cache do
         live("/cache", CacheLive)
       end
 
-      live_session :rate_limiter, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :rate_limiter do
         live("/rate_limiter", RateLimiterLive)
       end
 
       get("/import_aoms", PageController, :import_all_aoms)
 
-      live_session :data_import_batch_report, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :data_import_batch_report do
         live("/batch-report", DataImportBatchReportLive)
       end
 
-      live_session :irve_dashboard, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :irve_dashboard do
         live("/irve-dashboard", IRVEDashboardLive)
       end
 
@@ -292,7 +293,7 @@ defmodule TransportWeb.Router do
     get("/logout", SessionController, :delete)
 
     scope "/validation" do
-      live_session :validation, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :validation do
         live("/", Live.OnDemandValidationSelectLive)
       end
 
@@ -306,11 +307,11 @@ defmodule TransportWeb.Router do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
 
-      live_session :gtfs_diff, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :gtfs_diff do
         live("/gtfs_diff", Live.GTFSDiffSelectLive)
       end
 
-      live_session :siri, root_layout: {TransportWeb.LayoutView, :app} do
+      live_session :siri do
         live("/siri-querier", Live.SIRIQuerierLive)
       end
     end

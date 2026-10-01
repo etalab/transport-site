@@ -47,7 +47,7 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: [html: {TransportWeb.LayoutView, :app}],
+    root_layout: [html: {TransportWeb.LayoutView, :root}],
     accepts: ~w(html json)
   ],
   pubsub_server: TransportWeb.PubSub
