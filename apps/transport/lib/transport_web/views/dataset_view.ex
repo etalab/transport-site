@@ -780,11 +780,12 @@ defmodule TransportWeb.DatasetView do
               <i class={"fa #{elem(owner, 0)} icon"}></i>{elem(owner, 1)}
             </div>
             <div class="reuse__links">
-              <% safe_url = safe_remote_url(reuse) %>
-              <a :if={safe_url} href={safe_url}>
+              <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
+              <a :if={reuse_website_url} href={reuse_website_url}>
                 {dgettext("page-dataset-details", "Website")}
               </a>
-              <a href={"https://www.data.gouv.fr/fr/reuses/#{reuse.slug}"} target="_blank">
+              <% data_gouv_url = safe_remote_url(reuse.url) %>
+              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
                 {dgettext("page-dataset-details", "See on data.gouv.fr")}
               </a>
             </div>
@@ -815,15 +816,19 @@ defmodule TransportWeb.DatasetView do
     """
   end
 
-  defp safe_remote_url(%{remote_url: url}) when is_binary(url) do
+  defp safe_remote_url(url) when is_binary(url) do
+    safe_url_string(url)
+  end
+
+  defp safe_remote_url(_), do: nil
+
+  defp safe_url_string(url) do
     case URI.parse(url) do
       %URI{scheme: "http" <> _} -> url
       %URI{scheme: "https" <> _} -> url
       _ -> nil
     end
   end
-
-  defp safe_remote_url(_), do: nil
 
   defp owner(%{organization: name}) when is_binary(name) do
     {"fa-building", name}

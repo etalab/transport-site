@@ -57,6 +57,7 @@ defmodule DB.Reuse do
         description: r.description,
         image: r.image,
         organization: r.organization,
+        url: r.url,
         owner: r.owner,
         last_modified: r.last_modified
       }
