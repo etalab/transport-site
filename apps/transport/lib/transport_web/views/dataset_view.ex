@@ -776,9 +776,12 @@ defmodule TransportWeb.DatasetView do
             <% else %>
               <i class="fa fa-image"></i>
             <% end %>
-            <div :if={owner = owner(reuse)} class="reuse__owner">{raw(owner)}</div>
+            <div :if={owner = owner(reuse)} class="reuse__owner">
+              <i class={"fa #{elem(owner, 0)} icon"}></i>{elem(owner, 1)}
+            </div>
             <div class="reuse__links">
-              <a :if={is_binary(reuse.remote_url) and reuse.remote_url != ""} href={reuse.remote_url}>
+              <% safe_url = safe_remote_url(reuse) %>
+              <a :if={safe_url} href={safe_url}>
                 {dgettext("page-dataset-details", "Website")}
               </a>
               <a href={"https://www.data.gouv.fr/fr/reuses/#{reuse.slug}"} target="_blank">
@@ -812,16 +815,26 @@ defmodule TransportWeb.DatasetView do
     """
   end
 
+  defp safe_remote_url(%{remote_url: url}) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{scheme: "http" <> _} -> url
+      %URI{scheme: "https" <> _} -> url
+      _ -> nil
+    end
+  end
+
+  defp safe_remote_url(_), do: nil
+
   defp owner(%{organization: name}) when is_binary(name) do
-    ~s|<i class="fa fa-building icon"></i>| <> name
+    {"fa-building", name}
   end
 
   defp owner(%{owner: %{"name" => name}}) when is_binary(name) do
-    ~s|<i class="fa fa-user icon"></i>| <> name
+    {"fa-user", name}
   end
 
   defp owner(%{owner: owner}) when is_binary(owner) and owner != "" do
-    ~s|<i class="fa fa-user icon"></i>| <> owner
+    {"fa-user", owner}
   end
 
   defp owner(_), do: nil
