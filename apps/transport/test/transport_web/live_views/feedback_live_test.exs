@@ -66,7 +66,7 @@ defmodule TransportWeb.FeedbackLiveTest do
                            reply_to: {"", "contact@transport.data.gouv.fr"}
                          } ->
       assert remove_whitespace(html) =~
-               "<p> Vous avez un nouvel avis sur le PAN.</p> <ul> <li> Fonctionnalité : on_demand_validation </li> <li> Notation : j’aime </li> <li> Adresse e-mail : </li> </ul> <p> Explication : so useful for my GTFS files</p>"
+               "<p>Vous avez un nouvel avis sur le PAN.</p> <ul> <li>Fonctionnalité : on_demand_validation</li> <li>Notation : j’aime</li> <li>Adresse e-mail : </li> </ul> <p>Explication : so useful for my GTFS files</p>"
     end)
 
     assert %DB.UserFeedback{
