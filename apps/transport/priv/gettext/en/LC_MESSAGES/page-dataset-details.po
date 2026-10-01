@@ -733,7 +733,3 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "No known reuse on this dataset."
 msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Last updated: %{date}"
-msgstr ""

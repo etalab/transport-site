@@ -162,7 +162,7 @@
       {render("_community_resources.html", dataset: @dataset)}
     </section>
 
-    <.reuses reuses={@reuses} locale={locale} />
+    <.reuses reuses={@reuses} />
 
     <%= unless Enum.empty?(@notifications_sent) do %>
       {render("_notifications_sent.html", notifications_sent: @notifications_sent, locale: locale, conn: @conn)}

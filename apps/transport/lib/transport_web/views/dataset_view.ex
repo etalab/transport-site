@@ -749,16 +749,7 @@ defmodule TransportWeb.DatasetView do
   @doc """
   Renders the reuses section for a dataset.
   """
-  def reuses(%{reuses: reuses, locale: locale}) do
-    latest =
-      reuses
-      |> Enum.filter(fn r -> not is_nil(r.last_modified) end)
-      |> Enum.map(& &1.last_modified)
-      |> Enum.sort()
-      |> List.last()
-
-    assigns = %{reuses: reuses, latest_last_modified: latest, locale: locale}
-
+  def reuses(%{reuses: _} = assigns) do
     ~H"""
     <section class="white pt-48" id="dataset-reuses">
       <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
@@ -795,11 +786,6 @@ defmodule TransportWeb.DatasetView do
             </div>
           </div>
         </div>
-        <p :if={@latest_last_modified} class="reuses-last-updated">
-          {dgettext("page-dataset-details", "Last updated: %{date}",
-            date: Shared.DateTimeDisplay.format_date(@latest_last_modified, @locale)
-          )}
-        </p>
       <% else %>
         <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
       <% end %>

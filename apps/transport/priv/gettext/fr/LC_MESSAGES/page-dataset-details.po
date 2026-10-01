@@ -733,7 +733,3 @@ msgstr "Ces ressources sont référencées, mais ne semblent pas accessibles pou
 #, elixir-autogen, elixir-format
 msgid "No known reuse on this dataset."
 msgstr "Aucune réutilisation connue pour ce jeu de données."
-
-#, elixir-autogen, elixir-format
-msgid "Last updated: %{date}"
-msgstr "Dernière mise à jour : %{date}"
