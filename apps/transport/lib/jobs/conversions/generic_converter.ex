@@ -187,7 +187,21 @@ defmodule Transport.Jobs.GenericConverter do
   end
 
   defp conversion_file_name(resource_name, source_format, target_format),
-    do: "conversions/#{source_format}-to-#{target_format}/#{resource_name}.#{target_format}"
+    do:
+      "conversions/#{source_format}-to-#{target_format}/#{maybe_sanitize_filename(resource_name, target_format)}.#{target_format}"
+
+  @doc false
+  def maybe_sanitize_filename(name, "geojson") do
+    name
+    |> String.replace(".zip", "")
+    |> String.split(".")
+    |> case do
+      [part] -> part
+      parts -> Enum.join(Enum.drop(parts, -1), "_") <> "." <> List.last(parts)
+    end
+  end
+
+  def maybe_sanitize_filename(name, _), do: name
 
   defp add_zip_extension(path, true = _zip_conversion?), do: "#{path}.zip"
   defp add_zip_extension(path, _), do: path
