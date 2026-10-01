@@ -10,7 +10,6 @@ defmodule Transport.Jobs.ImportGBFSFeedContactEmailJob do
   """
   use Oban.Worker, max_attempts: 3
   import Ecto.Query
-  require Logger
 
   # The source when creating a contact
   @contact_source :"automation:import_gbfs_feed_contact_email"

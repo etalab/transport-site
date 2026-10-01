@@ -368,7 +368,7 @@ defmodule Transport.IRVE.ConsolidationTest do
     #  and task process order is not deterministic
     |> expect(:get!, 3, fn _url, options ->
       # We deal with different cases with a pattern match inside the function
-      resource_mock(options)
+      resource_mock(Enum.sort(options))
     end)
   end
 
@@ -377,17 +377,17 @@ defmodule Transport.IRVE.ConsolidationTest do
   @invalid_url "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv"
 
   # A correct resource
-  defp resource_mock(into: into, decode_body: false, compressed: false, url: @valid_url) do
+  defp resource_mock(compressed: false, decode_body: false, into: into, url: @valid_url) do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 
   # Invalid: missing required column nom_station
-  defp resource_mock(into: into, decode_body: false, compressed: false, url: @invalid_url) do
+  defp resource_mock(compressed: false, decode_body: false, into: into, url: @invalid_url) do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")])
   end
 
   # Published by individual, valid but should be skipped. Downloaded for line count.
-  defp resource_mock(into: into, decode_body: false, compressed: false, url: @individual_published_url) do
+  defp resource_mock(compressed: false, decode_body: false, into: into, url: @individual_published_url) do
     build_resource_response(into.path, [DB.Factory.IRVE.generate_row()])
   end
 

@@ -4,7 +4,6 @@ defmodule Mix.Tasks.Transport.AddDatasetSubtypes do
   Run with `mix Transport.AddDatasetSubtypes`.
   """
   use Mix.Task
-  require Logger
 
   def run(_params) do
     Mix.Task.run("app.start")
