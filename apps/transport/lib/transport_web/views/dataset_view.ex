@@ -791,7 +791,7 @@ defmodule TransportWeb.DatasetView do
             </div>
             <div class="reuse__details">
               <h3>{reuse.title}</h3>
-              {raw(MarkdownHandler.markdown_to_safe_html!(reuse.description, &ReuseMarkdown.shift_headings/1))}
+              {MarkdownHandler.markdown_to_safe_html!(reuse.description, &ReuseMarkdown.shift_headings/1)}
             </div>
           </div>
         </div>
