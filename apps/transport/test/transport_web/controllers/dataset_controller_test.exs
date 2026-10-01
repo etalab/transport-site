@@ -13,7 +13,6 @@ defmodule TransportWeb.DatasetControllerTest do
   setup :verify_on_exit!
 
   setup do
-    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
@@ -40,7 +39,6 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     with_mocks [
-      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
       {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
     ] do
       html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
