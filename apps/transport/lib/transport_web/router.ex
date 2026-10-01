@@ -91,6 +91,8 @@ defmodule TransportWeb.Router do
     scope "/backoffice", Backoffice, as: :backoffice do
       pipe_through([:browser_no_csp, :authentication_required, :transport_data_gouv_member])
 
+      # Own live_session: reaching this page from another LiveView must reload it,
+      # to go through the authentication plugs and get the `:browser_no_csp` headers.
       live_session :email_preview do
         live("/email_preview", EmailPreviewLive)
       end
@@ -139,6 +141,7 @@ defmodule TransportWeb.Router do
         end
       end
 
+      # The live_session passes the role to `NotificationsLive` and keeps it behind the `:producer_space` plugs.
       live_session :espace_producteur, session: %{"role" => :producer} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :espace_producteur)
       end
@@ -157,6 +160,7 @@ defmodule TransportWeb.Router do
       delete("/settings/tokens/:id", ReuserSpaceController, :delete_token)
       post("/settings/tokens/:id/default_token", ReuserSpaceController, :default_token)
 
+      # The live_session passes the role to `NotificationsLive` and keeps it behind the `:reuser_space` plugs.
       live_session :reuser_space, session: %{"role" => :reuser} do
         live("/notifications", Live.NotificationsLive, :notifications, as: :reuser_space)
       end
@@ -230,32 +234,19 @@ defmodule TransportWeb.Router do
         csp_nonce_assign_key: :csp_nonce_value
       )
 
-      live_session :backoffice_proxy_config do
+      # Live navigation within a live_session skips the plug pipeline:
+      # this session keeps public LiveViews from navigating to admin ones without `:admin_rights`.
+      live_session :backoffice do
         live("/proxy-config", ProxyConfigLive)
-      end
-
-      live_session :backoffice_jobs do
         live("/jobs", JobsLive)
         live("/jobs/experimental", Jobs2Live)
-      end
-
-      live_session :cache do
         live("/cache", CacheLive)
-      end
-
-      live_session :rate_limiter do
         live("/rate_limiter", RateLimiterLive)
+        live("/batch-report", DataImportBatchReportLive)
+        live("/irve-dashboard", IRVEDashboardLive)
       end
 
       get("/import_aoms", PageController, :import_all_aoms)
-
-      live_session :data_import_batch_report do
-        live("/batch-report", DataImportBatchReportLive)
-      end
-
-      live_session :irve_dashboard do
-        live("/irve-dashboard", IRVEDashboardLive)
-      end
 
       scope "/datasets" do
         get("/new", PageController, :new)
@@ -293,9 +284,7 @@ defmodule TransportWeb.Router do
     get("/logout", SessionController, :delete)
 
     scope "/validation" do
-      live_session :validation do
-        live("/", Live.OnDemandValidationSelectLive)
-      end
+      live("/", Live.OnDemandValidationSelectLive)
 
       post("/", ValidationController, :validate)
       post("/convert", ValidationController, :convert)
@@ -307,13 +296,8 @@ defmodule TransportWeb.Router do
       get("/gbfs/geojson_convert", GbfsToGeojsonController, :convert)
       get("/gbfs/analyze", GbfsAnalyzerController, :index)
 
-      live_session :gtfs_diff do
-        live("/gtfs_diff", Live.GTFSDiffSelectLive)
-      end
-
-      live_session :siri do
-        live("/siri-querier", Live.SIRIQuerierLive)
-      end
+      live("/gtfs_diff", Live.GTFSDiffSelectLive)
+      live("/siri-querier", Live.SIRIQuerierLive)
     end
 
     scope "/gtfs-geojson-conversion" do
