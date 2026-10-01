@@ -48,6 +48,7 @@ defmodule DB.Reuse do
       join: d in DB.Dataset,
       on: d.id == rd.dataset_id,
       where: d.datagouv_id == ^datagouv_id,
+      order_by: [desc: r.last_modified],
       select: %{
         datagouv_id: r.datagouv_id,
         title: r.title,
