@@ -9,8 +9,9 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     ~H"""
     <button
       phx-click="validate_dataset"
-      role="menuitem"
-      class={"ctx-menu__validate #{state_class(@step)}"}
+      class={@base_classname}
+      disabled={@button_disabled}
+      {@button_role && [role: @button_role] || []}
     >
       <i class={"fas fa-#{icon_for_state(@step)}"}></i>
       {text_for_state(@step)}
@@ -18,12 +19,14 @@ defmodule TransportWeb.Live.ValidateDatasetView do
     """
   end
 
-  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale}, socket) do
+  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale} = session, socket) do
     Gettext.put_locale(locale)
 
     new_socket =
       socket
       |> assign(dataset_id: dataset_id)
+      |> assign(base_classname: Map.get(session, "base_classname", "button"))
+      |> assign(button_role: Map.get(session, "button_role", ""))
       |> assign_step(:first)
 
     {:ok, new_socket}
@@ -72,8 +75,4 @@ defmodule TransportWeb.Live.ValidateDatasetView do
       dgettext("backoffice_dataset", "Validate")
     )
   end
-
-  defp state_class(:validating), do: "ctx-menu__validate--pending"
-  defp state_class(:validated), do: "ctx-menu__validate--success"
-  defp state_class(_), do: ""
 end

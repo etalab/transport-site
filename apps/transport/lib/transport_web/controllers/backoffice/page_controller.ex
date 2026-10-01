@@ -16,48 +16,87 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def index(%Plug.Conn{} = conn, %{"q" => q} = params) when q != "" do
-    conn = assign(conn, :q, q)
+  def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
+    build_query(conn, params, filter_outdated())
+  end
 
-    params
-    |> Dataset.list_datasets_no_order()
-    |> DB.Dataset.include_hidden_datasets()
-    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
+  def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
+    build_query(conn, params, filter_not_compliant())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "licence_not_specified"} = params) do
+    build_query(conn, params, filter_licence_not_specified())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "multi_gtfs"} = params) do
+    build_query(conn, params, filter_multi_gtfs())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "resource_not_available"} = params) do
+    build_query(conn, params, filter_resource_not_available())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "resource_under_90_availability"} = params) do
+    build_query(conn, params, filter_resource_under_90_availability())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "archived"} = params) do
+    build_query(conn, params, filter_archived())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "hidden"} = params) do
+    build_query(conn, params, filter_hidden())
+  end
+
+  def index(%Plug.Conn{} = conn, %{"filter" => "inactive"} = params) do
+    build_query(conn, params, filter_inactive())
+  end
+
+  def index(%Plug.Conn{} = conn, params) do
+    build_query(conn, params, default_query())
+  end
+
+  defp build_query(conn, params, query) do
+    conn = assign(conn, :q, params["q"])
+
+    query
+    |> DB.Dataset.filter_by_fulltext(params)
     |> query_order_by_from_params(params)
     |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "outdated"} = params) do
-    dt = Date.utc_today() |> Date.to_iso8601()
+  defp default_query do
+    DB.Dataset.base_with_hidden_datasets()
+    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
+  end
 
+  defp filter_outdated do
+    dt = Date.utc_today() |> Date.to_iso8601()
     sub = end_dates_query() |> having([metadata: m], fragment("max(?->>'end_date') <= ?", m.metadata, ^dt))
 
     DB.Dataset.base_with_hidden_datasets()
     |> join(:right, [d], end_date in subquery(sub), on: d.id == end_date.dataset_id, as: :end_dates)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "not_compliant"} = params) do
+  defp filter_not_compliant do
     sub =
       end_dates_query()
-      |> having([metadata: m], fragment("MAX(CAST(?->'issues_count'->>'UnloadableModel' as INT)) > 0", m.metadata))
+      |> having(
+        [metadata: m],
+        fragment("MAX(CAST(?->'issues_count'->>'UnloadableModel' as INT)) > 0", m.metadata)
+      )
 
     DB.Dataset.base_with_hidden_datasets()
     |> join(:inner, [d], end_date in subquery(sub), on: d.id == end_date.dataset_id, as: :end_dates)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "licence_not_specified"} = params) do
+  defp filter_licence_not_specified do
     DB.Dataset.base_with_hidden_datasets()
     |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
     |> where([d], d.licence == "notspecified")
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "multi_gtfs"} = params) do
+  defp filter_multi_gtfs do
     resources =
       from(r in Resource,
         where: r.format == "GTFS",
@@ -69,11 +108,9 @@ defmodule TransportWeb.Backoffice.PageController do
     DB.Dataset.base_with_hidden_datasets()
     |> join_left_with_end_dates()
     |> join(:inner, [dataset: d], r in subquery(resources), on: d.id == r.dataset_id)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "resource_not_available"} = params) do
+  defp filter_resource_not_available do
     resources =
       from(r in Resource,
         where: r.is_available == false,
@@ -84,46 +121,29 @@ defmodule TransportWeb.Backoffice.PageController do
     DB.Dataset.base_with_hidden_datasets()
     |> join_left_with_end_dates()
     |> join(:inner, [dataset: d], r in subquery(resources), on: d.id == r.dataset_id)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "resource_under_90_availability"} = params) do
+  defp filter_resource_under_90_availability do
     datasets_id = dataset_with_resource_under_90_availability()
 
     DB.Dataset.base_with_hidden_datasets()
     |> join_left_with_end_dates()
     |> where([dataset: d], d.id in ^datasets_id)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "archived"} = params) do
+  defp filter_archived do
     Dataset.archived()
     |> join_left_with_end_dates()
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "hidden"} = params) do
+  defp filter_hidden do
     DB.Dataset.hidden()
     |> join_left_with_end_dates()
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
-  def index(%Plug.Conn{} = conn, %{"filter" => "inactive"} = params) do
+  defp filter_inactive do
     Dataset.inactive()
     |> join_left_with_end_dates()
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
-  end
-
-  def index(%Plug.Conn{} = conn, params) do
-    DB.Dataset.base_with_hidden_datasets()
-    |> join(:left, [d], end_date in subquery(end_dates_query()), on: d.id == end_date.dataset_id, as: :end_dates)
-    |> query_order_by_from_params(params)
-    |> render_index(conn, params)
   end
 
   defp get_regions_for_select do

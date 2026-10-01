@@ -1,5 +1,72 @@
 @use "../globals/variables";
 
+.search-filter-toolbar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  flex-direction: column;
+  margin-bottom: 32px;
+
+  .search-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .filter-section {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+  }
+}
+
+.filter-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  color: var(--theme-dark-text);
+  background-color: var(--lighter-grey);
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: var(--light-grey);
+    color: var(--theme-primary);
+  }
+
+  &.active {
+    background-color: var(--theme-primary);
+    color: white;
+    font-weight: 600;
+
+    &:hover {
+      background-color: var(--theme-primary);
+      opacity: 0.9;
+    }
+  }
+}
+
+.filter-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--theme-border-radius);
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: var(--grey);
+  background-color: transparent;
+  transition: all 150ms ease;
+
+  &:hover {
+    background-color: var(--light-grey);
+    color: var(--theme-primary);
+  }
+}
+
 .dataset_import_validations_logs {
   display: flex;
   flex-direction: column;
@@ -59,6 +126,10 @@
       margin: 0;
     }
   }
+}
+
+.search-filter-toolbar .search-section > button {
+  margin: 0;
 }
 
 .separator {
