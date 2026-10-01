@@ -829,10 +829,6 @@ defmodule TransportWeb.DatasetView do
     {"fa-building", name}
   end
 
-  defp owner(%{owner: %{"name" => name}}) when is_binary(name) do
-    {"fa-user", name}
-  end
-
   defp owner(%{owner: owner}) when is_binary(owner) and owner != "" do
     {"fa-user", owner}
   end
