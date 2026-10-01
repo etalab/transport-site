@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   @moduledoc """
   A view able to display the current running configuration of the proxy.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]

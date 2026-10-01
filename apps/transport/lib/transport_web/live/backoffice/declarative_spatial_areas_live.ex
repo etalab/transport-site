@@ -1,7 +1,6 @@
 defmodule TransportWeb.DeclarativeSpatialAreasLive do
-  use Phoenix.LiveComponent
+  use TransportWeb, :live_component
   alias TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
 
   def render(assigns) do
     ~H"""

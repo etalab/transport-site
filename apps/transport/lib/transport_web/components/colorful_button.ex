@@ -5,7 +5,7 @@ defmodule TransportWeb.Components.ColorfulButton do
   Useful for navigation.
   """
 
-  use Phoenix.Component
+  use TransportWeb, :html
 
   attr(:variant, :atom, default: :valid)
   attr(:striped, :boolean, default: false)

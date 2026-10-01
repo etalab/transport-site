@@ -1,5 +1,5 @@
 defmodule TransportWeb.DatasetSubtypeLive do
-  use Phoenix.LiveComponent
+  use TransportWeb, :live_component
   alias TransportWeb.InputHelpers
 
   def render(assigns) do
