@@ -22,6 +22,13 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ### 🐞 Corrections
 - Correction de boutons qui n'apparaissaient plus sur certaines pages.
 
+### ⚙️ Technique & maintenance
+- Mise à jour du fichier `.proto` GTFS-RT ;
+- Revue de la détection des opérateurs GBFS ;
+- IRVE dynamique : interrogation des flux limitée au serveur web de production ;
+- Refactorisation de la page de détails des jeux de données et réduction de la duplication de code ;
+- Corrections d'erreurs remontées par Sentry.
+
 ## Août 2026
 
 ### 🚌 NeTEx
@@ -39,6 +46,13 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 
 ### 🚲 Vélos et trottinettes en libre-service
 - Correction de l'opérateur associé au flux GBFS Leo&Go.
+
+### ⚙️ Technique & maintenance
+- NeTEx : stockage uniforme des résultats de validation (Parquet), écrits directement depuis un DataFrame, et correction de l'archivage des anciennes validations ;
+- NeTEx : choix de la XSD transmis au validateur enRoute Chouette Valid ;
+- Consolidation IRVE : une seule passe de correction des coordonnées ;
+- Extraction mensuelle des téléchargements par format pour l'ART ;
+- Mises à jour de sécurité, corrections de documentation et stabilisation des tests.
 
 ## Juillet 2026
 
@@ -58,6 +72,12 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ### 🔒 Sécurité
 - Mise en place d'un scanner de vulnérabilités et mises à jour des librairies concernées.
 
+### ⚙️ Technique & maintenance
+- Consolidation IRVE : lecture unique de chaque fichier avec vérifications avant validation, export de la base par lots, meilleure gestion des erreurs d'envoi vers S3 ;
+- Fin de l'utilisation de TimescaleDB pour les métriques du proxy ;
+- Suppression de la librairie ExVCR des tests ;
+- Mise à jour du protobuf GTFS-RT.
+
 ## Juin 2026
 
 ### ⚡ IRVE
@@ -66,6 +86,11 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 - Consolidation : redressement automatique des coordonnées inversées, qui plaçaient environ 15 % des points de charge dans l'océan ;
 - Consolidation : la puissance nominale n'est plus affichée avec des zéros superflus (`22` au lieu de `22.00000000`) ;
 - Arrêt de la consolidation « brute » non validée, remplacée par la consolidation validée et dédoublonnée.
+
+### ⚙️ Technique & maintenance
+- Suppression du code de la consolidation IRVE brute ;
+- Mise à jour du protobuf GTFS-RT ;
+- Stabilisation des tests.
 
 ## Mai 2026
 
@@ -78,8 +103,12 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 ### 🚲 Vélos en libre-service
 - Ajout de Yégo aux opérateurs GBFS connus.
 
-### ⚙️ Technique
-- Modernisation de l'outillage front-end (JavaScript, icônes FontAwesome 7, feuilles de style).
+### ⚙️ Technique & maintenance
+- Modernisation de l'outillage front-end (JavaScript, icônes FontAwesome 7, feuilles de style) : DeckGL, Vega, migration SCSS vers `@use` ;
+- Patchs de sécurité JavaScript ;
+- Configuration des validateurs GTFS et GBFS lue à l'exécution plutôt qu'à la compilation ;
+- Suppression de code mort : ancien agrégateur IRVE dynamique du proxy, support expérimental SIRI ;
+- Scripts de diagnostic : analyse des doublons du consolidé IRVE dynamique, vérification des flux SIRI.
 
 ## Avril 2026
 
@@ -99,6 +128,14 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 
 ### 🛠️ Backoffice
 - Nouvelle page de suivi des tâches de fond, avec filtres et panneau de détails.
+
+### ⚙️ Technique & maintenance
+- Mise à jour majeure de l'outillage JavaScript : build, ESLint 10, formatage avec Prettier ;
+- Proxy : possibilité de surcharger les en-têtes de réponse des flux S3 ;
+- IRVE : résumé de validation exploitable, base du nouveau validateur à la demande ;
+- Mise à jour du protobuf GTFS-RT ;
+- Nettoyage : suppression de `Mix.env()` à l'exécution, du code de conversion GTFS vers NeTEx inutilisé, correction d'une tâche planifiée ;
+- Stabilisation de tests fragiles.
 
 ## Mars 2026
 
@@ -137,6 +174,15 @@ Retrouvez sur cette page les principales nouveautés chaque mois.
 - Association manuelle de deux ressources d'un jeu de données ;
 - Export CSV des jeux de données ;
 - Export des ressources enrichi (ressources associées, nom de l'entreprise).
+
+### ⚙️ Technique & maintenance
+- Création et mise à jour quotidienne des entreprises à partir des numéros SIREN ;
+- Proxy : affichage des tailles totales en mémoire et sur disque dans le backoffice ;
+- Rafraîchissement de l'index de recherche en mémoire depuis le backoffice ;
+- IRVE : configuration des jeux de données prioritaires du dédoublonnage dans un fichier dédié, prise en compte du flux dynamique dans les statistiques d'unicité des points de charge ;
+- PostgreSQL 18 et TimescaleDB 2.23 en intégration continue, Stylelint 17 ;
+- Documentation du test de disponibilité et de la mise à jour des règles NeTEx ;
+- Stabilisation des tests.
 
 ## Février 2026
 
