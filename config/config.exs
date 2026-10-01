@@ -129,7 +129,6 @@ config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
-  datagouvfr_reuses: Datagouvfr.Client.Reuses,
   datagouvfr_discussions: Datagouvfr.Client.Discussions,
   organization_impl: Datagouvfr.Client.Organization,
   # The two following implementations are also used in tests, except if specifically overriden to use a mock
