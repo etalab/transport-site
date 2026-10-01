@@ -423,5 +423,5 @@ defmodule TransportWeb.ResourceView do
     end
   end
 
-  def markdown(text), do: TransportWeb.MarkdownHandler.markdown_to_safe_html!(text)
+  def markdown(text), do: TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(text)
 end
