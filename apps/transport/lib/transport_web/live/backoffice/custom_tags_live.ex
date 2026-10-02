@@ -1,5 +1,5 @@
 defmodule TransportWeb.CustomTagsLive do
-  use Phoenix.LiveComponent
+  use TransportWeb, :live_component
   alias TransportWeb.InputHelpers
   import Ecto.Query
 

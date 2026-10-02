@@ -2,8 +2,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   @moduledoc """
   A quick dashboard for jobs.
   """
-  use Gettext, backend: TransportWeb.Gettext
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use Phoenix.HTML
   import Ecto.Query
   import TransportWeb.Router.Helpers

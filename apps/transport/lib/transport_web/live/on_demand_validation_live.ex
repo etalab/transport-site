@@ -3,9 +3,8 @@ defmodule TransportWeb.Live.OnDemandValidationLive do
   This Live view is in charge of displaying an on demand validation:
   waiting, error and results screens.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 3]
   import Transport.Validators.TableSchema, only: [validata_web_url: 1]
   import Ecto.Query

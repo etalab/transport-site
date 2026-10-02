@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
   @moduledoc """
   A quick dashboard for jobs.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use Phoenix.HTML
   import Ecto.Query
   import TransportWeb.Router.Helpers

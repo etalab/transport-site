@@ -1,7 +1,6 @@
 defmodule TransportWeb.EditDatasetLive do
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use Phoenix.HTML
-  use Gettext, backend: TransportWeb.Gettext
   alias DB.Dataset
   import TransportWeb.Router.Helpers
   alias TransportWeb.InputHelpers

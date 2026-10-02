@@ -47,7 +47,7 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: [html: {TransportWeb.LayoutView, :app}],
+    root_layout: [html: {TransportWeb.LayoutView, :root}],
     accepts: ~w(html json)
   ],
   pubsub_server: TransportWeb.PubSub
@@ -73,9 +73,7 @@ config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
 
 # Allow to have Markdown templates
-config :phoenix, :template_engines,
-  md: TransportWeb.MarkdownTemplateEngine,
-  leex: Phoenix.LiveView.Engine
+config :phoenix, :template_engines, md: TransportWeb.MarkdownTemplateEngine
 
 config :transport, gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPValidatorClient
 

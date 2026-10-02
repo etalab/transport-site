@@ -9,9 +9,8 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   The button is not displayed when the user is a producer of the dataset
   (cannot be a reuser of your own dataset).
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   import Ecto.Query
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Router.Helpers
 
   @impl true

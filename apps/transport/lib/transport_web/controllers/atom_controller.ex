@@ -10,7 +10,7 @@ defmodule TransportWeb.AtomController do
     resources = get_recently_updated_resources(two_weeks_ago)
 
     conn
-    |> put_layout(false)
+    |> put_root_layout(false)
     |> put_resp_content_type("application/xml")
     |> render("index.html", resources: resources)
   end
