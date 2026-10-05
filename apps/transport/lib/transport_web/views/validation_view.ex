@@ -11,11 +11,10 @@ defmodule TransportWeb.ValidationView do
   import TransportWeb.NeTExReportComponents,
     only: [
       netex_validation_report_content: 1,
-      netex_validation_report_title: 1,
-      to_netex_validation_report: 1
+      netex_validation_report_title: 1
     ]
 
-  import TransportWeb.PaginationHelpers
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3]
 
   def render("_" <> _ = partial, assigns) do
     render(TransportWeb.ResourceView, partial, assigns)
@@ -29,16 +28,11 @@ defmodule TransportWeb.ValidationView do
 
   def warning_label(warning) when is_binary(warning), do: warning
 
-  def netex_pagination_links(conn, issues, validation_id, current_category) do
-    pagination_links(conn, issues, [validation_id],
-      issues_category: current_category,
-      token: conn.params["token"],
-      path: &netex_issues_path/4,
-      action: :show
-    )
-  end
+  def netex_pagination_links(conn, issues, current_category) do
+    assigns = %{conn: conn, issues: issues, current_category: current_category}
 
-  defp netex_issues_path(conn, action, validation_id, params) do
-    validation_path(conn, action, validation_id, params) |> to_netex_validation_report()
+    ~H"""
+    <.pagination conn={@conn} page={@issues} params={[issues_category: @current_category]} anchor="validation-report" />
+    """
   end
 end

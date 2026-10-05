@@ -38,20 +38,10 @@
       <div class="validation-content-details">
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
-            {pagination_links(@conn, @issues, [@validation_id],
-              issue_type: @validator.issue_type(@issues.entries),
-              token: @token,
-              path: &validation_path/4,
-              action: :show
-            )}
+            <.pagination conn={@conn} page={@issues} params={[issue_type: @validator.issue_type(@issues.entries)]} />
             {render(gtfs_template(@issues), issues: @issues || [], conn: @conn)}
             <div class="pt-24">
-              {pagination_links(@conn, @issues, [@validation_id],
-                issue_type: @validator.issue_type(@issues.entries),
-                token: @token,
-                path: &validation_path/4,
-                action: :show
-              )}
+              <.pagination conn={@conn} page={@issues} params={[issue_type: @validator.issue_type(@issues.entries)]} />
             </div>
           <% else %>
             <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>

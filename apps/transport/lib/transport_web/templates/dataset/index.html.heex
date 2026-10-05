@@ -244,7 +244,7 @@
               </div>
             <% end %>
             <div>
-              {pagination_links(@conn, @datasets)}
+              <.pagination conn={@conn} page={@datasets} />
             </div>
           <% end %>
         </div>

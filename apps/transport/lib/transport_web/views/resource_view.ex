@@ -1,15 +1,13 @@
 defmodule TransportWeb.ResourceView do
   use TransportWeb, :view
   use Phoenix.Component
-  import TransportWeb.PaginationHelpers
   import Phoenix.Controller, only: [current_url: 2]
 
   import TransportWeb.NeTExReportComponents,
     only: [
       netex_generic_issues: 1,
       netex_validation_report_content: 1,
-      netex_validation_report_title: 1,
-      to_netex_validation_report: 1
+      netex_validation_report_title: 1
     ]
 
   import TransportWeb.DatasetView,
@@ -403,16 +401,12 @@ defmodule TransportWeb.ResourceView do
     "<code>&lt;#{element_name}&gt;</code>"
   end
 
-  def netex_pagination_links(conn, issues, resource, current_category) do
-    pagination_links(conn, issues, [resource.id],
-      issues_category: current_category,
-      path: &netex_issues_path/4,
-      action: :details
-    )
-  end
+  def netex_pagination_links(conn, issues, current_category) do
+    assigns = %{conn: conn, issues: issues, current_category: current_category}
 
-  defp netex_issues_path(conn, action, resource_id, params) do
-    resource_path(conn, action, resource_id, params) |> to_netex_validation_report()
+    ~H"""
+    <.pagination conn={@conn} page={@issues} params={[issues_category: @current_category]} anchor="validation-report" />
+    """
   end
 
   def error_label(severity) do
