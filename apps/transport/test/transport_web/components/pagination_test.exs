@@ -62,6 +62,17 @@ defmodule TransportWeb.Components.PaginationTest do
     assert labels == ["<<", "1", "…"] ++ Enum.map(5..15, &to_string/1) ++ ["…", "20", ">>"]
   end
 
+  test "links stay on this site when the path starts with //" do
+    conn =
+      %{Phoenix.ConnTest.build_conn(:get, "/datasets") | request_path: "//datasets"} |> Plug.Conn.fetch_query_params()
+
+    page = %Scrivener.Page{entries: [], page_number: 1, page_size: 20, total_entries: 40, total_pages: 2}
+
+    Phoenix.LiveViewTest.render_component(&TransportWeb.Components.Pagination.pagination/1, conn: conn, page: page)
+    |> Floki.parse_document!()
+    |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2"}, {">>", "/datasets?page=2"}])
+  end
+
   test "markup" do
     doc = test_pagination(3, %{"page" => "2"})
 

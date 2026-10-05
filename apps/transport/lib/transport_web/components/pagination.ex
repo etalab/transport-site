@@ -62,7 +62,11 @@ defmodule TransportWeb.Components.Pagination do
   defp rel(current, number) when number == current - 1, do: "prev"
   defp rel(_current, _number), do: "canonical"
 
-  defp page_url(%Plug.Conn{request_path: path, query_params: query_params}, params, anchor, number) do
+  # `current_path/2` rebuilds the path from its segments: a request on `//datasets`
+  # would otherwise give links to the `datasets` host.
+  defp page_url(%Plug.Conn{query_params: query_params} = conn, params, anchor, number) do
+    path = Phoenix.Controller.current_path(conn, %{})
+
     query =
       query_params
       |> Map.drop(["page"])
