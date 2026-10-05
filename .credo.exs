@@ -34,7 +34,6 @@
           "config/datagouvfr.exs",
           "config/dev.exs",
           "config/dev.secret.exs",
-          "config/prod.exs",
           "config/test.exs"
         ]
       },
