@@ -72,7 +72,6 @@ config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
-  datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
   datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock,
   organization_impl: Datagouvfr.Client.Organization.Mock,
   # The two following implementations are often overriden with Mox.stubs_with/2 in tests

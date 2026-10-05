@@ -2,8 +2,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Steps do
   @moduledoc """
   Results step of the GTFS diff tool.
   """
-  use Phoenix.Component
   use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :html
 
   def steps(%{current_step: _} = assigns) do
     ~H"""

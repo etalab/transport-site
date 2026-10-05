@@ -47,7 +47,7 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: [html: {TransportWeb.LayoutView, :app}],
+    root_layout: [html: {TransportWeb.LayoutView, :root}],
     accepts: ~w(html json)
   ],
   pubsub_server: TransportWeb.PubSub
@@ -73,11 +73,7 @@ config :scrivener_html,
   routes_helper: TransportWeb.Router.Helpers
 
 # Allow to have Markdown templates
-config :phoenix, :template_engines,
-  md: PhoenixMarkdown.Engine,
-  leex: Phoenix.LiveView.Engine
-
-config :phoenix_markdown, :server_tags, :all
+config :phoenix, :template_engines, md: TransportWeb.MarkdownTemplateEngine
 
 config :transport, gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPValidatorClient
 
@@ -131,7 +127,6 @@ config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
-  datagouvfr_reuses: Datagouvfr.Client.Reuses,
   datagouvfr_discussions: Datagouvfr.Client.Discussions,
   organization_impl: Datagouvfr.Client.Organization,
   # The two following implementations are also used in tests, except if specifically overriden to use a mock

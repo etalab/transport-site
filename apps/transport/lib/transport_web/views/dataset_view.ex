@@ -3,7 +3,7 @@ defmodule TransportWeb.DatasetView do
   require Logger
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ReuseMarkdown, Router.Helpers}
   import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
@@ -745,6 +745,86 @@ defmodule TransportWeb.DatasetView do
     </td>
     """
   end
+
+  @doc """
+  Renders the reuses section for a dataset.
+  """
+  def reuses(%{reuses: _} = assigns) do
+    ~H"""
+    <section class="white pt-48" id="dataset-reuses">
+      <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+      <%= if @reuses != [] do %>
+        <p>
+          {dgettext(
+            "page-dataset-details",
+            "You will find below reuses created by individuals or organizations based on this dataset."
+          )}
+        </p>
+        <div class="reuses">
+          <div :for={reuse <- @reuses} class="panel reuse">
+            <%= if is_binary(reuse.image) and reuse.image != "" do %>
+              <img src={reuse.image} alt={reuse.title} />
+            <% else %>
+              <i class="fa fa-image"></i>
+            <% end %>
+            <div :if={owner = owner(reuse)} class="reuse__owner">
+              <i class={"fa #{elem(owner, 0)} icon"}></i>{elem(owner, 1)}
+            </div>
+            <div class="reuse__links">
+              <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
+              <a :if={reuse_website_url} href={reuse_website_url}>
+                {dgettext("page-dataset-details", "Website")}
+              </a>
+              <% data_gouv_url = safe_remote_url(reuse.url) %>
+              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
+                {dgettext("page-dataset-details", "See on data.gouv.fr")}
+              </a>
+            </div>
+            <div class="reuse__details">
+              <h3>{reuse.title}</h3>
+              {MarkdownHandler.markdown_to_safe_html!(reuse.description, &ReuseMarkdown.shift_headings/1)}
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
+      <% end %>
+      <div class="information-message pt-24">
+        {dgettext(
+          "page-dataset-details",
+          "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work.",
+          a_start: ~s|<a href="/reuses">|,
+          a_end: "</a>"
+        )
+        |> Phoenix.HTML.raw()}
+      </div>
+    </section>
+    """
+  end
+
+  defp safe_remote_url(url) when is_binary(url) do
+    safe_url_string(url)
+  end
+
+  defp safe_remote_url(_), do: nil
+
+  defp safe_url_string(url) do
+    case URI.parse(url) do
+      %URI{scheme: "http" <> _} -> url
+      %URI{scheme: "https" <> _} -> url
+      _ -> nil
+    end
+  end
+
+  defp owner(%{organization: name}) when is_binary(name) do
+    {"fa-building", name}
+  end
+
+  defp owner(%{owner: owner}) when is_binary(owner) and owner != "" do
+    {"fa-user", owner}
+  end
+
+  defp owner(_), do: nil
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do

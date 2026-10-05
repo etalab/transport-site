@@ -2,11 +2,10 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
   @moduledoc """
   Display datasets on the producer and reuser space.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 

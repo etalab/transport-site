@@ -2,7 +2,7 @@ defmodule TransportWeb.Backoffice.CacheLive do
   @moduledoc """
   A view to help debug the Cachex memory cache.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use Phoenix.HTML
   import Transport.Application, only: [cache_name: 0]
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]

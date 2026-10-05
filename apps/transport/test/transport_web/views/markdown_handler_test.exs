@@ -4,7 +4,9 @@ defmodule TransportWeb.MarkdownHandlerTest do
 
   test "the sanitization of a markdown" do
     content = "# Bonjour\n<script>alert(\"xxx\")</script>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "<h1>\nBonjour</h1>\n\n  alert(\"xxx\")\n"}
+
+    assert content |> MarkdownHandler.markdown_to_safe_html!() ==
+             {:safe, "<h1>Bonjour</h1>\n&lt;script&gt;alert(\"xxx\")&lt;/script&gt;"}
   end
 
   test "a markdown keeps linebreaks" do
@@ -12,10 +14,10 @@ defmodule TransportWeb.MarkdownHandlerTest do
     content_with_only_n = "Bonjour\nmerci de votre vigilance."
 
     assert content_with_r |> MarkdownHandler.markdown_to_safe_html!() ==
-             {:safe, "<p>\nBonjour,</p>\n<p>\nLes données seront périmées à la fin du mois d’Août.</p>\n"}
+             {:safe, "<p>Bonjour,</p>\n<p>Les données seront périmées à la fin du mois d’Août.</p>"}
 
     assert content_with_only_n |> MarkdownHandler.markdown_to_safe_html!() ==
-             {:safe, "<p>\nBonjour  <br />\nmerci de votre vigilance.</p>\n"}
+             {:safe, "<p>Bonjour<br />\nmerci de votre vigilance.</p>"}
   end
 
   test "renders links" do
@@ -24,7 +26,7 @@ defmodule TransportWeb.MarkdownHandlerTest do
 
     assert content |> MarkdownHandler.markdown_to_safe_html!() ==
              {:safe,
-              "<p>\nBonjour,  <br />\nLa page précise une licence odc-oDbl et sur le site de vélib on trouve la licence d’etalab <a href=\"https://www.velib-metropole.fr/donnees-open-data-gbfs-du-service-velib-metropole\">https://www.velib-metropole.fr/donnees-open-data-gbfs-du-service-velib-metropole</a></p>\n"}
+              "<p>Bonjour,<br />\nLa page précise une licence odc-oDbl et sur le site de vélib on trouve la licence d’etalab <a href=\"https://www.velib-metropole.fr/donnees-open-data-gbfs-du-service-velib-metropole\">https://www.velib-metropole.fr/donnees-open-data-gbfs-du-service-velib-metropole</a></p>"}
   end
 
   test "renders code" do
@@ -33,17 +35,17 @@ defmodule TransportWeb.MarkdownHandlerTest do
 
     assert content |> MarkdownHandler.markdown_to_safe_html!() ==
              {:safe,
-              "<p>\nCela pourrait être une bonne chose de rajouter tout de meme l’url en <code>license_url</code> (du fichier <code>system_information.json</code>)</p>\n"}
+              "<p>Cela pourrait être une bonne chose de rajouter tout de meme l’url en <code>license_url</code> (du fichier <code>system_information.json</code>)</p>"}
   end
 
-  test "does render HTML elements inside Markdown code" do
+  test "escapes HTML elements inside Markdown" do
     content = "<h1>This is a title</h1>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "<h1>\n  This is a title</h1>\n"}
+    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "&lt;h1&gt;This is a title&lt;/h1&gt;"}
   end
 
   test "does escape dangerous HTML tags" do
     content = "<script>alert('Boo!');</script>"
-    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "\n  alert('Boo!');\n"}
+    assert content |> MarkdownHandler.markdown_to_safe_html!() == {:safe, "&lt;script&gt;alert('Boo!');&lt;/script&gt;"}
   end
 
   test "renders tables" do
@@ -55,45 +57,52 @@ defmodule TransportWeb.MarkdownHandlerTest do
 
     assert content |> MarkdownHandler.markdown_to_safe_html!() == {
              :safe,
-             ~s(<table class="table">\n  <thead>\n    <tr>\n      <th>\nState      </th>\n      <th>\nAbbrev      </th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>\nTexas      </td>\n      <td>\nTX      </td>\n    </tr>\n  </tbody>\n</table>\n)
+             ~s(<table class="table">\n<thead>\n<tr>\n<th>State</th>\n<th>Abbrev</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Texas</td>\n<td>TX</td>\n</tr>\n</tbody>\n</table>)
            }
   end
 
   describe "markdown_to_safe_html!/2 with transform" do
-    # Shift function matching ReusesLive.shift_headings/1
-    defp shift_headings(html) do
-      html
-      |> Floki.parse_fragment!()
-      |> Floki.traverse_and_update(&shift_headings_tag/1)
-      |> Floki.raw_html()
-    end
-
-    defp shift_headings_tag({tag, attrs, children}) do
-      tag =
-        case tag do
-          "h1" -> "h4"
-          unaltered -> unaltered
-        end
-
-      {tag, attrs, children}
-    end
-
-    test "shifts h1 to h4" do
-      content = "# Titre principal"
-      {:safe, html} = MarkdownHandler.markdown_to_safe_html!(content, &shift_headings/1)
-      assert html =~ ~r/<h4>(?s).*(?:\n)?Titre principal<\/h4>/
-    end
-
-    test "sanitizes dangerous HTML" do
-      content = "# Titre<svg/onload=alert(1)>\nParagraph"
-
-      {:safe, html} = MarkdownHandler.markdown_to_safe_html!(content, &shift_headings/1)
-      refute html =~ ~r/<svg/
-      assert html =~ ~r/<h4>/
+    test "applies a custom transform to sanitized HTML" do
+      content = "# Titre\nParagraph"
+      {:safe, html} = MarkdownHandler.markdown_to_safe_html!(content, &String.upcase/1)
+      assert html =~ "TITRE"
     end
 
     test "returns safe empty string for nil input" do
       assert MarkdownHandler.markdown_to_safe_html!(nil, &Function.identity/1) == {:safe, ""}
     end
+  end
+
+  test "vendored markdown renders HTML tables" do
+    content = "<table>\n<tr><td>Texas</td></tr>\n</table>"
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, ~s(<table class="table">\n<tr><td>Texas</td></tr>\n</table>)}
+  end
+
+  test "vendored markdown keeps single line breaks" do
+    content = "Première ligne\ndeuxième ligne."
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, "<p>Première ligne\ndeuxième ligne.</p>"}
+  end
+
+  test "vendored markdown renders inline code and links" do
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!("La clé `shape_dist_traveled` est requise.") ==
+             {:safe, "<p>La clé <code>shape_dist_traveled</code> est requise.</p>"}
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!("Voir [la doc](https://gtfs.org/reference).") ==
+             {:safe, ~s(<p>Voir <a href="https://gtfs.org/reference">la doc</a>.</p>)}
+  end
+
+  test "vendored markdown sanitizes dangerous HTML" do
+    content = "<img src=x onerror=alert(1)> <script>alert(1)</script>"
+
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(content) ==
+             {:safe, "<p><img src=\"x\" /> alert(1)</p>"}
+  end
+
+  test "vendored markdown returns safe empty string for nil input" do
+    assert TransportWeb.MarkdownHandler.vendored_markdown_to_safe_html!(nil) == {:safe, ""}
   end
 end

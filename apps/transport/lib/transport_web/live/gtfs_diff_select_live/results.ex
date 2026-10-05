@@ -2,9 +2,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
   @moduledoc """
   Results step of the GTFS diff tool.
   """
-  use Phoenix.Component
+  use TransportWeb, :html
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Differences
 
   @preferred_files_order [

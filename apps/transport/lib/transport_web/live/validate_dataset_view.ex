@@ -1,5 +1,5 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   alias DB.Dataset
   use Gettext, backend: TransportWeb.Gettext
 

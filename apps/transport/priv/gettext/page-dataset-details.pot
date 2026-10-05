@@ -179,7 +179,7 @@ msgid "Licence"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "You're using this dataset? %{a_start}Send an email!%{a_end}"
+msgid "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work."
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -296,10 +296,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "available"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Reuses are temporarily unavailable"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -732,10 +728,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Those resources are listed by the provider but are unreachable for now. <a href=\"%{url}\">Learn more</a>."
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Loading reuses…"
 msgstr ""
 
 #, elixir-autogen, elixir-format
