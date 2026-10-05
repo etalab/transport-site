@@ -2,8 +2,7 @@ defmodule TransportWeb.DiscussionsLive do
   @moduledoc """
   Display data.gouv discussions on the dataset page
   """
-  use Phoenix.LiveView
-  use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :live_view
 
   def render(assigns) do
     ~H"""

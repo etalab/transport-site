@@ -2,9 +2,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive do
   @moduledoc """
   Beta functionality: generate GTFS file diffs online
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
   alias TransportWeb.GTFSDiffExplain
 
   import TransportWeb.Live.GTFSDiffSelectLive.Analysis

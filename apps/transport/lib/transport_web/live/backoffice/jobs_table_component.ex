@@ -2,8 +2,7 @@ defmodule JobsTableComponent do
   @moduledoc """
   A live view table for Oban jobs monitoring
   """
-  use Phoenix.LiveComponent
-  use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :live_component
 
   def render(%{state: _, locale: _, jobs: _} = assigns) do
     ~H"""

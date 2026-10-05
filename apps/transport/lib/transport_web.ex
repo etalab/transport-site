@@ -20,7 +20,7 @@ defmodule TransportWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, formats: [html: "View", json: "View"], layouts: [html: TransportWeb.LayoutView]
+      use Phoenix.Controller, formats: [html: "View", json: "View"]
       import Plug.Conn
       import TransportWeb.Router.Helpers
       use Gettext, backend: TransportWeb.Gettext
@@ -39,7 +39,7 @@ defmodule TransportWeb do
         namespace: TransportWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1, get_csrf_token: 0, view_template: 1]
+      import Phoenix.Controller, only: [view_module: 1, get_csrf_token: 0, view_template: 1]
 
       # Use all HTML functionality (forms, tags, etc)
       use TransportWeb.InputHelpers
@@ -57,9 +57,34 @@ defmodule TransportWeb do
     end
   end
 
-  def view_helpers do
+  def live_view do
     quote do
-      unquote(verified_routes())
+      use Phoenix.LiveView
+
+      unquote(html_helpers())
+    end
+  end
+
+  def live_component do
+    quote do
+      use Phoenix.LiveComponent
+
+      unquote(html_helpers())
+    end
+  end
+
+  def html do
+    quote do
+      use Phoenix.Component
+
+      unquote(html_helpers())
+    end
+  end
+
+  defp html_helpers do
+    quote do
+      use Gettext, backend: TransportWeb.Gettext
+      import Phoenix.HTML
     end
   end
 
@@ -78,12 +103,6 @@ defmodule TransportWeb do
     quote do
       use Phoenix.Channel
       use Gettext, backend: TransportWeb.Gettext
-    end
-  end
-
-  def serializer do
-    quote do
-      use JaSerializer
     end
   end
 
