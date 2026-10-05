@@ -185,8 +185,6 @@ defmodule TransportWeb.ValidationController do
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        config = make_pagination_config(params)
-
         results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
 
         template = pick_netex_template(validation.validator_version)
@@ -201,7 +199,7 @@ defmodule TransportWeb.ValidationController do
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
-        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, config))
+        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, pagination_config))
         |> assign(:results_adapter, results_adapter)
         |> assign(:metadata, validation.metadata.metadata)
         |> assign(:max_severity, validation.digest["max_severity"])
