@@ -1,5 +1,4 @@
 defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
-  use Gettext, backend: TransportWeb.Gettext
   use TransportWeb, :live_view
 
   @button_disabled [:sending, :sent]
@@ -12,11 +11,7 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
     """
   end
 
-  def mount(
-        _params,
-        %{"dataset_id" => dataset_id, "locale" => locale, "sent_reasons" => sent_reasons},
-        socket
-      ) do
+  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale, "sent_reasons" => sent_reasons}, socket) do
     Gettext.put_locale(locale)
 
     new_socket =
@@ -47,9 +42,7 @@ defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
 
   def handle_info({:dispatch, dataset_id}, socket) do
     new_socket =
-      case %{dataset_id: dataset_id}
-           |> Transport.Jobs.DatasetNowOnNAPNotificationJob.new()
-           |> Oban.insert() do
+      case %{dataset_id: dataset_id} |> Transport.Jobs.DatasetNowOnNAPNotificationJob.new() |> Oban.insert() do
         {:ok, %Oban.Job{id: job_id}} ->
           send(self(), {:wait_for_completion, job_id})
           assign_step(socket, :sending)

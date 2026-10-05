@@ -3,7 +3,6 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   Setup step of the GTFS diff tool.
   """
   use TransportWeb, :html
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Live.GTFSDiffSelectLive.Shared
 
   def setup_step(%{uploads: _} = assigns) do
@@ -174,15 +173,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Setup do
   "Le type de fichier sélectionné n’est pas utilisable."
   """
   def error_to_string(:too_many_files), do: dgettext("gtfs-diff", "You must select 2 files.")
-
-  def error_to_string(:not_accepted),
-    do: dgettext("gtfs-diff", "You have selected an unacceptable file type.")
+  def error_to_string(:not_accepted), do: dgettext("gtfs-diff", "You have selected an unacceptable file type.")
 
   def error_to_string(:too_large),
     do:
-      dgettext("gtfs-diff", "File is too large, must be <%{max_file_size_mb}MB.",
-        max_file_size_mb: max_file_size_mb()
-      )
+      dgettext("gtfs-diff", "File is too large, must be <%{max_file_size_mb}MB.", max_file_size_mb: max_file_size_mb())
 
   defp upload_title(index) do
     if index == 0 do

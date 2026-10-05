@@ -1,7 +1,6 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
   use TransportWeb, :live_view
   alias DB.Dataset
-  use Gettext, backend: TransportWeb.Gettext
 
   @button_disabled [:validated, :validating]
 
