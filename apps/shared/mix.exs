@@ -43,9 +43,9 @@ defmodule Shared.MixProject do
       {:bypass, "~> 2.1", only: :test},
       {:mox, "~> 1.1", only: :test},
       # Mint is used by our HttpStream shared component, so we add an explicity dependency
-      # TODO: careful upgrade required (stricter HTTP parsing, the proxy must be checked on staging),
-      # see https://github.com/etalab/transport-site/issues/5640
-      {:mint, "~> 1.2"},
+      # Pinned to the 1.10.x security backports: 1.11 brings stricter HTTP parsing, the proxy
+      # must be checked on staging first, see https://github.com/etalab/transport-site/issues/5640
+      {:mint, "~> 1.10.2"},
       # Finch is used for built-in streaming
       {:finch, "~> 0.8"},
       # Required for the ConditionalJSONEncoder shared component, but
