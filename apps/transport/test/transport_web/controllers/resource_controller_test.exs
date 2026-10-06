@@ -208,6 +208,192 @@ defmodule TransportWeb.ResourceControllerTest do
 
       assert content =~ "Impossible de décoder le flux GTFS-RT"
     end
+
+    # v0.1.0 uses a different template without category tabs.
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details displays per-category severity counts and summary (#{version})", %{conn: conn} do
+        _render_netex_category_stats(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_category_stats(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => _permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+        })
+
+      # Errors in both XSD and base-rules categories with mixed severities.
+      # summary_from_binary should report the worst severity per category.
+      result = %{
+        "xsd-schema" => [
+          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD error 1"},
+          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
+        ],
+        "base-rules" => [
+          %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
+        ]
+      }
+
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
+
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        validator_version: version,
+        digest: results_adapter.digest(df),
+        binary_result: results_adapter.to_binary_result(errors),
+        max_error: "error",
+        metadata: %DB.ResourceMetadata{
+          metadata: %{},
+          modes: [],
+          features: []
+        },
+        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+      })
+
+      conn = conn |> get(resource_path(conn, :details, resource.id))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+
+      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
+      # base-rules shows warning with its single item
+      assert body =~ ~r{XSD\s+– 2 erreurs}
+      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+    end
+
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details filters issues by category when ?issues_category is set (#{version})", %{conn: conn} do
+        _render_netex_details_filtered(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_details_filtered(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => Ecto.UUID.generate()}
+        })
+
+      # Errors in both categories — filtering should isolate one.
+      result = %{
+        "xsd-schema" => [
+          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD-only error"},
+          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD-only warning"}
+        ],
+        "base-rules" => [
+          %{"code" => "rule-1", "criticity" => "error", "message" => "Base-rule only error"}
+        ]
+      }
+
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+      errors = result |> Map.values() |> List.flatten()
+      df = results_adapter.to_dataframe(errors)
+
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        validator_version: version,
+        digest: results_adapter.digest(df),
+        binary_result: results_adapter.to_binary_result(errors),
+        max_error: "error",
+        metadata: %DB.ResourceMetadata{
+          metadata: %{},
+          modes: [],
+          features: []
+        },
+        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+      })
+
+      conn = conn |> get(resource_path(conn, :details, resource.id, issues_category: "base-rules"))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+
+      # Only base-rules issues should appear — XSD-specific text must NOT be present.
+      refute body =~ "XSD-only error"
+      refute body =~ "XSD-only warning"
+      assert body =~ "Base-rule only error"
+    end
+
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details respects ?page= when requesting page 2 (#{version})", %{conn: conn} do
+        _render_netex_details_pagination(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_details_pagination(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => Ecto.UUID.generate()}
+        })
+
+      # Create 45 issues so we span at least 3 pages (page_size=20).
+      # Each page will have distinct messages to verify we're fetching different data.
+      errors =
+        for i <- 1..45 do
+          %{"code" => "rule-#{i}", "criticity" => "warning", "message" => "Page-test issue #{i}"}
+        end
+
+      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+      df = results_adapter.to_dataframe(errors)
+
+      insert(:multi_validation, %{
+        resource_history_id: resource_history_id,
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        validator_version: version,
+        digest: results_adapter.digest(df),
+        binary_result: results_adapter.to_binary_result(errors),
+        max_error: "warning",
+        metadata: %DB.ResourceMetadata{
+          metadata: %{},
+          modes: [],
+          features: []
+        },
+        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
+      })
+
+      # Page 1 should contain issue #1 (first on page 1)
+      conn_p1 = conn |> get(resource_path(conn, :details, resource.id, page: 1, issues_category: "base-rules"))
+      body_p1 = conn_p1 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      assert body_p1 =~ "Page-test issue 1Emplacement"
+
+      # Page 2 should NOT contain issue #1 (it's on page 1), but should contain issue #21
+      conn_p2 = conn |> get(resource_path(conn, :details, resource.id, page: 2, issues_category: "base-rules"))
+      body_p2 = conn_p2 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      refute body_p2 =~ "Page-test issue 1Emplacement"
+      assert body_p2 =~ "Page-test issue 21Emplacement"
+    end
   end
 
   describe "download" do
