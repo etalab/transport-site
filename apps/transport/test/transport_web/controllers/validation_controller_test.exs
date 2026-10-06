@@ -5,6 +5,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Ecto.Query
   import Mox
   import NeTExValidationReportHelpers
+  import NeTExTestData
   import Phoenix.LiveViewTest
   import TransportWeb.LiveViewTestHelpers
   import Transport.TmpFile
@@ -602,28 +603,8 @@ defmodule TransportWeb.ValidationControllerTest do
     defp _render_netex_category_stats(conn, version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
-      # Errors in both XSD and base-rules categories with mixed severities.
-      # summary_from_binary should report the worst severity per category.
-      result = %{
-        "xsd-schema" => [
-          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD error 1"},
-          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
-        ],
-        "base-rules" => [
-          %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
-        ]
-      }
-
-      results_adapter = ResultsAdapter.resolve(version)
-      errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
-
-      mark_netex_validation_completed(multi_validation, %{
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "error"
-      })
+      opts = build_multi_validation_opts(version, category_stats_result())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
@@ -644,26 +625,8 @@ defmodule TransportWeb.ValidationControllerTest do
     defp _render_netex_show_filtered(conn, version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
-      result = %{
-        "xsd-schema" => [
-          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD-only error"},
-          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD-only warning"}
-        ],
-        "base-rules" => [
-          %{"code" => "rule-1", "criticity" => "error", "message" => "Base-rule only error"}
-        ]
-      }
-
-      results_adapter = ResultsAdapter.resolve(version)
-      errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
-
-      mark_netex_validation_completed(multi_validation, %{
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "error"
-      })
+      opts = build_multi_validation_opts(version, filtered_result())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token, issues_category: "base-rules"))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
@@ -683,20 +646,8 @@ defmodule TransportWeb.ValidationControllerTest do
     defp _render_netex_show_pagination(conn, version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
-      errors =
-        for i <- 1..45 do
-          %{"code" => "rule-#{i}", "criticity" => "warning", "message" => "Page-test issue #{i}"}
-        end
-
-      results_adapter = ResultsAdapter.resolve(version)
-      df = results_adapter.to_dataframe(errors)
-
-      mark_netex_validation_completed(multi_validation, %{
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "warning"
-      })
+      opts = build_multi_validation_opts_pagination(version, pagination_issues())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       # Page 1 should contain issue #1
       conn_p1 =

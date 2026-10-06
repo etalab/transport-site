@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import DB.Factory
   import ExUnit.CaptureLog
   import NeTExValidationReportHelpers
+  import NeTExTestData
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
   import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
@@ -233,36 +234,8 @@ defmodule TransportWeb.ResourceControllerTest do
           payload: %{"permanent_url" => _permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
         })
 
-      # Errors in both XSD and base-rules categories with mixed severities.
-      # summary_from_binary should report the worst severity per category.
-      result = %{
-        "xsd-schema" => [
-          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD error 1"},
-          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
-        ],
-        "base-rules" => [
-          %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
-        ]
-      }
-
-      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-      errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
-
-      insert(:multi_validation, %{
-        resource_history_id: resource_history_id,
-        validator: Transport.Validators.NeTEx.Validator.validator_name(),
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "error",
-        metadata: %DB.ResourceMetadata{
-          metadata: %{},
-          modes: [],
-          features: []
-        },
-        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-      })
+      opts = build_multi_validation_opts(version, category_stats_result())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
 
       conn = conn |> get(resource_path(conn, :details, resource.id))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
@@ -296,35 +269,8 @@ defmodule TransportWeb.ResourceControllerTest do
           payload: %{"permanent_url" => Ecto.UUID.generate()}
         })
 
-      # Errors in both categories — filtering should isolate one.
-      result = %{
-        "xsd-schema" => [
-          %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD-only error"},
-          %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD-only warning"}
-        ],
-        "base-rules" => [
-          %{"code" => "rule-1", "criticity" => "error", "message" => "Base-rule only error"}
-        ]
-      }
-
-      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-      errors = result |> Map.values() |> List.flatten()
-      df = results_adapter.to_dataframe(errors)
-
-      insert(:multi_validation, %{
-        resource_history_id: resource_history_id,
-        validator: Transport.Validators.NeTEx.Validator.validator_name(),
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "error",
-        metadata: %DB.ResourceMetadata{
-          metadata: %{},
-          modes: [],
-          features: []
-        },
-        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-      })
+      opts = build_multi_validation_opts(version, filtered_result())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
 
       conn = conn |> get(resource_path(conn, :details, resource.id, issues_category: "base-rules"))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
@@ -358,30 +304,8 @@ defmodule TransportWeb.ResourceControllerTest do
           payload: %{"permanent_url" => Ecto.UUID.generate()}
         })
 
-      # Create 45 issues so we span at least 3 pages (page_size=20).
-      # Each page will have distinct messages to verify we're fetching different data.
-      errors =
-        for i <- 1..45 do
-          %{"code" => "rule-#{i}", "criticity" => "warning", "message" => "Page-test issue #{i}"}
-        end
-
-      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-      df = results_adapter.to_dataframe(errors)
-
-      insert(:multi_validation, %{
-        resource_history_id: resource_history_id,
-        validator: Transport.Validators.NeTEx.Validator.validator_name(),
-        validator_version: version,
-        digest: results_adapter.digest(df),
-        binary_result: results_adapter.to_binary_result(errors),
-        max_error: "warning",
-        metadata: %DB.ResourceMetadata{
-          metadata: %{},
-          modes: [],
-          features: []
-        },
-        validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
-      })
+      opts = build_multi_validation_opts_pagination(version, pagination_issues())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
 
       # Page 1 should contain issue #1 (first on page 1)
       conn_p1 = conn |> get(resource_path(conn, :details, resource.id, page: 1, issues_category: "base-rules"))
