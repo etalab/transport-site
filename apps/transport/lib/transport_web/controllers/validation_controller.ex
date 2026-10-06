@@ -2,6 +2,7 @@ defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{MultiValidation, Repo}
   alias Transport.DataVisualization
+  alias TransportWeb.NeTExValidationDetails
   import Ecto.Query
 
   @netex_issues_page_size 10
@@ -185,28 +186,25 @@ defmodule TransportWeb.ValidationController do
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
-
-        template = pick_netex_template(validation.validator_version)
-
         pagination_config = make_pagination_config(params, @netex_issues_page_size)
-        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
+        details = NeTExValidationDetails.build(validation, pagination_config, params)
+
+        template = pick_netex_template(details.validator_version)
+        {filter, pagination} = details.issues
 
         validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
-
-        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
 
         conn
         |> assign_base_validation_details(params)
         |> assign(:filter, filter)
         |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, pagination_config))
-        |> assign(:results_adapter, results_adapter)
-        |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:max_severity, validation.digest["max_severity"])
-        |> assign(:validation_summary, validation.digest["summary"])
-        |> assign(:severities_count, validation.digest["stats"])
+        |> assign(:results_adapter, details.adapter)
+        |> assign(:metadata, details.metadata)
+        |> assign(:max_severity, details.max_severity)
+        |> assign(:validation_summary, details.summary)
+        |> assign(:severities_count, details.stats)
         |> assign(:validation_report_url, validation_report_url)
-        |> assign(:xsd_errors, xsd_errors)
+        |> assign(:xsd_errors, details.xsd_errors)
         |> render(template)
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
@@ -309,9 +307,7 @@ defmodule TransportWeb.ValidationController do
     )
   end
 
-  defp pick_netex_template("0.2.2"), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
+  defp pick_netex_template("0.2." <> _), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
   defp assign_base_validation_details(conn, params) do

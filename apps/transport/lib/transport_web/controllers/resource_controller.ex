@@ -2,6 +2,7 @@ defmodule TransportWeb.ResourceController do
   use TransportWeb, :controller
   alias DB.{Repo, Resource}
   alias Transport.DataVisualization
+  alias TransportWeb.NeTExValidationDetails
   import Ecto.Query
 
   import TransportWeb.ResourceView, only: [latest_validations_nb_days: 0]
@@ -167,6 +168,7 @@ defmodule TransportWeb.ResourceController do
     config = make_pagination_config(params)
 
     {validation_details, issues} = build_gtfs_validation_details(validation, params)
+    {summary, stats, metadata, modes} = validation_details
 
     issue_type =
       case params["issue_type"] do
@@ -175,7 +177,11 @@ defmodule TransportWeb.ResourceController do
       end
 
     conn
-    |> assign_base_resource_details(resource, validation_details)
+    |> assign_resource_details(resource)
+    |> assign(:validation_summary, summary)
+    |> assign(:severities_count, stats)
+    |> assign(:metadata, metadata)
+    |> assign(:modes, modes)
     |> assign(:issues, Scrivener.paginate(issues, config))
     |> assign(:validator, Transport.Validators.GTFSTransport)
     |> assign(:data_vis, DataVisualization.encoded_data_vis(validation, issue_type))
@@ -194,26 +200,28 @@ defmodule TransportWeb.ResourceController do
 
   defp render_netex_details(conn, params, resource, validation) do
     config = make_pagination_config(params, @netex_issues_page_size)
+    details = NeTExValidationDetails.build(validation, config, params)
 
-    {results_adapter, validation_details, issues, errors_template, max_severity, xsd_errors} =
-      build_netex_validation_details(validation, params, config)
-
-    {filter, pagination} = issues
+    {filter, pagination} = details.issues
 
     validation_report_url =
-      if download_validation_report?(validation, max_severity) do
+      if download_validation_report?(validation, details.max_severity) do
         DB.Resource.download_validation_report_url(conn, resource)
       end
 
     conn
-    |> assign_base_resource_details(resource, validation_details)
+    |> assign_resource_details(resource)
+    |> assign(:validation_summary, details.summary)
+    |> assign(:severities_count, details.stats)
+    |> assign(:metadata, details.metadata)
+    |> assign(:modes, details.modes)
     |> assign(:validation_report_url, validation_report_url)
     |> assign(:filter, filter)
     |> assign(:issues, paginate_netex_results(pagination, config))
-    |> assign(:xsd_errors, xsd_errors)
-    |> assign(:errors_template, errors_template)
-    |> assign(:results_adapter, results_adapter)
-    |> assign(:max_severity, max_severity)
+    |> assign(:xsd_errors, details.xsd_errors)
+    |> assign(:errors_template, errors_template_for(details.validator_version))
+    |> assign(:results_adapter, details.adapter)
+    |> assign(:max_severity, details.max_severity)
     |> assign(:data_vis, nil)
     |> render("netex_details.html")
   end
@@ -243,48 +251,14 @@ defmodule TransportWeb.ResourceController do
     }
   end
 
-  defp build_netex_validation_details(nil, _params, _pagination_config),
-    do: {nil, {nil, nil, nil, []}, {%{}, {0, []}}, nil, nil, []}
+  defp errors_template_for("0.2." <> _), do: "_netex_validation_errors_v0_2_x.html"
+  defp errors_template_for(_), do: "_netex_validation_errors_v0_1_0.html"
 
-  defp build_netex_validation_details(
-         %{
-           validator_version: version,
-           digest: digest,
-           binary_result: binary_result,
-           metadata: metadata = %DB.ResourceMetadata{}
-         },
-         params,
-         pagination_config
-       ) do
-    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-    summary = digest["summary"]
-    stats = digest["stats"]
-    errors_template = pick_netex_errors_template(version)
-    max_severity = digest["max_severity"]
-
-    issues = results_adapter.get_issues(binary_result, params, pagination_config)
-    xsd_errors = results_adapter.summarize_xsd_errors(binary_result)
-
-    {results_adapter, {summary, stats, metadata.metadata, metadata.modes}, issues, errors_template, max_severity,
-     xsd_errors}
-  end
-
-  defp pick_netex_errors_template("0.2.2"), do: "_netex_validation_errors_v0_2_x.html"
-  defp pick_netex_errors_template("0.2.1"), do: "_netex_validation_errors_v0_2_x.html"
-  defp pick_netex_errors_template("0.2.0"), do: "_netex_validation_errors_v0_2_x.html"
-  defp pick_netex_errors_template(_), do: "_netex_validation_errors_v0_1_0.html"
-
-  defp assign_base_resource_details(conn, resource, validation_details) do
-    {validation_summary, severities_count, metadata, modes} = validation_details
-
+  defp assign_resource_details(conn, resource) do
     conn
     |> assign(:related_files, Resource.get_related_files(resource))
     |> assign(:resource, resource)
     |> assign(:other_resources, Resource.other_resources(resource))
-    |> assign(:validation_summary, validation_summary)
-    |> assign(:severities_count, severities_count)
-    |> assign(:metadata, metadata)
-    |> assign(:modes, modes)
   end
 
   @doc """
