@@ -5,8 +5,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
 
   @type t :: module() | nil
 
-  @callback summary(Explorer.DataFrame.t()) :: list()
-  @callback count_by_severity(Explorer.DataFrame.t()) :: map()
   @callback count_by_category_and_severity(binary()) :: map()
   @callback get_issues(binary(), map(), Scrivener.Config.t()) :: {map(), {pos_integer(), list()}}
   @callback digest(Explorer.DataFrame.t()) :: map()

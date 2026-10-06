@@ -61,34 +61,22 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
-  @doc """
-  Returns the number of issues by severity level
-
-  iex> validation_result = %{"uic-operating-period" => [%{"criticity" => "warning"}], "valid-day-bits" => [%{"criticity" => "error"}], "frame-arret-resources" => [%{"criticity" => "error"}]}
-  iex> count_by_severity(validation_result)
-  %{"warning" => 1, "error" => 2}
-
-  iex> count_by_severity(%{})
-  %{}
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def count_by_severity(%Explorer.DataFrame{} = df) do
-    V0_1_0.count_by_severity(df)
-  end
-
-  def count_by_severity(%{} = errors) when is_map(errors) do
-    # Must check map before DataFrame since structs are maps too
-    # This clause only matches non-DataFrame maps
-    errors
-    |> Map.values()
-    |> List.flatten()
-    |> Enum.group_by(&Map.get(&1, "criticity", "error"))
-    |> Enum.map(fn {severity, items} -> {severity, length(items)} end)
-    |> Map.new()
-  end
-
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_category_and_severity(validation_result), to: V0_1_0
+
+  # Internal helper used by digest/1 — no longer a public callback.
+  @spec count_by_severity(Explorer.DataFrame.t()) :: map()
+  def count_by_severity(%Explorer.DataFrame{} = df) do
+    if DF.n_rows(df) == 0 do
+      %{}
+    else
+      df
+      |> DF.frequencies([:criticity])
+      |> DF.to_rows()
+      |> Enum.map(fn %{"criticity" => k, "counts" => v} -> {k, v} end)
+      |> Map.new()
+    end
+  end
 
   defp categorize(code) do
     if String.starts_with?(code, "xsd-") do
@@ -136,7 +124,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
         %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
       ]
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 — no longer a public callback.
   def summary(%Explorer.DataFrame{} = df) do
     @categories_preferred_order
     |> Enum.map(fn category ->

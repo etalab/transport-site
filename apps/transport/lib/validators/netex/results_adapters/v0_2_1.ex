@@ -36,10 +36,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate format_severity(key, count), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: V0_2_0
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_category_and_severity(validation_result), to: V0_2_0
+
+  # Internal helper used by digest/1 — no longer a public callback.
+  defp count_by_severity(df), do: V0_2_0.count_by_severity(df)
 
   defp categorize(code) do
     cond do
@@ -92,7 +92,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
         %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
       ]
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 — no longer a public callback.
   def summary(%Explorer.DataFrame{} = df) do
     @categories_preferred_order
     |> Enum.map(fn category ->

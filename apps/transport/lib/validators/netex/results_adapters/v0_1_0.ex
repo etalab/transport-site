@@ -105,7 +105,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       iex> count_by_severity(df)
       %{}
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 — no longer a public callback.
   def count_by_severity(%Explorer.DataFrame{} = df) do
     if DF.n_rows(df) == 0 do
       %{}
@@ -135,7 +135,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       iex> summary(df)
       []
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 and summary_from_binary — no longer a public callback.
   def summary(%Explorer.DataFrame{} = df) do
     errors = DF.to_rows(df)
 

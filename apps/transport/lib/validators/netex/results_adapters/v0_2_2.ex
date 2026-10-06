@@ -39,16 +39,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate format_severity(key, count), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: Previous
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_category_and_severity(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate summary_from_binary(validation_result), to: Previous
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summary(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: Previous
