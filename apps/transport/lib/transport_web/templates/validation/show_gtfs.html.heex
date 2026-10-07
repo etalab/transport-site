@@ -39,7 +39,7 @@
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
             <.pagination conn={@conn} page={@issues} params={[issue_type: @validator.issue_type(@issues.entries)]} />
-            {render(gtfs_template(@issues), issues: @issues || [], conn: @conn)}
+            {render(gtfs_template(@issues), issues: @issues, conn: @conn)}
             <div class="pt-24">
               <.pagination conn={@conn} page={@issues} params={[issue_type: @validator.issue_type(@issues.entries)]} />
             </div>

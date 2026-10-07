@@ -15,6 +15,6 @@
   <% issue_type = @results_adapter.issue_type(@issues.entries) %>
   <div class="main-pane">
     <.pagination conn={@conn} page={@issues} params={[issue_type: issue_type]} />
-    {render(netex_template(), issues: @issues || [], conn: @conn)}
+    {render(netex_template(), issues: @issues, conn: @conn)}
   </div>
 <% end %>

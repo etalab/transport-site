@@ -1,6 +1,5 @@
 defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
   use TransportWeb, :live_view
-  require Logger
 
   @button_disabled [:sending, :sent]
 

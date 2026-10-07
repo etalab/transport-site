@@ -19,7 +19,6 @@ defmodule TransportWeb.MarkdownHandler do
   If instead you need to render a template (aka EEx) written in Markdown (emails, static pages…),
   this will go through `TransportWeb.MarkdownTemplateEngine` (not called directly).
   """
-  require HtmlSanitizeEx
   alias Phoenix.HTML
 
   @common [extension: [table: true, autolink: true, strikethrough: true], parse: [smart: true]]

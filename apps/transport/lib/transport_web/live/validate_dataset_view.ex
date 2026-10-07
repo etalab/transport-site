@@ -1,7 +1,6 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
   use TransportWeb, :live_view
   alias DB.Dataset
-  require Logger
 
   @button_disabled [:validated, :validating]
 

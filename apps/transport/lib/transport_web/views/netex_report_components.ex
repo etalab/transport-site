@@ -309,10 +309,8 @@ defmodule TransportWeb.NeTExReportComponents do
   end
 
   defp markdown_to_safe_html!(markdown) do
-    case TransportWeb.MarkdownHandler.markdown_to_safe_html!(markdown) do
-      {:safe, safe} -> {:safe, update_links_target(safe)}
-      otherwise -> otherwise
-    end
+    {:safe, safe} = TransportWeb.MarkdownHandler.markdown_to_safe_html!(markdown)
+    {:safe, update_links_target(safe)}
   end
 
   defp update_links_target(html) do

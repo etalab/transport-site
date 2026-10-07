@@ -96,7 +96,6 @@ defmodule Datagouvfr.Client.Datasets.External do
   """
 
   alias Datagouvfr.Client.API
-  require Logger
   alias Helpers
 
   @behaviour Datagouvfr.Client.Datasets

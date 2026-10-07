@@ -4,7 +4,6 @@ defmodule Transport.DataChecker do
   """
   alias DB.{Dataset, Repo}
   import Ecto.Query
-  require Logger
 
   @type dataset_status :: :active | :inactive | :ignore | :no_producer | {:archived, DateTime.t()}
 
