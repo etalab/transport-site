@@ -73,12 +73,6 @@ defmodule Transport.Mixfile do
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 4.1"},
       {:saxy, "~> 1.5"},
-      # `scrivener_html` seems to be unmaintained!
-      # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
-      # - was not updated to support Phoenix 1.7
-      {:scrivener_html,
-       git: "https://github.com/transportdatagouvfr/scrivener_html.git",
-       ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},

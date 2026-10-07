@@ -58,11 +58,11 @@ locale = get_session(@conn, :locale) %>
             )}
           </nav>
           <div class="main-pane">
-            {pagination_links(@conn, @issues, [@resource.id],
-              issue_type: Transport.Validators.GTFSTransport.issue_type(@issues.entries),
-              path: &resource_path/4,
-              action: :details
-            )}
+            <.pagination
+              conn={@conn}
+              page={@issues}
+              params={[issue_type: Transport.Validators.GTFSTransport.issue_type(@issues.entries)]}
+            />
             {render(gtfs_template(@issues), issues: @issues, conn: @conn)}
           </div>
         <% end %>

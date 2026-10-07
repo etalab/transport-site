@@ -14,11 +14,7 @@
   </nav>
   <% issue_type = @results_adapter.issue_type(@issues.entries) %>
   <div class="main-pane">
-    {pagination_links(@conn, @issues, [@resource.id],
-      issue_type: issue_type,
-      path: &resource_path/4,
-      action: :details
-    )}
+    <.pagination conn={@conn} page={@issues} params={[issue_type: issue_type]} />
     {render(netex_template(), issues: @issues, conn: @conn)}
   </div>
 <% end %>

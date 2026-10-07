@@ -24,7 +24,7 @@
   </a>
 
   <div class="pt-24">
-    {pagination_links(@conn, @contacts)}
+    <.pagination conn={@conn} page={@contacts} />
   </div>
 
   <table class="backoffice-results">
@@ -57,7 +57,7 @@
     <% end %>
   </table>
   <div class="pt-24">
-    {pagination_links(@conn, @contacts)}
+    <.pagination conn={@conn} page={@contacts} />
   </div>
   <div class="pt-12">
     <a class="button-outline small secondary" href={backoffice_contact_path(@conn, :csv_export)}>
