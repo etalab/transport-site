@@ -552,46 +552,6 @@ defmodule TransportWeb.ValidationControllerTest do
       assert 1 == length(parquet_report_content)
     end
 
-    test "with a NeTEx - pagination", %{conn: conn} do
-      {conn, multi_validation, token} = setup_netex_validation(conn)
-
-      errors =
-        for i <- 1..25, do: %{"code" => "pan:french_profile:1", "criticity" => "error", "message" => "Error #{i}"}
-
-      results_adapter = ResultsAdapter.resolve("0.2.2")
-
-      mark_netex_validation_completed(
-        multi_validation,
-        %{
-          validator_version: "0.2.2",
-          result: nil,
-          digest: results_adapter.digest(results_adapter.to_dataframe(errors)),
-          binary_result: results_adapter.to_binary_result(errors),
-          max_error: "error"
-        }
-      )
-
-      links =
-        conn
-        |> get(
-          validation_path(conn, :show, multi_validation.id, token: token, issues_category: "french-profile", page: 2)
-        )
-        |> html_response(200)
-        |> Floki.parse_document!()
-        |> Floki.find(~s|nav[aria-label="Page navigation"] a|)
-        |> Enum.map(&{Floki.text(&1), Floki.attribute(&1, "href")})
-
-      url = "/validation/#{multi_validation.id}?issues_category=french-profile&token=#{token}"
-
-      assert links == [
-               {"<<", [url <> "#validation-report"]},
-               {"1", [url <> "#validation-report"]},
-               {"2", []},
-               {"3", [url <> "&page=3#validation-report"]},
-               {">>", [url <> "&page=3#validation-report"]}
-             ]
-    end
-
     # v0.1.0 uses a different template without category tabs.
     for version <- ["0.2.0", "0.2.1", "0.2.2"] do
       @tag version: version
@@ -665,6 +625,26 @@ defmodule TransportWeb.ValidationControllerTest do
       body_p2 = conn_p2 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
       refute body_p2 =~ "Page-test issue 1Emplacement"
       assert body_p2 =~ "Page-test issue 21Emplacement"
+
+      # Pagination links structure: verify href attributes, anchors, and current-page highlighting
+      url = "/validation/#{multi_validation.id}?issues_category=base-rules&token=#{token}"
+
+      pagination_links =
+        conn_p2
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find("nav[aria-label=\"Page navigation\"] a")
+        |> Enum.map(&{Floki.text(&1), Floki.attribute(&1, "href")})
+
+      assert pagination_links == [
+               {"<<", [url <> "#validation-report"]},
+               {"1", [url <> "#validation-report"]},
+               {"2", []},
+               {"3", [url <> "&page=3#validation-report"]},
+               {"4", [url <> "&page=4#validation-report"]},
+               {"5", [url <> "&page=5#validation-report"]},
+               {">>", [url <> "&page=3#validation-report"]}
+             ]
     end
 
     test "with a schema", %{conn: conn} do
