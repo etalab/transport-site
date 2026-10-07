@@ -118,11 +118,11 @@ defmodule Transport.Validators.NeTEx.Validator do
 
   @type metadata :: map()
 
-  @type error_details :: %{:metata => metadata(), :message => String.t(), optional(:retries) => integer()}
+  @type error_details :: %{:message => String.t(), optional(:retries) => integer()}
 
   @type validation_id :: binary()
 
-  @type validation_results :: {:ok, map()} | {:error, error_details()} | {:pending, validation_id()}
+  @type validation_results :: {:ok, map()} | {:error, error_details()} | {:pending, {validation_id(), metadata()}}
 
   @doc """
   Validate the resource from the given URL.
