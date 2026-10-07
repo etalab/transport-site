@@ -35,7 +35,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             </span>
           </span>
           <% {field_name, field_value} = field_info(owner, index) %>
-          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
+          {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
         <% end %>
       </div>
     </div>

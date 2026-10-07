@@ -27,7 +27,7 @@ defmodule TransportWeb.OfferSelectLive do
             <span class="delete-tag" phx-click="remove_offer" phx-value-offer-id={offer.id} phx-target={@myself}></span>
           </span>
           <% {field_name, field_value} = field_info(offer, index) %>
-          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
+          {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
         <% end %>
       </div>
     </div>

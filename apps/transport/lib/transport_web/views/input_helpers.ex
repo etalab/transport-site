@@ -1,19 +1,20 @@
 defmodule TransportWeb.InputHelpers do
   @moduledoc ~S"""
-  We override some Phoenix.HTML.Form function to make it easier to integrate template.data.gouv.fr
+  We override some PhoenixHTMLHelpers.Form function to make it easier to integrate template.data.gouv.fr
   """
-  alias Phoenix.HTML.Form
-  import Phoenix.HTML.Tag
+  alias PhoenixHTMLHelpers.Form
+  import PhoenixHTMLHelpers.Tag
 
   @doc false
   defmacro __using__(_) do
     quote do
       import Phoenix.HTML
-      import Phoenix.HTML.Link
-      import Phoenix.HTML.Tag
-      import Phoenix.HTML.Format
+      import Phoenix.HTML.Form
+      import PhoenixHTMLHelpers.Link
+      import PhoenixHTMLHelpers.Tag
+      import PhoenixHTMLHelpers.Format
 
-      import Phoenix.HTML.Form,
+      import PhoenixHTMLHelpers.Form,
         except: [
           email_input: 3,
           form_for: 3,

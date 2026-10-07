@@ -46,7 +46,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
           {division.nom} ({division.insee} – {DB.AdministrativeDivision.display_type(division)})
           <span class="delete-tag" phx-click="remove_division" phx-value-id={division.id} phx-target={@myself}></span>
         </span>
-        {Phoenix.HTML.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id)}
+        {PhoenixHTMLHelpers.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id)}
       </div>
 
       <script nonce={@nonce}>

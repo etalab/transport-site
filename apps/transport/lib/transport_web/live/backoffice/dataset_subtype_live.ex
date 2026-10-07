@@ -27,7 +27,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
               </span>
             </span>
             <% {field_name, field_value} = field_info(dataset_subtype, index) %>
-            {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
+            {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
           <% end %>
         </div>
       </div>
