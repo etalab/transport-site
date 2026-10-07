@@ -2,29 +2,6 @@ defmodule TransportWeb.Backoffice.PageView do
   use TransportWeb, :view
   alias DB.Dataset
   alias Plug.Conn.Query
-  alias TransportWeb.PaginationHelpers
-
-  def pagination_links(conn, datasets, anchor \\ "") do
-    custom_path =
-      if anchor != "" do
-        fn conn, action, params -> "#{backoffice_page_path(conn, action, params)}##{anchor}" end
-      else
-        &backoffice_page_path/3
-      end
-
-    kwargs = [path: custom_path] |> add_filter(conn.params)
-
-    PaginationHelpers.pagination_links(conn, datasets, kwargs)
-  end
-
-  @spec add_filter(list, map) :: list
-  defp add_filter(kwargs, params) do
-    params
-    # filter allowed keys
-    |> Map.take(["filter", "q", "order_by", "dir"])
-    |> Enum.map(fn {key, value} -> {String.to_existing_atom(key), value} end)
-    |> Enum.concat(kwargs)
-  end
 
   @spec backoffice_sort_link(Plug.Conn.t(), String.t(), atom, %{field: atom, direction: atom}) ::
           any

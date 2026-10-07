@@ -194,7 +194,7 @@
   <% end %>
 
   <div id="backoffice-datasets-table">
-    {pagination_links(@conn, @datasets, "list_datasets")}
+    <.pagination conn={@conn} page={@datasets} anchor="list_datasets" />
   </div>
   <table class="backoffice-results">
     <colgroup>
@@ -222,6 +222,6 @@
     </tbody>
   </table>
   <div class="pt-48">
-    {pagination_links(@conn, @datasets, "list_datasets")}
+    <.pagination conn={@conn} page={@datasets} anchor="list_datasets" />
   </div>
 </section>

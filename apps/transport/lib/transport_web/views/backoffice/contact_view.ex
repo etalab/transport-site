@@ -3,13 +3,6 @@ defmodule TransportWeb.Backoffice.ContactView do
   import Shared.DateTimeDisplay, only: [format_datetime_to_paris: 2]
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
   import TransportWeb.Backoffice.PageView, only: [unaccent: 1]
-  alias TransportWeb.PaginationHelpers
-
-  def pagination_links(conn, contacts) do
-    kwargs = [path: &backoffice_contact_path/3] |> add_filter(conn.params)
-
-    PaginationHelpers.pagination_links(conn, contacts, kwargs)
-  end
 
   @spec role_class(DB.Notification.t() | DB.NotificationSubscription.t()) :: binary()
   defp role_class(%{role: :producer}), do: "label"
@@ -34,13 +27,5 @@ defmodule TransportWeb.Backoffice.ContactView do
     records
     |> Enum.filter(&is_nil(&1.dataset_id))
     |> Enum.sort_by(& &1.reason)
-  end
-
-  @spec add_filter(list, map) :: list
-  defp add_filter(kwargs, params) do
-    params
-    |> Map.take(["q"])
-    |> Enum.map(fn {key, value} -> {String.to_existing_atom(key), value} end)
-    |> Enum.concat(kwargs)
   end
 end

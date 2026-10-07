@@ -49,6 +49,7 @@ defmodule TransportWeb do
       import TransportWeb.InputHelpers
       use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.SeoMetadata
+      import TransportWeb.Components.Pagination
       import Helpers
 
       import Phoenix.Component, only: [live_render: 3]

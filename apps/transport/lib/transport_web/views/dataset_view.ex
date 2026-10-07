@@ -3,7 +3,7 @@ defmodule TransportWeb.DatasetView do
   require Logger
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, ReuseMarkdown, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, ReuseMarkdown}
   import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
@@ -40,32 +40,6 @@ defmodule TransportWeb.DatasetView do
   """
   def count_discussions(nil), do: ~c"-"
   def count_discussions(discussions), do: Enum.count(discussions)
-
-  def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_query_params(conn.query_params)
-
-    PaginationHelpers.pagination_links(
-      conn,
-      datasets,
-      [region],
-      kwargs
-    )
-  end
-
-  def pagination_links(%{path_info: ["datasets", "epci", epci]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_epci] |> add_query_params(conn.query_params)
-
-    PaginationHelpers.pagination_links(
-      conn,
-      datasets,
-      [epci],
-      kwargs
-    )
-  end
-
-  def pagination_links(conn, paginator) do
-    PaginationHelpers.pagination_links(conn, paginator)
-  end
 
   def order_link(conn, order_by) do
     msg =
@@ -239,10 +213,6 @@ defmodule TransportWeb.DatasetView do
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
   def display_all_types_links?(_), do: false
-
-  defp add_query_params(kwargs, params) do
-    kwargs |> Keyword.merge(for {key, value} <- params, do: {String.to_atom(key), value})
-  end
 
   def gbfs_documentation_link(version) when is_binary(version) do
     "https://github.com/MobilityData/gbfs/blob/v#{version}/gbfs.md"

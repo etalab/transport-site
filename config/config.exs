@@ -69,9 +69,6 @@ config :logger, :default_formatter,
   # when LOG_USER_AGENT=true
   metadata: [:request_id, :remote_ip, :method, :path, :user_agent]
 
-config :scrivener_html,
-  routes_helper: TransportWeb.Router.Helpers
-
 # Allow to have Markdown templates
 config :phoenix, :template_engines, md: TransportWeb.MarkdownTemplateEngine
 
