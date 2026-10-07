@@ -52,9 +52,9 @@
     <i class="fas fa-plus"></i> {dgettext("backoffice", "Add a dataset")}
   </a>
   <div class="import-all">
-    <%= form_for @conn, backoffice_dataset_path(@conn, :import_validate_all), [method: "post"], fn _f -> %>
-      {submit(dgettext("backoffice", "Import all datasets from data.gouv"))}
-    <% end %>
+    <.form for={%{}} action={backoffice_dataset_path(@conn, :import_validate_all)} method="post">
+      <div class="form__group"><.button>{dgettext("backoffice", "Import all datasets from data.gouv")}</.button></div>
+    </.form>
   </div>
   <div>
     <a
@@ -151,9 +151,11 @@
 
   <h2>{dgettext("backoffice", "Validations")}</h2>
   <div>
-    <%= form_for @conn, backoffice_dataset_path(@conn, :force_validate_gtfs_transport), [class: "no-margin"], fn _f -> %>
-      {submit(dgettext("backoffice", "GTFS Transport validator - Force validation"))}
-    <% end %>
+    <.form for={%{}} action={backoffice_dataset_path(@conn, :force_validate_gtfs_transport)} class="no-margin">
+      <div class="form__group">
+        <.button>{dgettext("backoffice", "GTFS Transport validator - Force validation")}</.button>
+      </div>
+    </.form>
   </div>
 
   <h1 class="pt-48">
@@ -161,14 +163,22 @@
     {dgettext("backoffice", "Valid datasets available")}
   </h1>
 
-  <%= form_for @conn, "#{backoffice_page_path(@conn, :index)}#list_datasets", [id: "backoffice_search_container", method: "get"], fn f -> %>
+  <.form
+    :let={f}
+    for={@conn.params}
+    action={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
+    id="backoffice_search_container"
+    method="get"
+  >
     <div class="search-filter-toolbar">
       <div class="search-section">
-        {search_input(f, :q,
-          id: "backoffice_search",
-          value: assigns[:q] || "",
-          placeholder: dgettext("page-index", "Find dataset")
-        )}
+        <.input
+          field={f[:q]}
+          type="search"
+          id="backoffice_search"
+          value={assigns[:q] || ""}
+          placeholder={dgettext("page-index", "Find dataset")}
+        />
         <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
       </div>
       <div class="filter-section">
@@ -191,7 +201,7 @@
         <% end %>
       </div>
     </div>
-  <% end %>
+  </.form>
 
   <div id="backoffice-datasets-table">
     <.pagination conn={@conn} page={@datasets} anchor="list_datasets" />

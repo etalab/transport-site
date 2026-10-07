@@ -13,47 +13,53 @@
 
   <h4>Lié à un jeu de données</h4>
 
-  <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-    {hidden_input(f, :redirect_location, value: "contact")}
-    {hidden_input(f, :contact_id, value: @contact_id)}
-    <%= label f, :dataset_id do %>
-      Jeu de données {text_input(f, :dataset_id, required: true, list: "datasets_datalist", pattern: "[0-9]+")}
-    <% end %>
+  <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
+    <.input field={f[:redirect_location]} type="hidden" value="contact" />
+    <.input field={f[:contact_id]} type="hidden" value={@contact_id} />
+    <label for={f[:dataset_id].id}>
+      Jeu de données <.input field={f[:dataset_id]} required list="datasets_datalist" pattern="[0-9]+" />
+    </label>
     <datalist id="datasets_datalist">
       <%= for dataset <- @datasets_datalist do %>
         <option value={dataset.id}>{dataset_title(dataset)}</option>
       <% end %>
     </datalist>
-    <%= label f, :reasons, class: "pt-12" do %>
+    <label for={f[:reasons].id} class="pt-12">
       {dgettext("backoffice", "Notification reason")}
       <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
-        <%= label f, reason do %>
-          {checkbox(f, reason, hidden_input: false, value: true)}
+        <label for={f[reason].id}>
+          <input type="checkbox" id={f[reason].id} name={f[reason].name} value="true" checked />
           {reason}
-        <% end %>
+        </label>
       <% end %>
-    <% end %>
+    </label>
 
-    {submit("Créer un abonnement")}
-  <% end %>
+    <div class="form__group"><.button>Créer un abonnement</.button></div>
+  </.form>
 
   <h4>Autres motifs</h4>
 
-  <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-    {hidden_input(f, :redirect_location, value: "contact")}
-    {hidden_input(f, :contact_id, value: @contact_id)}
-    <%= label f, :reasons, class: "pt-12" do %>
+  <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
+    <.input field={f[:redirect_location]} type="hidden" value="contact" />
+    <.input field={f[:contact_id]} type="hidden" value={@contact_id} />
+    <label for={f[:reasons].id} class="pt-12">
       {dgettext("backoffice", "Notification reason")}
       <%= for reason <- Transport.NotificationReason.subscribable_platform_wide_reasons(:producer) do %>
-        <%= label f, reason do %>
-          {checkbox(f, reason, hidden_input: false, value: reason in reasons_subscribed_without_dataset)}
+        <label for={f[reason].id}>
+          <input
+            type="checkbox"
+            id={f[reason].id}
+            name={f[reason].name}
+            value="true"
+            checked={reason in reasons_subscribed_without_dataset}
+          />
           {reason}
-        <% end %>
+        </label>
       <% end %>
-    <% end %>
+    </label>
 
-    {submit("Mettre à jour les abonnements")}
-  <% end %>
+    <div class="form__group"><.button>Mettre à jour les abonnements</.button></div>
+  </.form>
 
   <h3>{dgettext("backoffice", "Existing subscriptions")}</h3>
 
@@ -78,12 +84,24 @@
             </a>
 
             <div class="inline-block">
-              <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, @contact_id, dataset.id), [method: "delete"], fn f -> %>
-                {hidden_input(f, :redirect_location, value: "contact")}
+              <.form
+                :let={f}
+                for={@conn.params}
+                action={
+                  backoffice_notification_subscription_path(
+                    @conn,
+                    :delete_for_contact_and_dataset,
+                    @contact_id,
+                    dataset.id
+                  )
+                }
+                method="delete"
+              >
+                <.input field={f[:redirect_location]} type="hidden" value="contact" />
                 <button class="small button-outline no-border warning" title="désabonner entièrement">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
-              <% end %>
+              </.form>
             </div>
             <div class="small">{dataset.type}</div>
           </td>
@@ -91,12 +109,17 @@
           <td>{notification_subscription.reason}</td>
           <td>{notification_subscription.source}</td>
           <td>
-            <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-              {hidden_input(f, :redirect_location, value: "contact")}
+            <.form
+              :let={f}
+              for={@conn.params}
+              action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+              method="delete"
+            >
+              <.input field={f[:redirect_location]} type="hidden" value="contact" />
               <button class="small button-outline no-border warning">
                 <i class="fas fa-trash"></i>
               </button>
-            <% end %>
+            </.form>
           </td>
         </tr>
       <% end %>
@@ -116,12 +139,17 @@
         <td>{notification_subscription.reason}</td>
         <td>{notification_subscription.source}</td>
         <td>
-          <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-            {hidden_input(f, :redirect_location, value: "contact")}
+          <.form
+            :let={f}
+            for={@conn.params}
+            action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+            method="delete"
+          >
+            <.input field={f[:redirect_location]} type="hidden" value="contact" />
             <button class="small button-outline warning">
               <i class="fas fa-trash"></i> Supprimer
             </button>
-          <% end %>
+          </.form>
         </td>
       </tr>
     <% end %>

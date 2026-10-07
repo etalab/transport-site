@@ -32,8 +32,7 @@
           <% end %>
         </th>
         <%= for {date, import_count, success_count} <- counts do %>
-          <%= content_tag :td, title: date, class: cell_class({import_count, success_count}) do %>
-          <% end %>
+          <td title={date} class={cell_class({import_count, success_count})}></td>
         <% end %>
       </tr>
     <% end %>
