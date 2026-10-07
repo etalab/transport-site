@@ -7,7 +7,7 @@ defmodule DB.Dataset do
   so the search vector is up-to-date.
   """
   alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
-  alias Phoenix.HTML.Link
+  alias PhoenixHTMLHelpers.Link
   import Ecto.{Changeset, Query}
   import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext

@@ -3258,7 +3258,7 @@ path-parse@^1.0.7:
   version "1.8.15"
 
 "phoenix_html@file:../../../deps/phoenix_html":
-  version "3.3.4"
+  version "4.3.0"
 
 "phoenix_live_view@file:../../../deps/phoenix_live_view":
   version "1.1.33"

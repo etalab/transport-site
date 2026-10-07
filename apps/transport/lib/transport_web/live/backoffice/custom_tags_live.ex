@@ -20,7 +20,7 @@ defmodule TransportWeb.CustomTagsLive do
           <span class="label custom-tag">
             {tag} <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
           </span>
-          {Phoenix.HTML.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag)}
+          {PhoenixHTMLHelpers.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag)}
         <% end %>
       </div>
       <datalist id="suggestions">

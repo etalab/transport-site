@@ -1,6 +1,6 @@
 defmodule TransportWeb.Live.SIRIQuerierLive do
   use TransportWeb, :live_view
-  use Phoenix.HTML, only: [text_input: 2]
+  import PhoenixHTMLHelpers.Form, only: [select: 4, text_input: 3]
   import Transport.Http.Utils, only: [reencode_body_to_utf8: 2]
   import TransportWeb.Router.Helpers, only: [live_path: 3, static_path: 2]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
