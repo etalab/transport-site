@@ -1,7 +1,7 @@
 # 001 — HTTP Client Selection
 
-- **Date:** 2026-10-05
-- **Status:** proposed
+- **Date:** 2026-10-08
+- **Status:** accepted
 
 ## Context
 
