@@ -71,6 +71,16 @@ defmodule TransportWeb.CoreComponentsTest do
       <input id="user_name" name="user[name]" type="hidden" value="v">))
   end
 
+  test "without wrapper" do
+    assert_html(input(field: form()[:name], wrapper: false), ~s(
+      <input id="user_name" name="user[name]" type="text" value="Bob">))
+
+    assert_html(
+      input(field: form()[:kind], type: "select", options: [{"A", "a"}, {"B", "b"}], wrapper: false),
+      ~s(<select id="user_kind" name="user[kind]"><option value="a">A</option><option selected value="b">B</option></select>)
+    )
+  end
+
   test "errors are shown once the field is used" do
     form = Phoenix.Component.to_form(@params, as: :user, errors: [name: {"a custom error", []}])
 

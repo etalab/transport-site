@@ -1,9 +1,7 @@
 defmodule TransportWeb.Backoffice.EmailPreviewLive do
   use TransportWeb, :live_view
-  use TransportWeb.InputHelpers
   import Ecto.Query
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
   @impl true

@@ -1,26 +1,26 @@
 defmodule TransportWeb.CustomTagsLive do
   use TransportWeb, :live_component
-  alias TransportWeb.InputHelpers
   import Ecto.Query
 
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      {InputHelpers.text_input(@form, :tag_input,
-        placeholder: "Ajouter un tag",
-        list: "suggestions",
-        phx_keydown: "add_tag",
-        phx_change: "change",
-        id: "custom_tag",
-        phx_target: @myself,
-        label: "Tags"
-      )}
+      <.input
+        field={@form[:tag_input]}
+        placeholder="Ajouter un tag"
+        list="suggestions"
+        phx-keydown="add_tag"
+        phx-change="change"
+        id="custom_tag"
+        phx-target={@myself}
+        label="Tags"
+      />
       <div class="pt-6">
         <%= for {tag, index} <- Enum.with_index(@custom_tags) do %>
           <span class="label custom-tag">
             {tag} <span class="delete-tag" phx-click="remove_tag" phx-value-tag={tag} phx-target={@myself}></span>
           </span>
-          {PhoenixHTMLHelpers.Form.hidden_input(@form, "custom_tags[#{index}]", value: tag)}
+          <.input field={@form["custom_tags[#{index}]"]} type="hidden" value={tag} />
         <% end %>
       </div>
       <datalist id="suggestions">

@@ -1,9 +1,7 @@
 defmodule TransportWeb.EditDatasetLive do
   use TransportWeb, :live_view
-  use PhoenixHTMLHelpers
   alias DB.Dataset
   import TransportWeb.Router.Helpers
-  alias TransportWeb.InputHelpers
 
   def mount(
         _params,

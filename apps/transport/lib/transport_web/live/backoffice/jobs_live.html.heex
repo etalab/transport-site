@@ -1,16 +1,16 @@
 <section class="container pt-48 pb-48">
   <div class="header_with_action_bar">
     <h1>Jobs Observation Center</h1>
-    {link("version expérimentale",
-      to: backoffice_live_path(@socket, TransportWeb.Backoffice.Jobs2Live, worker: @worker)
-    )}
+    <.link href={backoffice_live_path(@socket, TransportWeb.Backoffice.Jobs2Live, worker: @worker)}>
+      version expérimentale
+    </.link>
   </div>
   <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 
   <div class="pb-24">
     <.form :let={f} for={%{}} phx-change="filter" class="no-margin">
-      {label(f, "Filter by worker label")}
-      {text_input(f, :worker, value: @worker)}
+      <label for={f[:worker].id}>Filter by worker label</label>
+      <.input field={f[:worker]} value={@worker} wrapper={false} />
     </.form>
   </div>
   <p>Timezone: Europe/Paris</p>

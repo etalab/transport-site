@@ -1,20 +1,21 @@
 defmodule TransportWeb.LegalOwnerSelectLive do
   use TransportWeb, :live_component
-  alias TransportWeb.InputHelpers
   import Ecto.Query
 
   def render(assigns) do
     ~H"""
     <div class="pt-24">
       <label>
-        Une/des AOM locale(s) ou régionale(s) {InputHelpers.text_input(@form, :legal_owner_input,
-          placeholder: "CC du Val de Morteau",
-          list: "owner_suggestions",
-          phx_keydown: "add_tag",
-          phx_change: "change",
-          phx_target: @myself,
-          id: "js-owner-input"
-        )}
+        Une/des AOM locale(s) ou régionale(s)
+        <.input
+          field={@form[:legal_owner_input]}
+          placeholder="CC du Val de Morteau"
+          list="owner_suggestions"
+          phx-keydown="add_tag"
+          phx-change="change"
+          phx-target={@myself}
+          id="js-owner-input"
+        />
       </label>
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
@@ -35,7 +36,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             </span>
           </span>
           <% {field_name, field_value} = field_info(owner, index) %>
-          {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
+          <.input field={@form[field_name]} type="hidden" value={field_value} />
         <% end %>
       </div>
     </div>

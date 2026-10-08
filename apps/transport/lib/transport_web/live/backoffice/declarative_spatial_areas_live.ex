@@ -1,6 +1,5 @@
 defmodule TransportWeb.DeclarativeSpatialAreasLive do
   use TransportWeb, :live_component
-  alias TransportWeb.InputHelpers
 
   def render(assigns) do
     ~H"""
@@ -9,15 +8,14 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         {dgettext("backoffice", "spatial areas label")}
       </label>
       <br />
-      {InputHelpers.text_input(
-        @form,
-        :spatial_areas_search_input,
-        placeholder: "Recherchez votre territoire…",
-        phx_change: "change",
-        phx_target: @myself,
-        id: "spatial_areas_search_input",
-        required: @required
-      )}
+      <.input
+        field={@form[:spatial_areas_search_input]}
+        placeholder="Recherchez votre territoire…"
+        phx-change="change"
+        phx-target={@myself}
+        id="spatial_areas_search_input"
+        required={@required}
+      />
       <div
         :if={@administrative_division_search_matches != []}
         class="autoCompleteResultsField"
@@ -46,7 +44,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
           {division.nom} ({division.insee} – {DB.AdministrativeDivision.display_type(division)})
           <span class="delete-tag" phx-click="remove_division" phx-value-id={division.id} phx-target={@myself}></span>
         </span>
-        {PhoenixHTMLHelpers.Form.hidden_input(@form, "declarative_spatial_area_#{index}", value: division.id)}
+        <.input field={@form["declarative_spatial_area_#{index}"]} type="hidden" value={division.id} />
       </div>
 
       <script nonce={@nonce}>

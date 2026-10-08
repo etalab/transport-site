@@ -3,7 +3,6 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   A quick dashboard for jobs.
   """
   use TransportWeb, :live_view
-  use PhoenixHTMLHelpers
   import Ecto.Query
   import TransportWeb.Router.Helpers
 

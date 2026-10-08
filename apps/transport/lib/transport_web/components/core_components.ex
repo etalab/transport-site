@@ -94,6 +94,7 @@ defmodule TransportWeb.CoreComponents do
   attr(:options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2")
   attr(:multiple, :boolean, default: false, doc: "the multiple flag for select inputs")
   attr(:autoexpand, :boolean, default: false, doc: "makes a textarea grow with its content")
+  attr(:wrapper, :boolean, default: true, doc: "wraps the label, the input and its errors in a form__group div")
 
   attr(:rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step))
@@ -130,56 +131,56 @@ defmodule TransportWeb.CoreComponents do
 
   def input(%{type: "select"} = assigns) do
     ~H"""
-    <div class="form__group">
+    <.form_group wrapper={@wrapper}>
       <label :if={@label} for={@id}>{@label}</label>
       <select id={@id} name={@name} multiple={@multiple} {@rest}>
         <option :if={@prompt} value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
       <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
+    </.form_group>
     """
   end
 
   def input(%{type: "textarea", autoexpand: true} = assigns) do
     ~H"""
-    <div class="form__group">
+    <.form_group wrapper={@wrapper}>
       <label :if={@label} for={@id}>{@label}</label>
       <div class="autoexpand">
         <textarea id={@id} name={@name} phx-hook="TextareaAutoexpand" {@rest}>{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
       </div>
       <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
+    </.form_group>
     """
   end
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div class="form__group">
+    <.form_group wrapper={@wrapper}>
       <label :if={@label} for={@id}>{@label}</label>
       <textarea id={@id} name={@name} {@rest}>{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
       <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
+    </.form_group>
     """
   end
 
   def input(%{type: "search"} = assigns) do
     ~H"""
-    <div class="form__group">
+    <.form_group wrapper={@wrapper}>
       <label :if={@label} for={@id}>{@label}</label>
       <div class="">
         <i class="fas icon--magnifier" id="magnifier"></i>
         <input type="search" id={@id} name={@name} value={Phoenix.HTML.Form.normalize_value("search", @value)} {@rest} />
       </div>
       <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
+    </.form_group>
     """
   end
 
   # All other inputs text, email, number, file, url, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div class="form__group">
+    <.form_group wrapper={@wrapper}>
       <label :if={@label} for={@id}>{@label}</label>
       <input
         type={@type}
@@ -189,7 +190,22 @@ defmodule TransportWeb.CoreComponents do
         {@rest}
       />
       <.error :for={msg <- @errors}>{msg}</.error>
-    </div>
+    </.form_group>
+    """
+  end
+
+  attr(:wrapper, :boolean, required: true)
+  slot(:inner_block, required: true)
+
+  defp form_group(%{wrapper: true} = assigns) do
+    ~H"""
+    <div class="form__group">{render_slot(@inner_block)}</div>
+    """
+  end
+
+  defp form_group(assigns) do
+    ~H"""
+    {render_slot(@inner_block)}
     """
   end
 

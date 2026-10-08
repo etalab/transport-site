@@ -5,14 +5,14 @@
   </div>
 
   <.form :let={f} for={%{}} phx-change="filter" class="no-margin jobs-filter">
-    {text_input(f, :worker, value: @worker, autofocus: true)}
+    <.input field={f[:worker]} value={@worker} autofocus wrapper={false} />
     <div class="vsep"></div>
     <label :for={state <- @states} class={"job-state job-state-#{state}"}>
-      {checkbox(f, state, value: assigns[state])} {state}
+      <.input type="checkbox" field={f[state]} value={assigns[state]} /> {state}
     </label>
     <div class="vsep"></div>
     <label class="listing-toggle">
-      {checkbox(f, :listing, value: @listing)}
+      <.input type="checkbox" field={f[:listing]} value={@listing} />
       {dgettext("backoffice", "listing")}
     </label>
     <div class="vsep"></div>
