@@ -114,13 +114,14 @@
     />
     <div class="pt-12">{dgettext("backoffice", "or")}</div>
     <div class="pt-12">
-      <label>
-        {dgettext("backoffice", "Company SIREN code")}
-        <.input field={f[:legal_owner_company_siren]} placeholder="821611431" pattern="\d{9,9}" />
-      </label>
-      <%= if @company do %>
-        <span>{@company.nom_complet}</span>
-      <% end %>
+      <.input
+        field={f[:legal_owner_company_siren]}
+        placeholder="821611431"
+        pattern="\d{9,9}"
+        label={dgettext("backoffice", "Company SIREN code")}
+      >
+        <:help :if={@company}>{@company.nom_complet}</:help>
+      </.input>
     </div>
   </div>
 

@@ -19,11 +19,11 @@
         options={[{"Tout", ""}] ++ @select_options}
         value={@type}
         label="Type de flux"
+        wrapper={false}
       />
     </div>
     <div class="form__group ml-1em">
-      <label for={f[:disk].id}>Cache sur disque</label>
-      <.input type="checkbox" field={f[:disk]} value={@disk} wrapper={false} />
+      <.input type="checkbox" field={f[:disk]} value={@disk} label="Cache sur disque" wrapper={false} />
     </div>
   </.form>
 

@@ -4,10 +4,6 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <label>
-        {dgettext("backoffice", "spatial areas label")}
-      </label>
-      <br />
       <.input
         field={@form[:spatial_areas_search_input]}
         placeholder="Recherchez votre territoire…"
@@ -15,6 +11,7 @@ defmodule TransportWeb.DeclarativeSpatialAreasLive do
         phx-target={@myself}
         id="spatial_areas_search_input"
         required={@required}
+        label={dgettext("backoffice", "spatial areas label")}
       />
       <div
         :if={@administrative_division_search_matches != []}

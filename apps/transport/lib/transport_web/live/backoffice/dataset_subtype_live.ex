@@ -5,16 +5,14 @@ defmodule TransportWeb.DatasetSubtypeLive do
     ~H"""
     <div>
       <div :if={Enum.count(@dataset_subtypes_list) > 0} class="pt-24">
-        <label>
-          Sous-type
-          <.input
-            field={@form[:dataset_subtype_input]}
-            list="dataset_subtypes"
-            phx-keydown="add_subtype"
-            phx-target={@myself}
-            id="js-dataset-subtype-input"
-          />
-        </label>
+        <.input
+          field={@form[:dataset_subtype_input]}
+          list="dataset_subtypes"
+          phx-keydown="add_subtype"
+          phx-target={@myself}
+          id="js-dataset-subtype-input"
+          label="Sous-type"
+        />
         <datalist id="dataset_subtypes" phx-keydown="add_subtype">
           <%= for dataset_subtype <- @dataset_subtypes_list do %>
             <option value={dataset_subtype.slug}>{display(dataset_subtype)}</option>

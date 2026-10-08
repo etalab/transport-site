@@ -5,17 +5,15 @@ defmodule TransportWeb.OfferSelectLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <label>
-        Offre de transport
-        <.input
-          field={@form[:offer_input]}
-          placeholder="Astuce"
-          list="offers"
-          phx-keydown="add_offer"
-          phx-target={@myself}
-          id="js-offer-input"
-        />
-      </label>
+      <.input
+        field={@form[:offer_input]}
+        placeholder="Astuce"
+        list="offers"
+        phx-keydown="add_offer"
+        phx-target={@myself}
+        id="js-offer-input"
+        label="Offre de transport"
+      />
       <datalist id="offers" phx-keydown="add_offer">
         <%= for offer <- @offers_list do %>
           <option value={offer.id}>{display(offer)}</option>

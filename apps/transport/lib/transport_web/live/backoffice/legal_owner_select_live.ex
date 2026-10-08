@@ -5,18 +5,16 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <label>
-        Une/des AOM locale(s) ou régionale(s)
-        <.input
-          field={@form[:legal_owner_input]}
-          placeholder="CC du Val de Morteau"
-          list="owner_suggestions"
-          phx-keydown="add_tag"
-          phx-change="change"
-          phx-target={@myself}
-          id="js-owner-input"
-        />
-      </label>
+      <.input
+        field={@form[:legal_owner_input]}
+        placeholder="CC du Val de Morteau"
+        list="owner_suggestions"
+        phx-keydown="add_tag"
+        phx-change="change"
+        phx-target={@myself}
+        id="js-owner-input"
+        label="Une/des AOM locale(s) ou régionale(s)"
+      />
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
           <option value={owner_label(owner_suggestion)}>{owner_label(owner_suggestion)}</option>

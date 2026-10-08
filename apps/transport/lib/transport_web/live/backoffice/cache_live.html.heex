@@ -19,8 +19,7 @@
 
   <div class="pb-24">
     <.form :let={f} for={%{}} as={@search_key_name} phx-change="filter" class="no-margin">
-      <label for={f[:filter_key_name].id}>Filtrer par nom de clé</label>
-      <.input field={f[:filter_key_name]} value={@filter_key_name} wrapper={false} />
+      <.input field={f[:filter_key_name]} value={@filter_key_name} label="Filtrer par nom de clé" />
     </.form>
   </div>
 
