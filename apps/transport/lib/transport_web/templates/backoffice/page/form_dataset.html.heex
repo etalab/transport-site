@@ -141,22 +141,22 @@
         </table>
       <% end %>
       <.form :let={f} for={@conn.params} action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}>
-        <label for={f[:resource_src_id].id}>Ressource de référence</label>
         <.input
           field={f[:resource_src_id]}
           type="select"
+          label="Ressource de référence"
           options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
         />
-        <label for={f[:resource_dst_id].id}>Ressource complémentaire</label>
         <.input
           field={f[:resource_dst_id]}
           type="select"
+          label="Ressource complémentaire"
           options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
         />
-        <label for={f[:reason].id}>Motif</label>
         <.input
           field={f[:reason]}
           type="select"
+          label="Motif"
           options={
             Enum.map(
               Ecto.Enum.values(DB.ResourceRelated, :reason),
@@ -175,31 +175,41 @@
       <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
         <.input field={f[:redirect_location]} type="hidden" value="dataset" />
         <.input field={f[:dataset_id]} type="hidden" value={@dataset.id} />
-        <label for={f[:contact_id].id}>
-          Contact <.input field={f[:contact_id]} required list="contacts_datalist" pattern="[0-9]+" />
-          <div class="small">
+        <.input field={f[:contact_id]} label="Contact" required list="contacts_datalist" pattern="[0-9]+">
+          <:help>
             <a href={backoffice_contact_path(@conn, :new)} target="_blank">
               <i class="fas fa-arrow-up-right-from-square"></i> Créer un contact
             </a>
-          </div>
-          <div :if={Enum.count(@contacts_in_org) > 0}>
-            <p>
-              Producteurs s’étant déjà connectés au PAN
-            </p>
-            <ul>
-              <%= for contact <- @contacts_in_org do %>
-                <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
-                <li class="pb-6">
-                  <a href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
-                    <i class="fas fa-arrow-up-right-from-square"></i> {DB.Contact.display_name(contact)}
-                  </a>
-                  <span class="small">{"(##{contact.id})"}</span>
-                  <button type="button" class="button-outline small primary" onclick={onclick_fn}>Sélectionner</button>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </label>
+          </:help>
+        </.input>
+        <div :if={Enum.count(@contacts_in_org) > 0} class="form__group">
+          <p>
+            Producteurs s’étant déjà connectés au PAN
+          </p>
+          <ul>
+            <%= for contact <- @contacts_in_org do %>
+              <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
+              <li class="pb-6">
+                <a href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
+                  <i class="fas fa-arrow-up-right-from-square"></i> {DB.Contact.display_name(contact)}
+                </a>
+                <span class="small">{"(##{contact.id})"}</span>
+                <button type="button" class="button-outline small primary" onclick={onclick_fn}>Sélectionner</button>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="form__group">
+          <fieldset>
+            <legend>{dgettext("backoffice", "Notification reason")}</legend>
+            <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
+              <input type="checkbox" id={f[reason].id} name={f[reason].name} value="true" checked />
+              <label for={f[reason].id} class="label-inline">{reason}</label>
+            <% end %>
+          </fieldset>
+        </div>
+
+        <div class="form__group"><.button>Créer un abonnement</.button></div>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>
             <% display_name = DB.Contact.display_name(contact) %>
@@ -210,17 +220,6 @@
             </option>
           <% end %>
         </datalist>
-        <label for={f[:reasons].id} class="pt-12">
-          {dgettext("backoffice", "Notification reason")}
-          <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
-            <label for={f[reason].id}>
-              <input type="checkbox" id={f[reason].id} name={f[reason].name} value="true" checked />
-              {reason}
-            </label>
-          <% end %>
-        </label>
-
-        <div class="form__group"><.button>Créer un abonnement</.button></div>
       </.form>
       <h4 id="existing_subscriptions">{dgettext("backoffice", "Existing subscriptions")}</h4>
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} id="existing_subscriptions_table" class="table">

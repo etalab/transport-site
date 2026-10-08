@@ -11,19 +11,18 @@
     action={backoffice_breaking_news_path(@conn, :update_breaking_news)}
     class="no-margin"
   >
-    <label>
-      Message à faire apparaitre sur le site <.input field={f[:msg]} value={Map.get(@current_breaking_news, :msg)} />
-    </label>
-
-    <label class="pt-12">
-      Type de message
-      <.input
-        field={f[:level]}
-        type="select"
-        options={Ecto.Enum.mappings(DB.BreakingNews, :level)}
-        value={Map.get(@current_breaking_news, :level, :info)}
-      />
-    </label>
+    <.input
+      field={f[:msg]}
+      value={Map.get(@current_breaking_news, :msg)}
+      label="Message à faire apparaitre sur le site"
+    />
+    <.input
+      field={f[:level]}
+      type="select"
+      options={Ecto.Enum.mappings(DB.BreakingNews, :level)}
+      value={Map.get(@current_breaking_news, :level, :info)}
+      label="Type de message"
+    />
     <div class="form__group"><.button>Envoyer !</.button></div>
   </.form>
 </div>

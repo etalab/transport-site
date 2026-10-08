@@ -62,6 +62,7 @@ defmodule TransportWeb.CoreComponents do
 
   ```heex
   <.input field={@form[:email]} type="email" label="Email" required />
+  <.input field={@form[:phone]} type="tel" label="Téléphone"><:help>Optionnel</:help></.input>
   <.input name="my-input" errors={["oh no!"]} />
   ```
 
@@ -101,6 +102,8 @@ defmodule TransportWeb.CoreComponents do
   attr(:rest, :global, include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
                 multiple pattern placeholder readonly required rows size step))
 
+  slot(:help, doc: "a help text displayed below the input")
+
   def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
     errors = if Phoenix.Component.used_input?(field), do: field.errors, else: []
 
@@ -129,6 +132,7 @@ defmodule TransportWeb.CoreComponents do
       <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} form={@rest[:form]} />
       <input type="checkbox" id={@id} name={@name} value="true" checked={@checked} {@rest} />
       <label :if={@label} for={@id} class="label-inline">{@label}</label>
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """
@@ -142,6 +146,7 @@ defmodule TransportWeb.CoreComponents do
         <option :if={@prompt} value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """
@@ -154,6 +159,7 @@ defmodule TransportWeb.CoreComponents do
       <div class="autoexpand">
         <textarea id={@id} name={@name} phx-hook="TextareaAutoexpand" {@rest}>{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
       </div>
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """
@@ -164,6 +170,7 @@ defmodule TransportWeb.CoreComponents do
     <.form_group wrapper={@wrapper}>
       <.label :if={@label} for={@id} required={@rest[:required]}>{@label}</.label>
       <textarea id={@id} name={@name} {@rest}>{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """
@@ -177,6 +184,7 @@ defmodule TransportWeb.CoreComponents do
         <i class="fas icon--magnifier" id="magnifier"></i>
         <input type="search" id={@id} name={@name} value={Phoenix.HTML.Form.normalize_value("search", @value)} {@rest} />
       </div>
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """
@@ -194,6 +202,7 @@ defmodule TransportWeb.CoreComponents do
         value={if @type != "file", do: Phoenix.HTML.Form.normalize_value(@type, @value)}
         {@rest}
       />
+      <div :if={@help != []} class="small">{render_slot(@help)}</div>
       <.error :for={msg <- @errors}>{msg}</.error>
     </.form_group>
     """

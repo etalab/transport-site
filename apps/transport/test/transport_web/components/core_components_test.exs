@@ -86,6 +86,14 @@ defmodule TransportWeb.CoreComponentsTest do
       <input checked id="user_accept" name="user[accept]" type="checkbox" value="true">))
   end
 
+  test "help" do
+    assert_html(
+      input(field: form()[:name], label: "Nom", help: [%{inner_block: fn _, _ -> "Optionnel" end}]),
+      ~s(<div class="form__group"><label for="user_name">Nom</label>
+      <input id="user_name" name="user[name]" type="text" value="Bob"><div class="small">Optionnel</div></div>)
+    )
+  end
+
   test "errors are shown once the field is used" do
     form = Phoenix.Component.to_form(@params, as: :user, errors: [name: {"a custom error", []}])
 
