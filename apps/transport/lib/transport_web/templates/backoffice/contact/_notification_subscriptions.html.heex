@@ -13,7 +13,12 @@
 
   <h4>Lié à un jeu de données</h4>
 
-  <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
+  <.form
+    :let={f}
+    for={@conn.params}
+    action={backoffice_notification_subscription_path(@conn, :create)}
+    class="backoffice-form"
+  >
     <.input field={f[:redirect_location]} type="hidden" value="contact" />
     <.input field={f[:contact_id]} type="hidden" value={@contact_id} />
     <.input field={f[:dataset_id]} label="Jeu de données" required list="datasets_datalist" pattern="[0-9]+" />
@@ -37,7 +42,12 @@
 
   <h4>Autres motifs</h4>
 
-  <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
+  <.form
+    :let={f}
+    for={@conn.params}
+    action={backoffice_notification_subscription_path(@conn, :create)}
+    class="backoffice-form"
+  >
     <.input field={f[:redirect_location]} type="hidden" value="contact" />
     <.input field={f[:contact_id]} type="hidden" value={@contact_id} />
     <div class="form__group">

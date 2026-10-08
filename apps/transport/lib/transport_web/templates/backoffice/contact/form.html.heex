@@ -25,7 +25,13 @@
         get_session(@conn, :locale)
       )}
     </div>
-    <.form :let={f} for={@contact} action={backoffice_contact_path(@conn, :create)} class="no-margin" method="post">
+    <.form
+      :let={f}
+      for={@contact}
+      action={backoffice_contact_path(@conn, :create)}
+      class="no-margin backoffice-form"
+      method="post"
+    >
       <.input field={f[:id]} type="hidden" value={contact_id} />
       <div class="panel">
         <.input field={f[:first_name]} label="Prénom" />

@@ -87,7 +87,12 @@
       <p>
         Vous pouvez forcer le format d'une ressource en utilisant ce formulaire.
       </p>
-      <.form :let={f} for={@conn.params} action={backoffice_dataset_path(@conn, :resource_format_override, @dataset.id)}>
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_dataset_path(@conn, :resource_format_override, @dataset.id)}
+        class="backoffice-form"
+      >
         <.input
           field={f[:resource_id]}
           type="select"
@@ -140,7 +145,12 @@
           <% end %>
         </table>
       <% end %>
-      <.form :let={f} for={@conn.params} action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}>
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}
+        class="backoffice-form"
+      >
         <.input
           field={f[:resource_src_id]}
           type="select"
@@ -172,7 +182,12 @@
       <h3>Abonnements aux notifications des producteurs</h3>
 
       <h4>Créer un abonnement</h4>
-      <.form :let={f} for={@conn.params} action={backoffice_notification_subscription_path(@conn, :create)}>
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_notification_subscription_path(@conn, :create)}
+        class="backoffice-form"
+      >
         <.input field={f[:redirect_location]} type="hidden" value="dataset" />
         <.input field={f[:dataset_id]} type="hidden" value={@dataset.id} />
         <.input field={f[:contact_id]} label="Contact" required list="contacts_datalist" pattern="[0-9]+">
