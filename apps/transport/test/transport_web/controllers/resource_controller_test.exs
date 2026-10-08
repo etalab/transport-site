@@ -5,6 +5,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import DB.Factory
   import ExUnit.CaptureLog
   import NeTExValidationReportHelpers
+  import NeTExTestData
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
   import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
 
@@ -207,6 +208,115 @@ defmodule TransportWeb.ResourceControllerTest do
       content = conn |> get(resource_path(conn, :details, resource.id)) |> html_response(200)
 
       assert content =~ "Impossible de décoder le flux GTFS-RT"
+    end
+
+    # v0.1.0 uses a different template without category tabs.
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details displays per-category severity counts and summary (#{version})", %{conn: conn} do
+        _render_netex_category_stats(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_category_stats(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => _permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
+        })
+
+      opts = build_multi_validation_opts(version, category_stats_result())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
+
+      conn = conn |> get(resource_path(conn, :details, resource.id))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+
+      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
+      # base-rules shows warning with its single item
+      assert body =~ ~r{XSD\s+– 2 erreurs}
+      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+    end
+
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details filters issues by category when ?issues_category is set (#{version})", %{conn: conn} do
+        _render_netex_details_filtered(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_details_filtered(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => Ecto.UUID.generate()}
+        })
+
+      opts = build_multi_validation_opts(version, filtered_result())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
+
+      conn = conn |> get(resource_path(conn, :details, resource.id, issues_category: "base-rules"))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+
+      # Only base-rules issues should appear — XSD-specific text must NOT be present.
+      refute body =~ "XSD-only error"
+      refute body =~ "XSD-only warning"
+      assert body =~ "Base-rule only error"
+    end
+
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx details respects ?page= when requesting page 2 (#{version})", %{conn: conn} do
+        _render_netex_details_pagination(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_details_pagination(conn, version) do
+      %{id: dataset_id} = insert(:dataset)
+
+      resource =
+        insert(:resource, %{
+          dataset_id: dataset_id,
+          format: "NeTEx",
+          url: "https://example.com/file"
+        })
+
+      %{id: resource_history_id} =
+        insert(:resource_history, %{
+          resource: resource,
+          payload: %{"permanent_url" => Ecto.UUID.generate()}
+        })
+
+      opts = build_multi_validation_opts_pagination(version, pagination_issues())
+      insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
+
+      # Page 1 should contain issue #1 (first on page 1)
+      conn_p1 = conn |> get(resource_path(conn, :details, resource.id, page: 1, issues_category: "base-rules"))
+      body_p1 = conn_p1 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      assert body_p1 =~ "Page-test issue 1Emplacement"
+
+      # Page 2 should NOT contain issue #1 (it's on page 1), but should contain issue #21
+      conn_p2 = conn |> get(resource_path(conn, :details, resource.id, page: 2, issues_category: "base-rules"))
+      body_p2 = conn_p2 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      refute body_p2 =~ "Page-test issue 1Emplacement"
+      assert body_p2 =~ "Page-test issue 21Emplacement"
     end
   end
 

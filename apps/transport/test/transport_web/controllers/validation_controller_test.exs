@@ -5,6 +5,7 @@ defmodule TransportWeb.ValidationControllerTest do
   import Ecto.Query
   import Mox
   import NeTExValidationReportHelpers
+  import NeTExTestData
   import Phoenix.LiveViewTest
   import TransportWeb.LiveViewTestHelpers
   import Transport.TmpFile
@@ -551,42 +552,97 @@ defmodule TransportWeb.ValidationControllerTest do
       assert 1 == length(parquet_report_content)
     end
 
-    test "with a NeTEx - pagination", %{conn: conn} do
+    # v0.1.0 uses a different template without category tabs.
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx show displays per-category severity counts and summary (#{version})", %{conn: conn} do
+        _render_netex_category_stats(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_category_stats(conn, version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
-      errors =
-        for i <- 1..25, do: %{"code" => "pan:french_profile:1", "criticity" => "error", "message" => "Error #{i}"}
+      opts = build_multi_validation_opts(version, category_stats_result())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
 
-      results_adapter = ResultsAdapter.resolve("0.2.2")
+      conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
 
-      mark_netex_validation_completed(
-        multi_validation,
-        %{
-          validator_version: "0.2.2",
-          result: nil,
-          digest: results_adapter.digest(results_adapter.to_dataframe(errors)),
-          binary_result: results_adapter.to_binary_result(errors),
-          max_error: "error"
-        }
-      )
+      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
+      # base-rules shows warning with its single item
+      assert body =~ ~r{XSD\s+– 2 erreurs}
+      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+    end
 
-      links =
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx show filters issues by category when ?issues_category is set (#{version})", %{conn: conn} do
+        _render_netex_show_filtered(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_show_filtered(conn, version) do
+      {conn, multi_validation, token} = setup_netex_validation(conn)
+
+      opts = build_multi_validation_opts(version, filtered_result())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
+
+      conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token, issues_category: "base-rules"))
+      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+
+      refute body =~ "XSD-only error"
+      refute body =~ "XSD-only warning"
+      assert body =~ "Base-rule only error"
+    end
+
+    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+      @tag version: version
+      test "NeTEx show respects ?page= when requesting page 2 (#{version})", %{conn: conn} do
+        _render_netex_show_pagination(conn, unquote(version))
+      end
+    end
+
+    defp _render_netex_show_pagination(conn, version) do
+      {conn, multi_validation, token} = setup_netex_validation(conn)
+
+      opts = build_multi_validation_opts_pagination(version, pagination_issues())
+      mark_netex_validation_completed(multi_validation, Map.new(opts))
+
+      # Page 1 should contain issue #1
+      conn_p1 =
         conn
-        |> get(
-          validation_path(conn, :show, multi_validation.id, token: token, issues_category: "french-profile", page: 2)
-        )
+        |> get(validation_path(conn, :show, multi_validation.id, token: token, page: 1, issues_category: "base-rules"))
+
+      body_p1 = conn_p1 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      assert body_p1 =~ "Page-test issue 1Emplacement"
+
+      # Page 2 should NOT contain issue #1, but should contain issue #21
+      conn_p2 =
+        conn
+        |> get(validation_path(conn, :show, multi_validation.id, token: token, page: 2, issues_category: "base-rules"))
+
+      body_p2 = conn_p2 |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      refute body_p2 =~ "Page-test issue 1Emplacement"
+      assert body_p2 =~ "Page-test issue 21Emplacement"
+
+      # Pagination links structure: verify href attributes, anchors, and current-page highlighting
+      url = "/validation/#{multi_validation.id}?issues_category=base-rules&token=#{token}"
+
+      pagination_links =
+        conn_p2
         |> html_response(200)
         |> Floki.parse_document!()
-        |> Floki.find(~s|nav[aria-label="Page navigation"] a|)
+        |> Floki.find("nav[aria-label=\"Page navigation\"] a")
         |> Enum.map(&{Floki.text(&1), Floki.attribute(&1, "href")})
 
-      url = "/validation/#{multi_validation.id}?issues_category=french-profile&token=#{token}"
-
-      assert links == [
+      assert pagination_links == [
                {"<<", [url <> "#validation-report"]},
                {"1", [url <> "#validation-report"]},
                {"2", []},
                {"3", [url <> "&page=3#validation-report"]},
+               {"4", [url <> "&page=4#validation-report"]},
+               {"5", [url <> "&page=5#validation-report"]},
                {">>", [url <> "&page=3#validation-report"]}
              ]
     end
