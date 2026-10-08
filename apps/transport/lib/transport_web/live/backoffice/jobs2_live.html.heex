@@ -8,11 +8,11 @@
     <.input field={f[:worker]} value={@worker} autofocus wrapper={false} />
     <div class="vsep"></div>
     <label :for={state <- @states} class={"job-state job-state-#{state}"}>
-      <.input type="checkbox" field={f[state]} value={assigns[state]} /> {state}
+      <.input type="checkbox" field={f[state]} value={assigns[state]} wrapper={false} /> {state}
     </label>
     <div class="vsep"></div>
     <label class="listing-toggle">
-      <.input type="checkbox" field={f[:listing]} value={@listing} />
+      <.input type="checkbox" field={f[:listing]} value={@listing} wrapper={false} />
       {dgettext("backoffice", "listing")}
     </label>
     <div class="vsep"></div>

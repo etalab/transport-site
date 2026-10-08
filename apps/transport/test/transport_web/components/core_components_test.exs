@@ -10,7 +10,7 @@ defmodule TransportWeb.CoreComponentsTest do
 
     assert_html(
       input(field: form()[:name], label: "Nom", placeholder: "ex", required: true),
-      ~s(<div class="form__group"><label for="user_name">Nom</label>
+      ~s(<div class="form__group"><label class="required" for="user_name">Nom</label>
       <input id="user_name" name="user[name]" placeholder="ex" required type="text" value="Bob"></div>)
     )
 
@@ -60,9 +60,10 @@ defmodule TransportWeb.CoreComponentsTest do
 
   test "checkbox" do
     assert_html(
-      input(field: form()[:accept], type: "checkbox"),
-      ~s(<input name="user[accept]" type="hidden" value="false">
-      <input checked id="user_accept" name="user[accept]" type="checkbox" value="true">)
+      input(field: form()[:accept], type: "checkbox", label: "J'accepte"),
+      ~s(<div class="form__group"><input name="user[accept]" type="hidden" value="false">
+      <input checked id="user_accept" name="user[accept]" type="checkbox" value="true">
+      <label class="label-inline" for="user_accept">J'accepte</label></div>)
     )
   end
 
@@ -79,6 +80,10 @@ defmodule TransportWeb.CoreComponentsTest do
       input(field: form()[:kind], type: "select", options: [{"A", "a"}, {"B", "b"}], wrapper: false),
       ~s(<select id="user_kind" name="user[kind]"><option value="a">A</option><option selected value="b">B</option></select>)
     )
+
+    assert_html(input(field: form()[:accept], type: "checkbox", wrapper: false), ~s(
+      <input name="user[accept]" type="hidden" value="false">
+      <input checked id="user_accept" name="user[accept]" type="checkbox" value="true">))
   end
 
   test "errors are shown once the field is used" do
