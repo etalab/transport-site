@@ -73,4 +73,8 @@ defmodule TransportWeb.NeTExValidationDetails do
       validator_version: version
     }
   end
+
+  def download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
+  def download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
+  def download_validation_report?(_binary_result, _max_severity), do: true
 end

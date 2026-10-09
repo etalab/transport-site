@@ -205,7 +205,7 @@ defmodule TransportWeb.ResourceController do
     {filter, pagination} = details.issues
 
     validation_report_url =
-      if download_validation_report?(validation, details.max_severity) do
+      if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
         DB.Resource.download_validation_report_url(conn, resource)
       end
 
@@ -225,10 +225,6 @@ defmodule TransportWeb.ResourceController do
     |> assign(:data_vis, nil)
     |> render("netex_details.html")
   end
-
-  defp download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
-  defp download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
-  defp download_validation_report?(_binary_result, _max_severity), do: true
 
   # For NeTEx results we avoid loading every entries. We emulate
   # Scrivener.paginate based on the total count.

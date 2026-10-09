@@ -303,7 +303,7 @@ defmodule TransportWeb.ValidationController do
     {filter, pagination} = details.issues
 
     validation_report_url =
-      if download_validation_report?(validation, details.max_severity) do
+      if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
         validation_url(conn, :download_validation_report, validation.id, token: params["token"])
       end
 
@@ -320,10 +320,6 @@ defmodule TransportWeb.ValidationController do
     |> assign(:xsd_errors, details.xsd_errors)
     |> render(template)
   end
-
-  defp download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
-  defp download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
-  defp download_validation_report?(_binary_result, _max_severity), do: true
 
   defp pick_netex_template("0.2." <> _), do: "show_netex_v0_2_x.html"
   defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
