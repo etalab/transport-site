@@ -192,7 +192,10 @@ defmodule TransportWeb.ValidationController do
         template = pick_netex_template(details.validator_version)
         {filter, pagination} = details.issues
 
-        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+        validation_report_url =
+          if download_validation_report?(validation, details.max_severity) do
+            validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+          end
 
         conn
         |> assign_base_validation_details(params)
@@ -316,6 +319,10 @@ defmodule TransportWeb.ValidationController do
     |> assign(:other_resources, [])
     |> assign(:token, params["token"])
   end
+
+  defp download_validation_report?(%DB.MultiValidation{binary_result: nil}, _max_severity), do: false
+  defp download_validation_report?(_binary_result, %{"max_level" => "NoError"}), do: false
+  defp download_validation_report?(_binary_result, _max_severity), do: true
 
   defp filepath(type) do
     if type == "tableschema" do
