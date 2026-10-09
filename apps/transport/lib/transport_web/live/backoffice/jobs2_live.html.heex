@@ -4,15 +4,15 @@
     <span>{dgettext("backoffice", "Last update:")} {@last_updated_at}</span>
   </div>
 
-  <.form :let={f} for={%{}} phx-change="filter" class="no-margin jobs-filter">
-    <.input field={f[:worker]} value={@worker} autofocus wrapper={false} />
+  <.form for={@form} phx-change="filter" class="no-margin jobs-filter">
+    <.input field={@form[:worker]} autofocus wrapper={false} />
     <div class="vsep"></div>
     <label :for={state <- @states} class={"job-state job-state-#{state}"}>
-      <.input type="checkbox" field={f[state]} value={assigns[state]} wrapper={false} /> {state}
+      <.input type="checkbox" field={@form[state]} wrapper={false} /> {state}
     </label>
     <div class="vsep"></div>
     <label class="listing-toggle">
-      <.input type="checkbox" field={f[:listing]} value={@listing} wrapper={false} />
+      <.input type="checkbox" field={@form[:listing]} wrapper={false} />
       {dgettext("backoffice", "listing")}
     </label>
     <div class="vsep"></div>

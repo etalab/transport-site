@@ -1,12 +1,10 @@
-<% contact_id = Ecto.Changeset.get_field(@contact, :id) %>
-<% creating_contact = is_nil(contact_id) %>
 <div class="container pb-24">
   <div class="pb-24">
     {breadcrumbs([@conn, :contacts_edit])}
   </div>
   <div class="panel">
-    <h2 :if={creating_contact}>Créer un contact</h2>
-    <h2 :if={!creating_contact}>Éditer un contact</h2>
+    <h2 :if={@creating_contact}>Créer un contact</h2>
+    <h2 :if={!@creating_contact}>Éditer un contact</h2>
 
     <%= if not @contact.valid? and @contact.changes != %{} do %>
       <div class="notification error">
@@ -32,7 +30,7 @@
       class="no-margin backoffice-form"
       method="post"
     >
-      <.input field={f[:id]} type="hidden" value={contact_id} />
+      <.input field={f[:id]} type="hidden" value={@contact_id} />
       <div class="panel">
         <.input field={f[:first_name]} label="Prénom" />
         <.input field={f[:last_name]} label="Nom" />
@@ -68,22 +66,24 @@
     </.form>
   </div>
 
-  <div :if={!creating_contact} class="panel">
+  <div :if={!@creating_contact} class="panel">
     <h2>Actions</h2>
-    <.form for={@contact} action={backoffice_contact_path(@conn, :delete, contact_id)} class="no-margin" method="post">
+    <.form for={@contact} action={backoffice_contact_path(@conn, :delete, @contact_id)} class="no-margin" method="post">
       <.button class="button warning">Supprimer</.button>
     </.form>
   </div>
 
   {render("_notification_subscriptions.html",
-    creating_contact: creating_contact,
-    contact_id: contact_id,
+    creating_contact: @creating_contact,
+    contact_id: @contact_id,
     datasets_datalist: @datasets_datalist,
     notification_subscriptions: @notification_subscriptions,
+    subscriptions_with_dataset: notification_subscriptions_with_dataset(@notification_subscriptions),
+    subscriptions_without_dataset: notification_subscriptions_without_dataset(@notification_subscriptions),
     conn: @conn
   )}
   {render("_notifications.html",
-    creating_contact: creating_contact,
+    creating_contact: @creating_contact,
     notifications: @notifications,
     notifications_months_limit: @notifications_months_limit,
     conn: @conn

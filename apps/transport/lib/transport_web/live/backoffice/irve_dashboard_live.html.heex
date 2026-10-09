@@ -1,17 +1,14 @@
 <section class="container pt-48 pb-48">
   <button class="button" phx-click="analyze" disabled={@running}>Lancer l'analyse consolidée</button>
-  <%= if assigns[:completion_message] do %>
-    {@completion_message}
-  <% end %>
+  {@completion_message}
 
   <%= if @latest_report do %>
     <h1>Rapport IRVE</h1>
     <p>Généré à {@latest_report.inserted_at} ({@latest_report.resources |> length} ressources analysées)</p>
 
-    <.form :let={f} id="filtering_expression" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
+    <.form id="filtering_expression" for={@form} phx-change="change_form" phx-submit="ignore">
       <.input
-        field={f[:filtering_expression]}
-        value={@filtering_expression}
+        field={@form[:filtering_expression]}
         placeholder="Filtre (org / validité uniquement)"
         wrapper={false}
       />

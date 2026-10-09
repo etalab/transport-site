@@ -1,7 +1,5 @@
 <.form
-  :let={f}
-  for={@form_params}
-  as={:form}
+  for={@form}
   action={@form_url}
   phx-change="change_dataset"
   phx-submit="save"
@@ -16,7 +14,7 @@
       {dgettext("backoffice", "Edit a dataset")}
     <% end %>
   </h1>
-  <%= unless is_nil(assigns[:dataset]) do %>
+  <%= unless is_nil(@dataset) do %>
     <div class="pb-24">
       <i class="fa fa-up-right-from-square"></i>
       <.link href={dataset_path(@socket, :details, @dataset.id)}>
@@ -30,13 +28,11 @@
   </p>
 
   <div class="pt-24">
-    <.input field={f[:url]} placeholder={dgettext("backoffice", "Dataset's url")} />
+    <.input field={@form[:url]} placeholder={dgettext("backoffice", "Dataset's url")} />
 
-    <%= if assigns[:datagouv_infos] do %>
-      <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
-
+    <%= if @datagouv_infos do %>
       <div class="pt-12 pb-12">
-        <%= if is_nil(dataset_datagouv_id) do %>
+        <%= if is_nil(@datagouv_infos[:dataset_datagouv_id]) do %>
           Impossible de trouver ce jeu de données sur data.gouv
         <% else %>
           <div>Jeu de données <strong>"{@datagouv_infos[:datagouv_title]}"</strong></div>
@@ -56,12 +52,11 @@
         <% end %>
       </div>
     <% end %>
-    <.input field={f[:custom_title]} placeholder={dgettext("backoffice", "name")} label="Titre" />
+    <.input field={@form[:custom_title]} placeholder={dgettext("backoffice", "name")} label="Titre" />
     <.input
-      field={f[:type]}
+      field={@form[:type]}
       type="select"
       options={@dataset_types}
-      value={f[:type].value || if(is_nil(@dataset), do: "public-transit", else: @dataset.type)}
       label="Type"
     />
   </div>
@@ -69,11 +64,10 @@
   <.live_component
     module={TransportWeb.DatasetSubtypeLive}
     id="dataset_subtypes"
-    form={f}
+    form={@form}
     dataset_subtypes={@dataset_subtypes}
-    form_params={@form_params}
   />
-  <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={f} custom_tags={@custom_tags} />
+  <.live_component module={TransportWeb.CustomTagsLive} id="custom_tags" form={@form} custom_tags={@custom_tags} />
 
   <p :if={not is_nil(@dataset) and @dataset.is_hidden} class="notification">
     Ce jeu de données est masqué
@@ -85,10 +79,9 @@
     </div>
     <h4>{@dataset_organization}</h4>
     <.input
-      field={f[:organization_type]}
+      field={@form[:organization_type]}
       type="select"
       options={@organization_types}
-      value={f[:organization_type].value || if(not is_nil(@dataset), do: @dataset.organization_type)}
       required
       prompt={dgettext("backoffice", "Publisher type")}
       wrapper={false}
@@ -99,7 +92,7 @@
     <div class="panel-explanation">
       {dgettext("backoffice", "Offers")}
     </div>
-    <.live_component module={TransportWeb.OfferSelectLive} id="offers_selection" form={f} offers={@offers} />
+    <.live_component module={TransportWeb.OfferSelectLive} id="offers_selection" form={@form} offers={@offers} />
   </div>
 
   <div class="panel mt-48">
@@ -109,14 +102,14 @@
     <.live_component
       module={TransportWeb.LegalOwnerSelectLive}
       id="owners_selection"
-      form={f}
+      form={@form}
       owners={@legal_owners}
       offers={@offers}
     />
     <div class="pt-12">{dgettext("backoffice", "or")}</div>
     <div class="pt-12">
       <.input
-        field={f[:legal_owner_company_siren]}
+        field={@form[:legal_owner_company_siren]}
         placeholder="821611431"
         pattern="\d{9,9}"
         label={dgettext("backoffice", "Company SIREN code")}
@@ -135,7 +128,7 @@
     <.live_component
       module={TransportWeb.DeclarativeSpatialAreasLive}
       id="declarative_spatial_areas"
-      form={f}
+      form={@form}
       declarative_spatial_areas={@declarative_spatial_areas}
       nonce={@nonce}
     />
@@ -144,10 +137,10 @@
   <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
     <div>
       <%= if is_nil(@dataset) do %>
-        <.input field={f[:action]} type="hidden" value="new" />
+        <.input field={@form[:action]} type="hidden" value="new" />
         <.button>{dgettext("backoffice", "Add")}</.button>
       <% else %>
-        <.input field={f[:action]} type="hidden" value="edit" />
+        <.input field={@form[:action]} type="hidden" value="edit" />
         <.button>{dgettext("backoffice", "Save")}</.button>
       <% end %>
     </div>

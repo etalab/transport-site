@@ -13,10 +13,17 @@ defmodule TransportWeb.Backoffice.CacheLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket = socket |> assign(search_key_name: :search_key_name, filter_key_name: Map.get(params, "filter_key_name"))
+       socket = socket |> assign_filter(Map.get(params, "filter_key_name"))
 
        update_data(socket)
      end)}
+  end
+
+  defp assign_filter(socket, filter_key_name) do
+    assign(socket,
+      filter_key_name: filter_key_name,
+      form: to_form(%{"filter_key_name" => filter_key_name}, as: :search_key_name)
+    )
   end
 
   defp schedule_next_update_data do
@@ -38,7 +45,7 @@ defmodule TransportWeb.Backoffice.CacheLive do
 
   @impl true
   def handle_params(%{"filter_key_name" => filter_key_name}, _uri, socket) do
-    socket = socket |> assign(%{filter_key_name: filter_key_name})
+    socket = socket |> assign_filter(filter_key_name)
 
     {:noreply, update_data(socket)}
   end
@@ -64,13 +71,18 @@ defmodule TransportWeb.Backoffice.CacheLive do
 
   defp compute_stats(socket) do
     # See https://hexdocs.pm/cachex/Cachex.html#inspect/3
+    nb_expired_keys = cache_name() |> Cachex.inspect({:expired, :count}) |> elem(1)
+    nb_records = cache_name() |> Cachex.size() |> elem(1)
+    keys = cache_keys(Map.get(socket.assigns, :filter_key_name))
+
     %{
-      nb_expired_keys: cache_name() |> Cachex.inspect({:expired, :count}) |> elem(1),
+      nb_expired_keys: nb_expired_keys,
       expired_keys: cache_name() |> Cachex.inspect({:expired, :keys}) |> elem(1) |> Enum.sort(),
-      nb_records: cache_name() |> Cachex.size() |> elem(1),
+      nb_records: nb_records,
       cache_size_binary: cache_name() |> Cachex.inspect({:memory, :binary}) |> elem(1),
       last_janitor_execution: last_janitor_execution(),
-      keys: cache_keys(Map.get(socket.assigns, :filter_key_name))
+      keys: keys,
+      nb_hidden_keys: nb_records - nb_expired_keys - Enum.count(keys)
     }
   end
 
