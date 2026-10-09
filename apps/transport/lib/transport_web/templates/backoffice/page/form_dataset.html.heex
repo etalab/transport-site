@@ -217,10 +217,14 @@
         <div class="form__group">
           <fieldset>
             <legend>{dgettext("backoffice", "Notification reason")}</legend>
-            <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
-              <input type="checkbox" id={f[reason].id} name={f[reason].name} value="true" checked />
-              <label for={f[reason].id} class="label-inline">{reason}</label>
-            <% end %>
+            <.input
+              :for={reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)}
+              type="checkbox"
+              field={f[reason]}
+              label={to_string(reason)}
+              checked
+              wrapper={false}
+            />
           </fieldset>
         </div>
 

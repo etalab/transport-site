@@ -21,7 +21,7 @@ defmodule TransportWeb.NotificationSubscriptionControllerTest do
         "resource_unavailable" => "true",
         # Should be ignored because this is not a valid reason
         "ignored_notification_reason" => "true",
-        # Ignored because it's set to false (happens only when manipulating requests)
+        # Ignored because it's set to false, as sent for unchecked reasons
         "dataset_with_error" => "false"
       }
 

@@ -120,6 +120,8 @@ defmodule TransportWeb.CoreComponents do
     """
   end
 
+  # An unchecked checkbox is not submitted: the hidden input before it sends "false" instead,
+  # and is overridden by the checkbox value when checked (the last value wins in params).
   def input(%{type: "checkbox"} = assigns) do
     assigns =
       assign_new(assigns, :checked, fn ->
