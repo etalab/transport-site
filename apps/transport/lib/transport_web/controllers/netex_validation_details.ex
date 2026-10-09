@@ -36,7 +36,7 @@ defmodule TransportWeb.NeTExValidationDetails do
             validator_version: nil
 
   @doc """
-  Builds a complete ValidationDetails from a validation record.
+  Builds a complete NeTExValidationDetails from a validation record.
 
   Uses existing adapter methods (`get_issues/3`, `summarize_xsd_errors/1`) and
   Commons utilities — no new callbacks required.
