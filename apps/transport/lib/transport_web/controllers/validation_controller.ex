@@ -300,7 +300,6 @@ defmodule TransportWeb.ValidationController do
     details = NeTExValidationDetails.build(validation, pagination_config, params)
 
     template = pick_netex_template(details.validator_version)
-    {filter, pagination} = details.issues
 
     validation_report_url =
       if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
@@ -309,8 +308,8 @@ defmodule TransportWeb.ValidationController do
 
     conn
     |> assign_base_validation_details(params)
-    |> assign(:filter, filter)
-    |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, pagination_config))
+    |> assign(:filter, details.filter)
+    |> assign(:issues, details.issues_page)
     |> assign(:results_adapter, details.adapter)
     |> assign(:metadata, details.metadata)
     |> assign(:max_severity, details.max_severity)

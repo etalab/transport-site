@@ -202,8 +202,6 @@ defmodule TransportWeb.ResourceController do
     config = make_pagination_config(params, @netex_issues_page_size)
     details = NeTExValidationDetails.build(validation, config, params)
 
-    {filter, pagination} = details.issues
-
     validation_report_url =
       if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
         DB.Resource.download_validation_report_url(conn, resource)
@@ -216,35 +214,14 @@ defmodule TransportWeb.ResourceController do
     |> assign(:metadata, details.metadata)
     |> assign(:modes, details.modes)
     |> assign(:validation_report_url, validation_report_url)
-    |> assign(:filter, filter)
-    |> assign(:issues, paginate_netex_results(pagination, config))
+    |> assign(:filter, details.filter)
+    |> assign(:issues, details.issues_page)
     |> assign(:xsd_errors, details.xsd_errors)
     |> assign(:errors_template, errors_template_for(details.validator_version))
     |> assign(:results_adapter, details.adapter)
     |> assign(:max_severity, details.max_severity)
     |> assign(:data_vis, nil)
     |> render("netex_details.html")
-  end
-
-  # For NeTEx results we avoid loading every entries. We emulate
-  # Scrivener.paginate based on the total count.
-  def paginate_netex_results({total_entries, issues}, config) do
-    total_pages = div(total_entries, config.page_size)
-
-    total_pages =
-      if rem(total_entries, config.page_size) > 0 do
-        total_pages + 1
-      else
-        total_pages
-      end
-
-    %Scrivener.Page{
-      entries: issues,
-      page_number: config.page_number,
-      page_size: config.page_size,
-      total_entries: total_entries,
-      total_pages: total_pages
-    }
   end
 
   defp errors_template_for("0.2." <> _), do: "_netex_validation_errors_v0_2_x.html"

@@ -19,7 +19,8 @@ defmodule TransportWeb.NeTExValidationDetails do
           stats: map() | nil,
           metadata: map(),
           modes: [String.t()],
-          issues: {map(), {pos_integer(), list()}},
+          filter: map(),
+          issues_page: Scrivener.Page.t(),
           max_severity: String.t() | nil,
           xsd_errors: list(),
           validator_version: String.t() | nil
@@ -30,7 +31,14 @@ defmodule TransportWeb.NeTExValidationDetails do
             stats: nil,
             metadata: %{},
             modes: [],
-            issues: {%{}, {0, []}},
+            filter: %{},
+            issues_page: %Scrivener.Page{
+              entries: [],
+              page_number: 1,
+              page_size: 0,
+              total_entries: 0,
+              total_pages: 0
+            },
             max_severity: nil,
             xsd_errors: [],
             validator_version: nil
@@ -61,16 +69,43 @@ defmodule TransportWeb.NeTExValidationDetails do
       ) do
     adapter = ResultsAdapter.resolve(version)
 
+    {filter, {total_entries, entries}} = adapter.get_issues(binary_result, params, config)
+    issues_page = paginate_netex_results({total_entries, entries}, config)
+
     %__MODULE__{
       adapter: adapter,
       summary: digest["summary"],
       stats: digest["stats"],
       metadata: metadata.metadata,
       modes: metadata.modes,
-      issues: adapter.get_issues(binary_result, params, config),
+      filter: filter,
+      issues_page: issues_page,
       max_severity: digest["max_severity"],
       xsd_errors: adapter.summarize_xsd_errors(binary_result),
       validator_version: version
+    }
+  end
+
+  @doc """
+  For NeTEx results we avoid loading every entries. We emulate
+  Scrivener.paginate based on the total count.
+  """
+  def paginate_netex_results({total_entries, issues}, config) do
+    total_pages = div(total_entries, config.page_size)
+
+    total_pages =
+      if rem(total_entries, config.page_size) > 0 do
+        total_pages + 1
+      else
+        total_pages
+      end
+
+    %Scrivener.Page{
+      entries: issues,
+      page_number: config.page_number,
+      page_size: config.page_size,
+      total_entries: total_entries,
+      total_pages: total_pages
     }
   end
 
