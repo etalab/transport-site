@@ -17,7 +17,7 @@ defmodule TransportWeb.NeTExValidationDetails do
           modes: [String.t()],
           filter: map(),
           issues_page: Scrivener.Page.t(),
-          max_severity: String.t() | nil,
+          max_severity: map() | nil,
           xsd_errors: list(),
           validator_version: String.t() | nil
         }

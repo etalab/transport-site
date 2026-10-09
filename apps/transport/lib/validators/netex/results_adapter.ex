@@ -3,6 +3,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   Interface for result adapters: helpers designed to interpret results of NeTEx validation.
   """
 
+  @type t :: module() | nil
+
   @callback summary(Explorer.DataFrame.t()) :: list()
   @callback count_by_severity(Explorer.DataFrame.t()) :: map()
   @callback get_issues(binary(), map(), Scrivener.Config.t()) :: {map(), {pos_integer(), list()}}
