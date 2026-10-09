@@ -94,7 +94,7 @@
             <div class="inline-block">
               <.form
                 :let={f}
-                for={@conn.params}
+                for={%{}}
                 action={
                   backoffice_notification_subscription_path(
                     @conn,
@@ -119,7 +119,7 @@
           <td>
             <.form
               :let={f}
-              for={@conn.params}
+              for={%{}}
               action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
               method="delete"
             >
@@ -149,7 +149,7 @@
         <td>
           <.form
             :let={f}
-            for={@conn.params}
+            for={%{}}
             action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
             method="delete"
           >

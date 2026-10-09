@@ -130,7 +130,7 @@
               <td>
                 <.form
                   :let={f}
-                  for={@conn.params}
+                  for={%{}}
                   action={backoffice_dataset_path(@conn, :resource_related_delete, @dataset.id)}
                 >
                   <.input field={f[:resource_src_id]} type="hidden" value={rr.resource_src_id} />
@@ -255,7 +255,7 @@
                 <div class="inline-block">
                   <.form
                     :let={f}
-                    for={@conn.params}
+                    for={%{}}
                     action={
                       backoffice_notification_subscription_path(
                         @conn,
@@ -278,7 +278,7 @@
               <td>
                 <.form
                   :let={f}
-                  for={@conn.params}
+                  for={%{}}
                   action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
                   method="delete"
                 >
