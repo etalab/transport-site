@@ -121,22 +121,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate count_by_category_and_severity(binary), to: Commons
 
-  @doc """
-  Returns items grouped by criticity (error/warning/information), as expected by the v0_1.0 template.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df) |> Enum.map(& &1["severity"])
-      ["error", "warning"]
-
-      iex> df = Explorer.DataFrame.new(code: [], criticity: [])
-      iex> summary(df)
-      []
-  """
-  # Internal helper used by digest/1 and summary_from_binary — no longer a public callback.
-  def summary(%Explorer.DataFrame{} = df) do
+  @doc false
+  defp summary(%Explorer.DataFrame{} = df) do
     errors = DF.to_rows(df)
 
     if Enum.empty?(errors) do
@@ -248,20 +234,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
-  @doc """
-  Builds a digest map from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> digest(df) |> Map.keys() |> Enum.sort()
-      ["max_severity", "stats", "summary"]
-  """
+  @doc false
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(df),
       "stats" => count_by_severity(df),
       "max_severity" => count_max_severity(df)
     }

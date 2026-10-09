@@ -10,10 +10,7 @@ defmodule Transport.Test.Validators.NeTEx.SummaryFromBinary do
   end
 
   def assert_summary_from_binary(adapter, categories_and_stats) do
-    errors = %{
-      "xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}],
-      "base-rules" => [%{"code" => "rule-1", "criticity" => "warning"}]
-    }
+    errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "rule-1", "criticity" => "warning"}]
 
     summary = errors |> adapter.to_binary_result() |> adapter.summary_from_binary()
 
@@ -23,7 +20,7 @@ defmodule Transport.Test.Validators.NeTEx.SummaryFromBinary do
   end
 
   def assert_summary_from_binary_empty(adapter, category_names) do
-    summary = %{} |> adapter.to_binary_result() |> adapter.summary_from_binary()
+    summary = [] |> adapter.to_binary_result() |> adapter.summary_from_binary()
 
     assert length(summary) == length(category_names)
 

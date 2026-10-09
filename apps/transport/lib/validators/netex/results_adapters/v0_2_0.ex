@@ -86,61 +86,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
-  @doc """
-  Builds a category-based summary from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "error"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
-      ]
-
-      iex> df = Explorer.DataFrame.new([category: [], code: [], criticity: []], dtypes: [category: :category, code: :category, criticity: :category])
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-      ]
-
-      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "warning"}]})
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "warning"}}
-      ]
-
-      iex> summary(%{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "xsd-2", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "information"}, %{"code" => "rule-2", "criticity" => "warning"}, %{"code" => "rule-3", "criticity" => "error"}]})
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 2, "criticity" => "error"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
-      ]
-
-      iex> summary(%{})
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-      ]
-  """
-  # Internal helper used by digest/1 — no longer a public callback.
-  def summary(%Explorer.DataFrame{} = df) do
-    @categories_preferred_order
-    |> Enum.map(fn category ->
-      cat_df = DF.filter(df, category == ^category)
-      count = DF.n_rows(cat_df)
-      worst_criticity = Commons.get_worst_criticity(cat_df, count)
-
-      %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
-    end)
-  end
-
-  def summary(%{} = errors) when is_map(errors) do
-    # Accepts a category-keyed map (e.g. %{"xsd-schema" => [...], "base-rules" => [...]})
-    Commons.summary_map_errors(errors, @categories_preferred_order)
-  end
-
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: V0_1_0
 
@@ -215,13 +160,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
-  @doc """
-  Builds a digest map from a DataFrame.
-  """
+  @doc false
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(df),
       "stats" => count_by_severity(df),
       "max_severity" => count_max_severity(df)
     }

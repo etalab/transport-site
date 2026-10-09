@@ -120,13 +120,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
       }
     ]
 
-    # Build result map like the validator would produce
-    result = %{
-      "xsd-schema" => xsd_errors,
-      "base-rules" => base_errors
-    }
+    # Flatten into a single list (what the validator produces)
+    all_errors = xsd_errors ++ base_errors
 
-    binary_result = V0_1_0.to_binary_result(result)
+    binary_result = V0_1_0.to_binary_result(all_errors)
 
     # Call count_by_category_and_severity with the parquet file path (binary)
     counts = V0_1_0.count_by_category_and_severity(binary_result)

@@ -240,52 +240,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     end)
   end
 
-  @doc """
-  Computes a category-based summary from a category-keyed map of errors.
-
-  Counts only the most severe level per category. Returns all categories
-  even when empty (with count 0 and NoError).
-
-  ## Examples
-
-      iex> errors = %{"xsd-schema" => [%{"code" => "xsd-1", "criticity" => "error"}], "base-rules" => [%{"code" => "rule-1", "criticity" => "warning"}]}
-      iex> categories = ["xsd-schema", "base-rules"]
-      iex> summary_map_errors(errors, categories) |> Enum.map(fn c -> {c["category"], c["stats"]} end)
-      [{"xsd-schema", %{"count" => 1, "criticity" => "error"}}, {"base-rules", %{"count" => 1, "criticity" => "warning"}}]
-
-      iex> summary_map_errors(%{}, ["xsd-schema", "base-rules"])
-      [%{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}}, %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}]
-  """
-  def summary_map_errors(errors, categories_preferred_order) when is_map(errors) do
-    categories_with_counts =
-      if Enum.empty?(errors) do
-        %{}
-      else
-        errors
-        |> Enum.map(fn {category, errs} -> category_stats(category, errs) end)
-        |> Map.new()
-      end
-
-    categories_preferred_order
-    |> Enum.map(fn category ->
-      %{
-        "category" => category,
-        "stats" => Map.get(categories_with_counts, category, %{"count" => 0, "criticity" => @no_error})
-      }
-    end)
-  end
-
-  @doc false
-  def category_stats(category, errs) do
-    worst_criticity =
-      errs
-      |> Enum.map(&Map.get(&1, "criticity", @no_error))
-      |> Enum.min_by(&severity_level/1, fn -> @no_error end)
-
-    count = Enum.count(errs, &(Map.get(&1, "criticity", @no_error) == worst_criticity))
-    {category, %{"count" => count, "criticity" => worst_criticity}}
-  end
-
   @doc false
   defp group_by_category(df) do
     if Explorer.Series.count(df["code"]) == 0 do
@@ -314,13 +268,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   defp format_category_stats({category, %{worst: worst, counts: counts}}) do
     {category, %{"count" => Map.get(counts, worst, 0), "criticity" => worst}}
-  end
-
-  @doc "Flattens a category-keyed map of errors into a single list."
-  def flatten_map_errors(errors) when is_map(errors) do
-    errors
-    |> Map.values()
-    |> List.flatten()
   end
 
   @doc """
@@ -357,10 +304,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   @doc """
   Converts errors to a binary (parquet) result.
 
-  Handles three input shapes:
+  Handles two input shapes:
   - `nil` → empty binary
   - list of error maps → converted via the provided `to_dataframe` function
-  - category-keyed map → flattened then converted
 
   ## Examples
 
@@ -371,13 +317,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   def to_binary_result(errors, to_dataframe) when is_list(errors) do
     errors
-    |> to_dataframe.()
-    |> to_binary()
-  end
-
-  def to_binary_result(errors, to_dataframe) when is_map(errors) do
-    errors
-    |> flatten_map_errors()
     |> to_dataframe.()
     |> to_binary()
   end
