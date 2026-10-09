@@ -145,10 +145,10 @@
     <div>
       <%= if is_nil(@dataset) do %>
         <.input field={f[:action]} type="hidden" value="new" />
-        <div class="form__group"><.button>{dgettext("backoffice", "Add")}</.button></div>
+        <.button>{dgettext("backoffice", "Add")}</.button>
       <% else %>
         <.input field={f[:action]} type="hidden" value="edit" />
-        <div class="form__group"><.button>{dgettext("backoffice", "Save")}</.button></div>
+        <.button>{dgettext("backoffice", "Save")}</.button>
       <% end %>
     </div>
     <div>

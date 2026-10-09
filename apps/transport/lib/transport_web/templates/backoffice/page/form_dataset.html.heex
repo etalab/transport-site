@@ -99,7 +99,7 @@
           options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
         />
         <.input field={f[:format_override]} type="select" options={@resource_formats} />
-        <div class="form__group"><.button>Changer le format</.button></div>
+        <.button>Changer le format</.button>
       </.form>
     </div>
 
@@ -174,7 +174,7 @@
             )
           }
         />
-        <div class="form__group"><.button>Associer</.button></div>
+        <.button>Associer</.button>
       </.form>
     </div>
 
@@ -224,7 +224,7 @@
           </fieldset>
         </div>
 
-        <div class="form__group"><.button>Créer un abonnement</.button></div>
+        <.button>Créer un abonnement</.button>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>
             <% display_name = DB.Contact.display_name(contact) %>

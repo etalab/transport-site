@@ -54,7 +54,7 @@
       <.input field={f[:secondary_phone_number]} type="tel" label="Numéro de téléphone secondaire">
         <:help>Optionnel</:help>
       </.input>
-      <div class="form__group"><.button>Envoyer</.button></div>
+      <.button>Envoyer</.button>
       <datalist id="existing_job_titles">
         <%= for job_title <- @existing_job_titles do %>
           <option value={job_title} />
@@ -71,7 +71,7 @@
   <div :if={!creating_contact} class="panel">
     <h2>Actions</h2>
     <.form for={@contact} action={backoffice_contact_path(@conn, :delete, contact_id)} class="no-margin" method="post">
-      <div class="form__group"><.button class="button warning">Supprimer</.button></div>
+      <.button class="button warning">Supprimer</.button>
     </.form>
   </div>
 

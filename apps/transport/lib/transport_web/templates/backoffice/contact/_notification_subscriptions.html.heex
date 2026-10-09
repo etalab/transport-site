@@ -32,7 +32,7 @@
       </fieldset>
     </div>
 
-    <div class="form__group"><.button>Créer un abonnement</.button></div>
+    <.button>Créer un abonnement</.button>
     <datalist id="datasets_datalist">
       <%= for dataset <- @datasets_datalist do %>
         <option value={dataset.id}>{dataset_title(dataset)}</option>
@@ -66,7 +66,7 @@
       </fieldset>
     </div>
 
-    <div class="form__group"><.button>Mettre à jour les abonnements</.button></div>
+    <.button>Mettre à jour les abonnements</.button>
   </.form>
 
   <h3>{dgettext("backoffice", "Existing subscriptions")}</h3>

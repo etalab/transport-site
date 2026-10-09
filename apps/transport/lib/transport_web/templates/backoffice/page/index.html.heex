@@ -53,7 +53,7 @@
   </a>
   <div class="import-all">
     <.form for={%{}} action={backoffice_dataset_path(@conn, :import_validate_all)} method="post">
-      <div class="form__group"><.button>{dgettext("backoffice", "Import all datasets from data.gouv")}</.button></div>
+      <.button>{dgettext("backoffice", "Import all datasets from data.gouv")}</.button>
     </.form>
   </div>
   <div>
