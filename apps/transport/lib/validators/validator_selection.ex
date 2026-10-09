@@ -3,7 +3,7 @@ defmodule Transport.ValidatorsSelection do
   behavior for Transport.ValidatorsSelection.Impl
   """
   @callback validators(DB.ResourceHistory.t() | DB.Resource.t() | map()) :: list()
-  @callback validators_for_feature(atom()) :: [Transport.Validators.Validator.t()]
+  @callback validators_for_feature(atom()) :: [module()]
 
   def validators(value), do: impl().validators(value)
   def validators_for_feature(feature), do: impl().validators_for_feature(feature)

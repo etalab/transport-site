@@ -20,7 +20,7 @@ defmodule Transport.Jobs.GTFSGenericConverter do
   @doc """
   Converts a resource_history to the targeted format, using a converter module
   """
-  @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok
+  @spec perform_single_conversion_job(integer(), binary(), module()) :: :ok | {:cancel, binary()}
   def perform_single_conversion_job(resource_history_id, format, converter_module) do
     GenericConverter.perform_single_conversion_job(resource_history_id, :GTFS, format, converter_module)
   end

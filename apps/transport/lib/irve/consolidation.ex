@@ -79,7 +79,7 @@ defmodule Transport.IRVE.Consolidation do
     if debug do
       stream
       # credo:disable-for-next-line Credo.Check.Warning.IoInspect
-      |> Stream.each(&IO.inspect(&1, IEx.inspect_opts()))
+      |> Stream.each(&IO.inspect(&1, pretty: true))
     else
       stream
     end

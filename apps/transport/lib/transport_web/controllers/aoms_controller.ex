@@ -34,7 +34,7 @@ defmodule TransportWeb.AOMSController do
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(conn, _params), do: render(conn, "index.html", aoms: aoms())
 
-  @spec prepare_aom({AOM.t(), binary()}, list(), list(), map()) :: map()
+  @spec prepare_aom({DB.AOM.t(), binary()}, list(), list(), map()) :: map()
   defp prepare_aom({aom, nom_commune}, gtfs_datasets, aggregated_datasets, formats) do
     all_datasets = gtfs_datasets ++ aggregated_datasets
 
