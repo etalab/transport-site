@@ -41,10 +41,9 @@ defmodule TransportWeb.Backoffice.ContactController do
   defp existing_contact(%{}), do: %DB.Contact{creation_source: :admin}
 
   @spec edit(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def edit(%Plug.Conn{} = conn, %{"id" => contact_id} = params) do
+  def edit(%Plug.Conn{} = conn, %{"id" => _} = params) do
     conn
     |> assign(:contact, DB.Contact.changeset(existing_contact(params), %{}))
-    |> assign(:contact_id, contact_id)
     |> render_form()
   end
 
@@ -187,10 +186,12 @@ defmodule TransportWeb.Backoffice.ContactController do
     end)
   end
 
-  defp render_form(%Plug.Conn{assigns: assigns} = conn) do
-    contact_id = Map.get(assigns, :contact_id)
+  defp render_form(%Plug.Conn{assigns: %{contact: contact}} = conn) do
+    contact_id = Ecto.Changeset.get_field(contact, :id)
 
     conn
+    |> assign(:contact_id, contact_id)
+    |> assign(:creating_contact, is_nil(contact_id))
     |> assign(:existing_organizations, contact_values_for_field(:organization))
     |> assign(:existing_job_titles, contact_values_for_field(:job_title))
     |> assign(:datasets_datalist, datasets_datalist())
@@ -237,7 +238,7 @@ defmodule TransportWeb.Backoffice.ContactController do
     |> DB.Repo.all()
   end
 
-  defp notification_subscriptions_for_contact(contact_id) when is_binary(contact_id) do
+  defp notification_subscriptions_for_contact(contact_id) when is_integer(contact_id) do
     DB.NotificationSubscription.base_query()
     |> preload(:dataset)
     |> where([notification_subscription: ns], ns.contact_id == ^contact_id)
@@ -246,7 +247,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
   defp notification_subscriptions_for_contact(nil), do: []
 
-  defp notifications_for_contact(contact_id) when is_binary(contact_id) do
+  defp notifications_for_contact(contact_id) when is_integer(contact_id) do
     datetime_limit = DateTime.utc_now() |> DateTime.add(-30 * notifications_months_limit(), :day)
 
     DB.Notification.base_query()

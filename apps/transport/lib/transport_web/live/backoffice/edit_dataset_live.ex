@@ -33,6 +33,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:regions, regions)
       |> assign(:form_url, form_url)
       |> assign(:dataset_organization, dataset_organization)
+      |> assign(:datagouv_infos, nil)
       |> assign(:organization_types, organization_types())
       |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)

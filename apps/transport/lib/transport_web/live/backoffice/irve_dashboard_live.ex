@@ -34,6 +34,7 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   def assign_data(socket) do
     socket
     |> assign(:running, false)
+    |> assign(:completion_message, nil)
     |> assign(:latest_report, latest_report())
     |> assign(:filtering_expression, "")
   end

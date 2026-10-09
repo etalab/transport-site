@@ -25,8 +25,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
               <span class="delete-tag" phx-click="remove_subtype" phx-value-slug={dataset_subtype.slug} phx-target={@myself}>
               </span>
             </span>
-            <% {field_name, field_value} = field_info(dataset_subtype, index) %>
-            <.input field={@form[field_name]} type="hidden" value={field_value} />
+            <.input field={@form["dataset_subtypes[#{index}]"]} type="hidden" value={dataset_subtype.slug} />
           <% end %>
         </div>
       </div>
@@ -94,5 +93,4 @@ defmodule TransportWeb.DatasetSubtypeLive do
   def serialize(%{parent_type: _, slug: _} = map), do: map
 
   def display(%{slug: slug}), do: slug
-  def field_info(subtype, index), do: {"dataset_subtypes[#{index}]", subtype.slug}
 end

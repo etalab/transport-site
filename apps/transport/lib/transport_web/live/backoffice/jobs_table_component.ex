@@ -4,6 +4,10 @@ defmodule JobsTableComponent do
   """
   use TransportWeb, :live_component
 
+  def mount(socket) do
+    {:ok, assign(socket, state: nil, supports_details: false)}
+  end
+
   def render(%{state: _, locale: _, jobs: _} = assigns) do
     ~H"""
     <table class="table">
@@ -21,7 +25,7 @@ defmodule JobsTableComponent do
       </thead>
       <tbody>
         <tr :for={job <- @jobs}>
-          <td><.show_details supports_details={assigns[:supports_details] || false} job_id={job.id} /></td>
+          <td><.show_details supports_details={@supports_details} job_id={job.id} /></td>
           <td :if={is_nil(@state)}><span class={"job-state job-state-#{job.state}"}>{job.state}</span></td>
           <td>{job.queue}</td>
           <td>{job.worker}</td>
@@ -37,10 +41,6 @@ defmodule JobsTableComponent do
       </tbody>
     </table>
     """
-  end
-
-  def render(%{jobs: _, locale: _} = assigns) do
-    render(Map.merge(%{state: nil}, assigns))
   end
 
   defp show_details(%{supports_details: true, job_id: _} = assigns) do

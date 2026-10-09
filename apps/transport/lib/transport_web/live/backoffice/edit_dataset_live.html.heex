@@ -16,7 +16,7 @@
       {dgettext("backoffice", "Edit a dataset")}
     <% end %>
   </h1>
-  <%= unless is_nil(assigns[:dataset]) do %>
+  <%= unless is_nil(@dataset) do %>
     <div class="pb-24">
       <i class="fa fa-up-right-from-square"></i>
       <.link href={dataset_path(@socket, :details, @dataset.id)}>
@@ -32,11 +32,9 @@
   <div class="pt-24">
     <.input field={f[:url]} placeholder={dgettext("backoffice", "Dataset's url")} />
 
-    <%= if assigns[:datagouv_infos] do %>
-      <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
-
+    <%= if @datagouv_infos do %>
       <div class="pt-12 pb-12">
-        <%= if is_nil(dataset_datagouv_id) do %>
+        <%= if is_nil(@datagouv_infos[:dataset_datagouv_id]) do %>
           Impossible de trouver ce jeu de données sur data.gouv
         <% else %>
           <div>Jeu de données <strong>"{@datagouv_infos[:datagouv_title]}"</strong></div>

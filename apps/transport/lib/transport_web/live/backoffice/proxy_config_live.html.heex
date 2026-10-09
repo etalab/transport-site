@@ -66,10 +66,9 @@
       <% end %>
     </tbody>
   </table>
-  <p :if={Enum.count(@filtered_proxy_configuration) < Enum.count(@proxy_configuration)}>
-    <% nb_feeds = Enum.count(@proxy_configuration) - Enum.count(@filtered_proxy_configuration) %>
-    <span :if={nb_feeds == 1}>{Helpers.format_number(nb_feeds)} flux est masqué.</span>
-    <span :if={nb_feeds > 1}>{Helpers.format_number(nb_feeds)} flux sont masqués.</span>
+  <p :if={@nb_hidden_feeds > 0}>
+    <span :if={@nb_hidden_feeds == 1}>{Helpers.format_number(@nb_hidden_feeds)} flux est masqué.</span>
+    <span :if={@nb_hidden_feeds > 1}>{Helpers.format_number(@nb_hidden_feeds)} flux sont masqués.</span>
   </p>
   <p>
     Taille totale en RAM : <strong>{@total_ram_size}</strong>

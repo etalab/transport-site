@@ -64,13 +64,18 @@ defmodule TransportWeb.Backoffice.CacheLive do
 
   defp compute_stats(socket) do
     # See https://hexdocs.pm/cachex/Cachex.html#inspect/3
+    nb_expired_keys = cache_name() |> Cachex.inspect({:expired, :count}) |> elem(1)
+    nb_records = cache_name() |> Cachex.size() |> elem(1)
+    keys = cache_keys(Map.get(socket.assigns, :filter_key_name))
+
     %{
-      nb_expired_keys: cache_name() |> Cachex.inspect({:expired, :count}) |> elem(1),
+      nb_expired_keys: nb_expired_keys,
       expired_keys: cache_name() |> Cachex.inspect({:expired, :keys}) |> elem(1) |> Enum.sort(),
-      nb_records: cache_name() |> Cachex.size() |> elem(1),
+      nb_records: nb_records,
       cache_size_binary: cache_name() |> Cachex.inspect({:memory, :binary}) |> elem(1),
       last_janitor_execution: last_janitor_execution(),
-      keys: cache_keys(Map.get(socket.assigns, :filter_key_name))
+      keys: keys,
+      nb_hidden_keys: nb_records - nb_expired_keys - Enum.count(keys)
     }
   end
 
