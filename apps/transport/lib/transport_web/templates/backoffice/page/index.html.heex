@@ -215,9 +215,15 @@
     </colgroup>
     <thead>
       <tr>
-        <th class="sortable">{backoffice_sort_link(@conn, "Dataset", :custom_title, @order_by)}</th>
-        <th class="sortable">{backoffice_sort_link(@conn, "Organisation", :organization, @order_by)}</th>
-        <th class="sortable">{backoffice_sort_link(@conn, "Fin de validité", :end_date, @order_by)}</th>
+        <th class="sortable">
+          <.sort_link conn={@conn} field={:custom_title} order_by={@order_by}>Dataset</.sort_link>
+        </th>
+        <th class="sortable">
+          <.sort_link conn={@conn} field={:organization} order_by={@order_by}>Organisation</.sort_link>
+        </th>
+        <th class="sortable">
+          <.sort_link conn={@conn} field={:end_date} order_by={@order_by}>Fin de validité</.sort_link>
+        </th>
         <th class="bo_action_button"></th>
       </tr>
     </thead>

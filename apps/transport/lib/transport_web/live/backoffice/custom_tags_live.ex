@@ -32,7 +32,7 @@ defmodule TransportWeb.CustomTagsLive do
         <summary>Tags liés à des fonctionnalités</summary>
         <ul>
           <%= for tag_doc <- Enum.sort_by(@tags_documentation, & &1.name) do %>
-            <li><span class="label"><%= tag_doc.name %></span>{tag_doc.doc}</li>
+            <li><span class="label">{tag_doc.name}</span>{tag_doc.doc}</li>
           <% end %>
         </ul>
       </details>

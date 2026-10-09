@@ -27,9 +27,9 @@
     <%= for {dataset_id, counts} <- @import_count_by_dataset_and_by_day do %>
       <tr class="dataset">
         <th class="heatmap-header">
-          <%= link to: "#{backoffice_page_path(@conn, :edit, dataset_id)}#imports_history" ,target: "_blank" do %>
+          <.link href={"#{backoffice_page_path(@conn, :edit, dataset_id)}#imports_history"} target="_blank">
             {dataset_id}
-          <% end %>
+          </.link>
         </th>
         <%= for {date, import_count, success_count} <- counts do %>
           <td title={date} class={cell_class({import_count, success_count})}></td>
