@@ -179,8 +179,8 @@ defmodule TransportWeb.CoreComponents do
     ~H"""
     <.form_group wrapper={@wrapper}>
       <.label :if={@label} for={@id} required={@rest[:required]}>{@label}</.label>
-      <div class="">
-        <i class="fas icon--magnifier" id="magnifier"></i>
+      <div class="search__group">
+        <i class="fas icon--magnifier"></i>
         <input type="search" id={@id} name={@name} value={Phoenix.HTML.Form.normalize_value("search", @value)} {@rest} />
       </div>
       <div :if={@help != []} class="small">{render_slot(@help)}</div>

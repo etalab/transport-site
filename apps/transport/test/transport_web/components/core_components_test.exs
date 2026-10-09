@@ -26,7 +26,7 @@ defmodule TransportWeb.CoreComponentsTest do
   test "search input" do
     assert_html(
       input(field: form()[:q], type: "search", id: "s", placeholder: "Chercher", autocomplete: "off"),
-      ~s(<div class="form__group"><div class=""><i class="fas icon--magnifier" id="magnifier"></i>
+      ~s(<div class="form__group"><div class="search__group"><i class="fas icon--magnifier"></i>
       <input autocomplete="off" id="s" name="user[q]" placeholder="Chercher" type="search" value="bus"></div></div>)
     )
   end
