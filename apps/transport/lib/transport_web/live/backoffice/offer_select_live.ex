@@ -1,20 +1,19 @@
 defmodule TransportWeb.OfferSelectLive do
   use TransportWeb, :live_component
-  alias TransportWeb.InputHelpers
   import Ecto.Query
 
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <label>
-        Offre de transport {InputHelpers.text_input(@form, :offer_input,
-          placeholder: "Astuce",
-          list: "offers",
-          phx_keydown: "add_offer",
-          phx_target: @myself,
-          id: "js-offer-input"
-        )}
-      </label>
+      <.input
+        field={@form[:offer_input]}
+        placeholder="Astuce"
+        list="offers"
+        phx-keydown="add_offer"
+        phx-target={@myself}
+        id="js-offer-input"
+        label="Offre de transport"
+      />
       <datalist id="offers" phx-keydown="add_offer">
         <%= for offer <- @offers_list do %>
           <option value={offer.id}>{display(offer)}</option>
@@ -27,7 +26,7 @@ defmodule TransportWeb.OfferSelectLive do
             <span class="delete-tag" phx-click="remove_offer" phx-value-offer-id={offer.id} phx-target={@myself}></span>
           </span>
           <% {field_name, field_value} = field_info(offer, index) %>
-          {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
+          <.input field={@form[field_name]} type="hidden" value={field_value} />
         <% end %>
       </div>
     </div>

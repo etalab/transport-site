@@ -15,7 +15,9 @@
   }
 }
 
-#magnifier {
+// #magnifier is the icon of the legacy search_input helper, still used by the public pages
+#magnifier,
+.search__group > .icon--magnifier {
   color: var(--theme-primary);
   position: absolute;
   left: 7px;

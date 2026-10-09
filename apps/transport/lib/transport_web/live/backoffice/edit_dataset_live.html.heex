@@ -7,6 +7,7 @@
   phx-submit="save"
   phx-trigger-action={@trigger_submit}
   onkeydown="return event.key != 'Enter';"
+  class="backoffice-form"
 >
   <h1>
     <%= if is_nil(@dataset) do %>
@@ -18,7 +19,9 @@
   <%= unless is_nil(assigns[:dataset]) do %>
     <div class="pb-24">
       <i class="fa fa-up-right-from-square"></i>
-      {link(dgettext("backoffice", "See dataset on website"), to: dataset_path(@socket, :details, @dataset.id))}
+      <.link href={dataset_path(@socket, :details, @dataset.id)}>
+        {dgettext("backoffice", "See dataset on website")}
+      </.link>
     </div>
   <% end %>
 
@@ -27,7 +30,7 @@
   </p>
 
   <div class="pt-24">
-    {InputHelpers.text_input(f, :url, placeholder: dgettext("backoffice", "Dataset's url"))}
+    <.input field={f[:url]} placeholder={dgettext("backoffice", "Dataset's url")} />
 
     <%= if assigns[:datagouv_infos] do %>
       <% dataset_datagouv_id = @datagouv_infos[:dataset_datagouv_id] %>
@@ -42,10 +45,10 @@
           </div>
           <div class="pt-12">
             <%= if @datagouv_infos[:dataset_id] do %>
-              ⚠️ Ce jeu de données est déjà référencé {link("sur le PAN",
-                to: backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id]),
-                target: "_blank"
-              )}, il n'est pas possible de le référencer une seconde fois.
+              ⚠️ Ce jeu de données est déjà référencé <.link
+                href={backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id])}
+                target="_blank"
+              >sur le PAN</.link>, il n'est pas possible de le référencer une seconde fois.
             <% else %>
               Ce jeu n'est pas encore référencé chez nous ✅
             <% end %>
@@ -53,16 +56,14 @@
         <% end %>
       </div>
     <% end %>
-    {InputHelpers.text_input(f, :custom_title, placeholder: dgettext("backoffice", "name"), label: "Titre")}
-    {InputHelpers.select(f, :type, @dataset_types,
-      selected:
-        if not is_nil(@dataset) do
-          @dataset.type
-        else
-          "public-transit"
-        end,
-      label: "Type"
-    )}
+    <.input field={f[:custom_title]} placeholder={dgettext("backoffice", "name")} label="Titre" />
+    <.input
+      field={f[:type]}
+      type="select"
+      options={@dataset_types}
+      value={f[:type].value || if(is_nil(@dataset), do: "public-transit", else: @dataset.type)}
+      label="Type"
+    />
   </div>
 
   <.live_component
@@ -83,14 +84,15 @@
       {dgettext("backoffice", "published by")}
     </div>
     <h4>{@dataset_organization}</h4>
-    {select(f, :organization_type, @organization_types,
-      selected:
-        if not is_nil(@dataset) do
-          @dataset.organization_type
-        end,
-      required: true,
-      prompt: dgettext("backoffice", "Publisher type")
-    )}
+    <.input
+      field={f[:organization_type]}
+      type="select"
+      options={@organization_types}
+      value={f[:organization_type].value || if(not is_nil(@dataset), do: @dataset.organization_type)}
+      required
+      prompt={dgettext("backoffice", "Publisher type")}
+      wrapper={false}
+    />
   </div>
 
   <div class="panel mt-48">
@@ -113,16 +115,14 @@
     />
     <div class="pt-12">{dgettext("backoffice", "or")}</div>
     <div class="pt-12">
-      <label>
-        {dgettext("backoffice", "Company SIREN code")}
-        {InputHelpers.text_input(f, :legal_owner_company_siren,
-          placeholder: "821611431",
-          pattern: "\\d{9,9}"
-        )}
-      </label>
-      <%= if @company do %>
-        <span>{@company.nom_complet}</span>
-      <% end %>
+      <.input
+        field={f[:legal_owner_company_siren]}
+        placeholder="821611431"
+        pattern="\d{9,9}"
+        label={dgettext("backoffice", "Company SIREN code")}
+      >
+        <:help :if={@company}>{@company.nom_complet}</:help>
+      </.input>
     </div>
   </div>
 
@@ -144,15 +144,15 @@
   <div id="backoffice_dataset_submit_buttons" class={if is_nil(@dataset), do: "pb-48"}>
     <div>
       <%= if is_nil(@dataset) do %>
-        {hidden_input(f, :action, value: "new")}
-        {InputHelpers.submit(dgettext("backoffice", "Add"))}
+        <.input field={f[:action]} type="hidden" value="new" />
+        <.button>{dgettext("backoffice", "Add")}</.button>
       <% else %>
-        {hidden_input(f, :action, value: "edit")}
-        {InputHelpers.submit(dgettext("backoffice", "Save"))}
+        <.input field={f[:action]} type="hidden" value="edit" />
+        <.button>{dgettext("backoffice", "Save")}</.button>
       <% end %>
     </div>
     <div>
-      {link(dgettext("backoffice", "Cancel"), to: backoffice_page_path(@socket, :index))}
+      <.link href={backoffice_page_path(@socket, :index)}>{dgettext("backoffice", "Cancel")}</.link>
     </div>
   </div>
 </.form>

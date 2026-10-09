@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.IRVEDashboardLive do
   use TransportWeb, :live_view
-  use PhoenixHTMLHelpers
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import Helpers, only: [format_number_maybe_nil: 2]
   import Ecto.Query, only: [last: 2]

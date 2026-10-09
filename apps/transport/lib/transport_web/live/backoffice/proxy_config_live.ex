@@ -3,10 +3,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   A view able to display the current running configuration of the proxy.
   """
   use TransportWeb, :live_view
-  use TransportWeb.InputHelpers
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
   # The number of past days we want to report on (as a positive integer).

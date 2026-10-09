@@ -24,7 +24,9 @@
         <%= for broken_url <- @broken_urls do %>
           <tr>
             <td>
-              {link(broken_url.dataset_custom_title, to: dataset_path(@conn, :details, broken_url.dataset_id))}
+              <.link href={dataset_path(@conn, :details, broken_url.dataset_id)}>
+                {broken_url.dataset_custom_title}
+              </.link>
             </td>
             <td>{format_datetime_to_paris(broken_url.inserted_at, "fr")}</td>
             <td>

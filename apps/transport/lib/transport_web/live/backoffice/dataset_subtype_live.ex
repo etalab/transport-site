@@ -1,19 +1,18 @@
 defmodule TransportWeb.DatasetSubtypeLive do
   use TransportWeb, :live_component
-  alias TransportWeb.InputHelpers
 
   def render(assigns) do
     ~H"""
     <div>
       <div :if={Enum.count(@dataset_subtypes_list) > 0} class="pt-24">
-        <label>
-          Sous-type {InputHelpers.text_input(@form, :dataset_subtype_input,
-            list: "dataset_subtypes",
-            phx_keydown: "add_subtype",
-            phx_target: @myself,
-            id: "js-dataset-subtype-input"
-          )}
-        </label>
+        <.input
+          field={@form[:dataset_subtype_input]}
+          list="dataset_subtypes"
+          phx-keydown="add_subtype"
+          phx-target={@myself}
+          id="js-dataset-subtype-input"
+          label="Sous-type"
+        />
         <datalist id="dataset_subtypes" phx-keydown="add_subtype">
           <%= for dataset_subtype <- @dataset_subtypes_list do %>
             <option value={dataset_subtype.slug}>{display(dataset_subtype)}</option>
@@ -27,7 +26,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
               </span>
             </span>
             <% {field_name, field_value} = field_info(dataset_subtype, index) %>
-            {PhoenixHTMLHelpers.Form.hidden_input(@form, field_name, value: field_value)}
+            <.input field={@form[field_name]} type="hidden" value={field_value} />
           <% end %>
         </div>
       </div>

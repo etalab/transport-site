@@ -14,9 +14,19 @@
     </div>
     <div class="backoffice_dataset_actions_buttons">
       <div>
-        <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, Map.put(@conn.params, "stay_on_page", true)), [nodiv: true], fn _ -> %>
-          {submit("Importer", class: "button", nodiv: true)}
-        <% end %>
+        <.form
+          for={%{}}
+          action={
+            backoffice_dataset_path(
+              @conn,
+              :import_from_data_gouv_fr,
+              @dataset.id,
+              Map.put(@conn.params, "stay_on_page", true)
+            )
+          }
+        >
+          <.button>Importer</.button>
+        </.form>
       </div>
 
       <div>
@@ -26,9 +36,9 @@
       </div>
 
       <div>
-        <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
-          {submit("Déréférencer", class: "button", nodiv: true)}
-        <% end %>
+        <.form for={%{}} action={backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params)}>
+          <.button>Déréférencer</.button>
+        </.form>
       </div>
     </div>
 
@@ -57,7 +67,7 @@
             </tr>
             <%= for r <- @resources_with_history do %>
               <tr>
-                <td>{link(r.title, to: resource_path(@conn, :details, r.id))}</td>
+                <td><.link href={resource_path(@conn, :details, r.id)}>{r.title}</.link></td>
                 <td>
                   <%= if r.resource_history == [] do %>
                     🚫
@@ -77,11 +87,20 @@
       <p>
         Vous pouvez forcer le format d'une ressource en utilisant ce formulaire.
       </p>
-      <%= form_for @conn, backoffice_dataset_path(@conn, :resource_format_override, @dataset.id), [], fn f -> %>
-        {select(f, :resource_id, Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
-        {select(f, :format_override, @resource_formats)}
-        {submit("Changer le format")}
-      <% end %>
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_dataset_path(@conn, :resource_format_override, @dataset.id)}
+        class="backoffice-form"
+      >
+        <.input
+          field={f[:resource_id]}
+          type="select"
+          options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
+        />
+        <.input field={f[:format_override]} type="select" options={@resource_formats} />
+        <.button>Changer le format</.button>
+      </.form>
     </div>
 
     <div id="resource_related" class="dashboard-description mt-48">
@@ -100,78 +119,116 @@
           <%= for rr <- @resource_related do %>
             <tr>
               <td>
-                {link(rr.resource_src.title, to: resource_path(@conn, :details, rr.resource_src_id))}
+                <.link href={resource_path(@conn, :details, rr.resource_src_id)}>{rr.resource_src.title}</.link>
                 <span class="label">{rr.resource_src.format}</span>
               </td>
               <td>
-                {link(rr.resource_dst.title, to: resource_path(@conn, :details, rr.resource_dst_id))}
+                <.link href={resource_path(@conn, :details, rr.resource_dst_id)}>{rr.resource_dst.title}</.link>
                 <span class="label">{rr.resource_dst.format}</span>
               </td>
               <td>{DB.ResourceRelated.reason_to_str(rr)}</td>
               <td>
-                <%= form_for @conn, backoffice_dataset_path(@conn, :resource_related_delete, @dataset.id), [nodiv: true], fn f -> %>
-                  {hidden_input(f, :resource_src_id, value: rr.resource_src_id)}
-                  {hidden_input(f, :resource_dst_id, value: rr.resource_dst_id)}
-                  {hidden_input(f, :reason, value: rr.reason)}
+                <.form
+                  :let={f}
+                  for={%{}}
+                  action={backoffice_dataset_path(@conn, :resource_related_delete, @dataset.id)}
+                >
+                  <.input field={f[:resource_src_id]} type="hidden" value={rr.resource_src_id} />
+                  <.input field={f[:resource_dst_id]} type="hidden" value={rr.resource_dst_id} />
+                  <.input field={f[:reason]} type="hidden" value={rr.reason} />
                   <button class="small button-outline no-border warning">
                     <i class="fas fa-trash"></i>
                   </button>
-                <% end %>
+                </.form>
               </td>
             </tr>
           <% end %>
         </table>
       <% end %>
-      <%= form_for @conn, backoffice_dataset_path(@conn, :resource_related_create, @dataset.id), [], fn f -> %>
-        {label(f, :resource_src_id, "Ressource de référence")}
-        {select(f, :resource_src_id, Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
-        {label(f, :resource_dst_id, "Ressource complémentaire")}
-        {select(f, :resource_dst_id, Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id]))}
-        {label(f, :reason, "Motif")}
-        {select(
-          f,
-          :reason,
-          Enum.map(
-            Ecto.Enum.values(DB.ResourceRelated, :reason),
-            &[key: DB.ResourceRelated.reason_to_str(%DB.ResourceRelated{reason: &1}), value: &1]
-          )
-        )}
-        {submit("Associer")}
-      <% end %>
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}
+        class="backoffice-form"
+      >
+        <.input
+          field={f[:resource_src_id]}
+          type="select"
+          label="Ressource de référence"
+          options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
+        />
+        <.input
+          field={f[:resource_dst_id]}
+          type="select"
+          label="Ressource complémentaire"
+          options={Enum.map(@resources, &[key: "#{&1.title} - #{&1.format}", value: &1.id])}
+        />
+        <.input
+          field={f[:reason]}
+          type="select"
+          label="Motif"
+          options={
+            Enum.map(
+              Ecto.Enum.values(DB.ResourceRelated, :reason),
+              &[key: DB.ResourceRelated.reason_to_str(%DB.ResourceRelated{reason: &1}), value: &1]
+            )
+          }
+        />
+        <.button>Associer</.button>
+      </.form>
     </div>
 
     <div id="notification_subscriptions" class="dashboard-description mt-48">
       <h3>Abonnements aux notifications des producteurs</h3>
 
       <h4>Créer un abonnement</h4>
-      <%= form_for @conn, backoffice_notification_subscription_path(@conn, :create), [], fn f -> %>
-        {hidden_input(f, :redirect_location, value: "dataset")}
-        {hidden_input(f, :dataset_id, value: @dataset.id)}
-        <%= label f, :contact_id do %>
-          Contact {text_input(f, :contact_id, required: true, list: "contacts_datalist", pattern: "[0-9]+")}
-          <div class="small">
-            <a href={backoffice_contact_path(@conn, :new)} target="_blank">
+      <.form
+        :let={f}
+        for={@conn.params}
+        action={backoffice_notification_subscription_path(@conn, :create)}
+        class="backoffice-form"
+      >
+        <.input field={f[:redirect_location]} type="hidden" value="dataset" />
+        <.input field={f[:dataset_id]} type="hidden" value={@dataset.id} />
+        <.input field={f[:contact_id]} label="Contact" required list="contacts_datalist" pattern="[0-9]+">
+          <:help>
+            <.link href={backoffice_contact_path(@conn, :new)} target="_blank">
               <i class="fas fa-arrow-up-right-from-square"></i> Créer un contact
-            </a>
-          </div>
-          <div :if={Enum.count(@contacts_in_org) > 0}>
-            <p>
-              Producteurs s’étant déjà connectés au PAN
-            </p>
-            <ul>
-              <%= for contact <- @contacts_in_org do %>
-                <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
-                <li class="pb-6">
-                  <a href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
-                    <i class="fas fa-arrow-up-right-from-square"></i> {DB.Contact.display_name(contact)}
-                  </a>
-                  <span class="small">{"(##{contact.id})"}</span>
-                  <button type="button" class="button-outline small primary" onclick={onclick_fn}>Sélectionner</button>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
+            </.link>
+          </:help>
+        </.input>
+        <div :if={Enum.count(@contacts_in_org) > 0} class="form__group">
+          <p>
+            Producteurs s’étant déjà connectés au PAN
+          </p>
+          <ul>
+            <%= for contact <- @contacts_in_org do %>
+              <% onclick_fn = ~s{getElementById("contact_id").value =} <> to_string(contact.id) %>
+              <li class="pb-6">
+                <.link href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
+                  <i class="fas fa-arrow-up-right-from-square"></i> {DB.Contact.display_name(contact)}
+                </.link>
+                <span class="small">{"(##{contact.id})"}</span>
+                <button type="button" class="button-outline small primary" onclick={onclick_fn}>Sélectionner</button>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="form__group">
+          <fieldset>
+            <legend>{dgettext("backoffice", "Notification reason")}</legend>
+            <.input
+              :for={reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer)}
+              type="checkbox"
+              field={f[reason]}
+              label={to_string(reason)}
+              checked
+              wrapper={false}
+            />
+          </fieldset>
+        </div>
+
+        <.button>Créer un abonnement</.button>
         <datalist id="contacts_datalist">
           <%= for contact <- @contacts_datalist do %>
             <% display_name = DB.Contact.display_name(contact) %>
@@ -182,18 +239,7 @@
             </option>
           <% end %>
         </datalist>
-        <%= label f, :reasons, class: "pt-12" do %>
-          {dgettext("backoffice", "Notification reason")}
-          <%= for reason <- Transport.NotificationReason.subscribable_reasons_related_to_datasets(:producer) do %>
-            <%= label f, reason do %>
-              {checkbox(f, reason, hidden_input: false, value: true)}
-              {reason}
-            <% end %>
-          <% end %>
-        <% end %>
-
-        {submit("Créer un abonnement")}
-      <% end %>
+      </.form>
       <h4 id="existing_subscriptions">{dgettext("backoffice", "Existing subscriptions")}</h4>
       <table :if={Enum.count(@dataset.notification_subscriptions) > 0} id="existing_subscriptions_table" class="table">
         <tr>
@@ -211,23 +257,40 @@
                 </a>
 
                 <div class="inline-block">
-                  <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete_for_contact_and_dataset, contact.id, @dataset.id), [method: "delete"], fn f -> %>
-                    {hidden_input(f, :redirect_location, value: "dataset")}
+                  <.form
+                    :let={f}
+                    for={%{}}
+                    action={
+                      backoffice_notification_subscription_path(
+                        @conn,
+                        :delete_for_contact_and_dataset,
+                        contact.id,
+                        @dataset.id
+                      )
+                    }
+                    method="delete"
+                  >
+                    <.input field={f[:redirect_location]} type="hidden" value="dataset" />
                     <button class="small button-outline no-border warning" title="désabonner entièrement">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
-                  <% end %>
+                  </.form>
                 </div>
               </td>
               <td>{notification_subscription.reason}</td>
               <td>{notification_subscription.source}</td>
               <td>
-                <%= form_for @conn, backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id), [method: "delete"], fn f -> %>
-                  {hidden_input(f, :redirect_location, value: "dataset")}
+                <.form
+                  :let={f}
+                  for={%{}}
+                  action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+                  method="delete"
+                >
+                  <.input field={f[:redirect_location]} type="hidden" value="dataset" />
                   <button class="small button-outline no-border warning">
                     <i class="fas fa-trash"></i>
                   </button>
-                <% end %>
+                </.form>
               </td>
             </tr>
           <% end %>

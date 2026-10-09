@@ -45,14 +45,14 @@ defmodule TransportWeb do
       use TransportWeb.InputHelpers
 
       import TransportWeb.Router.Helpers
-      import TransportWeb.ErrorHelpers
       import TransportWeb.InputHelpers
       use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.SeoMetadata
+      import TransportWeb.CoreComponents
       import TransportWeb.Components.Pagination
       import Helpers
 
-      import Phoenix.Component, only: [live_render: 3]
+      import Phoenix.Component, only: [live_render: 3, link: 1, form: 1]
 
       import Plug.Conn, only: [get_session: 2]
     end
@@ -86,6 +86,7 @@ defmodule TransportWeb do
     quote do
       use Gettext, backend: TransportWeb.Gettext
       import Phoenix.HTML
+      import TransportWeb.CoreComponents
     end
   end
 
