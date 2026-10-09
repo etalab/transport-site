@@ -63,7 +63,7 @@ defmodule TransportWeb.EditDatasetLive do
       "url" => "",
       "custom_title" => "",
       "legal_owner_company_siren" => "",
-      "type" => "",
+      "type" => "public-transit",
       "organization_type" => nil
     }
   end

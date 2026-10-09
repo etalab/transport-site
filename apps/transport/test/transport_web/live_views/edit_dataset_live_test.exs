@@ -223,6 +223,24 @@ defmodule TransportWeb.EditDatasetLiveTest do
     assert render(view) =~ nom_commercial
   end
 
+  test "new dataset defaults to public transit", %{conn: conn} do
+    insert(:dataset_subtype, slug: "urban", parent_type: "public-transit")
+
+    {:ok, view, _html} =
+      live_isolated(setup_admin_in_session(conn), TransportWeb.EditDatasetLive,
+        session: %{
+          "dataset" => nil,
+          "dataset_types" => ["bike-data", "public-transit"],
+          "regions" => [],
+          "form_url" => "url_used_to_post_result",
+          "csp_nonce_value" => Ecto.UUID.generate()
+        }
+      )
+
+    assert has_element?(view, ~s(#form_type option[value="public-transit"][selected]))
+    assert has_element?(view, "#js-dataset-subtype-input")
+  end
+
   test "dataset form, show dataset subtypes saved in the database", %{conn: conn} do
     conn = conn |> setup_admin_in_session()
 
