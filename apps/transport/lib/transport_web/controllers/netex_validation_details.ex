@@ -2,12 +2,8 @@ defmodule TransportWeb.NeTExValidationDetails do
   @moduledoc """
   Encapsulates all data needed to render a NeTEx validation page.
 
-  Replaces the nested tuple pattern used in controllers with a single value object
-  that carries both the adapter and all computed details.
-
-  This provides **locality**: all build logic lives in one place, and callers access
-  named fields instead of positional tuple elements. No new adapter callbacks are needed —
-  it works with the existing interface plus Commons utilities.
+  Meant to be used to display in views and isolate logic or data transformations.
+  Handles pagination and results adapters calling.
   """
 
   alias DB.MultiValidation
@@ -46,11 +42,7 @@ defmodule TransportWeb.NeTExValidationDetails do
   @doc """
   Builds a complete NeTExValidationDetails from a validation record.
 
-  Uses existing adapter methods (`get_issues/3`, `summarize_xsd_errors/1`) and
-  Commons utilities — no new callbacks required.
-
-  Returns an empty struct when the validation record is nil or incomplete,
-  rather than `nil`. This avoids nil-checking in callers.
+  This datatype is meant to be used for display in views without logic.
   """
   @spec build(MultiValidation.t() | nil, Scrivener.Config.t(), map()) :: t()
   def build(nil, _config, _params), do: %__MODULE__{}
