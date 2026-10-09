@@ -10,20 +10,19 @@
     Les items SIRI sont affichés mais sans métriques et avec des informations manquantes (ex: requestor_ref) pour l'instant
   </p>
 
-  <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
-    <.input field={f[:search]} type="search" value={@search} id="backoffice_search" />
+  <.form for={@form} phx-change="change" id="backoffice_search_container">
+    <.input field={@form[:search]} type="search" id="backoffice_search" />
     <div class="form__group ml-1em">
       <.input
-        field={f[:type]}
+        field={@form[:type]}
         type="select"
         options={[{"Tout", ""}] ++ @select_options}
-        value={@type}
         label="Type de flux"
         wrapper={false}
       />
     </div>
     <div class="form__group ml-1em">
-      <.input type="checkbox" field={f[:disk]} value={@disk} label="Cache sur disque" wrapper={false} />
+      <.input type="checkbox" field={@form[:disk]} label="Cache sur disque" wrapper={false} />
     </div>
   </.form>
 

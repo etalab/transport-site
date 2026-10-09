@@ -95,7 +95,8 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     socket
     |> assign(%{
       filtered_proxy_configuration: filtered_proxy_configuration,
-      nb_hidden_feeds: Enum.count(proxy_configuration) - Enum.count(filtered_proxy_configuration)
+      nb_hidden_feeds: Enum.count(proxy_configuration) - Enum.count(filtered_proxy_configuration),
+      form: to_form(%{"search" => search, "type" => type, "disk" => disk})
     })
   end
 

@@ -5,7 +5,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
   @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%Plug.Conn{} = conn, %{} = params) do
-    conn = assign(conn, :q, Map.get(params, "q"))
+    conn = assign(conn, :search_form, Phoenix.Component.to_form(Map.take(params, ["q"])))
 
     params
     |> DB.Contact.search()

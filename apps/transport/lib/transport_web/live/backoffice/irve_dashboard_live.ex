@@ -36,14 +36,21 @@ defmodule TransportWeb.Backoffice.IRVEDashboardLive do
     |> assign(:running, false)
     |> assign(:completion_message, nil)
     |> assign(:latest_report, latest_report())
-    |> assign(:filtering_expression, "")
+    |> assign_filtering_expression("")
+  end
+
+  defp assign_filtering_expression(socket, filtering_expression) do
+    assign(socket,
+      filtering_expression: filtering_expression,
+      form: to_form(%{"filtering_expression" => filtering_expression}, as: :config)
+    )
   end
 
   @impl true
   def handle_event("change_form", params, socket) do
     socket =
       socket
-      |> assign(:filtering_expression, params["config"]["filtering_expression"])
+      |> assign_filtering_expression(params["config"]["filtering_expression"])
 
     {:noreply, socket}
   end

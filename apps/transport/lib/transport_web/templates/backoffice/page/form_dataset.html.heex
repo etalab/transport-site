@@ -88,7 +88,7 @@
       </p>
       <.form
         :let={f}
-        for={@conn.params}
+        for={%{}}
         action={backoffice_dataset_path(@conn, :resource_format_override, @dataset.id)}
         class="backoffice-form"
       >
@@ -146,7 +146,7 @@
       <% end %>
       <.form
         :let={f}
-        for={@conn.params}
+        for={%{}}
         action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}
         class="backoffice-form"
       >
@@ -183,7 +183,7 @@
       <h4>Créer un abonnement</h4>
       <.form
         :let={f}
-        for={@conn.params}
+        for={%{}}
         action={backoffice_notification_subscription_path(@conn, :create)}
         class="backoffice-form"
       >

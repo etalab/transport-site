@@ -1,7 +1,7 @@
 <section class="container pt-48 pb-48">
   <h1>Email preview</h1>
-  <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
-    <.input field={f[:search]} type="search" value={@search} id="backoffice_search" list="tags" />
+  <.form for={@form} phx-change="change" id="backoffice_search_container">
+    <.input field={@form[:search]} type="search" id="backoffice_search" list="tags" />
   </.form>
   <datalist id="tags">
     <option :for={tag <- @tags} value={tag}></option>

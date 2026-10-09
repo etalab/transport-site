@@ -34,7 +34,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
   end
 
   def update(assigns, socket) do
-    dataset_type = get_in(assigns.form_params.source["type"])
+    dataset_type = assigns.form[:type].value
 
     dataset_subtypes_list =
       DB.DatasetSubtype

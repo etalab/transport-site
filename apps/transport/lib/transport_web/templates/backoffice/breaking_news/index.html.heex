@@ -7,20 +7,18 @@
 
   <.form
     :let={f}
-    for={@conn.params}
+    for={@form}
     action={backoffice_breaking_news_path(@conn, :update_breaking_news)}
     class="no-margin backoffice-form"
   >
     <.input
       field={f[:msg]}
-      value={Map.get(@current_breaking_news, :msg)}
       label="Message à faire apparaitre sur le site"
     />
     <.input
       field={f[:level]}
       type="select"
       options={Ecto.Enum.mappings(DB.BreakingNews, :level)}
-      value={Map.get(@current_breaking_news, :level, :info)}
       label="Type de message"
     />
     <.button>Envoyer !</.button>

@@ -2,8 +2,12 @@ defmodule TransportWeb.Backoffice.BreakingNewsController do
   use TransportWeb, :controller
 
   def index(conn, _params) do
+    breaking_news = DB.BreakingNews.get_breaking_news()
+
     conn
-    |> render("index.html", current_breaking_news: DB.BreakingNews.get_breaking_news())
+    |> render("index.html",
+      form: Phoenix.Component.to_form(%{"msg" => breaking_news[:msg], "level" => breaking_news[:level] || :info})
+    )
   end
 
   def update_breaking_news(conn, %{"level" => level, "msg" => msg}) do

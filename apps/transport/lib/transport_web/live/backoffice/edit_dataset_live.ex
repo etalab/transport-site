@@ -37,7 +37,7 @@ defmodule TransportWeb.EditDatasetLive do
       |> assign(:organization_types, organization_types())
       |> assign(:legal_owners, get_legal_owners(dataset))
       |> assign(:trigger_submit, false)
-      |> assign(:form_params, form_params(dataset))
+      |> assign(:form, to_form(form_params(dataset), as: :form))
       |> assign(:custom_tags, get_custom_tags(dataset))
       |> assign(:offers, get_offers(dataset))
       |> assign(:declarative_spatial_areas, get_declarative_spatial_areas(dataset))
@@ -53,9 +53,9 @@ defmodule TransportWeb.EditDatasetLive do
       "url" => Dataset.datagouv_url(dataset),
       "custom_title" => dataset.custom_title,
       "legal_owner_company_siren" => dataset.legal_owner_company_siren,
-      "type" => dataset.type
+      "type" => dataset.type,
+      "organization_type" => dataset.organization_type
     }
-    |> to_form()
   end
 
   def form_params(nil) do
@@ -63,9 +63,9 @@ defmodule TransportWeb.EditDatasetLive do
       "url" => "",
       "custom_title" => "",
       "legal_owner_company_siren" => "",
-      "type" => ""
+      "type" => "",
+      "organization_type" => nil
     }
-    |> to_form()
   end
 
   def get_legal_owners(%Dataset{} = dataset) do
@@ -137,13 +137,13 @@ defmodule TransportWeb.EditDatasetLive do
         assign(socket, datagouv_infos: nil, dataset_organization: nil)
       end
 
-    socket = socket |> assign(:form_params, form_params |> to_form())
+    socket = socket |> assign(:form, to_form(form_params, as: :form))
     {:noreply, socket}
   end
 
   def handle_event("change_dataset", %{"_target" => _, "form" => %{} = form_params}, socket) do
     # persist the form input values
-    socket = socket |> assign(:form_params, form_params |> to_form())
+    socket = socket |> assign(:form, to_form(form_params, as: :form))
     {:noreply, socket}
   end
 
