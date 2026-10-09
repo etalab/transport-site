@@ -7,7 +7,7 @@ defmodule TransportWeb.ResourceControllerTest do
   import NeTExValidationReportHelpers
   import NeTExTestData
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
-  import TransportWeb.ResourceController, only: [paginate_netex_results: 2]
+  import TransportWeb.NeTExValidationDetails, only: [paginate_netex_results: 2]
 
   setup :verify_on_exit!
 

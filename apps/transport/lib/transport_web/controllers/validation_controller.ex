@@ -2,6 +2,7 @@ defmodule TransportWeb.ValidationController do
   use TransportWeb, :controller
   alias DB.{MultiValidation, Repo}
   alias Transport.DataVisualization
+  alias TransportWeb.NeTExValidationDetails
   import Ecto.Query
 
   @netex_issues_page_size 10
@@ -185,29 +186,7 @@ defmodule TransportWeb.ValidationController do
         |> render("show_gtfs.html")
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "netex"}} = validation ->
-        results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(validation.validator_version)
-
-        template = pick_netex_template(validation.validator_version)
-
-        pagination_config = make_pagination_config(params, @netex_issues_page_size)
-        {filter, pagination} = results_adapter.get_issues(validation.binary_result, params, pagination_config)
-
-        validation_report_url = validation_url(conn, :download_validation_report, validation.id, token: params["token"])
-
-        xsd_errors = results_adapter.summarize_xsd_errors(validation.binary_result)
-
-        conn
-        |> assign_base_validation_details(params)
-        |> assign(:filter, filter)
-        |> assign(:issues, TransportWeb.ResourceController.paginate_netex_results(pagination, pagination_config))
-        |> assign(:results_adapter, results_adapter)
-        |> assign(:metadata, validation.metadata.metadata)
-        |> assign(:max_severity, validation.digest["max_severity"])
-        |> assign(:validation_summary, validation.digest["summary"])
-        |> assign(:severities_count, validation.digest["stats"])
-        |> assign(:validation_report_url, validation_report_url)
-        |> assign(:xsd_errors, xsd_errors)
-        |> render(template)
+        render_netex_validation(conn, validation, params)
 
       %MultiValidation{oban_args: %{"state" => "completed", "type" => "irve-statique"}} = validation ->
         conn
@@ -309,17 +288,40 @@ defmodule TransportWeb.ValidationController do
     )
   end
 
-  defp pick_netex_template("0.2.2"), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template("0.2.1"), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template("0.2.0"), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
-
   defp assign_base_validation_details(conn, params) do
     conn
     |> assign(:validation_id, params["id"])
     |> assign(:other_resources, [])
     |> assign(:token, params["token"])
   end
+
+  defp render_netex_validation(conn, validation, params) do
+    pagination_config = make_pagination_config(params, @netex_issues_page_size)
+    details = NeTExValidationDetails.build(validation, pagination_config, params)
+
+    template = pick_netex_template(details.validator_version)
+
+    validation_report_url =
+      if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
+        validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+      end
+
+    conn
+    |> assign_base_validation_details(params)
+    |> assign(:filter, details.filter)
+    |> assign(:issues, details.issues_page)
+    |> assign(:results_adapter, details.adapter)
+    |> assign(:metadata, details.metadata)
+    |> assign(:max_severity, details.max_severity)
+    |> assign(:validation_summary, details.summary)
+    |> assign(:severities_count, details.stats)
+    |> assign(:validation_report_url, validation_report_url)
+    |> assign(:xsd_errors, details.xsd_errors)
+    |> render(template)
+  end
+
+  defp pick_netex_template("0.2." <> _), do: "show_netex_v0_2_x.html"
+  defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
   defp filepath(type) do
     if type == "tableschema" do
