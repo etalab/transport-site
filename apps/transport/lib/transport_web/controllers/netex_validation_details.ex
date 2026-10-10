@@ -60,8 +60,9 @@ defmodule TransportWeb.NeTExValidationDetails do
         params
       ) do
     adapter = ResultsAdapter.resolve(version)
+    df = adapter.from_binary(binary_result)
 
-    {filter, {total_entries, entries}} = adapter.get_issues(binary_result, params, config)
+    {filter, {total_entries, entries}} = adapter.get_issues(df, params, config)
     issues_page = paginate_netex_results({total_entries, entries}, config)
 
     %__MODULE__{
@@ -73,7 +74,7 @@ defmodule TransportWeb.NeTExValidationDetails do
       filter: filter,
       issues_page: issues_page,
       max_severity: digest["max_severity"],
-      xsd_errors: adapter.summarize_xsd_errors(binary_result),
+      xsd_errors: adapter.summarize_xsd_errors(df),
       validator_version: version
     }
   end

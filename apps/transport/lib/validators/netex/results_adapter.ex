@@ -7,7 +7,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
 
   @callback summary(Explorer.DataFrame.t()) :: list()
   @callback count_by_severity(Explorer.DataFrame.t()) :: map()
-  @callback get_issues(binary(), map(), Scrivener.Config.t()) :: {map(), {pos_integer(), list()}}
+  @callback get_issues(Explorer.DataFrame.t(), map(), Scrivener.Config.t()) :: {map(), {pos_integer(), list()}}
   @callback digest(Explorer.DataFrame.t()) :: map()
   @callback issue_type(list()) :: nil | binary()
   @callback format_severity(binary(), non_neg_integer()) :: binary()
@@ -18,7 +18,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapter do
   @callback preferred_category_order() :: [binary()]
   @callback to_dataframe(list()) :: Explorer.DataFrame.t()
   @callback to_binary_result(list()) :: binary()
-  @callback summarize_xsd_errors(binary()) :: list()
+  @callback summarize_xsd_errors(Explorer.DataFrame.t()) :: list()
+  @callback from_binary(binary()) :: Explorer.DataFrame.t()
 
   def resolve("0.2.2"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_2
   def resolve("0.2.1"), do: Transport.Validators.NeTEx.ResultsAdapters.V0_2_1
