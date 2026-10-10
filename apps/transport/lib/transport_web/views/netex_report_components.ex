@@ -449,7 +449,7 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp validity_icon(assigns) do
     ~H"""
-    <i class="fa fa-check"></i>
+    <i class="fa fa-circle-info text-info"></i>
     """
   end
 
@@ -462,7 +462,7 @@ defmodule TransportWeb.NeTExReportComponents do
   defp severity_variant("error"), do: :error
   defp severity_variant("warning"), do: :warning
   defp severity_variant("information"), do: :information
-  defp severity_variant(_), do: nil
+  defp severity_variant(_), do: :information
 
   defp netex_category_label("xsd-schema"), do: dgettext("validations", "XSD")
   defp netex_category_label("french-profile"), do: dgettext("validations", "French profile")
