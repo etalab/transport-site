@@ -6,14 +6,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   @no_error "NoError"
 
-  @xsd_schema_category "xsd-schema"
-  @base_rules_category "base-rules"
+  @doc false
+  def xsd_schema_category, do: "xsd-schema"
 
   @doc false
-  def xsd_schema_category, do: @xsd_schema_category
-
-  @doc false
-  def base_rules_category, do: @base_rules_category
+  def base_rules_category, do: "base-rules"
 
   @doc false
   def french_profile_category, do: "french-profile"
@@ -55,7 +52,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     %{
       "code" => "unknown-code",
       "criticity" => "error",
-      "message" => "Unknown error"
+      "message" => "Unknown error",
+      "category" => nil
     }
     |> build_with_default_attributes(entry)
   end
@@ -151,12 +149,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
   def count_and_slice(%Explorer.DataFrame{} = df, pagination_config) do
     total_count = DF.n_rows(df)
-
-    issues =
-      df
-      |> sorted_slice(pagination_config)
-      |> to_issues()
-
+    issues = df |> sorted_slice(pagination_config) |> to_issues()
     {total_count, issues}
   end
 
@@ -177,9 +170,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     end
   end
 
-  # NOTE: any change to this function must be mirrored in sorted_slice/2 which
-  # uses the same mapping inline (see comment there). They are the only two
-  # consumers and must stay in sync.
+  # NOTE: the inline mapping in sorted_slice/2 must stay consistent with this.
+  # Covered by behavioural tests (commons_test.exs).
   @doc false
   def severity_level(key) do
     case key do
@@ -200,5 +192,112 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     |> DF.to_rows()
     |> Enum.map(fn %{"criticity" => c} -> c end)
     |> Enum.min_by(&severity_level/1, fn -> @no_error end)
+  end
+
+  @doc """
+  Computes a category-based summary from a DataFrame.
+
+  Counts only the most severe level per category. Returns all categories
+  even when empty (with count 0 and NoError).
+
+  ## Examples
+
+      iex> errors = [%{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"}, %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}]
+      iex> df = to_dataframe(errors, fn _ -> %{} end)
+      iex> categories = ["xsd-schema", "base-rules"]
+      iex> summary_by_category(df, categories) |> Enum.map(fn c -> {c["category"], c["stats"]} end)
+      [{"xsd-schema", %{"count" => 1, "criticity" => "error"}}, {"base-rules", %{"count" => 1, "criticity" => "warning"}}]
+  """
+  def summary_by_category(%Explorer.DataFrame{} = df, categories_preferred_order) do
+    categories_with_counts =
+      if has_column?(df, "category") do
+        group_by_category(df)
+        |> Map.new(&format_category_stats/1)
+      else
+        %{}
+      end
+
+    categories_preferred_order
+    |> Enum.map(fn category ->
+      %{
+        "category" => category,
+        "stats" => Map.get(categories_with_counts, category, %{"count" => 0, "criticity" => @no_error})
+      }
+    end)
+  end
+
+  @doc false
+  defp group_by_category(df) do
+    if Explorer.Series.count(df["code"]) == 0 do
+      %{}
+    else
+      df
+      |> DF.frequencies(["category", "criticity"])
+      |> DF.to_rows()
+      |> Enum.group_by(& &1["category"])
+      |> Map.new(&group_row_stats/1)
+    end
+  end
+
+  defp group_row_stats({category, rows}) do
+    worst_criticity =
+      rows
+      |> Enum.map(& &1["criticity"])
+      |> Enum.min_by(&severity_level/1, fn -> @no_error end)
+
+    counts =
+      rows
+      |> Map.new(fn %{"criticity" => c, "counts" => n} -> {c, n} end)
+
+    {category, %{worst: worst_criticity, counts: counts}}
+  end
+
+  defp format_category_stats({category, %{worst: worst, counts: counts}}) do
+    {category, %{"count" => Map.get(counts, worst, 0), "criticity" => worst}}
+  end
+
+  @doc """
+  Computes per-category, per-severity counts from a DataFrame.
+
+  Returns `%{"category" => %{"error" => N, "warning" => M}}`.
+  Categories with no rows are omitted.
+
+  ## Examples
+
+      iex> errors = [%{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"}, %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}]
+      iex> df = to_dataframe(errors, fn _ -> %{} end)
+      iex> count_by_category_and_severity(df)
+      %{"xsd-schema" => %{"error" => 1}, "base-rules" => %{"warning" => 1}}
+  """
+  def count_by_category_and_severity(%Explorer.DataFrame{} = df) do
+    if has_column?(df, "category") do
+      group_by_category(df)
+      |> Map.new(&extract_counts/1)
+    else
+      %{}
+    end
+  end
+
+  defp extract_counts({category, %{counts: counts}}) do
+    {category, counts}
+  end
+
+  @doc """
+  Converts errors to a binary (parquet) result.
+
+  Accepts a list of error maps and converts them via the provided `to_dataframe`
+  function, then serializes to parquet.
+
+  ## Examples
+
+      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}]
+      iex> binary = to_binary_result(errors, fn _ -> Explorer.DataFrame.new(code: []) end)
+      iex> is_binary(binary)
+      true
+  """
+  def to_binary_result(errors, to_dataframe) when is_list(errors) do
+    errors
+    |> to_dataframe.()
+    |> to_binary()
   end
 end

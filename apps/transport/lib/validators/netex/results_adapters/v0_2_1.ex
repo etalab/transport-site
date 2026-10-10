@@ -36,7 +36,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate format_severity(key, count), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: V0_2_0
+  defdelegate count_by_category_and_severity(validation_result), to: V0_2_0
+
+  # Internal helper used by digest/1 — no longer a public callback.
+  defp count_by_severity(df), do: V0_2_0.count_by_severity(df)
 
   defp categorize(code) do
     cond do
@@ -44,40 +47,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
       String.starts_with?(code, "pan:french_profile:") -> Commons.french_profile_category()
       true -> Commons.base_rules_category()
     end
-  end
-
-  @doc """
-  Builds a category-based summary from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "pan:french_profile:1", "criticity" => "error"}, %{"code" => "b", "criticity" => "error"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}},
-        %{"category" => "french-profile", "stats" => %{"count" => 1, "criticity" => "error"}}
-      ]
-
-      iex> df = Explorer.DataFrame.new([category: [], code: [], criticity: []], dtypes: [category: :category, code: :category, criticity: :category])
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-        %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-      ]
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary(%Explorer.DataFrame{} = df) do
-    @categories_preferred_order
-    |> Enum.map(fn category ->
-      cat_df = DF.filter(df, category == ^category)
-      count = DF.n_rows(cat_df)
-      worst_criticity = Commons.get_worst_criticity(cat_df, count)
-
-      %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
-    end)
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -135,13 +104,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
-  @doc """
-  Builds a digest map from a DataFrame.
-  """
+  @doc false
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(df),
       "stats" => count_by_severity(df),
       "max_severity" => count_max_severity(df)
     }
@@ -158,16 +124,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
     }
   end
 
-  @doc """
-  Converts raw error list directly to a parquet binary — no intermediate grouping.
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
-    errors
-    |> to_dataframe()
-    |> Commons.to_binary()
-  end
+  def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: V0_2_0
+  defdelegate summarize_xsd_errors(df), to: V0_2_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    Commons.summary_by_category(df, @categories_preferred_order)
+  end
 end

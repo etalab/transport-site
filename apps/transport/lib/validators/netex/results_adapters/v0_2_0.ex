@@ -61,6 +61,23 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate count_by_category_and_severity(validation_result), to: V0_1_0
+
+  # Internal helper used by digest/1 — no longer a public callback.
+  @spec count_by_severity(Explorer.DataFrame.t()) :: map()
+  def count_by_severity(%Explorer.DataFrame{} = df) do
+    if DF.n_rows(df) == 0 do
+      %{}
+    else
+      df
+      |> DF.frequencies([:criticity])
+      |> DF.to_rows()
+      |> Enum.map(fn %{"criticity" => k, "counts" => v} -> {k, v} end)
+      |> Map.new()
+    end
+  end
+
   defp categorize(code) do
     if String.starts_with?(code, "xsd-") do
       Commons.xsd_schema_category()
@@ -69,44 +86,16 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     end
   end
 
-  @doc """
-  Builds a category-based summary from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "error"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "error"}}
-      ]
-
-      iex> df = Explorer.DataFrame.new([category: [], code: [], criticity: []], dtypes: [category: :category, code: :category, criticity: :category])
-      iex> summary(df)
-      [
-        %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
-        %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-      ]
-  """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary(%Explorer.DataFrame{} = df) do
-    @categories_preferred_order
-    |> Enum.map(fn category ->
-      cat_df = DF.filter(df, category == ^category)
-      count = DF.n_rows(cat_df)
-      worst_criticity = Commons.get_worst_criticity(cat_df, count)
-
-      %{"category" => category, "stats" => %{"count" => count, "criticity" => worst_criticity}}
-    end)
-  end
-
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: V0_1_0
 
   @doc """
   Get issues from validation results, filtered on category, and paginated.
   """
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def get_issues(<<>>, _filter, _pagination_config),
+    do: {%{"issues_category" => Commons.xsd_schema_category()}, {0, []}}
+
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
     binary
@@ -163,9 +152,6 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   defdelegate severity_level(key), to: Commons
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: V0_1_0
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate french_profile_compliance_check(), to: V0_1_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
@@ -174,13 +160,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
-  @doc """
-  Builds a digest map from a DataFrame.
-  """
+  @doc false
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(df),
       "stats" => count_by_severity(df),
       "max_severity" => count_max_severity(df)
     }
@@ -197,20 +180,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     }
   end
 
-  @doc """
-  Converts raw error list directly to a parquet binary — no intermediate grouping.
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
-    errors
-    |> to_dataframe()
-    |> Commons.to_binary()
-  end
+  def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summarize_xsd_errors(binary_result) do
-    df = Commons.from_binary(binary_result)
+  def summarize_xsd_errors(<<>>), do: []
 
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summarize_xsd_errors(df) do
     if Commons.has_column?(df, "category") do
       df
       |> DF.filter(category == ^Commons.xsd_schema_category())
@@ -218,5 +195,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
     else
       []
     end
+  end
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    Commons.summary_by_category(df, @categories_preferred_order)
   end
 end

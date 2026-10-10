@@ -105,7 +105,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
       iex> count_by_severity(df)
       %{}
   """
-  @impl Transport.Validators.NeTEx.ResultsAdapter
+  # Internal helper used by digest/1 — no longer a public callback.
   def count_by_severity(%Explorer.DataFrame{} = df) do
     if DF.n_rows(df) == 0 do
       %{}
@@ -118,24 +118,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Builds a severity-based summary from a DataFrame.
-
-  Returns items grouped by criticity (error/warning/information), as expected by the v0_1.0 template.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> summary(df) |> Enum.map(& &1["severity"])
-      ["error", "warning"]
-
-      iex> df = Explorer.DataFrame.new(code: [], criticity: [])
-      iex> summary(df)
-      []
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary(%Explorer.DataFrame{} = df) do
+  defdelegate count_by_category_and_severity(binary), to: Commons
+
+  @doc false
+  defp summary(%Explorer.DataFrame{} = df) do
     errors = DF.to_rows(df)
 
     if Enum.empty?(errors) do
@@ -198,6 +185,9 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   Get issues from validation results. For a specific issue type if specified, or the most severe.
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def get_issues(<<>>, _filter, _pagination_config), do: {%{}, {0, []}}
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
   def get_issues(binary, %{} = filter, %Scrivener.Config{} = pagination_config) when is_binary(binary) do
     binary
     |> Commons.from_binary()
@@ -244,20 +234,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def preferred_category_order, do: @categories_preferred_order
 
-  @doc """
-  Builds a digest map from a DataFrame.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "b", "criticity" => "warning"}]
-      iex> df = to_dataframe(errors)
-      iex> digest(df) |> Map.keys() |> Enum.sort()
-      ["max_severity", "stats", "summary"]
-  """
+  @doc false
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def digest(%Explorer.DataFrame{} = df) do
     %{
-      "summary" => summary(df),
       "stats" => count_by_severity(df),
       "max_severity" => count_max_severity(df)
     }
@@ -280,23 +260,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
     end
   end
 
-  @doc """
-  Converts raw error list directly to a parquet binary — no intermediate grouping.
-
-  ## Examples
-
-      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}]
-      iex> binary = to_binary_result(errors)
-      iex> is_binary(binary)
-      true
-  """
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def to_binary_result(errors) do
-    errors
-    |> to_dataframe()
-    |> Commons.to_binary()
+  def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summarize_xsd_errors(_df), do: []
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    summary(df)
   end
-
-  @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summarize_xsd_errors(_binary_result), do: []
 end

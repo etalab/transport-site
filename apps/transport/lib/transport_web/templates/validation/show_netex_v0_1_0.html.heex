@@ -41,7 +41,12 @@
         <div class="panel">
           <%= if has_errors?(@validation_summary) do %>
             <.pagination conn={@conn} page={@issues} params={[issue_type: @filter["issue_type"]]} />
-            {render(netex_template(), issues: @issues || [], conn: @conn)}
+            {render(netex_template(),
+              issues: @issues || [],
+              severities_count: @severities_count || %{},
+              results_adapter: @results_adapter,
+              conn: @conn
+            )}
             <div class="pt-24">
               <.pagination conn={@conn} page={@issues} params={[issue_type: @filter["issue_type"]]} />
             </div>

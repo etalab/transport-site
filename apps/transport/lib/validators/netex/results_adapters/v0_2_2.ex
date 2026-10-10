@@ -5,7 +5,14 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   @behaviour Transport.Validators.NeTEx.ResultsAdapter
 
+  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1, as: Previous
+
+  @categories_preferred_order [
+    Commons.xsd_schema_category(),
+    Commons.base_rules_category(),
+    Commons.french_profile_category()
+  ]
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   def french_profile_compliance_check, do: :partial
@@ -14,7 +21,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   def french_profile, do: Transport.NeTEx.FrenchProfile.V2
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate preferred_category_order(), to: Previous
+  def preferred_category_order, do: @categories_preferred_order
 
   # Following functions are all delegated to V0_2_1
 
@@ -32,10 +39,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate format_severity(key, count), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: Previous
+  defdelegate count_by_category_and_severity(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summary(validation_result), to: Previous
+  defdelegate summary_by_category(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: Previous
@@ -57,5 +64,5 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate to_binary_result(result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: Previous
+  defdelegate summarize_xsd_errors(df), to: Previous
 end
