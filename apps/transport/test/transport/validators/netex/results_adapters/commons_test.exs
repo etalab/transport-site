@@ -257,4 +257,45 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       assert criticities == ["error", "warning"]
     end
   end
+
+  # Same criticity values but shuffled — sorted_slice must produce the same
+  # severity ordering as Enum.sort_by using severity_level/1.
+  describe "sorted_slice/2 ordering is consistent with severity_level/1" do
+    test "all severities sort in the correct order regardless of input order" do
+      assert_consistent_sort([
+        %{"code" => "a", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "b", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "c", "criticity" => "warning", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "d", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "e", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "f", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil}
+      ])
+    end
+
+    test "unknown criticity sorts after information (severity_level fallback = 4)" do
+      assert_consistent_sort([
+        %{"code" => "a", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "b", "criticity" => "unknown-level", "resource.filename" => nil, "resource.line" => nil}
+      ])
+    end
+
+    defp assert_consistent_sort(errors) do
+      assert sort_via_dataframe(errors) == sort_via_predicate(errors)
+    end
+
+    defp sort_via_dataframe(errors) do
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+      pagination_config = make_pagination_config(%{})
+
+      {_count, issues} = Commons.count_and_slice(df, pagination_config)
+      Enum.map(issues, & &1["code"])
+    end
+
+    # The canonical ordering from severity_level/1: error(1) < warning(2) < information(3)
+    defp sort_via_predicate(errors) do
+      errors
+      |> Enum.sort_by(&Commons.severity_level(&1["criticity"]))
+      |> Enum.map(& &1["code"])
+    end
+  end
 end
