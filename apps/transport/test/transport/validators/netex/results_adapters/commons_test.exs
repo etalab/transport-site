@@ -373,4 +373,50 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       assert Commons.count_by_category_and_severity(df) == %{}
     end
   end
+
+  describe "sorted_slice/2 ordering is consistent with severity_level/1" do
+    test "all severities sort in the correct order regardless of input order" do
+      # Same criticity values but shuffled — sorted_slice must produce the same
+      # severity ordering as Enum.sort_by using severity_level/1.
+      errors = [
+        %{"code" => "a", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "b", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "c", "criticity" => "warning", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "d", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "e", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "f", "criticity" => "error", "resource.filename" => nil, "resource.line" => nil}
+      ]
+
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+      pagination_config = make_pagination_config(%{})
+
+      {_count, issues} = Commons.count_and_slice(df, pagination_config)
+      criticities_via_sorted = Enum.map(issues, & &1["criticity"])
+
+      # The canonical ordering from severity_level/1: error(1) < warning(2) < information(3)
+      expected_criticities =
+        errors
+        |> Enum.sort_by(&Commons.severity_level(&1["criticity"]))
+        |> Enum.map(& &1["criticity"])
+
+      assert criticities_via_sorted == expected_criticities
+    end
+
+    test "unknown criticity sorts after information (severity_level fallback = 4)" do
+      errors = [
+        %{"code" => "a", "criticity" => "information", "resource.filename" => nil, "resource.line" => nil},
+        %{"code" => "b", "criticity" => "unknown-level", "resource.filename" => nil, "resource.line" => nil}
+      ]
+
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+      pagination_config = make_pagination_config(%{})
+
+      {_count, issues} = Commons.count_and_slice(df, pagination_config)
+      order_via_sorted = Enum.map(issues, & &1["code"])
+
+      expected_order = ["a", "b"]
+
+      assert order_via_sorted == expected_order
+    end
+  end
 end

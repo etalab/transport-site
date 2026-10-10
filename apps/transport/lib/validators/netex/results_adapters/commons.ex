@@ -170,9 +170,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
     end
   end
 
-  # NOTE: any change to this function must be mirrored in sorted_slice/2 which
-  # uses the same mapping inline (see comment there). They are the only two
-  # consumers and must stay in sync.
+  # NOTE: the inline mapping in sorted_slice/2 must stay consistent with this.
+  # Covered by behavioural tests (commons_test.exs).
   @doc false
   def severity_level(key) do
     case key do
