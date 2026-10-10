@@ -7,7 +7,7 @@ defmodule NeTExTestData do
   """
 
   # Errors in both XSD and base-rules categories with mixed severities.
-  # Used by category stats tests — summary_from_binary should report the worst
+  # Used by category stats tests — summary_by_category should report the worst
   # severity per category.
   def category_stats_result do
     %{

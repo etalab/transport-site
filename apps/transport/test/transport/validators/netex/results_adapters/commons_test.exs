@@ -113,7 +113,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
     Commons.to_dataframe(@errors, fn _ -> %{} end)
   end
 
-  describe "summary_from_binary/2" do
+  describe "summary_by_category/2" do
     test "returns per-category stats with worst criticity and count" do
       errors = [
         %{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"},
@@ -123,9 +123,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       ]
 
       df = Commons.to_dataframe(errors, fn _ -> %{} end)
-      binary = Commons.to_binary(df)
 
-      result = Commons.summary_from_binary(binary, ["xsd-schema", "base-rules"])
+      result = Commons.summary_by_category(df, ["xsd-schema", "base-rules"])
 
       assert length(result) == 2
 
@@ -138,9 +137,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
 
     test "returns all categories with count 0 and NoError when empty" do
       df = Commons.to_dataframe([], fn _ -> %{} end)
-      binary = Commons.to_binary(df)
 
-      result = Commons.summary_from_binary(binary, ["xsd-schema", "base-rules"])
+      result = Commons.summary_by_category(df, ["xsd-schema", "base-rules"])
 
       assert length(result) == 2
       xsd = Enum.find(result, &(&1["category"] == "xsd-schema"))
@@ -360,9 +358,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       ]
 
       df = Commons.to_dataframe(errors, fn _ -> %{} end)
-      binary = Commons.to_binary(df)
 
-      result = Commons.count_by_category_and_severity(binary)
+      result = Commons.count_by_category_and_severity(df)
 
       assert result == %{
                "xsd-schema" => %{"error" => 1, "warning" => 1},
@@ -372,9 +369,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
 
     test "returns empty map when no rows" do
       df = Commons.to_dataframe([], fn _ -> %{} end)
-      binary = Commons.to_binary(df)
 
-      assert Commons.count_by_category_and_severity(binary) == %{}
+      assert Commons.count_by_category_and_severity(df) == %{}
     end
   end
 end

@@ -42,7 +42,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate count_by_category_and_severity(validation_result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summary_from_binary(validation_result), to: Previous
+  defdelegate summary_by_category(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: Previous
@@ -64,5 +64,5 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
   defdelegate to_binary_result(result), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: Previous
+  defdelegate summarize_xsd_errors(df), to: Previous
 end

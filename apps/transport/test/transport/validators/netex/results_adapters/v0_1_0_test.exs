@@ -123,10 +123,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0Test do
     # Flatten into a single list (what the validator produces)
     all_errors = xsd_errors ++ base_errors
 
-    binary_result = V0_1_0.to_binary_result(all_errors)
+    df = V0_1_0.to_dataframe(all_errors)
 
-    # Call count_by_category_and_severity with the parquet file path (binary)
-    counts = V0_1_0.count_by_category_and_severity(binary_result)
+    # Call count_by_category_and_severity with a DataFrame
+    counts = V0_1_0.count_by_category_and_severity(df)
 
     # Verify structure: %{"xsd-schema" => %{...}, "base-rules" => %{...}}
     assert Map.has_key?(counts, "xsd-schema")

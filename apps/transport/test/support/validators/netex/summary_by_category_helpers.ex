@@ -1,6 +1,6 @@
-defmodule Transport.Test.Validators.NeTEx.SummaryFromBinary do
+defmodule Transport.Test.Validators.NeTEx.SummaryByCategoryHelpers do
   @moduledoc """
-  Shared helpers for testing `summary_from_binary/1` across adapter modules.
+  Shared helpers for testing `summary_by_category/1` across adapter modules.
   """
   import ExUnit.Assertions
 
@@ -9,18 +9,18 @@ defmodule Transport.Test.Validators.NeTEx.SummaryFromBinary do
     assert stat == expected
   end
 
-  def assert_summary_from_binary(adapter, categories_and_stats) do
+  def assert_summary_by_category(adapter, categories_and_stats) do
     errors = [%{"code" => "xsd-1", "criticity" => "error"}, %{"code" => "rule-1", "criticity" => "warning"}]
 
-    summary = errors |> adapter.to_binary_result() |> adapter.summary_from_binary()
+    summary = adapter.to_dataframe(errors) |> adapter.summary_by_category()
 
     for {category, expected} <- categories_and_stats do
       expect_stats(summary, category, expected)
     end
   end
 
-  def assert_summary_from_binary_empty(adapter, category_names) do
-    summary = [] |> adapter.to_binary_result() |> adapter.summary_from_binary()
+  def assert_summary_by_category_empty(adapter, category_names) do
+    summary = [] |> adapter.to_dataframe() |> adapter.summary_by_category()
 
     assert length(summary) == length(category_names)
 

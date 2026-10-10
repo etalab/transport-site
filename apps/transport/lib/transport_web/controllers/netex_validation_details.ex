@@ -8,6 +8,7 @@ defmodule TransportWeb.NeTExValidationDetails do
 
   alias DB.MultiValidation
   alias Transport.Validators.NeTEx.ResultsAdapter
+  alias Transport.Validators.NeTEx.ResultsAdapters.Commons
 
   @type t :: %__MODULE__{
           adapter: ResultsAdapter.t(),
@@ -62,22 +63,23 @@ defmodule TransportWeb.NeTExValidationDetails do
         params
       ) do
     adapter = ResultsAdapter.resolve(version)
+    df = Commons.from_binary(binary_result)
 
-    {filter, {total_entries, entries}} = adapter.get_issues(binary_result, params, config)
+    {filter, {total_entries, entries}} = adapter.get_issues(df, params, config)
     issues_page = paginate_netex_results({total_entries, entries}, config)
 
     %__MODULE__{
       adapter: adapter,
-      summary: adapter.summary_from_binary(binary_result),
+      summary: adapter.summary_by_category(df),
       stats: digest["stats"],
       metadata: metadata.metadata,
       modes: metadata.modes,
       filter: filter,
       issues_page: issues_page,
       max_severity: digest["max_severity"],
-      xsd_errors: adapter.summarize_xsd_errors(binary_result),
+      xsd_errors: adapter.summarize_xsd_errors(df),
       validator_version: version,
-      category_severity_counts: adapter.count_by_category_and_severity(binary_result)
+      category_severity_counts: adapter.count_by_category_and_severity(df)
     }
   end
 

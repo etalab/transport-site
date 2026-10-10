@@ -187,9 +187,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   def summarize_xsd_errors(<<>>), do: []
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summarize_xsd_errors(binary_result) do
-    df = Commons.from_binary(binary_result)
-
+  def summarize_xsd_errors(df) do
     if Commons.has_column?(df, "category") do
       df
       |> DF.filter(category == ^Commons.xsd_schema_category())
@@ -200,7 +198,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_0 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary_from_binary(binary_result) when is_binary(binary_result) do
-    Commons.summary_from_binary(binary_result, @categories_preferred_order)
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    Commons.summary_by_category(df, @categories_preferred_order)
   end
 end

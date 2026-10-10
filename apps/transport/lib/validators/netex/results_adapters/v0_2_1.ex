@@ -128,10 +128,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   def to_binary_result(errors), do: Commons.to_binary_result(errors, &to_dataframe/1)
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: V0_2_0
+  defdelegate summarize_xsd_errors(df), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summary_from_binary(binary_result) when is_binary(binary_result) do
-    Commons.summary_from_binary(binary_result, @categories_preferred_order)
+  def summary_by_category(%Explorer.DataFrame{} = df) do
+    Commons.summary_by_category(df, @categories_preferred_order)
   end
 end

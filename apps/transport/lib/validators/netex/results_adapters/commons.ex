@@ -196,7 +196,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   end
 
   @doc """
-  Computes a category-based summary from a binary (parquet) result.
+  Computes a category-based summary from a DataFrame.
 
   Counts only the most severe level per category. Returns all categories
   even when empty (with count 0 and NoError).
@@ -205,24 +205,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
       iex> errors = [%{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"}, %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}]
       iex> df = to_dataframe(errors, fn _ -> %{} end)
-      iex> binary = to_binary(df)
       iex> categories = ["xsd-schema", "base-rules"]
-      iex> summary_from_binary(binary, categories) |> Enum.map(fn c -> {c["category"], c["stats"]} end)
+      iex> summary_by_category(df, categories) |> Enum.map(fn c -> {c["category"], c["stats"]} end)
       [{"xsd-schema", %{"count" => 1, "criticity" => "error"}}, {"base-rules", %{"count" => 1, "criticity" => "warning"}}]
   """
-  def summary_from_binary(<<>>, categories_preferred_order) do
-    categories_preferred_order
-    |> Enum.map(fn category ->
-      %{
-        "category" => category,
-        "stats" => %{"count" => 0, "criticity" => @no_error}
-      }
-    end)
-  end
-
-  def summary_from_binary(binary_result, categories_preferred_order) when is_binary(binary_result) do
-    df = from_binary(binary_result)
-
+  def summary_by_category(%Explorer.DataFrame{} = df, categories_preferred_order) do
     categories_with_counts =
       if has_column?(df, "category") do
         group_by_category(df)
@@ -271,7 +258,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   end
 
   @doc """
-  Computes per-category, per-severity counts from a binary (parquet) result.
+  Computes per-category, per-severity counts from a DataFrame.
 
   Returns `%{"category" => %{"error" => N, "warning" => M}}`.
   Categories with no rows are omitted.
@@ -280,15 +267,10 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
 
       iex> errors = [%{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"}, %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}]
       iex> df = to_dataframe(errors, fn _ -> %{} end)
-      iex> binary = to_binary(df)
-      iex> count_by_category_and_severity(binary)
+      iex> count_by_category_and_severity(df)
       %{"xsd-schema" => %{"error" => 1}, "base-rules" => %{"warning" => 1}}
   """
-  def count_by_category_and_severity(<<>>), do: %{}
-
-  def count_by_category_and_severity(binary_result) when is_binary(binary_result) do
-    df = from_binary(binary_result)
-
+  def count_by_category_and_severity(%Explorer.DataFrame{} = df) do
     if has_column?(df, "category") do
       group_by_category(df)
       |> Map.new(&extract_counts/1)
@@ -304,17 +286,16 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.Commons do
   @doc """
   Converts errors to a binary (parquet) result.
 
-  Handles two input shapes:
-  - `nil` → empty binary
-  - list of error maps → converted via the provided `to_dataframe` function
+  Accepts a list of error maps and converts them via the provided `to_dataframe`
+  function, then serializes to parquet.
 
   ## Examples
 
-      iex> to_binary_result(nil, fn _ -> "dummy" end)
-      \"\"
+      iex> errors = [%{"code" => "xsd-1", "criticity" => "error"}]
+      iex> binary = to_binary_result(errors, fn _ -> Explorer.DataFrame.new(code: []) end)
+      iex> is_binary(binary)
+      true
   """
-  def to_binary_result(nil, _to_dataframe), do: ""
-
   def to_binary_result(errors, to_dataframe) when is_list(errors) do
     errors
     |> to_dataframe.()
