@@ -16,8 +16,12 @@ defmodule TransportWeb.Backoffice.JobsLive do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket |> assign(%{worker: worker}) |> update_data()
+       socket |> assign_worker(worker) |> update_data()
      end)}
+  end
+
+  defp assign_worker(socket, worker) do
+    assign(socket, worker: worker, form: to_form(%{"worker" => worker}))
   end
 
   # TO DO: DRY code with proxy live
@@ -120,7 +124,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
 
   @impl true
   def handle_params(%{"worker" => worker}, _uri, socket) do
-    socket = socket |> assign(%{worker: worker})
+    socket = socket |> assign_worker(worker)
 
     {:noreply, update_data(socket, worker)}
   end

@@ -1,4 +1,3 @@
-<% nb_non_expired_keys = @stats.nb_records - @stats.nb_expired_keys %>
 <section class="container pt-48 pb-48">
   <h1>Debug du cache de l'application transport</h1>
 
@@ -18,8 +17,8 @@
   <h3>Clés actives</h3>
 
   <div class="pb-24">
-    <.form :let={f} for={%{}} as={@search_key_name} phx-change="filter" class="no-margin">
-      <.input field={f[:filter_key_name]} value={@filter_key_name} label="Filtrer par nom de clé" />
+    <.form for={@form} phx-change="filter" class="no-margin">
+      <.input field={@form[:filter_key_name]} label="Filtrer par nom de clé" />
     </.form>
   </div>
 
@@ -46,12 +45,12 @@
     </tbody>
   </table>
 
-  <p :if={nb_non_expired_keys - Enum.count(@stats.keys) == 1}>
+  <p :if={@stats.nb_hidden_keys == 1}>
     1 clé est masquée par le filtre courant.
   </p>
 
-  <p :if={nb_non_expired_keys - Enum.count(@stats.keys) >= 2}>
-    {Helpers.format_number(nb_non_expired_keys - Enum.count(@stats.keys))} clés sont masquées par le filtre courant.
+  <p :if={@stats.nb_hidden_keys >= 2}>
+    {Helpers.format_number(@stats.nb_hidden_keys)} clés sont masquées par le filtre courant.
   </p>
 
   <p class="small">Dernière mise à jour: {@last_updated_at}</p>

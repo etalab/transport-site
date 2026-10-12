@@ -25,8 +25,7 @@ defmodule TransportWeb.OfferSelectLive do
             {display(offer)}
             <span class="delete-tag" phx-click="remove_offer" phx-value-offer-id={offer.id} phx-target={@myself}></span>
           </span>
-          <% {field_name, field_value} = field_info(offer, index) %>
-          <.input field={@form[field_name]} type="hidden" value={field_value} />
+          <.input field={@form["offers[#{index}]"]} type="hidden" value={offer.id} />
         <% end %>
       </div>
     </div>
@@ -84,5 +83,4 @@ defmodule TransportWeb.OfferSelectLive do
   end
 
   def display(%{label: label, nom_aom: nom_aom}), do: "#{label} (#{nom_aom})"
-  def field_info(offer, index), do: {"offers[#{index}]", offer.id}
 end

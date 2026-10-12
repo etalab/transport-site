@@ -8,8 +8,8 @@
   <p class="small">Dernière mise à jour: {@last_updated_at}</p>
 
   <div class="pb-24">
-    <.form :let={f} for={%{}} phx-change="filter" class="no-margin">
-      <.input field={f[:worker]} value={@worker} label="Filter by worker label" />
+    <.form for={@form} phx-change="filter" class="no-margin">
+      <.input field={@form[:worker]} label="Filter by worker label" />
     </.form>
   </div>
   <p>Timezone: Europe/Paris</p>

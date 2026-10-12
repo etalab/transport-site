@@ -56,6 +56,22 @@ defmodule TransportWeb.Backoffice.PageView do
   end
 
   @doc """
+  Options of a datalist, as `{item, label}`: each item with its label, and again with
+  the unaccented label when it differs, so that typing without accents also suggests it.
+
+  iex> datalist_options(["Lyon", "Montréal"])
+  [{"Lyon", "Lyon"}, {"Montréal", "Montréal"}, {"Montréal", "Montreal"}]
+  iex> datalist_options([%{id: 1, name: "Élise"}], & &1.name)
+  [{%{id: 1, name: "Élise"}, "Élise"}, {%{id: 1, name: "Élise"}, "Elise"}]
+  """
+  @spec datalist_options([item], (item -> binary())) :: [{item, binary()}] when item: any()
+  def datalist_options(items, label_fun \\ & &1) do
+    for item <- items, label <- with_unaccented(label_fun.(item)), do: {item, label}
+  end
+
+  defp with_unaccented(label), do: Enum.uniq([label, unaccent(label)])
+
+  @doc """
   Returns the list of dataset filters available in the backoffice index page.
   Each filter has a `key` (used in query params), a `label` (displayed to user),
   and whether it's active when selected.

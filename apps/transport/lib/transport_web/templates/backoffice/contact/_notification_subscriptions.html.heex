@@ -1,7 +1,3 @@
-<% subscriptions_with_dataset = notification_subscriptions_with_dataset(@notification_subscriptions) %>
-<% subscriptions_without_dataset = notification_subscriptions_without_dataset(@notification_subscriptions) %>
-<% reasons_subscribed_without_dataset = subscriptions_without_dataset |> Enum.map(& &1.reason) |> Enum.uniq() %>
-
 <div :if={!@creating_contact} class="panel" id="notification_subscriptions">
   <h2>Abonnements à des notifications</h2>
 
@@ -15,7 +11,7 @@
 
   <.form
     :let={f}
-    for={@conn.params}
+    for={%{}}
     action={backoffice_notification_subscription_path(@conn, :create)}
     class="backoffice-form"
   >
@@ -48,7 +44,7 @@
 
   <.form
     :let={f}
-    for={@conn.params}
+    for={%{}}
     action={backoffice_notification_subscription_path(@conn, :create)}
     class="backoffice-form"
   >
@@ -62,7 +58,7 @@
           type="checkbox"
           field={f[reason]}
           label={to_string(reason)}
-          checked={reason in reasons_subscribed_without_dataset}
+          checked={Enum.any?(@subscriptions_without_dataset, &(&1.reason == reason))}
           wrapper={false}
         />
       </fieldset>
@@ -77,7 +73,7 @@
     {dgettext("backoffice", "There are no notification subscriptions for this contact.")}
   </p>
 
-  <table :if={Enum.count(subscriptions_with_dataset) > 0} class="table mt-48 dashboard-description">
+  <table :if={@subscriptions_with_dataset != %{}} class="table mt-48 dashboard-description">
     <tr>
       <th>{dgettext("backoffice", "Dataset")}</th>
       <th>{dgettext("backoffice", "Role")}</th>
@@ -85,7 +81,7 @@
       <th>Source</th>
       <th>Actions</th>
     </tr>
-    <%= for {dataset, notification_subscriptions} <- subscriptions_with_dataset do %>
+    <%= for {dataset, notification_subscriptions} <- @subscriptions_with_dataset do %>
       <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
         <tr>
           <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
@@ -136,14 +132,14 @@
     <% end %>
   </table>
 
-  <table :if={Enum.count(subscriptions_without_dataset) > 0} class="table mt-48 dashboard-description">
+  <table :if={@subscriptions_without_dataset != []} class="table mt-48 dashboard-description">
     <tr>
       <th>{dgettext("backoffice", "Role")}</th>
       <th>{dgettext("backoffice", "Notification reason")}</th>
       <th>Source</th>
       <th>Actions</th>
     </tr>
-    <%= for notification_subscription <- Enum.sort_by(subscriptions_without_dataset, & &1.reason, :asc) do %>
+    <%= for notification_subscription <- Enum.sort_by(@subscriptions_without_dataset, & &1.reason, :asc) do %>
       <tr>
         <td><span class={role_class(notification_subscription)}>{notification_subscription.role}</span></td>
         <td>{notification_subscription.reason}</td>

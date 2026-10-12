@@ -57,7 +57,7 @@ defmodule TransportWeb.Backoffice.PageController do
   end
 
   defp build_query(conn, params, query) do
-    conn = assign(conn, :q, params["q"])
+    conn = assign(conn, :search_form, Phoenix.Component.to_form(Map.take(params, ["q"])))
 
     query
     |> DB.Dataset.filter_by_fulltext(params)

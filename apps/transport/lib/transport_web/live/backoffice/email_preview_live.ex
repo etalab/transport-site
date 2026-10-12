@@ -9,7 +9,11 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
     {:ok,
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        contact = DB.Repo.get_by(DB.Contact, datagouv_user_id: current_user["id"])
-       socket |> assign(contact: contact, selected_email: nil, search: params["search"], nonce: nonce) |> emails()
+
+       socket
+       |> assign(contact: contact, selected_email: nil, nonce: nonce)
+       |> assign_search(params["search"])
+       |> emails()
      end)}
   end
 
@@ -139,12 +143,16 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
     {:noreply, socket}
   end
 
+  defp assign_search(socket, search) do
+    assign(socket, search: search, form: to_form(%{"search" => search}))
+  end
+
   defp find_email(%Phoenix.LiveView.Socket{assigns: %{emails: emails}}, key_name) do
     Enum.find_value(emails, fn {key, _tags, item} -> if key == key_name, do: item end)
   end
 
   defp filter_config(%Phoenix.LiveView.Socket{} = socket, %{"search" => search}) do
-    socket |> assign(%{search: search}) |> filter_config()
+    socket |> assign_search(search) |> filter_config()
   end
 
   defp filter_config(

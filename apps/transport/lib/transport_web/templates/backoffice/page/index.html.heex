@@ -165,7 +165,7 @@
 
   <.form
     :let={f}
-    for={@conn.params}
+    for={@search_form}
     action={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
     id="backoffice_search_container"
     method="get"
@@ -176,7 +176,6 @@
           field={f[:q]}
           type="search"
           id="backoffice_search"
-          value={assigns[:q] || ""}
           placeholder={dgettext("page-index", "Find dataset")}
         />
         <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>

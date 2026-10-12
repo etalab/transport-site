@@ -33,8 +33,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             >
             </span>
           </span>
-          <% {field_name, field_value} = field_info(owner, index) %>
-          <.input field={@form[field_name]} type="hidden" value={field_value} />
+          <.input field={@form["legal_owners_#{owner.type}[#{index}]"]} type="hidden" value={owner.id} />
         <% end %>
       </div>
     </div>
@@ -93,10 +92,6 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   # clear the input using a js hook
   def clear_input(socket) do
     push_event(socket, "backoffice-form-owner-reset", %{})
-  end
-
-  def field_info(owner, index) do
-    {"legal_owners_#{owner.type}[#{index}]", owner.id}
   end
 
   def owner_label(%{label: label, type: type}) do
