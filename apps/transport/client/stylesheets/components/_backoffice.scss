@@ -157,6 +157,11 @@
   justify-content: center;
 }
 
+// Denser forms than the design system's, which spaces groups by var(--space-l)
+.backoffice-form .form__group + .form__group {
+  margin-top: var(--space-s);
+}
+
 #backoffice_search {
   padding-left: 30px;
   width: 400px;

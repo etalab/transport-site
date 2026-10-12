@@ -9,10 +9,12 @@
     <p>Généré à {@latest_report.inserted_at} ({@latest_report.resources |> length} ressources analysées)</p>
 
     <.form :let={f} id="filtering_expression" for={%{}} as={:config} phx-change="change_form" phx-submit="ignore">
-      {text_input(f, :filtering_expression,
-        value: @filtering_expression,
-        placeholder: "Filtre (org / validité uniquement)"
-      )}
+      <.input
+        field={f[:filtering_expression]}
+        value={@filtering_expression}
+        placeholder="Filtre (org / validité uniquement)"
+        wrapper={false}
+      />
     </.form>
     <table class="table mt-48">
       <thead>

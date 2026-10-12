@@ -3,7 +3,6 @@ defmodule TransportWeb.Backoffice.CacheLive do
   A view to help debug the Cachex memory cache.
   """
   use TransportWeb, :live_view
-  use PhoenixHTMLHelpers
   import Transport.Application, only: [cache_name: 0]
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import TransportWeb.Router.Helpers

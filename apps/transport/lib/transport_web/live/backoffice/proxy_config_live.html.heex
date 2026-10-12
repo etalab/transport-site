@@ -11,15 +11,19 @@
   </p>
 
   <.form :let={f} for={%{}} phx-change="change" id="backoffice_search_container">
-    {search_input(f, :search, value: @search, id: "backoffice_search")}
+    <.input field={f[:search]} type="search" value={@search} id="backoffice_search" />
     <div class="form__group ml-1em">
-      {select(f, :type, [{"Tout", ""}] ++ @select_options,
-        selected: @type,
-        label: "Type de flux"
-      )}
+      <.input
+        field={f[:type]}
+        type="select"
+        options={[{"Tout", ""}] ++ @select_options}
+        value={@type}
+        label="Type de flux"
+        wrapper={false}
+      />
     </div>
     <div class="form__group ml-1em">
-      {label(f, :disk, "Cache sur disque")}{checkbox(f, :disk, value: @disk)}
+      <.input type="checkbox" field={f[:disk]} value={@disk} label="Cache sur disque" wrapper={false} />
     </div>
   </.form>
 

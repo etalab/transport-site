@@ -1,52 +1,41 @@
 defmodule TransportWeb.Backoffice.PageView do
   use TransportWeb, :view
+  use Phoenix.Component
   alias DB.Dataset
   alias Plug.Conn.Query
 
-  @spec backoffice_sort_link(Plug.Conn.t(), String.t(), atom, %{field: atom, direction: atom}) ::
-          any
-  def backoffice_sort_link(conn, text, order_by, current_order) do
-    dir =
-      case current_order.field == order_by do
-        false ->
-          :asc
+  attr(:conn, Plug.Conn, required: true)
+  attr(:field, :atom, required: true, doc: "the field to sort by")
+  attr(:order_by, :map, required: true, doc: "the current order, as `%{field: atom, direction: atom}`")
+  slot(:inner_block, required: true)
 
-        true ->
-          case current_order.direction do
-            :asc -> :desc
-            _ -> :asc
-          end
-      end
+  def sort_link(assigns) do
+    ~H"""
+    <.link href={sort_url(@conn, @field, @order_by)}>
+      {render_slot(@inner_block)} <i class={["sort-icon fa", sort_icon(@field, @order_by)]}></i>
+    </.link>
+    """
+  end
 
+  defp sort_url(conn, field, order_by) do
     params =
       conn.query_params
-      |> Map.put("order_by", order_by)
-      |> Map.put("dir", dir)
+      |> Map.put("order_by", field)
+      |> Map.put("dir", sort_direction(field, order_by))
 
-    full_url =
-      conn.request_path
-      |> URI.parse()
-      |> Map.put(:query, Query.encode(params))
-      |> URI.to_string()
-      |> Kernel.<>("#backoffice-datasets-table")
-
-    sort_arrow = get_arrow(current_order.field == order_by, current_order.direction)
-    link(raw("#{text} #{sort_arrow}"), to: full_url)
+    conn.request_path
+    |> URI.parse()
+    |> Map.put(:query, Query.encode(params))
+    |> URI.to_string()
+    |> Kernel.<>("#backoffice-datasets-table")
   end
 
-  @spec get_arrow(boolean, atom) :: <<_::64, _::_*8>>
-  defp get_arrow(column_is_sorted, direction) do
-    case {column_is_sorted, direction} do
-      {false, _} ->
-        "<i class=\"sort-icon fa fa-sort\"></i>"
+  defp sort_direction(field, %{field: field, direction: :asc}), do: :desc
+  defp sort_direction(_field, _order_by), do: :asc
 
-      {true, :asc} ->
-        "<i class=\"sort-icon fa fa-sort-down\"></i>"
-
-      {true, :desc} ->
-        "<i class=\"sort-icon fa fa-sort-up\"></i>"
-    end
-  end
+  defp sort_icon(field, %{field: field, direction: :asc}), do: "fa-sort-down"
+  defp sort_icon(field, %{field: field, direction: :desc}), do: "fa-sort-up"
+  defp sort_icon(_field, _order_by), do: "fa-sort"
 
   @doc """
   Replaces accented letters by their regular versions.

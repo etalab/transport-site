@@ -26,11 +26,11 @@
 
     <hr />
 
-    <%= form_for @conn, backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+    <.form for={%{}} action={backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params)}>
       <button type="submit" role="menuitem">
         <i class="fas fa-download"></i> {dgettext("backoffice", "Import")}
       </button>
-    <% end %>
+    </.form>
 
     {live_render(@conn, TransportWeb.Live.ValidateDatasetView,
       session: %{"dataset_id" => @dataset.id, "base_classname" => "ctx-menu__validate", "button_role" => "menuitem"}
@@ -42,10 +42,10 @@
 
     <hr />
 
-    <%= form_for @conn, backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params), [nodiv: true], fn _ -> %>
+    <.form for={%{}} action={backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params)}>
       <button type="submit" class="ctx-menu__delete" role="menuitem">
         <i class="fas fa-trash"></i> {dgettext("backoffice", "Remove")}
       </button>
-    <% end %>
+    </.form>
   </div>
 </div>

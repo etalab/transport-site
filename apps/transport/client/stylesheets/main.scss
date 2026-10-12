@@ -193,6 +193,13 @@ dialog {
   margin-left: var(--space-s) !important;
 }
 
+// <.input type="checkbox"> puts a hidden input before each checkbox, which the
+// design system rule `.label-inline + input[type=checkbox]` does not expect
+.label-inline + input[type="hidden"] + input[type="checkbox"] {
+  margin-left: var(--space-m);
+  flex-shrink: 0;
+}
+
 .user-name-display, a.with-badge {
   display: flex;
   align-items: center;

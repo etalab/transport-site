@@ -244,11 +244,11 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
         "gtfs-diff",
         "An error occurred while interpreting the results. Note that the report is still available as download. Error:"
       )}
-      <span class="red"><%= translate_error(@error_msg) %></span>.
+      <span class="red"><%= error_message(@error_msg) %></span>.
     </p>
     """
   end
 
-  defp translate_error(":enomem"), do: dgettext("gtfs-diff", "not enough memory")
-  defp translate_error(e), do: "#{e}"
+  defp error_message(":enomem"), do: dgettext("gtfs-diff", "not enough memory")
+  defp error_message(e), do: "#{e}"
 end
