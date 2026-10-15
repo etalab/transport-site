@@ -14,7 +14,7 @@ defmodule TransportWeb.ValidationView do
       netex_validation_report_title: 1
     ]
 
-  import Phoenix.Component, only: [sigil_H: 2, live_render: 3]
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, link: 1]
 
   def render("_" <> _ = partial, assigns) do
     render(TransportWeb.ResourceView, partial, assigns)

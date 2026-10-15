@@ -17,7 +17,7 @@
 
   <div :if={not is_nil(@resource.schema_name)} title={dgettext("page-dataset-details", "Resource declared schema")}>
     <i class="icon icon--table" aria-hidden="true"></i>
-    {link(schema_label(@resource), to: documentation_url(@resource), target: "_blank")}
+    <.link href={documentation_url(@resource)} target="_blank">{schema_label(@resource)}</.link>
   </div>
 
   <.validity_dates :if={tc?} multi_validation={validation} locale={locale} />
@@ -44,10 +44,10 @@
     </span>
     <div :if={related_gtfs_resource != nil}>
       <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
-        <i class="icon fa fa-link" aria-hidden="true"></i>{link("GTFS",
-          to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id),
-          class: "dark"
-        )}
+        <i class="icon fa fa-link" aria-hidden="true"></i><.link
+          href={~p"/resources/#{related_gtfs_resource.resource_dst_id}"}
+          class="dark"
+        >GTFS</.link>
       </span>
     </div>
     <div :if={Map.has_key?(unavailabilities, @resource.id)}>
@@ -59,9 +59,7 @@
         <img class="icon icon--uptime" src={static_path(@conn, "/images/icons/uptime.svg")} />
         <% availability_ratio = unavailabilities[@resource.id] %>
         <span class={availability_ratio_class(availability_ratio)}>
-          {link("#{availability_ratio}%",
-            to: "#{resource_path(@conn, :details, @resource.id)}#download-availability"
-          )}
+          <.link href={"#{~p"/resources/#{@resource}"}#download-availability"}>{availability_ratio}%</.link>
         </span>
         <span class="small">{dgettext("page-dataset-details", "Availability rate")}</span>
       </span>

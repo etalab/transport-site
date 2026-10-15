@@ -74,11 +74,8 @@
   </div>
   <div class="container">
     <div class="footer__logo">
-      {link("Ministère des Transports",
-        to: "https://www.ecologie.gouv.fr",
-        class: "ministere-link"
-      )}
-      {link(img_tag("/images/logo-footer.svg", alt: "transport.data.gouv.fr"), to: "/")}
+      <.link href="https://www.ecologie.gouv.fr" class="ministere-link">Ministère des Transports</.link>
+      <.link href={~p"/"}><img src={~p"/images/logo-footer.svg"} alt="transport.data.gouv.fr" /></.link>
     </div>
     <ul class="footer__links">
       <li>

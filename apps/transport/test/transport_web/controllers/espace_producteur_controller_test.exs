@@ -378,7 +378,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert td_text.(doc) == "Modifier la ressource GTFS réutilisateurSupprimer la ressource"
+      assert td_text.(doc) == "Modifier la ressource GTFS réutilisateur Supprimer la ressource"
     end
 
     test "when a custom logo is set", %{conn: conn} do
@@ -1270,7 +1270,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"href", gtfs_diff_url},
                   {"target", "_blank"}
                 ], ["Comparer avec mon GTFS"]}
-             ] = html |> Floki.find("a.button-outline")
+             ] =
+               html
+               |> Floki.find("a.button-outline")
+               |> Enum.map(fn {"a", attrs, [text]} -> {"a", Enum.sort(attrs), [String.trim(text)]} end)
 
       %URI{path: "/tools/gtfs_diff", query: query} = URI.new!(gtfs_diff_url)
 

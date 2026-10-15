@@ -28,7 +28,7 @@
         <% resources_served_by_proxy = Enum.filter(dataset.resources, &DB.Resource.served_by_proxy?/1) %>
         <%= unless Enum.empty?(resources_served_by_proxy) do %>
           <h3 class="proxy-statistics__dataset-title">
-            {link(dataset.custom_title, to: dataset_path(@conn, :details, dataset.slug))}
+            <.link href={~p"/datasets/#{dataset.slug}"}>{dataset.custom_title}</.link>
           </h3>
           <%= for resource <- resources_served_by_proxy do %>
             {render("_proxy_requests_stats.html",

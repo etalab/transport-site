@@ -29,8 +29,7 @@
   {description(@resource)}
 </div>
 <p>
-  {dgettext("validations", "This resource file is part of the dataset")} {link(
-    @resource.dataset.custom_title,
-    to: dataset_path(@conn, :details, @resource.dataset.slug)
-  )}.
+  {dgettext("validations", "This resource file is part of the dataset")} <.link href={
+    ~p"/datasets/#{@resource.dataset.slug}"
+  }>{@resource.dataset.custom_title}</.link>.
 </p>

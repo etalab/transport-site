@@ -1,4 +1,3 @@
-<% cta_url = TransportWeb.Router.Helpers.dataset_url(@conn, :index, type: "vehicles-sharing") %>
 <article class="landing_page_vls">
   <div class="wrapper">
     <header class="center">
@@ -8,8 +7,9 @@
       <p>
         {dgettext("landing-vls", "description")}
       </p>
-      {dgettext("landing-vls", "Directly access the data")
-      |> link(to: cta_url, class: "cta")}
+      <.link href={url(~p"/datasets?#{[type: "vehicles-sharing"]}")} class="cta">
+        {dgettext("landing-vls", "Directly access the data")}
+      </.link>
     </header>
 
     <section class="banner">
@@ -122,8 +122,9 @@
   </section>
 
   <footer>
-    {dgettext("landing-vls", "Access the data")
-    |> link(to: cta_url, class: "cta")}
+    <.link href={url(~p"/datasets?#{[type: "vehicles-sharing"]}")} class="cta">
+      {dgettext("landing-vls", "Access the data")}
+    </.link>
     <p>
       {dgettext(
         "landing-vls",

@@ -44,8 +44,8 @@ defmodule TransportWeb do
       # Use all HTML functionality (forms, tags, etc)
       use TransportWeb.InputHelpers
 
-      # static_path/2 and static_url/2 come from Phoenix.VerifiedRoutes
-      import TransportWeb.Router.Helpers, except: [static_path: 2, static_url: 2]
+      # url/1, path/2, static_path/2 and static_url/2 come from Phoenix.VerifiedRoutes
+      import TransportWeb.Router.Helpers, except: [url: 1, path: 2, static_path: 2, static_url: 2]
       import TransportWeb.InputHelpers
       use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.SeoMetadata

@@ -739,7 +739,7 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     assert conn |> get(dataset_path(conn, :details, slug)) |> html_response(200) =~
-             ~s{<i class="icon fa fa-link" aria-hidden="true"></i><a class="dark" href="#{resource_path(conn, :details, gtfs.id)}">GTFS</a>}
+             ~s{<i class="icon fa fa-link" aria-hidden="true"></i><a href="#{resource_path(conn, :details, gtfs.id)}" class="dark">GTFS</a>}
   end
 
   test "dataset#details with notifications sent recently", %{conn: conn} do
@@ -1479,6 +1479,7 @@ defmodule TransportWeb.DatasetControllerTest do
     |> html_response(200)
     |> Floki.parse_document!()
     |> Floki.find(~s|div[data-section="dataset-header-links"] a|)
+    |> Enum.map(fn {"a", attrs, [text]} -> {"a", attrs, [String.trim(text)]} end)
   end
 
   defp dataset_has_banner_with_text(%Plug.Conn{} = conn, %DB.Dataset{slug: slug}, text) do

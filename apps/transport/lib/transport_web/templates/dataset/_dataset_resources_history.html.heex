@@ -20,10 +20,9 @@
           <%= for resource_history <- @history_resources do %>
             <tr>
               <td>
-                {link(resource_history.payload["title"],
-                  to: resource_history.payload["permanent_url"],
-                  rel: "nofollow"
-                )}
+                <.link href={resource_history.payload["permanent_url"]} rel="nofollow">
+                  {resource_history.payload["title"]}
+                </.link>
               </td>
               <td>{resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(@locale)}</td>
               <%= if has_validity_period_col do %>

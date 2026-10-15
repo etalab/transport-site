@@ -91,9 +91,7 @@ locale = get_session(@conn, :locale) %>
         <ul>
           <%= for resource <- @other_resources do %>
             <li>
-              {link(resource.title,
-                to: resource_path(@conn, :details, resource.id)
-              )}
+              <.link href={~p"/resources/#{resource}"}>{resource.title}</.link>
             </li>
           <% end %>
         </ul>

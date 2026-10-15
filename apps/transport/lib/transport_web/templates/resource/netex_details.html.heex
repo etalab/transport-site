@@ -90,7 +90,7 @@
       <div class="panel">
         <ul>
           <li :for={resource <- @other_resources}>
-            {link(resource.title, to: resource_path(@conn, :details, resource.id))}
+            <.link href={~p"/resources/#{resource}"}>{resource.title}</.link>
           </li>
         </ul>
       </div>

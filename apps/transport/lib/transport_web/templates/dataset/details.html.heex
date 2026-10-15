@@ -194,10 +194,9 @@
           </div>
         <% else %>
           <span class="discussion-commment__connection-needed">
-            {link(
-              dgettext("page-dataset-details", "You need to be connected to start a discussion"),
-              to: page_path(@conn, :login, redirect_path: current_path(@conn))
-            )}
+            <.link href={~p"/login/explanation?#{[redirect_path: current_path(@conn)]}"}>
+              {dgettext("page-dataset-details", "You need to be connected to start a discussion")}
+            </.link>
           </span>
         <% end %>
       </div>
@@ -221,7 +220,7 @@
         <span class="dataset-metas-info-title">{dgettext("page-dataset-details", "Data published by")}</span>
         <div>
           <b>
-            {link(@dataset.organization, to: dataset_path(@conn, :index, organization_id: @dataset.organization_id))}
+            <.link href={~p"/datasets?#{[organization_id: @dataset.organization_id]}"}>{@dataset.organization}</.link>
           </b>
         </div>
       </div>
@@ -242,7 +241,7 @@
         </span>
         <div>
           <%= for offer <- @dataset.offers |> Enum.sort_by(& &1.nom_commercial) do %>
-            {link(offer.nom_commercial, to: dataset_path(@conn, :by_offer, offer.identifiant_offre))}
+            <.link href={~p"/datasets/offer/#{offer.identifiant_offre}"}>{offer.nom_commercial}</.link>
           <% end %>
         </div>
       </div>

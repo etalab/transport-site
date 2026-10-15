@@ -99,12 +99,14 @@
                   <i class="icon fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "Edit resource")}
                 </a>
                 <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
-                  {link(dgettext("espace-producteurs", "Reuser GTFS"),
-                    to: espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id),
-                    class: "button-outline reuser small",
-                    "data-tracking-category": "espace_producteur",
-                    "data-tracking-action": "see_reuser_improved_data"
-                  )}
+                  <.link
+                    href={~p"/espace_producteur/datasets/#{@dataset.id}/reuser_improved_data/#{db_resource}"}
+                    class="button-outline reuser small"
+                    data-tracking-category="espace_producteur"
+                    data-tracking-action="see_reuser_improved_data"
+                  >
+                    {dgettext("espace-producteurs", "Reuser GTFS")}
+                  </.link>
                 <% end %>
                 <a
                   href={espace_producteur_path(@conn, :delete_resource_confirmation, @dataset.id, resource["id"])}
@@ -129,13 +131,15 @@
         </a>
 
         <p class="pt-24">{dgettext("espace-producteurs", "full-edition-on-data-gouv-fr")}</p>
-        {link(dgettext("espace-producteurs", "Edit on data.gouv.fr"),
-          to: datagouv_admin_url,
-          class: "button-outline primary small",
-          target: "_blank",
-          "data-tracking-category": "espace_producteur",
-          "data-tracking-action": "edit_on_data_gouv_fr_button"
-        )}
+        <.link
+          href={datagouv_admin_url}
+          class="button-outline primary small"
+          target="_blank"
+          data-tracking-category="espace_producteur"
+          data-tracking-action="edit_on_data_gouv_fr_button"
+        >
+          {dgettext("espace-producteurs", "Edit on data.gouv.fr")}
+        </.link>
       </div>
     </div>
 

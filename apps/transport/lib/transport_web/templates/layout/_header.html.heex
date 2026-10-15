@@ -20,46 +20,45 @@
             <button type="button" class="dropdown">
               {gettext("Data")}
               <div class="dropdown-content">
-                {link(gettext("Datasets"), to: dataset_path(@conn, :index))}
-                {link(gettext("Data exploration map"), to: explore_path(@conn, :index))}
-                {link(gettext("National GTFS stops map"), to: explore_path(@conn, :gtfs_stops))}
-                {link(gettext("Reuses"), to: reuse_path(@conn, :index))}
+                <.link href={~p"/datasets"}>{gettext("Datasets")}</.link>
+                <.link href={~p"/explore"}>{gettext("Data exploration map")}</.link>
+                <.link href={~p"/explore/gtfs-stops"}>{gettext("National GTFS stops map")}</.link>
+                <.link href={~p"/reuses"}>{gettext("Reuses")}</.link>
               </div>
             </button>
           </li>
           <li class="nav__item">
-            {link(gettext("Documentation"), to: "https://doc.transport.data.gouv.fr")}
+            <.link href="https://doc.transport.data.gouv.fr">{gettext("Documentation")}</.link>
           </li>
           <li class="nav__item">
             <button type="button" class="dropdown">
               {gettext("Tools")}
               <div class="dropdown-content">
-                {link(gettext("Check the quality of a file or a feed"),
-                  to: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
-                )}
-                {link(gettext("Compare two GTFS files"),
-                  to: live_path(@conn, TransportWeb.Live.GTFSDiffSelectLive)
-                )}
-                {link(gettext("SIRI query generator"), to: live_path(@conn, TransportWeb.Live.SIRIQuerierLive))}
+                <.link href={~p"/validation"}>{gettext("Check the quality of a file or a feed")}</.link>
+                <.link href={~p"/tools/gtfs_diff"}>{gettext("Compare two GTFS files")}</.link>
+                <.link href={~p"/tools/siri-querier"}>{gettext("SIRI query generator")}</.link>
 
-                {link(gettext("Accèslibre Mobilités"), to: "https://mtes-mct.github.io/alm-docs/", target: "_blank")}
-                {link(gettext("Service status"), to: "https://status.transport.data.gouv.fr", target: "_blank")}
+                <.link href="https://mtes-mct.github.io/alm-docs/" target="_blank">
+                  {gettext("Accèslibre Mobilités")}
+                </.link>
+                <.link href="https://status.transport.data.gouv.fr" target="_blank">{gettext("Service status")}</.link>
               </div>
             </button>
           </li>
           <li class="nav__item">
-            {link(gettext("Statistics"), to: stats_path(@conn, :index))}
+            <.link href={~p"/stats"}>{gettext("Statistics")}</.link>
           </li>
           <li class="nav__item">
             <button type="button" class="dropdown">
               {gettext("Regulation")}
               <div class="dropdown-content">
-                {link(gettext("Standards"), to: "https://normes.transport.data.gouv.fr", target: "_blank")}
-                {link(gettext("Declaration of conformity"),
-                  to:
-                    "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite",
-                  target: "_blank"
-                )}
+                <.link href="https://normes.transport.data.gouv.fr" target="_blank">{gettext("Standards")}</.link>
+                <.link
+                  href="https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/declaration-de-conformite"
+                  target="_blank"
+                >
+                  {gettext("Declaration of conformity")}
+                </.link>
               </div>
             </button>
           </li>
@@ -67,13 +66,13 @@
             <button type="button" class="dropdown">
               {gettext("About")}
               <div class="dropdown-content">
-                {link(gettext("Our missions"), to: page_path(@conn, :missions))}
-                {link(gettext("New features"), to: page_path(@conn, :nouveautes))}
+                <.link href={~p"/missions"}>{gettext("Our missions")}</.link>
+                <.link href={~p"/nouveautes"}>{gettext("New features")}</.link>
               </div>
             </button>
           </li>
           <li class="nav__item">
-            {link(gettext("Blog"), to: "https://blog.transport.data.gouv.fr")}
+            <.link href="https://blog.transport.data.gouv.fr">{gettext("Blog")}</.link>
           </li>
           <%= if assigns[:current_user] do %>
             <li class="nav__item">
@@ -92,7 +91,7 @@
                 </div>
                 <div class="dropdown-content">
                   <%= if TransportWeb.Session.admin?(@conn) do %>
-                    {link("Administration", to: "/backoffice")}
+                    <.link href={~p"/backoffice"}>Administration</.link>
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
                     <a
@@ -141,8 +140,8 @@
                 <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="18px" />
               <% end %>
               <div class="dropdown-content languages">
-                {link("Français", to: add_locale_to_url(@conn, "fr"))}
-                {link("English", to: add_locale_to_url(@conn, "en"))}
+                <.link href={add_locale_to_url(@conn, "fr")}>Français</.link>
+                <.link href={add_locale_to_url(@conn, "en")}>English</.link>
               </div>
             </button>
           </li>

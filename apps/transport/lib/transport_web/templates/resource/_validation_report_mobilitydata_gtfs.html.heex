@@ -42,7 +42,7 @@
           </p>
           <ul lang="en">
             <li :for={link <- get_in(rule, ["references", "urlReferences"])}>
-              {link(link["label"], to: link["url"])}
+              <.link href={link["url"]}>{link["label"]}</.link>
             </li>
           </ul>
         <% end %>
