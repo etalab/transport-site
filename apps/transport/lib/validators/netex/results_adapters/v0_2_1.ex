@@ -21,11 +21,11 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   Returns the maximum issue severity found from a DataFrame.
   """
   @spec get_max_severity_error(Explorer.DataFrame.t()) :: binary()
-  defdelegate get_max_severity_error(validation_result), to: V0_2_0
+  defdelegate get_max_severity_error(df), to: V0_2_0
 
   # Delegation to V0_2_0 — these now accept DataFrames via the updated callbacks
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_max_severity(validation_result), to: V0_2_0
+  defdelegate count_max_severity(df), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate no_error?(severity), to: V0_2_0
@@ -36,7 +36,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   defdelegate format_severity(key, count), to: V0_2_0
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: V0_2_0
+  defdelegate count_by_severity(df), to: V0_2_0
 
   defp categorize(code) do
     cond do
@@ -169,5 +169,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: V0_2_0
+  defdelegate summarize_xsd_errors(df), to: V0_2_0
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate from_binary(binary), to: V0_2_0
 end

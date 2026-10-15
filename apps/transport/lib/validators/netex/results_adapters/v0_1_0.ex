@@ -298,5 +298,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   end
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  def summarize_xsd_errors(_binary_result), do: []
+  def summarize_xsd_errors(_df), do: []
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate from_binary(binary), to: Commons
 end
