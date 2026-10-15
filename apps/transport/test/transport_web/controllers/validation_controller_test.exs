@@ -563,7 +563,7 @@ defmodule TransportWeb.ValidationControllerTest do
     defp _render_netex_category_stats(conn, version) do
       {conn, multi_validation, token} = setup_netex_validation(conn)
 
-      opts = build_multi_validation_opts(version, category_stats_result())
+      opts = build_multi_validation_opts(version, category_stats_result(version))
       mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
