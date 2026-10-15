@@ -16,13 +16,13 @@
     class="ctx-menu__content"
     role="menu"
   >
-    <a href={dataset_path(@conn, :details, @dataset.slug)} target="_blank" role="menuitem">
+    <.link href={~p"/datasets/#{@dataset.slug}"} target="_blank" role="menuitem">
       <i class="fa fa-link"></i> {dgettext("backoffice", "View on the PAN")}
-    </a>
+    </.link>
 
-    <a href={Dataset.datagouv_url(@dataset)} target="_blank" role="menuitem">
+    <.link href={Dataset.datagouv_url(@dataset)} target="_blank" role="menuitem">
       <i class="fa fa-link"></i> {dgettext("backoffice", "View on data.gouv.fr")}
-    </a>
+    </.link>
 
     <hr />
 
@@ -36,9 +36,9 @@
       session: %{"dataset_id" => @dataset.id, "base_classname" => "ctx-menu__validate", "button_role" => "menuitem"}
     )}
 
-    <a href={backoffice_page_path(@conn, :edit, @dataset.id)} role="menuitem">
+    <.link href={~p"/backoffice/datasets/#{@dataset.id}/edit"} role="menuitem">
       <i class="fas fa-pencil"></i> {dgettext("backoffice", "Edit")}
-    </a>
+    </.link>
 
     <hr />
 

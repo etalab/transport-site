@@ -8,7 +8,7 @@
     <li>Nombre de clés : {Helpers.format_number(@stats.nb_records)}</li>
     <li>Nombre de clés expirées : {@stats.nb_expired_keys}</li>
     <li>
-      Dernière exécution <a href="https://hexdocs.pm/cachex/ttl-implementation.html">du Janitor</a>
+      Dernière exécution <.link href="https://hexdocs.pm/cachex/ttl-implementation.html">du Janitor</.link>
       : {@stats.last_janitor_execution}
     </li>
     <li :if={Enum.count(@stats.expired_keys) > 0}>Clés expirées : {Enum.join(@stats.expired_keys, ", ")}</li>
@@ -36,9 +36,9 @@
           <td>{item.name}</td>
           <td>{format_ttl(item.ttl)}</td>
           <td>
-            <a href="#" phx-click="delete_key" phx-value-key_name={item.name}>
+            <.link phx-click="delete_key" phx-value-key_name={item.name}>
               Supprimer
-            </a>
+            </.link>
           </td>
         </tr>
       <% end %>

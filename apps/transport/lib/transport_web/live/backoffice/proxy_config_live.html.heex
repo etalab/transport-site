@@ -1,9 +1,11 @@
 <section class="container pt-48 pb-48">
   <h1>Configuration du Proxy</h1>
-  <a class="button" phx-click="refresh_proxy_config">Recharger la configuration</a>
+  <.link class="button" phx-click="refresh_proxy_config">Recharger la configuration</.link>
   <p>
     Attention: il faut attendre 5 minutes après le dernier commit sur la
-    <a href="https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml">configuration GitHub</a>
+    <.link href="https://github.com/transportdatagouvfr/proxy-config/blob/master/proxy-config.yml">
+      configuration GitHub
+    </.link>
     pour recharger, car GitHub met en cache ses propre fichiers.
   </p>
   <p>
@@ -51,8 +53,8 @@
           <td><span class="label">{resource.type}</span></td>
           <td data-name="unique-slug">{resource.unique_slug}</td>
           <% # TODO: use regular link helper %>
-          <td><a href={resource.proxy_url}>lien</a></td>
-          <td><a :if={resource.original_url} href={resource.original_url}>lien</a></td>
+          <td><.link href={resource.proxy_url}>lien</.link></td>
+          <td><.link :if={resource.original_url} href={resource.original_url}>lien</.link></td>
           <td>{resource.ttl}</td>
           <!-- optional stuff, only available when cache is loaded -->
           <td>{resource[:cache_size]}</td>

@@ -2,13 +2,13 @@
   <div class="container">
     <h2>Plug</h2>
     <p>
-      Le plug qui gère la logique de rate limiting, bloquer ou autoriser des requêtes est dans <a
+      Le plug qui gère la logique de rate limiting, bloquer ou autoriser des requêtes est dans <.link
         href="https://github.com/etalab/transport-site/blob/master/apps/transport/lib/transport_web/plugs/rate_limiter.ex"
         target="_blank"
-      ><code>TransportWeb.Plugs.RateLimiter</code></a>.
+      ><code>TransportWeb.Plugs.RateLimiter</code></.link>.
     </p>
     <p>
-      Le comptage des requêtes et le blocage d'une adresse IP est effectué par la librairie <a href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></a>. Le backend est Cachex, qui utilise la RAM. Ainsi un redémarrage de l'application
+      Le comptage des requêtes et le blocage d'une adresse IP est effectué par la librairie <.link href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></.link>. Le backend est Cachex, qui utilise la RAM. Ainsi un redémarrage de l'application
       <code>prod-site</code>
       réinitialise les compteurs et les adresses IPs bloquées.
     </p>
@@ -71,7 +71,7 @@
 
     <h2>Adresses IPs bloquées</h2>
     <p>
-      <a href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></a>
+      <.link href="https://github.com/xward/phoenix_ddos"><code>phoenix_ddos</code></.link>
       est la dépendance qui gère l'ajout/le retrait de la jail.
     </p>
 
