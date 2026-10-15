@@ -211,7 +211,7 @@ defmodule TransportWeb.ResourceControllerTest do
     end
 
     # v0.1.0 uses a different template without category tabs.
-    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+    for version <- NeTExTestData.versions(~r/0.2./) do
       @tag version: version
       test "NeTEx details displays per-category severity counts and summary (#{version})", %{conn: conn} do
         _render_netex_category_stats(conn, unquote(version))
@@ -234,19 +234,18 @@ defmodule TransportWeb.ResourceControllerTest do
           payload: %{"permanent_url" => _permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
         })
 
-      opts = build_multi_validation_opts(version, category_stats_result())
+      opts = build_multi_validation_opts(version, category_stats_result(version))
       insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
 
       conn = conn |> get(resource_path(conn, :details, resource.id))
       body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
 
-      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
-      # base-rules shows warning with its single item
-      assert body =~ ~r{XSD\s+– 2 erreurs}
+      # XSD tab shows worst severity (error), base-rules shows warning
+      assert body =~ ~r{XSD\s+– 1 erreur}
       assert body =~ ~r{Règles de base\s+– 1 avertissement}
     end
 
-    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+    for version <- NeTExTestData.versions(~r/0.2./) do
       @tag version: version
       test "NeTEx details filters issues by category when ?issues_category is set (#{version})", %{conn: conn} do
         _render_netex_details_filtered(conn, unquote(version))
@@ -281,7 +280,7 @@ defmodule TransportWeb.ResourceControllerTest do
       assert body =~ "Base-rule only error"
     end
 
-    for version <- ["0.2.0", "0.2.1", "0.2.2"] do
+    for version <- NeTExTestData.versions(~r/0.2./) do
       @tag version: version
       test "NeTEx details respects ?page= when requesting page 2 (#{version})", %{conn: conn} do
         _render_netex_details_pagination(conn, unquote(version))

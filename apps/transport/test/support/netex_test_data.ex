@@ -6,16 +6,61 @@ defmodule NeTExTestData do
   duplicating result maps and multi-validation builder logic across the two files.
   """
 
+  # All supported NeTEx validator versions, tested across multiple test suites.
+  def all_versions do
+    ["0.1.0", "0.2.0", "0.2.1", "0.2.2"]
+  end
+
+  def versions(pattern) do
+    all_versions() |> Enum.filter(fn version -> Regex.match?(pattern, version) end)
+  end
+
   # Errors in both XSD and base-rules categories with mixed severities.
-  # Used by category stats tests — summary_from_binary should report the worst
+  # Used by category stats tests — summary_by_category should report the worst
   # severity per category.
-  def category_stats_result do
+  def category_stats_result("0.2." <> _) do
     %{
       "xsd-schema" => [
         %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD error 1"},
         %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
       ],
       "base-rules" => [
+        %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
+      ]
+    }
+  end
+
+  def category_stats_result("0.1.0") do
+    %{
+      "xsd-1" => [
+        %{"code" => "xsd-1", "criticity" => "error", "message" => "XSD error 1"}
+      ],
+      "xsd-2" => [
+        %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
+      ],
+      "rule-1" => [
+        %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
+      ]
+    }
+  end
+
+  def warnings_only("0.2." <> _) do
+    %{
+      "xsd-schema" => [
+        %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
+      ],
+      "base-rules" => [
+        %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
+      ]
+    }
+  end
+
+  def warnings_only("0.1.0") do
+    %{
+      "xsd-2" => [
+        %{"code" => "xsd-2", "criticity" => "warning", "message" => "XSD warning"}
+      ],
+      "rule-1" => [
         %{"code" => "rule-1", "criticity" => "warning", "message" => "Base rule warning"}
       ]
     }
