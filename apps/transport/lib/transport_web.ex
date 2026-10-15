@@ -44,7 +44,8 @@ defmodule TransportWeb do
       # Use all HTML functionality (forms, tags, etc)
       use TransportWeb.InputHelpers
 
-      import TransportWeb.Router.Helpers
+      # static_path/2 and static_url/2 come from Phoenix.VerifiedRoutes
+      import TransportWeb.Router.Helpers, except: [static_path: 2, static_url: 2]
       import TransportWeb.InputHelpers
       use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.SeoMetadata
@@ -55,6 +56,8 @@ defmodule TransportWeb do
       import Phoenix.Component, only: [live_render: 3, link: 1, form: 1]
 
       import Plug.Conn, only: [get_session: 2]
+
+      unquote(verified_routes())
     end
   end
 
@@ -87,6 +90,8 @@ defmodule TransportWeb do
       use Gettext, backend: TransportWeb.Gettext
       import Phoenix.HTML
       import TransportWeb.CoreComponents
+
+      unquote(verified_routes())
     end
   end
 
