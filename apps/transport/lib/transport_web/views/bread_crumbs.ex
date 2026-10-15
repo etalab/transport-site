@@ -97,26 +97,15 @@ defmodule TransportWeb.BreadCrumbs do
       [{resource_title, nil}]
   end
 
-  def render_crumbs(crumbs_element) do
-    content_tag :div, class: "breadcrumbs" do
-      render_crumbs_elements(crumbs_element)
-    end
-  end
+  # The last element does not need a link
+  def render_crumbs(crumbs) do
+    assigns = %{links: Enum.drop(crumbs, -1), last: List.last(crumbs)}
 
-  def render_crumb_element({text, link}, :list_element) do
-    content_tag(:li, link(text, to: link), class: "breadcrumbs-element")
-  end
-
-  # last element does not need a link
-  def render_crumb_element({text, _link}, :last_element) do
-    content_tag(:li, text, class: "breadcrumbs-element")
-  end
-
-  def render_crumbs_elements([element]) do
-    [render_crumb_element(element, :last_element)]
-  end
-
-  def render_crumbs_elements([head | tail]) do
-    List.flatten([render_crumb_element(head, :list_element), render_crumbs_elements(tail)])
+    ~H"""
+    <div class="breadcrumbs">
+      <li :for={{text, link} <- @links} class="breadcrumbs-element"><.link href={link}>{text}</.link></li>
+      <li class="breadcrumbs-element">{elem(@last, 0)}</li>
+    </div>
+    """
   end
 end

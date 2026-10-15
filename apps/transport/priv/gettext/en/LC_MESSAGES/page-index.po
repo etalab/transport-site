@@ -155,12 +155,8 @@ msgid "Selected licences"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "facilitators list description, %{link}"
-msgstr "See our facilitators %{link}"
-
-#, elixir-autogen, elixir-format
-msgid "full list"
-msgstr ""
+msgid "facilitators list description, %{url}"
+msgstr "See our facilitators <a href=\"%{url}\">full list</a>"
 
 #, elixir-autogen, elixir-format
 msgid "They help us achieve our mission"

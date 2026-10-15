@@ -267,7 +267,9 @@
       </div>
       <div class="pt-12 shortlist__link shortlist__link--external-link">
         <i class="icon icon--link" aria-hidden="true"></i>
-        {Dataset.link_to_datagouv(@dataset)}
+        <.link href={Dataset.datagouv_url(@dataset)} role="link" target="_blank">
+          {dgettext("db-dataset", "See on data.gouv.fr")}
+        </.link>
       </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title">

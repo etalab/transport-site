@@ -53,7 +53,7 @@ defmodule TransportWeb do
       import TransportWeb.Components.Pagination
       import Helpers
 
-      import Phoenix.Component, only: [live_render: 3, link: 1, form: 1]
+      import Phoenix.Component, only: [sigil_H: 2, live_render: 3, link: 1, form: 1]
 
       import Plug.Conn, only: [get_session: 2]
 

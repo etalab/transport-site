@@ -19,10 +19,6 @@ msgid "gtfs-rt-explanation"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "GTFS-RT feeds referenced on this site"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "bnlc-explanation"
 msgstr ""
 
@@ -32,10 +28,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Real time vehicle positions (GTFS-RT)"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "dataset"
 msgstr ""
 
 #, elixir-autogen, elixir-format

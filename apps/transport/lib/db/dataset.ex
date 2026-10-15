@@ -7,7 +7,6 @@ defmodule DB.Dataset do
   so the search vector is up-to-date.
   """
   alias DB.{AOM, LogsImport, NotificationSubscription, Region, Repo, Resource}
-  alias PhoenixHTMLHelpers.Link
   import Ecto.{Changeset, Query}
   import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext
@@ -818,16 +817,6 @@ defmodule DB.Dataset do
 
   @spec format_error(any()) :: binary()
   defp format_error(changeset), do: "#{inspect(Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end))}"
-
-  @spec link_to_datagouv(DB.Dataset.t()) :: any()
-  def link_to_datagouv(%__MODULE__{} = dataset) do
-    Link.link(
-      dgettext("db-dataset", "See on data.gouv.fr"),
-      to: datagouv_url(dataset),
-      role: "link",
-      target: "_blank"
-    )
-  end
 
   @spec datagouv_url(DB.Dataset.t()) :: binary()
   def datagouv_url(%__MODULE__{slug: slug}) do

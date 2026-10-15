@@ -253,7 +253,7 @@ defmodule Transport.Jobs.ConsolidateBNLCJob do
   """
   def link_to_dataset(%{"page" => page_url, "title" => title}) do
     title
-    |> PhoenixHTMLHelpers.Link.link(to: page_url)
+    |> TransportWeb.CoreComponents.link_html(page_url)
     |> Phoenix.HTML.safe_to_string()
   end
 
