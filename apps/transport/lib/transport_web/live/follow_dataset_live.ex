@@ -11,13 +11,12 @@ defmodule TransportWeb.Live.FollowDatasetLive do
   """
   use TransportWeb, :live_view
   import Ecto.Query
-  import TransportWeb.Router.Helpers
 
   @impl true
   def render(assigns) do
     ~H"""
-    <% reuser_space_path = reuser_space_path(@socket, :datasets_edit, @dataset.id, utm_campaign: "follow_dataset_heart")
-    producer_space_path = espace_producteur_path(@socket, :edit_dataset, @dataset.id, utm_campaign: "follow_dataset_heart") %>
+    <% reuser_space_path = ~p"/espace_reutilisateur/datasets/#{@dataset.id}?#{[utm_campaign: "follow_dataset_heart"]}"
+    producer_space_path = ~p"/espace_producteur/datasets/#{@dataset.id}/edit?#{[utm_campaign: "follow_dataset_heart"]}" %>
     <div :if={is_nil(@current_user)} class="follow-dataset-icon">
       <i class={@heart_class} phx-click="nudge_signup"></i>
       <p :if={@display_banner?} class="notification active">
@@ -25,7 +24,7 @@ defmodule TransportWeb.Live.FollowDatasetLive do
           dgettext(
             "page-dataset-details",
             ~s|<a href="%{url}" target="_blank">Log in or sign up</a> to benefit from dataset services.|,
-            url: page_path(@socket, :infos_reutilisateurs)
+            url: ~p"/infos_reutilisateurs"
           )
         )}
       </p>

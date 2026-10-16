@@ -10,24 +10,24 @@ defmodule TransportWeb.BreadCrumbs do
     |> render_crumbs
   end
 
-  def crumbs(conn, :espace_producteur) do
-    [{dgettext("espace-producteurs", "Producer space"), espace_producteur_path(conn, :espace_producteur)}]
+  def crumbs(_conn, :espace_producteur) do
+    [{dgettext("espace-producteurs", "Producer space"), ~p"/espace_producteur"}]
   end
 
-  def crumbs(conn, :reuser_space) do
-    [{dgettext("reuser-space", "Reuser space"), reuser_space_path(conn, :espace_reutilisateur)}]
+  def crumbs(_conn, :reuser_space) do
+    [{dgettext("reuser-space", "Reuser space"), ~p"/espace_reutilisateur"}]
   end
 
   def crumbs(conn, :settings) do
-    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), reuser_space_path(conn, :settings)}]
+    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), ~p"/espace_reutilisateur/settings"}]
   end
 
   def crumbs(conn, :new_token) do
     crumbs(conn, :settings) ++ [{dgettext("reuser-space", "Create a new token"), nil}]
   end
 
-  def crumbs(conn, :contacts) do
-    [{"Contacts", backoffice_contact_path(conn, :index)}]
+  def crumbs(_conn, :contacts) do
+    [{"Contacts", ~p"/backoffice/contacts"}]
   end
 
   def crumbs(conn, :contacts_edit) do
@@ -37,21 +37,21 @@ defmodule TransportWeb.BreadCrumbs do
   def crumbs(conn, :proxy_statistics) do
     crumbs(conn, :espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Transport proxy statistics"), espace_producteur_path(conn, :proxy_statistics)}
+        {dgettext("espace-producteurs", "Transport proxy statistics"), ~p"/espace_producteur/proxy_statistics"}
       ]
   end
 
   def crumbs(conn, :download_statistics) do
     crumbs(conn, :espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Download statistics"), espace_producteur_path(conn, :download_statistics)}
+        {dgettext("espace-producteurs", "Download statistics"), ~p"/espace_producteur/download_statistics"}
       ]
   end
 
   def crumbs(conn, :unanswered_discussions) do
     crumbs(conn, :espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Unanswered discussions"), espace_producteur_path(conn, :discussions)}
+        {dgettext("espace-producteurs", "Unanswered discussions"), ~p"/espace_producteur/discussions"}
       ]
   end
 
@@ -74,7 +74,7 @@ defmodule TransportWeb.BreadCrumbs do
   end
 
   def crumbs(conn, :edit_dataset, dataset_custom_title, id) do
-    crumbs(conn, :espace_producteur) ++ [{dataset_custom_title, espace_producteur_path(conn, :edit_dataset, id)}]
+    crumbs(conn, :espace_producteur) ++ [{dataset_custom_title, ~p"/espace_producteur/datasets/#{id}/edit"}]
   end
 
   def crumbs(conn, :delete_resource, dataset_custom_title, id) do

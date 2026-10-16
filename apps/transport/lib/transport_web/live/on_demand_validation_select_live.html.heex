@@ -40,7 +40,7 @@
         :let={f}
         :if={@selected_subtile}
         for={%{}}
-        action={validation_path(@socket, :validate)}
+        action={~p"/validation"}
         class="no-margin"
         multipart={true}
         as={:upload}

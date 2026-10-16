@@ -138,7 +138,7 @@ defmodule TransportWeb.ResourceView do
 
   def mobilitydata_gtfs_validator_url, do: "https://gtfs-validator.mobilitydata.org"
 
-  def on_demand_validation_link(conn, %DB.Resource{} = resource) do
+  def on_demand_validation_link(%DB.Resource{} = resource) do
     {tile, sub_tile} =
       cond do
         DB.Resource.gtfs?(resource) -> {"public-transit", "gtfs"}
@@ -151,11 +151,7 @@ defmodule TransportWeb.ResourceView do
       raise "#{sub_tile} is not a valid type for on demand validation"
     end
 
-    live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive,
-      type: sub_tile,
-      selected_tile: tile,
-      selected_subtile: sub_tile
-    )
+    ~p"/validation?#{[type: sub_tile, selected_tile: tile, selected_subtile: sub_tile]}"
   end
 
   @doc """

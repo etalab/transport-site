@@ -2,7 +2,6 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
   use TransportWeb, :live_view
   import PhoenixHTMLHelpers.Form, only: [select: 4, text_input: 3]
   import Transport.Http.Utils, only: [reencode_body_to_utf8: 2]
-  import TransportWeb.Router.Helpers, only: [live_path: 3]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
 
   @request_headers [{"content-type", "text/xml"}]
@@ -130,7 +129,7 @@ defmodule TransportWeb.Live.SIRIQuerierLive do
         if value in ["", nil], do: acc, else: acc ++ [{param, value}]
       end)
 
-    live_path(socket, __MODULE__, params)
+    ~p"/tools/siri-querier?#{params}"
   end
 
   def build_timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()

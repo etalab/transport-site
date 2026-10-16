@@ -22,7 +22,7 @@
           <div class="align-right">
             <img src={organization.logo_thumbnail} title={organization.name} />
           </div>
-          <%= form_for @conn, reuser_space_path(@conn, :add_improved_data, @dataset.id), [class: "full-width"], fn f -> %>
+          <%= form_for @conn, ~p"/espace_reutilisateur/datasets/#{@dataset.id}/add_improved_data", [class: "full-width"], fn f -> %>
             <h4>
               {dgettext("reuser-space", "Step 1: choose the initial resource from the producer")}
             </h4>
@@ -85,7 +85,7 @@
             dataset_title: @dataset.custom_title
           )}
         </p>
-        <%= form_for %{}, reuser_space_path(@conn, :unfavorite, @dataset.id), [class: "no-margin", method: "post"], fn _ -> %>
+        <%= form_for %{}, ~p"/espace_reutilisateur/datasets/#{@dataset.id}/unfavorite", [class: "no-margin", method: "post"], fn _ -> %>
           <div class="form__group button__group">
             <button
               class="button warning"

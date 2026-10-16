@@ -32,7 +32,7 @@
       </div>
 
       <%= if Enum.count(@organizations) > 0 do %>
-        <%= form_for @conn, reuser_space_path(@conn, :new_token), [class: "no-margin"], fn f -> %>
+        <%= form_for @conn, ~p"/espace_reutilisateur/settings/new_token", [class: "no-margin"], fn f -> %>
           <%= label do %>
             {dgettext("reuser-space", "Token name")} {text_input(f, :name, required: true)}
             <p class="small">{dgettext("reuser-space", "A name identifying the application using this token.")}</p>

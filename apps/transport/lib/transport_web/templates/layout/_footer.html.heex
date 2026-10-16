@@ -8,7 +8,7 @@
       <.link class="footer__contact--close" href="#" aria-label={dgettext("page-index", "Close the form")}>
         <i class="fas icon--times-circle"></i>
       </.link>
-      <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
+      <%= form_for @conn, ~p"/send_mail", fn f -> %>
         <h3>Contact</h3>
         <p>
           {raw(

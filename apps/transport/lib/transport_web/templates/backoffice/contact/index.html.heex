@@ -4,7 +4,7 @@
   <.form
     :let={f}
     for={@search_form}
-    action={backoffice_contact_path(@conn, :index)}
+    action={~p"/backoffice/contacts"}
     id="backoffice_search_container"
     method="get"
   >
@@ -52,7 +52,7 @@
         <td>{contact.organization}</td>
         <td>{contact.job_title}</td>
         <td class="bo_action_button">
-          <.form for={%{}} action={backoffice_contact_path(@conn, :edit, contact.id)} method="get">
+          <.form for={%{}} action={~p"/backoffice/contacts/#{contact.id}/edit"} method="get">
             <.button>Éditer</.button>
           </.form>
         </td>

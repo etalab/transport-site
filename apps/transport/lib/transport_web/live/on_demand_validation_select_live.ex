@@ -8,7 +8,6 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers, except: [static_path: 2, static_url: 2]
 
   @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
 
@@ -58,11 +57,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   end
 
   def self_path(socket) do
-    live_path(
-      socket,
-      __MODULE__,
-      socket.assigns |> Map.take(@params) |> Map.reject(fn {_, v} -> v in ["", nil] end)
-    )
+    ~p"/validation?#{socket.assigns |> Map.take(@params) |> Map.reject(fn {_, v} -> v in ["", nil] end)}"
   end
 
   def socket_data(socket, data) do

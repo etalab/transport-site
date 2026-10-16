@@ -26,7 +26,7 @@
 
     <hr />
 
-    <.form for={%{}} action={backoffice_dataset_path(@conn, :import_from_data_gouv_fr, @dataset.id, @conn.params)}>
+    <.form for={%{}} action={~p"/backoffice/datasets/#{@dataset.id}/_import?#{@conn.query_params}"}>
       <button type="submit" role="menuitem">
         <i class="fas fa-download"></i> {dgettext("backoffice", "Import")}
       </button>
@@ -42,7 +42,7 @@
 
     <hr />
 
-    <.form for={%{}} action={backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params)}>
+    <.form for={%{}} action={~p"/backoffice/datasets/#{@dataset.id}/_delete?#{@conn.query_params}"}>
       <button type="submit" class="ctx-menu__delete" role="menuitem">
         <i class="fas fa-trash"></i> {dgettext("backoffice", "Remove")}
       </button>
