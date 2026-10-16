@@ -1,13 +1,13 @@
 <footer class="footer" id="footer">
-  <a href="#mail_form" class="mail__button" aria-label={dgettext("page-index", "Ask for help")}>
+  <.link href="#mail_form" class="mail__button" aria-label={dgettext("page-index", "Ask for help")}>
     <i class="fas icon--envelope"></i>
     <span>{dgettext("page-index", "Ask for help")}</span>
-  </a>
+  </.link>
   <div class="modal__backdrop" id="mail_form">
     <div class="footer__contact">
-      <a class="footer__contact--close" href="#" aria-label={dgettext("page-index", "Close the form")}>
+      <.link class="footer__contact--close" href="#" aria-label={dgettext("page-index", "Close the form")}>
         <i class="fas icon--times-circle"></i>
-      </a>
+      </.link>
       <%= form_for @conn, contact_path(@conn, :send_mail), fn f -> %>
         <h3>Contact</h3>
         <p>
@@ -79,47 +79,47 @@
     </div>
     <ul class="footer__links">
       <li>
-        <a class="footer__link footer__link--contact" href="#mail_form">
+        <.link class="footer__link footer__link--contact" href="#mail_form">
           {gettext("Contact")}
-        </a>
+        </.link>
       </li>
       <li>
-        <a
+        <.link
           class="footer__link"
           target="_blank"
           href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/api"
         >
           API
-        </a>
+        </.link>
       </li>
       <li>
-        <a
+        <.link
           class="footer__link"
           target="_blank"
           href="https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/le-point-dacces-national"
         >
           FAQ
-        </a>
+        </.link>
       </li>
       <li>
-        <a class="footer__link" target="_blank" href="https://github.com/etalab/transport-site/">
+        <.link class="footer__link" target="_blank" href="https://github.com/etalab/transport-site/">
           {gettext("Source code")}
-        </a>
+        </.link>
       </li>
       <li>
-        <a class="footer__link" href="/legal">
+        <.link class="footer__link" href={~p"/legal"}>
           {gettext("Legal Information")}
-        </a>
+        </.link>
       </li>
       <li>
-        <a class="footer__link" target="_blank" href="/budget">
+        <.link class="footer__link" target="_blank" href={~p"/budget"}>
           {gettext("Budget")}
-        </a>
+        </.link>
       </li>
       <li>
-        <a class="footer__link" href={page_path(@conn, :accessibility)}>
+        <.link class="footer__link" href={~p"/accessibilite"}>
           {gettext("Accessibility: non-compliant")}
-        </a>
+        </.link>
       </li>
     </ul>
   </div>

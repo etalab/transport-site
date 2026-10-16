@@ -1,20 +1,20 @@
 <header class="navbar">
   <div class="navbar__container">
-    <a href="/" class="navbar__home">
+    <.link href={~p"/"} class="navbar__home">
       {img_tag("/images/logo-ministere-transports-2026-03.png",
         alt: gettext("transport.data.gouv.fr"),
         class: "navbar__logo-mariane"
       )}
       {img_tag("/images/logo-black.svg", alt: gettext("transport.data.gouv.fr"), class: "navbar__logo-black")}
-    </a>
+    </.link>
     <nav>
-      <a href="#menu" class="nav__hamburger" aria-label={dgettext("page-index", "Open the menu")}>
+      <.link href="#menu" class="nav__hamburger" aria-label={dgettext("page-index", "Open the menu")}>
         <i class="fa fa-bars"></i>
-      </a>
+      </.link>
       <div id="menu">
-        <a id="close-menu" href="#" aria-label={dgettext("page-index", "Close the menu")}>
+        <.link id="close-menu" href="#" aria-label={dgettext("page-index", "Close the menu")}>
           <i class="fas icon--times-circle"></i>&nbsp
-        </a>
+        </.link>
         <ul class="nav__links top-nav-links">
           <li class="nav__item">
             <button type="button" class="dropdown">
@@ -94,42 +94,42 @@
                     <.link href={~p"/backoffice"}>Administration</.link>
                   <% end %>
                   <%= if TransportWeb.Session.producer?(@conn) do %>
-                    <a
+                    <.link
                       class="with-badge"
                       data-link-name="producer-space"
-                      href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "menu_dropdown")}
+                      href={~p"/espace_producteur?#{[utm_campaign: "menu_dropdown"]}"}
                     >
                       {gettext("Producer space")}
                       <.notification_count count={producer_notifications_count(@conn)} static={true} />
-                    </a>
+                    </.link>
                   <% end %>
-                  <a
+                  <.link
                     class="with-badge"
                     data-link-name="reuser-space"
-                    href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "menu_dropdown")}
+                    href={~p"/espace_reutilisateur?#{[utm_campaign: "menu_dropdown"]}"}
                   >
                     {gettext("Reuser space")}
                     <.notification_count count={reuser_notifications_count(@conn)} static={true} />
-                  </a>
-                  <a
+                  </.link>
+                  <.link
                     class="navigation__link nagivation__link--logout"
-                    href={session_path(@conn, :delete, redirect_path: current_path(@conn))}
+                    href={~p"/logout?#{[redirect_path: current_path(@conn)]}"}
                   >
                     <i class="icon icon--logout" aria-hidden="true"></i>
                     <span>{gettext("Sign Out")}</span>
-                  </a>
+                  </.link>
                 </div>
               </button>
             </li>
           <% else %>
             <li class="nav__item">
-              <a
+              <.link
                 class="navigation__link navigation__link--login"
-                href={page_path(@conn, :login, redirect_path: current_path(@conn))}
+                href={~p"/login/explanation?#{[redirect_path: current_path(@conn)]}"}
               >
                 <i class="icon icon--login" aria-hidden="true"></i>
                 <span>{gettext("Sign In")}</span>
-              </a>
+              </.link>
             </li>
           <% end %>
           <li class="nav__item">

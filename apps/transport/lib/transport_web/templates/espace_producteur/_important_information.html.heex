@@ -22,14 +22,14 @@
           <td colspan="2">{dgettext("espace-producteurs", "New features available")}</td>
           <td>{dgettext("espace-producteurs", "recent_features")}</td>
           <td>
-            <a
-              href={page_path(@conn, :nouveautes)}
+            <.link
+              href={~p"/nouveautes"}
               class="button-outline primary small"
               data-tracking-category="espace_producteur"
               data-tracking-action="important_information_see_recent_features_button"
             >
               <i class="icon fas fa-star"></i>{dgettext("espace-producteurs", "Discover new features")}
-            </a>
+            </.link>
           </td>
         </tr>
         <%= for dataset <- @datasets |> Enum.sort_by(& &1.custom_title) do %>

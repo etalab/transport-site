@@ -194,8 +194,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                [
                  {"href", dataset_path(conn, :details, dataset.slug) <> "#discussion-" <> discussion_id},
                  {"class", "button-outline primary small"},
-                 {"data-tracking-category", "espace_producteur"},
-                 {"data-tracking-action", "important_information_see_discussion_button"}
+                 {"data-tracking-action", "important_information_see_discussion_button"},
+                 {"data-tracking-category", "espace_producteur"}
                ],
                [
                  {"i", [{"class", "icon fas fa-comments"}], []},
@@ -218,8 +218,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                [
                  {"href", espace_producteur_path(conn, :edit_resource, dataset.id, resource.datagouv_id)},
                  {"class", "button-outline primary small"},
-                 {"data-tracking-category", "espace_producteur"},
-                 {"data-tracking-action", "important_information_edit_resource_button"}
+                 {"data-tracking-action", "important_information_edit_resource_button"},
+                 {"data-tracking-category", "espace_producteur"}
                ],
                [
                  {"i", [{"class", "fa fa-pen-to-square"}], []},
@@ -311,8 +311,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                       {"href",
                        espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)},
                       {"class", "button-outline primary small"},
-                      {"data-tracking-category", "espace_producteur"},
-                      {"data-tracking-action", "important_information_edit_resource_button"}
+                      {"data-tracking-action", "important_information_edit_resource_button"},
+                      {"data-tracking-category", "espace_producteur"}
                     ], [{"i", [{"class", "fa fa-pen-to-square"}], []}, "Modifier la ressource\n  "]}
                  ]}
               ]}
@@ -1439,8 +1439,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                                dataset_path(conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|},
                               {"target", "_blank"},
                               {"class", "button-outline primary small"},
-                              {"data-tracking-category", "espace_producteur"},
-                              {"data-tracking-action", "unanswered_discussion_button"}
+                              {"data-tracking-action", "unanswered_discussion_button"},
+                              {"data-tracking-category", "espace_producteur"}
                             ],
                             [
                               {"i", [{"class", "icon fas fa-comments"}], []},

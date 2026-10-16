@@ -25,7 +25,7 @@
             dgettext(
               "resource",
               ~s|If you haven’t done it yet, think about <a href="%{link}">validating your data</a> before publishing it.|,
-              link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
+              link: ~p"/validation"
             )
           )}
         </div>
@@ -40,7 +40,7 @@
                   dgettext(
                     "resource",
                     ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.),
-                    url: espace_producteur_path(@conn, :edit_dataset, @dataset.id)
+                    url: ~p"/espace_producteur/datasets/#{@dataset.id}/edit"
                   )
                 )}
               </p>
@@ -75,7 +75,7 @@
                 {dgettext("espace-producteurs", "Option 2: for more options, create the resource on data.gouv.fr")}
               </h4>
               <div>
-                <a
+                <.link
                   class="button primary"
                   href={datagouv_resource_creation_url(@datagouv_dataset["id"])}
                   role="link"
@@ -83,14 +83,14 @@
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
                   {dgettext("espace-producteurs", "Create it directly on data.gouv.fr")}
-                </a>
+                </.link>
               </div>
             <% else %>
               <h4>
                 {dgettext("espace-producteurs", "Option 2: for more options, edit the resource on data.gouv.fr")}
               </h4>
               <div>
-                <a
+                <.link
                   class="button primary"
                   href={
                     datagouv_resource_edit_url(
@@ -103,7 +103,7 @@
                 >
                   <i class="icon icon--link" aria-hidden="true"></i>
                   {dgettext("espace-producteurs", "Edit directly on data.gouv.fr")}
-                </a>
+                </.link>
               </div>
             <% end %>
           </div>

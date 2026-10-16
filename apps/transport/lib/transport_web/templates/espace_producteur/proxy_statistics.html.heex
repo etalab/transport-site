@@ -5,9 +5,9 @@
   <div class="container">
     <div class="proxy-statistics__header">
       <h2>{dgettext("espace-producteurs", "Transport proxy statistics")}</h2>
-      <a
+      <.link
         class="button-outline small secondary"
-        href={espace_producteur_path(@conn, :proxy_statistics_csv)}
+        href={~p"/espace_producteur/proxy_statistics_csv"}
         data-tracking-category="espace_producteur"
         data-tracking-action="download_proxy_statistics_csv"
       >
@@ -15,7 +15,7 @@
           "espace-producteurs",
           "Download proxy statistics"
         )}
-      </a>
+      </.link>
     </div>
     <div class="panel">
       <p>

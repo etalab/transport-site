@@ -4,7 +4,7 @@
     <div>
       <div class="proxy-stats-panel__resource-header-name">
         {dgettext("resource", "Feed name:")}
-        <a href={resource_path(@conn, :details, @resource.id)}><strong>{@resource.title}</strong></a>
+        <.link href={~p"/resources/#{@resource}"}><strong>{@resource.title}</strong></.link>
       </div>
       <div>
         {dgettext("resource", "Format:")} <span class="label">{@resource.format}</span>
