@@ -6,9 +6,12 @@
     <div class="producteurs-community-child">
       <div>
         <h2>{dgettext("page-producteurs", "Our social media accounts")}</h2>
-        <a class="button-outline primary social-media-logo" href="https://www.linkedin.com/company/transportdatagouvfr/">
+        <.link
+          class="button-outline primary social-media-logo"
+          href="https://www.linkedin.com/company/transportdatagouvfr/"
+        >
           <img src={static_path(@conn, "/images/linkedin.svg")} alt="LinkedIn" />
-        </a>
+        </.link>
       </div>
       <div class="pt-48 pb-48">
         <h2>{dgettext("page-producteurs", "Our blog")}</h2>
@@ -16,9 +19,9 @@
           {dgettext("page-producteurs", "Read tutorials and users testimonies")}
         </div>
         <div class="pt-12">
-          <a class="button-outline primary" href="https://blog.transport.data.gouv.fr">
+          <.link class="button-outline primary" href="https://blog.transport.data.gouv.fr">
             {dgettext("page-producteurs", "Go to transport.data.gouv.fr blog")}
-          </a>
+          </.link>
         </div>
       </div>
     </div>
@@ -32,13 +35,13 @@
           )}
         </div>
         <div class="pt-12">
-          <a
+          <.link
             href="https://17d46732.sibforms.com/serve/MUIFAMz3wF4mbcLgx4IAT946-xxZTK9eMPnASSQe2u4GU2gp7xBRDfw-eDolZEidAN6wiK62EPz5W2pm0ACn3V_YFekYhuxtgK5lfLK3BMUXazrd1qUcukGZXtbI8oFt_z6y3zPYjN7yjDzWuveGU-f1p6AfuhgaqhwAFDnlOFLZqwHnQL-Fcuwdr-9wYZpxpzraAHUuunSwe7VC"
             class="button primary"
             target="_blank"
           >
             {dgettext("page-index", "Subscribe")}
-          </a>
+          </.link>
         </div>
       </div>
     </div>

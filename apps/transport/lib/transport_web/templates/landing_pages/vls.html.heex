@@ -69,53 +69,53 @@
     <div class="center">
       <div class="argument left">
         <p class="comment">
-          <a href="/explore?gbfs-stations=yes">
+          <.link href={~p"/explore?gbfs-stations=yes"}>
             {dgettext("landing-vls", "Coverage of services available by territory")}
-          </a>
+          </.link>
         </p>
 
         <picture>
-          <a
+          <.link
             aria-label={dgettext("landing-vls", "Coverage of services available by territory")}
-            href="/explore?gbfs-stations=yes"
+            href={~p"/explore?gbfs-stations=yes"}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
-          </a>
+          </.link>
         </picture>
       </div>
 
       <div class="argument right">
         <p class="comment">
-          <a href="https://gbfs.org/fr/documentation/" target="_blank">
+          <.link href="https://gbfs.org/fr/documentation/" target="_blank">
             {dgettext("landing-vls", "Real-time data in GBFS format") |> gbfs_abbreviation() |> raw()}
-          </a>
+          </.link>
         </p>
 
         <picture>
-          <a
+          <.link
             href="https://gbfs.org/fr/documentation/"
             target="_blank"
             aria-label={dgettext("landing-vls", "Real-time data in GBFS format")}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/realtime.png")} loading="lazy" />
-          </a>
+          </.link>
         </picture>
       </div>
 
       <div class="argument left">
         <p class="comment">
-          <a href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}>
+          <.link href={~p"/espace_reutilisateur?#{[utm_campaign: "landing_vls"]}"}>
             {dgettext("landing-vls", "A personalized space to stay informed")} ❤️
-          </a>
+          </.link>
         </p>
 
         <picture>
-          <a
+          <.link
             aria-label={dgettext("landing-vls", "Access your reuser space")}
-            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}
+            href={~p"/espace_reutilisateur?#{[utm_campaign: "landing_vls"]}"}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
-          </a>
+          </.link>
         </picture>
       </div>
     </div>

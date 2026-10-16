@@ -71,10 +71,11 @@
             <h4>{dgettext("validations", "Feed details")}</h4>
             <ul>
               <li>
-                GTFS <a href={Map.fetch!(oban_args, "gtfs_url")}>{Map.fetch!(oban_args, "gtfs_url")}</a>
+                GTFS <.link href={Map.fetch!(oban_args, "gtfs_url")}>{Map.fetch!(oban_args, "gtfs_url")}</.link>
               </li>
               <li>
-                GTFS-RT <a href={Map.fetch!(oban_args, "gtfs_rt_url")}>{Map.fetch!(oban_args, "gtfs_rt_url")}</a>
+                GTFS-RT
+                <.link href={Map.fetch!(oban_args, "gtfs_rt_url")}>{Map.fetch!(oban_args, "gtfs_rt_url")}</.link>
               </li>
             </ul>
 

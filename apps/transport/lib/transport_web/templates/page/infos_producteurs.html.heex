@@ -9,12 +9,12 @@
       <%= if assigns[:current_user] do %>
         <div class="panel-producteurs signed-in">
           <h2>{dgettext("page-producteurs", "Welcome!")}</h2>
-          <a
+          <.link
             class="button"
-            href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "producer_infos_page")}
+            href={~p"/espace_producteur?#{[utm_campaign: "producer_infos_page"]}"}
           >
             {dgettext("page-producteurs", "Access your producer section")}
-          </a>
+          </.link>
           <div class="pt-24">
             {dgettext(
               "page-producteurs",
@@ -31,12 +31,12 @@
               "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
             )}
           </div>
-          <a
+          <.link
             class="button"
-            href={page_path(@conn, :login, redirect_path: espace_producteur_path(@conn, :espace_producteur))}
+            href={~p"/login/explanation?#{[redirect_path: ~p"/espace_producteur"]}"}
           >
             {dgettext("page-dataset-details", "Log in")}
-          </a>
+          </.link>
         </div>
       <% end %>
     </section>
@@ -56,9 +56,9 @@
             </div>
           </div>
           <div class="presentation-action pt-24">
-            <a href="https://doc.transport.data.gouv.fr/administration-des-donnees" class="button-outline primary">
+            <.link href="https://doc.transport.data.gouv.fr/administration-des-donnees" class="button-outline primary">
               {dgettext("page-producteurs", "Data publishing guidelines")}
-            </a>
+            </.link>
           </div>
         </div>
         <div class="panel">
@@ -77,9 +77,9 @@
             </div>
           </div>
           <div class="presentation-action pt-24">
-            <a href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button-outline primary">
+            <.link href={~p"/validation"} class="button-outline primary">
               {dgettext("page-producteurs", "Validate a file or a feed")}
-            </a>
+            </.link>
           </div>
         </div>
         <div class="panel">
@@ -122,9 +122,9 @@
             )}
           </div>
           <div class="pt-12">
-            <a href="https://doc.transport.data.gouv.fr/le-point-d-acces-national/cadre-juridique">
+            <.link href="https://doc.transport.data.gouv.fr/le-point-d-acces-national/cadre-juridique">
               {dgettext("page-producteurs", "Read here a summary of those obligations")}
-            </a>
+            </.link>
           </div>
         </div>
       </div>

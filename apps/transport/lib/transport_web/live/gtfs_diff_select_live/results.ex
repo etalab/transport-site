@@ -172,9 +172,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
     ~H"""
     <li>
-      <a class={@class} phx-click="select-file" phx-value-file={@file}>
+      <.link class={@class} phx-click="select-file" phx-value-file={@file}>
         <code>{@file}</code>
-      </a>
+      </.link>
     </li>
     """
   end

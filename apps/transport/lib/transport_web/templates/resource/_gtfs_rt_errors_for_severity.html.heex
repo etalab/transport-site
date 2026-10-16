@@ -5,7 +5,7 @@
       <b lang="en">
         {Map.fetch!(error, "title")}
         <span class="small">
-          <a href={gtfs_rt_validator_rule_url(error)} target="_blank">{Map.fetch!(error, "error_id")}</a>
+          <.link href={gtfs_rt_validator_rule_url(error)} target="_blank">{Map.fetch!(error, "error_id")}</.link>
         </span>
       </b>
 

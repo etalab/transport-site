@@ -31,7 +31,6 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers
 
   @hide_file_upload_formats ["gbfs", "gtfs-rt"]
   @file_validation_enabled_formats ["GTFS", "NeTEx"]
@@ -170,13 +169,13 @@ defmodule TransportWeb.Live.ValidateResourceLive do
         {Phoenix.HTML.raw(dgettext("espace-producteurs", "File: <strong>%{name}</strong>", name: @uploaded_filename))}
       </p>
       <.validation_status multi_validation={@multi_validation} locale={@locale} />
-      <a
+      <.link
         class="button-outline primary small mt-12"
         target="_blank"
-        href={validation_path(@socket, :show, @multi_validation.id, token: @multi_validation.oban_args["secret_url_token"])}
+        href={~p"/validation/#{@multi_validation}?#{[token: @multi_validation.oban_args["secret_url_token"]]}"}
       >
         <i class="icon fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "See the validation report")}
-      </a>
+      </.link>
     </div>
     """
   end
@@ -208,7 +207,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
         type: "url"
       )}
     </div>
-    <a
+    <.link
       :if={display_url_validation?(@format) and is_nil(@multi_validation) and valid_url?(@url)}
       class="button-outline primary small mt-12"
       phx-click="start-validation"
@@ -216,7 +215,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       phx-value-format={@format}
     >
       <i class="icon fa fa-check"></i>{dgettext("espace-producteurs", "Start the validation")}
-    </a>
+    </.link>
     <.validation_report
       :if={valid_url?(@url)}
       multi_validation={@multi_validation}
@@ -267,10 +266,10 @@ defmodule TransportWeb.Live.ValidateResourceLive do
     <p class="notification error">
       {dgettext("espace-producteurs", "Invalid file")}
     </p>
-    <a phx-click="start_again" class="button-outline warning small mr-24">
+    <.link phx-click="start_again" class="button-outline warning small mr-24">
       <i class="icon fa fa-rotate"></i>
       {dgettext("espace-producteurs", "Start again")}
-    </a>
+    </.link>
     """
   end
 

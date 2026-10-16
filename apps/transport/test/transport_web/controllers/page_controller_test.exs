@@ -149,6 +149,9 @@ defmodule TransportWeb.PageControllerTest do
     assert doc |> Floki.find(".side-pane__dropdown.unfolded") |> Enum.count() == 1
     assert doc |> Floki.find(".side-pane__dropdown.folded") |> Enum.count() >= 1
 
+    assert doc |> Floki.find(".side-pane__dropdown > a") |> Floki.attribute("href") ==
+             doc |> Floki.find("article h2") |> Floki.attribute("id") |> Enum.map(&"##{&1}")
+
     tags = doc |> Floki.find("h2, h3") |> Floki.text(sep: "|") |> String.replace("#| ", "") |> String.split("|")
 
     assert sublist?(tags, [

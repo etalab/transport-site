@@ -5,7 +5,7 @@
     <%= for resource_related_details <- @resource.resources_related do %>
       <% related_resource = Map.fetch!(resources_by_id, resource_related_details.resource_dst_id) %>
       <div class="panel resource">
-        <h4><a href={resource_path(@conn, :details, related_resource.id)}>{related_resource.title}</a></h4>
+        <h4><.link href={~p"/resources/#{related_resource}"}>{related_resource.title}</.link></h4>
         <div class="pt-12">
           <i class="icon fa fa-link" aria-hidden="true"></i>{DB.ResourceRelated.reason_to_str(resource_related_details)}
         </div>

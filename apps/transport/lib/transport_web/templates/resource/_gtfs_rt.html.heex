@@ -90,9 +90,9 @@
           </p>
         <% end %>
         <%= unless is_nil(service_alert.url) do %>
-          <a href={service_alert.url} target="_blank">
+          <.link href={service_alert.url} target="_blank">
             {dgettext("page-dataset-details", "See details")}
-          </a>
+          </.link>
         <% end %>
       </div>
     <% end %>

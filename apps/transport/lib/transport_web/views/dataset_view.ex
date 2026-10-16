@@ -693,9 +693,9 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
-      </a>
+      </.link>
       &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
     </td>
     """
@@ -712,9 +712,9 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
-      </a>
+      </.link>
     </td>
     """
   end
@@ -753,13 +753,13 @@ defmodule TransportWeb.DatasetView do
             </div>
             <div class="reuse__links">
               <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
-              <a :if={reuse_website_url} href={reuse_website_url}>
+              <.link :if={reuse_website_url} href={reuse_website_url}>
                 {dgettext("page-dataset-details", "Website")}
-              </a>
+              </.link>
               <% data_gouv_url = safe_remote_url(reuse.url) %>
-              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
+              <.link :if={data_gouv_url} href={data_gouv_url} target="_blank">
                 {dgettext("page-dataset-details", "See on data.gouv.fr")}
-              </a>
+              </.link>
             </div>
             <div class="reuse__details">
               <h3>{reuse.title}</h3>

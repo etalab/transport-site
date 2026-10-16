@@ -11,7 +11,7 @@ defmodule TransportWeb.ProxyRequestsCountLive do
     ~H"""
     <h2>Requêtes temps-réel sur le proxy</h2>
     <p>
-      transport.data.gouv.fr met à disposition des producteurs de données <a href={@doc_url}>un service de proxy</a>
+      transport.data.gouv.fr met à disposition des producteurs de données <.link href={@doc_url}>un service de proxy</.link>
       permettant de diffuser des données temps réel au format GTFS-RT.
     </p>
     <div :if={assigns[:data]}>

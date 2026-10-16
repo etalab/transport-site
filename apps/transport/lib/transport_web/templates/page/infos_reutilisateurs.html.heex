@@ -15,9 +15,9 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
       <%= if assigns[:current_user] do %>
         <div class="panel-producteurs signed-in">
           <h2>{dgettext("reuser-space", "Welcome!")}</h2>
-          <a class="button" href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "reuser_infos_page")}>
+          <.link class="button" href={~p"/espace_reutilisateur?#{[utm_campaign: "reuser_infos_page"]}"}>
             {dgettext("reuser-space", "Access your reuser space")}
-          </a>
+          </.link>
           <div class="pt-24">
             {dgettext(
               "reuser-space",
@@ -34,12 +34,12 @@ These CSS classes may be removed (soon?) when switching to the DSFR.
               "To log in, you will be redirected to data.gouv.fr, the open platform for French public data"
             )}
           </div>
-          <a
+          <.link
             class="button reuser-space"
-            href={page_path(@conn, :login, redirect_path: reuser_space_path(@conn, :espace_reutilisateur))}
+            href={~p"/login/explanation?#{[redirect_path: ~p"/espace_reutilisateur"]}"}
           >
             {dgettext("page-dataset-details", "Log in")}
-          </a>
+          </.link>
         </div>
       <% end %>
     </section>

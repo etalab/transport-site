@@ -36,10 +36,10 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               </div>
               <div class="dataset__infos">
                 <h3 class="dataset__title">
-                  <a href={dataset_path(@socket, :details, dataset.slug)} target="_blank">
+                  <.link href={~p"/datasets/#{dataset.slug}"} target="_blank">
                     <i class="fa fa-up-right-from-square" aria-hidden="true"></i>
                     {dataset.custom_title}
-                  </a>
+                  </.link>
                 </h3>
                 <div class="dataset-localization">
                   <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area(dataset)}
@@ -72,9 +72,9 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               else
                 {reuser_space_path(@socket, :datasets_edit, dataset.id), dgettext("reuser-space", "Preferences")}
               end %>
-            <a href={link} class="no-bg">
+            <.link href={link} class="no-bg">
               <button class="button primary small">{text}</button>
-            </a>
+            </.link>
           </div>
         </div>
       <% end %>

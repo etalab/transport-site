@@ -2,18 +2,18 @@
 <div class="dataset-page">
   <div class="dataset-menu-container">
     <nav class="dataset-menu">
-      <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
+      <div class="menu-item"><.link href="#details">{dgettext("validations", "Resource details")}</.link></div>
       <div class="menu-item">
-        <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
+        <.link href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</.link>
       </div>
       <div :if={not DB.Resource.documentation?(@resource)} class="menu-item">
-        <a href="#validation-report">{dgettext("validations", "Validation report")}</a>
+        <.link href="#validation-report">{dgettext("validations", "Validation report")}</.link>
       </div>
       <div :if={geojson_with_viz?(@resource, @resource_history)} class="menu-item">
-        <a href="#visualization">{dgettext("validations", "Visualization")}</a>
+        <.link href="#visualization">{dgettext("validations", "Visualization")}</.link>
       </div>
       <div :if={DB.Resource.gtfs_rt?(@resource)} class="menu-item">
-        <a href="#gtfs-rt">{dgettext("page-dataset-details", "GTFS-RT feed content")}</a>
+        <.link href="#gtfs-rt">{dgettext("page-dataset-details", "GTFS-RT feed content")}</.link>
       </div>
     </nav>
   </div>

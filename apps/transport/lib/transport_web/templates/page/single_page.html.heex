@@ -8,10 +8,10 @@
         <%= for {h2, index} <- Enum.with_index(@menu_items) do %>
           <% class = if index == 0, do: "side-pane__dropdown unfolded", else: "side-pane__dropdown folded" %>
           <li class={class}>
-            <a>{h2.title}</a>
+            <.link href={"##{h2.id}"}>{h2.title}</.link>
             <ul :if={h2.sub_items != []} class="side-pane__submenu">
               <li :for={sub <- h2.sub_items}>
-                <a href={"##{sub.id}"}>{sub.title}</a>
+                <.link href={"##{sub.id}"}>{sub.title}</.link>
               </li>
             </ul>
           </li>

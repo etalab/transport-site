@@ -196,9 +196,9 @@
                     </div>
                     <div class="dataset__infos">
                       <h3 class="dataset__title">
-                        <a href={dataset_path(@conn, :details, dataset.slug)}>
+                        <.link href={~p"/datasets/#{dataset.slug}"}>
                           {dataset.custom_title}
-                        </a>
+                        </.link>
                         <%= if TransportWeb.Session.admin?(@conn) do %>
                           <span class="dataset-backoffice-link">
                             <i class="fa fa-up-right-from-square"></i>

@@ -120,7 +120,7 @@
           <% end %>
         </div>
       <% end %>
-      <a
+      <.link
         :for={version <- validation |> get_metadata_info("versions", []) || []}
         :if={Resource.gbfs?(@resource)}
         href={gbfs_documentation_link(version)}
@@ -129,7 +129,7 @@
         <span class="label version">
           {dgettext("page-dataset-details", "Version %{version}", version: version)}
         </span>
-      </a>
+      </.link>
     </div>
     <div class="resource-actions">
       <div>
@@ -138,12 +138,12 @@
         </div>
       </div>
       <div>
-        <a href={resource_path(@conn, :details, @resource.id)}>
+        <.link href={~p"/resources/#{@resource}"}>
           <button class="button-outline primary small">
             <i class="icon icon--plus" aria-hidden="true"></i>{dgettext("page-dataset-details", "details")}
           </button>
-        </a>
-        <a class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
+        </.link>
+        <.link class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
           <button class="button-outline primary small">
             <%= if Resource.real_time?(@resource) do %>
               <i class="icon icon--link" aria-hidden="true"></i>{dgettext("page-dataset-details", "Browse the API")}
@@ -151,7 +151,7 @@
               <i class="icon icon--download" aria-hidden="true"></i>{dgettext("page-dataset-details", "Download")}
             <% end %>
           </button>
-        </a>
+        </.link>
         <%= if Resource.siri?(@resource) do %>
           <% siri_querier_params = [
             endpoint_url: @resource.url,
@@ -159,9 +159,9 @@
             query_template: "LinesDiscovery"
           ] %>
 
-          <a href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
+          <.link href={~p"/tools/siri-querier?#{siri_querier_params}"}>
             <button class="button-outline primary small">{dgettext("page-dataset-details", "Try me!")}</button>
-          </a>
+          </.link>
         <% end %>
       </div>
     </div>

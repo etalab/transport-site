@@ -265,11 +265,11 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp download_button(%{url: _, format: _} = assigns) do
     ~H"""
-    <a class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
+    <.link class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
       <button class="button-outline small secondary">
         <i class="icon icon--download" aria-hidden="true"></i> {render_slot(@inner_block)}
       </button>
-    </a>
+    </.link>
     """
   end
 

@@ -62,9 +62,9 @@
       <% end %>
     </div>
     <div class="pt-12">
-      <a
+      <.link
         class="button-outline small secondary"
-        href={dataset_path(@conn, :resources_history_csv, @dataset_id)}
+        href={~p"/datasets/#{@dataset_id}/resources_history_csv"}
         data-tracking-category="dataset_details"
         data-tracking-action="download_resources_history_csv"
         rel="nofollow"
@@ -73,7 +73,7 @@
           "page-dataset-details",
           "Download history details"
         )}
-      </a>
+      </.link>
     </div>
   </div>
 </section>
