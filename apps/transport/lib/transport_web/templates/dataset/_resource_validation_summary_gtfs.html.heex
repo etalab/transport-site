@@ -6,7 +6,7 @@
   end %>
 <%= if validator.mine?(@validation) do %>
   <div class="pb-24">
-    <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
+    <% link = ~p"/resources/#{@resource.id}" <> "#validation-report" %>
     <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <.link href={link}>
       <span class={summary_class(@validation)}>

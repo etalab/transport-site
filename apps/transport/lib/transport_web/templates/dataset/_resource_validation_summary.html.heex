@@ -3,7 +3,7 @@
   <% nb_errors = errors_count(@validation) %>
   <%= unless is_nil(nb_errors) and is_nil(nb_warnings) do %>
     <div class="pb-24">
-      <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
+      <% link = ~p"/resources/#{@resource.id}" <> "#validation-report" %>
       <.link href={link}>
         <span class={summary_class(@validation)}>
           <%= if nb_errors + (nb_warnings || 0) == 0 do %>

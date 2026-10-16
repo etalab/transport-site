@@ -4,7 +4,7 @@
 <section class="producer-space producer-actions">
   <div class="container">
     <strong>{@dataset.custom_title} > {@datagouv_resource["title"]}</strong>
-    <%= form_for @conn, espace_producteur_path(@conn, :delete_resource, @datagouv_dataset["id"], @datagouv_resource["id"]), [method: "delete", class: "pt-48"], fn _ -> %>
+    <%= form_for @conn, ~p"/espace_producteur/datasets/#{@datagouv_dataset["id"]}/resources/#{@datagouv_resource["id"]}/delete", [method: "delete", class: "pt-48"], fn _ -> %>
       <p class="notification warning">
         {dgettext("espace-producteurs", "Do you want to update the resource or delete it definitely?")}
       </p>

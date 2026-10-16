@@ -4,14 +4,14 @@
     {raw(
       dgettext("explore", "Consolidated GTFS stops map explanation",
         github_issue_link: ~s(<a href="https://github.com/etalab/transport-site/issues/3167">#3167</a>),
-        gtfs_stops_dataset_path: dataset_path(@conn, :details, "arrets-de-transport-en-france"),
+        gtfs_stops_dataset_path: ~p"/datasets/arrets-de-transport-en-france",
         swagger_doc_path: "/swaggerui#/gtfs/API.GTFSStopsController.index"
       )
     )}
   </p>
 
   <div class="form__group">
-    <%= form_for @conn, explore_path(@conn, :gtfs_stops), [method: "get"], fn f -> %>
+    <%= form_for @conn, ~p"/explore/gtfs-stops", [method: "get"], fn f -> %>
       <div class="searchBar">
         {search_input(f, :q,
           id: "autoComplete",

@@ -7,7 +7,6 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers
 
   @impl true
   def render(assigns) do
@@ -68,9 +67,9 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
           <div class="panel__extra">
             <% {link, text} =
               if @mode == :producer do
-                {espace_producteur_path(@socket, :edit_dataset, dataset.id), dgettext("espace-producteurs", "Manage")}
+                {~p"/espace_producteur/datasets/#{dataset.id}/edit", dgettext("espace-producteurs", "Manage")}
               else
-                {reuser_space_path(@socket, :datasets_edit, dataset.id), dgettext("reuser-space", "Preferences")}
+                {~p"/espace_reutilisateur/datasets/#{dataset.id}", dgettext("reuser-space", "Preferences")}
               end %>
             <.link href={link} class="no-bg">
               <button class="button primary small">{text}</button>

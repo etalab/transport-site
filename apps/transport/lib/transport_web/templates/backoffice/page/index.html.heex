@@ -52,7 +52,7 @@
     <i class="fas fa-plus"></i> {dgettext("backoffice", "Add a dataset")}
   </.link>
   <div class="import-all">
-    <.form for={%{}} action={backoffice_dataset_path(@conn, :import_validate_all)} method="post">
+    <.form for={%{}} action={~p"/backoffice/datasets/_all_/_import_validate"} method="post">
       <.button>{dgettext("backoffice", "Import all datasets from data.gouv")}</.button>
     </.form>
   </div>
@@ -147,7 +147,7 @@
 
   <h2>{dgettext("backoffice", "Validations")}</h2>
   <div>
-    <.form for={%{}} action={backoffice_dataset_path(@conn, :force_validate_gtfs_transport)} class="no-margin">
+    <.form for={%{}} action={~p"/backoffice/datasets/_all_/_force_validate_gtfs_transport"} class="no-margin">
       <div class="form__group">
         <.button>{dgettext("backoffice", "GTFS Transport validator - Force validation")}</.button>
       </div>
@@ -162,7 +162,7 @@
   <.form
     :let={f}
     for={@search_form}
-    action={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
+    action={"#{~p"/backoffice"}#list_datasets"}
     id="backoffice_search_container"
     method="get"
   >
