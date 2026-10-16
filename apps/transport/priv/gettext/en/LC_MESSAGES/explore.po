@@ -17,15 +17,11 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "gtfs-rt-explanation"
-msgstr "Aggregates all the %{link} and displays their vehicle positions (trains, buses, trams and more). The data is updated in real-time, the refresh rate varies by feed."
-
-#, elixir-autogen, elixir-format
-msgid "GTFS-RT feeds referenced on this site"
-msgstr "GTFS-RT feeds referenced on this site"
+msgstr "Aggregates all the <a href=\"%{url}\">GTFS-RT feeds referenced on this site</a> and displays their vehicle positions (trains, buses, trams and more). The data is updated in real-time, the refresh rate varies by feed."
 
 #, elixir-autogen, elixir-format
 msgid "bnlc-explanation"
-msgstr "Latest data from the National Carpooling areas %{link}"
+msgstr "Latest data from the National Carpooling areas <a href=\"%{url}\">dataset</a>"
 
 #, elixir-autogen, elixir-format
 msgid "Carpooling areas national database"
@@ -34,10 +30,6 @@ msgstr "Carpooling areas national database"
 #, elixir-autogen, elixir-format
 msgid "Real time vehicle positions (GTFS-RT)"
 msgstr "Real time vehicle positions (GTFS-RT)"
-
-#, elixir-autogen, elixir-format
-msgid "dataset"
-msgstr "dataset"
 
 #, elixir-autogen, elixir-format
 msgid "Execute"
@@ -93,7 +85,7 @@ msgstr "Low emission zones (ZFE)"
 
 #, elixir-autogen, elixir-format
 msgid "lez-explanation"
-msgstr "Latest data from the Low Emission Zones %{link}. Traffic restrictions details are included in the database."
+msgstr "Latest data from the Low Emission Zones <a href=\"%{url}\">dataset</a>. Traffic restrictions details are included in the database."
 
 #, elixir-autogen, elixir-format
 msgid "Consolidated GTFS stops map"
@@ -105,7 +97,7 @@ msgstr "This map consolidates all the GTFS referenced on this site. It is in bet
 
 #, elixir-autogen, elixir-format
 msgid "irve-explanation"
-msgstr "Consolidated national map of charging stations static %{link}."
+msgstr "Consolidated national map of charging stations static <a href=\"%{url}\">dataset</a>."
 
 #, elixir-autogen, elixir-format
 msgid "IRVE map"

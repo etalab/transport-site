@@ -17,7 +17,7 @@
 
   <div :if={not is_nil(@resource.schema_name)} title={dgettext("page-dataset-details", "Resource declared schema")}>
     <i class="icon icon--table" aria-hidden="true"></i>
-    {link(schema_label(@resource), to: documentation_url(@resource), target: "_blank")}
+    <.link href={documentation_url(@resource)} target="_blank">{schema_label(@resource)}</.link>
   </div>
 
   <.validity_dates :if={tc?} multi_validation={validation} locale={locale} />
@@ -44,10 +44,10 @@
     </span>
     <div :if={related_gtfs_resource != nil}>
       <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
-        <i class="icon fa fa-link" aria-hidden="true"></i>{link("GTFS",
-          to: resource_path(@conn, :details, related_gtfs_resource.resource_dst_id),
-          class: "dark"
-        )}
+        <i class="icon fa fa-link" aria-hidden="true"></i><.link
+          href={~p"/resources/#{related_gtfs_resource.resource_dst_id}"}
+          class="dark"
+        >GTFS</.link>
       </span>
     </div>
     <div :if={Map.has_key?(unavailabilities, @resource.id)}>
@@ -59,9 +59,7 @@
         <img class="icon icon--uptime" src={static_path(@conn, "/images/icons/uptime.svg")} />
         <% availability_ratio = unavailabilities[@resource.id] %>
         <span class={availability_ratio_class(availability_ratio)}>
-          {link("#{availability_ratio}%",
-            to: "#{resource_path(@conn, :details, @resource.id)}#download-availability"
-          )}
+          <.link href={"#{~p"/resources/#{@resource}"}#download-availability"}>{availability_ratio}%</.link>
         </span>
         <span class="small">{dgettext("page-dataset-details", "Availability rate")}</span>
       </span>
@@ -122,7 +120,7 @@
           <% end %>
         </div>
       <% end %>
-      <a
+      <.link
         :for={version <- validation |> get_metadata_info("versions", []) || []}
         :if={Resource.gbfs?(@resource)}
         href={gbfs_documentation_link(version)}
@@ -131,7 +129,7 @@
         <span class="label version">
           {dgettext("page-dataset-details", "Version %{version}", version: version)}
         </span>
-      </a>
+      </.link>
     </div>
     <div class="resource-actions">
       <div>
@@ -140,12 +138,12 @@
         </div>
       </div>
       <div>
-        <a href={resource_path(@conn, :details, @resource.id)}>
+        <.link href={~p"/resources/#{@resource}"}>
           <button class="button-outline primary small">
             <i class="icon icon--plus" aria-hidden="true"></i>{dgettext("page-dataset-details", "details")}
           </button>
-        </a>
-        <a class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
+        </.link>
+        <.link class="download-button" href={DB.Resource.download_url(@resource, @conn)}>
           <button class="button-outline primary small">
             <%= if Resource.real_time?(@resource) do %>
               <i class="icon icon--link" aria-hidden="true"></i>{dgettext("page-dataset-details", "Browse the API")}
@@ -153,7 +151,7 @@
               <i class="icon icon--download" aria-hidden="true"></i>{dgettext("page-dataset-details", "Download")}
             <% end %>
           </button>
-        </a>
+        </.link>
         <%= if Resource.siri?(@resource) do %>
           <% siri_querier_params = [
             endpoint_url: @resource.url,
@@ -161,9 +159,9 @@
             query_template: "LinesDiscovery"
           ] %>
 
-          <a href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
+          <.link href={~p"/tools/siri-querier?#{siri_querier_params}"}>
             <button class="button-outline primary small">{dgettext("page-dataset-details", "Try me!")}</button>
-          </a>
+          </.link>
         <% end %>
       </div>
     </div>

@@ -58,7 +58,7 @@
                 {dgettext("gbfs_analyzer", "Detailed validation")}
               </td>
               <td>
-                {link(dgettext("gbfs_analyzer", "Link"), to: gbfs_validation_link(@gbfs_url), target: "blank")}
+                <.link href={gbfs_validation_link(@gbfs_url)} target="blank">{dgettext("gbfs_analyzer", "Link")}</.link>
               </td>
             </tr>
           </table>
@@ -129,30 +129,30 @@
           <%= if "station_information" in @metadata.feeds do %>
             <span class="panel p-12 mr-24">
               <i class="icon icon--download" aria-hidden="true"></i>
-              {link("GeoJSON stations",
-                to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "stations"),
-                target: "blank"
-              )}
+              <.link href={~p"/tools/gbfs/geojson_convert?#{[url: @gbfs_url, output: "stations"]}"} target="blank">
+                GeoJSON stations
+              </.link>
             </span>
           <% end %>
 
           <%= if "free_bike_status" in @metadata.feeds do %>
             <span class="panel p-12 mr-24">
               <i class="icon icon--download" aria-hidden="true"></i>
-              {link("GeoJSON free-floating ",
-                to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "free_floating"),
-                target: "blank"
-              )}
+              <.link href={~p"/tools/gbfs/geojson_convert?#{[url: @gbfs_url, output: "free_floating"]}"} target="blank">
+                {"GeoJSON free-floating "}
+              </.link>
             </span>
           <% end %>
 
           <%= if "geofencing_zones" in @metadata.feeds do %>
             <span class="panel p-12 mr-24">
               <i class="icon icon--download" aria-hidden="true"></i>
-              {link("GeoJSON geofencing ",
-                to: gbfs_to_geojson_path(@conn, :convert, url: @gbfs_url, output: "geofencing_zones"),
-                target: "blank"
-              )}
+              <.link
+                href={~p"/tools/gbfs/geojson_convert?#{[url: @gbfs_url, output: "geofencing_zones"]}"}
+                target="blank"
+              >
+                {"GeoJSON geofencing "}
+              </.link>
             </span>
           <% end %>
         <% end %>

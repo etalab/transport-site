@@ -3,7 +3,7 @@
     <h1>{dgettext("validations", "Check the quality of a file or a feed")}</h1>
     <div class="pb-48">
       <div class="available-data grid">
-        <a
+        <.link
           :for={{type, item} <- @tiles}
           class={if @selected_tile == type, do: "tile tile-colored", else: "tile"}
           phx-click="select_tile"
@@ -14,7 +14,7 @@
             <h4>{item.title}</h4>
             <div>{item.subtitle}</div>
           </div>
-        </a>
+        </.link>
       </div>
 
       <div
@@ -22,7 +22,7 @@
         :if={@selected_tile == identifier}
         class="container available-data grid pt-24 pb-48"
       >
-        <a
+        <.link
           :for={{title, type} <- item.sub_tiles}
           class={if @selected_subtile == type, do: "tile tile-colored", else: "tile sub_tile"}
           phx-click="select_subtile"
@@ -32,7 +32,7 @@
           <div class="tile__text">
             <h4>{title}</h4>
           </div>
-        </a>
+        </.link>
       </div>
 
       <div id="form_anchor"></div>

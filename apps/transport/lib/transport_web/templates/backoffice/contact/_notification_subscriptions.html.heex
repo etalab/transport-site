@@ -85,9 +85,9 @@
       <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
         <tr>
           <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
-            <a href={backoffice_page_path(@conn, :edit, dataset.id)}>
+            <.link href={~p"/backoffice/datasets/#{dataset.id}/edit"}>
               {dataset.custom_title}
-            </a>
+            </.link>
 
             <div class="inline-block">
               <.form

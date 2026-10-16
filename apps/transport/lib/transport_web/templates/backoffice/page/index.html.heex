@@ -3,104 +3,100 @@
   <h2>Outils d'observation</h2>
 
   <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive)}>
+  <.link class="button" href={~p"/backoffice/proxy-config"}>
     {dgettext("backoffice", "Proxy configuration")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive)}>
+  <.link class="button" href={~p"/backoffice/jobs"}>
     {dgettext("backoffice", "Jobs")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_dashboard_path(@conn, :index)}>
+  <.link class="button" href={~p"/backoffice/dashboard"}>
     {dgettext("backoffice", "Rapport de complétude des imports")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_broken_urls_path(@conn, :index)}>
+  <.link class="button" href={~p"/backoffice/broken-urls"}>
     {dgettext("backoffice", "Changements d'URLs stables")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.CacheLive)}>
+  <.link class="button" href={~p"/backoffice/cache"}>
     {dgettext("backoffice", "Cache debug")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.RateLimiterLive)}>
+  <.link class="button" href={~p"/backoffice/rate_limiter"}>
     {dgettext("backoffice", "Rate limiter")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.DataImportBatchReportLive)}>
+  <.link class="button" href={~p"/backoffice/batch-report"}>
     {dgettext("backoffice", "GTFS data import")}
-  </a>
+  </.link>
 
-  <a class="button" href={live_dashboard_path(@conn, :home)}>
+  <.link class="button" href={~p"/backoffice/phoenix-dashboard"}>
     {dgettext("backoffice", "Phoenix LiveDashboard")}
-  </a>
+  </.link>
 
-  <a class="button" href={aoms_path(@conn, :index)}>
+  <.link class="button" href={~p"/aoms"}>
     {dgettext("backoffice", "AOM open data status")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.IRVEDashboardLive)}>
+  <.link class="button" href={~p"/backoffice/irve-dashboard"}>
     {dgettext("backoffice", "IRVE dashboard")}
-  </a>
+  </.link>
 
-  <a class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.EmailPreviewLive)}>
+  <.link class="button" href={~p"/backoffice/email_preview"}>
     {dgettext("backoffice", "Email preview")}
-  </a>
+  </.link>
   <h2>Actions</h2>
 
-  <a class="button" href={backoffice_page_path(@conn, :new)}>
+  <.link class="button" href={~p"/backoffice/datasets/new"}>
     <i class="fas fa-plus"></i> {dgettext("backoffice", "Add a dataset")}
-  </a>
+  </.link>
   <div class="import-all">
     <.form for={%{}} action={backoffice_dataset_path(@conn, :import_validate_all)} method="post">
       <.button>{dgettext("backoffice", "Import all datasets from data.gouv")}</.button>
     </.form>
   </div>
   <div>
-    <a
+    <.link
       class="button warning-light"
-      href={backoffice_breaking_news_path(@conn, :index)}
+      href={~p"/backoffice/breaking_news"}
       title="Afficher un message sur la home du site"
     >
       Publier une Breaking News
-    </a>
+    </.link>
   </div>
   <div>
-    <a class="button" href={backoffice_contact_path(@conn, :index)} title="Gérer les contacts">
+    <.link class="button" href={~p"/backoffice/contacts"} title="Gérer les contacts">
       👥 Gestion des contacts
-    </a>
+    </.link>
   </div>
 
   <h2>Exports</h2>
   <div>
-    <a
+    <.link
       class="button"
       href={
-        backoffice_page_path(@conn, :download_datasets_csv, %{
-          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
-        })
+        ~p"/backoffice/download_datasets_csv?#{%{"export_key" => Application.fetch_env!(:transport, :export_secret_key)}}"
       }
       title="Export CSV des jeux de données"
     >
       📦 Export des jeux de données
-    </a>
-    <a
+    </.link>
+    <.link
       class="button"
       href={
-        backoffice_page_path(@conn, :download_resources_csv, %{
-          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
-        })
+        ~p"/backoffice/download_resources_csv?#{%{"export_key" => Application.fetch_env!(:transport, :export_secret_key)}}"
       }
       title="Export CSV des ressources"
     >
       🗳 Export des ressources
-    </a>
-    <a class="button" href={backoffice_gtfs_export_path(@conn, :export)} title="Export CSV des GTFS">
+    </.link>
+    <.link class="button" href={~p"/backoffice/gtfs-export"} title="Export CSV des GTFS">
       🚏 Export des arrêts GTFS
-    </a>
-    <a class="button" href={backoffice_contact_path(@conn, :csv_export)} title="Export CSV des contacts">
+    </.link>
+    <.link class="button" href={~p"/backoffice/contacts/csv_export"} title="Export CSV des contacts">
       📓 Export des contacts
-    </a>
+    </.link>
   </div>
 
   <h2>Consolidation BNLC</h2>
@@ -159,7 +155,7 @@
   </div>
 
   <h1 class="pt-48">
-    <a name="list_datasets" href="#list_datasets" class="anchor sr-only"></a>
+    <.link id="list_datasets" href="#list_datasets" class="anchor sr-only"></.link>
     {dgettext("backoffice", "Valid datasets available")}
   </h1>
 
@@ -181,22 +177,22 @@
         <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
       </div>
       <div class="filter-section">
-        <a
+        <.link
           :for={filter <- dataset_filters()}
-          href={"#{backoffice_page_path(@conn, :index, Map.put(@conn.params, "filter", filter.key))}#list_datasets"}
+          href={"#{~p"/backoffice?#{Map.put(@conn.params, "filter", filter.key)}"}#list_datasets"}
           class={"filter-pill #{if @conn.params["filter"] == filter.key, do: "active"}"}
         >
           {filter.label}
-        </a>
+        </.link>
         <%= if @conn.params["filter"] do %>
           <input type="hidden" name="filter" value={@conn.params["filter"]} />
-          <a
-            href={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
+          <.link
+            href={"#{~p"/backoffice"}#list_datasets"}
             title={dgettext("backoffice", "Clear filter")}
             class="filter-clear"
           >
             <i class="fas fa-times"></i>
-          </a>
+          </.link>
         <% end %>
       </div>
     </div>

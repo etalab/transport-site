@@ -20,10 +20,9 @@
           <%= for resource_history <- @history_resources do %>
             <tr>
               <td>
-                {link(resource_history.payload["title"],
-                  to: resource_history.payload["permanent_url"],
-                  rel: "nofollow"
-                )}
+                <.link href={resource_history.payload["permanent_url"]} rel="nofollow">
+                  {resource_history.payload["title"]}
+                </.link>
               </td>
               <td>{resource_history.inserted_at |> DateTimeDisplay.format_datetime_to_date(@locale)}</td>
               <%= if has_validity_period_col do %>
@@ -63,9 +62,9 @@
       <% end %>
     </div>
     <div class="pt-12">
-      <a
+      <.link
         class="button-outline small secondary"
-        href={dataset_path(@conn, :resources_history_csv, @dataset_id)}
+        href={~p"/datasets/#{@dataset_id}/resources_history_csv"}
         data-tracking-category="dataset_details"
         data-tracking-action="download_resources_history_csv"
         rel="nofollow"
@@ -74,7 +73,7 @@
           "page-dataset-details",
           "Download history details"
         )}
-      </a>
+      </.link>
     </div>
   </div>
 </section>

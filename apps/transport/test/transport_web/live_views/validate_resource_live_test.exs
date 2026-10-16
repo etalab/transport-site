@@ -167,7 +167,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
 
     # Can start again
     assert content |> Floki.find(~s|[phx-click="start_again"]|) == [
-             {"a", [{"phx-click", "start_again"}, {"class", "button-outline warning small mr-24"}],
+             {"a", [{"href", "#"}, {"class", "button-outline warning small mr-24"}, {"phx-click", "start_again"}],
               [{"i", [{"class", "icon fa fa-rotate"}], []}, "\n  Essayer à nouveau\n"]}
            ]
 
@@ -383,9 +383,9 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
     assert content |> Floki.find(".button-outline.primary") == [
              {"a",
               [
-                {"class", "button-outline primary small mt-12"},
+                {"href", validation_path(TransportWeb.Endpoint, :show, id, token: secret_url_token)},
                 {"target", "_blank"},
-                {"href", validation_path(TransportWeb.Endpoint, :show, id, token: secret_url_token)}
+                {"class", "button-outline primary small mt-12"}
               ], [{"i", [{"class", "icon fa fa-pen-to-square"}], []}, "Voir le rapport de validation\n  "]}
            ]
   end

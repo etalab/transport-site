@@ -7,7 +7,7 @@
       <h2>{dgettext("validations", "Validation results")}</h2>
       <p>
         {dgettext("validations", "This report can be shared with")}
-        {link(dgettext("validations", "this permanent link"), to: @current_url)}
+        <.link href={@current_url}>{dgettext("validations", "this permanent link")}</.link>
         {dgettext("validations", "during %{retention_days} days",
           retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
         )}.
@@ -71,10 +71,11 @@
             <h4>{dgettext("validations", "Feed details")}</h4>
             <ul>
               <li>
-                GTFS <a href={Map.fetch!(oban_args, "gtfs_url")}>{Map.fetch!(oban_args, "gtfs_url")}</a>
+                GTFS <.link href={Map.fetch!(oban_args, "gtfs_url")}>{Map.fetch!(oban_args, "gtfs_url")}</.link>
               </li>
               <li>
-                GTFS-RT <a href={Map.fetch!(oban_args, "gtfs_rt_url")}>{Map.fetch!(oban_args, "gtfs_rt_url")}</a>
+                GTFS-RT
+                <.link href={Map.fetch!(oban_args, "gtfs_rt_url")}>{Map.fetch!(oban_args, "gtfs_rt_url")}</.link>
               </li>
             </ul>
 
@@ -133,8 +134,9 @@
                 dgettext("validations", ~s(This resource should follow its schema %{link}.),
                   link:
                     safe_to_string(
-                      link(oban_args["schema_name"],
-                        to: Transport.Schemas.documentation_url(oban_args["schema_name"]),
+                      link_html(
+                        oban_args["schema_name"],
+                        Transport.Schemas.documentation_url(oban_args["schema_name"]),
                         target: "_blank"
                       )
                     )

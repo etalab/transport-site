@@ -36,9 +36,9 @@ defmodule TransportWeb.Live.FollowDatasetLive do
         <span class="tooltiptext left">{dgettext("page-dataset-details", "Follow this dataset")}</span>
       </div>
       <div :if={@follows_dataset?} class="tooltip">
-        <a href={reuser_space_path} target="_blank">
+        <.link href={reuser_space_path} target="_blank">
           <i class={@heart_class}></i>
-        </a>
+        </.link>
         <span class="tooltiptext left">{dgettext("page-dataset-details", "Manage services for this dataset")}</span>
       </div>
       <p :if={@display_banner?} class="notification active">
@@ -53,9 +53,9 @@ defmodule TransportWeb.Live.FollowDatasetLive do
     </div>
     <div :if={@producer?} class="follow-dataset-icon">
       <div class="tooltip">
-        <a href={producer_space_path} target="_blank">
+        <.link href={producer_space_path} target="_blank">
           <i class={@heart_class}></i>
-        </a>
+        </.link>
         <span class="tooltiptext left">{dgettext("page-dataset-details", "Manage your dataset")}</span>
       </div>
     </div>

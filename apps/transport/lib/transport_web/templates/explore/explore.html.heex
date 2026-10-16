@@ -1,7 +1,3 @@
-<% real_time_datasets = dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime") %>
-<% bnlc_link = dataset_path(@conn, :details, @bnlc_dataset.slug) %>
-<% zfe_link = dataset_path(@conn, :details, @zfe_dataset.slug) %>
-<% irve_link = dataset_path(@conn, :details, @irve_dataset.slug) %>
 <% vehicles_sharing_datasets_link = dataset_path(@conn, :index, type: "vehicles-sharing") %>
 <div class="container dataset-page-top explore">
   <h2>{dgettext("explore", "Data exploration map")}</h2>
@@ -15,8 +11,7 @@
         </summary>
         {raw(
           dgettext("explore", "gtfs-rt-explanation",
-            link:
-              safe_to_string(link(dgettext("explore", "GTFS-RT feeds referenced on this site"), to: real_time_datasets))
+            url: ~p"/datasets?#{[type: "public-transit", filter: "has_realtime"]}"
           )
         )}
       </details>
@@ -27,11 +22,7 @@
         <summary>
           {dgettext("explore", "Carpooling areas national database")}
         </summary>
-        {raw(
-          dgettext("explore", "bnlc-explanation",
-            link: safe_to_string(link(dgettext("explore", "dataset"), to: bnlc_link))
-          )
-        )}
+        {raw(dgettext("explore", "bnlc-explanation", url: ~p"/datasets/#{@bnlc_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore zfe">
@@ -40,11 +31,7 @@
         <summary>
           {dgettext("explore", "Low emission zones database")}
         </summary>
-        {raw(
-          dgettext("explore", "lez-explanation",
-            link: safe_to_string(link(dgettext("explore", "dataset"), to: zfe_link))
-          )
-        )}
+        {raw(dgettext("explore", "lez-explanation", url: ~p"/datasets/#{@zfe_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore irve">
@@ -53,11 +40,7 @@
         <summary>
           {dgettext("explore", "IRVE map")}
         </summary>
-        {raw(
-          dgettext("explore", "irve-explanation",
-            link: safe_to_string(link(dgettext("explore", "dataset"), to: irve_link))
-          )
-        )}
+        {raw(dgettext("explore", "irve-explanation", url: ~p"/datasets/#{@irve_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore gbfs_stations">

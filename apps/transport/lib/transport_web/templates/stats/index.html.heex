@@ -27,7 +27,7 @@
         </div>
       </div>
       <p>
-        <a href={page_path(@conn, :missions)}>Découvrez la politique publique mise en œuvre et nos missions</a>.
+        <.link href={~p"/missions"}>Découvrez la politique publique mise en œuvre et nos missions</.link>.
       </p>
     </div>
     <div class="domain theorical">
@@ -38,7 +38,7 @@
           <div class="description" id="public-transport-by-aom">
             <h3>Par territoire administatif</h3>
             <span class="stat-link">
-              <a href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></a>
+              <.link href="#public-transport-by-aom"><i class="fa fa-link fa-small"></i></.link>
             </span>
             <p>
               L'offre de transport en commun, disponible par <acronym title="autorité organisatrice de mobilité">AOM</acronym>.
@@ -51,9 +51,9 @@
             <p>
               Les <acronym title="autorité organisatrice de mobilité">AOM</acronym>
               créées en 2022 suite à la
-              <a href="https://www.cerema.fr/fr/actualites/prise-competence-organisation-mobilites-communautes-communes">
+              <.link href="https://www.cerema.fr/fr/actualites/prise-competence-organisation-mobilites-communautes-communes">
                 prise de la compétence d’organisation des mobilités par les communautés de communes
-              </a>
+              </.link>
               sont affichées dès lors que des données sont publiées.
             </p>
           </div>
@@ -73,25 +73,29 @@
           <div class="description">
             <h3>Zoom sur les formats de données</h3>
             <span class="stat-link" id="public-transport-format">
-              <a href="#public-transport-format"><i class="fa fa-link fa-small"></i></a>
+              <.link href="#public-transport-format"><i class="fa fa-link fa-small"></i></.link>
             </span>
             <p>
               Les données de transport en commun sont disponibles sur le site dans 2 formats,
-              <a href="/datasets?format=GTFS&type=public-transit">GTFS</a>
-              et <a href="/datasets?format=NeTEx&type=public-transit">NeTEx</a>.
+              <.link href={~p"/datasets?format=GTFS&type=public-transit"}>GTFS</.link>
+              et <.link href={~p"/datasets?format=NeTEx&type=public-transit"}>NeTEx</.link>.
             </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
               <h3>{@nb_gtfs}</h3>
               <div>
-                <a href="/datasets?format=GTFS&type=public-transit">jeux de données en <strong>GTFS</strong></a>
+                <.link href={~p"/datasets?format=GTFS&type=public-transit"}>
+                  jeux de données en <strong>GTFS</strong>
+                </.link>
               </div>
             </div>
             <div class="tile">
               <h3>{@nb_netex}</h3>
               <div>
-                <a href="/datasets?format=NeTEx&type=public-transit">jeux de données en <strong>NeTEx</strong></a>
+                <.link href={~p"/datasets?format=NeTEx&type=public-transit"}>
+                  jeux de données en <strong>NeTEx</strong>
+                </.link>
               </div>
             </div>
           </div>
@@ -105,16 +109,16 @@
           <div class="tile">
             <h3>{format_number(@nb_gtfs_rt, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <a href="/datasets?format=gtfs-rt&type=public-transit">
+              <.link href={~p"/datasets?format=gtfs-rt&type=public-transit"}>
                 jeux de données<br />en <strong>GTFS-RT</strong>
-              </a>
+              </.link>
             </div>
             <div>
               <ul class="small">
                 <%= for {type, count} <- @gtfs_rt_types do %>
                   <li>
                     <span title={type}>
-                      <a href={"/datasets?features%5B%5D=" <> type}>{friendly_gtfs_type(type)}</a>
+                      <.link href={"/datasets?features%5B%5D=" <> type}>{friendly_gtfs_type(type)}</.link>
                     </span>
                     : {format_number(count, locale: get_session(@conn, :locale))}
                   </li>
@@ -125,15 +129,17 @@
           <div class="tile">
             <h3>{format_number(@nb_siri, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <a href="/datasets?format=SIRI&type=public-transit">jeux de données<br />en <strong>SIRI</strong></a>
+              <.link href={~p"/datasets?format=SIRI&type=public-transit"}>
+                jeux de données<br />en <strong>SIRI</strong>
+              </.link>
             </div>
           </div>
           <div class="tile">
             <h3>{format_number(@nb_siri_lite, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <a href="/datasets?format=SIRI+Lite&type=public-transit">
+              <.link href={~p"/datasets?format=SIRI+Lite&type=public-transit"}>
                 jeux de données<br />en <strong>SIRI Lite</strong>
-              </a>
+              </.link>
             </div>
           </div>
         </div>
@@ -146,7 +152,7 @@
           <div class="description" id="public-transport-freshness">
             <h3>Zoom sur la fraicheur des données</h3>
             <span class="stat-link">
-              <a href="#public-transport-freshness"><i class="fa fa-link fa-small"></i></a>
+              <.link href="#public-transport-freshness"><i class="fa fa-link fa-small"></i></.link>
             </span>
             <p>
               Les données GTFS et NeTEx de la plateforme sont analysées pour connaitre leur periode de validité,
@@ -167,7 +173,7 @@
           <div class="description" id="public-transport-quality">
             <h3>Zoom sur la qualité des données</h3>
             <span class="stat-link">
-              <a href="#public-transport-quality"><i class="fa fa-link fa-small"></i></a>
+              <.link href="#public-transport-quality"><i class="fa fa-link fa-small"></i></.link>
             </span>
             <p>
               Cette carte représente la qualité des données GTFS et NeTEx actuellement valides.
@@ -176,7 +182,7 @@
               Pour contrôler la qualité des jeux de données de transport, la plateforme transport.data.gouv.fr utilise des outils de validation.
             </p>
             <p>
-              Retrouvez plus d'informations sur ces outils dans la <a href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/validateurs">documentation</a>.
+              Retrouvez plus d'informations sur ces outils dans la <.link href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/validateurs">documentation</.link>.
             </p>
           </div>
           <div class="tile">
@@ -217,10 +223,10 @@
         <div class="panel">
           <div class="description">
             <span class="stat-link">
-              <a href="#real-time-vehicles"><i class="fa fa-link fa-small"></i></a>
+              <.link href="#real-time-vehicles"><i class="fa fa-link fa-small"></i></.link>
             </span>
             <p>
-              La plateforme transport.data.gouv.fr référence des données de disponibilité en temps réel de véhicules en libre service (VLS) au format <a href="https://github.com/MobilityData/gbfs">GBFS</a>. Le GBFS est le standard ouvert pour les VLS et des services en free-floating.
+              La plateforme transport.data.gouv.fr référence des données de disponibilité en temps réel de véhicules en libre service (VLS) au format <.link href="https://github.com/MobilityData/gbfs">GBFS</.link>. Le GBFS est le standard ouvert pour les VLS et des services en free-floating.
               Les données, mises à jour en continu, permettent de connaître :
               <ul>
                 <li>La liste des stations du réseau (géolocalisation, nom, adresse, identifiant)</li>
@@ -228,13 +234,13 @@
                 <li>La liste des véhicules accessibles en libre-service sans station</li>
                 <li>Les zones faisant l’objet de restrictions de circulation, de stationnement ou de vitesse</li>
               </ul>
-              Plus d’informations sur les données temps réel de véhicules en libre service sont disponibles dans la <a href="https://doc.transport.data.gouv.fr/producteurs/velos-en-libre-service">documentation</a>.
+              Plus d’informations sur les données temps réel de véhicules en libre service sont disponibles dans la <.link href="https://doc.transport.data.gouv.fr/producteurs/velos-en-libre-service">documentation</.link>.
             </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
               <h3>{@nb_vehicles_sharing_datasets}</h3>
-              <div><a href="/datasets?type=vehicles-sharing">Jeux de données disponibles</a></div>
+              <div><.link href={~p"/datasets?type=vehicles-sharing"}>Jeux de données disponibles</.link></div>
             </div>
             <div class="rt-viz">
               <%= for _i <- 1..@nb_vehicles_sharing_datasets//1 do %>

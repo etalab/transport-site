@@ -21,12 +21,12 @@
   {dgettext("validations", "Visualization up-to-date %{hours} ago.",
     hours: hours_ago(@associated_geojson.resource_history_last_up_to_date_at, locale)
   )}
-  <a class="download-button" rel="nofollow" href={@associated_geojson.stable_url}>
+  <.link class="download-button" rel="nofollow" href={@associated_geojson.stable_url}>
     <button class="button-outline secondary no-border small">
       <i class="icon icon--download" aria-hidden="true"></i>{dgettext(
         "page-dataset-details",
         "Download as GeoJSON"
       )}
     </button>
-  </a>
+  </.link>
 </div>

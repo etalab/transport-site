@@ -3,10 +3,12 @@
     <h1>{dgettext("reuses", "Declared reuses")}</h1>
     <p>
       {raw(dgettext("reuses", "index-intro", url: reuser_space_path(@conn, :espace_reutilisateur)))}
-      {link(dgettext("reuses", "Publish a reuse"),
-        to: "https://guides.data.gouv.fr/guide-data.gouv.fr/reutilisations/publier-une-reutilisation",
-        target: "_blank"
-      )}
+      <.link
+        href="https://guides.data.gouv.fr/guide-data.gouv.fr/reutilisations/publier-une-reutilisation"
+        target="_blank"
+      >
+        {dgettext("reuses", "Publish a reuse")}
+      </.link>
     </p>
 
     <%= form_for @conn, reuse_path(@conn, :index), [id: "reuses_search_container", method: "get"], fn f -> %>
@@ -36,14 +38,13 @@
               <img src={reuse.image} alt="{reuse.title}" />
             </div>
             <div class="card__content">
-              <h3>{link(reuse.title, to: reuse.url, target: "_blank")}</h3>
+              <h3><.link href={reuse.url} target="_blank">{reuse.title}</.link></h3>
               <div class="card__meta">
                 <time>{Shared.DateTimeDisplay.format_date(reuse.created_at, get_session(@conn, :locale))}</time>
                 <span :if={reuse.organization != nil}>
-                  {link(reuse.organization,
-                    to: "https://www.data.gouv.fr/organizations/#{reuse.organization_id}",
-                    target: "_blank"
-                  )}
+                  <.link href={"https://www.data.gouv.fr/organizations/#{reuse.organization_id}"} target="_blank">
+                    {reuse.organization}
+                  </.link>
                 </span>
                 <span :if={reuse.owner != nil}>{reuse.owner}</span>
               </div>

@@ -336,6 +336,4 @@ defmodule TransportWeb.DatasetViewTest do
   defp to_html(%Phoenix.LiveView.Rendered{} = rendered) do
     rendered |> Phoenix.HTML.Safe.to_iodata() |> IO.iodata_to_binary()
   end
-
-  defp to_html({:safe, _} = content), do: Phoenix.HTML.safe_to_string(content)
 end

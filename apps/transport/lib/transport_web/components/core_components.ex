@@ -251,6 +251,18 @@ defmodule TransportWeb.CoreComponents do
   end
 
   @doc """
+  Renders a `<.link>` as safe HTML where a template cannot be used: a link interpolated in a translated string,
+  or HTML built in Elixir (emails, flash messages).
+  """
+  def link_html(text, href, attrs \\ []) do
+    assigns = %{text: text, href: href, attrs: attrs}
+
+    ~H|<.link href={@href} {@attrs}>{@text}</.link>|
+    |> Phoenix.HTML.Safe.to_iodata()
+    |> Phoenix.HTML.raw()
+  end
+
+  @doc """
   Translates an error message using gettext.
   """
   def translate_error({msg, opts}) do

@@ -307,7 +307,7 @@ msgid "Version %{version}"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Past versions of the dataset resources are available in the %{link} section."
+msgid "Past versions of the dataset resources are available in the <a href=\"%{url}\">Backed up resources</a> section."
 msgstr ""
 
 #, elixir-autogen, elixir-format

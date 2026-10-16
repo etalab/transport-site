@@ -4,16 +4,20 @@ locale = get_session(@conn, :locale) %>
 <div class="dataset-page">
   <div class="dataset-menu-container">
     <nav class="dataset-menu">
-      <div class="menu-item"><a href="#details">{dgettext("validations", "Resource details")}</a></div>
+      <div class="menu-item"><.link href="#details">{dgettext("validations", "Resource details")}</.link></div>
       <div class="menu-item">
-        <a href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</a>
+        <.link href="#download-availability">{dgettext("page-dataset-details", "Download availability")}</.link>
       </div>
       <div :if={not is_nil(associated_geojson)} class="menu-item">
-        <a href="#visualization">{dgettext("validations", "Stops and routes visualization of the GTFS file")}</a>
+        <.link href="#visualization">
+          {dgettext("validations", "Stops and routes visualization of the GTFS file")}
+        </.link>
       </div>
-      <div class="menu-item"><a href="#validation-report">{dgettext("validations", "Validation report")}</a></div>
+      <div class="menu-item">
+        <.link href="#validation-report">{dgettext("validations", "Validation report")}</.link>
+      </div>
       <div :if={length(@other_resources) > 0} class="menu-item">
-        <a href="#other-resources">{dgettext("validations", "Other resources")}</a>
+        <.link href="#other-resources">{dgettext("validations", "Other resources")}</.link>
       </div>
     </nav>
   </div>
@@ -91,9 +95,7 @@ locale = get_session(@conn, :locale) %>
         <ul>
           <%= for resource <- @other_resources do %>
             <li>
-              {link(resource.title,
-                to: resource_path(@conn, :details, resource.id)
-              )}
+              <.link href={~p"/resources/#{resource}"}>{resource.title}</.link>
             </li>
           <% end %>
         </ul>

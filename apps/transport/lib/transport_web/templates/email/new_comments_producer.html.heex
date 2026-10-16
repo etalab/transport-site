@@ -10,10 +10,9 @@
       </div>
       <div class="panel">
         "{comment["content"]}" <br />
-        {link("voir la discussion",
-          to:
-            "#{dataset_url(TransportWeb.Endpoint, :details, datagouv_id)}#comments-discussion-#{comment["discussion_id"]}"
-        )}
+        <.link href={"#{url(~p"/datasets/#{datagouv_id}")}#comments-discussion-#{comment["discussion_id"]}"}>
+          voir la discussion
+        </.link>
       </div>
     <% end %>
   <% end %>

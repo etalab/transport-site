@@ -10,7 +10,6 @@ defmodule TransportWeb.InputHelpers do
     quote do
       import Phoenix.HTML
       import Phoenix.HTML.Form
-      import PhoenixHTMLHelpers.Link
       import PhoenixHTMLHelpers.Tag
       import PhoenixHTMLHelpers.Format
 

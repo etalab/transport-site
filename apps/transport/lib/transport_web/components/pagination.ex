@@ -18,12 +18,16 @@ defmodule TransportWeb.Components.Pagination do
   end
 
   def pagination(assigns) do
+    # One of the only left direct <a> tags in the app, because we don’t want
+    # to have the href property for current page and <.link> does not support it.
+    # Weirdly having an inactive <a> tag for the local page is a totally fine HTML pattern.
     ~H"""
     <nav aria-label="Page navigation">
       <ul class="pagination">
         <li :for={link <- links(@conn, @page, @params, @anchor)} class={link.active && "active"}>
           <span :if={link.label == :ellipsis}>&hellip;</span>
-          <a :if={link.label != :ellipsis} href={link.href} rel={link.rel}>{link.label}</a>
+          <a :if={link.active} aria-current="page">{link.label}</a>
+          <.link :if={link.href} href={link.href} rel={link.rel}>{link.label}</.link>
         </li>
       </ul>
     </nav>

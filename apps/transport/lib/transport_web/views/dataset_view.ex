@@ -9,7 +9,7 @@ defmodule TransportWeb.DatasetView do
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
-  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3]
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3, link: 1]
   import DB.Dataset, only: [experimental?: 1]
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
@@ -48,33 +48,44 @@ defmodule TransportWeb.DatasetView do
         "most_recent" => dgettext("page-shortlist", "Most recently added")
       }[order_by]
 
-    assigns = Plug.Conn.assign(conn, :msg, msg).assigns
+    assigns =
+      Plug.Conn.merge_assigns(conn,
+        msg: msg,
+        url: current_url(conn, Map.put(conn.query_params, "order_by", order_by))
+      ).assigns
 
     case assigns do
       %{order_by: ^order_by} -> ~H|<span class="activefilter">{@msg}</span>|
-      _ -> link(msg, to: current_url(conn, Map.put(conn.query_params, "order_by", order_by)))
+      _ -> ~H|<.link href={@url}>{@msg}</.link>|
     end
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: "all", count: count}) do
-    assigns = Plug.Conn.assign(conn, :count, count).assigns
+    assigns =
+      Plug.Conn.merge_assigns(conn,
+        count: count,
+        url: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
+      ).assigns
 
     if Map.has_key?(conn.query_params, "licence") do
-      link("#{dgettext("page-shortlist", "All (feminine)")} (#{count})",
-        to: current_url(conn, Map.reject(conn.query_params, fn {k, _v} -> k == "licence" end))
-      )
+      ~H|<.link href={@url}>{dgettext("page-shortlist", "All (feminine)")} ({@count})</.link>|
     else
       ~H|<span class="activefilter">{dgettext("page-shortlist", "All (feminine)")} ({@count})</span>|
     end
   end
 
   def licence_link(%Plug.Conn{} = conn, %{licence: licence, count: count}) when licence not in ["fr-lo", "lov2"] do
-    assigns = Plug.Conn.merge_assigns(conn, count: count, name: name = licence(%Dataset{licence: licence})).assigns
+    assigns =
+      Plug.Conn.merge_assigns(conn,
+        count: count,
+        name: licence(%Dataset{licence: licence}),
+        url: current_url(conn, Map.put(conn.query_params, "licence", licence))
+      ).assigns
 
     if Map.get(conn.query_params, "licence") == licence do
       ~H|<span class="activefilter">{@name} ({@count})</span>|
     else
-      link("#{name} (#{count})", to: current_url(conn, Map.put(conn.query_params, "licence", licence)))
+      ~H|<.link href={@url}>{@name} ({@count})</.link>|
     end
   end
 
@@ -89,11 +100,11 @@ defmodule TransportWeb.DatasetView do
     params = conn.query_params
     full_url = "#{url}?#{Query.encode(params)}"
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom).assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, nom: nom, full_url: full_url).assigns
 
     case current_path(conn, %{}) do
       ^url -> ~H|<span class="activefilter">{@nom} ({@count})</span>|
-      _ -> link("#{nom} (#{count})", to: full_url)
+      _ -> ~H|<.link href={@full_url}>{@nom} ({@count})</.link>|
     end
   end
 
@@ -119,12 +130,12 @@ defmodule TransportWeb.DatasetView do
     |> raw()
   end
 
-  def legal_owner_link(conn, %DB.Region{nom: nom, insee: insee}) do
-    link(nom, to: dataset_path(conn, :by_region, insee))
+  def legal_owner_link(_conn, %DB.Region{nom: nom, insee: insee}) do
+    link_html(nom, ~p"/datasets/region/#{insee}")
   end
 
-  def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do
-    link(nom, to: dataset_path(conn, :by_epci, siren))
+  def legal_owner_link(_conn, %DB.AOM{nom: nom, siren: siren}) do
+    link_html(nom, ~p"/datasets/epci/#{siren}")
   end
 
   def type_link(conn, %{type: type, msg: msg, count: count}) do
@@ -146,22 +157,22 @@ defmodule TransportWeb.DatasetView do
         key -> current_url(conn, Map.put(conn.query_params, key_name, key))
       end
 
-    link_text = "#{msg} (#{count})"
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg, full_url: full_url).assigns
     active_filter_text = ~H|<span class="activefilter">{@msg} ({@count})</span>|
+    filter_link = ~H|<.link href={@full_url}>{@msg} ({@count})</.link>|
 
     case conn.params do
       %{^key_name => ^key} ->
         active_filter_text
 
       %{^key_name => _} ->
-        link(link_text, to: full_url)
+        filter_link
 
       _ ->
         if is_nil(key) do
           active_filter_text
         else
-          link(link_text, to: full_url)
+          filter_link
         end
     end
   end
@@ -173,11 +184,11 @@ defmodule TransportWeb.DatasetView do
         true -> current_url(conn, Map.put(conn.query_params, "filter", "has_realtime"))
       end
 
-    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg).assigns
+    assigns = Plug.Conn.merge_assigns(conn, count: count, msg: msg, full_url: full_url).assigns
 
     case {only_rt, Map.get(conn.query_params, "filter")} do
-      {false, "has_realtime"} -> link("#{msg} (#{count})", to: full_url)
-      {true, nil} -> link("#{msg} (#{count})", to: full_url)
+      {false, "has_realtime"} -> ~H|<.link href={@full_url}>{@msg} ({@count})</.link>|
+      {true, nil} -> ~H|<.link href={@full_url}>{@msg} ({@count})</.link>|
       _ -> ~H|<span class="activefilter">{@msg} ({@count})</span>|
     end
   end
@@ -682,9 +693,9 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
-      </a>
+      </.link>
       &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
     </td>
     """
@@ -701,9 +712,9 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
-      </a>
+      </.link>
     </td>
     """
   end
@@ -742,13 +753,13 @@ defmodule TransportWeb.DatasetView do
             </div>
             <div class="reuse__links">
               <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
-              <a :if={reuse_website_url} href={reuse_website_url}>
+              <.link :if={reuse_website_url} href={reuse_website_url}>
                 {dgettext("page-dataset-details", "Website")}
-              </a>
+              </.link>
               <% data_gouv_url = safe_remote_url(reuse.url) %>
-              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
+              <.link :if={data_gouv_url} href={data_gouv_url} target="_blank">
                 {dgettext("page-dataset-details", "See on data.gouv.fr")}
-              </a>
+              </.link>
             </div>
             <div class="reuse__details">
               <h3>{reuse.title}</h3>

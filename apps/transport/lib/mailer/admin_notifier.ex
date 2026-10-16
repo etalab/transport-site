@@ -194,14 +194,14 @@ defmodule Transport.AdminNotifier do
   end
 
   defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
-    link = PhoenixHTMLHelpers.Link.link(title, to: page) |> Phoenix.HTML.safe_to_string()
+    link = TransportWeb.CoreComponents.link_html(title, page) |> Phoenix.HTML.safe_to_string()
     "<li>#{link}</li>"
   end
 
   @spec link_and_name(DB.Dataset.t(), binary()) :: binary()
   defp link_and_name(%DB.Dataset{slug: slug, custom_title: custom_title}, extra_content \\ "") do
     url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
-    link = PhoenixHTMLHelpers.Link.link(custom_title, to: url) |> Phoenix.HTML.safe_to_string()
+    link = TransportWeb.CoreComponents.link_html(custom_title, url) |> Phoenix.HTML.safe_to_string()
     "<li>#{link}#{extra_content}</li>"
   end
 end

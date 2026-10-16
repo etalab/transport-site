@@ -25,45 +25,45 @@
 <div class="dataset-page">
   <div class="dataset-menu-container">
     <div class="dataset-menu">
-      <div class="menu-item"><a href="#dataset-top">Description</a></div>
+      <div class="menu-item"><.link href="#dataset-top">Description</.link></div>
       <div :if={not is_nil(get_resource_to_display(@dataset))} id="menu-item-visualisation" class="menu-item">
-        <a href="#dataset-visualisation">{dgettext("page-dataset-details", "Visualization")}</a>
+        <.link href="#dataset-visualisation">{dgettext("page-dataset-details", "Visualization")}</.link>
       </div>
       <div class="menu-item">
-        <a href="#dataset-resources">
+        <.link href="#dataset-resources">
           {dgettext("page-dataset-details", "Resources")} ({count_resources(@dataset)})
-        </a>
+        </.link>
       </div>
       <div class="menu-item">
-        <a href="#quality-indicators">{dgettext("page-dataset-details", "Quality indicators")}</a>
+        <.link href="#quality-indicators">{dgettext("page-dataset-details", "Quality indicators")}</.link>
       </div>
       <div class="menu-item">
-        <a href="#community-resources">{dgettext("page-dataset-details", "Community resources")}</a>
+        <.link href="#community-resources">{dgettext("page-dataset-details", "Community resources")}</.link>
       </div>
       <div :if={count_documentation_resources(@dataset) != 0} class="menu-item">
-        <a href="#dataset-documentation">{dgettext("page-dataset-details", "Documentation")}</a>
+        <.link href="#dataset-documentation">{dgettext("page-dataset-details", "Documentation")}</.link>
       </div>
 
       <div class="menu-item">
-        <a href="#dataset-reuses">
+        <.link href="#dataset-reuses">
           {dgettext("page-dataset-details", "Reuses")} ({@reuses_count})
-        </a>
+        </.link>
       </div>
 
       <div :if={Enum.count(@notifications_sent) > 0} class="menu-item">
-        <a href="#notifications-sent">
+        <.link href="#notifications-sent">
           {dgettext("page-dataset-details", "Notifications sent")} ({Enum.count(@notifications_sent)})
-        </a>
+        </.link>
       </div>
       <div class="menu-item">
-        <a href="#dataset-discussions">
+        <.link href="#dataset-discussions">
           Discussions {live_render(@conn, TransportWeb.CountDiscussionsLive,
             session: %{"dataset_datagouv_id" => @dataset.datagouv_id}
           )}
-        </a>
+        </.link>
       </div>
       <div :if={@history_resources != []} class="menu-item">
-        <a href="#backed-up-resources">{dgettext("page-dataset-details", "Backed up resources")}</a>
+        <.link href="#backed-up-resources">{dgettext("page-dataset-details", "Backed up resources")}</.link>
       </div>
     </div>
   </div>
@@ -175,9 +175,9 @@
         )}
 
         <%= if @current_user do %>
-          <a href="#new_discussion">
+          <.link href="#new_discussion">
             {dgettext("page-dataset-details", "Begin a new conversation")}
-          </a>
+          </.link>
           <div id="new_discussion" class="discussion-modal">
             <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
               {hidden_input(f, :dataset_slug, value: @dataset.slug)}
@@ -194,10 +194,9 @@
           </div>
         <% else %>
           <span class="discussion-commment__connection-needed">
-            {link(
-              dgettext("page-dataset-details", "You need to be connected to start a discussion"),
-              to: page_path(@conn, :login, redirect_path: current_path(@conn))
-            )}
+            <.link href={~p"/login/explanation?#{[redirect_path: current_path(@conn)]}"}>
+              {dgettext("page-dataset-details", "You need to be connected to start a discussion")}
+            </.link>
           </span>
         <% end %>
       </div>
@@ -221,7 +220,7 @@
         <span class="dataset-metas-info-title">{dgettext("page-dataset-details", "Data published by")}</span>
         <div>
           <b>
-            {link(@dataset.organization, to: dataset_path(@conn, :index, organization_id: @dataset.organization_id))}
+            <.link href={~p"/datasets?#{[organization_id: @dataset.organization_id]}"}>{@dataset.organization}</.link>
           </b>
         </div>
       </div>
@@ -242,7 +241,7 @@
         </span>
         <div>
           <%= for offer <- @dataset.offers |> Enum.sort_by(& &1.nom_commercial) do %>
-            {link(offer.nom_commercial, to: dataset_path(@conn, :by_offer, offer.identifiant_offre))}
+            <.link href={~p"/datasets/offer/#{offer.identifiant_offre}"}>{offer.nom_commercial}</.link>
           <% end %>
         </div>
       </div>
@@ -268,7 +267,9 @@
       </div>
       <div class="pt-12 shortlist__link shortlist__link--external-link">
         <i class="icon icon--link" aria-hidden="true"></i>
-        {Dataset.link_to_datagouv(@dataset)}
+        <.link href={Dataset.datagouv_url(@dataset)} role="link" target="_blank">
+          {dgettext("db-dataset", "See on data.gouv.fr")}
+        </.link>
       </div>
       <div class="pt-12">
         <span class="dataset-metas-info-title">
