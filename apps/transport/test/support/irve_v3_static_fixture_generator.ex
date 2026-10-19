@@ -120,18 +120,18 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
       networks = Enum.map(trigrams, &build_network(&1, emsp_pool))
 
       # Addresses only repeat once the sample is exhausted, to avoid spurious co-located stations.
-      @addresses
-      |> Enum.shuffle()
-      |> Stream.cycle()
-      |> Enum.take(opts[:stations])
-      |> Enum.map_reduce(%{}, fn address, counters ->
-        network = Enum.random(networks)
-        key = {network["trigram"], address.code_insee}
-        counters = Map.update(counters, key, 1, &(&1 + 1))
-        {build_station(network, address, counters[key], opts[:now]), counters}
-      end)
-      |> elem(0)
-      |> Enum.concat()
+      addresses = @addresses |> Enum.shuffle() |> Stream.cycle() |> Enum.take(opts[:stations])
+
+      # Station ids end with a sequence number, unique per network and commune.
+      {stations, _seqs} =
+        Enum.map_reduce(addresses, %{}, fn address, seqs ->
+          network = Enum.random(networks)
+          key = {network["trigram"], address.code_insee}
+          seqs = Map.update(seqs, key, 1, &(&1 + 1))
+          {build_station(network, address, seqs[key], opts[:now]), seqs}
+        end)
+
+      Enum.concat(stations)
     end)
     |> Task.await(:infinity)
   end
@@ -208,13 +208,19 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
     kind = Enum.random(@profile_draw)
     profile = @profiles[kind]
     pick = fn key -> Enum.random(profile[key]) end
+    # AFIREV-like ids: FR + network trigram + P (station), E (charging point) or T (tariff) + suffix.
     suffix = address.code_insee <> String.pad_leading(Integer.to_string(seq), 3, "0")
 
     # Stations are mostly built with a single hardware model, with occasional extensions.
     main_hardware = pick.(:hardware)
-    pdcs = for i <- 1..pick.(:nb_pdc), do: {i, Enum.random([main_hardware, main_hardware, pick.(:hardware)])}
-    powers = Enum.map(pdcs, fn {_i, {power, _prises}} -> power end)
-    accessibilities = for _ <- pdcs, do: pick.(:accessibilite_pmr)
+
+    pdcs =
+      for i <- 1..pick.(:nb_pdc) do
+        {power, prises} = Enum.random([main_hardware, main_hardware, pick.(:hardware)])
+        %{index: i, power: power, prises: prises}
+      end
+
+    pdcs = Enum.map(pdcs, &Map.put(&1, :accessibilite, pick.(:accessibilite_pmr)))
     nb_places = Enum.random([length(pdcs), length(pdcs), nil])
     {masse, hauteur, longueur, largeur} = pick.(:gabarit)
     gratuit = pick.(:gratuit)
@@ -235,13 +241,11 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
         "station_latitude" => latitude,
         "station_longitude" => longitude,
         "nb_pdc" => length(pdcs),
-        # Grid connection often caps the station below the sum of its points.
-        "puissance_maximale_station_kw" =>
-          max(Enum.max(powers), min(Enum.sum(powers), round(Enum.sum(powers) * Enum.random(5..10) / 10))),
+        "puissance_maximale_station_kw" => station_max_power(Enum.map(pdcs, & &1.power)),
         "condition_acces" => pick.(:condition_acces),
         "horaires" => pick.(:horaires),
         "nb_places" => nb_places,
-        "nb_places_pmr" => nb_places_pmr(nb_places, accessibilities),
+        "nb_places_pmr" => nb_places_pmr(nb_places, Enum.map(pdcs, & &1.accessibilite)),
         "gabarit_masse_max_t" => masse,
         "gabarit_hauteur_max_m" => hauteur,
         "gabarit_longueur_max_m" => longueur,
@@ -263,27 +267,35 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
     commissioning = Date.add(DateTime.to_date(now), -Enum.random(30..(365 * 8)))
 
-    for {{i, {power, prises}}, accessibilite} <- Enum.zip(pdcs, accessibilities) do
+    for pdc <- pdcs do
       mise_en_service = Enum.random([commissioning, commissioning, nil])
-      connectors = connector_fields(prises)
+      connectors = connector_fields(pdc.prises)
 
       station
       |> Map.merge(connectors)
       |> Map.merge(%{
-        "id_pdc_itinerance" => "FR#{network["trigram"]}E#{suffix}#{i}",
-        "id_pdc_local" => local_id(network, "PDC-#{suffix}#{i}"),
-        "puissance_nominale_kw" => power,
+        "id_pdc_itinerance" => "FR#{network["trigram"]}E#{suffix}#{pdc.index}",
+        "id_pdc_local" => local_id(network, "PDC-#{suffix}#{pdc.index}"),
+        "puissance_nominale_kw" => pdc.power,
         "plug_and_charge" => pick.(:plug_and_charge),
         "recharge_intelligente" => pick.(:recharge_intelligente),
         "recharge_intelligente_autre" => nil,
         "tarif_ids" =>
-          if(station["gratuit"] != true, do: tarif_ids(network["trigram"], connectors["courant_dc"], power)),
+          if(station["gratuit"] != true, do: tarif_ids(network["trigram"], connectors["courant_dc"], pdc.power)),
         "reservation" => pick.(:reservation),
-        "accessibilite_pmr" => accessibilite,
+        "accessibilite_pmr" => pdc.accessibilite,
         "date_mise_en_service" => mise_en_service,
         "horodatage_maj" => random_datetime(mise_en_service || commissioning, now)
       })
     end
+  end
+
+  # The grid connection often caps the station at 50–100% of the sum of its points,
+  # but never below its most powerful point.
+  defp station_max_power(powers) do
+    total = Enum.sum(powers)
+    grid_cap = round(total * Enum.random(5..10) / 10)
+    max(Enum.max(powers), min(total, grid_cap))
   end
 
   defp connector_fields(prises) do
@@ -339,8 +351,11 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
     Enum.random([[base], [base], [base], [base, base <> "V2"]])
   end
 
+  # Records are updated recently, and never before `since`.
   defp random_datetime(%Date{} = since, now) do
-    earliest = max(DateTime.to_unix(DateTime.new!(since, ~T[00:00:00])), DateTime.to_unix(now) - 400 * 86_400)
+    earliest =
+      max(DateTime.to_unix(DateTime.new!(since, ~T[00:00:00])), DateTime.to_unix(DateTime.add(now, -400, :day)))
+
     DateTime.from_unix!(Enum.random(earliest..DateTime.to_unix(now)))
   end
 
