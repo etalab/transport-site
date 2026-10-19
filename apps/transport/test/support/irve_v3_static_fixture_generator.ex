@@ -1,14 +1,23 @@
 defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   @moduledoc """
   Seeded generator of realistic IRVE static v3 rows, conforming to the vendored schema.
-  The same options always produce the same rows.
 
-  Addresses are town halls sampled from the Annuaire de l'administration (DILA, Licence Ouverte), so that
-  address, postal code, INSEE code and coordinates are consistent without pointing at private homes.
-  Names, SIREN, AFIREV codes, phones and emails are fictitious.
+  MVP, largely AI-generated, written to bootstrap the v3 validator and feedback on the alpha schema.
+  Expect it to be reworked heavily as needs show up; the profiles and values are a starting point.
+  The design constraints below were set deliberately and should survive rewrites:
+
+  - stable: the same options always produce the same rows, without touching the caller's random state;
+  - conformant: output passes frictionless against the vendored schema;
+  - station fields (`x-entity: station`) are identical, as raw text, on every row of a station;
+  - `[]` (declared none) and an empty cell (unknown) are distinct values;
+  - addresses are town halls sampled from the Annuaire de l'administration (DILA, Licence Ouverte), so that
+    address, postal code, INSEE code and coordinates are consistent without pointing at private homes;
+    station coordinates are offset from the address point, which locates the street access;
+  - names, SIREN, AFIREV codes, phones and emails are fictitious;
+  - code size kept to a reasonable minimum: variety comes from data, not branches.
   """
 
-  @address_sample Application.app_dir(:transport, "priv/irve/mairie_addresses_sample.csv")
+  @address_sample Path.join(__DIR__, "../fixture/irve/mairie_addresses_sample.csv")
   @external_resource @address_sample
 
   @addresses @address_sample
@@ -137,7 +146,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   end
 
   def field_names do
-    Transport.CachedFiles.read_json("irve-v3/schema-statique.json")
+    Transport.CachedFiles.read_json("schema-irve-statique-v3.json")
     |> Map.fetch!("fields")
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
