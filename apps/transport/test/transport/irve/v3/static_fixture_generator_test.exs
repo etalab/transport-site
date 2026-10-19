@@ -2,7 +2,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGeneratorTest do
   use ExUnit.Case, async: true
   alias Transport.IRVE.V3.StaticFixtureGenerator
 
-  @schema Transport.CachedFiles.read_json("irve-v3/schema-statique.json")
+  @schema Transport.CachedFiles.read_json("schema-irve-statique-v3.json")
 
   defp generate(opts \\ []),
     do: StaticFixtureGenerator.generate(Keyword.merge([seed: 7, stations: 50, networks: 3], opts))
