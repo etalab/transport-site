@@ -1,0 +1,494 @@
+adresse,code_postal,code_insee_commune,commune,latitude,longitude
+10 Grand'rue 01550 Collonges,01550,01109,Collonges,46.13831,5.903893
+65 route de Pérouges 01800 Faramans,01800,01156,Faramans,45.907616,5.165661
+1 place Jean-Coupat 01460 Montréal-la-Cluse,01460,01265,Montréal-la-Cluse,46.184262,5.576747
+82 Rue de l'Église 01480 Savigneux,01480,01398,Savigneux,46.001461,4.848513
+34 chemin Jacques-Belay 01220 Grilly,01220,01180,Grilly,46.331902,6.11462
+1 place Paul-Doumer 02700 Tergnier,02700,02738,Tergnier,49.655771,3.291884
+16 place de l'Hôtel-de-Ville 02400 Château-Thierry,02400,02168,Château-Thierry,49.046001,3.40271
+37 Ter rue Condorcet 02240 Ribemont,02240,02648,Ribemont,49.795931,3.459632
+8 avenue Adrien-Renard 02430 Gauchy,02430,02340,Gauchy,49.8255,3.28488
+10 rue de Verdun 02190 Juvincourt-et-Damary,02190,02399,Juvincourt-et-Damary,49.445801,3.89038
+13 Rue du Général-Hennequin 03390 Sazeret,03390,03270,Sazeret,46.339392,2.955225
+1 place du Donjon 03420 Marcillat-en-Combraille,03420,03161,Marcillat-en-Combraille,46.167099,2.63245
+1 rue Victor-Hugo 03390 Montmarault,03390,03186,Montmarault,46.317699,2.95408
+1 place de l'Eglise 03450 Ébreuil,03450,03107,Ébreuil,46.11443,3.08775
+3 place Jules-Ferry 03400 Yzeure,03400,03321,Yzeure,46.5662,3.35458
+113 Rue de l'Arboux 04230 Saint-Étienne-les-Orgues,04230,04178,Saint-Étienne-les-Orgues,44.045399,5.78012
+8 boulevard de la République 04190 Les Mées,04190,04116,Les Mées,44.029496,5.974939
+4 place de la République 04200 Sisteron,04200,04209,Sisteron,44.194855,5.942574
+84 rue de la mairie 04200 Aubignosc,04200,04013,Aubignosc,44.12892,5.96999
+18 place Charles-Vial 04150 Banon,04150,04018,Banon,44.03801,5.629569
+2098 Charrière des Gourniers 05160 Réallon,05160,05114,Réallon,44.595623,6.363069
+200 les Écoles 05000 La Freissinouse,05000,05059,La Freissinouse,44.53585,6.01045
+10 impasse de la mairie 05600 Risoul,05600,05119,Risoul,44.649649,6.637772
+170 rue de la Mairie 05000 Pelleautier,05000,05100,Pelleautier,44.516,6.01763
+426 route du Pli Couché 05600 Saint-Clément-sur-Durance,05600,05134,Saint-Clément-sur-Durance,44.647702,6.577501
+19 rue de l'Hôtel-de-Ville 06340 La Trinité,06340,06149,La Trinité,43.743115,7.313764
+45 place de l'École 06340 Cantaron,06340,06031,Cantaron,43.7616,7.31821
+1 place Maximin-Escalier 06140 Tourrettes-sur-Loup,06140,06148,Tourrettes-sur-Loup,43.715791,7.058914
+1 place de la Mairie 06670 Castagniers,06670,06034,Castagniers,43.790531,7.23072
+36 route du Vieux-Pierrefeu 06910 Pierrefeu,06910,06097,Pierrefeu,43.863856,7.091883
+4 place de la Concorde 07700 Bourg-Saint-Andéol,07700,07042,Bourg-Saint-Andéol,44.368698,4.64671
+95 A route de Genette 07260 Rosières,07260,07199,Rosières,44.483529,4.257273
+1 place de la Mairie 07230 Lablachère,07230,07117,Lablachère,44.463103,4.214155
+50 place de la Mairie 07460 Berrias-et-Casteljau,07460,07031,Berrias-et-Casteljau,44.37345,4.201816
+3 place de l'Église 07130 Cornas,07130,07070,Cornas,44.963686,4.847433
+15 avenue Pasteur 08300 Lucquy,08300,08262,Lucquy,49.530998,4.47694
+144 rue François-Mitterrand 08150 Rimogne,08150,08365,Rimogne,49.840314,4.537516
+1 place Meslier 08160 Étrépigny,08160,08158,Étrépigny,49.684758,4.753652
+2 rue du Pâquis 08090 Damouzy,08090,08137,Damouzy,49.79753,4.67565
+6 place de l'Hôtel-de-Ville 08170 Haybes,08170,08222,Haybes,50.010139,4.70569
+6 boulevard Paul-Lafont 09800 Castillon-en-Couserans,09800,09085,Castillon-en-Couserans,42.921467,1.032528
+64 avenue des Pyrénées 09100 Saint-Jean-du-Falga,09100,09265,Saint-Jean-du-Falga,43.086892,1.627978
+3 Grande rue 09220 Val-de-Sos,09220,09334,Val-de-Sos,42.768747,1.498404
+17 rue du Château 09100 Les Pujols,09100,09238,Les Pujols,43.08799,1.718733
+11 avenue du Pal 09100 La Tour-du-Crieu,09100,09312,La Tour-du-Crieu,43.102102,1.65387
+19 rue de la Mairie 10440 Torvilliers,10440,10381,Torvilliers,48.274542,3.976156
+8 rue Jean-Monnet 10260 Virey-sous-Bar,10260,10437,Virey-sous-Bar,48.14188,4.3028
+3 rue Georges-Clemenceau 10350 Marigny-le-Châtel,10350,10224,Marigny-le-Châtel,48.402901,3.73679
+32 Grande rue 10330 Jasseines,10330,10175,Jasseines,48.501202,4.38531
+1 place Georges-Clemenceau 10370 Villenauxe-la-Grande,10370,10420,Villenauxe-la-Grande,48.589545,3.553383
+210 avenue de la République 11120 Saint-Nazaire-d'Aude,11120,11360,Saint-Nazaire-d'Aude,43.244081,2.897132
+32 boulevard de la République 11560 Fleury-d'Aude,11560,11145,Fleury-d'Aude,43.228535,3.135104
+13 rue Joe-Bousquet 11480 La Palme,11480,11188,La Palme,42.974366,2.991876
+6 avenue de la Mairie 11510 Fitou,11510,11144,Fitou,42.8946,2.98287
+30 avenue François-Mitterrand 11700 Puichéric,11700,11301,Puichéric,43.224834,2.624758
+2 place de la Mairie 12340 Bozouls,12340,12033,Bozouls,44.46978,2.72029
+3 place de l'Ancienne-École 12330 Clairvaux-d'Aveyron,12330,12066,Clairvaux-d'Aveyron,44.413461,2.422165
+36 place du Clocher 12260 Sainte-Croix,12260,12217,Sainte-Croix,44.426434,1.966535
+3 Place des Arcades 12800 Sauveterre-de-Rouergue,12800,12262,Sauveterre-de-Rouergue,44.221098,2.317693
+19 impasse Noël 12460 Huparlac,12460,12116,Huparlac,44.712424,2.761936
+125 avenue Louis-Sylvestre 13100 Beaurecueil,13100,13012,Beaurecueil,43.511284,5.545923
+39 boulevard de la République 13490 Jouques,13490,13048,Jouques,43.63698,5.638096
+34 Grand'rue 13113 Lamanon,13113,13049,Lamanon,43.701266,5.085062
+2 avenue de l'Europe-Unie 13640 La Roque-d'Anthéron,13640,13084,La Roque-d'Anthéron,43.714901,5.30747
+6 rue Jentelin 13160 Châteaurenard,13160,13027,Châteaurenard,43.882291,4.855489
+4 avenue de Verdun 14340 Bonnebosq,14340,14083,Bonnebosq,49.204601,0.078816
+4 rue de Barbery 14190 Urville,14190,14719,Urville,49.025849,-0.298148
+4 route de Bretagne 14210 Mondrainville,14210,14438,Mondrainville,49.137782,-0.517778
+17 rue de la Mairie 14600 La Rivière-Saint-Sauveur,14600,14536,La Rivière-Saint-Sauveur,49.407501,0.271786
+190 rue de la Mairie 14240 Sallen,14240,14664,Sallen,49.116314,-0.829384
+11 rue Marcellin-Boule 15120 Montsalvy,15120,15134,Montsalvy,44.707286,2.500339
+3 place de la Mairie 15110 Chaudes-Aigues,15110,15045,Chaudes-Aigues,44.855099,3.00366
+28 Grande-Rue-de-l'Abbé-de-Pradt 15160 Allanche,15160,15001,Allanche,45.228979,2.934496
+10 Grand'rue 15800 Thiézac,15800,15236,Thiézac,45.015285,2.668201
+69 Tour-de-Ville 15600 Maurs,15600,15122,Maurs,44.711136,2.198277
+33 rue Principale 16330 La Boixe,16330,16393,La Boixe,45.74725,0.160565
+11 place de la Mairie 16310 Montemboeuf,16310,16225,Montemboeuf,45.777302,0.553174
+6 place de l'Église 16310 Massignac,16310,16212,Massignac,45.779864,0.654834
+14 place du Canton 16170 Vaux-Rouillac,16170,16395,Vaux-Rouillac,45.74266,-0.091301
+40 Grande-Rue 16380 Marthon,16380,16211,Marthon,45.612065,0.447259
+6 rue du Maréchal-Foch 17320 Marennes-Hiers-Brouage,17320,17219,Marennes-Hiers-Brouage,45.823892,-1.104271
+28 rue Saint-Laurent 17600 Le Gua,17600,17185,Le Gua,45.725899,-0.942948
+22 place de l'Hôtel-de-Ville 17380 Tonnay-Boutonne,17380,17448,Tonnay-Boutonne,45.967444,-0.70657
+3 rue du Château 17180 Périgny,17180,17274,Périgny,46.151779,-1.093868
+1 place Jacques-Lacombe 17530 Arvert,17530,17021,Arvert,45.741589,-1.127437
+4 place de l'Église 18100 Thénioux,18100,18263,Thénioux,47.256598,1.926753
+12 rue de la Mairie 18510 Menetou-Salon,18510,18145,Menetou-Salon,47.231998,2.4884
+26 Grande-Rue 18380 Ennordres,18380,18088,Ennordres,47.430376,2.3841
+2 route de Flavigny 18520 Bengy-sur-Craon,18520,18027,Bengy-sur-Craon,46.998879,2.748815
+28 route de Marçais 18200 Orcenais,18200,18171,Orcenais,46.715992,2.422508
+9 place de l'Église 19500 Meyssac,19500,19138,Meyssac,45.055772,1.674232
+1 place de la Mairie 19350 Chabrignac,19350,19035,Chabrignac,45.315283,1.339288
+1 place Jacques-Chirac 19270 Donzenac,19270,19072,Donzenac,45.22769,1.52293
+1 rue de la Mairie 19170 Bugeat,19170,19033,Bugeat,45.596908,1.927319
+1 rue de l'Hôtel-de-Ville 19460 Naves,19460,19146,Naves,45.312731,1.767693
+2 rue de la Liberté 21170 Saint-Jean-de-Losne,21170,21554,Saint-Jean-de-Losne,47.1021,5.26318
+3A rue du Centre 21130 Athée,21130,21028,Athée,47.230596,5.370811
+1 place de l'Hautrot 21200 Levernois,21200,21347,Levernois,46.990508,4.875512
+3 rue de Dijon 21560 Couternon,21560,21209,Couternon,47.33418,5.148959
+7 Grande rue 21130 Pont,21130,21495,Pont,47.1936,5.38693
+20 rue Notre-Dame 22600 Loudéac,22600,22136,Loudéac,48.176551,-2.752375
+4 place de l'Église 22640 Plénée-Jugon,22640,22185,Plénée-Jugon,48.363633,-2.400032
+1 place de la Mairie 22160 Lohuec,22160,22132,Lohuec,48.459794,-3.521496
+7 rue des Plages 22560 Trébeurden,22560,22343,Trébeurden,48.771415,-3.577927
+7 rue de l'Étang 22480 Canihuel,22480,22029,Canihuel,48.338556,-3.105658
+13 rue de la Mairie 23120 Vallière,23120,23257,Vallière,45.906819,2.035065
+5 place de la Mairie 23000 Sainte-Feyre,23000,23193,Sainte-Feyre,46.139099,1.91534
+8 route de Guéret 23250 Pontarion,23250,23155,Pontarion,45.997326,1.850544
+5 rue de la Mairie 23170 Lussat,23170,23114,Lussat,46.183439,2.341132
+2 rue de la Mairie 23200 Saint-Médard-la-Rochette,23200,23220,Saint-Médard-la-Rochette,46.04356,2.143868
+12 Grande-Rue 24100 Creysse,24100,24145,Creysse,44.854393,0.562926
+17 rue de la République 24120 Beauregard-de-Terrasson,24120,24030,Beauregard-de-Terrasson,45.148346,1.228619
+3 place Charles-Mangold 24380 Vergt,24380,24571,Vergt,45.026226,0.719168
+3 place Thomas-Robert-Bugeaud 24270 Lanouaille,24270,24227,Lanouaille,45.391766,1.139314
+95 route de Bordeaux 24430 Marsac-sur-l'Isle,24430,24256,Marsac-sur-l'Isle,45.183097,0.656341
+10 rue de Voujeaucourt 25420 Courcelles-lès-Montbéliard,25420,25170,Courcelles-lès-Montbéliard,47.501301,6.775815
+22 rue des Écoles 25150 Bourguignon,25150,25082,Bourguignon,47.41136,6.775817
+1 place de la Mairie 25220 Amagney,25220,25014,Amagney,47.307249,6.153282
+4 rue de Besançon 25220 Thise,25220,25560,Thise,47.283898,6.080092
+31 Grande-Rue 25640 Marchaux-Chaudefontaine,25640,25368,Marchaux-Chaudefontaine,47.323247,6.134593
+4 place Frédéric-Mistral 26130 Montségur-sur-Lauzon,26130,26211,Montségur-sur-Lauzon,44.361,4.86031
+90 avenue Joseph-Combier 26250 Livron-sur-Drôme,26250,26165,Livron-sur-Drôme,44.769199,4.84132
+20 place de la Mairie 26340 Saint-Nazaire-le-Désert,26340,26321,Saint-Nazaire-le-Désert,44.570334,5.274508
+7 rue Félix-Germain 26150 Die,26150,26113,Die,44.7528,5.3688
+1 place de la Grangette 26780 Châteauneuf-du-Rhône,26780,26085,Châteauneuf-du-Rhône,44.48669,4.717315
+2 place de la Mairie 27450 Saint-Georges-du-Vièvre,27450,27542,Saint-Georges-du-Vièvre,49.2439,0.584432
+16 rue de la Ferme 27930 Angerville-la-Campagne,27930,27017,Angerville-la-Campagne,48.989793,1.158578
+18 rue Chantereine 27170 Beaumont-le-Roger,27170,27051,Beaumont-le-Roger,49.0802,0.776952
+2 place de l'Église 27420 Authevernes,27420,27026,Authevernes,49.238342,1.658077
+34 rue Principale 27790 Rosay-sur-Lieure,27790,27496,Rosay-sur-Lieure,49.373487,1.429913
+44 rue Villette-Gâté 28400 Nogent-le-Rotrou,28400,28280,Nogent-le-Rotrou,48.321602,0.821884
+5 rue des Pesles 28250 La Saucelle,28250,28368,La Saucelle,48.636398,1.0403
+4 rue du Rosaire 28410 Boutigny-Prouais,28410,28056,Boutigny-Prouais,48.744544,1.587574
+14 rue de Dreux 28500 Luray,28500,28223,Luray,48.723612,1.394641
+1 place de la Mairie 28170 Thimert-Gâtelles,28170,28386,Thimert-Gâtelles,48.5966,1.2805
+7 place de l'Église 29310 Querrien,29310,29230,Querrien,47.959403,-3.536545
+1 route de Ty-Fléan 29510 Edern,29510,29048,Edern,48.104231,-3.977813
+2 bis rue du Général-de-Gaulle 29780 Plouhinec,29780,29197,Plouhinec,48.014507,-4.487307
+2 rue Beg-Ar-Roz 29310 Locunolé,29310,29136,Locunolé,47.936911,-3.478203
+156 rue de la Mairie 29250 Plougoulm,29250,29192,Plougoulm,48.666902,-4.043901
+3 strada di a meria 20145 Sari-Solenzara,20145,2A269,Sari-Solenzara,41.85919,9.396006
+785 Strada d'Afà 20167 Afa,20167,2A001,Afa,41.985892,8.801513
+12 place de l'Europe 20169 Bonifacio,20169,2A041,Bonifacio,41.386949,9.158389
+2675 Route Territoriale 40 20131 Pianottoli-Caldarello,20131,2A215,Pianottoli-Caldarello,41.494414,9.056255
+2 A Sarra 20140 Serra-di-Ferro,20140,2A276,Serra-di-Ferro,41.728046,8.798221
+1A Chjappata 20212 Focicchia,20212,2B116,Focicchia,42.250294,9.295256
+26 traversa duttore coltelloni 20232 Oletta,20232,2B185,Oletta,42.631849,9.358393
+330 strada di u mandarinu 20230 Poggio-Mezzana,20230,2B242,Poggio-Mezzana,42.397834,9.492342
+20 cours Charles-Jean-Sarocchi 20270 Aléria,20270,2B009,Aléria,42.104248,9.512429
+25 Cullata-di-a-Suarella 20251 Piedicorte-di-Gaggio,20251,2B218,Piedicorte-di-Gaggio,42.236501,9.3279
+3 rue Frédéric-Desmons 30190 Brignon,30190,30053,Brignon,43.989264,4.213434
+1 place de la Libération 30240 Le Grau-du-Roi,30240,30133,Le Grau-du-Roi,43.533763,4.137811
+291 avenue de l'Europe 30700 Foissac,30700,30111,Foissac,44.041199,4.29817
+144 place du 6-Juin-1944 30290 Laudun-l'Ardoise,30290,30141,Laudun-l'Ardoise,44.105296,4.657439
+36 rue de la Mairie 30450 Aujac,30450,30022,Aujac,44.349442,4.015759
+4 place de la Mairie 31800 Villeneuve-de-Rivière,31800,31585,Villeneuve-de-Rivière,43.121604,0.662579
+3 chemin du Village 31800 Estancarbon,31800,31175,Estancarbon,43.1078,0.784766
+2 place de la Mairie 31110 Moustajon,31110,31394,Moustajon,42.815029,0.597511
+1 place de la République 31790 Saint-Jory,31790,31490,Saint-Jory,43.742909,1.370289
+18 place Charles-Ourgaut 31340 Villemur-sur-Tarn,31340,31584,Villemur-sur-Tarn,43.865355,1.504979
+1 place de la Mairie 32120 Labrihe,32120,32173,Labrihe,43.770512,0.87538
+85 rue Nationale 32200 Gimont,32200,32147,Gimont,43.627209,0.874921
+1 place du Colonel-Parisot 32290 Aignan,32290,32001,Aignan,43.697404,0.082912
+1 place Carnot 32260 Seissan,32260,32426,Seissan,43.4921,0.593554
+2 rue Rodolphe-Molère 32330 Gondrin,32330,32149,Gondrin,43.885855,0.237286
+81 avenue du Général-de-Gaulle 33350 Saint-Magne-de-Castillon,33350,33437,Saint-Magne-de-Castillon,44.862801,-0.061683
+1 esplanade Edmond-Doré 33260 La Teste-de-Buch,33260,33529,La Teste-de-Buch,44.537201,-1.15589
+18 place de la Victoire 33440 Ambarès-et-Lagrave,33440,33003,Ambarès-et-Lagrave,44.926777,-0.490361
+1 place Pierre-de-Brach 33450 Montussan,33450,33293,Montussan,44.881547,-0.428073
+3 place de la République 33570 Lussac,33570,33261,Lussac,44.949501,-0.095806
+1 impasse Lou-Ceries 34390 Prémian,34390,34219,Prémian,43.523865,2.830432
+3 place de l'Hermet 34270 Claret,34270,34078,Claret,43.861268,3.906272
+12 rue de la Mairie 34760 Boujan-sur-Libron,34760,34037,Boujan-sur-Libron,43.371498,3.2498
+41 rue de l'Éspandidou 34570 Vailhauquès,34570,34320,Vailhauquès,43.668765,3.717596
+17 avenue Paul-Vidal 34410 Sauvian,34410,34298,Sauvian,43.294719,3.261088
+5 rue de la Mairie 35580 Lassy,35580,35149,Lassy,47.978497,-1.874647
+5 rue Théophile Rémond 35340 La Bouëxière,35340,35031,La Bouëxière,48.183951,-1.437499
+4 avenue Henri Fréville 35000 Rennes,35000,35238,Rennes,48.093066,-1.67494
+4 rue de la Mairie 35580 Guignen,35580,35127,Guignen,47.919458,-1.861566
+13 place de la Mairie 35550 Pipriac,35550,35219,Pipriac,47.808843,-1.946275
+2 avenue du Général-de-Gaulle 36130 Déols,36130,36063,Déols,46.825904,1.700723
+1 place Clemenceau 36230 Neuvy-Saint-Sépulchre,36230,36141,Neuvy-Saint-Sépulchre,46.596081,1.807154
+1 place de l'Hôtel-de-Ville 36400 La Châtre,36400,36046,La Châtre,46.5816,1.98651
+2 rue du 11-Novembre 36350 Luant,36350,36101,Luant,46.733633,1.558079
+50 rue Grande 36700 Châtillon-sur-Indre,36700,36045,Châtillon-sur-Indre,46.989707,1.173482
+2 place du 11-Novembre 37360 Neuillé-Pont-Pierre,37360,37167,Neuillé-Pont-Pierre,47.54763,0.546942
+1 mail de la Mairie 37240 Manthelan,37240,37143,Manthelan,47.137798,0.793028
+6 place du Maréchal-Leclerc 37600 Beaulieu-lès-Loches,37600,37020,Beaulieu-lès-Loches,47.128063,1.012309
+10 place de la Mairie 37120 Razines,37120,37191,Razines,46.976197,0.377227
+2 rue Gilles-de-Betz 37600 Betz-le-Château,37600,37026,Betz-le-Château,46.991162,0.918973
+409 Grande-Rue 38870 Saint-Siméon-de-Bressieux,38870,38457,Saint-Siméon-de-Bressieux,45.328389,5.26145
+1 place de la Mairie 38890 Saint-Chef,38890,38374,Saint-Chef,45.634063,5.366167
+226 route de la Poste 38750 Alpe-d'Huez,38750,38191,Alpe-d'Huez,45.09179,6.063401
+2 place Henri-Gerbe 38590 Brézins,38590,38058,Brézins,45.348801,5.30679
+7 place de la Liberté 38440 Châtonnay,38440,38094,Châtonnay,45.486847,5.204553
+1 rue d'Aval 39100 Parcey,39100,39405,Parcey,47.023434,5.483106
+20 rue du Chanois 39100 Authume,39100,39030,Authume,47.124599,5.50241
+2 place Jean-Jaurès 39400 Haut-de-Bienne,39400,39368,Haut-de-Bienne,46.520897,6.02242
+3 rue du Triolet 39310 Lajoux,39310,39274,Lajoux,46.376081,5.969935
+10 rue de l'Hôtel-de-Ville 39600 Arbois,39600,39013,Arbois,46.902668,5.772358
+4 place de l'Hôtel-de-Ville 40320 Geaune,40320,40110,Geaune,43.6408,-0.378149
+1071 route de Mont-de-Marsan 40090 Saint-Martin-d'Oney,40090,40274,Saint-Martin-d'Oney,43.965024,-0.72243
+1 place Antoine-Dubon 40190 Hontanx,40190,40127,Hontanx,43.824913,-0.273529
+1 place des Déportés 40270 Grenade-sur-l'Adour,40270,40117,Grenade-sur-l'Adour,43.7733,-0.430883
+4 rue du Bourg 40240 Losse,40240,40158,Losse,44.108555,-0.102879
+3 square du Maréchal-de-Lattre-de-Tassigny 41230 Mur-de-Sologne,41230,41157,Mur-de-Sologne,47.411377,1.6088
+31 rue Louis-et-Marie-Louise-Tessier 41160 Fréteval,41160,41095,Fréteval,47.887699,1.2079
+9 place Saint-Louis 41000 Blois,41000,41018,Blois,47.588402,1.33528
+33 boulevard de la République 41300 Salbris,41300,41232,Salbris,47.427008,2.052059
+1 place Louis-Leygue 41100 Naveil,41100,41158,Naveil,47.793851,1.029667
+1 place de Verdun 42320 Cellieu,42320,42032,Cellieu,45.531898,4.58134
+1 rue de la Mairie 42920 Chalmazel-Jeansagnière,42920,42039,Chalmazel-Jeansagnière,45.702545,3.850499
+90 rue du Souvenir 42310 La Pacaudière,42310,42163,La Pacaudière,46.1758,3.86704
+104 place Louis-Gay 42520 Maclas,42520,42129,Maclas,45.362507,4.685346
+1 place de la  Prévôté 42120 Parigny,42120,42166,Parigny,45.990273,4.096951
+6 place Saint-Jacques 43800 Chamalières-sur-Loire,43800,43049,Chamalières-sur-Loire,45.201712,3.985057
+1 rue Crozatier 43000 Aiguilhe,43000,43002,Aiguilhe,45.049183,3.883413
+1 place de l'Église 43320 Chaspuzac,43320,43062,Chaspuzac,45.067967,3.750022
+16 rue de l'Hôtel-de-Ville 43130 Retournac,43130,43162,Retournac,45.203499,4.03292
+8 Place de la Mairie 43490 Costaros,43490,43077,Costaros,44.893192,3.849118
+1 place Julienne David 44390 Les Touches,44390,44205,Les Touches,47.441758,-1.431789
+10 rue Charles-de-Gaulle 44310 La Limouzinière,44310,44083,La Limouzinière,46.991299,-1.6062
+25 rue de la Mairie 44240 Sucé-sur-Erdre,44240,44201,Sucé-sur-Erdre,47.340381,-1.526366
+17 rue de la Mairie 44590 Saint-Vincent-des-Landes,44590,44193,Saint-Vincent-des-Landes,47.6553,-1.49736
+10 rue de l'Hôtel-de-Ville 44680 Sainte-Pazanne,44680,44186,Sainte-Pazanne,47.100899,-1.81289
+173 rue Jean-Zay 45800 Saint-Jean-de-Braye,45800,45284,Saint-Jean-de-Braye,47.911882,1.972238
+283 rue du Général-de-Gaulle 45160 Olivet,45160,45232,Olivet,47.865501,1.89771
+8 rue du Bourg 45430 Bou,45430,45043,Bou,47.872299,2.04678
+71 rue Charles-Beauhaire 45140 Saint-Jean-de-la-Ruelle,45140,45285,Saint-Jean-de-la-Ruelle,47.912722,1.874149
+2 rue du Château 45380 La Chapelle-Saint-Mesmin,45380,45075,La Chapelle-Saint-Mesmin,47.887128,1.84019
+470 avenue de l'Europe 46330 Saint-Géry-Vers,46330,46268,Saint-Géry-Vers,44.478515,1.582058
+1 route Sarrouil 46130 Loubressac,46130,46177,Loubressac,44.836382,1.794724
+30 place de la Mairie 46330 Cabrerets,46330,46040,Cabrerets,44.506161,1.653836
+15 place de l'Eglise 46300 Saint-Cirq-Souillaguet,46300,46258,Saint-Cirq-Souillaguet,44.70757,1.458091
+1360 Route des Citoyens du Monde 46330 Saint-Cirq-Lapopie,46330,46256,Saint-Cirq-Lapopie,44.464619,1.670467
+4 place de la Mairie 47310 Estillac,47310,47091,Estillac,44.1684,0.57769
+1 place Jean-Barennes 47130 Port-Sainte-Marie,47130,47210,Port-Sainte-Marie,44.250659,0.398124
+11 place de la Mairie 47240 Castelculier,47240,47051,Castelculier,44.174506,0.690686
+3 place du Bruilhois 47310 Sainte-Colombe-en-Bruilhois,47310,47238,Sainte-Colombe-en-Bruilhois,44.177956,0.515344
+2 côte du Mont-Pujols 47300 Pujols,47300,47215,Pujols,44.386144,0.69031
+1 place Duguesclin 48170 Châteauneuf-de-Randon,48170,48043,Châteauneuf-de-Randon,44.640825,3.675562
+19 rue Hubert Libourel 48170 Chaudeyrac,48170,48045,Chaudeyrac,44.659589,3.758069
+19 rue de l'Église 48800 Villefort,48800,48198,Villefort,44.438441,3.932879
+305 boulevard Général-Brun-de-Villeret 48140 Le Malzieu-Ville,48140,48090,Le Malzieu-Ville,44.852009,3.330117
+14 Rue Principale 48260 Nasbinals,48260,48104,Nasbinals,44.662756,3.046611
+2  place Simone-Veil 49170 Savennières,49170,49329,Savennières,47.397424,-0.634988
+24 place des Deux-Provinces 49260 Vaudelnay,49260,49364,Vaudelnay,47.139401,-0.206938
+11 rue d'Anjou 49122 Bégrolles-en-Mauges,49122,49027,Bégrolles-en-Mauges,47.1399,-0.934741
+2 rue David-d'Angers 49690 Coron,49690,49109,Coron,47.128255,-0.646313
+1 rue Jean-Gilles 49124 Saint-Barthélemy-d'Anjou,49124,49267,Saint-Barthélemy-d'Anjou,47.468607,-0.495751
+5 rue du Général-de-Gaulle 50760 Réville,50760,50433,Réville,49.619389,-1.259675
+43 rue Pierre-Crestey 50720 Barenton,50720,50029,Barenton,48.5994,-0.833127
+1 rue de la Poste 50430 Lessay,50430,50267,Lessay,49.218727,-1.532598
+2 place de l'Hôtel-de-Ville 50170 Pontorson,50170,50410,Pontorson,48.5541,-1.51035
+7 place Jean-Claude-Lemoine 50420 Tessy-Bocage,50420,50592,Tessy-Bocage,48.97377,-1.05957
+33 avenue du Luxembourg 51460 L'Épine,51460,51231,L'Épine,48.977247,4.469418
+29 rue du Chauffry 51320 Sommesous,51320,51545,Sommesous,48.738602,4.19752
+9 rue Saint-Cloud 51600 Suippes,51600,51559,Suippes,49.132178,4.532161
+7 rue de Chantecoq 51290 Giffaumont-Champaubert,51290,51269,Giffaumont-Champaubert,48.556499,4.75074
+78 rue Paul-Douce 51480 Damery,51480,51204,Damery,49.073502,3.87787
+6 rue du Breuil 52360 Changey,52360,52105,Changey,47.92579,5.384939
+10 rue de Verdun 52160 Perrogney-les-Fontaines,52160,52384,Perrogney-les-Fontaines,47.811001,5.19916
+5 impasse de la Courvée 52200 Saints-Geosmes,52200,52449,Saints-Geosmes,47.832272,5.326507
+68 rue du Général-de-Gaulle 52330 Colombey-les-Deux-Églises,52330,52140,Colombey-les-Deux-Églises,48.222729,4.886409
+4 place Pelletier 52290 Éclaron-Braucourt-Sainte-Livière,52290,52182,Éclaron-Braucourt-Sainte-Livière,48.590199,4.86567
+4 rue Sainte-Anne 53220 Pontmain,53220,53181,Pontmain,48.437842,-1.058896
+50 bis rue de Bretagne 53500 Saint-Denis-de-Gastines,53500,53211,Saint-Denis-de-Gastines,48.342222,-0.860028
+1 bis rue du Château 53170 Bazougers,53170,53025,Bazougers,48.017286,-0.580922
+1 rue de la Charnie 53270 Thorigné-en-Charnie,53270,53264,Thorigné-en-Charnie,47.99992,-0.35922
+1 parc des Forges 53440 Aron,53440,53008,Aron,48.293494,-0.556084
+48 bis rue de l'Hôtel-de-Ville 54390 Frouard,54390,54215,Frouard,48.76108,6.129015
+8 rue du 22-Août-1914 54970 Landres,54970,54295,Landres,49.3209,5.80382
+25 rue de la République 54140 Jarville-la-Malgrange,54140,54274,Jarville-la-Malgrange,48.67361,6.20252
+1 rue des Aulnois 54530 Pagny-sur-Moselle,54530,54415,Pagny-sur-Moselle,48.984091,6.020039
+58 Grande-Rue 54180 Heillecourt,54180,54257,Heillecourt,48.653355,6.194717
+25 bis rue Raymond-Poincaré 55210 Vigneulles-lès-Hattonchâtel,55210,55551,Vigneulles-lès-Hattonchâtel,48.980701,5.70842
+1 place Pierre-Gaxotte 55800 Revigny-sur-Ornain,55800,55427,Revigny-sur-Ornain,48.828244,4.98718
+16 rue du 150e-Régiment-d'Infanterie 55300 Chauvoncourt,55300,55111,Chauvoncourt,48.901062,5.525285
+2 rue de Ligny 55500 Velaines,55500,55543,Velaines,48.702301,5.30116
+6 place du Général-Margueritte 55160 Fresnes-en-Woëvre,55160,55198,Fresnes-en-Woëvre,49.09574,5.631209
+15 rue du Général-de-Kerhué 56460 Sérent,56460,56244,Sérent,47.822576,-2.506211
+1 place Joseph-Marot 56500 Saint-Allouestre,56500,56204,Saint-Allouestre,47.9105,-2.72314
+6 rue de la Mairie 56160 Lignol,56160,56110,Lignol,48.036201,-3.27362
+4 rue du Puits-de-Bas 56220 Malansac,56220,56123,Malansac,47.6772,-2.2975
+2 rue de la Résistance 56390 Grand-Champ,56390,56067,Grand-Champ,47.7579,-2.84317
+53 Grand'Rue 57865 Amanvillers,57865,57017,Amanvillers,49.167345,6.043467
+2 rue des Écoles 57520 Rouhling,57520,57598,Rouhling,49.138901,7.00692
+1 place du Général-de-Gaulle 57320 Bouzonville,57320,57106,Bouzonville,49.290199,6.53527
+14 rue des Écoles 57855 Saint-Privat-la-Montagne,57855,57622,Saint-Privat-la-Montagne,49.187401,6.03757
+68 Grande-Rue 57100 Manom,57100,57441,Manom,49.369498,6.188886
+1 place de Neuhaüsel 58160 Sauvigny-les-Bois,58160,58273,Sauvigny-les-Bois,46.966099,3.27393
+4 rue du Commandant-Victor-Guerreau 58420 Brinon-sur-Beuvron,58420,58041,Brinon-sur-Beuvron,47.281119,3.490859
+1 place de la Mairie 58220 Donzy,58220,58102,Donzy,47.371122,3.122107
+54 avenue Louis-Fouchère 58640 Varennes-Vauzelles,58640,58303,Varennes-Vauzelles,47.014599,3.14584
+90 Parc Simone Veil 58320 Pougues-les-Eaux,58320,58214,Pougues-les-Eaux,47.07279,3.10146
+42 rue du Général-Leclerc 59510 Hem,59510,59299,Hem,50.654202,3.17999
+118 route du Droogland 59670 Winnezeele,59670,59662,Winnezeele,50.841158,2.551877
+1 place Pierre-Delcourt 59163 Condé-sur-l'Escaut,59163,59153,Condé-sur-l'Escaut,50.448316,3.593319
+1 Grand'place 59161 Cagnoncles,59161,59121,Cagnoncles,50.191496,3.309934
+1 place Jacques-Chirac 59237 Verlinghem,59237,59611,Verlinghem,50.680801,2.99421
+5 rue de l'Église 60000 Tillé,60000,60639,Tillé,49.464086,2.112348
+1 place du Friège 60240 Monneville,60240,60411,Monneville,49.2066,1.97545
+3 rue des Hayes 60480 Thieux,60480,60634,Thieux,49.540699,2.313458
+49 bis rue Charles-de-Gaulle 60460 Precy-sur-Oise,60460,60513,Precy-sur-Oise,49.206352,2.369837
+149 rue de Gournay 60190 Moyenneville,60190,60440,Moyenneville,49.491395,2.637332
+13 place de la Mairie 61400 Saint-Hilaire-le-Châtel,61400,61404,Saint-Hilaire-le-Châtel,48.553001,0.471278
+"6, rue de l'Aigle La Ferté-Frênel 61550 La Ferté-en-Ouche",61550,61167,La Ferté-en-Ouche,48.8393,0.519596
+13 Place Saint Michel 61140 Juvigny Val d'Andaine,61140,61211,Juvigny Val d'Andaine,48.55228,-0.50908
+1 place Pompidou 61190 Charencey,61190,61429,Charencey,48.647417,0.756088
+35 rue de l'Église 61130 Saint-Germain-de-la-Coudre,61130,61394,Saint-Germain-de-la-Coudre,48.280998,0.603289
+213 rue Jean-Jaurès 62122 Lapugnoy,62122,62489,Lapugnoy,50.515759,2.540016
+87 Place de l'Union-Européenne 62215 Oye-Plage,62215,62645,Oye-Plage,50.978066,2.04123
+3 rue de la Mairie 62490 Vitry-en-Artois,62490,62865,Vitry-en-Artois,50.325971,2.980685
+5 la Place 62240 Bournonville,62240,62165,Bournonville,50.703677,1.8511
+3 rue du Vieux-Moulin 62176 Camiers,62176,62201,Camiers,50.57537,1.612633
+1 place du Champ-de-Foire 63620 Giat,63620,63165,Giat,45.801825,2.468733
+16 bis Rue du 11-Novembre 63250 Celles-sur-Durolle,63250,63066,Celles-sur-Durolle,45.855966,3.636468
+2 route de Durtol 63830 Nohanent,63830,63254,Nohanent,45.808847,3.055973
+3 rue Benoit Pinaud 63340 Nonette-Orsonnette,63340,63255,Nonette-Orsonnette,45.475915,3.296308
+1 place de l'Église 63330 Pionsat,63330,63281,Pionsat,46.108433,2.694952
+2 place Georges-Clemenceau 64400 Oloron-Sainte-Marie,64400,64422,Oloron-Sainte-Marie,43.19439,-0.605171
+30 avenue du Général-de-Gaulle 64110 Mazères-Lezons,64110,64373,Mazères-Lezons,43.277965,-0.352911
+145 route Karrika-Nagusia 64250 Espelette,64250,64213,Espelette,43.339903,-1.446457
+1 place Huningue 64530 Pontacq,64530,64453,Pontacq,43.185674,-0.114196
+54 avenue des Pyrénées 64240 Urt,64240,64546,Urt,43.490765,-1.290723
+23 avenue des Victimes-du-11-Juin-1944 65200 Trébons,65200,65451,Trébons,43.1017,0.121108
+2 rue de la Fontaine 65170 Bourisp,65170,65106,Bourisp,42.828453,0.338496
+2 avenue Général-Leclerc 65260 Pierrefitte-Nestalas,65260,65362,Pierrefitte-Nestalas,42.959099,-0.073962
+3 place de la Mairie 65510 Loudenvielle,65510,65282,Loudenvielle,42.795631,0.412834
+28 place des Vignaux 65200 Bagnères-de-Bigorre,65200,65059,Bagnères-de-Bigorre,43.068085,0.150679
+1 place de Catalogne 66760 Bourg-Madame,66760,66025,Bourg-Madame,42.4342,1.94433
+6 boulevard du Maréchal-Joffre 66400 Céret,66400,66049,Céret,42.485851,2.748691
+6 rue Porte-de-France 66230 Prats-de-Mollo-la-Preste,66230,66150,Prats-de-Mollo-la-Preste,42.4039,2.47861
+2 avenue Léon-Jean-Grégory 66160 Le Boulou,66160,66024,Le Boulou,42.526949,2.831543
+6 avenue de la République 66650 Banyuls-sur-Mer,66650,66016,Banyuls-sur-Mer,42.482903,3.12901
+84 place de la République 67560 Rosheim,67560,67411,Rosheim,48.495835,7.469024
+10 place de la Mairie 67470 Seltz,67470,67463,Seltz,48.89193,8.106849
+10 rue Principale 67390 Bootzheim,67390,67056,Bootzheim,48.188114,7.572598
+17 place de l'Hôtel-de-Ville 67120 Molsheim,67120,67300,Molsheim,48.542309,7.492734
+31 rue Principale 67770 Stattmatten,67770,67476,Stattmatten,48.795898,8.00196
+12 rue Principale 68140 Hohrod,68140,68142,Hohrod,48.054208,7.124968
+17 rue de Rimbach 68500 Jungholtz,68500,68159,Jungholtz,47.887199,7.19357
+35 rue de la Libération 68740 Fessenheim,68740,68091,Fessenheim,47.914423,7.537887
+34 rue Principale 68320 Muntzenheim,68320,68227,Muntzenheim,48.101263,7.47616
+2 rue d'Ensisheim 68310 Wittelsheim,68310,68375,Wittelsheim,47.809317,7.240587
+3 impasse de la Mairie 69590 Coise,69590,69062,Coise,45.614801,4.473047
+24 rue Centrale 69360 Saint-Symphorien-d'Ozon,69360,69291,Saint-Symphorien-d'Ozon,45.63441,4.856032
+18 route de la Croix-Régis 69700 Échalas,69700,69080,Échalas,45.5041,4.74842
+10 rue de la Mairie 69290 Saint-Genis-les-Ollières,69290,69205,Saint-Genis-les-Ollières,45.756319,4.726038
+165 rue Ampère 69140 Rillieux-la-Pape,69140,69286,Rillieux-la-Pape,45.818901,4.89989
+58 rue Paul-Morel 70000 Vesoul,70000,70550,Vesoul,47.619342,6.154553
+44 rue du Général-de-Gaulle 70190 Rioz,70190,70447,Rioz,47.42534,6.069469
+46 bis rue du Général-de-Gaulle 70400 Héricourt,70400,70285,Héricourt,47.575691,6.759495
+14 rue Jeannot-Lamboley 70310 Faucogney-et-la-Mer,70310,70227,Faucogney-et-la-Mer,47.843586,6.564102
+2 place Schuffenecker 70130 Fresne-Saint-Mamès,70130,70255,Fresne-Saint-Mamès,47.545502,5.862509
+18 rue Carnot 71300 Montceau-les-Mines,71300,71306,Montceau-les-Mines,46.674274,4.363395
+14 place de l'Hôtel-de-Ville 71160 Digoin,71160,71176,Digoin,46.4818,3.97791
+168 rue de la Mairie 71140 Saint-Aubin-sur-Loire,71140,71389,Saint-Aubin-sur-Loire,46.568503,3.74508
+2 rue de la Mairie 71510 Aluze,71510,71005,Aluze,46.846802,4.6851
+4 rue de Beaune 71150 Chagny,71150,71073,Chagny,46.910751,4.752467
+53 bis rue Nationale 72110 Saint-Cosme-en-Vairais,72110,72276,Saint-Cosme-en-Vairais,48.273441,0.458817
+1 place Albert-Liébault 72350 Brûlon,72350,72050,Brûlon,47.966999,-0.233945
+25 rue du Maine 72300 La Chapelle-d'Aligné,72300,72061,La Chapelle-d'Aligné,47.734705,-0.235556
+26 rue Victor-Hugo 72270 Malicorne-sur-Sarthe,72270,72179,Malicorne-sur-Sarthe,47.813218,-0.082437
+17 rue de l'Europe 72650 La Chapelle-Saint-Aubin,72650,72065,La Chapelle-Saint-Aubin,48.0228,0.177315
+1025 route des Croës 73340 Lescheraines,73340,73146,Lescheraines,45.708292,6.105927
+42 place Lamartine 73370 Bourdeau,73370,73050,Bourdeau,45.683513,5.855939
+470 route Chef-lieu 73610 Attignat-Oncin,73610,73022,Attignat-Oncin,45.507485,5.775392
+7 rue des Écoles 73370 Le Bourget-du-Lac,73370,73051,Le Bourget-du-Lac,45.648589,5.859803
+40 place de la mairie 73130 Saint François Longchamp,73130,73235,Saint François Longchamp,45.409591,6.348389
+4 rue Étroite 74540 Alby-sur-Chéran,74540,74002,Alby-sur-Chéran,45.817299,6.02064
+1 place de la Mairie 74440 Mieussy,74440,74183,Mieussy,46.133617,6.523136
+21 route du Chinaillon 74450 Le Grand-Bornand,74450,74136,Le Grand-Bornand,45.942081,6.426911
+74 rue Edmond-Bosson 74150 Versonnex,74150,74297,Versonnex,45.928757,5.927466
+4 route Notre-Dame-de-la-Gorge 74170 Les Contamines-Montjoie,74170,74085,Les Contamines-Montjoie,45.8215,6.72722
+72 rue du Faubourg-Saint-Martin 75010 Paris,75010,75110,Paris,48.871785,2.357383
+6 place Gambetta 75020 Paris,75020,75120,Paris,48.865091,2.398998
+5-7 place Roger Madec 75019 Paris,75019,75119,Paris,48.882873,2.382162
+78 rue Bonaparte 75006 Paris,75006,75106,Paris,48.850537,2.332611
+2 place Ferdinand-Brunot 75014 Paris,75014,75114,Paris,48.832997,2.326854
+1 rue Roger-Fossé 76720 Val-de-Scie,76720,76034,Val-de-Scie,49.718012,1.099603
+1 rue de l'Église 76560 Harcanville,76560,76340,Harcanville,49.71364,0.754784
+194 route de la Mairie 76840 Hénouville,76840,76354,Hénouville,49.474799,0.959526
+41 rue de l'Église 76400 Colleville,76400,76183,Colleville,49.749615,0.454071
+2 avenue des Tilleuls 76500 Orival,76500,76486,Orival,49.309967,0.995794
+5 rue du Bordeau 77165 Iverny,77165,77233,Iverny,48.999592,2.787994
+2 place de l'Hôtel-de-Ville 77400 Lagny-sur-Marne,77400,77243,Lagny-sur-Marne,48.877215,2.705566
+2 place du Général-Leclerc 77930 Chailly-en-Bière,77930,77069,Chailly-en-Bière,48.4659,2.6072
+8 rue des Carouges 77000 Vaux-le-Pénil,77000,77487,Vaux-le-Pénil,48.525788,2.683564
+6 rue de Villarceau 77150 Lésigny,77150,77249,Lésigny,48.744423,2.616065
+2 place aux Herbes 78640 Neauphle-le-Château,78640,78442,Neauphle-le-Château,48.813844,1.899033
+3 place de la Fontaine 78770 Thoiry,78770,78616,Thoiry,48.864932,1.795123
+60 boulevard Carnot 78110 Le Vésinet,78110,78650,Le Vésinet,48.89412,2.134595
+63 rue Maurice-Berteaux 78700 Conflans-Sainte-Honorine,78700,78172,Conflans-Sainte-Honorine,48.993685,2.094956
+31 rue Gambetta 78200 Mantes-la-Jolie,78200,78361,Mantes-la-Jolie,48.989372,1.715374
+4 place de la Mairie 79290 Brion-près-Thouet,79290,79056,Brion-près-Thouet,47.051867,-0.186
+49 rue du 8-Mai 79100 Pas-de-Jeu,79100,79203,Pas-de-Jeu,46.9757,-0.044577
+1 place de la Mairie 79800 Souvigné,79800,79319,Souvigné,46.373331,-0.187651
+3 place Georges-Clemenceau 79380 La Forêt-sur-Sèvre,79380,79123,La Forêt-sur-Sèvre,46.77092,-0.648724
+2 impasse des Écoliers 79310 Saint-Pardoux-Soutiers,79310,79285,Saint-Pardoux-Soutiers,46.571269,-0.305702
+54 place de la Mairie 80270 Allery,80270,80019,Allery,49.962928,1.897724
+17 rue Léon-Ternisien 80120 Vron,80120,80815,Vron,50.316294,1.753155
+7 rue des Lieutenants-Terpraut-et-Grenier 80320 Chaulnes,80320,80186,Chaulnes,49.814848,2.805445
+13 rue Anatole-Jovelet 80780 Saint-Léger-lès-Domart,80780,80706,Saint-Léger-lès-Domart,50.052892,2.140053
+19 place Saint-Martin 80230 Saint-Valery-sur-Somme,80230,80721,Saint-Valery-sur-Somme,50.188599,1.62962
+1 place de la Mairie 81120 Dénat,81120,81079,Dénat,43.846679,2.205106
+2 place de la Mairie 81090 Lagarrigue,81090,81130,Lagarrigue,43.57874,2.27668
+2 place de l'Église 81540 Cahuzac,81540,81049,Cahuzac,43.4712,2.07784
+46 rue de l'hôtel de ville 81120 Terre-de-Bancalié,81120,81233,Terre-de-Bancalié,43.800522,2.262827
+1 rue de la Mairie 81700 Puylaurens,81700,81219,Puylaurens,43.572201,2.01322
+25 rue de la République 82400 Valence-d'Agen,82400,82186,Valence-d'Agen,44.108002,0.88814
+9 Grand'rue 82100 Labastide-du-Temple,82100,82080,Labastide-du-Temple,44.084648,1.194975
+1 route de Moissac 82190 Bourg-de-Visa,82190,82022,Bourg-de-Visa,44.262641,0.958051
+4 rue de la Mairie 82410 Saint-Étienne-de-Tulmont,82410,82161,Saint-Étienne-de-Tulmont,44.050094,1.459612
+12 place de la Halle 82340 Auvillar,82340,82008,Auvillar,44.07056,0.899786
+1 avenue du 8-Mai-1945 83590 Gonfaron,83590,83067,Gonfaron,43.319917,6.287701
+1 place Saint-François 83230 Bormes-les-Mimosas,83230,83019,Bormes-les-Mimosas,43.151173,6.344367
+1 place de l'Hôtel-de-Ville 83600 Bagnols-en-Forêt,83600,83008,Bagnols-en-Forêt,43.537177,6.698654
+31 rue du Maréchal-Foch 83570 Carcès,83570,83032,Carcès,43.476509,6.182329
+7 place de la Mairie 83790 Pignans,83790,83092,Pignans,43.3498,6.17711
+9 place de la Mairie 84570 Mormoiron,84570,84082,Mormoiron,44.067689,5.183815
+35 cours des Platanes 84840 Lapalud,84840,84064,Lapalud,44.305,4.68765
+8 place Aristide-Briand 84600 Valréas,84600,84138,Valréas,44.383264,4.990648
+4 place du Marché 84390 Sault,84390,84123,Sault,44.09182,5.40871
+1 place de la Pastière 84470 Châteauneuf-de-Gadagne,84470,84036,Châteauneuf-de-Gadagne,43.927645,4.943999
+1 boulevard Lucien-Dodin 85300 Challans,85300,85047,Challans,46.84481,-1.879803
+38 rue de Verdun 85300 Sallertaine,85300,85280,Sallertaine,46.8605,-1.95534
+3 place Raymond-Dronneau 85600 Montaigu-Vendée,85600,85146,Montaigu-Vendée,46.947632,-1.296215
+2 place de l'Oie 85140 L'Oie,85140,85165,L'Oie,46.798087,-1.130008
+9 rue Jean-Mermoz 85220 Coëx,85220,85070,Coëx,46.697399,-1.7624
+6 route Saint-Pierre 86310 La Bussière,86310,86040,La Bussière,46.6352,0.824329
+2 rue Chincé 86600 Celle-Lévescault,86600,86045,Celle-Lévescault,46.424042,0.187338
+1 place de la Mairie 86600 Saint-Sauvant,86600,86244,Saint-Sauvant,46.359847,0.055348
+1 rue Gambetta 86200 Loudun,86200,86137,Loudun,47.0098,0.081844
+2 rue du 8-Mai-1945 86260 Saint-Pierre-de-Maillé,86260,86236,Saint-Pierre-de-Maillé,46.678524,0.843097
+176 avenue de Limoges 87270 Couzeix,87270,87050,Couzeix,45.877355,1.238731
+20 rue Jules-Ferry 87410 Le Palais-sur-Vienne,87410,87113,Le Palais-sur-Vienne,45.865773,1.322987
+48 avenue de Limoges 87260 Saint-Paul,87260,87174,Saint-Paul,45.752572,1.429428
+57 avenue Saint-Éloi 87110 Solignac,87110,87192,Solignac,45.755001,1.27554
+1 place Adrien-Delor 87110 Le Vigen,87110,87205,Le Vigen,45.751021,1.289098
+16 place de la Jue 88220 Raon-aux-Bois,88220,88371,Raon-aux-Bois,48.057224,6.521019
+2 rue Grillot 88370 Plombières-les-Bains,88370,88351,Plombières-les-Bains,47.966532,6.463497
+27 rue Jules-Ferry 88110 Raon-l'Étape,88110,88372,Raon-l'Étape,48.406601,6.8448
+1 place Gilbert Hass 88170 Sandaucourt,88170,88440,Sandaucourt,48.2654,5.84554
+2 place de la Mairie 88540 Bussang,88540,88081,Bussang,47.885399,6.853578
+1 place Marie-Noël 89240 Diges,89240,89139,Diges,47.7286,3.39827
+10 bis rue de l'Abreuvoir 89580 Vallan,89580,89427,Vallan,47.743599,3.5379
+4 place Henri-Durand 89220 Champcevrais,89220,89072,Champcevrais,47.745412,2.959104
+2 rue de l'Abbé-Gautier 89700 Épineuil,89700,89153,Épineuil,47.874593,3.980885
+99 rue Carnot 89500 Villeneuve-sur-Yonne,89500,89464,Villeneuve-sur-Yonne,48.085378,3.295252
+1 rue de Rougemont 90170 Étueffont,90170,90041,Étueffont,47.722451,6.921028
+38 Grande-Rue François-Mitterrand 90800 Bavilliers,90800,90008,Bavilliers,47.619102,6.831224
+18 voie du Tram 90700 Châtenois-les-Forges,90700,90022,Châtenois-les-Forges,47.556301,6.85182
+33 Grande rue 90300 Sermamagny,90300,90093,Sermamagny,47.690399,6.87491
+3 place de l'Église 90110 Rougemont-le-Château,90110,90089,Rougemont-le-Château,47.735802,6.96812
+42 Grande rue 91650 Breuillet,91650,91105,Breuillet,48.566131,2.17112
+28 rue Jules-Ferry 91310 Leuville-sur-Orge,91310,91333,Leuville-sur-Orge,48.616209,2.263872
+3 rue du Petit-Ballainvilliers 91160 Ballainvilliers,91160,91044,Ballainvilliers,48.676586,2.289363
+13 rue des Noblets 91770 Saint-Vrain,91770,91579,Saint-Vrain,48.541713,2.334549
+2 rue de la Mairie 91610 Ballancourt-sur-Essonne,91610,91045,Ballancourt-sur-Essonne,48.5256,2.38586
+6 boulevard Carnot 92340 Bourg-la-Reine,92340,92014,Bourg-la-Reine,48.779099,2.31617
+57 avenue Henri-Ravera 92220 Bagneux,92220,92007,Bagneux,48.798558,2.304355
+3 place de la Mairie 92430 Marnes-la-Coquette,92430,92047,Marnes-la-Coquette,48.830189,2.17746
+68 boulevard de la République 92250 La Garenne-Colombes,92250,92035,La Garenne-Colombes,48.906716,2.24641
+33 rue Antoine Fratacci 92170 Vanves,92170,92075,Vanves,48.820525,2.290506
+7 place Jean-Mermoz 93370 Montfermeil,93370,93047,Montfermeil,48.90224,2.571021
+65 avenue de la Division-Leclerc 93350 Le Bourget,93350,93013,Le Bourget,48.934898,2.42577
+31 avenue du Président-Salvador-Allende 93000 Bobigny,93000,93008,Bobigny,48.906182,2.445042
+1 rue Méchin 93450 L'Île-Saint-Denis,93450,93039,L'Île-Saint-Denis,48.935799,2.33946
+1 place Gabriel-Péri 93150 Le Blanc-Mesnil,93150,93007,Le Blanc-Mesnil,48.938835,2.463939
+154 ter avenue de la République 94290 Villeneuve-le-Roi,94290,94077,Villeneuve-le-Roi,48.732625,2.410083
+14 place Henri-Barbusse 94250 Gentilly,94250,94037,Gentilly,48.815472,2.347308
+48 rue de Paris 94220 Charenton-le-Pont,94220,94018,Charenton-le-Pont,48.819599,2.415819
+1 rue Maurepas 94320 Thiais,94320,94073,Thiais,48.765301,2.38883
+2 avenue Georges Pompidou 94370 Sucy-en-Brie,94370,94071,Sucy-en-Brie,48.770892,2.5238
+25 rue Saint-Germain 95380 Villeron,95380,95675,Villeron,49.056639,2.540597
+1 place Isabelle-de-Vy 95470 Saint-Witz,95470,95580,Saint-Witz,49.092499,2.5689
+2 place Pierre-Mendès-France 95310 Saint-Ouen-l'Aumône,95310,95572,Saint-Ouen-l'Aumône,49.044097,2.106581
+17 rue du Général-de-Gaulle 95430 Auvers-sur-Oise,95430,95039,Auvers-sur-Oise,49.070586,2.171149
+49 rue Curie 95830 Cormeilles-en-Vexin,95830,95177,Cormeilles-en-Vexin,49.115678,2.021047
+67 boulevard du Général-de-Gaulle 97190 Le Gosier,97190,97113,Le Gosier,16.206139,-61.490464
+1 rue Zizine-et-des-Étages 97224 Ducos,97224,97207,Ducos,14.575069,-60.974958
+51 avenue Casimir-Branglidor 97220 La Trinité,97220,97230,La Trinité,14.738553,-60.962778
+2 rue Collignon 97280 Le Vauclin,97280,97232,Le Vauclin,14.5444,-60.8389
+30 avenue des Roches 97310 Kourou,97310,97304,Kourou,5.157906,-52.642673
+5 avenue du Colonel-Chandon 97320 Saint-Laurent-du-Maroni,97320,97311,Saint-Laurent-du-Maroni,5.495556,-54.030833
+1 rue de Rémire 97300 Cayenne,97300,97302,Cayenne,4.938042,-52.335024
+3 rue du Général-de-Gaulle 97441 Sainte-Suzanne,97441,97420,Sainte-Suzanne,-20.914287,55.601875
+73 avenue Raymond-Barre 97427 L'Étang-Salé,97427,97404,L'Étang-Salé,-21.265063,55.365804
+125 avenue Principale 97450 Saint-Louis,97450,97414,Saint-Louis,-21.286953,55.409404
+66 rue du Père-Boiteau 97413 Cilaos,97413,97424,Cilaos,-21.136617,55.463134
+3 rue de la République 97438 Sainte-Marie,97438,97418,Sainte-Marie,-20.896986,55.549342
+66 avenue de la Vallée 98835 Dumbéa,98835,98805,Dumbéa,-22.173547,166.450649
