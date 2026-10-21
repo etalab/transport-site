@@ -139,8 +139,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   @doc """
   Serializes rows to CSV, columns in schema order, lists as JSON.
   """
-  def to_csv(rows) do
-    fields = field_names()
+  def to_csv(rows, fields \\ field_names()) do
     lines = Enum.map(rows, fn row -> Enum.map(fields, &format_value(Map.fetch!(row, &1))) end)
     [fields | lines] |> NimbleCSV.RFC4180.dump_to_iodata() |> IO.iodata_to_binary()
   end
