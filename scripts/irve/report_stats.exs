@@ -1,12 +1,14 @@
 # Stats over an IRVE consolidation report CSV.
-# Usage: mix run scripts/irve/report_stats.exs [path]
-#   path defaults to consolidation_transport_irve_statique_rapport.csv
-# Fully written by Claude Code, may be erased later.
+# Usage: mix run --no-start scripts/irve/report_stats.exs [source]
+#   source defaults to the published report (`report`, see support/sources.exs); a local path or a URL also works,
+#   e.g. consolidation_transport_irve_statique_rapport.csv after a local run.
+
+Code.require_file("support/sources.exs", __DIR__)
 
 require Explorer.DataFrame, as: DF
 alias Explorer.Series
 
-path = List.first(System.argv()) || "consolidation_transport_irve_statique_rapport.csv"
+path = (List.first(System.argv()) || "report") |> IRVEScripts.Sources.resolve()
 
 # Collapse the variable parts of an error message so similar errors group together.
 normalize = fn
@@ -29,7 +31,7 @@ normalize = fn
     |> String.replace(~r/column separator .+/, "column separator …")
 end
 
-df = DF.from_csv!(path)
+df = DF.from_csv!(path, infer_schema_length: nil)
 total = DF.n_rows(df)
 total_pdc = df["estimated_pdc_count"] |> Series.sum()
 
@@ -62,25 +64,28 @@ end
 IO.puts("File: #{path}")
 IO.puts("Total resources: #{total}    Total estimated PDC: #{total_pdc}\n")
 
-IO.puts("== By status ==")
-print.(summarize.(["status"]), ["status"])
+IO.puts("== By consolidation_status ==")
+print.(summarize.(["consolidation_status"]), ["consolidation_status"])
 
-IO.puts("\n== By status × error_type (exceptions in error_occurred) ==")
+IO.puts("\n== By resource_status ==")
+print.(summarize.(["resource_status"]), ["resource_status"])
 
-summarize.(["status", "error_type"])
+IO.puts("\n== By consolidation_status × error_type (exceptions in error_occurred) ==")
+
+summarize.(["consolidation_status", "error_type"])
 |> Enum.reject(&is_nil(&1["error_type"]))
-|> print.(["status", "error_type"])
+|> print.(["consolidation_status", "error_type"])
 
-IO.puts("\n== By status × error (normalized message) ==")
+IO.puts("\n== By consolidation_status × error (normalized message) ==")
 
-summarize.(["status", "error_category"])
+summarize.(["consolidation_status", "error_category"])
 |> Enum.reject(&is_nil(&1["error_category"]))
-|> print.(["status", "error_category"])
+|> print.(["consolidation_status", "error_category"])
 
-IO.puts("\n== error_occurred by HTTP status ==")
+IO.puts("\n== download_failed by HTTP status ==")
 
 df
-|> DF.filter(status == "error_occurred")
+|> DF.filter(consolidation_status == "download_failed")
 |> DF.pull("error_message")
 |> Series.to_list()
 |> Enum.map(fn msg ->
@@ -91,6 +96,21 @@ df
 end)
 |> Enum.frequencies()
 |> Enum.sort_by(fn {_k, v} -> -v end)
-|> Enum.each(fn {k, v} ->
-  IO.puts("  #{String.pad_leading(to_string(v), 5)}  #{String.pad_leading(pct.(v) <> "%", 6)}  #{k}")
-end)
+|> case do
+  [] ->
+    IO.puts("  (none)")
+
+  frequencies ->
+    Enum.each(frequencies, fn {k, v} ->
+      IO.puts("  #{String.pad_leading(to_string(v), 5)}  #{String.pad_leading(pct.(v) <> "%", 6)}  #{k}")
+    end)
+end
+
+IO.puts("\n== Top 20 rejected files by estimated PDC ==")
+
+df
+|> DF.filter(consolidation_status == "not_compliant_with_schema" or consolidation_status == "file_level_errors")
+|> DF.sort_by(desc: estimated_pdc_count)
+|> DF.head(20)
+|> DF.select(["resource_id", "consolidation_status", "estimated_pdc_count", "datagouv_organization_or_owner"])
+|> DF.print(limit: :infinity)
