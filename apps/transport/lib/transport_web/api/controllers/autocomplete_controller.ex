@@ -7,31 +7,31 @@ defmodule TransportWeb.API.AutocompleteController do
   @spec open_api_operation(any) :: Operation.t()
   def open_api_operation(action), do: apply(__MODULE__, :"#{action}_operation", [])
 
-  @spec get_result_url(Plug.Conn.t(), DB.Autocomplete.t()) :: binary()
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "region"}),
-    do: dataset_path(conn, :by_region, id)
+  @spec get_result_url(DB.Autocomplete.t()) :: binary()
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "region"}),
+    do: ~p"/datasets/region/#{id}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "departement"}),
-    do: dataset_path(conn, :by_departement_insee, id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "departement"}),
+    do: ~p"/datasets/departement/#{id}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "epci"}), do: dataset_path(conn, :by_epci, id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "epci"}), do: ~p"/datasets/epci/#{id}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "commune"}),
-    do: dataset_path(conn, :by_commune_insee, id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "commune"}),
+    do: ~p"/datasets/commune/#{id}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "feature"}),
-    do: dataset_path(conn, :index, "features[]": id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "feature"}),
+    do: ~p"/datasets?#{["features[]": id]}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "mode"}),
-    do: dataset_path(conn, :index, "modes[]": id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "mode"}),
+    do: ~p"/datasets?#{["modes[]": id]}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => id, :type => "offer"}), do: dataset_path(conn, :by_offer, id)
+  defp get_result_url(%DB.Autocomplete{:place_id => id, :type => "offer"}), do: ~p"/datasets/offer/#{id}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => format, :type => "format"}),
-    do: dataset_path(conn, :index, format: format)
+  defp get_result_url(%DB.Autocomplete{:place_id => format, :type => "format"}),
+    do: ~p"/datasets?#{[format: format]}"
 
-  defp get_result_url(conn, %DB.Autocomplete{:place_id => slug, :type => "dataset"}),
-    do: dataset_path(conn, :details, slug)
+  defp get_result_url(%DB.Autocomplete{:place_id => slug, :type => "dataset"}),
+    do: ~p"/datasets/#{slug}"
 
   defp approx_search_query(query) do
     DB.Autocomplete
@@ -83,7 +83,7 @@ defmodule TransportWeb.API.AutocompleteController do
             _ -> res.nom
           end
 
-        %{name: name, type: res.type, url: get_result_url(conn, res)}
+        %{name: name, type: res.type, url: get_result_url(res)}
       end)
 
     conn

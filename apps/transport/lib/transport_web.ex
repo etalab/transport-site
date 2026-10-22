@@ -22,7 +22,8 @@ defmodule TransportWeb do
     quote do
       use Phoenix.Controller, formats: [html: "View", json: "View"]
       import Plug.Conn
-      import TransportWeb.Router.Helpers
+      # url/1, path/2, static_path/2 and static_url/2 come from Phoenix.VerifiedRoutes
+      import TransportWeb.Router.Helpers, except: [url: 1, path: 2, static_path: 2, static_url: 2]
       use Gettext, backend: TransportWeb.Gettext
       import TransportWeb.PaginationHelpers
       alias TransportWeb.ErrorView
@@ -101,8 +102,9 @@ defmodule TransportWeb do
       import Plug.Conn
       import Phoenix.Controller
       use Gettext, backend: TransportWeb.Gettext
-      alias TransportWeb.Router.Helpers
       import Phoenix.LiveView.Router
+
+      unquote(verified_routes())
     end
   end
 
