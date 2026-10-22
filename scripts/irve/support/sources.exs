@@ -9,6 +9,7 @@ defmodule IRVEScripts.Sources do
   @aliases %{
     "transport" => "#{@proxy}/consolidation-transport-irve-statique",
     "transport-avec-doublons" => "#{@proxy}/consolidation-transport-avec-doublons-irve-statique",
+    "report" => "#{@proxy}/consolidation-transport-irve-statique-rapport",
     "datagouv" => "https://www.data.gouv.fr/api/1/datasets/r/eb76d20a-8501-400e-b336-d85724de5435"
   }
 
