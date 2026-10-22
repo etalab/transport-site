@@ -409,7 +409,7 @@ defmodule TransportWeb.Router do
   def authentication_required(%Plug.Conn{} = conn, nil), do: authentication_required(conn, [])
 
   def authentication_required(%Plug.Conn{} = conn, options) do
-    login_path = Helpers.page_path(conn, :login, redirect_path: current_path(conn))
+    login_path = ~p"/login/explanation?#{[redirect_path: current_path(conn)]}"
     destination_path = Keyword.get(options, :destination_path, login_path)
 
     case conn.assigns[:current_user] do
@@ -434,7 +434,7 @@ defmodule TransportWeb.Router do
     else
       conn
       |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
-      |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
+      |> redirect(to: ~p"/login/explanation?#{[redirect_path: current_path(conn)]}")
       |> halt()
     end
   end
@@ -461,7 +461,7 @@ defmodule TransportWeb.Router do
     else
       conn
       |> put_flash(:error, dgettext("alert", "You need to be a member of the transport.data.gouv.fr team."))
-      |> redirect(to: Helpers.page_path(conn, :login, redirect_path: current_path(conn)))
+      |> redirect(to: ~p"/login/explanation?#{[redirect_path: current_path(conn)]}")
       |> halt()
     end
   end

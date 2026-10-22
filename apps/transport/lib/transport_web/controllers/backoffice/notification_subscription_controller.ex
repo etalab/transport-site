@@ -24,7 +24,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
 
     conn
     |> put_flash(:info, "L'abonnement a été créé")
-    |> redirect(to: redirect_location(conn, params))
+    |> redirect(to: redirect_location(params))
   end
 
   def create(%Plug.Conn{} = conn, %{"contact_id" => contact_id, "redirect_location" => "contact"} = params) do
@@ -49,7 +49,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
 
     conn
     |> put_flash(:info, "Abonnements mis à jour")
-    |> redirect(to: redirect_location(conn, params))
+    |> redirect(to: redirect_location(params))
   end
 
   def delete(%Plug.Conn{} = conn, %{"id" => id, "redirect_location" => _} = params) do
@@ -57,7 +57,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
 
     conn
     |> put_flash(:info, "L'abonnement a été supprimé")
-    |> redirect(to: redirect_location(conn, params, notification_subscription))
+    |> redirect(to: redirect_location(params, notification_subscription))
   end
 
   def delete_for_contact_and_dataset(
@@ -70,7 +70,7 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
 
     conn
     |> put_flash(:info, "Les abonnements ont été supprimés")
-    |> redirect(to: redirect_location(conn, params))
+    |> redirect(to: redirect_location(params))
   end
 
   defp picked_reasons(%{} = params) do
@@ -99,19 +99,18 @@ defmodule TransportWeb.Backoffice.NotificationSubscriptionController do
   end
 
   defp redirect_location(
-         %Plug.Conn{} = conn,
          %{"redirect_location" => redirect_location} = params,
          %DB.NotificationSubscription{} = notification_subscription
        ) do
     key = redirect_location <> "_id"
-    redirect_location(conn, Map.put(params, key, Map.fetch!(notification_subscription, String.to_existing_atom(key))))
+    redirect_location(Map.put(params, key, Map.fetch!(notification_subscription, String.to_existing_atom(key))))
   end
 
-  defp redirect_location(%Plug.Conn{} = conn, %{"redirect_location" => "contact", "contact_id" => contact_id}) do
-    backoffice_contact_path(conn, :edit, contact_id) <> @target_html_anchor
+  defp redirect_location(%{"redirect_location" => "contact", "contact_id" => contact_id}) do
+    ~p"/backoffice/contacts/#{contact_id}/edit" <> @target_html_anchor
   end
 
-  defp redirect_location(%Plug.Conn{} = conn, %{"redirect_location" => "dataset", "dataset_id" => dataset_id}) do
-    backoffice_page_path(conn, :edit, dataset_id) <> @target_html_anchor
+  defp redirect_location(%{"redirect_location" => "dataset", "dataset_id" => dataset_id}) do
+    ~p"/backoffice/datasets/#{dataset_id}/edit" <> @target_html_anchor
   end
 end

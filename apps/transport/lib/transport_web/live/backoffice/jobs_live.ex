@@ -39,7 +39,7 @@ defmodule TransportWeb.Backoffice.JobsLive do
       # Then call the remaining code, which is expected to return the socket
       func.(socket)
     else
-      redirect(socket, to: "/login")
+      redirect(socket, to: ~p"/login")
     end
   end
 
