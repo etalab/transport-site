@@ -37,7 +37,7 @@ defmodule Compare do
     print_counts(loaded)
 
     with [{name_a, df_a}, {name_b, df_b}] <- loaded do
-      report = if by == "resource", do: load_report(Keyword.get(opts, :report, "report")), else: %{}
+      report = if by == "resource", do: Sources.load_report(Keyword.get(opts, :report, "report")), else: %{}
       IO.puts("\na = #{name_a}, b = #{name_b}")
       a = counts_by(df_a, by, report)
       b = counts_by(df_b, by, report)
@@ -65,24 +65,6 @@ defmodule Compare do
     |> DF.new()
     |> DF.select(["source", "rows", "distinct_pdc", "duplicate_rows", "resources", "prefixes"])
     |> DF.print(limit: :infinity)
-  end
-
-  # resource id → report status (`consolidation_status`, or `resource_status` for files no longer on data.gouv)
-  defp load_report(source) do
-    source
-    |> Sources.resolve()
-    |> DF.from_csv!(
-      columns: ["resource_id", "resource_status", "consolidation_status", "error_message"],
-      infer_schema_length: 0
-    )
-    |> DF.to_rows()
-    |> Map.new(fn row ->
-      {row["resource_id"],
-       %{
-         "report_status" => row["consolidation_status"] || row["resource_status"],
-         "error" => row["error_message"] && row["error_message"] |> String.replace(~r/\s+/, " ") |> String.slice(0, 70)
-       }}
-    end)
   end
 
   defp counts_by(df, "resource", report) do

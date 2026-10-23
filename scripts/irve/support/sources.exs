@@ -85,7 +85,7 @@ defmodule IRVEScripts.Sources do
   def prefix_bucket(nil), do: {"unparseable", nil}
 
   def prefix_bucket(id) do
-    normalized = id |> String.upcase() |> String.replace(~r/[*\-\s]/u, "")
+    normalized = normalize_id(id)
 
     if String.starts_with?(normalized, "NONCONCERN") do
       {"non concerné", nil}
@@ -96,5 +96,30 @@ defmodule IRVEScripts.Sources do
         nil -> {"unparseable", nil}
       end
     end
+  end
+
+  @doc "Uppercased id without `*`, `-` and blank separators."
+  def normalize_id(nil), do: nil
+  def normalize_id(id), do: id |> String.upcase() |> String.replace(~r/[*\-\s]/u, "")
+
+  @doc """
+  Consolidation report source → `%{resource_id => %{"report_status" => …, "error" => …}}`. The status is
+  `consolidation_status`, or `resource_status` for files no longer on data.gouv; the error is shortened to one line.
+  """
+  def load_report(source) do
+    source
+    |> resolve()
+    |> DF.from_csv!(
+      columns: ["resource_id", "resource_status", "consolidation_status", "error_message"],
+      infer_schema_length: 0
+    )
+    |> DF.to_rows()
+    |> Map.new(fn row ->
+      {row["resource_id"],
+       %{
+         "report_status" => row["consolidation_status"] || row["resource_status"],
+         "error" => row["error_message"] && row["error_message"] |> String.replace(~r/\s+/, " ") |> String.slice(0, 70)
+       }}
+    end)
   end
 end
