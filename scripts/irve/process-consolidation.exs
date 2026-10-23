@@ -1,12 +1,12 @@
-# mix run scripts/irve/process-simple-consolidation.exs
+# mix run scripts/irve/process-consolidation.exs
 # Options:
 # --destination : values "local_disk" or "send_to_s3" (default: "send_to_s3")
 # --erase-existing-data: values "all", "partial", or "none" (default: "none")
 # --debug : if present, will print a summary of the report at the end and log each processed item
+# --limit : only process the first N resources
 # Advised dev use:
-# mix run scripts/irve/process-simple-consolidation.exs --destination local_disk --erase-existing-data all --debug
+# mix run scripts/irve/process-consolidation.exs --destination local_disk --erase-existing-data all --debug
 
-import Ecto.Query
 Logger.configure(level: :info)
 import Ecto.Query
 
@@ -77,7 +77,7 @@ end
 {:ok, report_df} = Transport.IRVE.Consolidation.process(destination: destination, debug: debug, limit: limit)
 
 if debug do
-  report_df["status"]
+  report_df["consolidation_status"]
   |> Explorer.Series.frequencies()
   |> IO.inspect(IEx.inspect_opts())
 end
