@@ -19,11 +19,7 @@ config :oauth2, Datagouvfr.Authentication,
 secret_key_base = "TO-BE-REPLACED"
 
 config :transport, TransportWeb.Endpoint,
-  secret_key_base: secret_key_base,
-  live_view: [
-    # NOTE: unsure if this is actually great to reuse the same value
-    signing_salt: secret_key_base
-  ]
+  secret_key_base: secret_key_base
 
 # if you need to work on IRVE dashboard, turn this on
 config :transport, :irve_consolidation_caching, true
