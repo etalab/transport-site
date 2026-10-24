@@ -47,6 +47,17 @@ defmodule Transport.OpsTests do
     assert_redirect(from: "http://#{@domain_name}", to: "https://#{@domain_name}/")
   end
 
+  test "HSTS header" do
+    response = Req.get!("https://#{@domain_name}", redirect: false)
+    assert ["max-age=" <> _] = Req.Response.get_header(response, "strict-transport-security")
+  end
+
+  test "Secure session cookie" do
+    response = Req.get!("https://#{@domain_name}", redirect: false)
+    assert [cookie] = Req.Response.get_header(response, "set-cookie") |> Enum.filter(&(&1 =~ "_transport_key="))
+    assert cookie =~ ~r/;\s*secure/i
+  end
+
   describe "Check DNS records" do
     test "IP addresses for load balancers match the PAR zone CNAME record" do
       {:ok, ips} = DNS.resolve(@clever_cloud_par_region_domain, :a)
