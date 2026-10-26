@@ -238,12 +238,9 @@ defmodule TransportWeb.ResourceControllerTest do
       insert(:multi_validation, Map.new(opts) |> Map.put(:resource_history_id, resource_history_id))
 
       conn = conn |> get(resource_path(conn, :details, resource.id))
-      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      body = conn |> html_response(200) |> Floki.parse_document!()
 
-      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
-      # base-rules shows warning with its single item
-      assert body =~ ~r{XSD\s+– 2 erreurs}
-      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+      NeTExTestData.assert_netex_category_stats(body)
     end
 
     for version <- NeTExTestData.versions(~r/0.2./) do
