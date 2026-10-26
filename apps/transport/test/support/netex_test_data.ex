@@ -123,13 +123,13 @@ defmodule NeTExTestData do
 
     xsd_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "XSD" end)
     assert Floki.attribute(xsd_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
-    assert Floki.find(xsd_tab, "i.fa-xmark") |> length() == 1
-    assert Floki.find(xsd_tab, "i.fa-triangle-exclamation") |> length() == 0
+    assert Floki.find(xsd_tab, "i.fa-xmark.text-error") |> length() == 1
+    assert Floki.find(xsd_tab, "i.fa-triangle-exclamation.text-warning") |> length() == 0
 
     rules_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "Règles de base" end)
-    assert Floki.attribute(rules_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
-    assert Floki.find(rules_tab, "i.fa-xmark") |> length() == 1
-    assert Floki.find(rules_tab, "i.fa-triangle-exclamation") |> length() == 0
+    assert Floki.attribute(rules_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-warning"))
+    assert Floki.find(rules_tab, "i.fa-xmark.text-error") |> length() == 0
+    assert Floki.find(rules_tab, "i.fa-triangle-exclamation.text-warning") |> length() == 1
   end
 
   # Same as above but for pagination tests where max_error is "warning".
