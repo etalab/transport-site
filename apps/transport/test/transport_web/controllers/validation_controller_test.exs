@@ -567,12 +567,26 @@ defmodule TransportWeb.ValidationControllerTest do
       mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
-      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      body = conn |> html_response(200) |> Floki.parse_document!()
+      text_body = Floki.text(body)
 
       # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
       # base-rules shows warning with its single item
-      assert body =~ ~r{XSD\s+– 2 erreurs}
-      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+      assert text_body =~ ~r{XSD\s+– 2 erreurs}
+      assert text_body =~ ~r{Règles de base\s+– 1 avertissement}
+
+      # Check category tabs have correct icons and colors
+      tabs = Floki.find(body, ".colorful")
+
+      xsd_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "XSD" end)
+      assert Floki.attribute(xsd_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
+      assert Floki.find(xsd_tab, "i.fa-xmark") |> length() == 1
+      assert Floki.find(xsd_tab, "i.fa-triangle-exclamation") |> length() == 0
+
+      rules_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "Règles de base" end)
+      assert Floki.attribute(rules_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
+      assert Floki.find(rules_tab, "i.fa-xmark") |> length() == 1
+      assert Floki.find(rules_tab, "i.fa-triangle-exclamation") |> length() == 0
     end
 
     for version <- ["0.2.0", "0.2.1", "0.2.2"] do
