@@ -14,7 +14,8 @@ RUN node --version
 ENV PORT 8080
 ENV MIX_ENV prod
 RUN mix deps.compile
-RUN cd apps/transport/client && yarn install && npm run build
+# if yarn.lock is out of sync with package.json, fail instead of resolving versions from the registry at build time
+RUN cd apps/transport/client && yarn install --frozen-lockfile && npm run build
 # assets digest must happen after the npm build step
 RUN mix phx.digest
 # Package source code for Sentry https://hexdocs.pm/sentry/upgrade-10-x.html
