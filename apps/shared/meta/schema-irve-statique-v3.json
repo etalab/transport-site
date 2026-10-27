@@ -1,0 +1,1043 @@
+{
+    "$schema": "https://specs.frictionlessdata.io/schemas/table-schema.json",
+    "name": "schema-irve-statique",
+    "title": "IRVE statique",
+    "description": "Spécification du fichier d'échange relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques. Chaque ligne du fichier correspond à un point de recharge (PDC).",
+    "countryCode": "FR",
+    "homepage": "https://github.com/etalab/schema-irve",
+    "path": "https://raw.githubusercontent.com/etalab/schema-irve/v3.0.0-alpha.1/statique/schema-statique.json",
+    "resources": [
+        {
+            "title": "Exemple de fichier IRVE valide",
+            "path": "https://raw.githubusercontent.com/etalab/schema-irve/v3.0.0-alpha.1/statique/exemple-valide-statique.csv"
+        },
+        {
+            "title": "Exemple de fichier IRVE invalide",
+            "path": "https://raw.githubusercontent.com/etalab/schema-irve/v3.0.0-alpha.1/statique/exemple-invalide-statique.csv"
+        }
+    ],
+    "sources": [
+        {
+            "title": "Décret n° 2017-26 du 12 janvier 2017 relatif aux infrastructures de recharge pour véhicules électriques et portant diverses mesures de transposition de la directive 2014/94/UE du Parlement européen et du Conseil du 22 octobre 2014 sur le déploiement d’une infrastructure pour carburants alternatifs",
+            "path": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000033860620"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 relatif aux données concernant la localisation géographique et les caractéristiques techniques des stations et des points de recharge pour véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000033860733"
+        },
+        {
+            "title": "Arrêté du 12 janvier 2017 précisant les dispositions relatives aux identifiants des unités d’exploitation pour la recharge des véhicules électriques",
+            "path": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000033860743"
+        },
+        {
+            "title": "Définition et structure des identifiants attribués par l'Association Française pour l'Itinérance de la Recharge Electrique des Véhicules (AFIREV)",
+            "path": "https://afirev.fr/fr/informations-generales/"
+        }
+    ],
+    "created": "2018-06-29",
+    "lastModified": "2026-10-04",
+    "version": "v3.0.0-alpha.1",
+    "contributors": [
+        {
+            "title": "Alexandre Bulté",
+            "email": "validation@data.gouv.fr",
+            "organisation": "Etalab",
+            "role": "author"
+        },
+        {
+            "title": "Charles Nepote",
+            "email": "charles.nepote@fing.org",
+            "role": "contributor"
+        },
+        {
+            "title": "Pierre Dittgen",
+            "email": "pierre.dittgen@jailbreak.paris",
+            "organisation": "Jailbreak",
+            "role": "contributor"
+        },
+        {
+            "title": "Johan Richer",
+            "email": "johan.richer@jailbreak.paris",
+            "organisation": "Jailbreak",
+            "role": "contributor"
+        },
+        {
+            "title": "Geoffrey Aldebert",
+            "email": "geoffrey.aldebert@data.gouv.fr",
+            "organisation": "Etalab",
+            "role": "contributor"
+        },
+        {
+            "title": "Julien Barreteau",
+            "email": "julien.barreteau@developpement-durable.gouv.fr",
+            "organisation": "DGEC",
+            "role": "contributor"
+        },
+        {
+            "title": "Antoine Augusti",
+            "email": "antoine.augusti@transport.data.gouv.fr",
+            "organisation": "DINUM",
+            "role": "contributor"
+        },
+        {
+            "title": "Christina Laumond",
+            "email": "christina.laumond@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Thibaut Barrère",
+            "email": "thibaut.barrere@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Francis Chabouis",
+            "email": "francis.chabouis@beta.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Vincent Degove",
+            "email": "vincent.degove@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Stéphane Pignal",
+            "email": "stephane.pignal@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        },
+        {
+            "title": "Aurélien Cadiou",
+            "email": "aurelien.cadiou@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "contributor"
+        }
+    ],
+    "x-afir-derived": {
+        "A9": "Pays de la station : aucune colonne dédiée. Le schéma est national (countryCode FR) et la valeur est déductible de station_latitude et station_longitude ou de code_insee_commune.",
+        "A10": "Région de la station au niveau NUTS-1 : aucune colonne dédiée. La valeur est déductible de code_insee_commune, la région administrative française correspondant exactement au niveau NUTS-1 (14 codes, FR1 et FRB à FRM, FRY pour les DOM).",
+        "A11": "Ville ou localité de la station : aucune colonne dédiée. Le nom de la commune est déductible de code_insee_commune via le code officiel géographique de l'INSEE.",
+        "A15": "Fuseau horaire de la station : aucune colonne dédiée. La zone est déductible de code_insee_commune (Europe/Paris en métropole, un fuseau distinct outre-mer). Elle s'exprime comme un nom de zone IANA et non comme un décalage fixe, le décalage dépendant de l'instant considéré du fait de l'heure d'été."
+    },
+    "primaryKey": "id_pdc_itinerance",
+    "fields": [
+        {
+            "name": "nom_amenageur",
+            "x-entity": "station",
+            "description": "La dénomination sociale de l'aménageur, c'est à dire de l'entité publique ou privée propriétaire des infrastructures. Doit être cohérent avec le numéro SIREN renseigné. Vous pouvez accéder à cette dénomination exacte sur le site annuaire-entreprises.data.gouv.fr.",
+            "example": "Société X, Entité Y",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "siren_amenageur",
+            "x-entity": "station",
+            "description": "Le numero SIREN de l'aménageur issue de la base SIRENE des entreprises. Vous pouvez récupérer cet identifiant sur le site annuaire-entreprises.data.gouv.fr.",
+            "example": "130025265",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^\\d{9}$"
+            }
+        },
+        {
+            "name": "contact_amenageur",
+            "x-entity": "station",
+            "description": "Adresse courriel de l'aménageur. Favoriser les adresses génériques de contact. Cette adresse sera utilisée par les services de l'Etat en cas d'anomalie ou de besoin de mise à jour des données.",
+            "example": "contact@societe-amenageur.com",
+            "type": "string",
+            "format": "email",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "nom_operateur",
+            "x-entity": "station",
+            "x-afir": "A1",
+            "description": "La dénomination sociale de l'opérateur. L'opérateur est l'entité qui exploite l'infrastructure de recharge pour le compte d'un aménageur dans le cadre d'un contrat ou pour son propre compte s'il est l'aménageur. Vous pouvez accéder à cette dénomination exacte sur le site annuaire-entreprises.data.gouv.fr.",
+            "example": "Société X, Entité Y",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "contact_operateur",
+            "x-entity": "station",
+            "description": "Adresse courriel de l'opérateur. Favoriser les adresses génériques de contact.",
+            "example": "contact@societe-operateur.com",
+            "type": "string",
+            "format": "email",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "telephone_operateur",
+            "x-entity": "station",
+            "x-afir": "A5",
+            "description": "Numéro de téléphone de l'assistance offerte aux utilisateurs de la station (assistance téléphonique joignable pendant les heures d'ouverture, au titre de l'obligation d'assistance du service de recharge). Format imposé par la colonne « Format » du champ A5 de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 : indicatif pays précédé de « + », un espace, puis le numéro complet en un seul bloc (indicatif régional inclus s'il existe, zéro de départ conservé) ; un numéro d'extension éventuel est ajouté après un tiret, immédiatement après le numéro complet ; aucun autre tiret, espace ou parenthèse. Exemples : \"+33 0199000000\", avec extension \"+33 0199000000-12\".",
+            "example": "+33 0199000000",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^\\+[1-9][0-9]{0,2} [0-9]{4,15}(-[0-9]{1,8})?$"
+            }
+        },
+        {
+            "name": "nom_enseigne",
+            "x-entity": "station",
+            "x-afir": "A2",
+            "description": "Le nom commercial du réseau de recharge, tel qu'il est visible sur les bornes ou affiché pour les usagers. Ce nom peut différer de la dénomination sociale de l'aménageur ou de l'opérateur.",
+            "example": "Réseau de recharge ABC",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "id_station_itinerance",
+            "x-entity": "station",
+            "description": "L'identifiant de la station délivré selon les modalités définies à l'article 10 du décret n° 2017-26 du 12 janvier 2017. Cet ID débute par FR suivi du trigramme de l'unité d'exploitation délivré par l'AFIREV (déclaré et présent dans la liste officielle : https://afirev.fr/prefixes/consulter-l-annuaire/), suivi de \"P\" pour \"pool\" qui veut dire \"station\" en anglais (https://afirev.fr/fr/informations-generales/). Ne pas ajouter les séparateurs *.",
+            "example": "FR1F8P68021001",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^(FR[A-Z0-9]{3}P[A-Z0-9]+)$"
+            }
+        },
+        {
+            "name": "id_station_local",
+            "x-entity": "station",
+            "description": "Identifiant de la station dans les systèmes du producteur de données. Sert de clé de rapprochement entre le fichier publié et ces systèmes. Laisser vide plutôt que d'y recopier id_station_itinerance.",
+            "example": "01F2KMMRZVQ5FQY882PCJQAPQ0",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "nom_station",
+            "x-entity": "station",
+            "description": "Le nom de la station.",
+            "example": "Picpus, Belleville, Villiers",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "adresse_station",
+            "x-entity": "station",
+            "x-afir": "A13",
+            "description": "L'adresse complète de la station : [numéro] [rue] [code postal] [ville]. Elle localise l'accès depuis la voie publique ; la position exacte de la station est portée par station_latitude et station_longitude.",
+            "example": "1 avenue de la Paix 75001 Paris",
+            "type": "string",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "complement_localisation",
+            "x-entity": "station",
+            "x-afir": "A8",
+            "description": "Information complémentaire de localisation fine de la station, en texte libre : niveau de parking, position dans l'ouvrage, point de repère, etc. (champ A8 « Additional geographic location information » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Particulièrement utile en parking souterrain ou centre commercial. Ce champ n'est pas un complément d'adresse postale et ne doit pas être utilisé pour le géocodage.",
+            "example": "Parking niveau -2, zone B",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "code_postal",
+            "x-entity": "station",
+            "x-afir": "A12",
+            "description": "Le code postal de la station, sur 5 chiffres, sous forme de chaîne de caractères afin de préserver un éventuel zéro initial (champ A12 « Postal code » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Attention, le code postal est distinct du code INSEE de la commune (renseigné dans le champ code_insee_commune).",
+            "example": "01000",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^[0-9]{5}$"
+            }
+        },
+        {
+            "name": "code_insee_commune",
+            "x-entity": "station",
+            "description": "Le code INSEE de la commune d'implantation (attention, ce n'est pas le code postal). La liste des codes peut se retrouver sur le site de l'INSEE : https://www.insee.fr/fr/information/2560452",
+            "example": "21231",
+            "type": "string",
+            "constraints": {
+                "pattern": "^([013-9]\\d|2[AB1-9])\\d{3}$",
+                "required": true
+            }
+        },
+        {
+            "name": "station_latitude",
+            "x-entity": "station",
+            "x-afir": "A7",
+            "description": "La latitude en degrés décimaux (point comme séparateur décimal) de la localisation de la station exprimée dans le système de coordonnées WGS84. Position exacte de la station, qui peut différer de l'accès voie publique (adresse_station).",
+            "example": "48.34534",
+            "type": "number",
+            "constraints": {
+                "required": true,
+                "minimum": -90,
+                "maximum":90
+            }
+        },
+        {
+            "name": "station_longitude",
+            "x-entity": "station",
+            "x-afir": "A7",
+            "description": "La longitude en degrés décimaux (point comme séparateur décimal) de la localisation de la station exprimée dans le système de coordonnées WGS84. Position exacte de la station, qui peut différer de l'accès voie publique (adresse_station).",
+            "example": "7.48710",
+            "type": "number",
+            "constraints": {
+                "required": true,
+                "minimum": -180,
+                "maximum":180
+            }
+        },
+        {
+            "name": "nb_pdc",
+            "x-entity": "station",
+            "x-afir": "A3",
+            "description": "Le nombre de points de recharge sur la station.",
+            "example": "3",
+            "type": "integer",
+            "constraints": {
+                "required": true,
+                "minimum": 1
+            }
+        },
+        {
+            "name": "puissance_maximale_station_kw",
+            "x-entity": "station",
+            "x-afir": "B5",
+            "description": "Puissance maximale totale, en kW, que la station peut fournir simultanément à l'ensemble de ses points de recharge. Cette valeur peut être inférieure à la somme des puissances nominales des points de recharge : le raccordement au réseau de distribution ne permet pas toujours de fournir la pleine puissance sur tous les points en même temps.",
+            "example": "400",
+            "type": "number",
+            "x-unit": "kW",
+            "constraints": {
+                "required": true,
+                "minimum": 2.3
+            }
+        },
+        {
+            "name": "id_pdc_itinerance",
+            "x-entity": "pdc",
+            "x-afir": "B1",
+            "description": "L'identifiant du point de recharge délivré selon les modalités définies à l'article 10 du décret n° 2017-26 du 12 janvier 2017. Cet ID débute par FR suivi du trigramme de l'unité d'exploitation délivré par l'AFIREV (déclaré et présent dans la liste officielle : https://afirev.fr/prefixes/consulter-l-annuaire/), suivi de \"E\" pour l'équivalent du point de recharge en anglais EVSE - Electric Vehicule Supply Equipment (https://afirev.fr/fr/informations-generales/). Ne pas mettre de séparateur * ou -.",
+            "example": "FRA68E680210015",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^(FR[A-Z0-9]{3}E[A-Z0-9]+)$",
+                "unique": true
+            }
+        },
+        {
+            "name": "id_pdc_local",
+            "x-entity": "pdc",
+            "description": "Identifiant du point de recharge dans les systèmes du producteur de données. Sert de clé de rapprochement entre le fichier publié et ces systèmes. Laisser vide plutôt que d'y recopier id_pdc_itinerance.",
+            "example": "01F2KNFARDSJG7KEH1YHG4033M",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "puissance_nominale_kw",
+            "x-entity": "pdc",
+            "x-afir": "B6",
+            "description": "Puissance maximale en kW que peut recevoir un véhicule connecté au point de recharge, déterminée en prenant en compte les capacités techniques propres du point, la puissance souscrite au réseau de distribution et les caractéristiques de l'installation comme le câblage par exemple, mais sans prendre en compte ni les limitations du connecteur ni celles du véhicule. La puissance totale que la station peut fournir simultanément est décrite par puissance_maximale_station_kw.",
+            "example": "7.36",
+            "type": "number",
+            "x-unit": "kW",
+            "constraints": {
+                "required": true,
+                "minimum": 2.3,
+                "maximum":1000
+            }
+        },
+        {
+            "name": "nb_connecteurs",
+            "x-entity": "pdc",
+            "x-afir": "B2",
+            "description": "Nombre de connecteurs (prises) présents sur le point de recharge, tous types confondus. Un point de recharge peut porter plusieurs connecteurs, mais un seul peut être utilisé à la fois : deux connecteurs utilisables simultanément constituent deux points de recharge distincts. Les types de connecteurs disponibles sont décrits par les colonnes prise_type_*, sans détail par connecteur individuel : un point de recharge équipé de deux connecteurs CCS aura par exemple prise_type_combo_ccs à \"true\" et nb_connecteurs à 2. Un connecteur double (par exemple tête combinée CHAdeMO + T2) compte pour 2 connecteurs. Un connecteur partagé entre deux points de recharge est compté sur chacun des deux points. Cette valeur doit être supérieure ou égale au nombre de types déclarés, c'est-à-dire aux colonnes prise_type_* valant \"true\" augmentées des éléments de prise_type_autre.",
+            "example": "2",
+            "type": "integer",
+            "constraints": {
+                "required": true,
+                "minimum": 1
+            }
+        },
+        {
+            "name": "prise_type_ef",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Disponibilité d'une prise de type E/F sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_2",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Disponibilité d'une prise de type 2, appelée « catégorie 2 » par le règlement, sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_combo_ccs",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Disponibilité d'une prise de type Combo / CCS sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_chademo",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Disponibilité d'une prise de type Chademo sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_mcs",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Disponibilité d'une prise de type MCS (Megawatt Charging System) sur le point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "prise_type_autre",
+            "x-entity": "pdc",
+            "x-afir": "B3",
+            "description": "Types de prises présents sur le point de recharge et non couverts par les colonnes prise_type_ef, prise_type_2, prise_type_combo_ccs, prise_type_chademo et prise_type_mcs. Liste, au format JSON (guillemets doubles), de chaînes libres nommant chaque type ; il est possible de reprendre les jetons de l'énumération ConnectorType du standard OCPI 2.2.1, par exemple IEC_62196_T3C, IEC_62196_T1, CHAOJI ou GBT_DC. Indiquer une liste vide [] si aucun autre type n'est présent.",
+            "example": ["IEC_62196_T3C"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "courant_ac",
+            "x-entity": "pdc",
+            "x-afir": "B4",
+            "description": "Capacité du point de recharge à délivrer du courant alternatif (AC), via au moins un de ses connecteurs. Indiquer \"true\" si vrai, \"false\" si faux. Au moins un des deux champs courant_ac et courant_dc doit valoir \"true\".",
+            "example": true,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "courant_dc",
+            "x-entity": "pdc",
+            "x-afir": "B4",
+            "description": "Capacité du point de recharge à délivrer du courant continu (DC), via au moins un de ses connecteurs. Indiquer \"true\" si vrai, \"false\" si faux. Au moins un des deux champs courant_ac et courant_dc doit valoir \"true\".",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "plug_and_charge",
+            "x-entity": "pdc",
+            "x-afir": "B8",
+            "description": "Disponibilité de la fonctionnalité « Plug & Charge » sur le point de recharge : authentification automatique du véhicule au branchement du câble, sans badge, application ni carte. Indiquer \"true\" si la fonctionnalité est disponible, \"false\" uniquement si elle est effectivement absente. Laisser vide si l'information n'est pas connue (ne pas indiquer \"false\" par défaut).",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "recharge_intelligente",
+            "x-entity": "pdc",
+            "x-afir": "B9",
+            "description": "Services de recharge intelligente disponibles sur le point de recharge. Liste, au format JSON (guillemets doubles), des services parmi : remote (suivi et contrôle de la recharge à distance), preferences (configuration des préférences de l'utilisateur pour l'optimisation de la puissance), bidirectionnel (recharge bidirectionnelle). Les autres services sont décrits par recharge_intelligente_autre.",
+            "example": ["remote", "bidirectionnel"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "enum": ["remote", "preferences", "bidirectionnel"]
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "recharge_intelligente_autre",
+            "x-entity": "pdc",
+            "x-afir": "B9",
+            "description": "Autres services de recharge intelligente disponibles sur le point de recharge et ne figurant pas dans recharge_intelligente. Liste, au format JSON (guillemets doubles), de chaînes libres nommant chaque service.",
+            "example": [],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "gratuit",
+            "x-entity": "pdc",
+            "description": "Gratuité de la recharge. Indiquer \"true\" uniquement si la recharge est gratuite en permanence, sans condition d'accès ni de durée. Dans tous les autres cas — gratuité partielle, conditionnelle, ou limitée dans le temps — indiquer \"false\" et décrire les conditions dans le fichier tarifaire (voir tarif_ids).",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "paiement_cb",
+            "x-entity": "pdc",
+            "x-afir": "A20",
+            "description": "Possibilité de payer par carte bancaire insérée dans le terminal. Indiquer \"true\" si ce moyen est présent, \"false\" uniquement s'il est effectivement absent. Laisser vide si l'information n'est pas connue. Le paiement sans contact est décrit par cb_sans_contact.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "cb_sans_contact",
+            "x-entity": "pdc",
+            "x-afir": "A21",
+            "description": "Possibilité de payer par carte bancaire sans contact (NFC). Indiquer \"true\" si ce moyen est présent, \"false\" uniquement s'il est effectivement absent. Laisser vide si l'information n'est pas connue. Le paiement par carte insérée est décrit par paiement_cb.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "paiement_ad_hoc",
+            "x-entity": "pdc",
+            "x-afir": "A22",
+            "description": "Options de paiement à l'acte acceptées au point de recharge, hors carte bancaire. Liste, au format JSON (guillemets doubles), parmi : qr_dynamique (code QR généré pour la recharge en cours), site_web (paiement sur un site web, par exemple depuis un code QR fixe), liquide (espèces). La liste vaut déclaration complète : [] signifie qu'aucune de ces options n'est acceptée, une cellule vide que l'information n'est pas connue. Autres options dans paiement_ad_hoc_autre, paiement par carte dans paiement_cb et cb_sans_contact.",
+            "example": ["qr_dynamique", "site_web"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "enum": ["qr_dynamique", "site_web", "liquide"]
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "paiement_ad_hoc_autre",
+            "x-entity": "pdc",
+            "x-afir": "A22",
+            "description": "Autres options de paiement à l'acte, absentes de paiement_ad_hoc. Liste, au format JSON (guillemets doubles), de chaînes libres.",
+            "example": [],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "complement_paiement",
+            "x-entity": "pdc",
+            "x-afir": "A23",
+            "description": "Informations complémentaires au sujet des prestataires de services de paiement acceptés pour le paiement à l'acte : nom d'un prestataire, ou précision utile à son sujet. Liste, au format JSON (guillemets doubles), de chaînes libres. Les options de paiement elles-mêmes sont décrites par paiement_ad_hoc, les fournisseurs de services de mobilité par emsp.",
+            "example": ["Prestataire X", "Prestataire Y"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "abonnement",
+            "x-entity": "pdc",
+            "x-afir": "A24",
+            "description": "Possibilité de payer la recharge dans le cadre d'un contrat ou d'un abonnement souscrit auprès d'un fournisseur de services de mobilité. Indiquer \"true\" si ce mode de paiement est possible, \"false\" uniquement s'il est effectivement impossible. Laisser vide si l'information n'est pas connue (ne pas indiquer \"false\" par défaut). Les fournisseurs acceptés sont listés par emsp.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "emsp",
+            "x-entity": "station",
+            "x-afir": "B7",
+            "description": "Fournisseurs de services de mobilité proposant une recharge sur la base d'un contrat (abonnement), acceptés à la station. Liste, au format JSON (guillemets doubles), des identifiants d'unités d'exploitation de mobilité : codes à 5 caractères (préfixe pays sur 2 lettres — FR pour les unités françaises — suivi de 3 caractères) attribués par l'AVERE et publiés par l'AFIREV. Ces codes sont tenus au même registre AFIREV que les préfixes d'unités d'exploitation de recharge (ceux des champs id_station_itinerance, id_pdc_itinerance et tarif_ids) : le registre étant un espace de noms unique, un même code peut légitimement désigner un acteur qui est à la fois opérateur de recharge et de mobilité.",
+            "example": ["FRMOB", "FRXYZ"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "pattern": "^[A-Z]{2}[A-Z0-9]{3}$"
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "x-comment": "ATTENTION : tarif_ids est techniquement une liste de clés étrangères vers tarif_id (fichier tarifs), mais Table Schema ne permet pas actuellement d'exprimer une clé étrangère sur une colonne de type liste. Ce lien n'est donc pas déclaré en foreignKeys et les validateurs génériques (Frictionless, Validata) ne le vérifient pas. Il sera vérifié par le contrôle personnalisé foreign-key-array (custom_checks) dans le validateur du PAN.",
+            "name": "tarif_ids",
+            "x-entity": "pdc",
+            "description": "Liste des identifiants de tarifs applicables au point de recharge. Plusieurs tarifs peuvent être déclarés si leurs périodes de validité ne se chevauchent pas (start_date_time, end_date_time), ce qui permet d'annoncer un tarif à venir ; à un instant donné, un seul tarif s'applique. L'ordre de la liste ne porte aucune priorité. Chaque identifiant débute par FR suivi du trigramme AFIREV de l'opérateur qui gère la tarification (CPO) et de T, suivis d'un suffixe libre. Voir le fichier tarifaire détaillé pour la description complète.",
+            "example": ["FRABCT001"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "pattern": "^FR[A-Z0-9]{3}T\\S+$"
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "condition_acces",
+            "x-entity": "station",
+            "description": "Éventuelles conditions d’accès à la station, hors gabarit. Dans le cas d'un accès libre sans contrainte matérielle physique (ex : absence de barrière) ni restriction d'usager (ex : borne accessible pour n'importe quel type et modèle de voiture électrique), indiquer \"Accès libre\". \nDans le cas d'un accès limité / réservé qui nécessite une identification ou passage d'une barrière, indiquer \"Accès réservé\" (ce type d'accès inclut les IRVE sur le réseau autoroutier payant - passage péage).",
+            "example": "Accès libre",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "Accès libre",
+                    "Accès réservé"
+                ]
+            }
+        },
+        {
+            "name": "reservation",
+            "x-entity": "pdc",
+            "description": "Possibilité de réservation à l'avance d'un point de recharge. Indiquer \"true\" si vrai, \"false\" si faux.",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "horaires",
+            "x-entity": "station",
+            "x-afir": "A14",
+            "x-todo": "Homogénéiser vers la syntaxe OSM : l'exemple et la fixture séparent les règles par une virgule, la description par un point-virgule.",
+            "description": "Amplitude d’ouverture de la station, dans un sous-ensemble de la syntaxe OSM opening_hours (https://wiki.openstreetmap.org/wiki/Key:opening_hours) : 24/7, ou des règles séparées par un point-virgule associant des jours en anglais abrégés (Mo-Fr, Mo,We,Fr) à des plages HH:MM-HH:MM. Les constructions avancées (jours fériés, fermetures, mois, heures solaires, commentaires, règles de repli) ne sont pas acceptées. Les jours et plages horaires s'entendent en heure locale de la station : Europe/Paris en métropole, fuseau local outre-mer.",
+            "example": "Mo-Fr 08:00-12:00,Mo-Fr 14:00-18:00,Th 08:00-18:00",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^(.*?)((\\d{1,2}:\\d{2})-(\\d{1,2}:\\d{2})|24/7)$"
+            }
+        },
+        {
+            "name": "accessibilite_pmr",
+            "x-entity": "pdc",
+            "description": "Accessibilité du point de recharge aux personnes à mobilité réduite. Dans le cas d'un point de recharge signalisé et réservé PMR, indiquer \"Réservé PMR\". \nDans le cas d'une point de recharge non réservé PMR mais accessible PMR, indiquer \"Accessible mais non réservé PMR\". \nDans le cas d'un point de recharge non accessible PMR, indiquer \"Non accessible\". \nEn dernier recours, si l'information n'est pas connue, indiquer \"Accessibilité inconnue\" ; cette valeur est destinée à disparaître, elle ne doit pas être utilisée par défaut.",
+            "example": "Accessible mais non réservé PMR",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": [
+                    "Réservé PMR",
+                    "Accessible mais non réservé PMR",
+                    "Non accessible",
+                    "Accessibilité inconnue"
+                ]
+            }
+        },
+        {
+            "name": "nb_places",
+            "x-entity": "station",
+            "x-afir": "A18",
+            "description": "Nombre d'emplacements de stationnement équipés pour la recharge sur la station (champ A18 « Number of parking spaces » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Information au niveau de la station : la valeur est identique pour tous les points de recharge d'une même station.",
+            "example": "10",
+            "type": "integer",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "nb_places_pmr",
+            "x-entity": "station",
+            "x-afir": "A19",
+            "description": "Nombre de places de stationnement de la station dotées d'un point de recharge accessible aux personnes à mobilité réduite (PMR), qu'elles leur soient réservées ou non (champ A19 « Number of parking spaces for people with disabilities » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Information au niveau de la station : la valeur est identique pour tous les points de recharge d'une même station. Laisser vide si l'information n'est pas connue (ne pas indiquer 0 par défaut).",
+            "example": "1",
+            "type": "integer",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "gabarit_masse_max_t",
+            "x-entity": "station",
+            "x-afir": "A17",
+            "description": "Masse maximale du véhicule, en tonnes, autorisée à accéder à la station (remorque comprise). L'une des spécifications du champ A17 « Vehicle specifications permitted » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR. Information au niveau de la station. Laisser vide si l'information n'est pas connue.",
+            "example": "26",
+            "type": "number",
+            "x-unit": "t",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "gabarit_hauteur_max_m",
+            "x-entity": "station",
+            "x-afir": "A17",
+            "description": "Hauteur maximale du véhicule, en mètres, autorisée à accéder à la station (remorque comprise). L'une des spécifications du champ A17 « Vehicle specifications permitted » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR. Information au niveau de la station. Laisser vide si l'information n'est pas connue.",
+            "example": "2",
+            "type": "number",
+            "x-unit": "m",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "gabarit_longueur_max_m",
+            "x-entity": "station",
+            "x-afir": "A17",
+            "description": "Longueur maximale du véhicule, en mètres, autorisée à accéder à la station (remorque comprise). L'une des spécifications du champ A17 « Vehicle specifications permitted » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR. Information au niveau de la station. Laisser vide si l'information n'est pas connue.",
+            "example": "12",
+            "type": "number",
+            "x-unit": "m",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "gabarit_largeur_max_m",
+            "x-entity": "station",
+            "x-afir": "A17",
+            "description": "Largeur maximale du véhicule, en mètres, autorisée à accéder à la station (remorque comprise). L'une des spécifications du champ A17 « Vehicle specifications permitted » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR. Information au niveau de la station. Laisser vide si l'information n'est pas connue.",
+            "example": "2.55",
+            "type": "number",
+            "x-unit": "m",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "type_vehicule",
+            "x-entity": "station",
+            "x-afir": "A16",
+            "description": "Catégories de véhicules pouvant utiliser la station, au sens de l'article R.311-1 du code de la route : L (deux ou trois roues et quadricycles), M1 (voitures particulières), M2 et M3 (autobus et autocars), N1 (camionnettes), N2 et N3 (camions). Liste au format JSON (guillemets doubles). Information au niveau de la station. Autres catégories dans type_vehicule_autre.",
+            "example": ["M1", "L"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "enum": ["L", "M1", "M2", "M3", "N1", "N2", "N3"]
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "type_vehicule_autre",
+            "x-entity": "station",
+            "x-afir": "A16",
+            "description": "Autres catégories de véhicules pouvant utiliser la station, absentes de type_vehicule. Liste au format JSON (guillemets doubles) de chaînes libres. Information au niveau de la station.",
+            "example": [],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "presence_borniste",
+            "x-entity": "station",
+            "x-afir": "A4",
+            "description": "Présence sur le site de la station de personnel pouvant assister l'usager dans sa recharge (« borniste »), de façon permanente ou aux horaires d'ouverture (champ A4 « Service support » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Information au niveau de la station : la valeur est identique pour tous les points de recharge d'une même station. Indiquer \"true\" si du personnel est présent, \"false\" uniquement si l'absence de personnel est avérée. Laisser vide si l'information n'est pas connue (ne pas indiquer \"false\" par défaut).",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "equipement_afir",
+            "x-entity": "station",
+            "x-afir": "A6",
+            "description": "Services et installations proposés à l'usager dans les environs immédiats de la station, parmi les catégories normatives du champ A6 « Installations proposant à l'utilisateur des services associés » de la Table A de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR. Liste, au format JSON (guillemets doubles), parmi : parking_couvert (parc de stationnement couvert permettant la recharge), parking_eclaire (parc de stationnement éclairé permettant la recharge), restauration (service de restauration), sanitaires, repos (installations de repos). Exemple : [\"sanitaires\", \"restauration\"]. Information au niveau de la station. Le règlement impose de déclarer chaque installation (oui/non) : la liste fournie vaut déclaration complète, toute catégorie absente de la liste est déclarée absente de la station. Une station sans aucune de ces installations déclare la liste vide []. Champ obligatoire : une cellule vide n'est pas acceptée. Compléments éventuels dans equipement_ocpi et equipement_autre.",
+            "example": ["sanitaires", "restauration"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "enum": ["parking_couvert", "parking_eclaire", "restauration", "sanitaires", "repos"]
+                }
+            },
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "equipement_ocpi",
+            "x-entity": "station",
+            "description": "Services et installations complémentaires des environs immédiats de la station, exprimés selon l'énumération Facility du standard OCPI 2.2.1. Complète (sans s'y substituer) le socle normatif AFIR porté par equipement_afir ; un même service peut être déclaré dans les deux colonnes. Liste, au format JSON (guillemets doubles), parmi : AIRPORT, BIKE_SHARING, BUS_STOP, CAFE, CARPOOL_PARKING, FUEL_STATION, HOTEL, MALL, METRO_STATION, MUSEUM, NATURE, PARKING_LOT, RECREATION_AREA, RESTAURANT, SPORT, SUPERMARKET, TAXI_STAND, TRAIN_STATION, TRAM_STOP, WIFI. Exemple : [\"HOTEL\", \"WIFI\"]. Information au niveau de la station.",
+            "example": ["HOTEL", "WIFI"],
+            "type": "array",
+            "arrayItem": {
+                "type": "string",
+                "constraints": {
+                    "enum": ["AIRPORT", "BIKE_SHARING", "BUS_STOP", "CAFE", "CARPOOL_PARKING", "FUEL_STATION", "HOTEL", "MALL", "METRO_STATION", "MUSEUM", "NATURE", "PARKING_LOT", "RECREATION_AREA", "RESTAURANT", "SPORT", "SUPERMARKET", "TAXI_STAND", "TRAIN_STATION", "TRAM_STOP", "WIFI"]
+                }
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "equipement_autre",
+            "x-entity": "station",
+            "x-afir": "A6",
+            "description": "Autres services ou installations des environs immédiats de la station ne figurant ni dans equipement_afir ni dans equipement_ocpi, en texte libre (couvre la modalité « autre (exprimé en texte libre) » du champ A6 de l'annexe du règlement d'exécution (UE) 2025/655 pris en application du règlement AFIR). Liste, au format JSON (guillemets doubles), de chaînes libres. Information au niveau de la station.",
+            "example": [],
+            "type": "array",
+            "arrayItem": {
+                "type": "string"
+            },
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "raccordement",
+            "x-entity": "station",
+            "description": "Type de raccordement de la station au réseau de distribution d'électricité : direct (point de livraison exclusivement dédié à la station) ou indirect.",
+            "example": "Direct",
+            "type": "string",
+            "constraints": {
+                "required": false,
+                "enum": [
+                    "Direct",
+                    "Indirect"
+                ]
+            }
+        },
+        {
+            "name": "num_pdl",
+            "x-entity": "station",
+            "description": "Numéro du point de livraison d'électricité, y compris en cas de raccordement indirect. Dans le cas d'un territoire desservi par ENEDIS, ce numéro doit compoter 14 chiffres.",
+            "example": "12345678912345",
+            "type": "string",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "enr",
+            "x-entity": "station",
+            "x-afir": "B10",
+            "description": "Électricité délivrée par la station 100 % d'origine renouvelable, attestée par des garanties d'origine au sens du mécanisme européen. Il s'agit d'un attribut contractuel de fourniture d'électricité, indépendant d'un éventuel raccordement physique direct à une production renouvelable. Indiquer \"true\" si vrai, \"false\" uniquement si l'électricité n'est effectivement pas 100 % renouvelable. Laisser vide si l'information n'est pas connue (ne pas indiquer \"false\" par défaut).",
+            "example": false,
+            "type": "boolean",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "date_mise_en_service",
+            "x-entity": "pdc",
+            "description": "Date de mise en service du point de recharge.",
+            "example": "2021-12-30",
+            "type": "date",
+            "format": "%Y-%m-%d",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "horodatage_maj",
+            "x-entity": "pdc",
+            "description": "Date et heure (UTC) de dernière mise à jour des données de la ligne, c'est-à-dire du point de recharge : chaque pdc d'une même station peut porter un horodatage différent. Un producteur ne disposant que d'une date peut publier T00:00:00Z. Correspond au champ last_updated de l'objet EVSE de la spécification OCPI.",
+            "example": "2024-12-17T13:13:31Z",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%SZ",
+            "constraints": {
+                "required": true
+            }
+        }
+    ],
+     "x-todo-custom-checks": "Contrôles en cours d'affinage : les custom_checks ne sont pas encore alignés sur les champs v3 et ne doivent pas être pris au pied de la lettre. Liste, paramètres et sémantique seront revus en alpha candidate 2.",
+     "custom_checks":[
+        {
+            "name":"valid-afirev-trigram",
+            "params":{
+                "column":"id_pdc_itinerance"
+            }
+        },
+        {
+            "name":"valid-afirev-trigram",
+            "params":{
+                "column":"id_station_itinerance"
+            }
+        },
+        {
+            "name":"coherence-trigram-station-pdc",
+            "params":{
+                "columns":["id_station_itinerance", "id_pdc_itinerance"]
+            }
+        },
+        {
+            "name":"valid-emsp-afirev",
+            "params":{
+                "column":"emsp"
+            }
+        },
+        {
+            "name":"coherence-coordonnees-station",
+            "params":{
+                "columns":["id_station_itinerance", "station_latitude", "station_longitude"]
+            }
+        },
+        {
+            "name":"suspect-connecteur-comme-pdc",
+            "params":{
+                "columns":["id_station_itinerance", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_mcs", "prise_type_autre"]
+            }
+        },
+        {
+            "name":"coherence-nb-connecteurs",
+            "params":{
+                "count_column":"nb_connecteurs",
+                "columns":["prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_mcs", "prise_type_autre"]
+            }
+        },
+        {
+            "name":"coherence-courant-ac-dc",
+            "params":{
+                "columns":["courant_ac", "courant_dc"]
+            }
+        },
+        {
+            "name":"siren-checksum",
+            "params":{
+                "column":"siren_amenageur"
+            }
+        },
+        {
+            "name":"siren-online",
+            "params":{
+                "column":"siren_amenageur"
+            }
+        },
+        {
+            "name":"opening-hours-value",
+            "params":{
+                "column":"horaires"
+            }
+        },
+        {
+            "name":"coherence-nom-siren",
+            "params":{
+                "columns":["nom_amenageur", "siren_amenageur"]
+            }
+        },
+        {
+            "name":"code-insee-exists",
+            "params":{
+                "column":"code_insee_commune"
+            }
+        },
+        {
+            "name":"coherence-code-postal-code-insee",
+            "params":{
+                "columns":["code_postal", "code_insee_commune"]
+            }
+        },
+        {
+            "name":"coherence-code-insee-coordonnees",
+            "params":{
+                "columns":["code_insee_commune", "station_latitude", "station_longitude"]
+            }
+        },
+        {
+            "name":"coherence-adresse-coordonnees",
+            "params":{
+                "columns":["adresse_station", "station_latitude", "station_longitude"]
+            }
+        },
+        {
+            "x-comment":"Vérifie la liste de clés étrangères tarif_ids -> tarif_id, que Table Schema ne permet pas actuellement d'exprimer en foreignKeys (colonne de type liste). Exécuté par le validateur du PAN, pas par les validateurs génériques.",
+            "name":"foreign-key-array",
+            "params":{
+                "column":"tarif_ids",
+                "resource":"irve-tarifs",
+                "reference_column":"tarif_id"
+            }
+        },
+        {
+            "name":"presence-tarif-adhoc",
+            "params":{
+                "column":"tarif_ids",
+                "resource":"irve-tarifs"
+            }
+        },
+        {
+            "name":"unicite-tarif-applicable",
+            "params":{
+                "column":"tarif_ids",
+                "resource":"irve-tarifs"
+            }
+        },
+        {
+            "name":"coherence-gratuit-tarifs",
+            "params":{
+                "columns":["gratuit", "tarif_ids"]
+            }
+        }
+    ],
+    "missingValues": [
+        ""
+    ]
+}
