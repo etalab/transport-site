@@ -192,6 +192,11 @@ defmodule TransportWeb.PageControllerTest do
     conn |> get(~p"/budget") |> redirected_to(302) =~ "https://doc.transport.data.gouv.fr"
   end
 
+  test "IRVE static data explorer permalink", %{conn: conn} do
+    assert conn |> get(~p"/links/irve/explorer-base-statique") |> redirected_to(302) ==
+             Application.fetch_env!(:transport, :irve_static_data_explorer_url)
+  end
+
   test "humans txt", %{conn: conn} do
     Transport.HTTPoison.Mock
     |> expect(:get!, fn "https://beta.gouv.fr/api/v2.5/authors.json" ->

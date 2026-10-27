@@ -115,6 +115,11 @@ config :transport,
     }
   }
 
+# Permalink shared with partners (e.g. Advenir) to explore the IRVE static national base on data.gouv.fr
+config :transport,
+  irve_static_data_explorer_url:
+    "https://www.data.gouv.fr/datasets/beta-bases-nationales-des-points-de-recharge-pour-vehicules-electriques-en-france-irve?tab=data"
+
 config :transport,
   datagouv_static_hosts: ["static.data.gouv.fr", "demo-static.data.gouv.fr"],
   bison_fute_host: "tipi.bison-fute.gouv.fr"

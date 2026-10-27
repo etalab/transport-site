@@ -308,6 +308,10 @@ defmodule TransportWeb.Router do
 
     get("/landing-vls", LandingPagesController, :vls)
 
+    get("/links/irve/explorer-base-statique", Redirect,
+      external: Application.compile_env!(:transport, :irve_static_data_explorer_url)
+    )
+
     # old static pages that have been moved to doc.transport
     get("/faq", Redirect,
       external: "https://doc.transport.data.gouv.fr/le-point-d-acces-national/generalites/le-point-dacces-national"
