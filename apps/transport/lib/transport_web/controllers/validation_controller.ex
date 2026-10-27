@@ -315,6 +315,7 @@ defmodule TransportWeb.ValidationController do
     |> assign(:max_severity, details.max_severity)
     |> assign(:validation_summary, details.summary)
     |> assign(:severities_count, details.stats)
+    |> assign(:category_severity_counts, details.category_severity_counts)
     |> assign(:validation_report_url, validation_report_url)
     |> assign(:xsd_errors, details.xsd_errors)
     |> render(template)

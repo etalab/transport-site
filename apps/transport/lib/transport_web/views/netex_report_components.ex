@@ -3,6 +3,7 @@ defmodule TransportWeb.NeTExReportComponents do
   Set of components to display a NeTEx validation report. Those components are
   used by the resource details page and the on demand validation results page.
   """
+
   use TransportWeb, :view
   use Phoenix.Component
   import Phoenix.Controller, only: [current_url: 2]
@@ -13,9 +14,41 @@ defmodule TransportWeb.NeTExReportComponents do
 
   def to_netex_validation_report(url), do: url <> "#validation-report"
 
-  def netex_generic_issues(%{issues: _} = assigns) do
+  @doc """
+  Renders a table of NeTEx generic issues with message, file, and line information.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:issues, :list,
+    required: true,
+    doc: "List of issue maps with keys: message (string), resource (optional map with filename/line integers)"
+  )
+
+  attr(:severities_count, :map, required: true, doc: "Map of severity counts per category")
+  attr(:results_adapter, :any, required: true, doc: "Results adapter module for formatting severities")
+
+  def netex_generic_issues(assigns) do
+    severities_count = assigns[:severities_count]
+
+    filtered_severities =
+      severities_count
+      |> Enum.filter(fn {_k, v} -> is_integer(v) and v > 0 end)
+
+    assigns = assign(assigns, :filtered_severities, filtered_severities)
+
     ~H"""
+    <ul :if={Enum.any?(@filtered_severities)}>
+      <li :for={{severity, count} <- @filtered_severities}>
+        {@results_adapter.format_severity(severity, count)}
+      </li>
+    </ul>
     <table class="table netex_generic_issue">
+      <colgroup>
+        <col class="message" />
+        <col class="file" />
+        <col class="line" />
+      </colgroup>
+
       <tr>
         <th>{dgettext("validations-explanations", "Message")}</th>
         <th>{dgettext("validations-explanations", "File")}</th>
@@ -23,39 +56,68 @@ defmodule TransportWeb.NeTExReportComponents do
       </tr>
 
       <tr :for={issue <- @issues} class="message">
-        <td lang="en">{issue["message"]}</td>
-        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
+        <td>
+          <.validity_icon variant={severity_variant(issue["criticity"])} /> <span lang="en">{issue["message"]}</span>
+        </td>
+        <%= if unknown_location?(issue) do %>
           <td colspan="2">{dgettext("validations-explanations", "Unknown location")}</td>
         <% else %>
           <td>{issue["resource"]["filename"]}</td>
-          <td>{issue["resource"]["line"]}</td>
+          <td class="line">{issue["resource"]["line"]}</td>
         <% end %>
       </tr>
     </table>
     """
   end
 
-  def netex_validation_report_title(
-        %{level: _, max_severity: _, results_adapter: _, validation_report_url: _} = assigns
-      ) do
-    ~H"""
-    <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
-    <div class="header_with_action_bar">
-      <.title level={@level}>
-        {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
-      </.title>
-      <.netex_validation_report_download validation_report_url={@validation_report_url} />
-    </div>
-    """
+  defp unknown_location?(issue) do
+    is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"])
   end
 
-  def netex_validation_report_title(%{validation_report_url: _} = assigns) do
-    ~H"""
-    <div class="header_with_action_bar">
-      <h2>{dgettext("validations", "NeTEx review report")}</h2>
-      <.netex_validation_report_download validation_report_url={@validation_report_url} />
-    </div>
-    """
+  @doc """
+  Renders the title section of a NeTEx validation report.
+
+  When `results_adapter` is provided, displays the formatted severity level.
+  Otherwise shows a default "NeTEx review report" heading.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:validation_report_url, :string, required: true, doc: "URL to download the validation report")
+  attr(:level, :integer, default: 2, doc: "HTML heading level (2 or 4). Defaults to 2.")
+
+  attr(:max_severity, :map,
+    default: nil,
+    doc:
+      "Map with keys max_level and worst_occurrences for severity formatting. When present, enables advanced title rendering."
+  )
+
+  attr(:results_adapter, :any,
+    default: nil,
+    doc:
+      "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. Transport.Validators.NeTEx.ResultsAdapters.V0_1_0). When present, enables advanced title rendering."
+  )
+
+  slot(:inner_block, doc: "Custom title content. Used as fallback when results_adapter is not provided.")
+
+  def netex_validation_report_title(assigns) do
+    if Map.get(assigns, :results_adapter) && Map.get(assigns, :max_severity) do
+      ~H"""
+      <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
+      <div class="header_with_action_bar">
+        <.title level={@level}>
+          {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
+        </.title>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+      """
+    else
+      ~H"""
+      <div class="header_with_action_bar">
+        <h2>{dgettext("validations", "NeTEx review report")}</h2>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+      """
+    end
   end
 
   defp title(%{level: 2} = assigns) do
@@ -70,19 +132,49 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  def netex_validation_report_content(
-        %{
-          conn: _,
-          current_category: _,
-          issues: _,
-          results_adapter: _,
-          validation_report_url: _,
-          validation_summary: _,
-          xsd_errors: _,
-          pagination: _,
-          xsd_version: _
-        } = assigns
-      ) do
+  @doc """
+  Renders the main content of a NeTEx validation report including categories,
+  selected category description, and issues list.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:conn, Plug.Conn, required: true, doc: "Phoenix conn for URL generation and session locale")
+
+  attr(:current_category, :string,
+    required: true,
+    doc: "Currently selected validation category (e.g. \"xsd-schema\", \"french-profile\", \"base-rules\")"
+  )
+
+  attr(:issues, :list,
+    required: true,
+    doc:
+      "List of issue maps with keys: message (string), resource (optional map with filename/line), counts (int), criticity (string)"
+  )
+
+  attr(:results_adapter, :any,
+    required: true,
+    doc: "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. V0_1_0, V0_2_0, etc.)"
+  )
+
+  attr(:validation_report_url, :string, required: true, doc: "URL to download the full validation report")
+
+  attr(:validation_summary, :list,
+    required: true,
+    doc: "List of summary maps with keys: category (string), stats (map with count/criticity/occurrences)"
+  )
+
+  attr(:xsd_errors, :list,
+    required: true,
+    doc:
+      "List of XSD error maps with keys: message (string), counts (int). Used when current_category is \"xsd-schema\""
+  )
+
+  attr(:pagination, :any, required: true, doc: "Pagination HTML rendered by netex_pagination_links/3")
+  attr(:xsd_version, :string, default: nil, doc: "XSD schema version string")
+  attr(:severities_count, :map, required: true, doc: "Map of severity counts")
+  attr(:category_severity_counts, :map, required: true, doc: "Map of severity counts per category")
+
+  def netex_validation_report_content(assigns) do
     ~H"""
     <% compliance_check = @results_adapter.french_profile_compliance_check() %>
     <% errors =
@@ -103,6 +195,8 @@ defmodule TransportWeb.NeTExReportComponents do
       conn={@conn}
       compliance_check={compliance_check}
       current_category={@current_category}
+      severities_count={@severities_count}
+      category_severity_counts={@category_severity_counts}
       errors={errors}
       validation_report_url={@validation_report_url}
       pagination={@pagination}
@@ -140,6 +234,8 @@ defmodule TransportWeb.NeTExReportComponents do
            conn: _,
            compliance_check: _,
            current_category: _,
+           severities_count: _,
+           category_severity_counts: _,
            errors: _,
            validation_report_url: _,
            pagination: _,
@@ -184,7 +280,11 @@ defmodule TransportWeb.NeTExReportComponents do
           </table>
         <% else %>
           <.non_translated_messages locale={locale} />
-          <.netex_generic_issues issues={@errors} />
+          <.netex_generic_issues
+            issues={@errors}
+            severities_count={Map.get(@category_severity_counts, @current_category, %{})}
+            results_adapter={@results_adapter}
+          />
           {@pagination}
         <% end %>
       </div>
@@ -329,19 +429,14 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp netex_errors_category(%{conn: _, category: _, stats: _, results_adapter: _, current_category: _} = assigns) do
     ~H"""
+    <% variant = severity_variant(@stats["criticity"]) %>
     <.colorful_link
       href={netex_link_to_category(@conn, @category)}
-      variant={
-        if @stats["count"] == 0 do
-          :valid
-        else
-          :error
-        end
-      }
+      variant={variant}
       selected={@current_category == @category}
     >
       <:icon>
-        <.validity_icon errors={@stats["count"]} />
+        <.validity_icon variant={variant} />
       </:icon>
       <:label>
         <span class="category">
@@ -408,15 +503,27 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  defp validity_icon(%{errors: errors} = assigns) when errors > 0 do
+  defp validity_icon(%{variant: :error} = assigns) do
     ~H"""
-    <i class="fa fa-xmark fa-lg"></i>
+    <i class="fa fa-xmark text-error"></i>
     """
   end
 
-  defp validity_icon(assigns) do
+  defp validity_icon(%{variant: :warning} = assigns) do
     ~H"""
-    <i class="fa fa-check fa-lg"></i>
+    <i class="fa fa-triangle-exclamation text-warning"></i>
+    """
+  end
+
+  defp validity_icon(%{variant: :information} = assigns) do
+    ~H"""
+    <i class="fa fa-circle-info text-info"></i>
+    """
+  end
+
+  defp validity_icon(%{variant: :valid} = assigns) do
+    ~H"""
+    <i class="fa fa-check"></i>
     """
   end
 
@@ -425,6 +532,11 @@ defmodule TransportWeb.NeTExReportComponents do
     <i class="fa fa-circle-info"></i>
     """
   end
+
+  defp severity_variant("error"), do: :error
+  defp severity_variant("warning"), do: :warning
+  defp severity_variant("information"), do: :information
+  defp severity_variant(_), do: :valid
 
   defp netex_category_label("xsd-schema"), do: dgettext("validations", "XSD")
   defp netex_category_label("french-profile"), do: dgettext("validations", "French profile")

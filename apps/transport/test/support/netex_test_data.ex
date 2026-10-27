@@ -1,4 +1,6 @@
 defmodule NeTExTestData do
+  import ExUnit.Assertions, only: [assert: 1]
+
   @moduledoc """
   Shared test data for NeTEx validation controller tests.
 
@@ -16,7 +18,7 @@ defmodule NeTExTestData do
   end
 
   # Errors in both XSD and base-rules categories with mixed severities.
-  # Used by category stats tests — summary_from_binary should report the worst
+  # Used by category stats tests — summary_by_category should report the worst
   # severity per category.
   def category_stats_result("0.2." <> _) do
     %{
@@ -103,6 +105,30 @@ defmodule NeTExTestData do
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: [], features: []},
       validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
     ]
+  end
+
+  # Asserts that the rendered NeTEx category stats page shows correct severity
+  # counts and tab styling (icons + CSS variants) for XSD and base-rules categories.
+  # Expects `body` to be a Floki document.
+  def assert_netex_category_stats(body) do
+    text_body = Floki.text(body)
+
+    # XSD tab shows worst severity (error), base-rules shows warning
+    assert text_body =~ ~r{XSD\s+– 1 erreur}
+    assert text_body =~ ~r{Règles de base\s+– 1 avertissement}
+
+    # Check category tabs have correct icons and colors
+    tabs = Floki.find(body, ".colorful")
+
+    xsd_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "XSD" end)
+    assert Floki.attribute(xsd_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
+    assert Floki.find(xsd_tab, "i.fa-xmark.text-error") |> length() == 1
+    assert Floki.find(xsd_tab, "i.fa-triangle-exclamation.text-warning") |> length() == 0
+
+    rules_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "Règles de base" end)
+    assert Floki.attribute(rules_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-warning"))
+    assert Floki.find(rules_tab, "i.fa-xmark.text-error") |> length() == 0
+    assert Floki.find(rules_tab, "i.fa-triangle-exclamation.text-warning") |> length() == 1
   end
 
   # Same as above but for pagination tests where max_error is "warning".
