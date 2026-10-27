@@ -18,8 +18,7 @@ config :oauth2, Datagouvfr.Authentication,
 # use mix phx.gen.secret to generate a custom value for this
 secret_key_base = "TO-BE-REPLACED"
 
-config :transport, TransportWeb.Endpoint,
-  secret_key_base: secret_key_base
+config :transport, TransportWeb.Endpoint, secret_key_base: secret_key_base
 
 # if you need to work on IRVE dashboard, turn this on
 config :transport, :irve_consolidation_caching, true

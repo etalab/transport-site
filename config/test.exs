@@ -124,8 +124,7 @@ config :transport,
 
 secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
 
-config :transport, TransportWeb.Endpoint,
-  secret_key_base: secret_key_base
+config :transport, TransportWeb.Endpoint, secret_key_base: secret_key_base
 
 config :phoenix_ddos,
   blocklist_ips: ["1.2.3.4"]
