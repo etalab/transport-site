@@ -50,7 +50,9 @@ config :transport, TransportWeb.Endpoint,
     root_layout: [html: {TransportWeb.LayoutView, :root}],
     accepts: ~w(html json)
   ],
-  pubsub_server: TransportWeb.PubSub
+  pubsub_server: TransportWeb.PubSub,
+  # Salts are not secret; per-env isolation comes from SECRET_KEY_BASE
+  live_view: [signing_salt: "l6L3NgQZ"]
 
 config :phoenix, :json_library, Jason
 
