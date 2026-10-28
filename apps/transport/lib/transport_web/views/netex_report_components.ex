@@ -3,6 +3,7 @@ defmodule TransportWeb.NeTExReportComponents do
   Set of components to display a NeTEx validation report. Those components are
   used by the resource details page and the on demand validation results page.
   """
+
   use TransportWeb, :view
   use Phoenix.Component
   import Phoenix.Controller, only: [current_url: 2]
@@ -13,7 +14,17 @@ defmodule TransportWeb.NeTExReportComponents do
 
   def to_netex_validation_report(url), do: url <> "#validation-report"
 
-  def netex_generic_issues(%{issues: _} = assigns) do
+  @doc """
+  Renders a table of NeTEx generic issues with message, file, and line information.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:issues, :list,
+    required: true,
+    doc: "List of issue maps with keys: message (string), resource (optional map with filename/line integers)"
+  )
+
+  def netex_generic_issues(assigns) do
     ~H"""
     <table class="table netex_generic_issue">
       <tr>
@@ -35,27 +46,50 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  def netex_validation_report_title(
-        %{level: _, max_severity: _, results_adapter: _, validation_report_url: _} = assigns
-      ) do
-    ~H"""
-    <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
-    <div class="header_with_action_bar">
-      <.title level={@level}>
-        {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
-      </.title>
-      <.netex_validation_report_download validation_report_url={@validation_report_url} />
-    </div>
-    """
-  end
+  @doc """
+  Renders the title section of a NeTEx validation report.
 
-  def netex_validation_report_title(%{validation_report_url: _} = assigns) do
-    ~H"""
-    <div class="header_with_action_bar">
-      <h2>{dgettext("validations", "NeTEx review report")}</h2>
-      <.netex_validation_report_download validation_report_url={@validation_report_url} />
-    </div>
-    """
+  When `results_adapter` is provided, displays the formatted severity level.
+  Otherwise shows a default "NeTEx review report" heading.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:validation_report_url, :string, required: true, doc: "URL to download the validation report")
+  attr(:level, :integer, default: 2, doc: "HTML heading level (2 or 4). Defaults to 2.")
+
+  attr(:max_severity, :map,
+    default: nil,
+    doc:
+      "Map with keys max_level and worst_occurrences for severity formatting. When present, enables advanced title rendering."
+  )
+
+  attr(:results_adapter, :any,
+    default: nil,
+    doc:
+      "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. Transport.Validators.NeTEx.ResultsAdapters.V0_1_0). When present, enables advanced title rendering."
+  )
+
+  slot(:inner_block, doc: "Custom title content. Used as fallback when results_adapter is not provided.")
+
+  def netex_validation_report_title(assigns) do
+    if Map.get(assigns, :results_adapter) && Map.get(assigns, :max_severity) do
+      ~H"""
+      <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
+      <div class="header_with_action_bar">
+        <.title level={@level}>
+          {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
+        </.title>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+      """
+    else
+      ~H"""
+      <div class="header_with_action_bar">
+        <h2>{dgettext("validations", "NeTEx review report")}</h2>
+        <.netex_validation_report_download validation_report_url={@validation_report_url} />
+      </div>
+      """
+    end
   end
 
   defp title(%{level: 2} = assigns) do
@@ -70,19 +104,47 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  def netex_validation_report_content(
-        %{
-          conn: _,
-          current_category: _,
-          issues: _,
-          results_adapter: _,
-          validation_report_url: _,
-          validation_summary: _,
-          xsd_errors: _,
-          pagination: _,
-          xsd_version: _
-        } = assigns
-      ) do
+  @doc """
+  Renders the main content of a NeTEx validation report including categories,
+  selected category description, and issues list.
+
+  [INSERT LVATTRDOCS]
+  """
+  attr(:conn, Plug.Conn, required: true, doc: "Phoenix conn for URL generation and session locale")
+
+  attr(:current_category, :string,
+    required: true,
+    doc: "Currently selected validation category (e.g. \"xsd-schema\", \"french-profile\", \"base-rules\")"
+  )
+
+  attr(:issues, :list,
+    required: true,
+    doc:
+      "List of issue maps with keys: message (string), resource (optional map with filename/line), counts (int), criticity (string)"
+  )
+
+  attr(:results_adapter, :any,
+    required: true,
+    doc: "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. V0_1_0, V0_2_0, etc.)"
+  )
+
+  attr(:validation_report_url, :string, required: true, doc: "URL to download the full validation report")
+
+  attr(:validation_summary, :list,
+    required: true,
+    doc: "List of summary maps with keys: category (string), stats (map with count/criticity/occurrences)"
+  )
+
+  attr(:xsd_errors, :list,
+    required: true,
+    doc:
+      "List of XSD error maps with keys: message (string), counts (int). Used when current_category is \"xsd-schema\""
+  )
+
+  attr(:pagination, :any, required: true, doc: "Pagination HTML rendered by netex_pagination_links/3")
+  attr(:xsd_version, :string, default: nil, doc: "XSD schema version string")
+
+  def netex_validation_report_content(assigns) do
     ~H"""
     <% compliance_check = @results_adapter.french_profile_compliance_check() %>
     <% errors =
