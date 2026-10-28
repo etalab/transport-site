@@ -567,12 +567,9 @@ defmodule TransportWeb.ValidationControllerTest do
       mark_netex_validation_completed(multi_validation, Map.new(opts))
 
       conn = conn |> get(validation_path(conn, :show, multi_validation.id, token: token))
-      body = conn |> html_response(200) |> Floki.parse_document!() |> Floki.text()
+      body = conn |> html_response(200) |> Floki.parse_document!()
 
-      # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
-      # base-rules shows warning with its single item
-      assert body =~ ~r{XSD\s+– 2 erreurs}
-      assert body =~ ~r{Règles de base\s+– 1 avertissement}
+      NeTExTestData.assert_netex_category_stats(body)
     end
 
     for version <- ["0.2.0", "0.2.1", "0.2.2"] do

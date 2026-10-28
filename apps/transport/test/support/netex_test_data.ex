@@ -1,4 +1,6 @@
 defmodule NeTExTestData do
+  import ExUnit.Assertions, only: [assert: 1]
+
   @moduledoc """
   Shared test data for NeTEx validation controller tests.
 
@@ -103,6 +105,31 @@ defmodule NeTExTestData do
       metadata: %DB.ResourceMetadata{metadata: %{}, modes: [], features: []},
       validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
     ]
+  end
+
+  # Asserts that the rendered NeTEx category stats page shows correct severity
+  # counts and tab styling (icons + CSS variants) for XSD and base-rules categories.
+  # Expects `body` to be a Floki document.
+  def assert_netex_category_stats(body) do
+    text_body = Floki.text(body)
+
+    # XSD tab shows worst severity (error) and total count (1 error + 1 warning = 2),
+    # base-rules shows warning with its single item
+    assert text_body =~ ~r{XSD\s+– 2 erreurs}
+    assert text_body =~ ~r{Règles de base\s+– 1 avertissement}
+
+    # Check category tabs have correct icons and colors
+    tabs = Floki.find(body, ".colorful")
+
+    xsd_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "XSD" end)
+    assert Floki.attribute(xsd_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
+    assert Floki.find(xsd_tab, "i.fa-xmark") |> length() == 1
+    assert Floki.find(xsd_tab, "i.fa-triangle-exclamation") |> length() == 0
+
+    rules_tab = Enum.find(tabs, fn tab -> Floki.text(tab) =~ "Règles de base" end)
+    assert Floki.attribute(rules_tab, "class") |> Enum.any?(&String.contains?(&1, "variant-error"))
+    assert Floki.find(rules_tab, "i.fa-xmark") |> length() == 1
+    assert Floki.find(rules_tab, "i.fa-triangle-exclamation") |> length() == 0
   end
 
   # Same as above but for pagination tests where max_error is "warning".
