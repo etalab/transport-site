@@ -12,6 +12,8 @@ defmodule Unlock.HTTP do
 
     @enforce_keys [:body, :status, :headers]
     defstruct [:body, :status, :headers]
+
+    @type t :: %__MODULE__{body: binary(), status: non_neg_integer(), headers: Unlock.HTTP.Client.headers()}
   end
 
   defmodule Client do

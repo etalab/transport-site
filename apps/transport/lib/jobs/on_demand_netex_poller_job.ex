@@ -75,16 +75,18 @@ defmodule Transport.Jobs.OnDemandNeTExPollerJob do
     |> Helpers.snoozed_state()
   end
 
-  defp build_successful_validation_result(%{"validations" => validation, "metadata" => metadata}, url) do
+  defp build_successful_validation_result(%{"validations" => errors, "metadata" => metadata}, url) do
+    df = ResultsAdapter.to_dataframe(errors)
+
     %{
-      binary_result: ResultsAdapter.to_binary_result(validation),
-      digest: ResultsAdapter.digest(validation),
+      binary_result: ResultsAdapter.to_binary_result(errors),
+      digest: ResultsAdapter.digest(df),
       metadata: metadata,
       data_vis: nil,
       validator: Validator.validator_name(),
       validator_version: Validator.validator_version(),
       validated_data_name: url,
-      max_error: ResultsAdapter.get_max_severity_error(validation),
+      max_error: ResultsAdapter.get_max_severity_error(df),
       oban_args: Helpers.completed()
     }
   end

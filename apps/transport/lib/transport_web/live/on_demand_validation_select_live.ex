@@ -5,9 +5,8 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   selected, display appropriate input fields (file upload,
   text inputs etc.)
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 

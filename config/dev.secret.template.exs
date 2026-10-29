@@ -18,15 +18,15 @@ config :oauth2, Datagouvfr.Authentication,
 # use mix phx.gen.secret to generate a custom value for this
 secret_key_base = "TO-BE-REPLACED"
 
-config :transport, TransportWeb.Endpoint,
-  secret_key_base: secret_key_base,
-  live_view: [
-    # NOTE: unsure if this is actually great to reuse the same value
-    signing_salt: secret_key_base
-  ]
+config :transport, TransportWeb.Endpoint, secret_key_base: secret_key_base
 
 # if you need to work on IRVE dashboard, turn this on
 config :transport, :irve_consolidation_caching, true
+
+# Uncomment if you need to work on the dynamic IRVE concentrator: polls the feeds of the
+# `dynamic-irve-aggregate` items of your `config/proxy-config.yml` (off outside production,
+# so avoid pointing at real producers' feeds unless needed)
+# config :transport, dynamic_irve_polling_enabled: true
 
 # for minio local S3 support. See `.miniorc`
 config :ex_aws,

@@ -13,6 +13,9 @@ config :transport,
     aggregates: "aggregates-prod"
   }
 
+# Compile-time setting: ignored in runtime.exs
+config :transport, TransportWeb.Endpoint, force_ssl: [rewrite_on: [:x_forwarded_proto]]
+
 # Configure Sentry for production and staging.
 # Check out https://sentry.io/settings/transport-data-gouv-fr/projects/transport-site/install/elixir/
 config :sentry,

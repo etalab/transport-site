@@ -1,25 +1,31 @@
 defmodule TransportWeb.Live.ValidateDatasetView do
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   alias DB.Dataset
-  use Gettext, backend: TransportWeb.Gettext
-  require Logger
 
   @button_disabled [:validated, :validating]
 
   def render(assigns) do
     ~H"""
-    <button class={@button_class} phx-click="validate_dataset" disabled={@button_disabled}>
-      {@button_text}
+    <button
+      phx-click="validate_dataset"
+      class={@base_classname}
+      disabled={@button_disabled}
+      {@button_role && [role: @button_role] || []}
+    >
+      <i class={"fas fa-#{icon_for_state(@step)}"}></i>
+      {text_for_state(@step)}
     </button>
     """
   end
 
-  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale}, socket) do
+  def mount(_params, %{"dataset_id" => dataset_id, "locale" => locale} = session, socket) do
     Gettext.put_locale(locale)
 
     new_socket =
       socket
       |> assign(dataset_id: dataset_id)
+      |> assign(base_classname: Map.get(session, "base_classname", "button"))
+      |> assign(button_role: Map.get(session, "button_role", ""))
       |> assign_step(:first)
 
     {:ok, new_socket}
@@ -49,31 +55,23 @@ defmodule TransportWeb.Live.ValidateDatasetView do
   defp assign_step(socket, step) do
     assign(
       socket,
-      button_text: button_texts(step),
-      button_class: button_classes(step),
+      step: step,
       button_disabled: step in @button_disabled
     )
   end
 
-  defp button_texts(step) do
+  defp icon_for_state(:validated), do: "check"
+  defp icon_for_state(:validating), do: "spinner fa-spin"
+  defp icon_for_state(_), do: "check"
+
+  defp text_for_state(step) do
     Map.get(
       %{
         validated: dgettext("backoffice_dataset", "Validated"),
-        validating: dgettext("backoffice_dataset", "Validating")
+        validating: dgettext("backoffice_dataset", "Validation in progress…")
       },
       step,
       dgettext("backoffice_dataset", "Validate")
-    )
-  end
-
-  defp button_classes(step) do
-    Map.get(
-      %{
-        validated: "button success",
-        validating: "button button-outlined secondary"
-      },
-      step,
-      "button"
     )
   end
 end

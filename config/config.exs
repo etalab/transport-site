@@ -23,7 +23,10 @@ config :transport,
     "https://raw.githubusercontent.com/transportdatagouvfr/proxy-config/refs/heads/master/proxy-config.yml",
   unlock_github_auth_token: System.get_env("TRANSPORT_PROXY_CONFIG_GITHUB_TOKEN"),
   unlock_event_incrementer: Unlock.BatchMetrics,
-  unlock_token_auth_enabled: false
+  unlock_token_auth_enabled: false,
+  dynamic_irve_tick_interval: :timer.seconds(30),
+  # Turned on for production webserver nodes only in `runtime.exs`. For local work, see `dev.secret.template.exs`.
+  dynamic_irve_polling_enabled: false
 
 config :transport, Unlock.Endpoint, []
 
@@ -44,10 +47,12 @@ config :transport, TransportWeb.Endpoint,
   url: [host: "127.0.0.1"],
   render_errors: [
     view: TransportWeb.ErrorView,
-    layout: [html: {TransportWeb.LayoutView, :app}],
+    root_layout: [html: {TransportWeb.LayoutView, :root}],
     accepts: ~w(html json)
   ],
-  pubsub_server: TransportWeb.PubSub
+  pubsub_server: TransportWeb.PubSub,
+  # Salts are not secret; per-env isolation comes from SECRET_KEY_BASE
+  live_view: [signing_salt: "l6L3NgQZ"]
 
 config :phoenix, :json_library, Jason
 
@@ -66,15 +71,8 @@ config :logger, :default_formatter,
   # when LOG_USER_AGENT=true
   metadata: [:request_id, :remote_ip, :method, :path, :user_agent]
 
-config :scrivener_html,
-  routes_helper: TransportWeb.Router.Helpers
-
 # Allow to have Markdown templates
-config :phoenix, :template_engines,
-  md: PhoenixMarkdown.Engine,
-  leex: Phoenix.LiveView.Engine
-
-config :phoenix_markdown, :server_tags, :all
+config :phoenix, :template_engines, md: TransportWeb.MarkdownTemplateEngine
 
 config :transport, gbfs_validator_impl: Shared.Validation.GBFSValidator.HTTPValidatorClient
 
@@ -128,7 +126,6 @@ config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.API,
   authentication_impl: Datagouvfr.Authentication,
   user_impl: Datagouvfr.Client.User,
-  datagouvfr_reuses: Datagouvfr.Client.Reuses,
   datagouvfr_discussions: Datagouvfr.Client.Discussions,
   organization_impl: Datagouvfr.Client.Organization,
   # The two following implementations are also used in tests, except if specifically overriden to use a mock

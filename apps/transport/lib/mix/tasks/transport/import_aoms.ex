@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Transport.ImportAOMs do
     |> String.to_integer()
   end
 
-  @spec changeset(map()) :: {integer(), Ecto.Changeset.t()}
+  @spec changeset(map()) :: {binary(), Ecto.Changeset.t()}
   def changeset(line) do
     aom = line |> existing_or_new_aom() |> Repo.preload(:region)
 

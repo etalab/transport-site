@@ -2,11 +2,10 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
   @moduledoc """
   Display datasets on the producer and reuser space.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
@@ -43,7 +42,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
                   </a>
                 </h3>
                 <div class="dataset-localization">
-                  <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area_or_nil(dataset)}
+                  <i class="icon fa fa-location-dot" />{DB.Dataset.get_covered_area(dataset)}
                 </div>
               </div>
             </div>

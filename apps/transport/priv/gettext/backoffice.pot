@@ -67,10 +67,6 @@ msgid "Outdated"
 msgstr ""
 
 #, elixir-autogen, elixir-format
-msgid "Show all datasets"
-msgstr ""
-
-#, elixir-autogen, elixir-format
 msgid "Save"
 msgstr ""
 
@@ -120,10 +116,6 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "With more than 1 GTFS"
-msgstr ""
-
-#, elixir-autogen, elixir-format
-msgid "Show only datasets"
 msgstr ""
 
 #, elixir-autogen, elixir-format
@@ -392,4 +384,32 @@ msgstr ""
 
 #, elixir-autogen, elixir-format
 msgid "Properties"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Import"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Remove"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "View on data.gouv.fr"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "View on the PAN"
+msgstr ""
+
+#, elixir-autogen, elixir-format
+msgid "Clear filter"
 msgstr ""

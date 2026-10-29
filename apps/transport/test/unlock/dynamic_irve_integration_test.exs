@@ -10,8 +10,11 @@ defmodule Unlock.DynamicIRVE.IntegrationTest do
 
   setup do
     setup_telemetry_handler()
+    Application.put_env(:transport, :dynamic_irve_polling_enabled, true)
 
     on_exit(fn ->
+      Application.put_env(:transport, :dynamic_irve_polling_enabled, false)
+
       for {_, pid, _, _} <- DynamicSupervisor.which_children(Unlock.DynamicIRVE.FeedSupervisor),
           is_pid(pid),
           do: DynamicSupervisor.terminate_child(Unlock.DynamicIRVE.FeedSupervisor, pid)
@@ -63,6 +66,14 @@ defmodule Unlock.DynamicIRVE.IntegrationTest do
 
     # :external event must be emitted so the request counts in the proxy metrics
     assert_received {:telemetry_event, [:proxy, :request, :external], %{}, %{target: "proxy:test-agg"}}
+  end
+
+  test "sync_feeds is a no-op when polling is disabled" do
+    Application.put_env(:transport, :dynamic_irve_polling_enabled, false)
+
+    Unlock.DynamicIRVESupervisor.sync_feeds()
+
+    assert Unlock.DynamicIRVESupervisor.running_feed_pollers() == []
   end
 
   defp build_df(marker) do

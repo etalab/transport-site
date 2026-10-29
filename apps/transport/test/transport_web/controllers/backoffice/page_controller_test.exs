@@ -84,6 +84,24 @@ defmodule TransportWeb.Backoffice.PageControllerTest do
     refute html_response(conn2, 200) =~ "un dataset bien à jour"
   end
 
+  test "pagination keeps query params and the anchor", %{conn: conn} do
+    insert_list(21, :dataset)
+
+    links =
+      conn
+      |> setup_admin_in_session()
+      |> get(Routes.backoffice_page_path(conn, :index, %{"order_by" => "custom_title", "dir" => "asc"}))
+      |> html_response(200)
+      |> Floki.parse_document!()
+      |> Floki.find(~s|nav[aria-label="Page navigation"]|)
+      |> hd()
+      |> Floki.find("a")
+      |> Enum.map(&{Floki.text(&1), Floki.attribute(&1, "href")})
+
+    url = "/backoffice?dir=asc&order_by=custom_title&page=2#list_datasets"
+    assert links == [{"1", []}, {"2", [url]}, {">>", [url]}]
+  end
+
   test "notifications config and notifications sent are displayed", %{conn: conn} do
     organization = insert(:organization)
 

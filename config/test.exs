@@ -72,7 +72,6 @@ config :transport,
   community_resources_impl: Datagouvfr.Client.CommunityResources.Mock,
   authentication_impl: Datagouvfr.Authentication.Mock,
   user_impl: Datagouvfr.Client.User.Mock,
-  datagouvfr_reuses: Datagouvfr.Client.Reuses.Mock,
   datagouvfr_discussions: Datagouvfr.Client.Discussions.Mock,
   organization_impl: Datagouvfr.Client.Organization.Mock,
   # The two following implementations are often overriden with Mox.stubs_with/2 in tests
@@ -125,12 +124,7 @@ config :transport,
 
 secret_key_base = "SOME-LONG-SECRET-KEY-BASE-FOR-TESTING-SOME-LONG-SECRET-KEY-BASE-FOR-TESTING"
 
-config :transport, TransportWeb.Endpoint,
-  secret_key_base: secret_key_base,
-  live_view: [
-    # NOTE: unsure if this is actually great to reuse the same value
-    signing_salt: secret_key_base
-  ]
+config :transport, TransportWeb.Endpoint, secret_key_base: secret_key_base
 
 config :phoenix_ddos,
   blocklist_ips: ["1.2.3.4"]

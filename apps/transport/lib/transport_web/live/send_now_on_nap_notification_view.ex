@@ -1,7 +1,5 @@
 defmodule TransportWeb.Live.SendNowOnNAPNotificationView do
-  use Phoenix.LiveView
-  use Gettext, backend: TransportWeb.Gettext
-  require Logger
+  use TransportWeb, :live_view
 
   @button_disabled [:sending, :sent]
 

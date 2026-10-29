@@ -40,6 +40,24 @@ defmodule TransportWeb.Backoffice.ContactControllerTest do
       assert table_content =~ "Foo"
       refute table_content =~ "Bar"
     end
+
+    test "pagination keeps the search", %{conn: conn} do
+      for _ <- 1..21, do: DB.Contact.insert!(%{sample_contact_args() | last_name: "Foo"})
+
+      links =
+        conn
+        |> setup_admin_in_session()
+        |> get(backoffice_contact_path(conn, :index, %{"q" => "foo"}))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find(~s|nav[aria-label="Page navigation"]|)
+        |> hd()
+        |> Floki.find("a")
+        |> Enum.map(&{Floki.text(&1), Floki.attribute(&1, "href")})
+
+      url = "/backoffice/contacts?q=foo&page=2"
+      assert links == [{"1", []}, {"2", [url]}, {">>", [url]}]
+    end
   end
 
   describe "new" do

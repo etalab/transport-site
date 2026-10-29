@@ -1,19 +1,18 @@
 defmodule TransportWeb.DatasetSubtypeLive do
-  use Phoenix.LiveComponent
-  alias TransportWeb.InputHelpers
+  use TransportWeb, :live_component
 
   def render(assigns) do
     ~H"""
     <div>
       <div :if={Enum.count(@dataset_subtypes_list) > 0} class="pt-24">
-        <label>
-          Sous-type {InputHelpers.text_input(@form, :dataset_subtype_input,
-            list: "dataset_subtypes",
-            phx_keydown: "add_subtype",
-            phx_target: @myself,
-            id: "js-dataset-subtype-input"
-          )}
-        </label>
+        <.input
+          field={@form[:dataset_subtype_input]}
+          list="dataset_subtypes"
+          phx-keydown="add_subtype"
+          phx-target={@myself}
+          id="js-dataset-subtype-input"
+          label="Sous-type"
+        />
         <datalist id="dataset_subtypes" phx-keydown="add_subtype">
           <%= for dataset_subtype <- @dataset_subtypes_list do %>
             <option value={dataset_subtype.slug}>{display(dataset_subtype)}</option>
@@ -26,8 +25,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
               <span class="delete-tag" phx-click="remove_subtype" phx-value-slug={dataset_subtype.slug} phx-target={@myself}>
               </span>
             </span>
-            <% {field_name, field_value} = field_info(dataset_subtype, index) %>
-            {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
+            <.input field={@form["dataset_subtypes[#{index}]"]} type="hidden" value={dataset_subtype.slug} />
           <% end %>
         </div>
       </div>
@@ -36,7 +34,7 @@ defmodule TransportWeb.DatasetSubtypeLive do
   end
 
   def update(assigns, socket) do
-    dataset_type = get_in(assigns.form_params.source["type"])
+    dataset_type = assigns.form[:type].value
 
     dataset_subtypes_list =
       DB.DatasetSubtype
@@ -95,5 +93,4 @@ defmodule TransportWeb.DatasetSubtypeLive do
   def serialize(%{parent_type: _, slug: _} = map), do: map
 
   def display(%{slug: slug}), do: slug
-  def field_info(subtype, index), do: {"dataset_subtypes[#{index}]", subtype.slug}
 end

@@ -2,9 +2,8 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Analysis do
   @moduledoc """
   Analysis step of the GTFS diff tool.
   """
-  use Phoenix.Component
+  use TransportWeb, :html
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
 
   def analysis_step(%{diff_logs: _, error_msg: _} = assigns) do
     ~H"""

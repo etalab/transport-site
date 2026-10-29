@@ -535,3 +535,7 @@ msgstr "Avertissement"
 #, elixir-autogen, elixir-format
 msgid "Warning samples"
 msgstr "Exemples d'avertissements"
+
+#, elixir-autogen, elixir-format
+msgid "xsd-schema-version"
+msgstr "Validé selon la XSD NeTEx %{version}."

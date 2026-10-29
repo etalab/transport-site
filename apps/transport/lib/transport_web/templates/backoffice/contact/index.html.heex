@@ -1,33 +1,43 @@
 <section class="container pt-24 pb-24">
   <h1>Contacts</h1>
 
-  <%= form_for @conn, backoffice_contact_path(@conn, :index), [id: "backoffice_search_container", method: "get"], fn f -> %>
-    {search_input(f, :q,
-      id: "backoffice_search",
-      value: assigns[:q] || "",
-      list: "search_datalist",
-      placeholder: dgettext("contact", "Find contacts")
-    )}
+  <.form
+    :let={f}
+    for={@search_form}
+    action={backoffice_contact_path(@conn, :index)}
+    id="backoffice_search_container"
+    method="get"
+  >
+    <.input
+      field={f[:q]}
+      type="search"
+      id="backoffice_search"
+      list="search_datalist"
+      placeholder={dgettext("contact", "Find contacts")}
+    />
     <datalist id="search_datalist">
-      <%= for value <- @search_datalist do %>
-        <% unaccent_value = unaccent(value) %>
-        <option value={value} />
-        <option :if={value != unaccent_value} value={value}>{unaccent_value}</option>
-      <% end %>
+      <option :for={{value, label} <- datalist_options(@search_datalist)} value={value}>{label}</option>
     </datalist>
     <button type="submit" class="button backoffice_search_button"><i class="fa fa-search"></i></button>
     <div class="small">Rechercher par prénom, nom, titre ou organisation</div>
-  <% end %>
+  </.form>
 
   <a class="button" href={backoffice_contact_path(@conn, :new)}>
     <i class="fas fa-plus"></i> Créer un contact
   </a>
 
   <div class="pt-24">
-    {pagination_links(@conn, @contacts)}
+    <.pagination conn={@conn} page={@contacts} />
   </div>
 
   <table class="backoffice-results">
+    <colgroup>
+      <col class="name" />
+      <col class="email" />
+      <col class="organisation" />
+      <col class="fonction" />
+      <col class="actions" />
+    </colgroup>
     <tr>
       <th>Nom</th>
       <th>E-mail</th>
@@ -42,15 +52,15 @@
         <td>{contact.organization}</td>
         <td>{contact.job_title}</td>
         <td class="bo_action_button">
-          <%= form_for @conn, backoffice_contact_path(@conn, :edit, contact.id), [nodiv: true, method: "get"], fn _ -> %>
-            {submit("Éditer", class: "button", nodiv: true)}
-          <% end %>
+          <.form for={%{}} action={backoffice_contact_path(@conn, :edit, contact.id)} method="get">
+            <.button>Éditer</.button>
+          </.form>
         </td>
       </tr>
     <% end %>
   </table>
   <div class="pt-24">
-    {pagination_links(@conn, @contacts)}
+    <.pagination conn={@conn} page={@contacts} />
   </div>
   <div class="pt-12">
     <a class="button-outline small secondary" href={backoffice_contact_path(@conn, :csv_export)}>

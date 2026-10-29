@@ -137,7 +137,7 @@ defmodule Mix.Tasks.CheckLinks do
   defp do_check(url, timeout, remaining_retries) do
     request = Finch.build(:head, url)
 
-    case Finch.request(request, CheckLinks.Finch, recv_timeout: timeout * 1000) do
+    case Finch.request(request, CheckLinks.Finch, receive_timeout: timeout * 1000) do
       {:ok, %{status: status}} when status in 200..399 -> :ok
       {:ok, %{status: 405}} -> get_fallback(url, timeout, remaining_retries - 1)
       {:ok, %{status: _status}} -> do_check(url, timeout, remaining_retries - 1)
@@ -150,7 +150,7 @@ defmodule Mix.Tasks.CheckLinks do
   defp get_fallback(url, timeout, remaining_retries) do
     request = Finch.build(:get, url)
 
-    case Finch.request(request, CheckLinks.Finch, recv_timeout: timeout * 1000) do
+    case Finch.request(request, CheckLinks.Finch, receive_timeout: timeout * 1000) do
       {:ok, %{status: status}} when status in 200..399 -> :ok
       {:ok, %{status: _status}} -> get_fallback(url, timeout, remaining_retries - 1)
       {:error, _reason} -> get_fallback(url, timeout, remaining_retries - 1)

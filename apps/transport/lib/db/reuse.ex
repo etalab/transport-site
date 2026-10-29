@@ -37,6 +37,34 @@ defmodule DB.Reuse do
 
   def base_query, do: from(r in __MODULE__, as: :reuse)
 
+  @doc """
+  Fetch reuses for a dataset by its data.gouv.fr ID.
+  Returns a list of maps with the fields needed for display.
+  """
+  def by_dataset_datagouv_id(datagouv_id) do
+    from(r in __MODULE__,
+      join: rd in "reuse_dataset",
+      on: r.id == rd.reuse_id,
+      join: d in DB.Dataset,
+      on: d.id == rd.dataset_id,
+      where: d.datagouv_id == ^datagouv_id,
+      order_by: [desc: r.last_modified],
+      select: %{
+        datagouv_id: r.datagouv_id,
+        title: r.title,
+        slug: r.slug,
+        remote_url: r.remote_url,
+        description: r.description,
+        image: r.image,
+        organization: r.organization,
+        url: r.url,
+        owner: r.owner,
+        last_modified: r.last_modified
+      }
+    )
+    |> DB.Repo.all()
+  end
+
   def search(%{} = args) do
     base_query()
     |> order_by([reuse: r], desc: r.created_at)

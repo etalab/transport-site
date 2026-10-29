@@ -1,8 +1,9 @@
 defmodule TransportWeb.DatasetView do
   use TransportWeb, :view
+  require Logger
   alias DB.{Dataset, Resource}
   alias Plug.Conn.Query
-  alias TransportWeb.{MarkdownHandler, PaginationHelpers, Router.Helpers}
+  alias TransportWeb.{MarkdownHandler, ReuseMarkdown}
   import Ecto.Query
   import Phoenix.Controller, only: [current_path: 1, current_path: 2, current_url: 2]
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
@@ -39,32 +40,6 @@ defmodule TransportWeb.DatasetView do
   """
   def count_discussions(nil), do: ~c"-"
   def count_discussions(discussions), do: Enum.count(discussions)
-
-  def pagination_links(%{path_info: ["datasets", "region", region]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_region] |> add_query_params(conn.query_params)
-
-    PaginationHelpers.pagination_links(
-      conn,
-      datasets,
-      [region],
-      kwargs
-    )
-  end
-
-  def pagination_links(%{path_info: ["datasets", "epci", epci]} = conn, datasets) do
-    kwargs = [path: &Helpers.dataset_path/4, action: :by_epci] |> add_query_params(conn.query_params)
-
-    PaginationHelpers.pagination_links(
-      conn,
-      datasets,
-      [epci],
-      kwargs
-    )
-  end
-
-  def pagination_links(conn, paginator) do
-    PaginationHelpers.pagination_links(conn, paginator)
-  end
 
   def order_link(conn, order_by) do
     msg =
@@ -120,6 +95,18 @@ defmodule TransportWeb.DatasetView do
       ^url -> ~H|<span class="activefilter">{@nom} ({@count})</span>|
       _ -> link("#{nom} (#{count})", to: full_url)
     end
+  end
+
+  @doc """
+  Returns true if the dataset has legal owners to display (AOM, region, or company).
+  """
+  @spec has_legal_owners?(Dataset.t()) :: boolean
+  def has_legal_owners?(%Dataset{
+        legal_owners_aom: aom,
+        legal_owners_region: region,
+        legal_owner_company_siren: siren
+      }) do
+    aom |> Enum.any?() or region |> Enum.any?() or not is_nil(siren)
   end
 
   def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
@@ -226,10 +213,6 @@ defmodule TransportWeb.DatasetView do
 
   def display_all_types_links?(%{params: %{"type" => type}}) when not is_nil(type), do: true
   def display_all_types_links?(_), do: false
-
-  defp add_query_params(kwargs, params) do
-    kwargs |> Keyword.merge(for {key, value} <- params, do: {String.to_atom(key), value})
-  end
 
   def gbfs_documentation_link(version) when is_binary(version) do
     "https://github.com/MobilityData/gbfs/blob/v#{version}/gbfs.md"
@@ -650,6 +633,13 @@ defmodule TransportWeb.DatasetView do
       # MobilityData validator.
       DB.Resource.gtfs?(resource) and Enum.count(validations) == 2 ->
         validations |> Enum.filter(&Transport.Validators.MobilityDataGTFSValidator.mine?/1) |> hd()
+
+      true ->
+        Logger.warning(
+          "[DatasetView.latest_validation/2] unexpected: #{Enum.count(validations)} validations for resource #{resource_id}"
+        )
+
+        nil
     end
   end
 
@@ -725,6 +715,86 @@ defmodule TransportWeb.DatasetView do
     </td>
     """
   end
+
+  @doc """
+  Renders the reuses section for a dataset.
+  """
+  def reuses(%{reuses: _} = assigns) do
+    ~H"""
+    <section class="white pt-48" id="dataset-reuses">
+      <h2>{dgettext("page-dataset-details", "Reuses")}</h2>
+      <%= if @reuses != [] do %>
+        <p>
+          {dgettext(
+            "page-dataset-details",
+            "You will find below reuses created by individuals or organizations based on this dataset."
+          )}
+        </p>
+        <div class="reuses">
+          <div :for={reuse <- @reuses} class="panel reuse">
+            <%= if is_binary(reuse.image) and reuse.image != "" do %>
+              <img src={reuse.image} alt={reuse.title} />
+            <% else %>
+              <i class="fa fa-image"></i>
+            <% end %>
+            <div :if={owner = owner(reuse)} class="reuse__owner">
+              <i class={"fa #{elem(owner, 0)} icon"}></i>{elem(owner, 1)}
+            </div>
+            <div class="reuse__links">
+              <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
+              <a :if={reuse_website_url} href={reuse_website_url}>
+                {dgettext("page-dataset-details", "Website")}
+              </a>
+              <% data_gouv_url = safe_remote_url(reuse.url) %>
+              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
+                {dgettext("page-dataset-details", "See on data.gouv.fr")}
+              </a>
+            </div>
+            <div class="reuse__details">
+              <h3>{reuse.title}</h3>
+              {MarkdownHandler.markdown_to_safe_html!(reuse.description, &ReuseMarkdown.shift_headings/1)}
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <p>{dgettext("page-dataset-details", "No known reuse on this dataset.")}</p>
+      <% end %>
+      <div class="information-message pt-24">
+        {dgettext(
+          "page-dataset-details",
+          "Do you use this dataset? Go to %{a_start}Declared reuses%{a_end} page to highlight your work.",
+          a_start: ~s|<a href="/reuses">|,
+          a_end: "</a>"
+        )
+        |> Phoenix.HTML.raw()}
+      </div>
+    </section>
+    """
+  end
+
+  defp safe_remote_url(url) when is_binary(url) do
+    safe_url_string(url)
+  end
+
+  defp safe_remote_url(_), do: nil
+
+  defp safe_url_string(url) do
+    case URI.parse(url) do
+      %URI{scheme: "http" <> _} -> url
+      %URI{scheme: "https" <> _} -> url
+      _ -> nil
+    end
+  end
+
+  defp owner(%{organization: name}) when is_binary(name) do
+    {"fa-building", name}
+  end
+
+  defp owner(%{owner: owner}) when is_binary(owner) and owner != "" do
+    {"fa-user", owner}
+  end
+
+  defp owner(_), do: nil
 end
 
 defmodule TransportWeb.DatasetView.ResourceTypeSortKey do

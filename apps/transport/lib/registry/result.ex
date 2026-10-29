@@ -2,7 +2,6 @@ defmodule Transport.Registry.Result do
   @moduledoc """
   Type and utilities to represent results.
   """
-  require Integer
 
   @type t(positive) :: {:ok, positive} | {:error, binary()}
 

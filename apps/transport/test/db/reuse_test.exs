@@ -33,6 +33,47 @@ defmodule DB.ReuseTest do
     assert [%DB.Dataset{id: ^dataset_id}] = reuse |> DB.Repo.preload(:datasets) |> Map.fetch!(:datasets)
   end
 
+  test "by_dataset_datagouv_id returns reuses for a dataset" do
+    d1 = insert(:dataset, datagouv_id: datagouv_id_1 = Ecto.UUID.generate())
+    d2 = insert(:dataset, datagouv_id: _datagouv_id_2 = Ecto.UUID.generate())
+
+    reuse1 = insert(:reuse, datasets: [d1], last_modified: ~U[2025-06-01 12:00:00Z])
+    reuse2 = insert(:reuse, datasets: [d1], last_modified: ~U[2025-07-15 09:30:00Z])
+    insert(:reuse, datasets: [d2], last_modified: ~U[2025-08-20 18:00:00Z])
+
+    result = DB.Reuse.by_dataset_datagouv_id(datagouv_id_1)
+
+    assert length(result) == 2
+    ids = Enum.map(result, & &1.datagouv_id)
+    assert reuse1.datagouv_id in ids
+    assert reuse2.datagouv_id in ids
+
+    # All expected fields are present
+    [
+      %{
+        title: t,
+        slug: s,
+        remote_url: _ru,
+        description: desc,
+        image: _img,
+        organization: org,
+        owner: ow,
+        last_modified: lm
+      }
+      | _
+    ] = result
+
+    assert is_binary(t) and is_binary(s) and is_binary(desc)
+    assert is_struct(lm, DateTime)
+    # Organization/owner are set by the factory
+    assert is_binary(org) or is_nil(org)
+    assert is_binary(ow) or is_map(ow) or is_nil(ow)
+  end
+
+  test "by_dataset_datagouv_id returns empty list for unknown dataset" do
+    assert [] == DB.Reuse.by_dataset_datagouv_id(Ecto.UUID.generate())
+  end
+
   test "search" do
     d1 = insert(:dataset, type: "public-transit")
     d2 = insert(:dataset, type: "private-parking")

@@ -53,7 +53,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
         [
           msgs.success[form_params["action"]],
           ". ",
-          Phoenix.HTML.Link.link(
+          PhoenixHTMLHelpers.Link.link(
             dgettext("backoffice_dataset", "Check the dataset page"),
             to: dataset_path(conn, :details, dataset_datagouv_id)
           )

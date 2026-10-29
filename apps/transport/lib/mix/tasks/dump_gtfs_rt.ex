@@ -5,7 +5,6 @@ defmodule Mix.Tasks.Decode.GtfsRt do
   A simple task to download a GTFS-RT feed, parse it (as protobuf) and dump it on screen as Elixir structures.
   """
 
-  require Logger
   use Mix.Task
 
   def run([url]) do

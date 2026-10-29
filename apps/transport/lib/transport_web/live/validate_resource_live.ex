@@ -28,9 +28,8 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   * `@uploaded_filename`: The original name of the client-side file.
   * `@uploaded_path`: The temporary path of the file on the server.
   """
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   use TransportWeb.InputHelpers
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 

@@ -225,7 +225,7 @@ defmodule Transport.Validators.GTFSTransport do
   iex> count_max_severity(%{})
   %{"max_level" => "NoError", "worst_occurrences" => 0}
   """
-  @spec count_max_severity(map()) :: {binary(), integer()}
+  @spec count_max_severity(map()) :: %{binary() => binary() | non_neg_integer()}
   def count_max_severity(validation_result) when validation_result == %{} do
     %{"max_level" => @no_error, "worst_occurrences" => 0}
   end

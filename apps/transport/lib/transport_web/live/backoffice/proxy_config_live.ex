@@ -2,11 +2,9 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   @moduledoc """
   A view able to display the current running configuration of the proxy.
   """
-  use Phoenix.LiveView
-  use TransportWeb.InputHelpers
+  use TransportWeb, :live_view
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.InputHelpers
   import TransportWeb.Router.Helpers
 
   # The number of past days we want to report on (as a positive integer).
@@ -94,7 +92,12 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
     filtered_proxy_configuration =
       proxy_configuration |> filter_by_type(type) |> filter_by_search(search) |> filter_by_disk(disk)
 
-    socket |> assign(%{filtered_proxy_configuration: filtered_proxy_configuration})
+    socket
+    |> assign(%{
+      filtered_proxy_configuration: filtered_proxy_configuration,
+      nb_hidden_feeds: Enum.count(proxy_configuration) - Enum.count(filtered_proxy_configuration),
+      form: to_form(%{"search" => search, "type" => type, "disk" => disk})
+    })
   end
 
   defp filter_by_type(config, ""), do: config

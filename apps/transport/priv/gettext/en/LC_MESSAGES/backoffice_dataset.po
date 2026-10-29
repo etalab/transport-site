@@ -55,8 +55,8 @@ msgstr ""
 msgid "Validated"
 msgstr ""
 
-#, elixir-autogen, elixir-format
-msgid "Validating"
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Validation in progress…"
 msgstr ""
 
 #, elixir-autogen, elixir-format

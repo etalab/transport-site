@@ -1,6 +1,5 @@
 defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
-  use Phoenix.LiveView
-  use Phoenix.HTML
+  use TransportWeb, :live_view
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import Ecto.Query
   import TransportWeb.Router.Helpers

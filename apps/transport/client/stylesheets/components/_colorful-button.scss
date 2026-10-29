@@ -5,8 +5,10 @@
  * Defaults to blue.
  *
  * Variant classes:
- * - `.valid`: green
- * - `.invalid`: red
+ * - `.variant-valid`: green
+ * - `.variant-error`: red
+ * - `.variant-warning`: orange
+ * - `.variant-information`: blue
  * - `.striped`: striped background, doesn't change the color
  * - `.selected`: highlighted button, white content and colored background, typically used for active page
  */
@@ -55,12 +57,20 @@ a.colorful, button.colorful {
     }
   }
 
-  &.valid {
+  &.variant-valid {
     --taint: var(--green);
   }
 
-  &.invalid {
+  &.variant-error {
     --taint: var(--red);
+  }
+
+  &.variant-warning {
+    --taint: var(--orange);
+  }
+
+  &.variant-information {
+    --taint: var(--dark-blue);
   }
 
   &.striped {

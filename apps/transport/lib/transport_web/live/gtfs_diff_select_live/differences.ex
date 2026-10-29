@@ -2,8 +2,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
   @moduledoc """
   Differences of the selected file.
   """
-  use Phoenix.Component
-  use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :html
   import TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification
   import TransportWeb.MarkdownHandler, only: [markdown_to_safe_html!: 1]
 
@@ -242,7 +241,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Differences do
     ~H"""
     <h6>{translate_explanation_type(@file, @explanation_type)} ({length(@explanations)})</h6>
     <p :if={translate_explanation_details(@file, @explanation_type)}>
-      {translate_explanation_details(@file, @explanation_type) |> Enum.intersperse("\n\n") |> markdown_to_safe_html!()}
+      {translate_explanation_details(@file, @explanation_type) |> Enum.join("\n\n") |> markdown_to_safe_html!()}
     </p>
     <div class="scrollable-table">
       <table class="table">

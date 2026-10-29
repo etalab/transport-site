@@ -2,9 +2,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   @moduledoc """
   A quick dashboard for jobs.
   """
-  use Gettext, backend: TransportWeb.Gettext
-  use Phoenix.LiveView
-  use Phoenix.HTML
+  use TransportWeb, :live_view
   import Ecto.Query
   import TransportWeb.Router.Helpers
 
@@ -28,7 +26,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
      ensure_admin_auth_or_redirect(socket, current_user, fn socket ->
        if connected?(socket), do: schedule_next_update_data()
 
-       socket |> assign(state) |> update_data()
+       socket |> assign(state) |> assign_form() |> update_data()
      end)}
   end
 
@@ -167,7 +165,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   def handle_params(params, _uri, socket) do
     update = extract_params(params)
 
-    socket = socket |> assign(update)
+    socket = socket |> assign(update) |> assign_form()
 
     {:noreply, update_data(socket)}
   end
@@ -226,6 +224,11 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
 
   defp format_time(dt) do
     Shared.DateTimeDisplay.format_time_to_paris(dt, "en", no_timezone: true)
+  end
+
+  defp assign_form(socket) do
+    filters = Map.new([:worker, :listing | @states], &{to_string(&1), socket.assigns[&1]})
+    assign(socket, form: to_form(filters))
   end
 
   defp extract_params(params) do

@@ -22,7 +22,7 @@
         </p>
 
         <blockquote lang="en">
-          {Regex.replace(~r/([^\n])\n([^\n])/, rule["description"] || "", "\\1 \\2") |> markdown()}
+          {rule["description"] |> markdown()}
         </blockquote>
 
         <%= unless Enum.empty?(get_in(rule, ["references", "fileReferences"]) || []) do %>

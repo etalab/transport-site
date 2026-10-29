@@ -18,28 +18,24 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   # Following functions are all delegated to V0_2_1
 
-  @spec get_max_severity_error(map()) :: binary()
-  defdelegate get_max_severity_error(validation_result), to: Previous
+  defdelegate get_max_severity_error(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_max_severity(validation_result), to: Previous
+  defdelegate count_max_severity(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate no_error?(severity), to: Previous
 
-  @spec severity_level(binary()) :: integer()
   defdelegate severity_level(key), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate format_severity(key, count), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate count_by_severity(validation_result), to: Previous
-
-  defdelegate index_messages(messages), to: Previous
+  defdelegate count_by_severity(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summary(validation_result), to: Previous
+  defdelegate summary(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate issue_type(list), to: Previous
@@ -51,17 +47,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_2 do
 
   defdelegate pick_default_category(df, categories_preferred_order), to: Previous
 
-  defdelegate order_issues_by_location(issues), to: Previous
-
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate digest(validation_result), to: Previous
+  defdelegate digest(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
   defdelegate to_dataframe(errors), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate to_binary_result(result), to: Previous
+  defdelegate to_binary_result(df), to: Previous
 
   @impl Transport.Validators.NeTEx.ResultsAdapter
-  defdelegate summarize_xsd_errors(binary_result), to: Previous
+  defdelegate summarize_xsd_errors(df), to: Previous
+
+  @impl Transport.Validators.NeTEx.ResultsAdapter
+  defdelegate from_binary(binary), to: Previous
 end

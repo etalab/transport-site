@@ -4,6 +4,8 @@ defmodule Transport.IRVE.Processing do
   and preprocess (to some extent) a raw CSV binary body.
   """
 
+  require Explorer.DataFrame
+
   @doc """
   Prepares the DataFrame without any type casting, all columns remain strings.
   This is useful for validation purposes.
@@ -23,15 +25,18 @@ defmodule Transport.IRVE.Processing do
   Casts an uncasted (all-strings) validated DataFrame — the output of
   `read_as_uncasted_data_frame/1` enriched with validation columns — to a typed, insert-ready frame.
 
+  Coordinates are already parsed and corrected during validation (`longitude`/`latitude` +
+  `warning_lon_lat_inverted`); here we just derive `consolidated_is_lon_lat_correct` from that
+  warning and cast the remaining schema columns.
+
   Only fully-valid frames are expected here (whole-file gate): every value is castable by
   construction. A cast failure means the validator and this cast disagree, which is a bug —
   we let it raise.
   """
   def cast_validated_frame(dataframe) do
     dataframe
+    |> Explorer.DataFrame.mutate(consolidated_is_lon_lat_correct: not warning_lon_lat_inverted)
     |> cast_to_schema_dtypes()
-    |> preprocess_coordinates()
-    |> Transport.IRVE.CoordinateCorrection.detect_and_correct()
     |> select_fields()
   end
 

@@ -11,14 +11,12 @@ defmodule Transport.MixProject do
         #  - hackney: fixed only in 4.x (major release adding HTTP/2/3), needs a dedicated upgrade PR
         #    (hackney is used directly and as httpoison/tesla adapter).
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
-        #  - earmark: unmaintained/retired, the stored-XSS won't be fixed upstream — migrate to MDEx.
-        #    Untrusted markdown is already sanitized via HtmlSanitizeEx, so the real risk is low.
         #  - decimal: DoS fixed only in decimal 3.x (no 2.x backport). Resolution to 3.x does succeed,
         #    but it requires bumping ecto, explorer and the whole ex_cldr family together, and
         #    explorer 0.12 breaks Transport.IRVE.Deduplicator (mutate_with/3 shape mismatch).
         #    https://github.com/etalab/transport-site/issues/5579
-        #  - cowlib: CRLF-injection advisories (EEF-CVE-2026-43966, EEF-CVE-2026-43969) are now fixed
-        #    by upgrading cowlib to 2.19.0+ (shipped with cowboy 2.18.0+).
+        #  - cowlib: CRLF-injection advisories (EEF-CVE-2026-43966, EEF-CVE-2026-43969) have no fixed
+        #    version listed on OSV, so they keep being reported on every cowlib release.
         #    https://github.com/ninenines/cowlib/issues/152
         #  - req: both fixes land in the 0.6 series, which we deliberately stay off for now.
         #    https://github.com/etalab/transport-site/issues/5570
@@ -33,19 +31,15 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-47071",
           "EEF-CVE-2026-47075",
           "EEF-CVE-2026-47076",
-          # earmark stored XSS (migrate to MDEx)
-          "EEF-CVE-2026-48591",
           # decimal DoS (fix is 3.x, held back by an explorer 0.12 regression — see above)
           "EEF-CVE-2026-32686",
-          # cowlib CRLF-injection (no fix yet in 2.19.x)
+          # cowlib CRLF-injection (no fixed version on OSV)
           "EEF-CVE-2026-43966",
           "EEF-CVE-2026-43969",
           # req multipart injection (not applicable) & decompression bomb (fixes need 0.6)
           "EEF-CVE-2026-49756",
           "EEF-CVE-2026-49755"
-        ],
-        # earmark is retired (unmaintained); acknowledged until the MDEx migration above.
-        ignore_retirements: [:earmark]
+        ]
       ],
       deps: deps(),
       aliases: aliases(Mix.env()),
@@ -70,9 +64,9 @@ defmodule Transport.MixProject do
       {:saxy, "~> 1.5"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
-      {:ecto_erd, "~> 0.6.0", only: [:dev]},
-      {:cowboy, "~> 2.18.0"},
-      {:cowlib, "~> 2.19.0"}
+      {:ecto_erd, "~> 0.8.0", only: [:dev]},
+      {:cowboy, "~> 2.19.0"},
+      {:cowlib, "~> 2.20.0"}
     ]
   end
 

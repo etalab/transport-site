@@ -53,7 +53,7 @@ defmodule Transport.Jobs.GenericConverter do
   defp resource_of_format?(expected_format, %{payload: %{"format" => format}}), do: to_string(expected_format) == format
   defp resource_of_format?(_, _), do: false
 
-  @spec conversion_exists?(DB.ResourceHistory.t() | nil, binary(), binary(), module()) :: boolean
+  @spec conversion_exists?(DB.ResourceHistory.t() | nil, :GTFS | :NeTEx, binary(), module()) :: boolean
   @doc """
   Checks if a conversion already exists for a `DB.ResourceHistory` and a target format.
   """
@@ -78,7 +78,7 @@ defmodule Transport.Jobs.GenericConverter do
   @doc """
   Converts a resource_history to the targeted format, using a converter module
   """
-  @spec perform_single_conversion_job(integer(), binary(), binary(), module()) :: :ok
+  @spec perform_single_conversion_job(integer(), :GTFS | :NeTEx, binary(), module()) :: :ok | {:cancel, binary()}
   def perform_single_conversion_job(resource_history_id, source_format, target_format, converter_module)
       when target_format in @allowed_formats do
     resource_history = ResourceHistory |> Repo.get(resource_history_id)
@@ -187,7 +187,21 @@ defmodule Transport.Jobs.GenericConverter do
   end
 
   defp conversion_file_name(resource_name, source_format, target_format),
-    do: "conversions/#{source_format}-to-#{target_format}/#{resource_name}.#{target_format}"
+    do:
+      "conversions/#{source_format}-to-#{target_format}/#{maybe_sanitize_filename(resource_name, target_format)}.#{target_format}"
+
+  @doc false
+  def maybe_sanitize_filename(name, "geojson") do
+    name
+    |> String.replace(".zip", "")
+    |> String.split(".")
+    |> case do
+      [part] -> part
+      parts -> Enum.join(Enum.drop(parts, -1), "_") <> "." <> List.last(parts)
+    end
+  end
+
+  def maybe_sanitize_filename(name, _), do: name
 
   defp add_zip_extension(path, true = _zip_conversion?), do: "#{path}.zip"
   defp add_zip_extension(path, _), do: path

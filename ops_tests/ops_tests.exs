@@ -3,7 +3,7 @@
 ExUnit.start()
 
 Mix.install([
-  {:req, "~> 0.5.16"},
+  {:req, "~> 0.6.3"},
   {:dns, "~> 2.4.0"}
 ])
 
@@ -45,6 +45,17 @@ defmodule Transport.OpsTests do
 
   test "redirects HTTP to HTTPS" do
     assert_redirect(from: "http://#{@domain_name}", to: "https://#{@domain_name}/")
+  end
+
+  test "HSTS header" do
+    response = Req.get!("https://#{@domain_name}", redirect: false)
+    assert ["max-age=" <> _] = Req.Response.get_header(response, "strict-transport-security")
+  end
+
+  test "Secure session cookie" do
+    response = Req.get!("https://#{@domain_name}", redirect: false)
+    assert [cookie] = Req.Response.get_header(response, "set-cookie") |> Enum.filter(&(&1 =~ "_transport_key="))
+    assert cookie =~ ~r/;\s*secure/i
   end
 
   describe "Check DNS records" do

@@ -1,121 +1,17 @@
 defmodule TransportWeb.PaginationHelpersTest do
-  use TransportWeb.ConnCase, async: false
-  import DB.Factory
+  use ExUnit.Case, async: true
 
-  import TransportWeb.PaginationHelpers
+  test "page and page size" do
+    assert %Scrivener.Config{page_number: 3, page_size: 20} =
+             TransportWeb.PaginationHelpers.make_pagination_config(%{"page" => "3"})
 
-  setup do
-    Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
+    assert %Scrivener.Config{page_number: 1, page_size: 10} =
+             TransportWeb.PaginationHelpers.make_pagination_config(%{"page_size" => "1000"}, 10)
   end
 
-  describe "pagination_links" do
-    test "simple links" do
-      assert test_pagination(1, %{}) == []
-      assert test_pagination(1, %{"page" => "1"}) == []
-
-      test_pagination(2, %{})
-      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2"}, {">>", "/datasets?page=2"}])
-
-      test_pagination(2, %{"page" => "1"})
-      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2"}, {">>", "/datasets?page=2"}])
-
-      test_pagination(2, %{"page" => "2"})
-      |> assert_has_pages([{"<<", "/datasets"}, {"1", "/datasets"}, {"2", nil}])
-
-      test_pagination(5, %{"format" => "NeTEx", "page" => "3"})
-      |> assert_has_pages([
-        {"<<", "/datasets?format=NeTEx&page=2"},
-        {"1", "/datasets?format=NeTEx"},
-        {"2", "/datasets?format=NeTEx&page=2"},
-        {"3", nil},
-        {"4", "/datasets?format=NeTEx&page=4"},
-        {"5", "/datasets?format=NeTEx&page=5"},
-        {">>", "/datasets?format=NeTEx&page=4"}
-      ])
+  test "invalid pages fall back to 1" do
+    for page <- ["0", "-3", "abc", "", "1000001", String.duplicate("9", 40), ["1"], %{"a" => "1"}] do
+      assert TransportWeb.PaginationHelpers.make_pagination_config(%{"page" => page}).page_number == 1
     end
-
-    test "custom path" do
-      opts = [path: &custom_path/3]
-
-      test_pagination(2, %{}, opts)
-      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2#list"}, {">>", "/datasets?page=2#list"}])
-
-      test_pagination(2, %{"page" => "1"}, opts)
-      |> assert_has_pages([{"1", nil}, {"2", "/datasets?page=2#list"}, {">>", "/datasets?page=2#list"}])
-
-      test_pagination(2, %{"page" => "2"}, opts)
-      |> assert_has_pages([{"<<", "/datasets#list"}, {"1", "/datasets#list"}, {"2", nil}])
-
-      test_pagination(5, %{"page" => "3"}, [format: "NeTEx"] ++ opts)
-      |> assert_has_pages([
-        {"<<", "/datasets?format=NeTEx&page=2#list"},
-        {"1", "/datasets?format=NeTEx#list"},
-        {"2", "/datasets?format=NeTEx&page=2#list"},
-        {"3", nil},
-        {"4", "/datasets?format=NeTEx&page=4#list"},
-        {"5", "/datasets?format=NeTEx&page=5#list"},
-        {">>", "/datasets?format=NeTEx&page=4#list"}
-      ])
-    end
-  end
-
-  defp custom_path(conn, action, params) do
-    dataset_path(conn, action, params) <> "#list"
-  end
-
-  defp test_pagination(n_pages, params) do
-    {conn, pagination} = setup_pagination(n_pages, params)
-
-    conn
-    |> pagination_links(pagination)
-    |> Phoenix.HTML.safe_to_string()
-    |> Floki.parse_document!()
-  end
-
-  defp test_pagination(n_pages, params, opts) do
-    {conn, pagination} = setup_pagination(n_pages, params)
-
-    conn
-    |> pagination_links(pagination, opts)
-    |> Phoenix.HTML.safe_to_string()
-    |> Floki.parse_document!()
-    |> assert_has_aria_label()
-  end
-
-  defp assert_has_aria_label(doc) do
-    assert [{"nav", [{"aria-label", _}], _}] = doc
-
-    doc
-  end
-
-  defp assert_has_pages(doc, links) do
-    assert links == doc |> Floki.find("a") |> Enum.map(&extract_link/1)
-
-    doc
-  end
-
-  defp extract_link(link) do
-    href =
-      case Floki.attribute(link, "href") do
-        [href] -> href
-        _ -> nil
-      end
-
-    {Floki.text(link), href}
-  end
-
-  defp setup_pagination(n_pages, params) do
-    page_size = make_pagination_config(%{}).page_size
-
-    conn = build_conn(:get, "/", params)
-
-    datasets =
-      for _n <- 1..(page_size * n_pages) do
-        insert(:dataset)
-      end
-
-    pagination = Scrivener.paginate(datasets, make_pagination_config(params))
-
-    {conn, pagination}
   end
 end

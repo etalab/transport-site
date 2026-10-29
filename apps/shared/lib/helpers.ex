@@ -2,7 +2,6 @@ defmodule Helpers do
   @moduledoc """
   Helper functions that are used accross the whole project
   """
-  require Logger
 
   @doc """
   Gets the filename part of an url

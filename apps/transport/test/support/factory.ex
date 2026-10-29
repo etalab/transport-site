@@ -555,6 +555,47 @@ defmodule DB.Factory do
     }
   end
 
+  def irve_valid_file_factory do
+    %DB.IRVEValidFile{
+      datagouv_dataset_id: sequence(:datagouv_dataset_id, &"dataset-#{&1}"),
+      datagouv_resource_id: sequence(:datagouv_resource_id, &"resource-#{&1}"),
+      checksum: sequence(:checksum, &"checksum-#{&1}"),
+      dataset_title: "IRVE dataset title",
+      datagouv_organization_or_owner: "IRVE org"
+    }
+  end
+
+  def irve_valid_pdc_factory do
+    %DB.IRVEValidPDC{
+      irve_valid_file: build(:irve_valid_file),
+      contact_operateur: "operateur@example.com",
+      nom_enseigne: "Réseau de recharge",
+      id_station_itinerance: "FRPAN99P12345678",
+      nom_station: "Ma Station",
+      implantation_station: "Voirie",
+      adresse_station: "26 rue des écluses, 17430 Champdolent",
+      nbre_pdc: 1,
+      id_pdc_itinerance: sequence(:id_pdc_itinerance, &"FRPAN99E#{&1}"),
+      puissance_nominale: 22.0,
+      prise_type_ef: false,
+      prise_type_2: true,
+      prise_type_combo_ccs: false,
+      prise_type_chademo: false,
+      prise_type_autre: false,
+      paiement_acte: true,
+      condition_acces: "Accès libre",
+      reservation: false,
+      horaires: "24/7",
+      accessibilite_pmr: "Accessible mais non réservé PMR",
+      restriction_gabarit: "Hauteur maximale 2.30m",
+      station_deux_roues: false,
+      date_maj: ~D[2024-10-17],
+      longitude: Decimal.new("-0.799141"),
+      latitude: Decimal.new("45.91914"),
+      consolidated_is_lon_lat_correct: true
+    }
+  end
+
   defmodule IRVE do
     @moduledoc """
     Factory part relevant to IRVE.

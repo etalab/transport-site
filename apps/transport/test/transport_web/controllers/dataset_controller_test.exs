@@ -13,7 +13,6 @@ defmodule TransportWeb.DatasetControllerTest do
   setup :verify_on_exit!
 
   setup do
-    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
     Mox.stub_with(Datagouvfr.Client.Datasets.Mock, Datagouvfr.Client.Datasets.External)
@@ -40,7 +39,6 @@ defmodule TransportWeb.DatasetControllerTest do
     mock_empty_history_resources()
 
     with_mocks [
-      {Datagouvfr.Client.Reuses, [], [get: fn _dataset -> {:ok, []} end]},
       {Datagouvfr.Client.Discussions, [], [get: fn _id -> nil end]}
     ] do
       html_response = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
@@ -331,10 +329,11 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-    assert conn |> html_response(200) |> extract_resource_details() =~ "1 information"
+    content = get_resource_details(conn, dataset.slug)
+
+    assert content =~ "1 information"
     # Dataset modes are not displayed
-    refute conn |> html_response(200) |> extract_resource_details() =~ "ferry"
+    refute content =~ "ferry"
   end
 
   test "show number of errors for a GBFS", %{conn: conn} do
@@ -357,10 +356,10 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    content = conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200)
+    content = get_resource_details(conn, dataset.slug)
 
-    assert content |> extract_resource_details() =~ "1 erreur"
-    assert content |> extract_resource_details() =~ "60s"
+    assert content =~ "1 erreur"
+    assert content =~ "60s"
   end
 
   test "show number of errors when validated with the MobilityData validator", %{conn: conn} do
@@ -393,8 +392,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    content =
-      conn |> get(dataset_path(conn, :details, dataset.slug)) |> html_response(200) |> extract_resource_details()
+    content = get_resource_details(conn, dataset.slug)
 
     assert content =~ "1 erreur"
     assert content =~ "01/12/2025"
@@ -418,9 +416,9 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    content = get_resource_details(conn, dataset.slug)
 
-    assert conn |> html_response(200) |> extract_resource_details() =~ "Pas d'erreur"
+    assert content =~ "Pas d'erreur"
   end
 
   test "displays MobilityData if validated by both GTFS validators", %{conn: conn} do
@@ -459,9 +457,9 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, dataset.slug))
+    content = get_resource_details(conn, dataset.slug)
 
-    assert conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+    assert content =~ "1 erreur"
   end
 
   test "GTFS-Flex validation with the MobilityData validator, with empty dates", %{conn: conn} do
@@ -529,46 +527,30 @@ defmodule TransportWeb.DatasetControllerTest do
   end
 
   test "show NeTEx number of errors", %{conn: conn} do
-    issues = [%{"criticity" => "error"}]
+    for version <- NeTExTestData.all_versions() do
+      dataset = setup_netex_with_validation_result(NeTExTestData.category_stats_result(version), version)
 
-    for version <- ["0.1.0", "0.2.0", "0.2.1"] do
-      dataset = insert(:dataset)
+      content = get_resource_details(conn, dataset.slug)
 
-      resource = insert(:resource, title: "NeTEx.zip", dataset: dataset, format: "NeTEx", url: "url")
-
-      resource_history = insert(:resource_history, resource: resource)
-
-      result =
-        case version do
-          "0.1.0" -> %{"xsd-1871" => issues}
-          _ -> %{"xsd-schema" => issues}
-        end
-
-      results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-
-      digest = results_adapter.digest(result)
-
-      insert(:multi_validation,
-        resource_history: resource_history,
-        validator: Transport.Validators.NeTEx.Validator.validator_name(),
-        validator_version: version,
-        result: result,
-        digest: digest,
-        metadata: %DB.ResourceMetadata{
-          metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},
-          modes: [],
-          features: []
-        }
-      )
-
-      mock_empty_history_resources()
-
-      conn = conn |> get(dataset_path(conn, :details, dataset.slug))
-      content = conn |> html_response(200) |> extract_resource_details()
-      assert content =~ "1 erreur"
       assert content =~ "01/12/2025"
       assert content =~ "31/12/2025"
       assert content =~ "Périmé"
+
+      assert content =~ "1 erreur"
+    end
+  end
+
+  test "show NeTEx number of warnings if no error", %{conn: conn} do
+    for version <- NeTExTestData.all_versions() do
+      dataset = setup_netex_with_validation_result(NeTExTestData.warnings_only(version), version)
+
+      content = get_resource_details(conn, dataset.slug)
+
+      assert content =~ "01/12/2025"
+      assert content =~ "31/12/2025"
+      assert content =~ "Périmé"
+
+      assert content =~ "2 avertissements"
     end
   end
 
@@ -581,8 +563,9 @@ defmodule TransportWeb.DatasetControllerTest do
 
     mock_empty_history_resources()
 
-    conn = conn |> get(dataset_path(conn, :details, slug))
-    refute conn |> html_response(200) |> extract_resource_details() =~ "1 erreur"
+    content = get_resource_details(conn, slug)
+
+    refute content =~ "1 erreur"
   end
 
   test "GTFS-RT without validation", %{conn: conn} do
@@ -1496,10 +1479,50 @@ defmodule TransportWeb.DatasetControllerTest do
     assert content =~ text
   end
 
+  defp get_resource_details(conn, dataset_slug) do
+    path = dataset_path(conn, :details, dataset_slug)
+
+    conn |> get(path) |> html_response(200) |> extract_resource_details()
+  end
+
   defp extract_resource_details(html) do
     html
     |> Floki.parse_document!()
     |> Floki.find("section#dataset-resources div.ressources-list div.resource")
     |> Floki.text()
+  end
+
+  defp setup_netex_with_validation_result(validator_result, version) do
+    dataset = insert(:dataset)
+
+    resource = insert(:resource, title: "NeTEx.zip", dataset: dataset, format: "NeTEx", url: "url")
+
+    resource_history = insert(:resource_history, resource: resource)
+
+    results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
+
+    digest =
+      validator_result
+      |> Map.values()
+      |> List.flatten()
+      |> results_adapter.to_dataframe()
+      |> results_adapter.digest()
+
+    insert(:multi_validation,
+      resource_history: resource_history,
+      validator: Transport.Validators.NeTEx.Validator.validator_name(),
+      validator_version: version,
+      result: validator_result,
+      digest: digest,
+      metadata: %DB.ResourceMetadata{
+        metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},
+        modes: [],
+        features: []
+      }
+    )
+
+    mock_empty_history_resources()
+
+    dataset
   end
 end

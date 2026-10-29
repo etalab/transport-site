@@ -1,21 +1,20 @@
 defmodule TransportWeb.LegalOwnerSelectLive do
-  use Phoenix.LiveComponent
-  alias TransportWeb.InputHelpers
+  use TransportWeb, :live_component
   import Ecto.Query
 
   def render(assigns) do
     ~H"""
     <div class="pt-24">
-      <label>
-        Une/des AOM locale(s) ou régionale(s) {InputHelpers.text_input(@form, :legal_owner_input,
-          placeholder: "CC du Val de Morteau",
-          list: "owner_suggestions",
-          phx_keydown: "add_tag",
-          phx_change: "change",
-          phx_target: @myself,
-          id: "js-owner-input"
-        )}
-      </label>
+      <.input
+        field={@form[:legal_owner_input]}
+        placeholder="CC du Val de Morteau"
+        list="owner_suggestions"
+        phx-keydown="add_tag"
+        phx-change="change"
+        phx-target={@myself}
+        id="js-owner-input"
+        label="Une/des AOM locale(s) ou régionale(s)"
+      />
       <datalist id="owner_suggestions" phx-keydown="add_tag">
         <%= for owner_suggestion <- @owners_list do %>
           <option value={owner_label(owner_suggestion)}>{owner_label(owner_suggestion)}</option>
@@ -34,8 +33,7 @@ defmodule TransportWeb.LegalOwnerSelectLive do
             >
             </span>
           </span>
-          <% {field_name, field_value} = field_info(owner, index) %>
-          {Phoenix.HTML.Form.hidden_input(@form, field_name, value: field_value)}
+          <.input field={@form["legal_owners_#{owner.type}[#{index}]"]} type="hidden" value={owner.id} />
         <% end %>
       </div>
     </div>
@@ -94,10 +92,6 @@ defmodule TransportWeb.LegalOwnerSelectLive do
   # clear the input using a js hook
   def clear_input(socket) do
     push_event(socket, "backoffice-form-owner-reset", %{})
-  end
-
-  def field_info(owner, index) do
-    {"legal_owners_#{owner.type}[#{index}]", owner.id}
   end
 
   def owner_label(%{label: label, type: type}) do

@@ -61,6 +61,67 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
     end
   end
 
+  describe "publication timestamp" do
+    test "extracts publication date from single file" do
+      content = """
+        <PublicationDelivery xmlns="http://www.netex.org.uk/netex">
+          <PublicationTimestamp>2025-07-29T09:34:55Z</PublicationTimestamp>
+          <ParticipantRef>DIGO</ParticipantRef>
+        </PublicationDelivery>
+      """
+
+      ZipCreator.with_tmp_zip([{"resource.xml", content}], fn filepath ->
+        result = MetadataExtractor.extract(filepath)
+        assert result["publication_date"] == "2025-07-29"
+      end)
+    end
+
+    test "extracts earliest publication date from multiple files" do
+      file1 = """
+        <PublicationDelivery xmlns="http://www.netex.org.uk/netex">
+          <PublicationTimestamp>2025-08-15T09:34:55Z</PublicationTimestamp>
+        </PublicationDelivery>
+      """
+
+      file2 = """
+        <PublicationDelivery xmlns="http://www.netex.org.uk/netex">
+          <PublicationTimestamp>2025-07-01T09:34:55Z</PublicationTimestamp>
+        </PublicationDelivery>
+      """
+
+      ZipCreator.with_tmp_zip([{"file1.xml", file1}, {"file2.xml", file2}], fn filepath ->
+        result = MetadataExtractor.extract(filepath)
+        assert result["publication_date"] == "2025-07-01"
+      end)
+    end
+
+    test "returns no publication_date when no timestamp in archive" do
+      content = """
+        <PublicationDelivery xmlns="http://www.netex.org.uk/netex">
+          <ParticipantRef>DIGO</ParticipantRef>
+        </PublicationDelivery>
+      """
+
+      ZipCreator.with_tmp_zip([{"resource.xml", content}], fn filepath ->
+        result = MetadataExtractor.extract(filepath)
+        refute Map.has_key?(result, "publication_date")
+      end)
+    end
+
+    test "ignores invalid publication timestamps" do
+      content = """
+        <PublicationDelivery xmlns="http://www.netex.org.uk/netex">
+          <PublicationTimestamp>not-a-date</PublicationTimestamp>
+        </PublicationDelivery>
+      """
+
+      ZipCreator.with_tmp_zip([{"resource.xml", content}], fn filepath ->
+        result = MetadataExtractor.extract(filepath)
+        refute Map.has_key?(result, "publication_date")
+      end)
+    end
+  end
+
   describe "validity dates" do
     test "simple NeTEx archive" do
       calendar_content = """
@@ -82,6 +143,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
         assert %{
                  "start_date" => "2025-07-05",
                  "end_date" => "2025-08-31",
+                 "publication_date" => "2025-07-29",
                  "networks" => [],
                  "modes" => [],
                  "stats" => %{
@@ -187,6 +249,7 @@ defmodule Transport.Validators.NeTEx.MetadataExtractorTest do
       ZipCreator.with_tmp_zip([{"network.xml", multiple_networks}] |> in_sub_directory(), fn filepath ->
         assert %{
                  "no_validity_dates" => true,
+                 "publication_date" => "2026-02-02",
                  "networks" => ["Réseau Urbain", "Réseau Régional"],
                  "modes" => ["bus", "ferry"],
                  "stats" => %{

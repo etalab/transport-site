@@ -7,7 +7,6 @@ defmodule DB.Resource do
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
   import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3, resource_url: 4]
-  require Logger
 
   typed_schema "resource" do
     # The resource's real URL
@@ -121,7 +120,7 @@ defmodule DB.Resource do
     |> no_schema_name_for_public_transport()
   end
 
-  @spec gtfs?(__MODULE__.t()) :: boolean()
+  @spec gtfs?(__MODULE__.t() | nil) :: boolean()
   def gtfs?(%__MODULE__{format: "GTFS"}), do: true
   def gtfs?(_), do: false
 
@@ -129,7 +128,7 @@ defmodule DB.Resource do
   def gbfs?(%__MODULE__{format: "gbfs"}), do: true
   def gbfs?(_), do: false
 
-  @spec netex?(__MODULE__.t()) :: boolean
+  @spec netex?(__MODULE__.t() | nil) :: boolean
   def netex?(%__MODULE__{format: "NeTEx"}), do: true
   def netex?(_), do: false
 

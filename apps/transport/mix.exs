@@ -55,15 +55,12 @@ defmodule Transport.Mixfile do
   defp deps do
     [
       {:csv, "~> 3.0"},
-      {:earmark, "~> 1.4"},
+      {:mdex, "~> 0.13"},
       {:gettext, "~> 0.11"},
       {:httpoison, "~> 2.1"},
       {:phoenix, "~> 1.8.3"},
-      {:phoenix_html, "~> 3.1"},
-      # Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
-      {:phoenix_markdown,
-       git: "https://github.com/pzingg/phoenix_markdown.git",
-       ref: "b2e5ff67c9ce9160d7ef1f66d0c859dfa6284a53"},
+      {:phoenix_html, "~> 4.3"},
+      {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_view, "~> 1.1.19"},
       {:html_sanitize_ex, "~> 1.4"},
       {:floki, ">= 0.0.0"},
@@ -77,12 +74,6 @@ defmodule Transport.Mixfile do
       {:yaml_elixir, "~> 2.7"},
       {:cachex, "~> 4.1"},
       {:saxy, "~> 1.5"},
-      # `scrivener_html` seems to be unmaintained!
-      # - Compilation issue for this dependency, see https://github.com/etalab/transport-site/issues/3499
-      # - was not updated to support Phoenix 1.7
-      {:scrivener_html,
-       git: "https://github.com/transportdatagouvfr/scrivener_html.git",
-       ref: "d6ac5ac4c0c94fc871a42817817b6d5c7b5d6b0c"},
       {:scrivener_list, "~>2.0"},
       {:jason, "~> 1.1"},
       {:open_api_spex, "~> 3.8"},
@@ -128,12 +119,15 @@ defmodule Transport.Mixfile do
       {:typed_ecto_schema, ">= 0.1.1"},
       {:ymlr, "~> 5.0"},
       {:ex_machina, "~> 2.4", only: :test},
+      # 1.3.0 crashes on nil hashed fields (SHA256.equal?/2), fix merged upstream but unreleased:
+      # https://github.com/danielberkompas/cloak_ecto/issues/53
+      # https://github.com/danielberkompas/cloak_ecto/issues/64
       {:cloak_ecto, "~> 1.2.0"},
       {:phoenix_live_dashboard, "~> 0.8"},
       {:ecto_psql_extras, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:telemetry_metrics, "~> 1.0"},
-      {:luhn, "~> 0.3.0"},
+      {:luhn, "~> 0.4"},
       {:ex_phone_number, "~> 0.3"},
       {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.8.1"},

@@ -58,10 +58,6 @@ secret_key_base = "lrS928IORjEwtIIdxjRZ30I8PUR4rbXorGCfmA4nbX2Jkgjl7U9rpcz6QjjH1
 
 config :transport, TransportWeb.Endpoint,
   secret_key_base: secret_key_base,
-  live_view: [
-    # NOTE: unsure if this is actually great to reuse the same value
-    signing_salt: secret_key_base
-  ],
   export_secret_key: System.get_env("EXPORT_SECRET_KEY", "TwqrkD06AWp1uKGcBTck")
 
 datagouvfr_site = "https://demo.data.gouv.fr"

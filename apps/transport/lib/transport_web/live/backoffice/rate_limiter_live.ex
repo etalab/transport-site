@@ -1,5 +1,5 @@
 defmodule TransportWeb.Backoffice.RateLimiterLive do
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import Helpers, only: [format_number: 1]
 

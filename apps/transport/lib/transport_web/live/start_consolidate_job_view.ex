@@ -1,6 +1,6 @@
 defmodule TransportWeb.Live.SendConsolidateJobView do
   # Very similar to `TransportWeb.Live.SendNowOnNAPNotificationView`
-  use Phoenix.LiveView
+  use TransportWeb, :live_view
   @button_disabled [:dispatched, :sent]
 
   def render(assigns) do

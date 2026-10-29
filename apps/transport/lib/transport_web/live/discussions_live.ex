@@ -2,8 +2,7 @@ defmodule TransportWeb.DiscussionsLive do
   @moduledoc """
   Display data.gouv discussions on the dataset page
   """
-  use Phoenix.LiveView
-  use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :live_view
 
   def render(assigns) do
     ~H"""
@@ -50,7 +49,7 @@ defmodule TransportWeb.DiscussionsLive do
       </div>
     <% else %>
       <div>
-        {dgettext("page-dataset-details", "loading discussions...")}
+        {dgettext("page-dataset-details", "Loading discussions…")}
       </div>
     <% end %>
     """

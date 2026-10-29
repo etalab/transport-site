@@ -149,7 +149,7 @@ defmodule TransportWeb.PageControllerTest do
     assert doc |> Floki.find(".side-pane__dropdown.unfolded") |> Enum.count() == 1
     assert doc |> Floki.find(".side-pane__dropdown.folded") |> Enum.count() >= 1
 
-    tags = doc |> Floki.find("h2, h3") |> Floki.text(sep: "|") |> String.replace("#| \n", "") |> String.split("|")
+    tags = doc |> Floki.find("h2, h3") |> Floki.text(sep: "|") |> String.replace("#| ", "") |> String.split("|")
 
     assert sublist?(tags, [
              "Décembre 2025",

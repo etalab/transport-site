@@ -33,6 +33,7 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         assert [
                  {"validation[rule_set]", "enroute:starter-kit"},
                  {"validation[include_schema]", "true"},
+                 {"validation[schema_version]", "v1.3.2"},
                  {:file, tmp_file, {"form-data", [{:name, "validation[file]"}, {:filename, Path.basename(tmp_file)}]},
                   []}
                ] == parts
@@ -40,7 +41,8 @@ defmodule Transport.EnRouteChouetteValidClientTest do
         %HTTPoison.Response{status_code: 201, body: response_body}
       end)
 
-      assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" == EnRouteChouetteValidClient.create_a_validation(tmp_file)
+      assert "d8e2b6c2-b1e5-4890-84d4-9b761a445882" ==
+               EnRouteChouetteValidClient.create_a_validation(tmp_file, "enroute:starter-kit", "v1.3.2")
     end)
   end
 

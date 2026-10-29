@@ -11,7 +11,6 @@ defmodule TransportWeb.SeoMetadataTest do
 
   setup do
     Mox.stub_with(Transport.DataVisualization.Mock, Transport.DataVisualization.Impl)
-    Mox.stub_with(Datagouvfr.Client.Reuses.Mock, Datagouvfr.Client.Reuses.Dummy)
     Mox.stub_with(Datagouvfr.Client.Discussions.Mock, Datagouvfr.Client.Discussions.Dummy)
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 

@@ -84,8 +84,12 @@
   }
 }
 
+.dataset__resources, #dataset-reuses {
+  container-type: inline-size;
+}
+
 .dataset__resources ~ .dataset__resources {
-  padding-top: 1vh;
+  padding-top: 2rem;
 }
 
 .dataset__resources .information-message {
@@ -153,13 +157,17 @@
 }
 
 .ressources-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  margin: 0 -12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
 
-  .panel {
-    margin: 12px;
+  @container (width < 750px) {
+    grid-template-columns: 1fr;
+    padding-inline: 12px;
+  }
+
+  .panel + * {
+    margin-top: unset;
   }
 }
 
@@ -189,8 +197,6 @@
 }
 
 .resource {
-  flex-basis: calc(45% - 24px);
-  min-width: 400px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -319,46 +325,64 @@
 }
 
 .reuses {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: stretch;
-  margin: -12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  & > *:only-child {
+    grid-column: 1 / -1;
+  }
+
+  @container (width < 800px) {
+    grid-template-columns: 1fr;
+  }
+
+  .panel + * {
+    margin-top: unset;
+  }
 }
 
 .reuse {
-  margin: 12px;
   flex-basis: 450px;
-  // min-width: 450px;
   flex-grow: 1;
-  min-height: 300px;
-  max-height: 400px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-areas:
+    "logo  details"
+    "owner details"
+    "links details";
+  grid-template-rows: min-content min-content 1fr;
+  grid-template-columns: 120px auto;
+  gap: 24px;
+
   img {
-    width: 25%;
-    height: 100px;
+    grid-area: logo;
+    max-width: 100%;
     object-fit: cover;
-    padding-right: 24px;
+  }
+
+  .reuse__owner {
+    grid-area: owner;
   }
 
   .reuse__links {
-    width: 25%;
-    height: 100px;
+    grid-area: links;
     display: flex;
     flex-direction: column;
+    gap: 12px;
 
     a {
       line-height: 1.1em;
-      padding-top: 1em;
     }
   }
+
   .reuse__details {
-    min-height: 200px;
-    width: 75%;
-    flex-basis: 100%;
+    grid-area: details;
     overflow: auto;
+    max-height: 40em;
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -378,10 +402,6 @@
 @media (max-width: 749px) {
   .community-resource-detail {
     text-align: center !important;
-  }
-
-  .ressources-list {
-    justify-content: center;
   }
 
   .resource__header,

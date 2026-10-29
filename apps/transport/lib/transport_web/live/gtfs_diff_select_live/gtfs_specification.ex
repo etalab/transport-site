@@ -2,8 +2,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.GTFSSpecification do
   @moduledoc """
   Component and helpers to display GTFS files.
   """
-  use Phoenix.LiveView
-  use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :html
 
   @standard_columns %{
     "agency.txt" => [

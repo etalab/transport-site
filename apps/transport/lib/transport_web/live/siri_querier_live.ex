@@ -1,12 +1,9 @@
 defmodule TransportWeb.Live.SIRIQuerierLive do
-  use Phoenix.LiveView
-  use Phoenix.HTML, only: [text_input: 2]
+  use TransportWeb, :live_view
+  import PhoenixHTMLHelpers.Form, only: [select: 4, text_input: 3]
   import Transport.Http.Utils, only: [reencode_body_to_utf8: 2]
-  use Gettext, backend: TransportWeb.Gettext
   import TransportWeb.Router.Helpers, only: [live_path: 3, static_path: 2]
   import Unlock.GunzipTools, only: [maybe_gunzip: 2, lowercase_headers: 1]
-
-  require Logger
 
   @request_headers [{"content-type", "text/xml"}]
   @supported_url_parameters [
