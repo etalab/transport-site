@@ -7,6 +7,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   require Logger
   alias Transport.Jobs.NeTExPollerJob, as: Poller
   alias Transport.NeTEx.SchemaVersionMapper
+  alias Transport.ZipProbe
   alias Transport.Validators.NeTEx.MetadataExtractor
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2, as: ResultsAdapter
 
@@ -280,20 +281,7 @@ defmodule Transport.Validators.NeTEx.Validator do
   end
 
   defp nested_archive?(unzip, file_name) do
-    unzip
-    |> Unzip.file_stream!(file_name, chunk_size: 4)
-    |> Enum.reduce_while(<<>>, fn chunk, prefix ->
-      prefix = prefix <> IO.iodata_to_binary(chunk)
-
-      if byte_size(prefix) >= 4 do
-        {:halt, binary_part(prefix, 0, 4)}
-      else
-        {:cont, prefix}
-      end
-    end)
-    |> Transport.ZipProbe.likely_zip_content?()
-  rescue
-    _ -> false
+    ZipProbe.nested_zip_content?(unzip, file_name)
   end
 
   defp nested_archive_error(file_name) do
