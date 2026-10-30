@@ -632,11 +632,26 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
   defp mk_raw_netex_resource do
     resource_url = "http://localhost:9999/netex-#{Ecto.UUID.generate()}.zip"
 
-    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, _}] ->
-      {:ok, %Req.Response{status: 200, body: %{"data" => "some_zip_file"}}}
+    expect(Transport.Req.Mock, :get!, 1, fn ^resource_url, [{:compressed, false}, {:into, into}] ->
+      File.write!(into.path, minimal_netex_zip())
+      {:ok, %Req.Response{status: 200, body: %{"data" => "valid_netex.zip"}}}
     end)
 
     resource_url
+  end
+
+  defp minimal_netex_zip do
+    tmp_path = System.tmp_dir!() |> Path.join("min-netex-#{Ecto.UUID.generate()}.zip")
+
+    try do
+      :zip.create(tmp_path, [
+        {"PublicationDelivery.xml" |> to_charlist(), "<?xml version=\"1.0\"?><PublicationDelivery/>"}
+      ])
+
+      File.read!(tmp_path)
+    after
+      File.rm(tmp_path)
+    end
   end
 
   defp reload(validation) do
