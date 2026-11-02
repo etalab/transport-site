@@ -65,8 +65,6 @@ defmodule TransportWeb.NeTExReportComponents do
       "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. Transport.Validators.NeTEx.ResultsAdapters.V0_1_0). When present, enables advanced title rendering."
   )
 
-  slot(:inner_block, doc: "Custom title content. Used as fallback when results_adapter is not provided.")
-
   def netex_validation_report_title(assigns) do
     if Map.get(assigns, :results_adapter) && Map.get(assigns, :max_severity) do
       ~H"""
