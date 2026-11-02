@@ -398,7 +398,7 @@ defmodule TransportWeb.DatasetView do
   def community_resources(dataset), do: Dataset.community_resources(dataset)
 
   def licence_url(licence) when licence in ["fr-lo", "lov2"],
-    do: "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+    do: "https://ia.numerique.gouv.fr/licence-ouverte-open-licence/"
 
   def licence_url("odc-odbl"), do: "https://opendatacommons.org/licenses/odbl/1.0/"
 
