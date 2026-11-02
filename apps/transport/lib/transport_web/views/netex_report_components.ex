@@ -65,25 +65,25 @@ defmodule TransportWeb.NeTExReportComponents do
       "Module implementing Transport.Validators.NeTEx.ResultsAdapter (e.g. Transport.Validators.NeTEx.ResultsAdapters.V0_1_0). When present, enables advanced title rendering."
   )
 
+  def netex_validation_report_title(%{results_adapter: nil, max_severity: nil} = assigns) do
+    ~H"""
+    <div class="header_with_action_bar">
+      <h2>{dgettext("validations", "NeTEx review report")}</h2>
+      <.netex_validation_report_download validation_report_url={@validation_report_url} />
+    </div>
+    """
+  end
+
   def netex_validation_report_title(assigns) do
-    if Map.get(assigns, :results_adapter) && Map.get(assigns, :max_severity) do
-      ~H"""
-      <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
-      <div class="header_with_action_bar">
-        <.title level={@level}>
-          {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
-        </.title>
-        <.netex_validation_report_download validation_report_url={@validation_report_url} />
-      </div>
-      """
-    else
-      ~H"""
-      <div class="header_with_action_bar">
-        <h2>{dgettext("validations", "NeTEx review report")}</h2>
-        <.netex_validation_report_download validation_report_url={@validation_report_url} />
-      </div>
-      """
-    end
+    ~H"""
+    <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
+    <div class="header_with_action_bar">
+      <.title level={@level}>
+        {@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}
+      </.title>
+      <.netex_validation_report_download validation_report_url={@validation_report_url} />
+    </div>
+    """
   end
 
   defp title(%{level: 2} = assigns) do
