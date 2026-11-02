@@ -16,8 +16,6 @@ defmodule TransportWeb.NeTExReportComponents do
 
   @doc """
   Renders a table of NeTEx generic issues with message, file, and line information.
-
-  [INSERT LVATTRDOCS]
   """
   attr(:issues, :list,
     required: true,
@@ -51,8 +49,6 @@ defmodule TransportWeb.NeTExReportComponents do
 
   When `results_adapter` is provided, displays the formatted severity level.
   Otherwise shows a default "NeTEx review report" heading.
-
-  [INSERT LVATTRDOCS]
   """
   attr(:validation_report_url, :string, required: true, doc: "URL to download the validation report")
   attr(:level, :integer, default: 2, doc: "HTML heading level (2 or 4). Defaults to 2.")
@@ -107,8 +103,6 @@ defmodule TransportWeb.NeTExReportComponents do
   @doc """
   Renders the main content of a NeTEx validation report including categories,
   selected category description, and issues list.
-
-  [INSERT LVATTRDOCS]
   """
   attr(:conn, Plug.Conn, required: true, doc: "Phoenix conn for URL generation and session locale")
 
