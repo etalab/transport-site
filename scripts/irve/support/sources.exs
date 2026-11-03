@@ -118,8 +118,32 @@ defmodule IRVEScripts.Sources do
       {row["resource_id"],
        %{
          "report_status" => row["consolidation_status"] || row["resource_status"],
-         "error" => row["error_message"] && row["error_message"] |> String.replace(~r/\s+/, " ") |> String.slice(0, 70)
+         "error" => row["error_message"] |> short_error() |> then(&(&1 && String.slice(&1, 0, 70)))
        }}
     end)
   end
+
+  @doc """
+  One-line version of a report `error_message`. Non-compliant files carry their validation summary as JSON (see
+  `Transport.IRVE.ReportItem`), shown as their invalid rows and columns in error.
+
+      iex> IRVEScripts.Sources.short_error(~s({"invalid_row_count":4,"total_row_count":4,"column_errors":{"nbre_pdc":1,"date_maj":4}}))
+      "4/4 invalid rows; date_maj: 4, nbre_pdc: 1"
+      iex> IRVEScripts.Sources.short_error("looks like\\na v1 irve")
+      "looks like a v1 irve"
+  """
+  def short_error(nil), do: nil
+
+  def short_error("{" <> _ = summary) do
+    summary = Jason.decode!(summary)
+
+    columns =
+      summary["column_errors"]
+      |> Enum.sort_by(fn {column, count} -> {-count, column} end)
+      |> Enum.map_join(", ", fn {column, count} -> "#{column}: #{count}" end)
+
+    "#{summary["invalid_row_count"]}/#{summary["total_row_count"]} invalid rows; #{columns}"
+  end
+
+  def short_error(message), do: String.replace(message, ~r/\s+/, " ")
 end
