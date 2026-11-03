@@ -12,6 +12,8 @@ defmodule Transport.IRVE.ConsolidationTest do
 
   describe "process/0" do
     # grouping successful & error test for now, will be improved
+    # the invalid file raises an unexpected error, which is logged
+    @tag :capture_log
     test "writes pdcs for valid file, and not for invalid file" do
       # Mock the data.gouv.fr API response
       mock_datagouv_resources()
@@ -55,19 +57,19 @@ defmodule Transport.IRVE.ConsolidationTest do
             "dataset_id" => "another-dataset-id",
             "resource_id" => "another-resource-id",
             "resource_status" => "on_datagouv_not_in_db",
-            "consolidation_status" => "file_level_errors",
-            "error_type" => nil,
+            "consolidation_status" => "error_occurred",
+            "error_type" => "ArgumentError",
             "estimated_pdc_count" => "1",
             "file_extension" => ".csv",
             "url" => "https://static.data.gouv.fr/resources/another-irve-url-2024/data.csv",
             "dataset_title" => "another-dataset-title",
             "datagouv_organization_or_owner" => "another-org",
             "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
-            # An unexpected error (here a missing required column) is caught by the validator,
-            # marked with the "Unexpected error: " prefix and surfaced in error_message.
+            # An unexpected error (here a missing required column) raised by the validator is reported
+            # like any other unexpected error, keeping the estimated PDC count.
             # TODO rework to only compare the part of the message that matters
             "error_message" =>
-              ~s|Unexpected error: could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
+              ~s|could not find column name "nom_station". The available columns are: ["accessibilite_pmr", "telephone_operateur", "coordonneesXY", "observations", "date_maj", "num_pdl", "code_insee_commune", "nom_enseigne", "puissance_nominale", "adresse_station", "id_station_itinerance", "siren_amenageur", "contact_operateur", "implantation_station", "date_mise_en_service", "horaires", "id_pdc_itinerance", "nbre_pdc", "raccordement", "id_station_local", "nom_amenageur", "restriction_gabarit", "nom_operateur", "contact_amenageur", "id_pdc_local", "tarification", "condition_acces", "prise_type_ef", "prise_type_2", "prise_type_combo_ccs", "prise_type_chademo", "prise_type_autre", "gratuit", "paiement_acte", "paiement_cb", "paiement_autre", "reservation", "station_deux_roues", "cable_t2_attache", "check_column_nom_amenageur_valid", "check_column_siren_amenageur_valid", "check_column_contact_amenageur_valid", "check_column_nom_operateur_valid", "check_column_contact_operateur_valid", "check_column_telephone_operateur_valid", "check_column_nom_enseigne_valid", "check_column_id_station_itinerance_valid", "check_column_id_station_local_valid"].\nIf you are attempting to interpolate a value, use ^nom_station.|
           },
           %{
             "dataset_id" => "individual-published-dataset-id",

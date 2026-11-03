@@ -193,11 +193,10 @@ defmodule Transport.IRVE.ValidatorTest do
   end
 
   test "validate_and_summarize/1 returns a summary (no raise, no frame) on an unexpected downstream error" do
-    # passes every file-level probe (has id_pdc_itinerance, comma-separated, .csv, v2 schema)
-    # but a required column is missing, which blows up deeper in the validation pipeline
-    csv_content =
-      [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")]
-      |> DB.Factory.IRVE.to_csv_body()
+    Sentry.Test.start_collecting_sentry_reports()
+
+    {result, log} =
+      ExUnit.CaptureLog.with_log(fn -> Transport.IRVE.Validator.validate_and_summarize(missing_column_csv()) end)
 
     assert {%Transport.IRVE.Validator.Summary{
               valid: false,
@@ -207,11 +206,46 @@ defmodule Transport.IRVE.ValidatorTest do
               column_errors: %{},
               error_samples: [],
               file_level_errors: [message]
-            }, nil} = Transport.IRVE.Validator.validate_and_summarize(csv_content)
+            }, nil} = result
 
     # marked as unexpected (vs a known schema-level problem) ...
     assert String.starts_with?(message, "Unexpected error: ")
     # ... and the full message also lists every available column, which is too brittle to assert on
     assert message =~ ~s|could not find column name "nom_station"|
+    # ... and made visible
+    assert log =~ "IRVE validation: unexpected error"
+    assert [%Sentry.Event{}] = Sentry.Test.pop_sentry_reports()
+  end
+
+  test "validate_and_summarize!/2 raises on an unexpected downstream error" do
+    assert_raise ArgumentError, ~r/could not find column name "nom_station"/, fn ->
+      Transport.IRVE.Validator.validate_and_summarize!(missing_column_csv())
+    end
+  end
+
+  test "a header with id_pdc_itinerance behind different separators is an unexpected error" do
+    Sentry.Test.start_collecting_sentry_reports()
+
+    {result, _log} =
+      ExUnit.CaptureLog.with_log(fn -> Transport.IRVE.Validator.validate_and_summarize(ambiguous_separator_csv()) end)
+
+    assert {%{valid: false, file_level_errors: ["Unexpected error: no case clause matching" <> _]}, nil} = result
+    assert [%Sentry.Event{}] = Sentry.Test.pop_sentry_reports()
+
+    assert_raise CaseClauseError, fn -> Transport.IRVE.Validator.validate_and_summarize!(ambiguous_separator_csv()) end
+  end
+
+  # passes every file-level probe (has id_pdc_itinerance, comma-separated, .csv, v2 schema)
+  # but a required column is missing, which blows up deeper in the validation pipeline
+  defp missing_column_csv do
+    [DB.Factory.IRVE.generate_row() |> Map.delete("nom_station")] |> DB.Factory.IRVE.to_csv_body()
+  end
+
+  # comma-separated columns followed by the whole header joined with semicolons (seen in the wild)
+  defp ambiguous_separator_csv do
+    [header, rows] =
+      [DB.Factory.IRVE.generate_row()] |> DB.Factory.IRVE.to_csv_body() |> String.split("\r\n", parts: 2)
+
+    header <> "," <> String.replace(header, ",", ";") <> "\r\n" <> rows
   end
 end

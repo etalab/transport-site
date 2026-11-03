@@ -10,6 +10,8 @@ defmodule Transport.IRVE.Validator do
   - corrected values for some fields (e.g. inverted coordinates, missing optional columns, etc.)
   """
 
+  require Logger
+
   @unexpected_error_prefix "Unexpected error: "
 
   def compute_validation(%Explorer.DataFrame{} = df) do
@@ -73,12 +75,26 @@ defmodule Transport.IRVE.Validator do
   In this case, `valid_row_count`, `invalid_row_count`, `column_errors`, and
   `error_samples` are all `nil`/empty as the file was not processed at all.
 
-  Unexpected errors anywhere in the pipeline are also caught and reported in `file_level_errors`
-  and prefixed with `#{@unexpected_error_prefix}` to tell them apart.
+  Unexpected errors anywhere in the pipeline are also caught, logged, sent to Sentry and reported in
+  `file_level_errors`, prefixed with `#{@unexpected_error_prefix}` to tell them apart.
+  Use `validate_and_summarize!/2` to let them raise instead.
 
   In case of known or unknown file-level errors, the second element of the returned tuple is `nil`.
   """
   def validate_and_summarize(body, extension \\ ".csv") do
+    validate_and_summarize!(body, extension)
+  rescue
+    error ->
+      Logger.error("IRVE validation: unexpected error\n" <> Exception.format(:error, error, __STACKTRACE__))
+      Sentry.capture_exception(error, stacktrace: __STACKTRACE__)
+      {summary_with_file_level_errors([@unexpected_error_prefix <> Exception.message(error)]), nil}
+  end
+
+  @doc """
+  Same as `validate_and_summarize/2`, but unexpected errors raise. Used by the consolidation, which reports
+  every unexpected error of a resource the same way (see `Transport.IRVE.Consolidation.process_or_rescue/2`).
+  """
+  def validate_and_summarize!(body, extension \\ ".csv") do
     # Known problem: whole file is loaded in memory, no streaming.
     # We could change that by having probes use only the first lines,
     # stream the utf8 conversion,
@@ -99,9 +115,6 @@ defmodule Transport.IRVE.Validator do
       file_level_errors ->
         {summary_with_file_level_errors(file_level_errors), nil}
     end
-  rescue
-    error ->
-      {summary_with_file_level_errors([@unexpected_error_prefix <> Exception.message(error)]), nil}
   end
 
   defp summary_with_file_level_errors(file_level_errors) do
