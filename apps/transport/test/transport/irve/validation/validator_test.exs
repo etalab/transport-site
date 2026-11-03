@@ -223,16 +223,17 @@ defmodule Transport.IRVE.ValidatorTest do
     end
   end
 
-  test "a header with id_pdc_itinerance behind different separators is an unexpected error" do
+  test "a header with id_pdc_itinerance behind different separators is reported as a file-level error" do
     Sentry.Test.start_collecting_sentry_reports()
+    message = ~s(ambiguous column separator, found "," and ";")
 
-    {result, _log} =
-      ExUnit.CaptureLog.with_log(fn -> Transport.IRVE.Validator.validate_and_summarize(ambiguous_separator_csv()) end)
+    assert {%{valid: false, file_level_errors: [^message]}, nil} =
+             Transport.IRVE.Validator.validate_and_summarize(ambiguous_separator_csv())
 
-    assert {%{valid: false, file_level_errors: ["Unexpected error: no case clause matching" <> _]}, nil} = result
-    assert [%Sentry.Event{}] = Sentry.Test.pop_sentry_reports()
+    assert {%{valid: false, file_level_errors: [^message]}, nil} =
+             Transport.IRVE.Validator.validate_and_summarize!(ambiguous_separator_csv())
 
-    assert_raise CaseClauseError, fn -> Transport.IRVE.Validator.validate_and_summarize!(ambiguous_separator_csv()) end
+    assert [] = Sentry.Test.pop_sentry_reports()
   end
 
   # passes every file-level probe (has id_pdc_itinerance, comma-separated, .csv, v2 schema)

@@ -78,25 +78,38 @@ defmodule Transport.IRVE.Static.Probes do
 
   iex> hint_header_separator("foobar")
   {:error, "could not hint header separator from line (foobar)"}
+
+  `id_pdc_itinerance` behind different separators (seen on a header made of comma-separated columns followed by the
+  whole header joined with semicolons):
+
+  iex> hint_header_separator("nom_amenageur,id_pdc_itinerance,nom_amenageur;id_pdc_itinerance")
+  {:error, ~s(ambiguous column separator, found "," and ";")}
   """
   def hint_header_separator(body) do
     trimmed_first_line = body |> first_line() |> String.replace(~S("), "")
 
     # usual case, then bogus case for 623ca46c13130c3228abd018
-    separator =
-      maybe_find_header_separator(~r/(.)id_pdc_itinerance/, trimmed_first_line) ||
-        maybe_find_header_separator(~r/\Aid_pdc_itinerance(.)/, trimmed_first_line)
+    separators =
+      case header_separators(~r/(.)id_pdc_itinerance/, trimmed_first_line) do
+        [] -> header_separators(~r/\Aid_pdc_itinerance(.)/, trimmed_first_line)
+        separators -> separators
+      end
 
-    if separator,
-      do: {:ok, separator},
-      else: {:error, "could not hint header separator from line (#{trimmed_first_line})"}
+    case separators do
+      [separator] ->
+        {:ok, separator}
+
+      [] ->
+        {:error, "could not hint header separator from line (#{trimmed_first_line})"}
+
+      separators ->
+        found = Enum.map_join(separators, " and ", &inspect/1)
+        {:error, "ambiguous column separator, found #{found}"}
+    end
   end
 
-  def maybe_find_header_separator(regex, first_line) do
-    case Regex.scan(regex, first_line) do
-      [[_, sep]] -> sep
-      [] -> nil
-    end
+  defp header_separators(regex, first_line) do
+    regex |> Regex.scan(first_line) |> Enum.map(fn [_, separator] -> separator end) |> Enum.uniq()
   end
 
   @doc """
