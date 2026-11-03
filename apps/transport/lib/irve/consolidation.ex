@@ -262,7 +262,8 @@ defmodule Transport.IRVE.Consolidation do
       {:error, message} -> {:download_failed, resource, message}
     end
   after
-    File.rm!(file_path)
+    # not `File.rm!/1`: when the download raises, the file may not exist and that error would hide the original one
+    File.rm(file_path)
   end
 
   # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)

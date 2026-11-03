@@ -338,6 +338,31 @@ defmodule Transport.IRVE.ConsolidationTest do
     end
   end
 
+  describe "process_or_rescue/2" do
+    @tag :capture_log
+    test "reports a raising download as the original error" do
+      Sentry.Test.start_collecting_sentry_reports()
+
+      resource = %{
+        resource_id: "unreachable-resource-id",
+        url: "https://unreachable.example.com/data.csv",
+        dataset_id: "a-dataset-id",
+        dataset_title: "a-dataset-title",
+        dataset_organisation_id: "an-org-id",
+        datagouv_organization_or_owner: "an-org",
+        datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00"
+      }
+
+      Transport.Req.Mock
+      |> expect(:get!, fn _url, _options -> raise Req.TransportError, reason: :timeout end)
+
+      assert {:error_occurred, %Req.TransportError{reason: :timeout}, ^resource} =
+               Transport.IRVE.Consolidation.process_or_rescue(resource, MapSet.new())
+
+      assert [%Sentry.Event{original_exception: %Req.TransportError{}}] = Sentry.Test.pop_sentry_reports()
+    end
+  end
+
   defp mock_datagouv_resources do
     Transport.Req.Mock
     |> expect(:get!, fn _request, options ->
