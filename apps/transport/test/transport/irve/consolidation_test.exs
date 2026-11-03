@@ -336,6 +336,41 @@ defmodule Transport.IRVE.ConsolidationTest do
 
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
     end
+
+    test "reports a non-compliant file with its validation summary" do
+      content =
+        DB.Factory.IRVE.to_csv_body([DB.Factory.IRVE.generate_row(%{"puissance_nominale" => "not-a-number"})])
+
+      resource = %{
+        resource_id: "non-compliant-resource-id",
+        url: "https://static.data.gouv.fr/resources/non-compliant/data.csv",
+        dataset_id: "a-dataset-id",
+        dataset_title: "a-dataset-title",
+        dataset_organisation_id: "an-org-id",
+        datagouv_organization_or_owner: "an-org",
+        datagouv_last_modified: "2024-02-29T07:43:59.660000+00:00"
+      }
+
+      Transport.Req.Mock
+      |> expect(:get!, fn _url, options ->
+        File.write!(options[:into].path, content)
+        %Req.Response{status: 200, body: File.stream!(options[:into].path)}
+      end)
+
+      result = Transport.IRVE.Consolidation.process_resource(resource, MapSet.new())
+
+      assert {:not_compliant_with_schema, %{resource_id: "non-compliant-resource-id"},
+              %Transport.IRVE.Validator.Summary{}} = result
+
+      %Transport.IRVE.ReportItem{error_message: error_message} = Transport.IRVE.ReportItem.from_result(result)
+
+      assert %Transport.IRVE.Validator.Summary{
+               valid: false,
+               invalid_row_count: 1,
+               column_errors: %{"puissance_nominale" => 1},
+               error_samples: [%{column: "puissance_nominale", value: "not-a-number"}]
+             } = error_message |> Jason.decode!() |> Transport.IRVE.Validator.Summary.from_result()
+    end
   end
 
   describe "process_or_rescue/2" do

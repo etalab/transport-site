@@ -166,7 +166,7 @@ defmodule Transport.IRVE.Consolidation do
       :producer_not_an_organization -> {:producer_not_an_organization, resource}
       true -> {:already_up_to_date, resource}
       {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
-      {%{file_level_errors: []}, _validated_df} -> {:not_compliant_with_schema, resource}
+      {%{file_level_errors: []} = summary, _validated_df} -> {:not_compliant_with_schema, resource, summary}
     end
   rescue
     error -> unexpected_error(error, __STACKTRACE__, resource)
