@@ -471,31 +471,31 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp validity_icon(%{variant: :error} = assigns) do
     ~H"""
-    <i class="fa fa-xmark text-error"></i>
+    <i class="fa fa-xmark text-error" aria-label="Error"></i>
     """
   end
 
   defp validity_icon(%{variant: :warning} = assigns) do
     ~H"""
-    <i class="fa fa-triangle-exclamation text-warning"></i>
+    <i class="fa fa-triangle-exclamation text-warning" aria-label="Warning"></i>
     """
   end
 
   defp validity_icon(%{variant: :information} = assigns) do
     ~H"""
-    <i class="fa fa-circle-info text-info"></i>
+    <i class="fa fa-circle-info text-info" aria-label="Information"></i>
     """
   end
 
   defp validity_icon(%{variant: :valid} = assigns) do
     ~H"""
-    <i class="fa fa-check"></i>
+    <i class="fa fa-check" aria-label="Valid"></i>
     """
   end
 
   defp info_icon(assigns) do
     ~H"""
-    <i class="fa fa-circle-info"></i>
+    <i class="fa fa-circle-info" aria-label="Info"></i>
     """
   end
 
