@@ -15,6 +15,13 @@ defmodule Transport.Validators.JSONSchemaTest do
   setup :verify_on_exit!
 
   setup do
+    # Use a real in-memory cache for these tests to test the caching mechanism
+    old_value = Application.fetch_env!(:transport, :cache_impl)
+    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
+    on_exit(fn -> Application.put_env(:transport, :cache_impl, old_value) end)
+  end
+
+  setup do
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
     Cachex.clear(Transport.Application.cache_name())
     on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
@@ -194,8 +201,8 @@ defmodule Transport.Validators.JSONSchemaTest do
   defp setup_zfe_schema(version \\ "0.7.2") do
     url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/#{version}/schema.json"
 
-    Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^url ->
+    Transport.Req.Mock
+    |> expect(:get!, fn ^url, _options ->
       body = """
       {
          "type": "object",
@@ -206,16 +213,16 @@ defmodule Transport.Validators.JSONSchemaTest do
       }
       """
 
-      %HTTPoison.Response{body: body, status_code: 200}
+      %Req.Response{body: body, status: 200}
     end)
   end
 
   defp setup_schemas_response do
     url = "https://schema.data.gouv.fr/schemas.json"
 
-    Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^url ->
-      %HTTPoison.Response{body: File.read!("#{__DIR__}/../../fixture/schemas/schemas.json"), status_code: 200}
+    Transport.Req.Mock
+    |> expect(:get!, fn ^url, _options ->
+      %Req.Response{body: File.read!("#{__DIR__}/../../fixture/schemas/schemas.json"), status: 200}
     end)
   end
 

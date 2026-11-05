@@ -94,7 +94,7 @@ defmodule Transport.Schemas do
   @impl true
   def transport_schemas do
     comp_fn = fn ->
-      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(@schemas_catalog_url)
+      %Req.Response{status: 200, body: body} = http_get!(@schemas_catalog_url)
 
       body
       |> Jason.decode!()
@@ -105,24 +105,19 @@ defmodule Transport.Schemas do
       |> Enum.into(%{}, fn schema -> {Map.fetch!(schema, "name"), schema} end)
     end
 
-    cache_fetch("transport_schemas", comp_fn)
+    Transport.Cache.fetch("transport_schemas", comp_fn, :timer.seconds(300))
   end
 
-  def cache_fetch(cache_key, comp_fn, ttl \\ 300) do
-    outcome =
-      Cachex.fetch(cache_name(), cache_key, fn _ ->
-        {:commit, comp_fn.(), expire: :timer.seconds(ttl)}
-      end)
-
-    case outcome do
-      {:ok, result} ->
-        result
-
-      {:commit, result} ->
-        result
-    end
+  @doc """
+  The catalog is fetched while rendering pages: no retries and short timeouts, so that an unresponsive
+  schema.data.gouv.fr gives an error page instead of a request killed silently by Cowboy after 60 s.
+  """
+  def http_get!(url) do
+    Transport.Req.impl().get!(url,
+      decode_body: false,
+      retry: false,
+      connect_options: [timeout: :timer.seconds(5)],
+      receive_timeout: :timer.seconds(10)
+    )
   end
-
-  defp http_client, do: Transport.Shared.Wrapper.HTTPoison.impl()
-  defp cache_name, do: Transport.Application.cache_name()
 end

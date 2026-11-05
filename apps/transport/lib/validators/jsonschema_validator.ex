@@ -51,12 +51,12 @@ defmodule Transport.Validators.JSONSchema do
     ensure_schema_is_jsonschema!(schema_name)
 
     comp_fn = fn ->
-      %HTTPoison.Response{status_code: 200, body: body} = http_client().get!(schema_url(schema_name, schema_version))
+      %Req.Response{status: 200, body: body} = http_get!(schema_url(schema_name, schema_version))
 
       body |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
     end
 
-    cache_fetch("jsonschema_#{schema_name}_#{schema_version}", comp_fn)
+    Transport.Cache.fetch("jsonschema_#{schema_name}_#{schema_version}", comp_fn, :timer.seconds(300))
   end
 
   def ensure_schema_is_jsonschema!(schema_name) do
