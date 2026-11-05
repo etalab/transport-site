@@ -25,6 +25,12 @@ defmodule TransportWeb.NeTExReportComponents do
   def netex_generic_issues(assigns) do
     ~H"""
     <table class="table netex_generic_issue">
+      <colgroup>
+        <col class="message" />
+        <col class="file" />
+        <col class="line" />
+      </colgroup>
+
       <tr>
         <th>{dgettext("validations-explanations", "Message")}</th>
         <th>{dgettext("validations-explanations", "File")}</th>
@@ -32,16 +38,22 @@ defmodule TransportWeb.NeTExReportComponents do
       </tr>
 
       <tr :for={issue <- @issues} class="message">
-        <td lang="en">{issue["message"]}</td>
-        <%= if is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"]) do %>
-          <td colspan="2">{dgettext("validations-explanations", "Unknown location")}</td>
+        <td class="message">
+          <.validity_icon variant={severity_variant(issue["criticity"])} /> <span lang="en">{issue["message"]}</span>
+        </td>
+        <%= if unknown_location?(issue) do %>
+          <td class="file" colspan="2">{dgettext("validations-explanations", "Unknown location")}</td>
         <% else %>
-          <td>{issue["resource"]["filename"]}</td>
-          <td>{issue["resource"]["line"]}</td>
+          <td class="file"><span class="text-wrapper">{issue["resource"]["filename"]}</span></td>
+          <td class="line">{issue["resource"]["line"]}</td>
         <% end %>
       </tr>
     </table>
     """
+  end
+
+  defp unknown_location?(issue) do
+    is_nil(issue["resource"]) or is_nil(issue["resource"]["filename"]) or is_nil(issue["resource"]["line"])
   end
 
   @doc """
@@ -383,19 +395,14 @@ defmodule TransportWeb.NeTExReportComponents do
 
   defp netex_errors_category(%{conn: _, category: _, stats: _, results_adapter: _, current_category: _} = assigns) do
     ~H"""
+    <% variant = severity_variant(@stats["criticity"]) %>
     <.colorful_link
       href={netex_link_to_category(@conn, @category)}
-      variant={
-        if @stats["count"] == 0 do
-          :valid
-        else
-          :error
-        end
-      }
+      variant={variant}
       selected={@current_category == @category}
     >
       <:icon>
-        <.validity_icon errors={@stats["count"]} />
+        <.validity_icon variant={variant} />
       </:icon>
       <:label>
         <span class="category">
@@ -462,23 +469,40 @@ defmodule TransportWeb.NeTExReportComponents do
     """
   end
 
-  defp validity_icon(%{errors: errors} = assigns) when errors > 0 do
+  defp validity_icon(%{variant: :error} = assigns) do
     ~H"""
-    <i class="fa fa-xmark fa-lg"></i>
+    <i class="fa fa-xmark text-error" aria-label="Error"></i>
     """
   end
 
-  defp validity_icon(assigns) do
+  defp validity_icon(%{variant: :warning} = assigns) do
     ~H"""
-    <i class="fa fa-check fa-lg"></i>
+    <i class="fa fa-triangle-exclamation text-warning" aria-label="Warning"></i>
+    """
+  end
+
+  defp validity_icon(%{variant: :information} = assigns) do
+    ~H"""
+    <i class="fa fa-circle-info text-info" aria-label="Information"></i>
+    """
+  end
+
+  defp validity_icon(%{variant: :valid} = assigns) do
+    ~H"""
+    <i class="fa fa-check" aria-label="Valid"></i>
     """
   end
 
   defp info_icon(assigns) do
     ~H"""
-    <i class="fa fa-circle-info"></i>
+    <i class="fa fa-circle-info" aria-label="Info"></i>
     """
   end
+
+  defp severity_variant("error"), do: :error
+  defp severity_variant("warning"), do: :warning
+  defp severity_variant("information"), do: :information
+  defp severity_variant(_), do: :valid
 
   defp netex_category_label("xsd-schema"), do: dgettext("validations", "XSD")
   defp netex_category_label("french-profile"), do: dgettext("validations", "French profile")

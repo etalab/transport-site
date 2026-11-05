@@ -18,14 +18,38 @@ defmodule TransportWeb.NeTExReportComponentsTest do
       html =
         render(&NeTExReportComponents.netex_generic_issues/1, %{
           issues: [
-            %{"message" => "Error 1", "resource" => %{"filename" => "file.xml", "line" => 42}},
-            %{"message" => "Error 2", "resource" => %{"filename" => "data.xml", "line" => 100}}
+            %{"criticity" => "error", "message" => "Error 1", "resource" => %{"filename" => "file.xml", "line" => 42}},
+            %{"criticity" => "error", "message" => "Error 2", "resource" => %{"filename" => "data.xml", "line" => 100}},
+            %{
+              "criticity" => "warning",
+              "message" => "Warning 1",
+              "resource" => %{"filename" => "file.xml", "line" => 42}
+            },
+            %{
+              "criticity" => "warning",
+              "message" => "Warning 2",
+              "resource" => %{"filename" => "data.xml", "line" => 100}
+            },
+            %{
+              "criticity" => "information",
+              "message" => "Information 1",
+              "resource" => %{"filename" => "file.xml", "line" => 42}
+            },
+            %{
+              "criticity" => "information",
+              "message" => "Information 2",
+              "resource" => %{"filename" => "data.xml", "line" => 100}
+            }
           ]
         })
 
       assert extract_report_messages(html) == [
-               ["Error 1", "file.xml", "42"],
-               ["Error 2", "data.xml", "100"]
+               ["Error", "Error 1", "file.xml", "42"],
+               ["Error", "Error 2", "data.xml", "100"],
+               ["Warning", "Warning 1", "file.xml", "42"],
+               ["Warning", "Warning 2", "data.xml", "100"],
+               ["Information", "Information 1", "file.xml", "42"],
+               ["Information", "Information 2", "data.xml", "100"]
              ]
     end
 
@@ -33,25 +57,25 @@ defmodule TransportWeb.NeTExReportComponentsTest do
       # Single nil resource
       html =
         render(&NeTExReportComponents.netex_generic_issues/1, %{
-          issues: [%{"message" => "Error", "resource" => nil}]
+          issues: [%{"criticity" => "error", "message" => "Error message", "resource" => nil}]
         })
 
       assert extract_report_messages(html) == [
-               ["Error", "Unknown location"]
+               ["Error", "Error message", "Unknown location"]
              ]
 
       # Nil filename and nil line (two issues)
       html =
         render(&NeTExReportComponents.netex_generic_issues/1, %{
           issues: [
-            %{"message" => "a", "resource" => %{"filename" => nil, "line" => 10}},
-            %{"message" => "b", "resource" => %{"filename" => "f.xml", "line" => nil}}
+            %{"criticity" => "error", "message" => "a", "resource" => %{"filename" => nil, "line" => 10}},
+            %{"criticity" => "error", "message" => "b", "resource" => %{"filename" => "f.xml", "line" => nil}}
           ]
         })
 
       assert extract_report_messages(html) == [
-               ["a", "Unknown location"],
-               ["b", "Unknown location"]
+               ["Error", "a", "Unknown location"],
+               ["Error", "b", "Unknown location"]
              ]
     end
 
@@ -71,8 +95,17 @@ defmodule TransportWeb.NeTExReportComponentsTest do
     defp extract_cells(row) do
       row
       |> Floki.find("td")
-      |> Enum.map(&Floki.text/1)
-      |> Enum.map(&String.trim/1)
+      |> Enum.map(fn td ->
+        aria_label = Floki.attribute([td], "i", "aria-label") |> List.first()
+        text = td |> Floki.text() |> String.trim()
+
+        if aria_label do
+          [aria_label, text]
+        else
+          [text]
+        end
+      end)
+      |> List.flatten()
     end
   end
 

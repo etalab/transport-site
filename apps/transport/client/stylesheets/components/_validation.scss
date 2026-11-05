@@ -163,15 +163,26 @@ details > code {
   }
 
   table.netex_generic_issue {
-    th, td {
-      &:nth-child(1) {
-        width: 60%;
-      }
-      &:nth-child(3) {
-        width: 10%;
-      }
+    .message {
+      width: 60%;
+    }
+    .file {
+      width: 30%;
+    }
+    .line {
+      width: 10%;
     }
 
+    td.file {
+      span.text-wrapper {
+        display: inline-block;
+        max-width: 50ch;
+        overflow-wrap: break-word;
+      }
+    }
+    td.line {
+      text-align: right;
+    }
     tr.debug {
       &:hover {
         background: revert;
@@ -303,6 +314,10 @@ details > code {
   button[popovertarget="french-profile-rules"] {
     margin-left: 0.5em;
   }
+
+  .text-error { color: var(--red); }
+  .text-warning { color: var(--orange); }
+  .text-info { color: var(--dark-blue); }
 }
 
 blockquote {
