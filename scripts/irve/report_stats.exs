@@ -18,6 +18,10 @@ normalize = fn
   "" ->
     nil
 
+  # validation summary of a non-compliant file, see the "by invalid column" section
+  "{" <> _ ->
+    nil
+
   msg ->
     msg
     # keep only the first line (some messages dump a long column list afterwards)
@@ -82,6 +86,30 @@ summarize.(["consolidation_status", "error_category"])
 |> Enum.reject(&is_nil(&1["error_category"]))
 |> print.(["consolidation_status", "error_category"])
 
+IO.puts("\n== not_compliant_with_schema by invalid column (files, their PDC, invalid rows) ==")
+
+df
+|> DF.filter(consolidation_status == "not_compliant_with_schema" and not is_nil(error_message))
+|> DF.select(["error_message", "estimated_pdc_count"])
+|> DF.to_rows()
+|> Enum.flat_map(fn row ->
+  row["error_message"]
+  |> Jason.decode!()
+  |> Map.fetch!("column_errors")
+  |> Enum.map(fn {column, invalid_rows} -> {column, invalid_rows, row["estimated_pdc_count"] || 0} end)
+end)
+|> Enum.group_by(&elem(&1, 0))
+|> Enum.map(fn {column, entries} ->
+  invalid_rows = entries |> Enum.map(&elem(&1, 1)) |> Enum.sum()
+  pdc = entries |> Enum.map(&elem(&1, 2)) |> Enum.sum()
+  %{"count" => length(entries), "pdc" => pdc, "column" => "#{column} (#{invalid_rows} invalid rows)"}
+end)
+|> Enum.sort_by(& &1["count"], :desc)
+|> case do
+  [] -> IO.puts("  (none, or a report without validation summaries)")
+  rows -> print.(rows, ["column"])
+end
+
 IO.puts("\n== download_failed by HTTP status ==")
 
 df
@@ -112,5 +140,11 @@ df
 |> DF.filter(consolidation_status == "not_compliant_with_schema" or consolidation_status == "file_level_errors")
 |> DF.sort_by(desc: estimated_pdc_count)
 |> DF.head(20)
-|> DF.select(["resource_id", "consolidation_status", "estimated_pdc_count", "datagouv_organization_or_owner"])
+|> DF.to_rows()
+|> Enum.map(fn row ->
+  detail = row["error_message"] |> IRVEScripts.Sources.short_error() |> then(&(&1 && String.slice(&1, 0, 60)))
+  Map.put(row, "detail", detail)
+end)
+|> DF.new()
+|> DF.select(["resource_id", "consolidation_status", "estimated_pdc_count", "datagouv_organization_or_owner", "detail"])
 |> DF.print(limit: :infinity)

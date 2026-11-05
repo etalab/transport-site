@@ -109,18 +109,22 @@ defmodule Transport.IRVE.Consolidation do
   def process_or_rescue(resource, db_ids_and_checksums) do
     process_resource(resource, db_ids_and_checksums)
   rescue
-    error ->
-      Logger.error(
-        "IRVE consolidation: unexpected error for resource #{resource.resource_id} (#{resource.url})\n" <>
-          Exception.format(:error, error, __STACKTRACE__)
-      )
+    error -> unexpected_error(error, __STACKTRACE__, resource)
+  end
 
-      Sentry.capture_exception(error,
-        stacktrace: __STACKTRACE__,
-        extra: %{resource_id: resource.resource_id, url: resource.url}
-      )
+  # Every unexpected error of a resource ends here: logged, sent to Sentry and reported as `:error_occurred`.
+  defp unexpected_error(error, stacktrace, resource) do
+    Logger.error(
+      "IRVE consolidation: unexpected error for resource #{resource.resource_id} (#{resource.url})\n" <>
+        Exception.format(:error, error, stacktrace)
+    )
 
-      {:error_occurred, error, resource}
+    Sentry.capture_exception(error,
+      stacktrace: stacktrace,
+      extra: %{resource_id: resource.resource_id, url: resource.url}
+    )
+
+    {:error_occurred, error, resource}
   end
 
   def process_resource(resource, db_ids_and_checksums) do
@@ -136,30 +140,36 @@ defmodule Transport.IRVE.Consolidation do
       # minus header line
       estimated_pdc_count = (File.stream!(path) |> Enum.count()) - 1
 
-      resource =
-        resource
-        |> Map.put(:estimated_pdc_count, estimated_pdc_count)
-        |> Map.put(:file_extension, extension)
-
-      # This producer_is_org_check is not in the validator itself:
-      # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
-      # it is done after downloading the file in order to be able to report on the potential
-      # loss of PDC count.
-      with :producer_is_an_organization <- producer_is_org(resource),
-           body = File.read!(path),
-           checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body),
-           # Same content already stored: skip validation and insertion entirely.
-           false <- MapSet.member?(db_ids_and_checksums, {resource.resource_id, checksum}),
-           {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize(body, extension),
-           import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
-        {import_status, resource}
-      else
-        :producer_not_an_organization -> {:producer_not_an_organization, resource}
-        true -> {:already_up_to_date, resource}
-        {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
-        {%{file_level_errors: []}, _validated_df} -> {:not_compliant_with_schema, resource}
-      end
+      resource
+      |> Map.put(:estimated_pdc_count, estimated_pdc_count)
+      |> Map.put(:file_extension, extension)
+      |> process_downloaded_file(path, extension, db_ids_and_checksums)
     end)
+  end
+
+  # Unexpected errors (e.g. raised by the validator) are rescued here rather than in `process_or_rescue/2`
+  # to keep the estimated PDC count in the report.
+  defp process_downloaded_file(resource, path, extension, db_ids_and_checksums) do
+    # This producer_is_org_check is not in the validator itself:
+    # it’s not linked to the file content/format, but to how it is published on data.gouv.fr.
+    # it is done after downloading the file in order to be able to report on the potential
+    # loss of PDC count.
+    with :producer_is_an_organization <- producer_is_org(resource),
+         body = File.read!(path),
+         checksum = Transport.IRVE.DatabaseImporter.compute_checksum(body),
+         # Same content already stored: skip validation and insertion entirely.
+         false <- MapSet.member?(db_ids_and_checksums, {resource.resource_id, checksum}),
+         {%{valid: true}, validated_df} <- Transport.IRVE.Validator.validate_and_summarize!(body, extension),
+         import_status <- Transport.IRVE.DatabaseImporter.try_write_uncasted_df(validated_df, checksum, resource) do
+      {import_status, resource}
+    else
+      :producer_not_an_organization -> {:producer_not_an_organization, resource}
+      true -> {:already_up_to_date, resource}
+      {%{file_level_errors: [_ | _] = errors}, nil} -> {:file_level_errors, resource, errors}
+      {%{file_level_errors: []} = summary, _validated_df} -> {:not_compliant_with_schema, resource, summary}
+    end
+  rescue
+    error -> unexpected_error(error, __STACKTRACE__, resource)
   end
 
   def generate_report(report_rows, destination: destination) do
@@ -252,7 +262,8 @@ defmodule Transport.IRVE.Consolidation do
       {:error, message} -> {:download_failed, resource, message}
     end
   after
-    File.rm!(file_path)
+    # not `File.rm!/1`: when the download raises, the file may not exist and that error would hide the original one
+    File.rm(file_path)
   end
 
   # variant for dev work, where it is important to support permanent disk caching (fully offline, no etag)

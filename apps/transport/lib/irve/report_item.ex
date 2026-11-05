@@ -32,6 +32,11 @@ defmodule Transport.IRVE.ReportItem do
     new(resource, :file_level_errors, Enum.join(file_level_errors, "\n"), nil)
   end
 
+  # The validation summary as JSON, like the on-demand validation stores it (see `Summary.from_result/1`)
+  def from_result({:not_compliant_with_schema, resource, %Transport.IRVE.Validator.Summary{} = summary}) do
+    new(resource, :not_compliant_with_schema, summary |> Map.from_struct() |> Jason.encode!(), nil)
+  end
+
   def from_result({status, resource}) do
     new(resource, status, nil, nil)
   end

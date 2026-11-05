@@ -22,15 +22,12 @@ defmodule Transport.IRVE.Static.Probes do
     end
   end
 
-  # `hint_header_separator/1` raises when it cannot find a separator at all
-  # (e.g. single-column file); we catch that so this stays non-raising.
   defp separator_errors(body) do
     case hint_header_separator(body) do
-      sep when sep in [";", ","] -> []
-      sep -> ["unsupported column separator #{sep}"]
+      {:ok, sep} when sep in [";", ","] -> []
+      {:ok, sep} -> ["unsupported column separator #{sep}"]
+      {:error, message} -> [message]
     end
-  rescue
-    error -> [Exception.message(error)]
   end
 
   @doc """
@@ -70,32 +67,49 @@ defmodule Transport.IRVE.Static.Probes do
   Remove double-quotes, in case they are here.
 
   iex> hint_header_separator("nom_amenageur,id_pdc_itinerance,id_pdc_local")
-  ","
+  {:ok, ","}
 
   Must also work as the very first column (edge case seen on one file):
 
   iex> hint_header_separator("id_pdc_itinerance,id_pdc_local")
-  ","
+  {:ok, ","}
 
-  If nothing works, should raise:
+  If nothing works:
 
   iex> hint_header_separator("foobar")
-  ** (RuntimeError) could not hint header separator from line (foobar)
+  {:error, "could not hint header separator from line (foobar)"}
+
+  `id_pdc_itinerance` behind different separators (seen on a header made of comma-separated columns followed by the
+  whole header joined with semicolons):
+
+  iex> hint_header_separator("nom_amenageur,id_pdc_itinerance,nom_amenageur;id_pdc_itinerance")
+  {:error, ~s(ambiguous column separator, found "," and ";")}
   """
   def hint_header_separator(body) do
     trimmed_first_line = body |> first_line() |> String.replace(~S("), "")
 
-    # usual case, then bogus case for 623ca46c13130c3228abd018, then error
-    maybe_find_header_separator(~r/(.)id_pdc_itinerance/, trimmed_first_line) ||
-      maybe_find_header_separator(~r/\Aid_pdc_itinerance(.)/, trimmed_first_line) ||
-      raise "could not hint header separator from line (#{trimmed_first_line})"
+    # usual case, then bogus case for 623ca46c13130c3228abd018
+    separators =
+      case header_separators(~r/(.)id_pdc_itinerance/, trimmed_first_line) do
+        [] -> header_separators(~r/\Aid_pdc_itinerance(.)/, trimmed_first_line)
+        separators -> separators
+      end
+
+    case separators do
+      [separator] ->
+        {:ok, separator}
+
+      [] ->
+        {:error, "could not hint header separator from line (#{trimmed_first_line})"}
+
+      separators ->
+        found = Enum.map_join(separators, " and ", &inspect/1)
+        {:error, "ambiguous column separator, found #{found}"}
+    end
   end
 
-  def maybe_find_header_separator(regex, first_line) do
-    case Regex.scan(regex, first_line) do
-      [[_, sep]] -> sep
-      [] -> nil
-    end
+  defp header_separators(regex, first_line) do
+    regex |> Regex.scan(first_line) |> Enum.map(fn [_, separator] -> separator end) |> Enum.uniq()
   end
 
   @doc """
