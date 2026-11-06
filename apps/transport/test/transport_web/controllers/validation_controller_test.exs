@@ -920,6 +920,7 @@ defmodule TransportWeb.ValidationControllerTest do
 
       assert render(view) =~ "2 erreurs"
       assert render(view) =~ "Value is not allowed in enum."
+      assert render(view) =~ ~s(<a href="https://schema.data.gouv.fr/etalab/foo/" target="_blank">etalab/foo</a>)
     end
 
     test "with a completed IRVE Statique validation", %{conn: conn} do
