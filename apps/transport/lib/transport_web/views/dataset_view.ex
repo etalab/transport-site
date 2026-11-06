@@ -9,7 +9,7 @@ defmodule TransportWeb.DatasetView do
   # NOTE: ~H is defined in LiveView, but can actually be used from anywhere.
   # ~H expects a variable named `assigns`, so wrapping the calls to `~H` inside
   # a helper function would be cleaner and more future-proof to avoid conflicts at some point.
-  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3]
+  import Phoenix.Component, only: [sigil_H: 2, live_render: 3, assign: 3, link: 1]
   import DB.Dataset, only: [experimental?: 1]
   import DB.MultiValidation, only: [get_metadata_info: 2, get_metadata_info: 3]
   alias Shared.DateTimeDisplay
@@ -682,9 +682,13 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link
+        :for={resource <- @resources}
+        href={resource_path(TransportWeb.Endpoint, :details, resource.id)}
+        target="_blank"
+      >
         {resource.title}
-      </a>
+      </.link>
       &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
     </td>
     """
@@ -701,9 +705,13 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <a :for={resource <- @resources} href={resource_path(TransportWeb.Endpoint, :details, resource.id)} target="_blank">
+      <.link
+        :for={resource <- @resources}
+        href={resource_path(TransportWeb.Endpoint, :details, resource.id)}
+        target="_blank"
+      >
         {resource.title}
-      </a>
+      </.link>
     </td>
     """
   end
@@ -742,13 +750,13 @@ defmodule TransportWeb.DatasetView do
             </div>
             <div class="reuse__links">
               <% reuse_website_url = safe_remote_url(reuse.remote_url) %>
-              <a :if={reuse_website_url} href={reuse_website_url}>
+              <.link :if={reuse_website_url} href={reuse_website_url}>
                 {dgettext("page-dataset-details", "Website")}
-              </a>
+              </.link>
               <% data_gouv_url = safe_remote_url(reuse.url) %>
-              <a :if={data_gouv_url} href={data_gouv_url} target="_blank">
+              <.link :if={data_gouv_url} href={data_gouv_url} target="_blank">
                 {dgettext("page-dataset-details", "See on data.gouv.fr")}
-              </a>
+              </.link>
             </div>
             <div class="reuse__details">
               <h3>{reuse.title}</h3>

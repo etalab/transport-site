@@ -15,7 +15,7 @@
 
     <%= for {error_id, details} <- @latest_validations_details |> Enum.sort_by(fn {_, v} -> v["occurence"] end, &>=/2) do %>
       <tr>
-        <td><a href={gtfs_rt_validator_rule_url(error_id)} target="_blank">{error_id}</a></td>
+        <td><.link href={gtfs_rt_validator_rule_url(error_id)} target="_blank">{error_id}</.link></td>
         <td lang="en">{details["description"]}</td>
         <td>{format_number(details["errors_count"], locale: @locale)}</td>
         <td>
