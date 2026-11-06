@@ -5,10 +5,10 @@
   <div class="container pt-24">
     <h2 class="mb-0">{@dataset.custom_title}</h2>
     <div class="align-right pb-24">
-      <a href="#modal" class="button warning">
+      <.link href="#modal" class="button warning">
         <i class="icon fas fa-trash"></i>
         {dgettext("reuser-space", "Remove from favorites")}
-      </a>
+      </.link>
     </div>
     <div class="panel">
       <h3>{dgettext("reuser-space", "Manage notifications")}</h3>
@@ -96,14 +96,14 @@
               <i class="icon fas fa-trash"></i>
               {dgettext("reuser-space", "Remove from favorites")}
             </button>
-            <a
+            <.link
               href="#"
               class="button secondary"
               data-tracking-category="reuser_space"
               data-tracking-action="abort_unfavorite_dataset"
             >
               {dgettext("reuser-space", "Cancel")}
-            </a>
+            </.link>
           </div>
         <% end %>
       </div>

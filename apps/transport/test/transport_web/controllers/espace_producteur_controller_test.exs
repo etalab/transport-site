@@ -379,7 +379,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
         |> html_response(200)
         |> Floki.parse_document!()
 
-      assert td_text.(doc) == "Modifier la ressource GTFS réutilisateurSupprimer la ressource"
+      assert td_text.(doc) == "Modifier la ressource GTFS réutilisateur Supprimer la ressource"
     end
 
     test "when a custom logo is set", %{conn: conn} do

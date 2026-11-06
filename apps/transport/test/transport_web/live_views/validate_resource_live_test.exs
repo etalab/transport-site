@@ -167,7 +167,7 @@ defmodule Transport.TransportWeb.Live.ValidateResourceLiveTest do
 
     # Can start again
     assert content |> Floki.find(~s|[phx-click="start_again"]|) |> sort_attributes() == [
-             {"a", [{"class", "button-outline warning small mr-24"}, {"phx-click", "start_again"}],
+             {"a", [{"class", "button-outline warning small mr-24"}, {"href", "#"}, {"phx-click", "start_again"}],
               [{"i", [{"class", "icon fa fa-rotate"}], []}, "\n  Essayer à nouveau\n"]}
            ]
 
