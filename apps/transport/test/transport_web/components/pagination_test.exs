@@ -78,7 +78,7 @@ defmodule TransportWeb.Components.PaginationTest do
 
     assert [{"nav", [{"aria-label", "Page navigation"}], _}] = doc
     assert doc |> Floki.find("ul.pagination li a") |> length() == 5
-    assert doc |> Floki.find("li.active") |> Floki.text() == "2"
+    assert doc |> Floki.find(~s|li.active a[aria-current="page"]|) |> Floki.text() == "2"
     assert doc |> Floki.find("a[rel=prev]") |> Enum.map(&Floki.text/1) == ["<<", "1"]
     assert doc |> Floki.find("a[rel=next]") |> Enum.map(&Floki.text/1) == ["3", ">>"]
   end
