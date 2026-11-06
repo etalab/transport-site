@@ -102,6 +102,13 @@ defmodule TransportWeb.CoreComponentsTest do
       <span class="help-block">a custom error</span></div>))
   end
 
+  test "link_html" do
+    assert ~s(<a href="https://example.com" target="_blank">Titre &lt;3</a>) ==
+             "Titre <3"
+             |> TransportWeb.CoreComponents.link_html("https://example.com", target: "_blank")
+             |> Phoenix.HTML.safe_to_string()
+  end
+
   test "button" do
     assert_html(button([]), ~s(<button class="button" type="submit">Envoyer</button>))
     assert_html(button(class: "button-outline"), ~s(<button class="button-outline" type="submit">Envoyer</button>))
