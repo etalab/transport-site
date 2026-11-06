@@ -86,10 +86,7 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
       <div :if={@diff_file_url} class="panel">
         <h4>
           {dgettext("gtfs-diff", "GTFS Diff is available for")}
-          {link(dgettext("gtfs-diff", "download"),
-            to: @diff_file_url,
-            target: "_blank"
-          )}
+          <.link href={@diff_file_url} target="_blank">{dgettext("gtfs-diff", "download")}</.link>
         </h4>
         <p>
           {raw(
@@ -175,9 +172,9 @@ defmodule TransportWeb.Live.GTFSDiffSelectLive.Results do
 
     ~H"""
     <li>
-      <a class={@class} phx-click="select-file" phx-value-file={@file}>
+      <.link class={@class} phx-click="select-file" phx-value-file={@file}>
         <code>{@file}</code>
-      </a>
+      </.link>
     </li>
     """
   end

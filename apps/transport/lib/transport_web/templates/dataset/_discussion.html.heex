@@ -25,7 +25,7 @@
         </div>
         <div>
           <div class="discussion-comment__header">
-            <a href={comment["posted_by"]["page"]}>{commenter_full_name}</a>
+            <.link href={comment["posted_by"]["page"]}>{commenter_full_name}</.link>
             <span :if={is_producer} class="label label--role">
               {dgettext("page-dataset-details", "data producer")}
             </span>
@@ -57,14 +57,14 @@
 
     <div :if={not is_nil(@current_user) and is_nil(@discussion["closed"])} class="discussion-form">
       <% current_user_in_org = @current_user["id"] in @org_member_ids %>
-      <a href={"#reply-#{@discussion["id"]}"} class="button-outline primary small">
+      <.link href={"#reply-#{@discussion["id"]}"} class="button-outline primary small">
         <i class="fa fa-reply"></i>
         <%= if current_user_in_org do %>
           {dgettext("page-dataset-details", "Respond or close")}
         <% else %>
           {dgettext("page-dataset-details", "Respond")}
         <% end %>
-      </a>
+      </.link>
       <div id={"reply-#{@discussion["id"]}"} class="discussion-modal">
         <%= form_for %{}, discussion_path(@socket, :post_answer, @dataset.datagouv_id, @discussion["id"]), fn f -> %>
           {textarea_autoexpand(f, :comment)}
