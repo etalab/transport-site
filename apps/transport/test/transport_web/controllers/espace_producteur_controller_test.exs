@@ -229,7 +229,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
          ]}
       ]
 
-      assert tbody_rows_without_recent_features == expected_tbody_rows
+      assert sort_attributes(tbody_rows_without_recent_features) == sort_attributes(expected_tbody_rows)
 
       # Verify the complete structure with the filtered tbody
       assert doc |> Floki.find(~s|[data-name="important-information"]|) |> length() == 1
@@ -279,7 +279,8 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
              mode: :producer,
              conn: conn
            )
-           |> Floki.parse_document!() == [
+           |> Floki.parse_document!()
+           |> sort_attributes() == [
              {"tr", [],
               [
                 {"td", [],
@@ -293,12 +294,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                    {"span", [{"class", "label"}], ["GTFS"]},
                    {"div", [{"title", "Période de validité"}],
                     [
-                      {"i", [{"class", "icon icon--calendar-alt"}, {"aria-hidden", "true"}], []},
+                      {"i", [{"aria-hidden", "true"}, {"class", "icon icon--calendar-alt"}], []},
                       {"span", [], [start_date]},
                       {"i",
                        [
-                         {"class", "icon icon--right-arrow ml-05-em"},
-                         {"aria-hidden", "true"}
+                         {"aria-hidden", "true"},
+                         {"class", "icon icon--right-arrow ml-05-em"}
                        ], []},
                       {"span", [{"class", "resource__summary--Error"}], [end_date]}
                     ]}
@@ -308,11 +309,11 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                  [
                    {"a",
                     [
-                      {"href",
-                       espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)},
                       {"class", "button-outline primary small"},
+                      {"data-tracking-action", "important_information_edit_resource_button"},
                       {"data-tracking-category", "espace_producteur"},
-                      {"data-tracking-action", "important_information_edit_resource_button"}
+                      {"href",
+                       espace_producteur_path(TransportWeb.Endpoint, :edit_resource, dataset.id, resource.datagouv_id)}
                     ], [{"i", [{"class", "fa fa-pen-to-square"}], []}, "Modifier la ressource\n  "]}
                  ]}
               ]}
@@ -1271,7 +1272,10 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                   {"href", gtfs_diff_url},
                   {"target", "_blank"}
                 ], ["Comparer avec mon GTFS"]}
-             ] = html |> Floki.find("a.button-outline")
+             ] =
+               html
+               |> Floki.find("a.button-outline")
+               |> Enum.map(fn {"a", attrs, [text]} -> {"a", Enum.sort(attrs), [String.trim(text)]} end)
 
       %URI{path: "/tools/gtfs_diff", query: query} = URI.new!(gtfs_diff_url)
 
@@ -1411,7 +1415,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       doc = html |> Floki.parse_document!()
 
-      assert doc |> Floki.find("table") == [
+      assert doc |> Floki.find("table") |> sort_attributes() == [
                {"table", [{"class", "table small-padding"}],
                 [
                   {"thead", [],
@@ -1433,12 +1437,12 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
                          [
                            {"a",
                             [
+                              {"class", "button-outline primary small"},
+                              {"data-tracking-action", "unanswered_discussion_button"},
+                              {"data-tracking-category", "espace_producteur"},
                               {"href",
                                dataset_path(conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|},
-                              {"target", "_blank"},
-                              {"class", "button-outline primary small"},
-                              {"data-tracking-category", "espace_producteur"},
-                              {"data-tracking-action", "unanswered_discussion_button"}
+                              {"target", "_blank"}
                             ],
                             [
                               {"i", [{"class", "icon fas fa-comments"}], []},
