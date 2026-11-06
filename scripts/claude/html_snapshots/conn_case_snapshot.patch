@@ -1,0 +1,37 @@
+diff --git a/apps/transport/test/support/conn_case.ex b/apps/transport/test/support/conn_case.ex
+index 8961307ce..3ea534652 100644
+--- a/apps/transport/test/support/conn_case.ex
++++ b/apps/transport/test/support/conn_case.ex
+@@ -36,10 +36,31 @@ defmodule TransportWeb.ConnCase do
+     end
+   end
+ 
+-  setup _tags do
++  setup tags do
++    # Snapshot instrumentation (scripts/claude/html_snapshots, never committed): saves every HTML page served when SNAPSHOT_DIR is set
++    if System.get_env("SNAPSHOT_DIR") do
++      Process.put(:snapshot_test, {tags.module, tags.test})
++      :telemetry.attach("snapshot-html", [:phoenix, :endpoint, :stop], &__MODULE__.snapshot_html/4, nil)
++    end
++
+     {:ok, conn: ConnTest.build_conn()}
+   end
+ 
++  def snapshot_html(_event, _measurements, %{conn: %Plug.Conn{status: 200, resp_body: body} = conn}, _config)
++      when not is_nil(body) do
++    with {module, test} <- Process.get(:snapshot_test),
++         ["text/html" <> _ | _] <- Plug.Conn.get_resp_header(conn, "content-type") do
++      n = Process.get(:snapshot_count, 0) + 1
++      Process.put(:snapshot_count, n)
++      name = test |> to_string() |> String.replace(~r/[^A-Za-z0-9]+/, "_") |> String.slice(0, 120)
++      path = Path.join([System.get_env("SNAPSHOT_DIR"), inspect(module), "#{name}-#{n}.html"])
++      File.mkdir_p!(Path.dirname(path))
++      File.write!(path, IO.iodata_to_binary(body))
++    end
++  end
++
++  def snapshot_html(_event, _measurements, _metadata, _config), do: :ok
++
+   def setup_admin_in_session(%Plug.Conn{} = conn, contact \\ nil) do
+     contact = contact || DB.Factory.insert_contact(%{datagouv_user_id: Ecto.UUID.generate()})
+     init_test_session(conn, %{current_user: %{"is_admin" => true, "id" => contact.datagouv_user_id}})

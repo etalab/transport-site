@@ -23,7 +23,8 @@ defmodule TransportWeb.Components.Pagination do
       <ul class="pagination">
         <li :for={link <- links(@conn, @page, @params, @anchor)} class={link.active && "active"}>
           <span :if={link.label == :ellipsis}>&hellip;</span>
-          <a :if={link.label != :ellipsis} href={link.href} rel={link.rel}>{link.label}</a>
+          <a :if={link.active} aria-current="page">{link.label}</a>
+          <a :if={link.href} href={link.href} rel={link.rel}>{link.label}</a>
         </li>
       </ul>
     </nav>
