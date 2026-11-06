@@ -192,6 +192,11 @@ defmodule TransportWeb.DatasetViewTest do
     assert count_documentation_resources(dataset) == 2
   end
 
+  test "history message links to the backed up resources" do
+    assert Phoenix.View.render_to_string(TransportWeb.DatasetView, "_history_message.html", count_history_resources: 1) =~
+             ~s(dans la section <a href="#backed-up-resources">Ressources historisées</a>.)
+  end
+
   describe "licence_link" do
     test "inactive filter", %{conn: conn} do
       conn = conn |> get(dataset_path(conn, :index))
