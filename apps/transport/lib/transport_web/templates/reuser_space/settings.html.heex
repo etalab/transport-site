@@ -46,10 +46,10 @@
           <% end %>
         </tbody>
       </table>
-      <a href={reuser_space_path(@conn, :new_token)} class="button">
+      <.link href={reuser_space_path(@conn, :new_token)} class="button">
         <i class="fa fa-plus icon"></i>
         {dgettext("reuser-space", "Create a new token")}
-      </a>
+      </.link>
       <h3>{dgettext("reuser-space", "Using tokens")}</h3>
       <p>
         {raw(
