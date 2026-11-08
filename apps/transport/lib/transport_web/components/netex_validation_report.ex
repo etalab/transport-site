@@ -31,55 +31,47 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   def netex_validation_report(%{report: %TransportWeb.NeTExValidationDetails{}, conn: _} = assigns) do
     ~H"""
-    <div id="validation-report" class="validation-content">
-      <%= if @inner_block do %>
-        <div class="container">
-          {render_slot(@inner_block)}
-        </div>
-      <% end %>
-
+    <%= if length(@inner_block) > 0 do %>
       <div class="container">
-        <.netex_validation_report_title
-          validation_report_url={@report.download_url}
-          max_severity={@report.max_severity}
-          results_adapter={@report.adapter}
-        />
-
-        <%= if @report.has_errors? do %>
-          <div id="issues">
-            <%= if has_categories?(@report.summary) do %>
-              <.netex_validation_report_content
-                conn={@conn}
-                current_category={@report.filter["issues_category"] || "xsd-schema"}
-                xsd_errors={@report.xsd_errors}
-                issues={@report.issues_page.entries}
-                results_adapter={@report.adapter}
-                validation_report_url={@report.download_url}
-                validation_summary={@report.summary}
-                pagination={
-                  netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")
-                }
-                xsd_version={@report.metadata["xsd_version"]}
-              />
-            <% else %>
-              <.netex_validation_report_content_v0_1_0
-                conn={@conn}
-                current_issue_type={@report.filter["issue_type"]}
-                issues_page={@report.issues_page}
-                results_adapter={@report.adapter}
-                validation_summary={@report.summary}
-                severities_count={@report.stats}
-                token={@conn.params["token"]}
-              />
-            <% end %>
-          </div>
-        <% else %>
-          <div class="panel">
-            <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
-          </div>
-        <% end %>
+        {render_slot(@inner_block)}
       </div>
-    </div>
+    <% end %>
+
+    <.netex_validation_report_title
+      validation_report_url={@report.download_url}
+      max_severity={@report.max_severity}
+      results_adapter={@report.adapter}
+    />
+
+    <%= if @report.has_errors? do %>
+      <%= if has_categories?(@report.summary) do %>
+        <.netex_validation_report_content
+          conn={@conn}
+          current_category={@report.filter["issues_category"] || "xsd-schema"}
+          xsd_errors={@report.xsd_errors}
+          issues={@report.issues_page.entries}
+          results_adapter={@report.adapter}
+          validation_report_url={@report.download_url}
+          validation_summary={@report.summary}
+          pagination={netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")}
+          xsd_version={@report.metadata["xsd_version"]}
+        />
+      <% else %>
+        <.netex_validation_report_content_v0_1_0
+          conn={@conn}
+          current_issue_type={@report.filter["issue_type"]}
+          issues_page={@report.issues_page}
+          results_adapter={@report.adapter}
+          validation_summary={@report.summary}
+          severities_count={@report.stats}
+          token={@conn.params["token"]}
+        />
+      <% end %>
+    <% else %>
+      <div class="panel">
+        <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
+      </div>
+    <% end %>
     """
   end
 
@@ -104,7 +96,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     ~H"""
     <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
     <div class="header_with_action_bar">
-      <h2>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h2>
+      <h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
       <.netex_validation_report_download validation_report_url={@validation_report_url} />
     </div>
     """
