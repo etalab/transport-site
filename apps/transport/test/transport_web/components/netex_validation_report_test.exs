@@ -1,13 +1,15 @@
 defmodule TransportWeb.NeTExValidationReportComponentTest do
   use ExUnit.Case, async: true
 
+  import NeTExTestData
   alias TransportWeb.NeTExValidationReportComponent
   require Phoenix.LiveViewTest
 
-  # It doesn't really matter which adapter is used
-  alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_0, as: ResultsAdapter
-
   defp render(fun, assigns), do: Phoenix.LiveViewTest.render_component(fun, assigns)
+
+  defp netex_conn(path_info \\ ["resources", "42"]) do
+    %Plug.Conn{method: "GET", path_info: path_info, query_params: %{}, params: %{}}
+  end
 
   setup do
     Gettext.put_locale(TransportWeb.Gettext, "en")
@@ -15,6 +17,18 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
   end
 
   describe "netex_validation_report_title/1" do
+    test "renders h4 for error count (matching production HTML structure)" do
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
+          validation_report_url: "/report/42",
+          results_adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
+          max_severity: %{"max_level" => "error", "worst_occurrences" => 5}
+        })
+
+      assert Floki.parse_fragment!(html) |> Floki.find("h4") |> length() == 1
+      refute Floki.parse_fragment!(html) |> Floki.find("h2") |> length() > 0
+    end
+
     test "renders fallback heading when no adapter or max_severity" do
       html =
         render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
@@ -31,7 +45,7 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       html =
         render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
           validation_report_url: "/report/42",
-          results_adapter: ResultsAdapter,
+          results_adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
           max_severity: %{"max_level" => "error", "worst_occurrences" => 5}
         })
 
@@ -63,6 +77,57 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
 
       assert html =~ "validation.csv"
       assert html =~ "validation.parquet"
+    end
+  end
+
+  describe "netex_validation_report/1 - structural tests" do
+    test "does not add wrapper div with duplicate id='validation-report'" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+
+      # Should NOT have an outer div with id="validation-report" - that's the caller's responsibility
+      assert Floki.parse_fragment!(html) |> Floki.find("#validation-report") |> length() == 0
+    end
+
+    test "does not add wrapper div with duplicate id='issues'" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+
+      # Should NOT have an outer div with id="issues" - that's the caller's responsibility
+      assert Floki.parse_fragment!(html) |> Floki.find("#issues") |> length() == 0
+    end
+
+    test "does not render empty container div when no inner_block" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+
+      # Should NOT have an empty container div when there's no inner_block
+      assert Floki.parse_fragment!(html) |> Floki.find(".container") |> length() == 0
+    end
+
+    test "renders title section with header_with_action_bar class" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+
+      # Should have header_with_action_bar (title section)
+      assert Floki.parse_fragment!(html) |> Floki.find(".header_with_action_bar") |> length() > 0
+    end
+
+    test "renders no-issues message when has_errors? is false" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+
+      assert html =~ "Nice work, there are no issues!"
     end
   end
 end
