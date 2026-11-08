@@ -1,0 +1,30 @@
+<section class="netex">
+  <div class="container">
+    <div class="validation-title">
+      <h2>{dgettext("validations", "NeTEx review report")}</h2>
+
+      <p>
+        {dgettext("validations", "explanations-netex")}
+      </p>
+      <p>
+        {dgettext("validations", "This report can be shared with")}
+        <.link href={current_url(@conn)}>{dgettext("validations", "this permanent link")}</.link>
+        {dgettext("validations", "during %{retention_days} days", retention_days: @report.retention_days)}.
+      </p>
+    </div>
+
+    <%= unless is_nil(@report.metadata) or @report.metadata == %{} do %>
+      {render("_resources_details_netex.html", metadata: @report.metadata, conn: @conn)}
+    <% end %>
+  </div>
+
+  <.netex_validation_report report={@report} conn={@conn}>
+    <p class="notification warning">
+      <strong>{dgettext("validations", "NeTEx validation is in beta.")}</strong> <br />
+    </p>
+  </.netex_validation_report>
+</section>
+
+<section class="section section-white">
+  {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "on_demand_validation"})}
+</section>
