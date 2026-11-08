@@ -7,6 +7,8 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   pagination. Callers can wrap it with an `inner_block` slot for surrounding
   context (beta warnings, explanatory text, footer attribution).
 
+  Handles both v0_1.0 (severity-based) and v0_2.x (category-based) summary formats.
+
   ## Usage
 
       <.netex_validation_report report={@report} conn={@conn}>
@@ -45,19 +47,31 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
         <%= if @report.has_errors? do %>
           <div id="issues">
-            <.netex_validation_report_content
-              conn={@conn}
-              current_category={@report.filter["issues_category"] || "xsd-schema"}
-              xsd_errors={@report.xsd_errors}
-              issues={@report.issues_page.entries}
-              results_adapter={@report.adapter}
-              validation_report_url={@report.download_url}
-              validation_summary={@report.summary}
-              pagination={
-                netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")
-              }
-              xsd_version={@report.metadata["xsd_version"]}
-            />
+            <%= if has_categories?(@report.summary) do %>
+              <.netex_validation_report_content
+                conn={@conn}
+                current_category={@report.filter["issues_category"] || "xsd-schema"}
+                xsd_errors={@report.xsd_errors}
+                issues={@report.issues_page.entries}
+                results_adapter={@report.adapter}
+                validation_report_url={@report.download_url}
+                validation_summary={@report.summary}
+                pagination={
+                  netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")
+                }
+                xsd_version={@report.metadata["xsd_version"]}
+              />
+            <% else %>
+              <.netex_validation_report_content_v0_1_0
+                conn={@conn}
+                current_issue_type={@report.filter["issue_type"]}
+                issues_page={@report.issues_page}
+                results_adapter={@report.adapter}
+                validation_summary={@report.summary}
+                severities_count={@report.stats}
+                token={@conn.params["token"]}
+              />
+            <% end %>
           </div>
         <% else %>
           <div class="panel">
@@ -68,6 +82,8 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     </div>
     """
   end
+
+  defp has_categories?(summary), do: summary |> Enum.any?(&Map.has_key?(&1, "category"))
 
   # Title section with severity formatting and download dialog
   @doc false
@@ -156,7 +172,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     """
   end
 
-  # Category navigation, selected category view, and issues list
+  # v0_2.x: Category navigation, selected category view, and issues list
   attr(:conn, Plug.Conn, required: true)
   attr(:current_category, :string, required: true)
   attr(:issues, :list, required: true)
@@ -213,19 +229,11 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   end
 
   defp sort_categories(summary, results_adapter) do
-    # v0_2.x summaries have %{"category" => ..., "stats" => ...}
-    # v0_1.0 summaries have %{"severity" => ..., "issues" => ...}
-    has_categories? = summary |> Enum.any?(&Map.has_key?(&1, "category"))
+    order = results_adapter.preferred_category_order()
+    ordered_map = Enum.with_index(order) |> Map.new()
 
-    if has_categories? do
-      order = results_adapter.preferred_category_order()
-      ordered_map = Enum.with_index(order) |> Map.new()
-
-      summary
-      |> Enum.sort_by(fn %{"category" => category} -> {Map.get(ordered_map, category, :infinity), category} end)
-    else
-      summary
-    end
+    summary
+    |> Enum.sort_by(fn %{"category" => category} -> {Map.get(ordered_map, category, :infinity), category} end)
   end
 
   defp netex_validation_selected_category(assigns) do
@@ -280,6 +288,56 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     </p>
     """
   end
+
+  # v0_1.0: Severity-based navigation and issues list
+  attr(:conn, Plug.Conn, required: true)
+  attr(:current_issue_type, :string, default: nil)
+  attr(:issues_page, :any, required: true, doc: "Scrivener.Page struct")
+  attr(:results_adapter, :any, required: true)
+  attr(:validation_summary, :list, required: true)
+  attr(:severities_count, :map, required: true)
+  attr(:token, :string, default: nil)
+
+  defp netex_validation_report_content_v0_1_0(assigns) do
+    ~H"""
+    <nav class="issues-list validation" role="navigation">
+      <%= for %{"severity" => severity, "issues" => issues} <- @validation_summary do %>
+        <%= if Map.get(@severities_count, severity, 0) > 0 do %>
+          <div class="validation-issue">
+            <h4>{@results_adapter.format_severity(severity, @severities_count[severity])}</h4>
+            <ul>
+              <%= for %{"key" => key, "issue" => issue} <- issues do %>
+                <li>
+                  <%= if issue["count"] > 0 do %>
+                    <.link
+                      href={current_url(@conn, Map.merge(%{"issue_type" => key}, drop_empty(%{"token" => @token}))) <> "#issues"}
+                      class={if(key == @current_issue_type, do: "active")}
+                    >
+                      {issue["title"]} (#{issue["count"]})
+                    </.link>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      <% end %>
+    </nav>
+
+    <%= if Enum.empty?(@issues_page.entries) do %>
+      <p>{dgettext("validations", "No validation error")}</p>
+    <% else %>
+      <.pagination
+        conn={@conn}
+        page={@issues_page}
+        params={[issue_type: @current_issue_type || @results_adapter.issue_type(@issues_page.entries)]}
+      />
+      <.netex_generic_issues issues={@issues_page.entries} />
+    <% end %>
+    """
+  end
+
+  defp drop_empty(map), do: Map.reject(map, fn {_, v} -> is_nil(v) end)
 
   # Category tab item
   attr(:conn, Plug.Conn, required: true)

@@ -3,12 +3,7 @@ defmodule TransportWeb.ResourceView do
   use Phoenix.Component
   import Phoenix.Controller, only: [current_url: 2]
 
-  import TransportWeb.NeTExReportComponents,
-    only: [
-      netex_generic_issues: 1,
-      netex_validation_report_content: 1,
-      netex_validation_report_title: 1
-    ]
+  import TransportWeb.NeTExValidationReportComponent, only: [netex_validation_report: 1]
 
   import TransportWeb.DatasetView,
     only: [documentation_url: 1, errors_count: 1, warnings_count: 1, multi_validation_performed?: 1, description: 1]
@@ -399,14 +394,6 @@ defmodule TransportWeb.ResourceView do
 
   defp element(element_name) do
     "<code>&lt;#{element_name}&gt;</code>"
-  end
-
-  def netex_pagination_links(conn, issues, current_category) do
-    assigns = %{conn: conn, issues: issues, current_category: current_category}
-
-    ~H"""
-    <.pagination conn={@conn} page={@issues} params={[issues_category: @current_category]} anchor="validation-report" />
-    """
   end
 
   def error_label(severity) do

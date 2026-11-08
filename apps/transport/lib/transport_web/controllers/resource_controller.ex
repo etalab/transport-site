@@ -207,25 +207,13 @@ defmodule TransportWeb.ResourceController do
         DB.Resource.download_validation_report_url(conn, resource)
       end
 
+    details = %{details | download_url: validation_report_url}
+
     conn
     |> assign_resource_details(resource)
-    |> assign(:validation_summary, details.summary)
-    |> assign(:severities_count, details.stats)
-    |> assign(:metadata, details.metadata)
-    |> assign(:modes, details.modes)
-    |> assign(:validation_report_url, validation_report_url)
-    |> assign(:filter, details.filter)
-    |> assign(:issues, details.issues_page)
-    |> assign(:xsd_errors, details.xsd_errors)
-    |> assign(:errors_template, errors_template_for(details.validator_version))
-    |> assign(:results_adapter, details.adapter)
-    |> assign(:max_severity, details.max_severity)
-    |> assign(:data_vis, nil)
+    |> assign(:report, details)
     |> render("netex_details.html")
   end
-
-  defp errors_template_for("0.2." <> _), do: "_netex_validation_errors_v0_2_x.html"
-  defp errors_template_for(_), do: "_netex_validation_errors_v0_1_0.html"
 
   defp assign_resource_details(conn, resource) do
     conn
