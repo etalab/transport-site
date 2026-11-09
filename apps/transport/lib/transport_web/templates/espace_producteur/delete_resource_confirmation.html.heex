@@ -18,7 +18,7 @@
           <i class="icon fa fa-trash"></i>{dgettext("espace-producteurs", "Delete the resource")}
         </button>
         <.link
-          href={espace_producteur_path(@conn, :edit_resource, @dataset.id, @datagouv_resource["id"])}
+          href={~p"/espace_producteur/datasets/#{@dataset.id}/resources/#{@datagouv_resource["id"]}"}
           data-tracking-category="espace_producteur"
           data-tracking-action="abort_delete_update_resource"
         >

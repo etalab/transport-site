@@ -36,7 +36,7 @@ defmodule TransportWeb.Live.UserSpaceDatasetsLive do
               </div>
               <div class="dataset__infos">
                 <h3 class="dataset__title">
-                  <.link href={dataset_path(@socket, :details, dataset.slug)} target="_blank">
+                  <.link href={~p"/datasets/#{dataset.slug}"} target="_blank">
                     <i class="fa fa-up-right-from-square" aria-hidden="true"></i>
                     {dataset.custom_title}
                   </.link>

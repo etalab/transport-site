@@ -31,7 +31,6 @@ defmodule TransportWeb.Live.ValidateResourceLive do
   use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers
 
   @hide_file_upload_formats ["gbfs", "gtfs-rt"]
   @file_validation_enabled_formats ["GTFS", "NeTEx"]
@@ -173,7 +172,7 @@ defmodule TransportWeb.Live.ValidateResourceLive do
       <.link
         class="button-outline primary small mt-12"
         target="_blank"
-        href={validation_path(@socket, :show, @multi_validation.id, token: @multi_validation.oban_args["secret_url_token"])}
+        href={~p"/validation/#{@multi_validation}?#{[token: @multi_validation.oban_args["secret_url_token"]]}"}
       >
         <i class="icon fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "See the validation report")}
       </.link>
