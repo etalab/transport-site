@@ -152,17 +152,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     ~H"""
     <div class="download-grid">
       <span>{dgettext("validations", "As a CSV file:")}</span>
-      <a class="download-button" href={"#{@url}?format=csv"} target="_blank">
-        <button class="button-outline small secondary">
-          <i class="icon icon--download" aria-hidden="true"></i> validation.csv
-        </button>
-      </a>
+      <.download_button url={@url} format="csv" />
       <span>{dgettext("validations", "As a Parquet file:")}</span>
-      <a class="download-button" href={"#{@url}?format=parquet"} target="_blank">
-        <button class="button-outline small secondary">
-          <i class="icon icon--download" aria-hidden="true"></i> validation.parquet
-        </button>
-      </a>
+      <.download_button url={@url} format="parquet" />
     </div>
     <hr />
     <p>
@@ -177,6 +169,16 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       )
       |> raw()}
     </p>
+    """
+  end
+
+  defp download_button(%{format: _, url: _} = assigns) do
+    ~H"""
+    <.link class="download-button" href={"#{@url}?format=#{@format}"} target="_blank">
+      <button class="button-outline small secondary">
+        <i class="icon icon--download" aria-hidden="true"></i> validation.{@format}
+      </button>
+    </.link>
     """
   end
 
