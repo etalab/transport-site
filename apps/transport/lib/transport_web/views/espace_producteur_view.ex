@@ -69,10 +69,10 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <tr>
       <td>
-        <a href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
+        <.link href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
           <i class="fa fa-arrow-up-right-from-square"></i>
           {@dataset.custom_title}
-        </a>
+        </.link>
       </td>
       <.issue_title issue={@issue} check_name={@check_name} multi_validation={@multi_validation} locale={@locale} />
       <.issue_name issue={@issue} check_name={@check_name} multi_validation={@multi_validation} />
@@ -123,14 +123,14 @@ defmodule TransportWeb.EspaceProducteurView do
   defp issue_link(%{mode: :producer, check_name: :unanswered_discussions} = assigns) do
     ~H"""
     <td>
-      <a
+      <.link
         href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="important_information_see_discussion_button"
       >
         <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
-      </a>
+      </.link>
     </td>
     """
   end
@@ -138,14 +138,14 @@ defmodule TransportWeb.EspaceProducteurView do
   defp issue_link(%{mode: :producer, check_name: _} = assigns) do
     ~H"""
     <td>
-      <a
+      <.link
         href={espace_producteur_path(TransportWeb.Endpoint, :edit_resource, @dataset.id, @issue.datagouv_id)}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="important_information_edit_resource_button"
       >
         <i class="fa fa-pen-to-square"></i>{dgettext("espace-producteurs", "Edit resource")}
-      </a>
+      </.link>
     </td>
     """
   end
@@ -154,7 +154,7 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <td>
       <div class="action-buttons">
-        <a
+        <.link
           href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
           class="button-outline primary small"
           target="_blank"
@@ -162,7 +162,7 @@ defmodule TransportWeb.EspaceProducteurView do
           data-tracking-action="important_information_see_resource_button"
         >
           {dgettext("reuser-space", "See the resource")}
-        </a>
+        </.link>
         <.hide_button dataset={@dataset} check_name={@check_name} resource_id={@issue.id} conn={@conn} />
       </div>
     </td>
@@ -173,14 +173,14 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <td>
       <div class="action-buttons">
-        <a
+        <.link
           href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
           class="button-outline primary small"
           data-tracking-category="espace_producteur"
           data-tracking-action="important_information_see_discussion_button"
         >
           <i class="icon fas fa-comments"></i>{dgettext("espace-producteurs", "See the discussion")}
-        </a>
+        </.link>
         <.hide_button dataset={@dataset} check_name={@check_name} discussion_id={@issue["id"]} conn={@conn} />
       </div>
     </td>

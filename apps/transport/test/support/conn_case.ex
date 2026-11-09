@@ -52,4 +52,14 @@ defmodule TransportWeb.ConnCase do
   def proxy_conn do
     %{Phoenix.ConnTest.build_conn() | host: "proxy.example.com"}
   end
+
+  @doc """
+  `<.link>` renders its extra attributes in an order that varies between VMs: sort them to compare Floki trees.
+  """
+  def sort_attributes(html_tree) do
+    Floki.traverse_and_update(html_tree, fn
+      {tag, attributes, children} -> {tag, Enum.sort(attributes), children}
+      other -> other
+    end)
+  end
 end

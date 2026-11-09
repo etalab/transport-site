@@ -2,22 +2,21 @@
 <br />
 <b>
   <%= if licence_url(@dataset.licence) do %>
-    {link(licence(@dataset), to: licence_url(@dataset.licence))}
+    <.link href={licence_url(@dataset.licence)}>{licence(@dataset)}</.link>
   <% else %>
     {licence(@dataset)}
   <% end %>
   <%= if @dataset.licence == "odc-odbl" do %>
     <%= if display_odbl_osm_conditions?(@dataset) do %>
       &#32 {dgettext("page-dataset-details", "and ")}
-      {link(dgettext("page-dataset-details", "OSM community guidelines"),
-        to: "https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines"
-      )}
+      <.link href="https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines">
+        {dgettext("page-dataset-details", "OSM community guidelines")}
+      </.link>
     <% else %>
       &#32 {dgettext("page-dataset-details", "and ")}
-      {link(dgettext("page-dataset-details", "Specific usage conditions"),
-        to:
-          "https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl"
-      )}
+      <.link href="https://doc.transport.data.gouv.fr/presentation-et-mode-demploi-du-pan/conditions-dutilisation-des-donnees/licence-odbl">
+        {dgettext("page-dataset-details", "Specific usage conditions")}
+      </.link>
     <% end %>
   <% end %>
 </b>

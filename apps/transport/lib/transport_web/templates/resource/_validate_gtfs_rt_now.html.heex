@@ -17,8 +17,8 @@
       url: associated_gtfs.url,
       feed_url: DB.Resource.download_url(@resource)
     ) %>
-  <a class="button" href={validation_path} target="_blank" role="link">
+  <.link class="button" href={validation_path} target="_blank" role="link">
     <i class="icon fa-check" aria-hidden="true"></i>
     {dgettext("validations", "Validate this GTFS-RT now")}
-  </a>
+  </.link>
 <% end %>
