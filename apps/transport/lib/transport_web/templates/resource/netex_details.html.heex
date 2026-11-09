@@ -50,7 +50,7 @@
       <%= if is_nil(@report) or is_nil(@report.summary) do %>
         {dgettext("validations", "No validation available")}
       <% else %>
-        <.netex_validation_report report={@report} conn={@conn} />
+        <.netex_validation_report report={@report} conn={@conn} heading_level={4} />
         <div class="issues-footer">
           <%= unless is_nil(@report.metadata) or @report.metadata == %{} do %>
             {render("_resources_netex_validation_details.html", conn: @conn, metadata: @report.metadata)}
