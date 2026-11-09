@@ -8,15 +8,7 @@ defmodule TransportWeb.Plugs.WorkerHealthcheckTest do
   @cache_key WorkerHealthcheck.app_start_datetime_cache_key_name()
 
   setup do
-    # Use a real in-memory cache for these tests to test the caching mecanism
-    old_value = Application.fetch_env!(:transport, :cache_impl)
-    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
-
-    on_exit(fn ->
-      Application.put_env(:transport, :cache_impl, old_value)
-      Cachex.reset(@cache_name)
-    end)
-
+    Transport.Test.CacheHelpers.use_real_cache()
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 

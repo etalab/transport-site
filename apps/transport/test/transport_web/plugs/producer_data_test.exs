@@ -11,14 +11,7 @@ defmodule TransportWeb.Plugs.ProducerDataTest do
   setup do
     Mox.stub_with(Transport.ValidatorsSelection.Mock, Transport.ValidatorsSelection.Impl)
 
-    # Use a real in-memory cache for these tests to test the caching mecanism
-    old_value = Application.fetch_env!(:transport, :cache_impl)
-    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
-
-    on_exit(fn ->
-      Application.put_env(:transport, :cache_impl, old_value)
-      Cachex.reset(@cache_name)
-    end)
+    Transport.Test.CacheHelpers.use_real_cache()
 
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
     # Cachex runs the cache computation function in a separate Courier process,
