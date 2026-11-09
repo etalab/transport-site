@@ -1,7 +1,7 @@
 <section class="container pt-48 pb-48">
   <div class="header_with_action_bar">
     <h1>Jobs Observation Center</h1>
-    <.link href={backoffice_live_path(@socket, TransportWeb.Backoffice.Jobs2Live, worker: @worker)}>
+    <.link href={~p"/backoffice/jobs/experimental?#{[worker: @worker]}"}>
       version expérimentale
     </.link>
   </div>

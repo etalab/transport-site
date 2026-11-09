@@ -22,7 +22,7 @@
     <div class="small">Rechercher par prénom, nom, titre ou organisation</div>
   </.form>
 
-  <.link class="button" href={backoffice_contact_path(@conn, :new)}>
+  <.link class="button" href={~p"/backoffice/contacts/new"}>
     <i class="fas fa-plus"></i> Créer un contact
   </.link>
 
@@ -63,7 +63,7 @@
     <.pagination conn={@conn} page={@contacts} />
   </div>
   <div class="pt-12">
-    <.link class="button-outline small secondary" href={backoffice_contact_path(@conn, :csv_export)}>
+    <.link class="button-outline small secondary" href={~p"/backoffice/contacts/csv_export"}>
       <i class="icon icon--download" aria-hidden="true"></i> Télécharger un export
     </.link>
   </div>

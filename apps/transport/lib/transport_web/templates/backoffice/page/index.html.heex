@@ -3,52 +3,52 @@
   <h2>Outils d'observation</h2>
 
   <% # See path explanation at https://elixirforum.com/t/scoped-live-view-does-not-seem-to-generate-a-live-path-helper/31162/4?u=thbar %>
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.ProxyConfigLive)}>
+  <.link class="button" href={~p"/backoffice/proxy-config"}>
     {dgettext("backoffice", "Proxy configuration")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.JobsLive)}>
+  <.link class="button" href={~p"/backoffice/jobs"}>
     {dgettext("backoffice", "Jobs")}
   </.link>
 
-  <.link class="button" href={backoffice_dashboard_path(@conn, :index)}>
+  <.link class="button" href={~p"/backoffice/dashboard"}>
     {dgettext("backoffice", "Rapport de complétude des imports")}
   </.link>
 
-  <.link class="button" href={backoffice_broken_urls_path(@conn, :index)}>
+  <.link class="button" href={~p"/backoffice/broken-urls"}>
     {dgettext("backoffice", "Changements d'URLs stables")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.CacheLive)}>
+  <.link class="button" href={~p"/backoffice/cache"}>
     {dgettext("backoffice", "Cache debug")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.RateLimiterLive)}>
+  <.link class="button" href={~p"/backoffice/rate_limiter"}>
     {dgettext("backoffice", "Rate limiter")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.DataImportBatchReportLive)}>
+  <.link class="button" href={~p"/backoffice/batch-report"}>
     {dgettext("backoffice", "GTFS data import")}
   </.link>
 
-  <.link class="button" href={live_dashboard_path(@conn, :home)}>
+  <.link class="button" href={~p"/backoffice/phoenix-dashboard"}>
     {dgettext("backoffice", "Phoenix LiveDashboard")}
   </.link>
 
-  <.link class="button" href={aoms_path(@conn, :index)}>
+  <.link class="button" href={~p"/aoms"}>
     {dgettext("backoffice", "AOM open data status")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.IRVEDashboardLive)}>
+  <.link class="button" href={~p"/backoffice/irve-dashboard"}>
     {dgettext("backoffice", "IRVE dashboard")}
   </.link>
 
-  <.link class="button" href={backoffice_live_path(@conn, TransportWeb.Backoffice.EmailPreviewLive)}>
+  <.link class="button" href={~p"/backoffice/email_preview"}>
     {dgettext("backoffice", "Email preview")}
   </.link>
   <h2>Actions</h2>
 
-  <.link class="button" href={backoffice_page_path(@conn, :new)}>
+  <.link class="button" href={~p"/backoffice/datasets/new"}>
     <i class="fas fa-plus"></i> {dgettext("backoffice", "Add a dataset")}
   </.link>
   <div class="import-all">
@@ -59,14 +59,14 @@
   <div>
     <.link
       class="button warning-light"
-      href={backoffice_breaking_news_path(@conn, :index)}
+      href={~p"/backoffice/breaking_news"}
       title="Afficher un message sur la home du site"
     >
       Publier une Breaking News
     </.link>
   </div>
   <div>
-    <.link class="button" href={backoffice_contact_path(@conn, :index)} title="Gérer les contacts">
+    <.link class="button" href={~p"/backoffice/contacts"} title="Gérer les contacts">
       👥 Gestion des contacts
     </.link>
   </div>
@@ -76,9 +76,7 @@
     <.link
       class="button"
       href={
-        backoffice_page_path(@conn, :download_datasets_csv, %{
-          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
-        })
+        ~p"/backoffice/download_datasets_csv?#{%{"export_key" => Application.fetch_env!(:transport, :export_secret_key)}}"
       }
       title="Export CSV des jeux de données"
     >
@@ -87,18 +85,16 @@
     <.link
       class="button"
       href={
-        backoffice_page_path(@conn, :download_resources_csv, %{
-          "export_key" => Application.fetch_env!(:transport, :export_secret_key)
-        })
+        ~p"/backoffice/download_resources_csv?#{%{"export_key" => Application.fetch_env!(:transport, :export_secret_key)}}"
       }
       title="Export CSV des ressources"
     >
       🗳 Export des ressources
     </.link>
-    <.link class="button" href={backoffice_gtfs_export_path(@conn, :export)} title="Export CSV des GTFS">
+    <.link class="button" href={~p"/backoffice/gtfs-export"} title="Export CSV des GTFS">
       🚏 Export des arrêts GTFS
     </.link>
-    <.link class="button" href={backoffice_contact_path(@conn, :csv_export)} title="Export CSV des contacts">
+    <.link class="button" href={~p"/backoffice/contacts/csv_export"} title="Export CSV des contacts">
       📓 Export des contacts
     </.link>
   </div>
@@ -183,7 +179,7 @@
       <div class="filter-section">
         <.link
           :for={filter <- dataset_filters()}
-          href={"#{backoffice_page_path(@conn, :index, Map.put(@conn.params, "filter", filter.key))}#list_datasets"}
+          href={"#{~p"/backoffice?#{Map.put(@conn.params, "filter", filter.key)}"}#list_datasets"}
           class={"filter-pill #{if @conn.params["filter"] == filter.key, do: "active"}"}
         >
           {filter.label}
@@ -191,7 +187,7 @@
         <%= if @conn.params["filter"] do %>
           <input type="hidden" name="filter" value={@conn.params["filter"]} />
           <.link
-            href={"#{backoffice_page_path(@conn, :index)}#list_datasets"}
+            href={"#{~p"/backoffice"}#list_datasets"}
             title={dgettext("backoffice", "Clear filter")}
             class="filter-clear"
           >
