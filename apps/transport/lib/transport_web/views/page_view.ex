@@ -13,9 +13,6 @@ defmodule TransportWeb.PageView do
   def thumb("y"), do: "👍"
   def thumb(_), do: "👎"
 
-  def make_link(""), do: "—"
-  def make_link(o), do: link("Lien", to: o)
-
   @doc """
   iex> nb_downloads_for_humans(2_400_420, "fr")
   "2 M"

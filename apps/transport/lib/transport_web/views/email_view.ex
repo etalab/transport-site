@@ -17,22 +17,25 @@ defmodule TransportWeb.EmailView do
 
   def link_for_dataset(%DB.Dataset{slug: slug, custom_title: custom_title}, anchor \\ "") do
     url = dataset_url(TransportWeb.Endpoint, :details, slug)
-    link(custom_title, to: url <> anchor)
+    assigns = %{url: url <> anchor, title: custom_title}
+    ~H|<.link href={@url}>{@title}</.link>|
   end
 
   def link_for_dataset_discussions(%DB.Dataset{slug: slug}) do
     url = dataset_url(TransportWeb.Endpoint, :details, slug)
-    link("l’espace de discussion du jeu de données", to: url <> "#dataset-discussions")
+    assigns = %{url: url <> "#dataset-discussions"}
+    ~H|<.link href={@url}>l’espace de discussion du jeu de données</.link>|
   end
 
   def link_for_dataset_with_type(%DB.Dataset{type: type} = dataset) do
-    link = link_for_dataset(dataset) |> Phoenix.HTML.safe_to_string()
-    Phoenix.HTML.raw(link <> " - (#{DB.Dataset.type_to_str(type)})")
+    assigns = %{link: link_for_dataset(dataset), type: DB.Dataset.type_to_str(type)}
+    ~H|{@link} - ({@type})|
   end
 
   def link_for_resource(%DB.Resource{id: id, title: title}) do
     url = resource_url(TransportWeb.Endpoint, :details, id)
-    link(title, to: url)
+    assigns = %{url: url, title: title}
+    ~H|<.link href={@url}>{@title}</.link>|
   end
 
   def link_for_espace_producteur(view_name) do
@@ -43,7 +46,8 @@ defmodule TransportWeb.EmailView do
         utm_campaign: to_string(view_name)
       )
 
-    link("Espace Producteur", to: url)
+    assigns = %{url: url}
+    ~H|<.link href={@url}>Espace Producteur</.link>|
   end
 
   def link_for_reuser_space(view_name) do
@@ -54,12 +58,13 @@ defmodule TransportWeb.EmailView do
         utm_campaign: to_string(view_name)
       )
 
-    link("Espace réutilisateur", to: url)
+    assigns = %{url: url}
+    ~H|<.link href={@url}>Espace réutilisateur</.link>|
   end
 
   def link_for_login do
     url = page_url(TransportWeb.Endpoint, :login, redirect_path: "/")
-
-    link("vous reconnecter", to: url)
+    assigns = %{url: url}
+    ~H|<.link href={@url}>vous reconnecter</.link>|
   end
 end
