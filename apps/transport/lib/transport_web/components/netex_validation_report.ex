@@ -65,6 +65,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       validation_summary={@report.summary}
       severities_count={@report.stats}
       token={@conn.params["token"]}
+      heading_level={@heading_level + 1}
     />
 
     <div :if={successful?(@report)} class="panel">
@@ -304,6 +305,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:validation_summary, :list, required: true)
   attr(:severities_count, :map, required: true)
   attr(:token, :string, default: nil)
+  attr(:heading_level, :integer, required: true)
 
   defp netex_validation_report_content_flat(assigns) do
     ~H"""
@@ -313,7 +315,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
         :if={Map.get(@severities_count, severity, 0) > 0}
         class="validation-issue"
       >
-        <h4>{@results_adapter.format_severity(severity, @severities_count[severity])}</h4>
+        <.heading level={@heading_level}>
+          {@results_adapter.format_severity(severity, @severities_count[severity])}
+        </.heading>
         <ul>
           <li :for={%{"key" => key, "issue" => issue} <- issues}>
             <.link
