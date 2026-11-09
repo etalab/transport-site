@@ -7,6 +7,8 @@ defmodule Transport.SchemasTest do
 
   @base_url "https://schema.data.gouv.fr"
 
+  setup {Transport.Test.CacheHelpers, :use_real_cache}
+
   setup do
     setup_schemas_response()
     Cachex.clear(Transport.Application.cache_name())
@@ -75,9 +77,10 @@ defmodule Transport.SchemasTest do
   defp setup_schemas_response do
     url = "https://schema.data.gouv.fr/schemas.json"
 
-    Transport.HTTPoison.Mock
-    |> expect(:get!, fn ^url ->
-      %HTTPoison.Response{body: File.read!("#{__DIR__}/../fixture/schemas/schemas.json"), status_code: 200}
+    Transport.Req.Mock
+    |> expect(:get!, fn ^url, options ->
+      assert [decode_body: false, retry: false, connect_options: [timeout: 5_000], receive_timeout: 10_000] == options
+      %Req.Response{body: File.read!("#{__DIR__}/../fixture/schemas/schemas.json"), status: 200}
     end)
   end
 

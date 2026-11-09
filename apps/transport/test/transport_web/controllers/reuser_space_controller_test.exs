@@ -5,8 +5,6 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
   import DB.Factory
   import Mox
 
-  @cache_name Transport.Cache.Cachex.cache_name()
-
   @home_url reuser_space_path(TransportWeb.Endpoint, :espace_reutilisateur)
   @google_maps_org_id "63fdfe4f4cd1c437ac478323"
 
@@ -162,13 +160,7 @@ defmodule TransportWeb.ReuserSpaceControllerTest do
 
       Datagouvfr.Client.Discussions.Mock |> stub(:get, fn _datagouv_id -> [] end)
 
-      old_cache_impl = Application.fetch_env!(:transport, :cache_impl)
-      Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
-
-      on_exit(fn ->
-        Application.put_env(:transport, :cache_impl, old_cache_impl)
-        Cachex.reset(@cache_name)
-      end)
+      Transport.Test.CacheHelpers.use_real_cache()
 
       # First page load: populates the cache with checks for [dataset_a, dataset_b].
       # At this point 1 check row is expected (unavailable resource on dataset_a).
