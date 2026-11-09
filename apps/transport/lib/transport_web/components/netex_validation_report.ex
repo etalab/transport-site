@@ -11,7 +11,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   ## Usage
 
-      <.netex_validation_report report={@report} conn={@conn}>
+      <.netex_validation_report report={@report} conn={@conn} heading_level={2}>
         <p>Beta warning goes here</p>
       </.netex_validation_report>
   """
@@ -26,6 +26,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   attr(:report, :map, required: true, doc: "%NeTExValidationDetails{} struct")
   attr(:conn, Plug.Conn, required: true)
+  attr(:heading_level, :integer, default: 4, doc: "HTML heading level for the error count (2-6)")
 
   slot(:inner_block, doc: "Surrounding context (beta warnings, explanatory text, etc.)")
 
@@ -41,6 +42,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       validation_report_url={@report.download_url}
       max_severity={@report.max_severity}
       results_adapter={@report.adapter}
+      heading_level={@heading_level}
     />
 
     <%= if @report.has_errors? do %>
@@ -82,11 +84,12 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:validation_report_url, :string, required: true)
   attr(:max_severity, :map, default: nil)
   attr(:results_adapter, :any, default: nil)
+  attr(:heading_level, :integer, default: 4)
 
   def netex_validation_report_title(%{results_adapter: nil, max_severity: nil} = assigns) do
     ~H"""
     <div class="header_with_action_bar">
-      <h2>{dgettext("validations", "NeTEx review report")}</h2>
+      <.heading level={@heading_level}>{dgettext("validations", "NeTEx review report")}</.heading>
       <.netex_validation_report_download validation_report_url={@validation_report_url} />
     </div>
     """
@@ -96,11 +99,21 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     ~H"""
     <% %{"max_level" => max_level, "worst_occurrences" => worst_occurrences} = @max_severity %>
     <div class="header_with_action_bar">
-      <h4>{@results_adapter.format_severity(max_level, worst_occurrences) |> String.capitalize()}</h4>
+      <.heading level={@heading_level}>
+        {String.capitalize(@results_adapter.format_severity(max_level, worst_occurrences))}
+      </.heading>
       <.netex_validation_report_download validation_report_url={@validation_report_url} />
     </div>
     """
   end
+
+  defp heading(%{level: 1} = assigns), do: ~H|<h1>{render_slot(@inner_block)}</h1>|
+  defp heading(%{level: 2} = assigns), do: ~H|<h2>{render_slot(@inner_block)}</h2>|
+  defp heading(%{level: 3} = assigns), do: ~H|<h3>{render_slot(@inner_block)}</h3>|
+  defp heading(%{level: 4} = assigns), do: ~H|<h4>{render_slot(@inner_block)}</h4>|
+  defp heading(%{level: 5} = assigns), do: ~H|<h5>{render_slot(@inner_block)}</h5>|
+  defp heading(%{level: 6} = assigns), do: ~H|<h6>{render_slot(@inner_block)}</h6>|
+  defp heading(%{level: _} = assigns), do: ~H|{render_slot(@inner_block)}|
 
   # Download dialog with CSV and Parquet options
   attr(:validation_report_url, :string, required: true)

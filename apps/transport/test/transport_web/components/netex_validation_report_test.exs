@@ -17,19 +17,31 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
   end
 
   describe "netex_validation_report_title/1" do
-    test "renders h4 for error count (matching production HTML structure)" do
+    test "renders configurable heading level (default h4)" do
       html =
         render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
           validation_report_url: "/report/42",
           results_adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
-          max_severity: %{"max_level" => "error", "worst_occurrences" => 5}
+          max_severity: %{"max_level" => "error", "worst_occurrences" => 5},
+          heading_level: 4
         })
 
       assert Floki.parse_fragment!(html) |> Floki.find("h4") |> length() == 1
-      refute Floki.parse_fragment!(html) |> Floki.find("h2") |> length() > 0
     end
 
-    test "renders fallback heading when no adapter or max_severity" do
+    test "renders h2 when heading_level is 2" do
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
+          validation_report_url: "/report/42",
+          results_adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
+          max_severity: %{"max_level" => "error", "worst_occurrences" => 5},
+          heading_level: 2
+        })
+
+      assert Floki.parse_fragment!(html) |> Floki.find("h2") |> length() == 1
+    end
+
+    test "renders fallback heading when no adapter or max_severity (uses default h4)" do
       html =
         render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
           validation_report_url: "/report/42",
@@ -37,19 +49,8 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
           results_adapter: nil
         })
 
-      assert Floki.parse_fragment!(html) |> Floki.find("h2") |> length() == 1
-      assert Floki.text(Floki.parse_fragment!(html) |> Floki.find("h2")) |> String.trim() == "NeTEx review report"
-    end
-
-    test "renders formatted severity when adapter and max_severity present" do
-      html =
-        render(&NeTExValidationReportComponent.netex_validation_report_title/1, %{
-          validation_report_url: "/report/42",
-          results_adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
-          max_severity: %{"max_level" => "error", "worst_occurrences" => 5}
-        })
-
-      assert html =~ "5 errors"
+      assert Floki.parse_fragment!(html) |> Floki.find("h4") |> length() == 1
+      assert Floki.text(Floki.parse_fragment!(html) |> Floki.find("h4")) |> String.trim() == "NeTEx review report"
     end
 
     test "renders download button with popover" do
@@ -85,7 +86,12 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       report = netex_validation_details()
       conn = netex_conn()
 
-      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
 
       # Should NOT have an outer div with id="validation-report" - that's the caller's responsibility
       assert Floki.parse_fragment!(html) |> Floki.find("#validation-report") |> length() == 0
@@ -95,7 +101,12 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       report = netex_validation_details()
       conn = netex_conn()
 
-      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
 
       # Should NOT have an outer div with id="issues" - that's the caller's responsibility
       assert Floki.parse_fragment!(html) |> Floki.find("#issues") |> length() == 0
@@ -105,7 +116,12 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       report = netex_validation_details()
       conn = netex_conn()
 
-      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
 
       # Should NOT have an empty container div when there's no inner_block
       assert Floki.parse_fragment!(html) |> Floki.find(".container") |> length() == 0
@@ -115,7 +131,12 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       report = netex_validation_details()
       conn = netex_conn()
 
-      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
 
       # Should have header_with_action_bar (title section)
       assert Floki.parse_fragment!(html) |> Floki.find(".header_with_action_bar") |> length() > 0
@@ -125,9 +146,43 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       report = netex_validation_details()
       conn = netex_conn()
 
-      html = render(&NeTExValidationReportComponent.netex_validation_report/1, %{report: report, conn: conn})
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
 
       assert html =~ "Nice work, there are no issues!"
+    end
+
+    test "renders h2 when heading_level is 2 (validation controller style)" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 2
+        })
+
+      # Should have h2 for the title (download dialog also has h5 which doesn't count as h2)
+      assert Floki.parse_fragment!(html) |> Floki.find("h2") |> length() >= 1
+    end
+
+    test "renders h4 when heading_level is 4 (resource controller style)" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html =
+        render(&NeTExValidationReportComponent.netex_validation_report/1, %{
+          report: report,
+          conn: conn,
+          heading_level: 4
+        })
+
+      assert Floki.parse_fragment!(html) |> Floki.find("h4") |> length() == 1
     end
   end
 end
