@@ -14,12 +14,7 @@ defmodule Transport.Validators.JSONSchemaTest do
 
   setup :verify_on_exit!
 
-  setup do
-    # Use a real in-memory cache for these tests to test the caching mechanism
-    old_value = Application.fetch_env!(:transport, :cache_impl)
-    Application.put_env(:transport, :cache_impl, Transport.Cache.Cachex)
-    on_exit(fn -> Application.put_env(:transport, :cache_impl, old_value) end)
-  end
+  setup {Transport.Test.CacheHelpers, :use_real_cache}
 
   setup do
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
