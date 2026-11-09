@@ -45,7 +45,7 @@
     <div :if={related_gtfs_resource != nil}>
       <span title={dgettext("page-dataset-details", "GTFS file to use with the GTFS-RT feed")}>
         <i class="icon fa fa-link" aria-hidden="true"></i><.link
-          href={resource_path(@conn, :details, related_gtfs_resource.resource_dst_id)}
+          href={~p"/resources/#{related_gtfs_resource.resource_dst_id}"}
           class="dark"
         >GTFS</.link>
       </span>
@@ -59,9 +59,7 @@
         <img class="icon icon--uptime" src={static_path(@conn, "/images/icons/uptime.svg")} />
         <% availability_ratio = unavailabilities[@resource.id] %>
         <span class={availability_ratio_class(availability_ratio)}>
-          <.link href={"#{resource_path(@conn, :details, @resource.id)}#download-availability"}>
-            {availability_ratio}%
-          </.link>
+          <.link href={"#{~p"/resources/#{@resource}"}#download-availability"}>{availability_ratio}%</.link>
         </span>
         <span class="small">{dgettext("page-dataset-details", "Availability rate")}</span>
       </span>
@@ -140,7 +138,7 @@
         </div>
       </div>
       <div>
-        <.link href={resource_path(@conn, :details, @resource.id)}>
+        <.link href={~p"/resources/#{@resource}"}>
           <button class="button-outline primary small">
             <i class="icon icon--plus" aria-hidden="true"></i>{dgettext("page-dataset-details", "details")}
           </button>
@@ -161,7 +159,7 @@
             query_template: "LinesDiscovery"
           ] %>
 
-          <.link href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
+          <.link href={~p"/tools/siri-querier?#{siri_querier_params}"}>
             <button class="button-outline primary small">{dgettext("page-dataset-details", "Try me!")}</button>
           </.link>
         <% end %>

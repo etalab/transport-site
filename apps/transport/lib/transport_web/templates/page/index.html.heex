@@ -4,11 +4,11 @@
       <div class="home-title">
         <h1>{dgettext("page-index", "title")}</h1>
         <h2>{dgettext("page-index", "subtitle")}</h2>
-        <.link href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "home_button")} class="button">
+        <.link href={~p"/espace_producteur?#{[utm_campaign: "home_button"]}"} class="button">
           {dgettext("page-index", "Producer space")}
         </.link>
         <.link
-          href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "home_button")}
+          href={~p"/espace_reutilisateur?#{[utm_campaign: "home_button"]}"}
           class="button reuser-space"
         >
           {dgettext("page-index", "Reuser space")}
@@ -36,7 +36,7 @@
           <h4>{dgettext("page-index", "You can also")}</h4>
           <div class="home-other-search-methods">
             <div class="search-method">
-              <.link href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)}>
+              <.link href={~p"/validation"}>
                 <img src={static_path(@conn, "/images/icons/validate.svg")} alt="Validation" />
                 {dgettext("page-index", "Validate your data")}
               </.link>
@@ -48,7 +48,7 @@
               </.link>
             </div>
             <div class="search-method">
-              <.link href={dataset_path(@conn, :index, order_by: "most_recent")}>
+              <.link href={~p"/datasets?#{[order_by: "most_recent"]}"}>
                 <img src={static_path(@conn, "/images/icons/recently-added-datasets.png")} alt="Data" />
                 {dgettext("page-index", "See newly added datasets")}
               </.link>
@@ -88,7 +88,7 @@
       </div>
     </div>
     <p class="text-center">
-      <.link href={page_path(@conn, :missions)}>{dgettext("page-index", "Learn more about our missions")}</.link>
+      <.link href={~p"/missions"}>{dgettext("page-index", "Learn more about our missions")}</.link>
     </p>
 
     <div class="existing pt-48" id="datasets">
@@ -141,7 +141,7 @@
         </div>
       </div>
       <div class="deployment-map">
-        <.link href={static_path(@conn, "/stats")} class="text-center">
+        <.link href={~p"/stats"} class="text-center">
           <img class="illustration" src={static_path(@conn, "/images/france.svg")} alt="" />
           <div>{dgettext("page-index", "See more statistics")}</div>
         </.link>
@@ -156,7 +156,7 @@
         <h2>{dgettext("page-index", "Are you producing transport data ?")}</h2>
         <p>{dgettext("page-index", "producer description") |> raw()}</p>
         <div class="row">
-          <.link class="button" href={page_path(@conn, :infos_producteurs)}>{gettext("Producer information")}</.link>
+          <.link class="button" href={~p"/infos_producteurs"}>{gettext("Producer information")}</.link>
         </div>
       </div>
       <img class="illustration" src={static_path(@conn, "/images/bus.svg")} alt="" />
@@ -173,7 +173,7 @@
           <.link href="https://doc.transport.data.gouv.fr/reutilisations-des-donnees/reutilisation-des-donnees">{dgettext("page-index", "Learn more")}</.link>.
         </p>
         <div class="row">
-          <.link class="button reuser-space" href={page_path(@conn, :infos_reutilisateurs)}>
+          <.link class="button reuser-space" href={~p"/infos_reutilisateurs"}>
             {gettext("Reuser information")}
           </.link>
         </div>
@@ -187,7 +187,7 @@
     <div class="companies__logos">
       <%= for facilitator <- @facilitators do %>
         <.link href={facilitator["website"]}>
-          <img src={static_path(@conn, "/images/logos/#{facilitator["image"]}")} alt={facilitator["name"]} />
+          <img src={~p"/images/logos/#{facilitator["image"]}"} alt={facilitator["name"]} />
         </.link>
       <% end %>
     </div>

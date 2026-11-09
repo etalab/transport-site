@@ -64,7 +64,7 @@
     <div class="pt-12">
       <.link
         class="button-outline small secondary"
-        href={dataset_path(@conn, :resources_history_csv, @dataset_id)}
+        href={~p"/datasets/#{@dataset_id}/resources_history_csv"}
         data-tracking-category="dataset_details"
         data-tracking-action="download_resources_history_csv"
         rel="nofollow"

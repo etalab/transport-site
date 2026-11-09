@@ -27,7 +27,7 @@
         </div>
       </div>
       <p>
-        <.link href={page_path(@conn, :missions)}>Découvrez la politique publique mise en œuvre et nos missions</.link>.
+        <.link href={~p"/missions"}>Découvrez la politique publique mise en œuvre et nos missions</.link>.
       </p>
     </div>
     <div class="domain theorical">
@@ -77,15 +77,15 @@
             </span>
             <p>
               Les données de transport en commun sont disponibles sur le site dans 2 formats,
-              <.link href="/datasets?format=GTFS&type=public-transit">GTFS</.link>
-              et <.link href="/datasets?format=NeTEx&type=public-transit">NeTEx</.link>.
+              <.link href={~p"/datasets?format=GTFS&type=public-transit"}>GTFS</.link>
+              et <.link href={~p"/datasets?format=NeTEx&type=public-transit"}>NeTEx</.link>.
             </p>
           </div>
           <div class="tile-numbers">
             <div class="tile">
               <h3>{@nb_gtfs}</h3>
               <div>
-                <.link href="/datasets?format=GTFS&type=public-transit">
+                <.link href={~p"/datasets?format=GTFS&type=public-transit"}>
                   jeux de données en <strong>GTFS</strong>
                 </.link>
               </div>
@@ -93,7 +93,7 @@
             <div class="tile">
               <h3>{@nb_netex}</h3>
               <div>
-                <.link href="/datasets?format=NeTEx&type=public-transit">
+                <.link href={~p"/datasets?format=NeTEx&type=public-transit"}>
                   jeux de données en <strong>NeTEx</strong>
                 </.link>
               </div>
@@ -109,7 +109,7 @@
           <div class="tile">
             <h3>{format_number(@nb_gtfs_rt, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <.link href="/datasets?format=gtfs-rt&type=public-transit">
+              <.link href={~p"/datasets?format=gtfs-rt&type=public-transit"}>
                 jeux de données<br />en <strong>GTFS-RT</strong>
               </.link>
             </div>
@@ -129,7 +129,7 @@
           <div class="tile">
             <h3>{format_number(@nb_siri, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <.link href="/datasets?format=SIRI&type=public-transit">
+              <.link href={~p"/datasets?format=SIRI&type=public-transit"}>
                 jeux de données<br />en <strong>SIRI</strong>
               </.link>
             </div>
@@ -137,7 +137,7 @@
           <div class="tile">
             <h3>{format_number(@nb_siri_lite, locale: get_session(@conn, :locale))}</h3>
             <div>
-              <.link href="/datasets?format=SIRI+Lite&type=public-transit">
+              <.link href={~p"/datasets?format=SIRI+Lite&type=public-transit"}>
                 jeux de données<br />en <strong>SIRI Lite</strong>
               </.link>
             </div>
@@ -240,7 +240,7 @@
           <div class="tile-numbers">
             <div class="tile">
               <h3>{@nb_vehicles_sharing_datasets}</h3>
-              <div><.link href="/datasets?type=vehicles-sharing">Jeux de données disponibles</.link></div>
+              <div><.link href={~p"/datasets?type=vehicles-sharing"}>Jeux de données disponibles</.link></div>
             </div>
             <div class="rt-viz">
               <%= for _i <- 1..@nb_vehicles_sharing_datasets//1 do %>
