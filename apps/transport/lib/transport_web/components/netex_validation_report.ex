@@ -32,11 +32,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   def netex_validation_report(%{report: %TransportWeb.NeTExValidationDetails{}, conn: _} = assigns) do
     ~H"""
-    <%= if length(@inner_block) > 0 do %>
-      <div class="container">
-        {render_slot(@inner_block)}
-      </div>
-    <% end %>
+    <div :if={length(@inner_block) > 0} class="container">
+      {render_slot(@inner_block)}
+    </div>
 
     <.netex_validation_report_title
       validation_report_url={@report.download_url}
@@ -45,37 +43,41 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       heading_level={@heading_level}
     />
 
-    <%= if @report.has_errors? do %>
-      <%= if has_categories?(@report.summary) do %>
-        <.netex_validation_report_content
-          conn={@conn}
-          current_category={@report.filter["issues_category"] || "xsd-schema"}
-          xsd_errors={@report.xsd_errors}
-          issues={@report.issues_page.entries}
-          results_adapter={@report.adapter}
-          validation_report_url={@report.download_url}
-          validation_summary={@report.summary}
-          pagination={netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")}
-          xsd_version={@report.metadata["xsd_version"]}
-        />
-      <% else %>
-        <.netex_validation_report_content_v0_1_0
-          conn={@conn}
-          current_issue_type={@report.filter["issue_type"]}
-          issues_page={@report.issues_page}
-          results_adapter={@report.adapter}
-          validation_summary={@report.summary}
-          severities_count={@report.stats}
-          token={@conn.params["token"]}
-        />
-      <% end %>
-    <% else %>
-      <div class="panel">
-        <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
-      </div>
-    <% end %>
+    <.netex_validation_report_content_categorized
+      :if={has_errors_and_categories?(@report)}
+      conn={@conn}
+      current_category={@report.filter["issues_category"] || "xsd-schema"}
+      xsd_errors={@report.xsd_errors}
+      issues={@report.issues_page.entries}
+      results_adapter={@report.adapter}
+      validation_report_url={@report.download_url}
+      validation_summary={@report.summary}
+      pagination={netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")}
+      xsd_version={@report.metadata["xsd_version"]}
+    />
+
+    <.netex_validation_report_content_flat
+      :if={has_flat_errors?(@report)}
+      conn={@conn}
+      current_issue_type={@report.filter["issue_type"]}
+      issues_page={@report.issues_page}
+      results_adapter={@report.adapter}
+      validation_summary={@report.summary}
+      severities_count={@report.stats}
+      token={@conn.params["token"]}
+    />
+
+    <div :if={successful?(@report)} class="panel">
+      <h2>{dgettext("validations", "Nice work, there are no issues!")}</h2>
+    </div>
     """
   end
+
+  defp has_errors_and_categories?(report), do: report.has_errors? and has_categories?(report.summary)
+
+  defp has_flat_errors?(report), do: report.has_errors? and not has_categories?(report.summary)
+
+  defp successful?(report), do: not report.has_errors?
 
   defp has_categories?(summary), do: summary |> Enum.any?(&Map.has_key?(&1, "category"))
 
@@ -188,7 +190,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:pagination, :any, required: true)
   attr(:xsd_version, :string, default: nil)
 
-  defp netex_validation_report_content(assigns) do
+  defp netex_validation_report_content_categorized(assigns) do
     ~H"""
     <% compliance_check = @results_adapter.french_profile_compliance_check() %>
     <% errors =
@@ -303,30 +305,27 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:severities_count, :map, required: true)
   attr(:token, :string, default: nil)
 
-  defp netex_validation_report_content_v0_1_0(assigns) do
+  defp netex_validation_report_content_flat(assigns) do
     ~H"""
     <nav class="issues-list validation" role="navigation">
-      <%= for %{"severity" => severity, "issues" => issues} <- @validation_summary do %>
-        <%= if Map.get(@severities_count, severity, 0) > 0 do %>
-          <div class="validation-issue">
-            <h4>{@results_adapter.format_severity(severity, @severities_count[severity])}</h4>
-            <ul>
-              <%= for %{"key" => key, "issue" => issue} <- issues do %>
-                <li>
-                  <%= if issue["count"] > 0 do %>
-                    <.link
-                      href={current_url(@conn, Map.merge(%{"issue_type" => key}, drop_empty(%{"token" => @token}))) <> "#issues"}
-                      class={if(key == @current_issue_type, do: "active")}
-                    >
-                      {issue["title"]} (#{issue["count"]})
-                    </.link>
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-      <% end %>
+      <div
+        :for={%{"severity" => severity, "issues" => issues} <- @validation_summary}
+        :if={Map.get(@severities_count, severity, 0) > 0}
+        class="validation-issue"
+      >
+        <h4>{@results_adapter.format_severity(severity, @severities_count[severity])}</h4>
+        <ul>
+          <li :for={%{"key" => key, "issue" => issue} <- issues}>
+            <.link
+              :if={issue["count"] > 0}
+              href={current_url(@conn, Map.merge(%{"issue_type" => key}, drop_empty(%{"token" => @token}))) <> "#issues"}
+              class={if(key == @current_issue_type, do: "active")}
+            >
+              {issue["title"]} (#{issue["count"]})
+            </.link>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <%= if Enum.empty?(@issues_page.entries) do %>
