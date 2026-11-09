@@ -10,3 +10,5 @@ Assuming you've sourced the required environment variables (mostly the database 
 ```
 mix run scripts/my-script.exs
 ```
+
+`claude/` holds the tooling used for app-wide refactorings (HTML snapshots), see its README.

@@ -1249,6 +1249,7 @@ defmodule TransportWeb.EspaceProducteurControllerTest do
 
       assert html |> Floki.find("h2") |> Floki.text() =~ "Repartage des données améliorées"
       assert html |> Floki.find("table") |> Floki.text() =~ reuser_improved_data.organization.name
+      assert [_] = html |> Floki.find(~s|.producer-actions p a[href="/tools/gtfs_diff"]|)
 
       # Actions buttons
       download_url = reuser_improved_data.download_url
