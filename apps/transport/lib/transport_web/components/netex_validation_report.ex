@@ -261,26 +261,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
       <div :if={Enum.count(@errors) > 0} id="issues-list">
         <%= if @current_category == "xsd-schema" do %>
-          <p>
-            {dgettext(
-              "validations-explanations",
-              "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
-              validation_report_url: @validation_report_url
-            )
-            |> raw()}
-          </p>
+          <.xsd_schema_intro validation_report_url={@validation_report_url} />
           <.non_translated_messages locale={locale} />
-          <table class="table netex_xsd_schema">
-            <tr>
-              <th>{dgettext("validations-explanations", "Occurrences")}</th>
-              <th>{dgettext("validations-explanations", "Message")}</th>
-            </tr>
-
-            <tr :for={xsd_error <- @errors} class="message">
-              <td>{Helpers.format_number(xsd_error["counts"], locale: locale)}</td>
-              <td lang="en">{xsd_error["message"]}</td>
-            </tr>
-          </table>
+          <.netex_xsd_issues issues={@errors} locale={locale} />
         <% else %>
           <.non_translated_messages locale={locale} />
           <.netex_generic_issues issues={@errors} />
@@ -288,6 +271,19 @@ defmodule TransportWeb.NeTExValidationReportComponent do
         <% end %>
       </div>
     </div>
+    """
+  end
+
+  defp xsd_schema_intro(%{validation_report_url: _} = assigns) do
+    ~H"""
+    <p>
+      {dgettext(
+        "validations-explanations",
+        "Here is a summary of XSD validation errors. Full detail of those errors is available in the <a href=\"%{validation_report_url}\" target=\"_blank\">CSV report</a>. Those errors are produced by <a href=\"https://gnome.pages.gitlab.gnome.org/libxml2/xmllint.html\" target=\"_blank\">xmllint</a>.",
+        validation_report_url: @validation_report_url
+      )
+      |> raw()}
+    </p>
     """
   end
 
@@ -456,6 +452,26 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       <% markdown = with_string(&french_profile.markdown(&1, header_level: 6)) %>
       {markdown_to_safe_html!(markdown)}
     </dialog>
+    """
+  end
+
+  # XSD issues table
+  attr(:issues, :list, required: true)
+  attr(:locale, :string, required: true)
+
+  defp netex_xsd_issues(assigns) do
+    ~H"""
+    <table class="table netex_xsd_schema">
+      <tr>
+        <th>{dgettext("validations-explanations", "Occurrences")}</th>
+        <th>{dgettext("validations-explanations", "Message")}</th>
+      </tr>
+
+      <tr :for={xsd_error <- @issues} class="message">
+        <td>{Helpers.format_number(xsd_error["counts"], locale: @locale)}</td>
+        <td lang="en">{xsd_error["message"]}</td>
+      </tr>
+    </table>
     """
   end
 
