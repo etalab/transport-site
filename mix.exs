@@ -11,10 +11,6 @@ defmodule Transport.MixProject do
         #  - hackney: fixed only in 4.x (major release adding HTTP/2/3), needs a dedicated upgrade PR
         #    (hackney is used directly and as httpoison/tesla adapter).
         #    https://github.com/benoitc/hackney/security/advisories/GHSA-pj7v-xfvx-wmjq
-        #  - decimal: DoS fixed only in decimal 3.x (no 2.x backport). Resolution to 3.x does succeed,
-        #    but it requires bumping ecto, explorer and the whole ex_cldr family together, and
-        #    explorer 0.12 breaks Transport.IRVE.Deduplicator (mutate_with/3 shape mismatch).
-        #    https://github.com/etalab/transport-site/issues/5579
         #  - cowlib: CRLF-injection advisories (EEF-CVE-2026-43966, EEF-CVE-2026-43969) have no fixed
         #    version listed on OSV, so they keep being reported on every cowlib release.
         #    https://github.com/ninenines/cowlib/issues/152
@@ -31,8 +27,6 @@ defmodule Transport.MixProject do
           "EEF-CVE-2026-47071",
           "EEF-CVE-2026-47075",
           "EEF-CVE-2026-47076",
-          # decimal DoS (fix is 3.x, held back by an explorer 0.12 regression — see above)
-          "EEF-CVE-2026-32686",
           # cowlib CRLF-injection (no fixed version on OSV)
           "EEF-CVE-2026-43966",
           "EEF-CVE-2026-43969",

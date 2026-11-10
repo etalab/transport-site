@@ -1,5 +1,6 @@
 defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
   use ExUnit.Case, async: true
+  require Explorer.DataFrame
   alias Explorer.DataFrame, as: DF
   alias Transport.Validators.NeTEx.ResultsAdapters.Commons
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1, make_pagination_config: 2]
@@ -45,6 +46,24 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
                "resource.line" => nil
              }
            ] == example() |> DF.to_rows()
+  end
+
+  test "dataframe building during a window expression" do
+    # A window expression holds Polars' global string cache: Explorer < 0.12 decoded categories built meanwhile as nil.
+    expected = example() |> Explorer.DataFrame.to_rows()
+    df = Explorer.DataFrame.new(group: Enum.map(1..100_000, &rem(&1, 1_000)), value: Enum.to_list(1..100_000))
+
+    window =
+      Task.async(fn ->
+        fn -> df |> Explorer.DataFrame.group_by("group") |> Explorer.DataFrame.mutate(max: max(value)) end
+        |> Stream.repeatedly()
+        |> Stream.run()
+      end)
+
+    rows = Enum.map(1..50, fn _ -> example() |> Explorer.DataFrame.to_rows() end)
+    Task.shutdown(window, :brutal_kill)
+
+    assert Enum.uniq(rows) == [expected]
   end
 
   test "serialisation roundtrip" do
