@@ -28,7 +28,7 @@ defmodule TransportWeb.DiscussionController do
         Logger.error("When starting a new discussion: #{inspect(error)}")
         put_flash(conn, :error, dgettext("page-dataset-details", "Unable to start a new discussion"))
     end
-    |> redirect(to: dataset_path(conn, :details, dataset_slug))
+    |> redirect(to: ~p"/datasets/#{dataset_slug}")
   end
 
   @spec post_answer(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -55,7 +55,7 @@ defmodule TransportWeb.DiscussionController do
         conn
         |> put_flash(:error, dgettext("page-dataset-details", "Unable to publish the answer"))
     end
-    |> redirect(to: dataset_path(conn, :details, dataset_slug))
+    |> redirect(to: ~p"/datasets/#{dataset_slug}")
   end
 
   defp assign_dataset(%Plug.Conn{params: %{"dataset_slug" => dataset_slug}} = conn, _options) do

@@ -55,7 +55,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
           ". ",
           TransportWeb.CoreComponents.link_html(
             dgettext("backoffice_dataset", "Check the dataset page"),
-            dataset_path(conn, :details, dataset_datagouv_id)
+            ~p"/datasets/#{dataset_datagouv_id}"
           )
         ],
         msgs.error[form_params["action"]]
@@ -121,7 +121,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
   @spec import_from_data_gouv_fr(Plug.Conn.t(), map) :: Plug.Conn.t()
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id, "stay_on_page" => "true"}),
-    do: redirect(import_from_data_gouv_fr_aux(conn, id), to: backoffice_page_path(conn, :edit, id))
+    do: redirect(import_from_data_gouv_fr_aux(conn, id), to: ~p"/backoffice/datasets/#{id}/edit")
 
   def import_from_data_gouv_fr(%Plug.Conn{} = conn, %{"id" => id}),
     do: redirect_to_index(import_from_data_gouv_fr_aux(conn, id))
@@ -204,7 +204,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
     conn
     |> put_flash(flash_type, flash_msg)
-    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+    |> redirect(to: ~p"/backoffice/datasets/#{dataset_id}/edit")
   end
 
   def resource_related_delete(%Plug.Conn{} = conn, %{"id" => dataset_id} = params) do
@@ -229,7 +229,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
     conn
     |> put_flash(flash_type, flash_msg)
-    |> redirect(to: backoffice_page_path(conn, :edit, dataset_id))
+    |> redirect(to: ~p"/backoffice/datasets/#{dataset_id}/edit")
   end
 
   def resource_format_override(%Plug.Conn{} = conn, params) do
@@ -245,7 +245,7 @@ defmodule TransportWeb.Backoffice.DatasetController do
 
     conn
     |> put_flash(:info, "Le format de la ressource a été changé")
-    |> redirect(to: backoffice_page_path(conn, :edit, dataset.id))
+    |> redirect(to: ~p"/backoffice/datasets/#{dataset.id}/edit")
   end
 
   ## Private functions
@@ -270,5 +270,5 @@ defmodule TransportWeb.Backoffice.DatasetController do
   defp import_data(nil), do: {:error, dgettext("backoffice", "Unable to find dataset")}
 
   defp redirect_to_index(conn),
-    do: redirect(conn, to: backoffice_page_path(conn, :index, conn.params |> Map.take(["q"])))
+    do: redirect(conn, to: ~p"/backoffice?#{conn.params |> Map.take(["q"])}")
 end

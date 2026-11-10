@@ -3,7 +3,7 @@
     <img
       :if={DB.Dataset.climate_resilience_bill?(@dataset)}
       class="icon---climate-resilience-bill small"
-      src={static_path(@conn, "/images/loi-climat-resilience.png")}
+      src={~p"/images/loi-climat-resilience.png"}
     />
     <span
       :if={@dataset.is_hidden}

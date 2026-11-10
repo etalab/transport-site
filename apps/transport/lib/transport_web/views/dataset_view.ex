@@ -93,8 +93,8 @@ defmodule TransportWeb.DatasetView do
     url =
       case insee do
         # This is for the "All" region
-        nil -> dataset_path(conn, :index)
-        _ -> dataset_path(conn, :by_region, insee)
+        nil -> ~p"/datasets"
+        _ -> ~p"/datasets/region/#{insee}"
       end
 
     params = conn.query_params

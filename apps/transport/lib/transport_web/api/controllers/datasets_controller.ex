@@ -187,7 +187,7 @@ defmodule TransportWeb.API.DatasetController do
       "id" => dataset.datagouv_id,
       "title" => dataset.custom_title,
       "created_at" => dataset.created_at |> DateTime.to_date() |> Date.to_string(),
-      "page_url" => TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
+      "page_url" => url(~p"/datasets/#{dataset.slug}"),
       "slug" => dataset.slug,
       "updated" => Helpers.last_updated(Dataset.official_resources(dataset)),
       "resources" => Enum.map(dataset.resources, &transform_resource/1),
@@ -297,7 +297,7 @@ defmodule TransportWeb.API.DatasetController do
       end
 
     %{
-      "page_url" => TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :details, resource.id),
+      "page_url" => url(~p"/resources/#{resource.id}"),
       "id" => resource.id,
       "datagouv_id" => resource.datagouv_id,
       "title" => resource.title,
@@ -503,7 +503,7 @@ defmodule TransportWeb.API.DatasetController do
     resources =
       Enum.map(resources, fn %{"url" => url} = resource ->
         is_download_url =
-          url == TransportWeb.Router.Helpers.resource_url(TransportWeb.Endpoint, :download, resource["id"])
+          url == url(~p"/resources/#{resource["id"]}/download")
 
         if is_download_url or DB.Resource.served_by_proxy?(resource) do
           Map.put(resource, "url", url <> "?token=#{secret}")

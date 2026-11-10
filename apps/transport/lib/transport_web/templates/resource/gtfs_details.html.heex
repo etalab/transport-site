@@ -104,7 +104,7 @@ locale = get_session(@conn, :locale) %>
   </div>
   <div class="dataset-metas"></div>
 </div>
-<script src={static_path(@conn, "/js/utils.js")} />
+<script src={~p"/js/utils.js"} />
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     addSeeMore("5em",

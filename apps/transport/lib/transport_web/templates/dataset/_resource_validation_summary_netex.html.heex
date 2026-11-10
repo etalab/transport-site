@@ -1,6 +1,6 @@
 <%= unless is_nil(@validation) do %>
   <div class="pb-24">
-    <% link = resource_path(@conn, :details, @resource.id) <> "#validation-report" %>
+    <% link = ~p"/resources/#{@resource.id}" <> "#validation-report" %>
     <% results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(@validation.validator_version) %>
     <% %{"max_level" => severity, "worst_occurrences" => count} = @validation.digest["max_severity"] %>
     <.link href={link}>

@@ -1,7 +1,6 @@
 defmodule TransportWeb.EditDatasetLive do
   use TransportWeb, :live_view
   alias DB.Dataset
-  import TransportWeb.Router.Helpers
 
   def mount(
         _params,
@@ -15,8 +14,8 @@ defmodule TransportWeb.EditDatasetLive do
       ) do
     form_url =
       case dataset do
-        nil -> backoffice_dataset_path(socket, :post)
-        %{id: dataset_id} -> backoffice_dataset_path(socket, :post, dataset_id)
+        nil -> ~p"/backoffice/datasets"
+        %{id: dataset_id} -> ~p"/backoffice/datasets/#{dataset_id}"
       end
 
     dataset_organization =

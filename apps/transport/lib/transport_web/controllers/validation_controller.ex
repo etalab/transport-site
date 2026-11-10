@@ -23,7 +23,7 @@ defmodule TransportWeb.ValidationController do
     |> Repo.insert!()
 
     # for the moment, on demand GBFS validations results are not stored in DB
-    redirect(conn, to: gbfs_analyzer_path(conn, :index, url: url))
+    redirect(conn, to: ~p"/tools/gbfs/analyze?#{[url: url]}")
   end
 
   def validate(%Plug.Conn{} = conn, %{"upload" => %{"url" => _, "feed_url" => _, "type" => "gtfs-rt"} = params}) do
@@ -48,16 +48,7 @@ defmodule TransportWeb.ValidationController do
             "Each GTFS-RT feed can only be validated once per 5 minutes. Please wait a moment and try again."
           )
         )
-        |> redirect(
-          to:
-            live_path(
-              conn,
-              TransportWeb.Live.OnDemandValidationSelectLive,
-              params
-              |> Enum.sort_by(fn {k, _} -> k end)
-              |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
-            )
-        )
+        |> redirect(to: ~p"/validation?#{Enum.sort(params)}")
     end
   end
 
@@ -108,9 +99,7 @@ defmodule TransportWeb.ValidationController do
         max_file_size: Sizeable.filesize(@max_irve_file_size_bytes)
       )
     )
-    |> redirect(
-      to: live_path(conn, TransportWeb.Live.OnDemandValidationSelectLive, type: "etalab/schema-irve-statique")
-    )
+    |> redirect(to: ~p"/validation?#{[type: "etalab/schema-irve-statique"]}")
   end
 
   defp validate_irve_statique(conn, file_path, filename, _size) do
@@ -146,7 +135,7 @@ defmodule TransportWeb.ValidationController do
          oban_args: %{"secret_url_token" => token},
          id: id
        }) do
-    redirect(conn, to: validation_path(conn, :show, id, token: token))
+    redirect(conn, to: ~p"/validation/#{id}?#{[token: token]}")
   end
 
   def show(%Plug.Conn{} = conn, %{} = params) do
@@ -201,7 +190,7 @@ defmodule TransportWeb.ValidationController do
           session: %{
             "validation_id" => params["id"],
             "issue_type" => params["issue_type"],
-            "current_url" => validation_path(conn, :show, params["id"], token: token)
+            "current_url" => ~p"/validation/#{params["id"]}?#{[token: token]}"
           }
         )
     end
@@ -303,7 +292,7 @@ defmodule TransportWeb.ValidationController do
 
     validation_report_url =
       if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
-        validation_url(conn, :download_validation_report, validation.id, token: params["token"])
+        url(~p"/validation/#{validation.id}/download-validation-report?#{[token: params["token"]]}")
       end
 
     conn

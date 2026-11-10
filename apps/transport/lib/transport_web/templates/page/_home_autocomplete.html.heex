@@ -7,5 +7,5 @@
     content: '<%= autocomplete_translations() |> Map.fetch!("results-description") %>';
   }
 </style>
-<script src={static_path(@conn, "/js/autocomplete.js")}>
+<script src={~p"/js/autocomplete.js"}>
 </script>

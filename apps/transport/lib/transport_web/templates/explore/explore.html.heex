@@ -1,4 +1,4 @@
-<% vehicles_sharing_datasets_link = dataset_path(@conn, :index, type: "vehicles-sharing") %>
+<% vehicles_sharing_datasets_link = ~p"/datasets?#{[type: "vehicles-sharing"]}" %>
 <div class="container dataset-page-top explore">
   <h2>{dgettext("explore", "Data exploration map")}</h2>
 
@@ -58,7 +58,7 @@
     </div>
   </div>
   <div class="form__group">
-    <%= form_for @conn, explore_path(@conn, :index), [method: "get"], fn f -> %>
+    <%= form_for @conn, ~p"/explore", [method: "get"], fn f -> %>
       <div class="searchBar">
         {search_input(f, :q,
           id: "autoComplete",
@@ -77,7 +77,7 @@
 
 <div id="map" class="explore_map"></div>
 
-<script src={static_path(@conn, "/js/autocomplete_address.js")}>
+<script src={~p"/js/autocomplete_address.js"}>
 </script>
-<script src={static_path(@conn, "/js/explore.js")}>
+<script src={~p"/js/explore.js"}>
 </script>

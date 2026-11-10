@@ -22,17 +22,17 @@ defmodule TransportWeb.Backoffice.ContactController do
   def create(%Plug.Conn{} = conn, %{"contact" => params}) do
     case DB.Contact.changeset(existing_contact(params), params) do
       %Ecto.Changeset{valid?: false} ->
-        conn |> redirect(to: backoffice_contact_path(conn, :new, params))
+        conn |> redirect(to: ~p"/backoffice/contacts/new?#{params}")
 
       %Ecto.Changeset{valid?: true} = changeset ->
         case changeset |> DB.Repo.insert_or_update() do
           {:ok, _} ->
-            conn |> put_flash(:info, "Contact mis à jour") |> redirect(to: backoffice_contact_path(conn, :index))
+            conn |> put_flash(:info, "Contact mis à jour") |> redirect(to: ~p"/backoffice/contacts")
 
           {:error, %Ecto.Changeset{errors: [email: {"has already been taken", _}]}} ->
             conn
             |> put_flash(:error, "Un contact existe déjà avec cette adresse e-mail")
-            |> redirect(to: backoffice_contact_path(conn, :index))
+            |> redirect(to: ~p"/backoffice/contacts")
         end
     end
   end
@@ -52,7 +52,7 @@ defmodule TransportWeb.Backoffice.ContactController do
 
     conn
     |> put_flash(:info, "Le contact a été supprimé")
-    |> redirect(to: backoffice_contact_path(conn, :index))
+    |> redirect(to: ~p"/backoffice/contacts")
   end
 
   def csv_export(%Plug.Conn{assigns: %{current_user: current_user}} = conn, _params) do

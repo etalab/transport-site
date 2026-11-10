@@ -4,12 +4,11 @@ defmodule TransportWeb.PageController do
   alias Transport.CachedFiles
   import Ecto.Query
   import TransportWeb.DatasetView, only: [icon_type_path: 1]
-  import TransportWeb.Router.Helpers
 
   def index(conn, _params) do
     conn
     |> merge_assigns(home_index_stats())
-    |> assign(:tiles, home_tiles(conn) |> Enum.map(&patch_vls_tiles/1))
+    |> assign(:tiles, home_tiles() |> Enum.map(&patch_vls_tiles/1))
     |> put_breaking_news(DB.BreakingNews.get_breaking_news())
     |> render("index.html")
   end
@@ -53,7 +52,7 @@ defmodule TransportWeb.PageController do
 
   def login(conn, params) do
     conn
-    |> put_session(:redirect_path, Map.get(params, "redirect_path", "/"))
+    |> put_session(:redirect_path, Map.get(params, "redirect_path", ~p"/"))
     |> render("login.html")
   end
 
@@ -119,7 +118,7 @@ defmodule TransportWeb.PageController do
     Disallow: /validation/*
     Disallow: /login/*
     Disallow: /resources/conversions/*
-    Sitemap: #{page_url(TransportWeb.Endpoint, :sitemap_txt)}
+    Sitemap: #{url(~p"/sitemap.txt")}
     """
   end
 
@@ -148,34 +147,34 @@ defmodule TransportWeb.PageController do
           commune_insees = DB.Commune |> select([c], c.insee) |> DB.Repo.all()
 
           [
-            page_url(conn, :index),
-            page_url(conn, :missions),
-            page_url(conn, :nouveautes),
-            page_url(conn, :accessibility),
-            page_url(conn, :infos_producteurs),
-            page_url(conn, :infos_reutilisateurs),
-            page_url(conn, :robots_txt),
-            page_url(conn, :security_txt),
-            page_url(conn, :humans_txt),
-            espace_producteur_url(conn, :espace_producteur),
-            reuser_space_url(conn, :espace_reutilisateur),
-            reuse_url(conn, :index),
-            stats_url(conn, :index),
-            explore_url(conn, :vehicle_positions),
-            explore_url(conn, :gtfs_stops),
-            session_url(conn, :new),
-            landing_pages_url(conn, :vls),
-            live_url(conn, TransportWeb.Live.OnDemandValidationSelectLive),
-            live_url(conn, TransportWeb.Live.GTFSDiffSelectLive),
-            live_url(conn, TransportWeb.Live.SIRIQuerierLive),
-            dataset_url(conn, :index)
+            url(~p"/"),
+            url(~p"/missions"),
+            url(~p"/nouveautes"),
+            url(~p"/accessibilite"),
+            url(~p"/infos_producteurs"),
+            url(~p"/infos_reutilisateurs"),
+            url(~p"/robots.txt"),
+            url(~p"/.well-known/security.txt"),
+            url(~p"/humans.txt"),
+            url(~p"/espace_producteur"),
+            url(~p"/espace_reutilisateur"),
+            url(~p"/reuses"),
+            url(~p"/stats"),
+            url(~p"/explore/vehicle-positions"),
+            url(~p"/explore/gtfs-stops"),
+            url(~p"/login"),
+            url(~p"/landing-vls"),
+            url(~p"/validation"),
+            url(~p"/tools/gtfs_diff"),
+            url(~p"/tools/siri-querier"),
+            url(~p"/datasets")
           ] ++
-            Enum.map(dataset_types, &dataset_url(conn, :index, type: &1)) ++
-            Enum.map(dataset_slugs, &dataset_url(conn, :details, &1)) ++
-            Enum.map(region_insees, &dataset_url(conn, :by_region, &1)) ++
-            Enum.map(departement_insees, &dataset_url(conn, :by_departement_insee, &1)) ++
-            Enum.map(epci_insees, &dataset_url(conn, :by_epci, &1)) ++
-            Enum.map(commune_insees, &dataset_url(conn, :by_commune_insee, &1))
+            Enum.map(dataset_types, &url(~p"/datasets?#{[type: &1]}")) ++
+            Enum.map(dataset_slugs, &url(~p"/datasets/#{&1}")) ++
+            Enum.map(region_insees, &url(~p"/datasets/region/#{&1}")) ++
+            Enum.map(departement_insees, &url(~p"/datasets/departement/#{&1}")) ++
+            Enum.map(epci_insees, &url(~p"/datasets/epci/#{&1}")) ++
+            Enum.map(commune_insees, &url(~p"/datasets/commune/#{&1}"))
         end,
         :timer.hours(1)
       )
@@ -264,34 +263,34 @@ defmodule TransportWeb.PageController do
   and when there is a match the "title" of the tile is used to set the dataset listing page title.
   """
 
-  def home_tiles(conn) do
+  def home_tiles do
     # Fetch stats once here to avoid multiple cache fetch that puts noise in logs
     stats = home_index_stats()
 
     [
-      type_tile(conn, stats, "public-transit"),
-      type_tile(conn, stats, "vehicles-sharing"),
-      type_tile(conn, stats, "bike-data"),
-      type_tile(conn, stats, "road-data"),
-      type_tile(conn, stats, "carpooling-areas"),
-      type_tile(conn, stats, "carpooling-lines"),
-      type_tile(conn, stats, "carpooling-offers"),
-      type_tile(conn, stats, "charging-stations"),
-      type_tile(conn, stats, "informations"),
-      type_tile(conn, stats, "pedestrian-path")
+      type_tile(stats, "public-transit"),
+      type_tile(stats, "vehicles-sharing"),
+      type_tile(stats, "bike-data"),
+      type_tile(stats, "road-data"),
+      type_tile(stats, "carpooling-areas"),
+      type_tile(stats, "carpooling-lines"),
+      type_tile(stats, "carpooling-offers"),
+      type_tile(stats, "charging-stations"),
+      type_tile(stats, "informations"),
+      type_tile(stats, "pedestrian-path")
     ]
   end
 
   defp patch_vls_tiles(%Tile{type: "vehicles-sharing"} = tile) do
-    %{tile | link: "/landing-vls"}
+    %{tile | link: ~p"/landing-vls"}
   end
 
   defp patch_vls_tiles(tile), do: tile
 
-  defp type_tile(conn, stats, type, options \\ []) do
+  defp type_tile(stats, type, options \\ []) do
     %Tile{
       type: type,
-      link: dataset_path(conn, :index, type: type),
+      link: ~p"/datasets?#{[type: type]}",
       icon: icon_type_path(type),
       title: DB.Dataset.type_to_str(type),
       count: Keyword.fetch!(stats, :count_by_type)[type],

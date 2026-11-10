@@ -89,7 +89,7 @@
           </div>
         <% end %>
       </div>
-      <script src={static_path(@conn, "/js/resourceviz.js")}>
+      <script src={~p"/js/resourceviz.js"}>
       </script>
       <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -179,7 +179,7 @@
             {dgettext("page-dataset-details", "Begin a new conversation")}
           </.link>
           <div id="new_discussion" class="discussion-modal">
-            <%= form_for @conn, discussion_path(@conn, :post_discussion, @dataset.datagouv_id), fn f -> %>
+            <%= form_for @conn, ~p"/datasets/#{@dataset.datagouv_id}/discussions", fn f -> %>
               {hidden_input(f, :dataset_slug, value: @dataset.slug)}
               <div class="form__group">
                 {label(f, :title, dgettext("page-dataset-details", "Title"), class: "required")}
@@ -249,7 +249,7 @@
         <span class="dataset-metas-info-title">{dgettext("page-dataset-details", "Data type")}</span>
         {render("_dataset_type.html",
           conn: @conn,
-          link: dataset_path(@conn, :index, type: @dataset.type),
+          link: ~p"/datasets?#{[type: @dataset.type]}",
           text: Dataset.type_to_str(@dataset.type),
           icon: icon_type_path(@dataset)
         )}
@@ -292,11 +292,11 @@
     </div>
   </div>
 </div>
-<script src={static_path(@conn, "/js/datasetmap.js")}>
+<script src={~p"/js/datasetmap.js"}>
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     createDatasetMap('dataset-covered-area-map', "<%= @dataset.datagouv_id %>")
   })
 </script>
-<script src={static_path(@conn, "/js/utils.js")} />
+<script src={~p"/js/utils.js"} />

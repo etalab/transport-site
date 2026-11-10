@@ -1,6 +1,6 @@
 <div class="container pb-24">
   <div class="pb-24">
-    {breadcrumbs([@conn, :contacts_edit])}
+    {breadcrumbs([:contacts_edit])}
   </div>
   <div class="panel">
     <h2 :if={@creating_contact}>Créer un contact</h2>
@@ -26,7 +26,7 @@
     <.form
       :let={f}
       for={@contact}
-      action={backoffice_contact_path(@conn, :create)}
+      action={~p"/backoffice/contacts/create"}
       class="no-margin backoffice-form"
       method="post"
     >
@@ -68,7 +68,7 @@
 
   <div :if={!@creating_contact} class="panel">
     <h2>Actions</h2>
-    <.form for={@contact} action={backoffice_contact_path(@conn, :delete, @contact_id)} class="no-margin" method="post">
+    <.form for={@contact} action={~p"/backoffice/contacts/#{@contact_id}/delete"} class="no-margin" method="post">
       <.button class="button warning">Supprimer</.button>
     </.form>
   </div>

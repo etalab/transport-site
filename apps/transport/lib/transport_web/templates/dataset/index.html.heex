@@ -1,6 +1,6 @@
 <div class="container dataset-page-top">
   <div class="form__group">
-    <%= form_for @conn, dataset_path(@conn, :index), [method: "get", class: "shortlist-form"], fn f -> %>
+    <%= form_for @conn, ~p"/datasets", [method: "get", class: "shortlist-form"], fn f -> %>
       <div class="searchBar">
         {search_input(f, :q,
           id: "autoComplete",

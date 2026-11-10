@@ -9,7 +9,7 @@ defmodule TransportWeb.ExploreController do
         {new_key, "yes"}
       end)
 
-    conn |> redirect(to: explore_path(conn, :index, query_params))
+    conn |> redirect(to: ~p"/explore?#{query_params}")
   end
 
   def index(%Plug.Conn{} = conn, params) do
@@ -24,7 +24,7 @@ defmodule TransportWeb.ExploreController do
   end
 
   def vehicle_positions(conn, _params) do
-    conn |> redirect(to: explore_path(conn, :index))
+    conn |> redirect(to: ~p"/explore")
   end
 
   defp national_map_disabled?, do: Application.fetch_env!(:transport, :disable_national_gtfs_map)

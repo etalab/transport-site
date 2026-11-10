@@ -100,7 +100,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
     conn
     |> put_flash(:info, dgettext("espace-producteurs", "Your logo has been received. It will be replaced soon."))
-    |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+    |> redirect(to: ~p"/espace_producteur")
   end
 
   defp extension(filename), do: filename |> Path.extname() |> String.downcase()
@@ -120,7 +120,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
     conn
     |> put_flash(:info, dgettext("espace-producteurs", "Your custom logo has been removed."))
-    |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+    |> redirect(to: ~p"/espace_producteur")
   end
 
   @spec proxy_statistics(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -230,14 +230,14 @@ defmodule TransportWeb.EspaceProducteurController do
 
       conn
       |> put_flash(:info, dgettext("resource", "The resource has been deleted"))
-      |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+      |> redirect(to: ~p"/espace_producteur")
     else
       _ ->
         Appsignal.increment_counter("espace_producteur.delete_resource.error", 1)
 
         conn
         |> put_flash(:error, dgettext("resource", "Could not delete the resource"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
     end
   end
 
@@ -278,7 +278,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
       conn
       |> put_flash(:info, success_message)
-      |> redirect(to: dataset_path(conn, :details, params["dataset_datagouv_id"]))
+      |> redirect(to: ~p"/datasets/#{params["dataset_datagouv_id"]}")
     else
       {:error, error} ->
         Appsignal.increment_counter("espace_producteur.post_file.error", 1)
@@ -289,7 +289,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
 
       nil ->
         Appsignal.increment_counter("espace_producteur.post_file.error", 1)
@@ -297,7 +297,7 @@ defmodule TransportWeb.EspaceProducteurController do
 
         conn
         |> put_flash(:error, dgettext("resource", "Unable to upload file"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
     end
   end
 
@@ -358,7 +358,7 @@ defmodule TransportWeb.EspaceProducteurController do
       {:error, _} ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get all your resources for the moment"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
         |> halt()
     end
   end
@@ -371,7 +371,7 @@ defmodule TransportWeb.EspaceProducteurController do
       nil ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
         |> halt()
     end
   end
@@ -389,7 +389,7 @@ defmodule TransportWeb.EspaceProducteurController do
       _ ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
         |> halt()
     end
   end
@@ -413,7 +413,7 @@ defmodule TransportWeb.EspaceProducteurController do
       _ ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
-        |> redirect(to: espace_producteur_path(conn, :espace_producteur))
+        |> redirect(to: ~p"/espace_producteur")
         |> halt()
     end
   end

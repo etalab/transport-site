@@ -20,6 +20,7 @@ defmodule TransportWeb.Plugs.ProducerData do
   * `:datasets_checks` - The results of validation logic run against those datasets.
   """
   import Plug.Conn
+  use TransportWeb, :verified_routes
 
   @cache_delay :timer.minutes(30)
   @cache_name Transport.Cache.Cachex.cache_name()
@@ -72,9 +73,9 @@ defmodule TransportWeb.Plugs.ProducerData do
 
   defp maybe_delete_if_error(value, _cache_key), do: value
 
-  defp maybe_skip_cache(%Plug.Conn{method: method, request_path: request_path} = conn, cache_key, function) do
+  defp maybe_skip_cache(%Plug.Conn{method: method, request_path: request_path}, cache_key, function) do
     in_espace_producteur? =
-      String.starts_with?(request_path, TransportWeb.Router.Helpers.espace_producteur_path(conn, :espace_producteur))
+      String.starts_with?(request_path, ~p"/espace_producteur")
 
     skip_cache? = method in ["PUT", "POST", "DELETE"] and in_espace_producteur?
 

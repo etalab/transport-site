@@ -204,7 +204,7 @@ defmodule TransportWeb.ResourceController do
 
     validation_report_url =
       if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
-        DB.Resource.download_validation_report_url(conn, resource)
+        DB.Resource.download_validation_report_url(resource)
       end
 
     conn

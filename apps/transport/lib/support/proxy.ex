@@ -2,9 +2,8 @@ defmodule Transport.Proxy do
   @moduledoc """
   Module to helper deal with proxy items coming from the Unlock proxy.
   """
-  def base_url(conn) do
-    conn
-    |> TransportWeb.Router.Helpers.url()
+  def base_url do
+    TransportWeb.Endpoint.url()
     |> String.replace("127.0.0.1", "localhost")
     |> String.replace("://", "://proxy.")
   end

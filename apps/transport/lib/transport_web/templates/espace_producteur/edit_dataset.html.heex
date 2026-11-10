@@ -1,6 +1,6 @@
 <% datagouv_admin_url = "https://www.data.gouv.fr/admin/datasets/#{@dataset.datagouv_id}/files" %>
 <section class="container pt-48 pb-24">
-  {breadcrumbs([@conn, :edit_dataset, @dataset.custom_title, @dataset.id])}
+  {breadcrumbs([:edit_dataset, @dataset.custom_title, @dataset.id])}
 </section>
 <section class="producer-space producer-actions">
   <div class="container">
@@ -13,7 +13,7 @@
         <div class="left-flex-image">
           <img
             height="60"
-            src={static_path(@conn, "/images/producteurs/streamline-icon-employee-checklist.png")}
+            src={~p"/images/producteurs/streamline-icon-employee-checklist.png"}
             alt=""
           />
           <div>
@@ -146,7 +146,7 @@
     <div class="panel">
       <h3>{dgettext("espace-producteurs", "Update your logo")}</h3>
       <div :if={is_nil(@dataset.custom_logo)}>
-        <%= form_for @conn, espace_producteur_path(@conn, :upload_logo, @dataset.id), [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>
+        <%= form_for @conn, ~p"/espace_producteur/datasets/#{@dataset.id}/upload_logo", [as: "upload", multipart: :true, class: "no-margin"], fn f -> %>
           <div class="dataset__logo">
             <p>{dgettext("espace-producteurs", "Your current logo")}</p>
             {img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title)}
@@ -159,7 +159,7 @@
         <% end %>
       </div>
       <div :if={@dataset.custom_logo != nil}>
-        <%= form_for @conn, espace_producteur_path(@conn, :remove_custom_logo, @dataset.id), [ method: "delete", class: "no-margin"], fn _ -> %>
+        <%= form_for @conn, ~p"/espace_producteur/datasets/#{@dataset.id}/custom_logo", [ method: "delete", class: "no-margin"], fn _ -> %>
           <div class="dataset__logo">
             <p>{dgettext("espace-producteurs", "Your current logo")}</p>
             {img_tag(DB.Dataset.full_logo(@dataset), alt: @dataset.custom_title)}
