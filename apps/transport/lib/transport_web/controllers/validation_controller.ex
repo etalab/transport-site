@@ -299,29 +299,18 @@ defmodule TransportWeb.ValidationController do
     pagination_config = make_pagination_config(params, @netex_issues_page_size)
     details = NeTExValidationDetails.build(validation, pagination_config, params)
 
-    template = pick_netex_template(details.validator_version)
-
     validation_report_url =
       if NeTExValidationDetails.download_validation_report?(validation, details.max_severity) do
         validation_url(conn, :download_validation_report, validation.id, token: params["token"])
       end
 
+    details = %{details | download_url: validation_report_url}
+
     conn
     |> assign_base_validation_details(params)
-    |> assign(:filter, details.filter)
-    |> assign(:issues, details.issues_page)
-    |> assign(:results_adapter, details.adapter)
-    |> assign(:metadata, details.metadata)
-    |> assign(:max_severity, details.max_severity)
-    |> assign(:validation_summary, details.summary)
-    |> assign(:severities_count, details.stats)
-    |> assign(:validation_report_url, validation_report_url)
-    |> assign(:xsd_errors, details.xsd_errors)
-    |> render(template)
+    |> assign(:report, details)
+    |> render("show_netex.html")
   end
-
-  defp pick_netex_template("0.2." <> _), do: "show_netex_v0_2_x.html"
-  defp pick_netex_template(_), do: "show_netex_v0_1_0.html"
 
   defp filepath(type) do
     if type == "tableschema" do

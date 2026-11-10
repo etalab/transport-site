@@ -19,7 +19,10 @@ defmodule TransportWeb.NeTExValidationDetails do
           issues_page: Scrivener.Page.t(),
           max_severity: map() | nil,
           xsd_errors: list(),
-          validator_version: String.t() | nil
+          validator_version: String.t() | nil,
+          download_url: String.t() | nil,
+          has_errors?: boolean(),
+          retention_days: non_neg_integer() | nil
         }
 
   defstruct adapter: nil,
@@ -37,7 +40,10 @@ defmodule TransportWeb.NeTExValidationDetails do
             },
             max_severity: nil,
             xsd_errors: [],
-            validator_version: nil
+            validator_version: nil,
+            download_url: nil,
+            has_errors?: false,
+            retention_days: nil
 
   @doc """
   Builds a complete NeTExValidationDetails from a validation record.
@@ -75,7 +81,10 @@ defmodule TransportWeb.NeTExValidationDetails do
       issues_page: issues_page,
       max_severity: digest["max_severity"],
       xsd_errors: adapter.summarize_xsd_errors(df),
-      validator_version: version
+      validator_version: version,
+      download_url: nil,
+      has_errors?: digest["max_severity"] && digest["max_severity"]["max_level"] != "NoError",
+      retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
     }
   end
 
