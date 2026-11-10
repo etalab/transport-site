@@ -197,14 +197,14 @@ defmodule TransportWeb.DatasetViewTest do
              ~s(dans la section <a href="#backed-up-resources">Ressources historisées</a>.)
   end
 
-  test "legal_owners_links", %{conn: conn} do
+  test "legal_owners_links" do
     dataset = %DB.Dataset{
       legal_owners_region: [%DB.Region{nom: "Bretagne", insee: "53"}],
       legal_owners_aom: [%DB.AOM{nom: "Rennes", siren: "243500139"}]
     }
 
     assert ~s(<a href="/datasets/region/53">Bretagne</a>, <a href="/datasets/epci/243500139">Rennes</a>) ==
-             conn |> legal_owners_links(dataset) |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+             dataset |> legal_owners_links() |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
   end
 
   describe "licence_link" do

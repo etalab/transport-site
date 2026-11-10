@@ -91,7 +91,7 @@
               </td>
               <td class="align-right">
                 <.link
-                  href={espace_producteur_path(@conn, :edit_resource, @dataset.id, resource["id"])}
+                  href={~p"/espace_producteur/datasets/#{@dataset.id}/resources/#{resource["id"]}"}
                   data-tracking-category="espace_producteur"
                   data-tracking-action="update_resource_button"
                   class="button-outline primary small"
@@ -100,7 +100,7 @@
                 </.link>
                 <%= if not is_nil(db_resource) and Enum.any?(@dataset.reuser_improved_data, & &1.resource.id == db_resource.id) do %>
                   <.link
-                    href={espace_producteur_path(@conn, :reuser_improved_data, @dataset.id, db_resource.id)}
+                    href={~p"/espace_producteur/datasets/#{@dataset.id}/reuser_improved_data/#{db_resource}"}
                     class="button-outline reuser small"
                     data-tracking-category="espace_producteur"
                     data-tracking-action="see_reuser_improved_data"
@@ -109,7 +109,7 @@
                   </.link>
                 <% end %>
                 <.link
-                  href={espace_producteur_path(@conn, :delete_resource_confirmation, @dataset.id, resource["id"])}
+                  href={~p"/espace_producteur/datasets/#{@dataset.id}/resources/#{resource["id"]}/delete"}
                   data-tracking-category="espace_producteur"
                   data-tracking-action="delete_resource_button"
                   class="button-outline warning small"
@@ -122,7 +122,7 @@
         </table>
 
         <.link
-          href={espace_producteur_path(@conn, :new_resource, @dataset.id)}
+          href={~p"/espace_producteur/datasets/#{@dataset.id}/resources/new_resource"}
           data-tracking-category="espace_producteur"
           data-tracking-action="add_resource_button"
           class="button primary"

@@ -66,7 +66,7 @@
             </tr>
             <%= for r <- @resources_with_history do %>
               <tr>
-                <td><.link href={resource_path(@conn, :details, r.id)}>{r.title}</.link></td>
+                <td><.link href={~p"/resources/#{r.id}"}>{r.title}</.link></td>
                 <td>
                   <%= if r.resource_history == [] do %>
                     🚫
@@ -118,11 +118,11 @@
           <%= for rr <- @resource_related do %>
             <tr>
               <td>
-                <.link href={resource_path(@conn, :details, rr.resource_src_id)}>{rr.resource_src.title}</.link>
+                <.link href={~p"/resources/#{rr.resource_src_id}"}>{rr.resource_src.title}</.link>
                 <span class="label">{rr.resource_src.format}</span>
               </td>
               <td>
-                <.link href={resource_path(@conn, :details, rr.resource_dst_id)}>{rr.resource_dst.title}</.link>
+                <.link href={~p"/resources/#{rr.resource_dst_id}"}>{rr.resource_dst.title}</.link>
                 <span class="label">{rr.resource_dst.format}</span>
               </td>
               <td>{DB.ResourceRelated.reason_to_str(rr)}</td>
@@ -191,7 +191,7 @@
         <.input field={f[:dataset_id]} type="hidden" value={@dataset.id} />
         <.input field={f[:contact_id]} label="Contact" required list="contacts_datalist" pattern="[0-9]+">
           <:help>
-            <.link href={backoffice_contact_path(@conn, :new)} target="_blank">
+            <.link href={~p"/backoffice/contacts/new"} target="_blank">
               <i class="fas fa-arrow-up-right-from-square"></i> Créer un contact
             </.link>
           </:help>
@@ -203,7 +203,7 @@
           <ul>
             <%= for contact <- @contacts_in_org do %>
               <li class="pb-6">
-                <.link href={backoffice_contact_path(@conn, :edit, contact.id)} target="_blank">
+                <.link href={~p"/backoffice/contacts/#{contact.id}/edit"} target="_blank">
                   <i class="fas fa-arrow-up-right-from-square"></i> {DB.Contact.display_name(contact)}
                 </.link>
                 <span class="small">{"(##{contact.id})"}</span>
@@ -254,7 +254,7 @@
           <%= for {notification_subscription, index} <- Enum.with_index(notification_subscriptions) do %>
             <tr>
               <td :if={index == 0} rowspan={Enum.count(notification_subscriptions)}>
-                <.link href={backoffice_contact_path(@conn, :edit, contact.id)}>
+                <.link href={~p"/backoffice/contacts/#{contact}/edit"}>
                   {notification_subscription_contact(notification_subscription)}
                 </.link>
 

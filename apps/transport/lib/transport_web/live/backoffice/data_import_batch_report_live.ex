@@ -2,7 +2,6 @@ defmodule TransportWeb.Backoffice.DataImportBatchReportLive do
   use TransportWeb, :live_view
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
   import Ecto.Query
-  import TransportWeb.Router.Helpers
 
   @impl true
   def mount(_params, %{"current_user" => current_user} = _session, socket) do

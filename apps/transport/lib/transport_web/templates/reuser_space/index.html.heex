@@ -27,7 +27,7 @@
             )}
           </div>
           <div class="action-button">
-            <.link href={reuser_space_path(@conn, :notifications)} class="button">
+            <.link href={~p"/espace_reutilisateur/notifications"} class="button">
               {dgettext("reuser-space", "Manage notifications")}
             </.link>
           </div>
@@ -71,7 +71,7 @@
             )}
           </div>
           <div class="action-button">
-            <.link href={reuser_space_path(@conn, :settings)} class="button">
+            <.link href={~p"/espace_reutilisateur/settings"} class="button">
               {dgettext("reuser-space", "Manage your tokens")}
             </.link>
           </div>

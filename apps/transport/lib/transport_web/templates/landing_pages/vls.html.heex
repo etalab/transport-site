@@ -7,7 +7,7 @@
       <p>
         {dgettext("landing-vls", "description")}
       </p>
-      <.link href={dataset_url(@conn, :index, type: "vehicles-sharing")} class="cta">
+      <.link href={url(~p"/datasets?#{[type: "vehicles-sharing"]}")} class="cta">
         {dgettext("landing-vls", "Directly access the data")}
       </.link>
     </header>
@@ -69,7 +69,7 @@
     <div class="center">
       <div class="argument left">
         <p class="comment">
-          <.link href="/explore?gbfs-stations=yes">
+          <.link href={~p"/explore?gbfs-stations=yes"}>
             {dgettext("landing-vls", "Coverage of services available by territory")}
           </.link>
         </p>
@@ -77,7 +77,7 @@
         <picture>
           <.link
             aria-label={dgettext("landing-vls", "Coverage of services available by territory")}
-            href="/explore?gbfs-stations=yes"
+            href={~p"/explore?gbfs-stations=yes"}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/explore_map.png")} loading="lazy" />
           </.link>
@@ -104,7 +104,7 @@
 
       <div class="argument left">
         <p class="comment">
-          <.link href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}>
+          <.link href={~p"/espace_reutilisateur?#{[utm_campaign: "landing_vls"]}"}>
             {dgettext("landing-vls", "A personalized space to stay informed")} ❤️
           </.link>
         </p>
@@ -112,7 +112,7 @@
         <picture>
           <.link
             aria-label={dgettext("landing-vls", "Access your reuser space")}
-            href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "landing_vls")}
+            href={~p"/espace_reutilisateur?#{[utm_campaign: "landing_vls"]}"}
           >
             <img src={static_path(@conn, "/images/landing_pages/vls/espace-reutilisateur.png")} loading="lazy" />
           </.link>
@@ -122,7 +122,7 @@
   </section>
 
   <footer>
-    <.link href={dataset_url(@conn, :index, type: "vehicles-sharing")} class="cta">
+    <.link href={url(~p"/datasets?#{[type: "vehicles-sharing"]}")} class="cta">
       {dgettext("landing-vls", "Access the data")}
     </.link>
     <p>

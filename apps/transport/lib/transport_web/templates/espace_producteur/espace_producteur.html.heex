@@ -19,7 +19,7 @@
               "Before publishing, you can test your data online and check its validity."
             )}
           </div>
-          <.link href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)} class="button primary">
+          <.link href={~p"/validation"} class="button primary">
             {dgettext("espace-producteurs", "Validate a file or a feed")}
           </.link>
         </div>
@@ -53,7 +53,7 @@
               "Receive helpful notifications about the data you publish."
             )}
           </div>
-          <.link href={espace_producteur_path(@conn, :notifications)} class="button primary">
+          <.link href={~p"/espace_producteur/notifications"} class="button primary">
             {dgettext("espace-producteurs", "Manage notifications")}
           </.link>
         </div>
@@ -70,7 +70,7 @@
               "Get access to traffic statistics for your feeds handled by the transport.data.gouv.fr proxy."
             )}
           </div>
-          <.link href={espace_producteur_path(@conn, :proxy_statistics)} class="button primary">
+          <.link href={~p"/espace_producteur/proxy_statistics"} class="button primary">
             {dgettext("espace-producteurs", "See statistics")}
           </.link>
         </div>
@@ -87,7 +87,7 @@
               "Get access to download statistics for your resources."
             )}
           </div>
-          <.link href={espace_producteur_path(@conn, :download_statistics)} class="button primary">
+          <.link href={~p"/espace_producteur/download_statistics"} class="button primary">
             {dgettext("espace-producteurs", "See statistics")}
           </.link>
         </div>
@@ -104,7 +104,7 @@
               "See unanswered discussions on your datasets."
             )}
           </div>
-          <.link href={espace_producteur_path(@conn, :discussions)} class="button primary">
+          <.link href={~p"/espace_producteur/discussions"} class="button primary">
             {dgettext("espace-producteurs", "See unanswered discussions")}
           </.link>
         </div>

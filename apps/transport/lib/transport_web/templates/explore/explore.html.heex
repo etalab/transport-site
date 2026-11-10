@@ -11,7 +11,7 @@
         </summary>
         {raw(
           dgettext("explore", "gtfs-rt-explanation",
-            url: dataset_path(@conn, :index, type: "public-transit", filter: "has_realtime")
+            url: ~p"/datasets?#{[type: "public-transit", filter: "has_realtime"]}"
           )
         )}
       </details>
@@ -22,7 +22,7 @@
         <summary>
           {dgettext("explore", "Carpooling areas national database")}
         </summary>
-        {raw(dgettext("explore", "bnlc-explanation", url: dataset_path(@conn, :details, @bnlc_dataset.slug)))}
+        {raw(dgettext("explore", "bnlc-explanation", url: ~p"/datasets/#{@bnlc_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore zfe">
@@ -31,7 +31,7 @@
         <summary>
           {dgettext("explore", "Low emission zones database")}
         </summary>
-        {raw(dgettext("explore", "lez-explanation", url: dataset_path(@conn, :details, @zfe_dataset.slug)))}
+        {raw(dgettext("explore", "lez-explanation", url: ~p"/datasets/#{@zfe_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore irve">
@@ -40,7 +40,7 @@
         <summary>
           {dgettext("explore", "IRVE map")}
         </summary>
-        {raw(dgettext("explore", "irve-explanation", url: dataset_path(@conn, :details, @irve_dataset.slug)))}
+        {raw(dgettext("explore", "irve-explanation", url: ~p"/datasets/#{@irve_dataset.slug}"))}
       </details>
     </div>
     <div class="checkbox-explore gbfs_stations">

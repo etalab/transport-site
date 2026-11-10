@@ -120,21 +120,21 @@ defmodule TransportWeb.DatasetView do
     aom |> Enum.any?() or region |> Enum.any?() or not is_nil(siren)
   end
 
-  def legal_owners_links(conn, %DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
+  def legal_owners_links(%DB.Dataset{legal_owners_aom: legal_owners_aom, legal_owners_region: legal_owners_region}) do
     legal_owners_region
     |> Enum.sort_by(& &1.nom)
     |> Enum.concat(legal_owners_aom |> Enum.sort_by(& &1.nom))
-    |> Enum.map(&html_escape(legal_owner_link(conn, &1)))
+    |> Enum.map(&html_escape(legal_owner_link(&1)))
     |> Enum.intersperse(", ")
   end
 
-  def legal_owner_link(conn, %DB.Region{nom: nom, insee: insee}) do
-    assigns = %{url: dataset_path(conn, :by_region, insee), nom: nom}
+  def legal_owner_link(%DB.Region{nom: nom, insee: insee}) do
+    assigns = %{url: ~p"/datasets/region/#{insee}", nom: nom}
     ~H|<.link href={@url}>{@nom}</.link>|
   end
 
-  def legal_owner_link(conn, %DB.AOM{nom: nom, siren: siren}) do
-    assigns = %{url: dataset_path(conn, :by_epci, siren), nom: nom}
+  def legal_owner_link(%DB.AOM{nom: nom, siren: siren}) do
+    assigns = %{url: ~p"/datasets/epci/#{siren}", nom: nom}
     ~H|<.link href={@url}>{@nom}</.link>|
   end
 
@@ -693,11 +693,7 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <.link
-        :for={resource <- @resources}
-        href={resource_path(TransportWeb.Endpoint, :details, resource.id)}
-        target="_blank"
-      >
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
       </.link>
       &mdash;&nbsp;{@payload["hours_consecutive_downtime"]}h
@@ -716,11 +712,7 @@ defmodule TransportWeb.DatasetView do
 
     ~H"""
     <td>
-      <.link
-        :for={resource <- @resources}
-        href={resource_path(TransportWeb.Endpoint, :details, resource.id)}
-        target="_blank"
-      >
+      <.link :for={resource <- @resources} href={~p"/resources/#{resource}"} target="_blank">
         {resource.title}
       </.link>
     </td>

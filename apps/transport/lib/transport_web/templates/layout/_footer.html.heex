@@ -75,7 +75,7 @@
   <div class="container">
     <div class="footer__logo">
       <.link href="https://www.ecologie.gouv.fr" class="ministere-link">Ministère des Transports</.link>
-      <.link href="/"><img src="/images/logo-footer.svg" alt="transport.data.gouv.fr" /></.link>
+      <.link href={~p"/"}><img src={~p"/images/logo-footer.svg"} alt="transport.data.gouv.fr" /></.link>
     </div>
     <ul class="footer__links">
       <li>
@@ -107,17 +107,17 @@
         </.link>
       </li>
       <li>
-        <.link class="footer__link" href="/legal">
+        <.link class="footer__link" href={~p"/legal"}>
           {gettext("Legal Information")}
         </.link>
       </li>
       <li>
-        <.link class="footer__link" target="_blank" href="/budget">
+        <.link class="footer__link" target="_blank" href={~p"/budget"}>
           {gettext("Budget")}
         </.link>
       </li>
       <li>
-        <.link class="footer__link" href={page_path(@conn, :accessibility)}>
+        <.link class="footer__link" href={~p"/accessibilite"}>
           {gettext("Accessibility: non-compliant")}
         </.link>
       </li>

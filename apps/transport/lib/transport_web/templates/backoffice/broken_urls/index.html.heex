@@ -24,7 +24,7 @@
         <%= for broken_url <- @broken_urls do %>
           <tr>
             <td>
-              <.link href={dataset_path(@conn, :details, broken_url.dataset_id)}>
+              <.link href={~p"/datasets/#{broken_url.dataset_id}"}>
                 {broken_url.dataset_custom_title}
               </.link>
             </td>
