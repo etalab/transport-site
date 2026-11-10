@@ -27,7 +27,7 @@
   </div>
 </section>
 
-<script src={static_path(@conn, "/js/vega.js")} nonce={@conn.assigns[:csp_nonce_value]} />
+<script src={~p"/js/vega.js"} nonce={@conn.assigns[:csp_nonce_value]} />
 <script nonce={@conn.assigns[:csp_nonce_value]}>
   const spec = <%= raw Jason.encode!(@scores_chart) %>;
 

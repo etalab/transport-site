@@ -34,7 +34,7 @@
   {live_render(@conn, TransportWeb.Live.FeedbackLive, session: %{"feature" => "gtfs_stops"})}
 </section>
 
-<script src={static_path(@conn, "/js/gtfs.js")}>
+<script src={~p"/js/gtfs.js"}>
 </script>
-<script src={static_path(@conn, "/js/autocomplete_address.js")}>
+<script src={~p"/js/autocomplete_address.js"}>
 </script>

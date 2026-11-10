@@ -135,9 +135,9 @@
           <li class="nav__item">
             <button type="button" class="dropdown">
               <%= if get_session(@conn, :locale) == "fr" do %>
-                <img src={static_path(@conn, "/images/icons/fr.png")} alt="Français" height="18px" />
+                <img src={~p"/images/icons/fr.png"} alt="Français" height="18px" />
               <% else %>
-                <img src={static_path(@conn, "/images/icons/en.png")} alt="English" height="18px" />
+                <img src={~p"/images/icons/en.png"} alt="English" height="18px" />
               <% end %>
               <div class="dropdown-content languages">
                 <.link href={add_locale_to_url(@conn, "fr")}>Français</.link>

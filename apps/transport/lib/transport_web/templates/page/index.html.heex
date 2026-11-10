@@ -37,19 +37,19 @@
           <div class="home-other-search-methods">
             <div class="search-method">
               <.link href={~p"/validation"}>
-                <img src={static_path(@conn, "/images/icons/validate.svg")} alt="Validation" />
+                <img src={~p"/images/icons/validate.svg"} alt="Validation" />
                 {dgettext("page-index", "Validate your data")}
               </.link>
             </div>
             <div class="search-method">
               <.link href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/api">
-                <img src={static_path(@conn, "/images/icons/api.png")} alt="API" />
+                <img src={~p"/images/icons/api.png"} alt="API" />
                 {dgettext("page-index", "Use our APIs")}
               </.link>
             </div>
             <div class="search-method">
               <.link href={~p"/datasets?#{[order_by: "most_recent"]}"}>
-                <img src={static_path(@conn, "/images/icons/recently-added-datasets.png")} alt="Data" />
+                <img src={~p"/images/icons/recently-added-datasets.png"} alt="Data" />
                 {dgettext("page-index", "See newly added datasets")}
               </.link>
             </div>
@@ -142,7 +142,7 @@
       </div>
       <div class="deployment-map">
         <.link href={~p"/stats"} class="text-center">
-          <img class="illustration" src={static_path(@conn, "/images/france.svg")} alt="" />
+          <img class="illustration" src={~p"/images/france.svg"} alt="" />
           <div>{dgettext("page-index", "See more statistics")}</div>
         </.link>
       </div>
@@ -159,7 +159,7 @@
           <.link class="button" href={~p"/infos_producteurs"}>{gettext("Producer information")}</.link>
         </div>
       </div>
-      <img class="illustration" src={static_path(@conn, "/images/bus.svg")} alt="" />
+      <img class="illustration" src={~p"/images/bus.svg"} alt="" />
     </div>
   </div>
 </section>
