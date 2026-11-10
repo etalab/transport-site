@@ -3,6 +3,7 @@ defmodule Transport.UserNotifier do
   Module in charge of building emails for end users (producers, reusers, etc.)
   """
   use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
+  use TransportWeb, :verified_routes
   import Transport.Expiration, only: [delay_str: 2]
 
   def resources_changed(%DB.Contact{} = contact, %DB.Dataset{} = dataset) do
@@ -38,7 +39,7 @@ defmodule Transport.UserNotifier do
     |> common_email_options()
     |> subject("Votre jeu de données a été référencé sur transport.data.gouv.fr")
     |> render_body("dataset_now_on_nap.html", %{
-      dataset_url: TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, dataset.slug),
+      dataset_url: url(~p"/datasets/#{dataset.slug}"),
       dataset_custom_title: dataset.custom_title,
       contact_email_address: Application.get_env(:transport, :contact_email)
     })

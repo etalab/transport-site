@@ -10,6 +10,7 @@ defmodule DB.Dataset do
   import Ecto.{Changeset, Query}
   import Geo.PostGIS
   use Gettext, backend: TransportWeb.Gettext
+  use TransportWeb, :verified_routes
   require Logger
   use Ecto.Schema
   use TypedEctoSchema
@@ -998,7 +999,7 @@ defmodule DB.Dataset do
       # to
       # %{id1 => %{:GeoJSON: %{infos}, :NeTEx: %{infos}}, id2 => %{:GeoJSON: nil, :NeTEx: %{infos}}}
       |> Enum.group_by(fn {id, _} -> id end, fn {resource_id, {format, data}} ->
-        stable_url = TransportWeb.Router.Helpers.conversion_url(TransportWeb.Endpoint, :get, resource_id, format)
+        stable_url = url(~p"/resources/conversions/#{resource_id}/#{format}")
         {format, Map.put(data, :stable_url, stable_url)}
       end)
       |> Enum.into(%{}, fn {id, l} -> {id, Map.merge(filler, Enum.into(l, %{}))} end)
