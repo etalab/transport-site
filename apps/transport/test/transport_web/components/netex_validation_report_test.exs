@@ -77,10 +77,17 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       html = render_netex_validation_report(conn, report, heading_level: 4)
 
       # Should show category tabs
-      assert html =~ ~r{<div id="categories">}
+      assert extract_categories(html) == ["XSD", "Base rules"]
+
       # Should show XSD issues table (default current_category is "xsd-schema")
       assert html =~ "XSD error message"
       assert html =~ "Another XSD error"
+
+      assert extract_rows(html, "table.netex_xsd_schema") == [
+               [],
+               ["2", "XSD error message"],
+               ["1", "Another XSD error"]
+             ]
     end
   end
 
@@ -146,10 +153,27 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
     html
     |> Floki.parse_fragment!()
     |> Floki.find(selector)
-    |> Enum.map(&read_heading_text/1)
+    |> Enum.map(&read_node_text/1)
   end
 
-  defp read_heading_text(node) do
+  defp extract_categories(html) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find("div#categories span.category")
+    |> Enum.map(&read_node_text/1)
+  end
+
+  defp extract_rows(html, selector) do
+    html
+    |> Floki.parse_fragment!()
+    |> Floki.find(selector)
+    |> Floki.find("tr")
+    |> Enum.map(fn node ->
+      node |> Floki.find("td") |> Enum.map(&read_node_text/1)
+    end)
+  end
+
+  defp read_node_text(node) do
     node |> Floki.text() |> String.trim()
   end
 end
