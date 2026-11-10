@@ -20,7 +20,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   alias TransportWeb.Components.{ColorfulButton, Pagination}
   import Phoenix.Controller, only: [current_url: 2]
-  import Plug.Conn, only: [get_session: 2]
+
   import ColorfulButton, only: [colorful_link: 1]
   import Pagination, only: [pagination: 1]
 
@@ -247,7 +247,6 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   defp netex_validation_selected_category(assigns) do
     ~H"""
-    <% locale = get_session(@conn, :locale) %>
     <div class="selected-category">
       <.netex_category_description
         category={@current_category}
@@ -261,10 +260,10 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       <div :if={Enum.count(@errors) > 0} id="issues-list">
         <%= if @current_category == "xsd-schema" do %>
           <.xsd_schema_intro validation_report_url={@validation_report_url} />
-          <.non_translated_messages locale={locale} />
-          <.netex_xsd_issues issues={@errors} locale={locale} />
+          <.non_translated_messages />
+          <.netex_xsd_issues issues={@errors} />
         <% else %>
-          <.non_translated_messages locale={locale} />
+          <.non_translated_messages />
           <.netex_generic_issues issues={@errors} />
           {@pagination}
         <% end %>
@@ -286,9 +285,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     """
   end
 
-  defp non_translated_messages(%{locale: _} = assigns) do
+  defp non_translated_messages(assigns) do
     ~H"""
-    <p :if={@locale != "en"}>
+    <p :if={Gettext.get_locale() != "en"}>
       {dgettext("validations-explanations", "The following errors are only available in English.")}
     </p>
     """
@@ -403,7 +402,6 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       category={@category}
       compliance_check={@compliance_check}
       results_adapter={@results_adapter}
-      conn={@conn}
     />
     """
   end
@@ -430,7 +428,6 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:category, :string, required: true)
   attr(:compliance_check, :any, required: true)
   attr(:results_adapter, :any, required: true)
-  attr(:conn, Plug.Conn, required: true)
 
   defp netex_category_tooltip(assigns) do
     ~H"""
@@ -456,7 +453,6 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   # XSD issues table
   attr(:issues, :list, required: true)
-  attr(:locale, :string, required: true)
 
   defp netex_xsd_issues(assigns) do
     ~H"""
@@ -467,7 +463,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       </tr>
 
       <tr :for={xsd_error <- @issues} class="message">
-        <td>{Helpers.format_number(xsd_error["counts"], locale: @locale)}</td>
+        <td>{Helpers.format_number(xsd_error["counts"], locale: Gettext.get_locale())}</td>
         <td lang="en">{xsd_error["message"]}</td>
       </tr>
     </table>
