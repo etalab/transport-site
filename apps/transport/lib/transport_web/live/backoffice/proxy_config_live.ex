@@ -34,7 +34,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp update_data(socket) do
-    config = get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
+    config = get_proxy_configuration(Transport.Proxy.base_url(), @stats_days)
     {total_ram_size, total_disk_size} = total_cache_sizes(config)
 
     assign(socket,

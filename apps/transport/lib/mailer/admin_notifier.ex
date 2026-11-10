@@ -3,6 +3,7 @@ defmodule Transport.AdminNotifier do
   Module in charge of building emails sent to the admin team (bizdev, tech, etc.)
   """
   use Phoenix.Swoosh, view: TransportWeb.EmailView, layout: {TransportWeb.LayoutView, :email}
+  use TransportWeb, :verified_routes
   import Transport.Expiration, only: [delay_str: 2]
 
   def contact(email, user_type, question_type, subject, question) do
@@ -189,8 +190,7 @@ defmodule Transport.AdminNotifier do
   end
 
   defp backoffice_archived_datasets_url do
-    TransportWeb.Router.Helpers.backoffice_page_url(TransportWeb.Endpoint, :index, %{"filter" => "archived"}) <>
-      "#list_datasets"
+    url(~p"/backoffice?filter=archived") <> "#list_datasets"
   end
 
   defp link_and_name_from_datagouv_payload(%{"title" => title, "page" => page}) do
@@ -200,7 +200,7 @@ defmodule Transport.AdminNotifier do
 
   @spec link_and_name(DB.Dataset.t(), binary()) :: binary()
   defp link_and_name(%DB.Dataset{slug: slug, custom_title: custom_title}, extra_content \\ "") do
-    url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
+    url = url(~p"/datasets/#{slug}")
     link = TransportWeb.CoreComponents.link_html(custom_title, url) |> Phoenix.HTML.safe_to_string()
     "<li>#{link}#{extra_content}</li>"
   end
