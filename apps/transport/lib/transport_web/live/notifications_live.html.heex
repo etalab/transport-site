@@ -6,7 +6,7 @@ feedback_feature = if is_producer, do: "producer_space", else: "reuser_space"
 display_error = is_producer and not is_nil(@error) %>
 <div class="pt-48">
   <div class="container pb-24">
-    {breadcrumbs([@socket, breadcrumb])}
+    {breadcrumbs([breadcrumb])}
   </div>
 </div>
 
