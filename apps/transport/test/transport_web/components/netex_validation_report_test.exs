@@ -89,6 +89,18 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       assert extract_headings(html, "h5") == ["Download the report"]
     end
 
+    test "skips title when asked" do
+      report = netex_validation_details()
+      conn = netex_conn()
+
+      html = render_netex_validation_report(conn, report, heading_level: 2, title: false)
+
+      # Only the summary title is presented, not the one with count and the
+      # download popup
+      assert extract_headings(html, "h2") == ["Nice work, there are no issues!"]
+      assert extract_headings(html, "h5") == []
+    end
+
     defp render_netex_validation_report(conn, report, keywords) do
       assigns = Enum.into([conn: conn, report: report] ++ keywords, %{})
       render(&NeTExValidationReportComponent.netex_validation_report/1, assigns)

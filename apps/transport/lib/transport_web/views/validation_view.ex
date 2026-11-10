@@ -4,7 +4,8 @@ defmodule TransportWeb.ValidationView do
 
   import TransportWeb.ResourceView, only: [gtfs_template: 1]
 
-  import TransportWeb.NeTExValidationReportComponent, only: [netex_validation_report: 1]
+  import TransportWeb.NeTExValidationReportComponent,
+    only: [netex_validation_report: 1, netex_validation_report_title: 1]
 
   import Phoenix.Component, only: [live_render: 3, link: 1]
 

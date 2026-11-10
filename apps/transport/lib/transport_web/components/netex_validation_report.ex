@@ -27,16 +27,12 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:report, :map, required: true, doc: "%NeTExValidationDetails{} struct")
   attr(:conn, Plug.Conn, required: true)
   attr(:heading_level, :integer, default: 4, doc: "HTML heading level for the error count (2-6)")
-
-  slot(:inner_block, doc: "Surrounding context (beta warnings, explanatory text, etc.)")
+  attr(:title, :boolean, default: true)
 
   def netex_validation_report(%{report: %TransportWeb.NeTExValidationDetails{}, conn: _} = assigns) do
     ~H"""
-    <div :if={length(@inner_block) > 0} class="container">
-      {render_slot(@inner_block)}
-    </div>
-
     <.netex_validation_report_title
+      :if={@title}
       validation_report_url={@report.download_url}
       max_severity={@report.max_severity}
       results_adapter={@report.adapter}
@@ -109,6 +105,9 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     </div>
     """
   end
+
+  attr(:level, :integer, default: 4, doc: "HTML heading level")
+  slot(:inner_block, doc: "Heading content")
 
   defp heading(%{level: 1} = assigns), do: ~H|<h1>{render_slot(@inner_block)}</h1>|
   defp heading(%{level: 2} = assigns), do: ~H|<h2>{render_slot(@inner_block)}</h2>|
