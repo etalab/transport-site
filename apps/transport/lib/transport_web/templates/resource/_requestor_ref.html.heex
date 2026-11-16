@@ -17,7 +17,7 @@ siri_querier_params = [endpoint_url: @resource.url, requestor_ref: requestor_ref
     <i class="fa fa-copy"></i>
     {dgettext("page-dataset-details", "Copy to clipboard")}
   </button>
-  <.link href={live_path(@conn, TransportWeb.Live.SIRIQuerierLive, siri_querier_params)}>
+  <.link href={~p"/tools/siri-querier?#{siri_querier_params}"}>
     <button class="button-outline primary">{dgettext("page-dataset-details", "Try me!")}</button>
   </.link>
 </div>

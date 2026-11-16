@@ -25,7 +25,7 @@
             dgettext(
               "resource",
               ~s|If you haven’t done it yet, think about <a href="%{link}">validating your data</a> before publishing it.|,
-              link: live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)
+              link: ~p"/validation"
             )
           )}
         </div>
@@ -40,7 +40,7 @@
                   dgettext(
                     "resource",
                     ~s(This option allows you to add the resource on data.gouv.fr, directly from here. Do you want to publish a more up-to-date version of a resource? <a href="%{url}">Update the resource</a> instead.),
-                    url: espace_producteur_path(@conn, :edit_dataset, @dataset.id)
+                    url: ~p"/espace_producteur/datasets/#{@dataset.id}/edit"
                   )
                 )}
               </p>

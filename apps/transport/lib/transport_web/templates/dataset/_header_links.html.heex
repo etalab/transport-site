@@ -1,13 +1,13 @@
 <div data-section="dataset-header-links">
   <%= if TransportWeb.Session.admin?(@conn) do %>
     <i class="fa fa-up-right-from-square"></i>
-    <.link href={backoffice_page_path(@conn, :edit, @dataset.id)}>Backoffice</.link> &middot;
+    <.link href={~p"/backoffice/datasets/#{@dataset.id}/edit"}>Backoffice</.link> &middot;
   <% end %>
   <i class="fa fa-up-right-from-square"></i>
   <%= if @current_user do %>
     <%= if @is_producer do %>
       <.link
-        href={espace_producteur_path(@conn, :edit_dataset, @dataset.id, utm_campaign: "dataset_details")}
+        href={~p"/espace_producteur/datasets/#{@dataset.id}/edit?#{[utm_campaign: "dataset_details"]}"}
         target="_blank"
       >
         {dgettext("default", "Producer space")}
@@ -15,19 +15,19 @@
     <% else %>
       <%= if @follows_dataset do %>
         <.link
-          href={reuser_space_path(@conn, :datasets_edit, @dataset.id, utm_campaign: "dataset_details")}
+          href={~p"/espace_reutilisateur/datasets/#{@dataset.id}?#{[utm_campaign: "dataset_details"]}"}
           target="_blank"
         >
           {dgettext("default", "Reuser space")}
         </.link>
       <% else %>
-        <.link href={reuser_space_path(@conn, :espace_reutilisateur, utm_campaign: "dataset_details")} target="_blank">
+        <.link href={~p"/espace_reutilisateur?#{[utm_campaign: "dataset_details"]}"} target="_blank">
           {dgettext("default", "Reuser space")}
         </.link>
       <% end %>
     <% end %>
   <% else %>
-    <.link href={page_path(@conn, :infos_reutilisateurs, utm_campaign: "dataset_details")} target="_blank">
+    <.link href={~p"/infos_reutilisateurs?#{[utm_campaign: "dataset_details"]}"} target="_blank">
       {dgettext("default", "Reuser space")}
     </.link>
   <% end %>

@@ -8,7 +8,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers
+  import TransportWeb.Router.Helpers, except: [static_path: 2, static_url: 2]
 
   @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
 

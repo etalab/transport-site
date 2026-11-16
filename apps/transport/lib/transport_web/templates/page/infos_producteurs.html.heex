@@ -11,7 +11,7 @@
           <h2>{dgettext("page-producteurs", "Welcome!")}</h2>
           <.link
             class="button"
-            href={espace_producteur_path(@conn, :espace_producteur, utm_campaign: "producer_infos_page")}
+            href={~p"/espace_producteur?#{[utm_campaign: "producer_infos_page"]}"}
           >
             {dgettext("page-producteurs", "Access your producer section")}
           </.link>
@@ -33,7 +33,7 @@
           </div>
           <.link
             class="button"
-            href={page_path(@conn, :login, redirect_path: espace_producteur_path(@conn, :espace_producteur))}
+            href={~p"/login/explanation?#{[redirect_path: ~p"/espace_producteur"]}"}
           >
             {dgettext("page-dataset-details", "Log in")}
           </.link>
@@ -77,10 +77,7 @@
             </div>
           </div>
           <div class="presentation-action pt-24">
-            <.link
-              href={live_path(@conn, TransportWeb.Live.OnDemandValidationSelectLive)}
-              class="button-outline primary"
-            >
+            <.link href={~p"/validation"} class="button-outline primary">
               {dgettext("page-producteurs", "Validate a file or a feed")}
             </.link>
           </div>

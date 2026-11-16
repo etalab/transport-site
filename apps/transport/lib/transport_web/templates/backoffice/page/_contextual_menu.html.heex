@@ -16,7 +16,7 @@
     class="ctx-menu__content"
     role="menu"
   >
-    <.link href={dataset_path(@conn, :details, @dataset.slug)} target="_blank" role="menuitem">
+    <.link href={~p"/datasets/#{@dataset.slug}"} target="_blank" role="menuitem">
       <i class="fa fa-link"></i> {dgettext("backoffice", "View on the PAN")}
     </.link>
 
@@ -36,7 +36,7 @@
       session: %{"dataset_id" => @dataset.id, "base_classname" => "ctx-menu__validate", "button_role" => "menuitem"}
     )}
 
-    <.link href={backoffice_page_path(@conn, :edit, @dataset.id)} role="menuitem">
+    <.link href={~p"/backoffice/datasets/#{@dataset.id}/edit"} role="menuitem">
       <i class="fas fa-pencil"></i> {dgettext("backoffice", "Edit")}
     </.link>
 

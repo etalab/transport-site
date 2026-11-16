@@ -1,29 +1,17 @@
 defmodule TransportWeb.EmailView do
   use TransportWeb, :view
 
-  import TransportWeb.Router.Helpers,
-    # Use only *_url helpers, not *_path as we need absolute URLs
-    only: [
-      dataset_url: 3,
-      resource_url: 3,
-      page_url: 3,
-      espace_producteur_url: 3,
-      reuser_space_url: 3
-    ]
-
   def link_for_dataset_section(%DB.Dataset{} = dataset, :discussion) do
     link_for_dataset(dataset, "#dataset-discussions")
   end
 
   def link_for_dataset(%DB.Dataset{slug: slug, custom_title: custom_title}, anchor \\ "") do
-    url = dataset_url(TransportWeb.Endpoint, :details, slug)
-    assigns = %{url: url <> anchor, title: custom_title}
+    assigns = %{url: url(~p"/datasets/#{slug}") <> anchor, title: custom_title}
     ~H|<.link href={@url}>{@title}</.link>|
   end
 
   def link_for_dataset_discussions(%DB.Dataset{slug: slug}) do
-    url = dataset_url(TransportWeb.Endpoint, :details, slug)
-    assigns = %{url: url <> "#dataset-discussions"}
+    assigns = %{url: url(~p"/datasets/#{slug}") <> "#dataset-discussions"}
     ~H|<.link href={@url}>l’espace de discussion du jeu de données</.link>|
   end
 
@@ -33,38 +21,24 @@ defmodule TransportWeb.EmailView do
   end
 
   def link_for_resource(%DB.Resource{id: id, title: title}) do
-    url = resource_url(TransportWeb.Endpoint, :details, id)
-    assigns = %{url: url, title: title}
+    assigns = %{url: url(~p"/resources/#{id}"), title: title}
     ~H|<.link href={@url}>{@title}</.link>|
   end
 
   def link_for_espace_producteur(view_name) do
-    url =
-      espace_producteur_url(TransportWeb.Endpoint, :espace_producteur,
-        utm_source: "transactional_email",
-        utm_medium: "email",
-        utm_campaign: to_string(view_name)
-      )
-
-    assigns = %{url: url}
+    params = [utm_source: "transactional_email", utm_medium: "email", utm_campaign: to_string(view_name)]
+    assigns = %{url: url(~p"/espace_producteur?#{params}")}
     ~H|<.link href={@url}>Espace Producteur</.link>|
   end
 
   def link_for_reuser_space(view_name) do
-    url =
-      reuser_space_url(TransportWeb.Endpoint, :espace_reutilisateur,
-        utm_source: "transactional_email",
-        utm_medium: "email",
-        utm_campaign: to_string(view_name)
-      )
-
-    assigns = %{url: url}
+    params = [utm_source: "transactional_email", utm_medium: "email", utm_campaign: to_string(view_name)]
+    assigns = %{url: url(~p"/espace_reutilisateur?#{params}")}
     ~H|<.link href={@url}>Espace réutilisateur</.link>|
   end
 
   def link_for_login do
-    url = page_url(TransportWeb.Endpoint, :login, redirect_path: "/")
-    assigns = %{url: url}
+    assigns = %{url: url(~p"/login/explanation?#{[redirect_path: "/"]}")}
     ~H|<.link href={@url}>vous reconnecter</.link>|
   end
 end

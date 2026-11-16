@@ -27,7 +27,7 @@
             <%= for {discussion, index} <- Enum.with_index(discussions) do %>
               <tr>
                 <td :if={index == 0} rowspan={Enum.count(discussions)}>
-                  <.link href={dataset_path(@conn, :details, dataset.slug)} target="_blank">
+                  <.link href={~p"/datasets/#{dataset.slug}"} target="_blank">
                     <i class="fa fa-arrow-up-right-from-square"></i>
                     {dataset.custom_title}
                   </.link>
@@ -35,7 +35,7 @@
                 <td>{discussion["title"]}</td>
                 <td>
                   <.link
-                    href={dataset_path(@conn, :details, dataset.slug) <> ~s|#discussion-#{discussion["id"]}|}
+                    href={~p"/datasets/#{dataset.slug}" <> ~s|#discussion-#{discussion["id"]}|}
                     target="_blank"
                     class="button-outline primary small"
                     data-tracking-category="espace_producteur"
