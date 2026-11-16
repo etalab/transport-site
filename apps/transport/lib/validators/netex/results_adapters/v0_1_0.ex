@@ -72,6 +72,8 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_1_0 do
   "2 erreurs"
   """
   @impl Transport.Validators.NeTEx.ResultsAdapter
+  def format_severity("NoError", 0), do: dgettext("netex-validator", "no error")
+
   def format_severity(key, count) do
     case key do
       "error" ->

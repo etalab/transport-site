@@ -40,7 +40,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     />
 
     <.netex_validation_report_content_categorized
-      :if={has_errors_and_categories?(@report)}
+      :if={render_categories?(@report)}
       conn={@conn}
       current_category={@report.filter["issues_category"] || "xsd-schema"}
       xsd_errors={@report.xsd_errors}
@@ -70,7 +70,8 @@ defmodule TransportWeb.NeTExValidationReportComponent do
     """
   end
 
-  defp has_errors_and_categories?(report), do: report.has_errors? and has_categories?(report.summary)
+  defp render_categories?(%{summary: nil}), do: false
+  defp render_categories?(report), do: has_categories?(report.summary)
 
   defp has_flat_errors?(report), do: report.has_errors? and not has_categories?(report.summary)
 
@@ -321,7 +322,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
               href={current_url(@conn, Map.merge(%{"issue_type" => key}, drop_empty(%{"token" => @token}))) <> "#issues"}
               class={if(key == @current_issue_type, do: "active")}
             >
-              {issue["title"]} (#{issue["count"]})
+              {issue["title"]} ({issue["count"]})
             </.link>
           </li>
         </ul>

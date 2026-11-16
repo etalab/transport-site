@@ -57,6 +57,33 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
     end
   end
 
+  describe "netex_validation_report/1 - v0.1.0 clean report" do
+    test "does not crash when v0.1.0 has NoError (CaseClauseError regression)" do
+      report = netex_validation_details_v0_1_0_clean()
+      conn = netex_conn()
+
+      html = render_netex_validation_report(conn, report, heading_level: 4)
+
+      assert html =~ "Nice work, there are no issues!"
+      # Should NOT crash on format_severity with NoError
+    end
+  end
+
+  describe "netex_validation_report/1 - errors rendering" do
+    test "renders categories and XSD issues when there are errors" do
+      report = netex_validation_details_with_errors()
+      conn = netex_conn()
+
+      html = render_netex_validation_report(conn, report, heading_level: 4)
+
+      # Should show category tabs
+      assert html =~ ~r{<div id="categories">}
+      # Should show XSD issues table (default current_category is "xsd-schema")
+      assert html =~ "XSD error message"
+      assert html =~ "Another XSD error"
+    end
+  end
+
   describe "netex_validation_report/1 - structural tests" do
     test "renders no-issues page without wrapper duplicates or empty containers (heading_level: 4)" do
       report = netex_validation_details()
@@ -111,6 +138,8 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
 
   defp netex_conn(path_info \\ ["resources", "42"]) do
     %Plug.Conn{method: "GET", path_info: path_info, query_params: %{}, params: %{}}
+    # Required for verified paths
+    |> Plug.Conn.put_private(:phoenix_endpoint, TransportWeb.Endpoint)
   end
 
   defp extract_headings(html, selector) do
