@@ -193,8 +193,8 @@ defmodule Transport.DataFrame.Validation.Primitives do
   @doc """
   Check if values match ISO date format (YYYY-MM-DD) and represent real dates.
 
-  The validation first ensures the pattern matches, then relies on the Explorer
-  date casting to reject impossible dates (e.g., 2024-02-30).
+  The validation first ensures the pattern matches, then relies on Explorer
+  date parsing (`strptime`) to reject impossible dates (e.g., 2024-02-30).
 
   ## Examples
 
