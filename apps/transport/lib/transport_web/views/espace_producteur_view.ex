@@ -69,7 +69,7 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <tr>
       <td>
-        <.link href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug)} target="_blank">
+        <.link href={~p"/datasets/#{@dataset.slug}"} target="_blank">
           <i class="fa fa-arrow-up-right-from-square"></i>
           {@dataset.custom_title}
         </.link>
@@ -124,7 +124,7 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <td>
       <.link
-        href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
+        href={~p"/datasets/#{@dataset.slug}" <> ~s|#discussion-#{@issue["id"]}|}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="important_information_see_discussion_button"
@@ -139,7 +139,7 @@ defmodule TransportWeb.EspaceProducteurView do
     ~H"""
     <td>
       <.link
-        href={espace_producteur_path(TransportWeb.Endpoint, :edit_resource, @dataset.id, @issue.datagouv_id)}
+        href={~p"/espace_producteur/datasets/#{@dataset.id}/resources/#{@issue.datagouv_id}"}
         class="button-outline primary small"
         data-tracking-category="espace_producteur"
         data-tracking-action="important_information_edit_resource_button"
@@ -155,7 +155,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <td>
       <div class="action-buttons">
         <.link
-          href={resource_path(TransportWeb.Endpoint, :details, @issue.id)}
+          href={~p"/resources/#{@issue}"}
           class="button-outline primary small"
           target="_blank"
           data-tracking-category="espace_reutilisateur"
@@ -174,7 +174,7 @@ defmodule TransportWeb.EspaceProducteurView do
     <td>
       <div class="action-buttons">
         <.link
-          href={dataset_path(TransportWeb.Endpoint, :details, @dataset.slug) <> ~s|#discussion-#{@issue["id"]}|}
+          href={~p"/datasets/#{@dataset.slug}" <> ~s|#discussion-#{@issue["id"]}|}
           class="button-outline primary small"
           data-tracking-category="espace_producteur"
           data-tracking-action="important_information_see_discussion_button"

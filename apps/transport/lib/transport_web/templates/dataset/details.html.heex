@@ -194,7 +194,7 @@
           </div>
         <% else %>
           <span class="discussion-commment__connection-needed">
-            <.link href={page_path(@conn, :login, redirect_path: current_path(@conn))}>
+            <.link href={~p"/login/explanation?#{[redirect_path: current_path(@conn)]}"}>
               {dgettext("page-dataset-details", "You need to be connected to start a discussion")}
             </.link>
           </span>
@@ -220,9 +220,7 @@
         <span class="dataset-metas-info-title">{dgettext("page-dataset-details", "Data published by")}</span>
         <div>
           <b>
-            <.link href={dataset_path(@conn, :index, organization_id: @dataset.organization_id)}>
-              {@dataset.organization}
-            </.link>
+            <.link href={~p"/datasets?#{[organization_id: @dataset.organization_id]}"}>{@dataset.organization}</.link>
           </b>
         </div>
       </div>
@@ -231,7 +229,7 @@
           {dgettext("page-dataset-details", "Data under the responsibility of")}
         </span>
         <div>
-          {legal_owners_links(@conn, @dataset)}
+          {legal_owners_links(@dataset)}
           <%= if not is_nil(@dataset.legal_owner_company_siren) do %>
             {if @company, do: @company.nom_complet, else: @dataset.legal_owner_company_siren}
           <% end %>
@@ -243,7 +241,7 @@
         </span>
         <div>
           <%= for offer <- @dataset.offers |> Enum.sort_by(& &1.nom_commercial) do %>
-            <.link href={dataset_path(@conn, :by_offer, offer.identifiant_offre)}>{offer.nom_commercial}</.link>
+            <.link href={~p"/datasets/offer/#{offer.identifiant_offre}"}>{offer.nom_commercial}</.link>
           <% end %>
         </div>
       </div>

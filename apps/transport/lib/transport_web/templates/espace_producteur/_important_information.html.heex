@@ -23,7 +23,7 @@
           <td>{dgettext("espace-producteurs", "recent_features")}</td>
           <td>
             <.link
-              href={page_path(@conn, :nouveautes)}
+              href={~p"/nouveautes"}
               class="button-outline primary small"
               data-tracking-category="espace_producteur"
               data-tracking-action="important_information_see_recent_features_button"

@@ -17,7 +17,7 @@
   <%= unless is_nil(@dataset) do %>
     <div class="pb-24">
       <i class="fa fa-up-right-from-square"></i>
-      <.link href={dataset_path(@socket, :details, @dataset.id)}>
+      <.link href={~p"/datasets/#{@dataset.id}"}>
         {dgettext("backoffice", "See dataset on website")}
       </.link>
     </div>
@@ -42,7 +42,7 @@
           <div class="pt-12">
             <%= if @datagouv_infos[:dataset_id] do %>
               ⚠️ Ce jeu de données est déjà référencé <.link
-                href={backoffice_page_path(@socket, :edit, @datagouv_infos[:dataset_id])}
+                href={~p"/backoffice/datasets/#{@datagouv_infos[:dataset_id]}/edit"}
                 target="_blank"
               >sur le PAN</.link>, il n'est pas possible de le référencer une seconde fois.
             <% else %>
@@ -145,7 +145,7 @@
       <% end %>
     </div>
     <div>
-      <.link href={backoffice_page_path(@socket, :index)}>{dgettext("backoffice", "Cancel")}</.link>
+      <.link href={~p"/backoffice"}>{dgettext("backoffice", "Cancel")}</.link>
     </div>
   </div>
 </.form>

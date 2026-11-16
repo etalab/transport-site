@@ -7,7 +7,7 @@
       <h2>{dgettext("espace-producteurs", "Download statistics")}</h2>
       <.link
         class="button-outline small secondary"
-        href={espace_producteur_path(@conn, :download_statistics_csv)}
+        href={~p"/espace_producteur/download_statistics_csv"}
         data-tracking-category="espace_producteur"
         data-tracking-action="download_statistics_csv"
       >
