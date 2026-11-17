@@ -11,7 +11,6 @@ if !File.exists?(cache_dir), do: File.mkdir(cache_dir)
 use_cache =
   case System.get_env("CACHE", "NONE") do
     "NONE" ->
-      IO.puts("Cache set to :none")
       :none
 
     "LOW" ->
@@ -33,8 +32,14 @@ Mix.install(
     {:table_rex, "~> 4.0"}
   ],
   config_path: Path.join(my_app_root, "config/config.exs"),
-  lockfile: Path.join(my_app_root, "mix.lock")
+  lockfile: Path.join(my_app_root, "mix.lock"),
+  # only the code is needed, not the app (Oban, Phoenix, DB...)
+  start_applications: false
 )
+
+{:ok, _} = Application.ensure_all_started(:req)
+# hides Req redirect logs
+Logger.configure(level: :info)
 
 params = %{
   page: 1,
@@ -62,6 +67,9 @@ defmodule Query do
   end
 end
 
+info = fn text -> [:faint, text] |> IO.ANSI.format() |> IO.puts() end
+info.("Recherche sur data.gouv des jeux de données au schéma IRVE dynamique :\n  #{url}")
+
 # disabling cache by default because one dataset is refreshed very frequently, caching leads to 404
 # but letting the CLI decide if this must be cached via `CACHE=LOW` or `ALL`
 %{status: 200, body: datasets} = Query.cached_get!(url, enable_cache: use_cache != :none)
@@ -87,53 +95,77 @@ resources =
       |> Map.put("schema_version", get_in(r, ["schema", "version"]))
     end)
   end)
-  |> Enum.reject(fn r ->
-    # https://www.data.gouv.fr/en/datasets/exemple-jeu-de-donnees-points-de-recharge-de-xxxxxx-donnees-statiques-et-dynamiques/
-    # a fake dataset with non existent url donnesdynamiquesIRVE.fr
-    r["id"] == "5ef6ddff-2f98-4300-9e6e-1b47ea4ab779"
-  end)
+  # our own national consolidation, built from the other resources
+  |> Enum.reject(&(&1["url"] == "https://proxy.transport.data.gouv.fr/resource/consolidation-nationale-irve-dynamique"))
+
+info.("""
+#{length(datasets["data"])} jeux de données → #{length(resources)} ressources déclarées au schéma IRVE dynamique \
+(hors notre consolidation nationale)
+Téléchargement et analyse de chaque ressource#{if System.get_env("FRICTIONLESS") == "1", do: " + validation frictionless"}
+""")
 
 defmodule IRVECheck do
+  alias Explorer.{DataFrame, Series}
+
   def get_body(url, options \\ []) do
     enable_cache = Keyword.get(options, :enable_cache, false)
     # control the decoding ourselves ; by default Req would decode via CSV itself
-    %{status: status, body: body} = Query.cached_get!(url, decode_body: false, enable_cache: enable_cache)
-
-    if status != 200 do
-      Mix.shell().error("Failed to fetch data for #{url} (http_status=#{status}), halting!")
-      System.halt(1)
+    case Query.cached_get!(url, decode_body: false, enable_cache: enable_cache) do
+      %{status: 200, body: body} -> {:ok, body}
+      %{status: status} -> {:error, "HTTP #{status}"}
     end
-
-    body
   end
 
-  def parse_csv(body) do
-    [body]
-    |> CSV.decode!(headers: true)
-    |> Enum.to_list()
+  # a broken file must not halt the whole run
+  def parse({:error, _} = error), do: error
+  def parse({:ok, "<" <> _}), do: {:error, "page HTML, pas un CSV"}
+  def parse({:ok, "PK" <> _}), do: {:error, "fichier zip (xlsx ?), pas un CSV"}
+
+  def parse({:ok, body}) do
+    delimiter = delimiter(body)
+
+    case DataFrame.load_csv(body, infer_schema_length: 0, delimiter: delimiter) do
+      {:ok, df} -> {:ok, df, delimiter}
+      {:error, e} -> {:error, e |> Exception.message() |> String.slice(0, 50)}
+    end
   end
 
-  def get_headers(body) do
-    [body]
-    # quick first decode to get the headers, even if the file has no rows
-    |> CSV.decode!(headers: false)
-    |> Enum.take(1)
-    |> List.first()
+  # DynamicIRVE only reads `,`, but `;` files are still worth analysing
+  defp delimiter(body) do
+    header = body |> String.split("\n", parts: 2) |> hd()
+    if String.contains?(header, ";") and not String.contains?(header, ","), do: ";", else: ","
   end
 
-  def is_dynamic_irve?(headers) do
-    "id_pdc_itinerance" in headers && "etat_pdc" in headers
+  def schema(df) do
+    cond do
+      has_columns?(df, ~w(id_pdc_itinerance etat_pdc)) -> :dynamic
+      has_columns?(df, ~w(id_station_itinerance nom_amenageur)) -> :static
+      true -> {:unknown, df |> DataFrame.names() |> Enum.take(3)}
+    end
   end
 
-  def time_window(rows) do
-    data =
-      rows
-      |> Enum.map(fn x -> (x["horodatage"] || "???") |> String.slice(0, 10) end)
-      |> Enum.to_list()
-      |> Enum.sort()
-
-    {List.first(data), List.last(data), Enum.count(data)}
+  def last_day(df) do
+    if has_columns?(df, ~w(horodatage)) do
+      df["horodatage"]
+      |> Series.substring(0, 10)
+      |> Series.distinct()
+      |> Series.to_list()
+      |> Enum.reject(&is_nil/1)
+      |> Enum.max(fn -> nil end)
+    end
   end
+
+  # a frozen feed typically has a single value (e.g. 100% "inconnu")
+  def occupation(df) do
+    if has_columns?(df, ~w(occupation_pdc)) do
+      df
+      |> DataFrame.frequencies(~w(occupation_pdc))
+      |> DataFrame.to_rows()
+      |> Enum.map(&{&1["occupation_pdc"], &1["counts"]})
+    end
+  end
+
+  defp has_columns?(df, columns), do: columns -- DataFrame.names(df) == []
 end
 
 # very brittle (false positives & false negatives) at the moment, but helped me a bit already
@@ -141,7 +173,12 @@ end
 defmodule FrictionlessValidator do
   @latest_dynamic_irve_schema "https://schema.data.gouv.fr/schemas/etalab/schema-irve-dynamique/latest/schema-dynamique.json"
 
+  # opt-in via FRICTIONLESS=1, as it requires the `frictionless` CLI
   def validate(file_url, schema \\ @latest_dynamic_irve_schema) do
+    if System.get_env("FRICTIONLESS") == "1", do: run(file_url, schema), else: {:skipped, nil}
+  end
+
+  defp run(file_url, schema) do
     cmd = "frictionless"
     # NOTE: I tried using `--schema-sync` as an attempt to avoid failure
     # when an optional field column's header is missing.
@@ -160,6 +197,8 @@ defmodule FrictionlessValidator do
   end
 
   # quick and dirty parsing
+  def errors_summary(nil), do: []
+
   def errors_summary(output) do
     output["tasks"]
     |> Enum.map(& &1["errors"])
@@ -186,58 +225,155 @@ defmodule FrictionlessValidator do
     "id_pdc_itinerance" in labels
   end
 
+  def really_valid?(nil), do: nil
+
   def really_valid?(output) do
     did_validation_really_occur?(output) &&
       match?(%{"errors" => 0, "warnings" => 0}, output["stats"])
   end
 end
 
-IO.puts("========== #{resources |> length()} candidates ==========\n\n")
+defmodule Report do
+  @spinner ~w(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
+  @icons %{ok: {:green, "✔"}, warning: {:yellow, "▲"}, other_schema: {:cyan, "≠"}, error: {:red, "✖"}}
+
+  # animates a spinner while `fun` runs, returns `{result, seconds}`
+  def with_spinner(label, fun) do
+    spinner = spawn(fn -> spin(label, 0) end)
+    {microseconds, result} = :timer.tc(fun)
+    Process.exit(spinner, :kill)
+    IO.write("\r\e[2K")
+    {result, microseconds / 1_000_000}
+  end
+
+  defp spin(label, i) do
+    IO.write("\r#{Enum.at(@spinner, rem(i, length(@spinner)))} #{label}")
+    Process.sleep(80)
+    spin(label, i + 1)
+  end
+
+  def verdict(%{error: error}), do: {:error, [error]}
+  def verdict(%{schema: :static}), do: {:other_schema, ["schéma IRVE statique"]}
+  def verdict(%{schema: {:unknown, columns}}), do: {:other_schema, ["autre schéma : #{Enum.join(columns, ", ")}…"]}
+
+  def verdict(r) do
+    warnings =
+      [
+        r.delimiter == ";" && "séparateur « ; » (non lu par DynamicIRVE)",
+        stale?(r.last_day) && "horodatage > 7 jours",
+        match?([_], r.occupation) && "figé"
+      ]
+      |> Enum.filter(& &1)
+
+    # informative only: a live feed is worth consuming even if invalid
+    info = if r.valid != true, do: ["invalide sur data.gouv"], else: []
+
+    {if(warnings == [], do: :ok, else: :warning), warnings ++ info}
+  end
+
+  defp stale?(day) do
+    case Date.from_iso8601(day || "") do
+      {:ok, date} -> Date.diff(Date.utc_today(), date) > 7
+      _ -> true
+    end
+  end
+
+  def print(%{verdict: {status, notes}} = r) do
+    {color, icon} = @icons[status]
+    details = if status in [:ok, :warning], do: [stats(r), "  "], else: []
+    seconds = :erlang.float_to_binary(r.seconds, decimals: 1) <> "s"
+
+    [color, icon, :reset, " ", String.pad_trailing(r.organization, 22), :faint, String.pad_leading(seconds, 5), :reset]
+    |> Kernel.++(["  ", details, color, Enum.join(notes, ", ")])
+    |> IO.ANSI.format()
+    |> IO.puts()
+
+    [:faint, "  ", r.dataset_url] |> IO.ANSI.format() |> IO.puts()
+  end
+
+  defp stats(r) do
+    shares = r.occupation |> Enum.take(3) |> Enum.map_join(" · ", fn {k, n} -> "#{k} #{round(100 * n / r.rows)}%" end)
+
+    [
+      r.rows |> thousands() |> String.pad_leading(7),
+      " PDC  → ",
+      r.last_day || "?",
+      "  ",
+      String.pad_trailing(shares, 36)
+    ]
+  end
+
+  defp thousands(n), do: n |> Integer.to_string() |> String.replace(~r/\B(?=(\d{3})+$)/, " ")
+
+  def summary(rows, seconds) do
+    counts = Enum.frequencies_by(rows, &elem(&1.verdict, 0))
+
+    [:bright, "\n#{length(rows)} ressources", :reset]
+    |> Kernel.++(
+      for s <- [:ok, :warning, :other_schema, :error],
+          do: [" · ", elem(@icons[s], 0), "#{counts[s] || 0} #{elem(@icons[s], 1)}", :reset]
+    )
+    |> Kernel.++([:faint, " · #{round(seconds)}s"])
+    |> IO.ANSI.format()
+    |> IO.puts()
+  end
+end
+
+started_at = System.monotonic_time(:millisecond)
 
 rows =
   resources
-  |> Enum.reject(&(&1["id"] == "5e18be8c-475c-49e3-ad7c-f6c08308e5c5"))
-  |> Enum.reject(&(&1["id"] == "5259635d-83d6-4b7b-acfc-b503b660a259"))
-  |> Enum.reject(&(&1["id"] == "514d529a-c961-4862-9d20-49fdf499a9aa"))
   |> Enum.map(fn r ->
-    IO.puts("Processing #{r["id"]} (#{r["dataset_url"]} by #{r["organization"]}) - r_url=#{r["url"]} ...")
-    body = IRVECheck.get_body(r["url"], enable_cache: use_cache == :all)
-    rows = IRVECheck.parse_csv(body)
-    headers = IRVECheck.get_headers(body)
+    {row, seconds} =
+      Report.with_spinner(r["organization"], fn ->
+        # stable url: frequently refreshed resources get a new `r["url"]` during the run
+        analysis =
+          case r["latest"] |> IRVECheck.get_body(enable_cache: use_cache == :all) |> IRVECheck.parse() do
+            {:ok, df, delimiter} ->
+              %{
+                schema: IRVECheck.schema(df),
+                delimiter: delimiter,
+                last_day: IRVECheck.last_day(df),
+                occupation: IRVECheck.occupation(df),
+                rows: Explorer.DataFrame.n_rows(df)
+              }
 
-    {local_valid, validation_output} = FrictionlessValidator.validate(r["url"])
+            {:error, error} ->
+              %{error: error}
+          end
 
-    really_local_valid = FrictionlessValidator.really_valid?(validation_output)
-    output_file = CacheDir.cache_dir() |> Path.join("dyn-irve-" <> r["id"])
+        {local_valid, validation_output} = FrictionlessValidator.validate(r["latest"])
 
-    File.write!(
-      output_file,
-      validation_output |> Jason.encode!() |> Jason.Formatter.pretty_print()
-    )
+        really_local_valid = FrictionlessValidator.really_valid?(validation_output)
+        output_file = CacheDir.cache_dir() |> Path.join("dyn-irve-" <> r["id"])
 
-    %{
-      dataset_id: r["dataset_id"],
-      dataset_url: r["dataset_url"],
-      r_id: r["id"],
-      download_url: "https://www.data.gouv.fr/api/1/datasets/r/#{r["id"]}",
-      organization: r["organization"],
-      resource_url: r["url"],
-      dyn_irve_likely: IRVECheck.is_dynamic_irve?(headers),
-      time_window: IRVECheck.time_window(rows),
-      rows: rows |> length(),
-      valid: r["valid"],
-      local_valid: local_valid,
-      really_local_valid: really_local_valid,
-      frictionless_output_file: output_file,
-      v_date: r["validation_date"],
-      schema_name: r["schema_name"],
-      schema_version: r["schema_version"],
-      local_validation_errors: FrictionlessValidator.errors_summary(validation_output),
-      local_validation_stats: validation_output |> Map.fetch!("stats")
-    }
+        if validation_output do
+          File.write!(
+            output_file,
+            validation_output |> Jason.encode!() |> Jason.Formatter.pretty_print()
+          )
+        end
+
+        Map.merge(analysis, %{
+          dataset_id: r["dataset_id"],
+          dataset_url: r["dataset_url"],
+          download_url: "https://www.data.gouv.fr/api/1/datasets/r/#{r["id"]}",
+          organization: r["organization"],
+          valid: r["valid"],
+          local_valid: local_valid,
+          really_local_valid: really_local_valid,
+          frictionless_output_file: output_file,
+          local_validation_errors: FrictionlessValidator.errors_summary(validation_output),
+          local_validation_stats: validation_output && validation_output["stats"]
+        })
+      end)
+
+    row = Map.merge(row, %{seconds: seconds, verdict: Report.verdict(row)})
+    Report.print(row)
+    row
   end)
 
-IO.inspect(rows, IEx.inspect_opts())
+Report.summary(rows, (System.monotonic_time(:millisecond) - started_at) / 1000)
 
 defmodule Display do
   def print_table(data, columns, opts \\ []) do
@@ -249,84 +385,54 @@ defmodule Display do
     table_rows =
       sorted
       |> Enum.map(fn row ->
-        columns |> Enum.map(fn col -> row[col] |> inspect() end)
+        columns |> Enum.map(fn col -> cell(row[col]) end)
       end)
 
     TableRex.quick_render!(table_rows, headers, title)
     |> IO.puts()
   end
+
+  defp cell(nil), do: ""
+  defp cell(value) when is_binary(value), do: value
+  defp cell(value), do: inspect(value)
 end
 
-Display.print_table(
-  rows,
-  [
-    :organization,
-    :r_id,
-    :dyn_irve_likely,
-    :rows,
-    :valid,
-    :local_valid,
-    :really_local_valid,
-    :v_date,
-    :schema_name,
-    :schema_version
-  ],
-  title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante)"
-)
+if System.get_env("FRICTIONLESS") == "1" do
+  exploded_rows =
+    rows
+    |> Enum.flat_map(fn r ->
+      r[:local_validation_errors]
+      |> Enum.map(fn x -> r |> Map.put(:one_error, x) end)
+    end)
 
-Display.print_table(
-  rows,
-  [
-    :organization,
-    :dyn_irve_likely,
-    :rows,
-    :download_url,
-    :dataset_url,
-    :valid
-  ],
-  title: "Ressources potentielles IRVE dynamiques (taille estimée décroissante, moins de colonnes)"
-)
+  Display.print_table(
+    exploded_rows,
+    [
+      :organization,
+      :rows,
+      :local_valid,
+      :really_local_valid,
+      :one_error
+    ],
+    title: "Erreurs de validation détaillées (une ligne par erreur par ressource)"
+  )
 
-exploded_rows =
-  rows
-  |> Enum.flat_map(fn r ->
-    r[:local_validation_errors]
-    |> Enum.map(fn x -> r |> Map.put(:one_error, x) end)
-  end)
-
-Display.print_table(
-  exploded_rows,
-  [
+  Display.print_table(rows, [
     :organization,
     :rows,
     :local_valid,
-    :really_local_valid,
-    :one_error
-  ],
-  title: "Erreurs de validation détaillées (une ligne par erreur par ressource)"
-)
+    :local_validation_stats,
+    :frictionless_output_file
+  ])
+end
 
-rows =
-  rows
-  |> Enum.map(fn r ->
-    Map.update!(r, :local_validation_stats, &inspect/1)
-  end)
-
-Display.print_table(rows, [
-  :organization,
-  :rows,
-  :local_valid,
-  :local_validation_stats,
-  :frictionless_output_file
-])
-
-# Generate YAML config for qualifying resources
+# Generate YAML config for healthy resources only
 yaml_rows =
   rows
-  |> Enum.filter(fn r -> r[:rows] > 80 && r[:dyn_irve_likely] == true && r[:valid] == true end)
+  |> Enum.filter(&match?({:ok, _}, &1.verdict))
   |> Enum.sort_by(& &1[:rows], :desc)
 
-IO.puts("\n========== Configuration YAML ==========\n")
+[:bright, "\nConfiguration YAML (ressources ✔)\n"] |> IO.ANSI.format() |> IO.puts()
 
 yaml_rows
 |> Enum.each(fn r ->
