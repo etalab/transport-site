@@ -193,8 +193,8 @@ defmodule Transport.DataFrame.Validation.Primitives do
   @doc """
   Check if values match ISO date format (YYYY-MM-DD) and represent real dates.
 
-  The validation first ensures the pattern matches, then relies on the Explorer
-  date casting to reject impossible dates (e.g., 2024-02-30).
+  The validation first ensures the pattern matches, then relies on Explorer
+  date parsing (`strptime`) to reject impossible dates (e.g., 2024-02-30).
 
   ## Examples
 
@@ -204,9 +204,9 @@ defmodule Transport.DataFrame.Validation.Primitives do
       iex> date?(build_series(["2024-02-30", "2024/10/07", "2024", "2024-10", "foobar"]), "%Y-%m-%d") |> Series.to_list()
       [false, false, false, false, false]
   """
-  def date?(series, "%Y-%m-%d" = _format) do
+  def date?(series, "%Y-%m-%d" = format) do
     matches_pattern = Series.re_contains(series, @iso_date_pattern)
-    casted = Series.cast(series, :date)
+    casted = Series.strptime(series, format)
 
     Series.and(
       matches_pattern,

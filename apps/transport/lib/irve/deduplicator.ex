@@ -52,6 +52,9 @@ defmodule Transport.IRVE.Deduplicator do
   - removed_because_no_rule_applies
   """
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
+    # Rules aggregate over groups, but their status conditions run ungrouped: they are row-wise,
+    # and Polars ≥ 0.52 can't evaluate a condition with literal branches over groups.
+    # https://github.com/etalab/transport-site/issues/5579
     df
     |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> remove_non_concerne_rule()
@@ -78,21 +81,25 @@ defmodule Transport.IRVE.Deduplicator do
 
   defp remove_non_concerne_rule(df) do
     df
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         if(id_pdc_itinerance == "Non concerné",
           do: "removed_because_non_concerne"
         )
     )
+    |> Explorer.DataFrame.group_by(Explorer.DataFrame.groups(df))
   end
 
   defp unique_rule(df) do
     df
     |> Explorer.DataFrame.mutate(similar_pdc_count: count(datagouv_resource_id))
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         if(similar_pdc_count == 1 and is_nil(deduplication_status), do: "unique", else: deduplication_status)
     )
+    |> Explorer.DataFrame.group_by(Explorer.DataFrame.groups(df))
     |> Explorer.DataFrame.discard("similar_pdc_count")
   end
 
@@ -102,6 +109,7 @@ defmodule Transport.IRVE.Deduplicator do
     df
     |> Explorer.DataFrame.join(priority_df, how: :left, on: "datagouv_dataset_id")
     |> Explorer.DataFrame.mutate(min_priority: min(priority))
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
@@ -118,6 +126,7 @@ defmodule Transport.IRVE.Deduplicator do
             nil
         end
     )
+    |> Explorer.DataFrame.group_by(Explorer.DataFrame.groups(df))
     |> Explorer.DataFrame.discard("priority")
     |> Explorer.DataFrame.discard("min_priority")
   end
@@ -128,6 +137,7 @@ defmodule Transport.IRVE.Deduplicator do
     |> Explorer.DataFrame.mutate(is_max_date_maj: date_maj == max_date_maj)
     |> Explorer.DataFrame.group_by(["id_pdc_itinerance", "is_max_date_maj"])
     |> Explorer.DataFrame.mutate(count_is_max_date_maj: count(datagouv_resource_id))
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
@@ -144,6 +154,7 @@ defmodule Transport.IRVE.Deduplicator do
             nil
         end
     )
+    |> Explorer.DataFrame.group_by(["id_pdc_itinerance", "is_max_date_maj"])
     |> Explorer.DataFrame.discard("max_date_maj")
     |> Explorer.DataFrame.discard("count_is_max_date_maj")
   end
@@ -160,6 +171,7 @@ defmodule Transport.IRVE.Deduplicator do
     |> Explorer.DataFrame.mutate(is_max_datagouv_last_modified: datagouv_last_modified == max_datagouv_last_modified)
     |> Explorer.DataFrame.group_by(["id_pdc_itinerance", "is_max_date_maj", "is_max_datagouv_last_modified"])
     |> Explorer.DataFrame.mutate(count_max_datagouv_last_modified: count(is_max_datagouv_last_modified))
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
@@ -178,7 +190,6 @@ defmodule Transport.IRVE.Deduplicator do
     )
     |> Explorer.DataFrame.discard("max_datagouv_last_modified")
     |> Explorer.DataFrame.discard("count_max_datagouv_last_modified")
-    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.discard("is_max_date_maj")
     |> Explorer.DataFrame.discard("is_max_datagouv_last_modified")
   end
@@ -189,13 +200,15 @@ defmodule Transport.IRVE.Deduplicator do
     |> Explorer.DataFrame.group_by(Transport.IRVE.DatabaseExporter.export_field_list())
     |> Explorer.DataFrame.mutate(count_dups: count(id_pdc_itinerance))
     |> Explorer.DataFrame.mutate(min_row_index: min(row_index(id_pdc_itinerance)))
+    |> Explorer.DataFrame.mutate(row_index_in_group: row_index(id_pdc_itinerance))
+    |> Explorer.DataFrame.ungroup()
     |> Explorer.DataFrame.mutate(
       deduplication_status:
         cond do
           is_not_nil(deduplication_status) ->
             deduplication_status
 
-          count_dups > 1 and row_index(id_pdc_itinerance) == min_row_index ->
+          count_dups > 1 and row_index_in_group == min_row_index ->
             "kept_because_exact_duplicate_in_same_file"
 
           count_dups > 1 ->
@@ -207,7 +220,7 @@ defmodule Transport.IRVE.Deduplicator do
     )
     |> Explorer.DataFrame.discard("count_dups")
     |> Explorer.DataFrame.discard("min_row_index")
-    |> Explorer.DataFrame.ungroup()
+    |> Explorer.DataFrame.discard("row_index_in_group")
   end
 
   defp remove_undecided_duplicates_rule(df) do

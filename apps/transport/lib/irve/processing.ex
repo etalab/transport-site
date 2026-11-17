@@ -75,11 +75,16 @@ defmodule Transport.IRVE.Processing do
   Only `"true"`, `"false"` and `nil` are accepted. Anything else (e.g. `"TRUE"`) would silently
   become `false`, so we raise instead to avoid corrupting data if unvalidated input reaches us.
 
+  Dates are parsed as ISO 8601, as Polars deprecates casting strings to dates.
+
   iex> Explorer.Series.from_list(["true", "false", nil]) |> cast_series(:boolean) |> Explorer.Series.to_list()
   [true, false, nil]
 
   iex> Explorer.Series.from_list(["true", "TRUE"]) |> cast_series(:boolean)
   ** (ArgumentError) cannot cast to :boolean: expected only "true", "false" or nil
+
+  iex> Explorer.Series.from_list(["2024-10-02", nil]) |> cast_series(:date) |> Explorer.Series.to_list()
+  [~D[2024-10-02], nil]
   """
   def cast_series(series, :boolean) do
     # `in` yields nil for nil cells, which are allowed, so fill them as known before checking.
@@ -91,6 +96,8 @@ defmodule Transport.IRVE.Processing do
 
     Explorer.Series.equal(series, "true")
   end
+
+  def cast_series(series, :date), do: series |> Explorer.Series.strptime("%Y-%m-%d") |> Explorer.Series.cast(:date)
 
   def cast_series(series, dtype), do: Explorer.Series.cast(series, dtype)
 
