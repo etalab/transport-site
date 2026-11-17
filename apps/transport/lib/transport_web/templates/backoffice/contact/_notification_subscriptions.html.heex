@@ -12,7 +12,7 @@
   <.form
     :let={f}
     for={%{}}
-    action={backoffice_notification_subscription_path(@conn, :create)}
+    action={~p"/backoffice/notification_subscription"}
     class="backoffice-form"
   >
     <.input field={f[:redirect_location]} type="hidden" value="contact" />
@@ -45,7 +45,7 @@
   <.form
     :let={f}
     for={%{}}
-    action={backoffice_notification_subscription_path(@conn, :create)}
+    action={~p"/backoffice/notification_subscription"}
     class="backoffice-form"
   >
     <.input field={f[:redirect_location]} type="hidden" value="contact" />
@@ -93,14 +93,7 @@
               <.form
                 :let={f}
                 for={%{}}
-                action={
-                  backoffice_notification_subscription_path(
-                    @conn,
-                    :delete_for_contact_and_dataset,
-                    @contact_id,
-                    dataset.id
-                  )
-                }
+                action={~p"/backoffice/notification_subscription/contact/#{@contact_id}/#{dataset.id}"}
                 method="delete"
               >
                 <.input field={f[:redirect_location]} type="hidden" value="contact" />
@@ -118,7 +111,7 @@
             <.form
               :let={f}
               for={%{}}
-              action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+              action={~p"/backoffice/notification_subscription/#{notification_subscription.id}"}
               method="delete"
             >
               <.input field={f[:redirect_location]} type="hidden" value="contact" />
@@ -148,7 +141,7 @@
           <.form
             :let={f}
             for={%{}}
-            action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+            action={~p"/backoffice/notification_subscription/#{notification_subscription.id}"}
             method="delete"
           >
             <.input field={f[:redirect_location]} type="hidden" value="contact" />

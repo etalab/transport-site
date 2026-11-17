@@ -30,6 +30,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
     # The reuser_digest perform/1 uses (type + contact_id + digest_date) as args.
     unique: [period: {20, :hours}, fields: [:args, :queue, :worker]]
 
+  use TransportWeb, :verified_routes
   import Ecto.Query
   alias Transport.Expiration
 
@@ -208,7 +209,7 @@ defmodule Transport.Jobs.ExpirationNotificationJob do
   end
 
   defp dataset_link(%DB.Dataset{slug: slug, custom_title: custom_title}) do
-    url = TransportWeb.Router.Helpers.dataset_url(TransportWeb.Endpoint, :details, slug)
+    url = url(~p"/datasets/#{slug}")
     ~s|<li><a href="#{url}">#{custom_title}</a></li>|
   end
 

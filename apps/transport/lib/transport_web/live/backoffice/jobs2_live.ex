@@ -4,7 +4,6 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   """
   use TransportWeb, :live_view
   import Ecto.Query
-  import TransportWeb.Router.Helpers
 
   @states [:executing, :completed, :scheduled, :retryable, :available, :discarded, :cancelled]
 
@@ -46,7 +45,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
       # Then call the remaining code, which is expected to return the socket
       func.(socket)
     else
-      redirect(socket, to: "/login")
+      redirect(socket, to: ~p"/login")
     end
   end
 
@@ -196,7 +195,7 @@ defmodule TransportWeb.Backoffice.Jobs2Live do
   defp sync_query_params(update, socket) do
     socket =
       socket
-      |> push_patch(to: backoffice_live_path(socket, TransportWeb.Backoffice.Jobs2Live, update))
+      |> push_patch(to: ~p"/backoffice/jobs/experimental?#{update}")
 
     {:noreply, socket}
   end

@@ -441,7 +441,7 @@ defmodule TransportWeb.DatasetController do
   end
 
   defp redirect_to_dataset(conn, %DB.Dataset{} = dataset) do
-    redirect(conn, to: dataset_path(conn, :details, dataset.slug))
+    redirect(conn, to: ~p"/datasets/#{dataset.slug}")
   end
 
   @spec get_name(Ecto.Queryable.t(), binary()) :: binary()
@@ -563,7 +563,7 @@ defmodule TransportWeb.DatasetController do
 
   defp put_page_title(%Plug.Conn{request_path: request_path, query_params: query_params} = conn, _) do
     # We use the home tiles to associate the URL params to a title, see doc of the function
-    TransportWeb.PageController.home_tiles(conn)
+    TransportWeb.PageController.home_tiles()
     # Allows to match `?type=foo&filter=has_realtime` otherwise
     # `?type=foo` would match and we would not consider
     # other options.

@@ -5,7 +5,6 @@ defmodule TransportWeb.Backoffice.CacheLive do
   use TransportWeb, :live_view
   import Transport.Application, only: [cache_name: 0]
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.Router.Helpers
 
   @impl true
   def mount(params, %{"current_user" => current_user} = _session, socket) do
@@ -64,7 +63,7 @@ defmodule TransportWeb.Backoffice.CacheLive do
   def handle_event("filter", %{"search_key_name" => %{"filter_key_name" => filter_key_name}}, socket) do
     socket =
       socket
-      |> push_patch(to: backoffice_live_path(socket, __MODULE__, filter_key_name: filter_key_name))
+      |> push_patch(to: ~p"/backoffice/cache?#{[filter_key_name: filter_key_name]}")
 
     {:noreply, socket}
   end

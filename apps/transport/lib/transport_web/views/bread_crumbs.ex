@@ -10,90 +10,90 @@ defmodule TransportWeb.BreadCrumbs do
     |> render_crumbs
   end
 
-  def crumbs(conn, :espace_producteur) do
-    [{dgettext("espace-producteurs", "Producer space"), espace_producteur_path(conn, :espace_producteur)}]
+  def crumbs(:espace_producteur) do
+    [{dgettext("espace-producteurs", "Producer space"), ~p"/espace_producteur"}]
   end
 
-  def crumbs(conn, :reuser_space) do
-    [{dgettext("reuser-space", "Reuser space"), reuser_space_path(conn, :espace_reutilisateur)}]
+  def crumbs(:reuser_space) do
+    [{dgettext("reuser-space", "Reuser space"), ~p"/espace_reutilisateur"}]
   end
 
-  def crumbs(conn, :settings) do
-    crumbs(conn, :reuser_space) ++ [{dgettext("reuser-space", "Settings"), reuser_space_path(conn, :settings)}]
+  def crumbs(:settings) do
+    crumbs(:reuser_space) ++ [{dgettext("reuser-space", "Settings"), ~p"/espace_reutilisateur/settings"}]
   end
 
-  def crumbs(conn, :new_token) do
-    crumbs(conn, :settings) ++ [{dgettext("reuser-space", "Create a new token"), nil}]
+  def crumbs(:new_token) do
+    crumbs(:settings) ++ [{dgettext("reuser-space", "Create a new token"), nil}]
   end
 
-  def crumbs(conn, :contacts) do
-    [{"Contacts", backoffice_contact_path(conn, :index)}]
+  def crumbs(:contacts) do
+    [{"Contacts", ~p"/backoffice/contacts"}]
   end
 
-  def crumbs(conn, :contacts_edit) do
-    crumbs(conn, :contacts) ++ [{"Créer/éditer un contact", nil}]
+  def crumbs(:contacts_edit) do
+    crumbs(:contacts) ++ [{"Créer/éditer un contact", nil}]
   end
 
-  def crumbs(conn, :proxy_statistics) do
-    crumbs(conn, :espace_producteur) ++
+  def crumbs(:proxy_statistics) do
+    crumbs(:espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Transport proxy statistics"), espace_producteur_path(conn, :proxy_statistics)}
+        {dgettext("espace-producteurs", "Transport proxy statistics"), ~p"/espace_producteur/proxy_statistics"}
       ]
   end
 
-  def crumbs(conn, :download_statistics) do
-    crumbs(conn, :espace_producteur) ++
+  def crumbs(:download_statistics) do
+    crumbs(:espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Download statistics"), espace_producteur_path(conn, :download_statistics)}
+        {dgettext("espace-producteurs", "Download statistics"), ~p"/espace_producteur/download_statistics"}
       ]
   end
 
-  def crumbs(conn, :unanswered_discussions) do
-    crumbs(conn, :espace_producteur) ++
+  def crumbs(:unanswered_discussions) do
+    crumbs(:espace_producteur) ++
       [
-        {dgettext("espace-producteurs", "Unanswered discussions"), espace_producteur_path(conn, :discussions)}
+        {dgettext("espace-producteurs", "Unanswered discussions"), ~p"/espace_producteur/discussions"}
       ]
   end
 
-  def crumbs(conn, :espace_producteur_notifications) do
-    crumbs(conn, :espace_producteur) ++
-      [
-        {dgettext("espace-producteurs", "Notifications settings"), nil}
-      ]
-  end
-
-  def crumbs(conn, :reuser_space_notifications) do
-    crumbs(conn, :reuser_space) ++
+  def crumbs(:espace_producteur_notifications) do
+    crumbs(:espace_producteur) ++
       [
         {dgettext("espace-producteurs", "Notifications settings"), nil}
       ]
   end
 
-  def crumbs(conn, :datasets_edit, dataset_custom_title) do
-    crumbs(conn, :reuser_space) ++ [{dataset_custom_title, nil}]
+  def crumbs(:reuser_space_notifications) do
+    crumbs(:reuser_space) ++
+      [
+        {dgettext("espace-producteurs", "Notifications settings"), nil}
+      ]
   end
 
-  def crumbs(conn, :edit_dataset, dataset_custom_title, id) do
-    crumbs(conn, :espace_producteur) ++ [{dataset_custom_title, espace_producteur_path(conn, :edit_dataset, id)}]
+  def crumbs(:datasets_edit, dataset_custom_title) do
+    crumbs(:reuser_space) ++ [{dataset_custom_title, nil}]
   end
 
-  def crumbs(conn, :delete_resource, dataset_custom_title, id) do
-    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+  def crumbs(:edit_dataset, dataset_custom_title, id) do
+    crumbs(:espace_producteur) ++ [{dataset_custom_title, ~p"/espace_producteur/datasets/#{id}/edit"}]
+  end
+
+  def crumbs(:delete_resource, dataset_custom_title, id) do
+    crumbs(:edit_dataset, dataset_custom_title, id) ++
       [{dgettext("espace-producteurs", "Delete a resource"), nil}]
   end
 
-  def crumbs(conn, :new_resource, dataset_custom_title, id) do
-    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+  def crumbs(:new_resource, dataset_custom_title, id) do
+    crumbs(:edit_dataset, dataset_custom_title, id) ++
       [{dgettext("espace-producteurs", "New resource"), nil}]
   end
 
-  def crumbs(conn, :update_resource, dataset_custom_title, id) do
-    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+  def crumbs(:update_resource, dataset_custom_title, id) do
+    crumbs(:edit_dataset, dataset_custom_title, id) ++
       [{dgettext("espace-producteurs", "Update a resource"), nil}]
   end
 
-  def crumbs(conn, :reuser_improved_data, dataset_custom_title, id, resource_title) do
-    crumbs(conn, :edit_dataset, dataset_custom_title, id) ++
+  def crumbs(:reuser_improved_data, dataset_custom_title, id, resource_title) do
+    crumbs(:edit_dataset, dataset_custom_title, id) ++
       [{resource_title, nil}]
   end
 

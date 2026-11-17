@@ -2,7 +2,7 @@
   <div class="cards">
     <h1>{dgettext("reuses", "Declared reuses")}</h1>
     <p>
-      {raw(dgettext("reuses", "index-intro", url: reuser_space_path(@conn, :espace_reutilisateur)))}
+      {raw(dgettext("reuses", "index-intro", url: ~p"/espace_reutilisateur"))}
       <.link
         href="https://guides.data.gouv.fr/guide-data.gouv.fr/reutilisations/publier-une-reutilisation"
         target="_blank"
@@ -11,7 +11,7 @@
       </.link>
     </p>
 
-    <%= form_for @conn, reuse_path(@conn, :index), [id: "reuses_search_container", method: "get"], fn f -> %>
+    <%= form_for @conn, ~p"/reuses", [id: "reuses_search_container", method: "get"], fn f -> %>
       {select(
         f,
         :type,

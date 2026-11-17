@@ -14,19 +14,19 @@
     <title>{title}</title>
 
     <meta property="og:title" content={title} />
-    <meta property="og:image" content={static_url(@conn, "/images/transport-social-share.png")} />
+    <meta property="og:image" content={url(~p"/images/transport-social-share.png")} />
     <meta property="og:type" content="website" />
     <meta property="og:description" content={description} />
     <meta property="og:locale" content={get_session(@conn, :locale)} />
 
     <meta name="twitter:card" content="summary" />
     <meta property="twitter:title" content={title} />
-    <meta property="twitter:image" content={static_url(@conn, "/images/transport-social-share.png")} />
+    <meta property="twitter:image" content={url(~p"/images/transport-social-share.png")} />
     <meta property="twitter:description" content={description} />
 
-    <link rel="stylesheet" media="all" href={static_path(@conn, "/css/app.css")} />
-    <link rel="alternate" type="application/atom+xml" href={atom_url(@conn, :index)} title="Resources feed" />
-    <link type="text/plain" rel="author" href={page_url(@conn, :humans_txt)} />
+    <link rel="stylesheet" media="all" href={~p"/css/app.css"} />
+    <link rel="alternate" type="application/atom+xml" href={url(~p"/atom.xml")} title="Resources feed" />
+    <link type="text/plain" rel="author" href={url(~p"/humans.txt")} />
     <%= if assigns[:mix_env] == :prod do %>
       <!-- Polyfill for css grid-->
       <script type="text/javascript">
@@ -83,5 +83,5 @@
 
     {render(LayoutView, "_footer.html", assigns)}
   </body>
-  <script defer type="text/javascript" src={static_path(@conn, "/js/app.js")} />
+  <script defer type="text/javascript" src={~p"/js/app.js"} />
 </html>

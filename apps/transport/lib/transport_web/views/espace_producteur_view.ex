@@ -4,11 +4,11 @@ defmodule TransportWeb.EspaceProducteurView do
   import TransportWeb.BreadCrumbs, only: [breadcrumbs: 1]
 
   @spec action_path(Plug.Conn.t()) :: any
-  def action_path(%Plug.Conn{params: %{"resource_datagouv_id" => r_id}, assigns: %{dataset: dataset}} = conn),
-    do: espace_producteur_path(conn, :post_file, dataset.datagouv_id, r_id)
+  def action_path(%Plug.Conn{params: %{"resource_datagouv_id" => r_id}, assigns: %{dataset: dataset}}),
+    do: ~p"/espace_producteur/datasets/#{dataset.datagouv_id}/resources/#{r_id}"
 
-  def action_path(%Plug.Conn{assigns: %{dataset: dataset}} = conn),
-    do: espace_producteur_path(conn, :post_file, dataset.datagouv_id)
+  def action_path(%Plug.Conn{assigns: %{dataset: dataset}}),
+    do: ~p"/espace_producteur/datasets/#{dataset.datagouv_id}/resources"
 
   def title(%Plug.Conn{params: %{"resource_datagouv_id" => _}}),
     do: dgettext("resource", "Resource modification")
@@ -191,7 +191,7 @@ defmodule TransportWeb.EspaceProducteurView do
     assigns = assigns |> Map.put_new(:resource_id, nil) |> Map.put_new(:discussion_id, nil)
 
     ~H"""
-    <.form :let={f} for={%{}} action={reuser_space_path(@conn, :hide_alert, @dataset.id)} class="hide-alert-form">
+    <.form :let={f} for={%{}} action={~p"/espace_reutilisateur/datasets/#{@dataset.id}/hide_alert"} class="hide-alert-form">
       {hidden_input(f, :check_type, value: @check_name)}
       {hidden_input(f, :resource_id, value: @resource_id)}
       {hidden_input(f, :discussion_id, value: @discussion_id)}

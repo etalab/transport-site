@@ -71,7 +71,9 @@ defmodule TransportWeb.Backoffice.EmailPreviewLiveTest do
 
     assert Transport.UserNotifier.__info__(:functions)
            |> Enum.map(fn {function, _arity} -> function end)
-           |> Enum.reject(&(&1 in [:resource_titles, :render_body, :expiration_email_subject]))
+           |> Enum.reject(
+             &(&1 in [:__phoenix_verify_routes__, :resource_titles, :render_body, :expiration_email_subject])
+           )
            |> MapSet.new() == emails |> Enum.map(&elem(&1, 0)) |> MapSet.new()
   end
 

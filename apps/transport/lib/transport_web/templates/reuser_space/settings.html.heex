@@ -1,5 +1,5 @@
 <section class="container pt-48 pb-24">
-  {breadcrumbs([@conn, :settings])}
+  {breadcrumbs([:settings])}
 </section>
 <section class="reuser-space-section pb-48">
   <div class="container pt-24">
@@ -30,13 +30,13 @@
               <td><code>{token.secret}</code></td>
               <td>
                 <%= if !default_for_contact?(token, @contact) do %>
-                  <%= form_for @conn, reuser_space_path(@conn, :default_token, token.id), [class: "inline"], fn _ -> %>
+                  <%= form_for @conn, ~p"/espace_reutilisateur/settings/tokens/#{token.id}/default_token", [class: "inline"], fn _ -> %>
                     <button class="small button-outline primary">
                       {dgettext("reuser-space", "Default token")}
                     </button>
                   <% end %>
                 <% end %>
-                <%= form_for @conn, reuser_space_path(@conn, :delete_token, token.id), [class: "inline", method: "delete"], fn _ -> %>
+                <%= form_for @conn, ~p"/espace_reutilisateur/settings/tokens/#{token.id}", [class: "inline", method: "delete"], fn _ -> %>
                   <button class="small button-outline warning">
                     <i class="fas fa-trash"></i> {dgettext("reuser-space", "Delete")}
                   </button>

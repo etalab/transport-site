@@ -6,9 +6,9 @@
 <div class="add-update-resource">
   <section class="container pt-48 pb-24">
     <%= if new_resource do %>
-      {breadcrumbs([@conn, :new_resource, @dataset.custom_title, @dataset.id])}
+      {breadcrumbs([:new_resource, @dataset.custom_title, @dataset.id])}
     <% else %>
-      {breadcrumbs([@conn, :update_resource, @dataset.custom_title, @dataset.id])}
+      {breadcrumbs([:update_resource, @dataset.custom_title, @dataset.id])}
     <% end %>
   </section>
   <section class="producer-actions choose-file">

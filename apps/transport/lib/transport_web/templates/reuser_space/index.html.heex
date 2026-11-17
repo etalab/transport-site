@@ -1,5 +1,5 @@
 <div class="container pt-48 pb-24">
-  {breadcrumbs([@conn, :reuser_space])}
+  {breadcrumbs([:reuser_space])}
 </div>
 <section class="section section-grey reuser-space">
   <div class="container">
@@ -14,7 +14,7 @@
         <h4>
           <img
             class="picto"
-            src={static_path(@conn, "/images/reutilisateurs/picto-bell.svg")}
+            src={~p"/images/reutilisateurs/picto-bell.svg"}
             alt={dgettext("reuser-space", "Notification bell")}
           />
           {dgettext("reuser-space", "Receive notifications")}
@@ -37,7 +37,7 @@
         <h4>
           <img
             class="picto"
-            src={static_path(@conn, "/images/reutilisateurs/reuses.svg")}
+            src={~p"/images/reutilisateurs/reuses.svg"}
             alt={dgettext("reuser-space", "Reuses")}
           />{dgettext("reuser-space", "Declare your reuses")}
         </h4>
@@ -59,7 +59,7 @@
         <h4>
           <img
             class="picto"
-            src={static_path(@conn, "/images/reutilisateurs/gear.svg")}
+            src={~p"/images/reutilisateurs/gear.svg"}
             alt={dgettext("reuser-space", "Settings")}
           />{dgettext("reuser-space", "API - Manage your tokens")}
         </h4>
@@ -94,7 +94,7 @@
   </div>
 </section>
 <div class="tramway">
-  <img src={static_path(@conn, "/images/producteurs/tramway.svg")} alt="" />
+  <img src={~p"/images/producteurs/tramway.svg"} alt="" />
 </div>
 <section class="section section-white">
   {live_render(@conn, TransportWeb.Live.FeedbackLive,

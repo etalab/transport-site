@@ -6,7 +6,7 @@ defmodule DB.Resource do
   use TypedEctoSchema
   alias DB.{Dataset, Repo, ResourceUnavailability}
   import Ecto.{Changeset, Query}
-  import TransportWeb.Router.Helpers, only: [conversion_url: 4, resource_url: 3, resource_url: 4]
+  use TransportWeb, :verified_routes
 
   typed_schema "resource" do
     # The resource's real URL
@@ -278,7 +278,7 @@ defmodule DB.Resource do
         nil
 
       %{} = data ->
-        Map.put(data, :stable_url, conversion_url(TransportWeb.Endpoint, :get, resource_id, format))
+        Map.put(data, :stable_url, url(~p"/resources/conversions/#{resource_id}/#{format}"))
     end
   end
 
@@ -303,47 +303,43 @@ defmodule DB.Resource do
     end
   end
 
-  def download_validation_report_url(%Plug.Conn{} = conn, %__MODULE__{format: "NeTEx"} = resource) do
-    resource_url(conn, :download_validation_report, resource.id)
+  def download_validation_report_url(%__MODULE__{format: "NeTEx"} = resource) do
+    url(~p"/resources/#{resource.id}/download-validation-report")
   end
 
-  def download_validation_report_url(%Plug.Conn{} = _conn, %__MODULE__{} = _resource) do
+  def download_validation_report_url(%__MODULE__{} = _resource) do
     nil
-  end
-
-  def download_url(%__MODULE__{} = resource) do
-    download_url(resource, TransportWeb.Endpoint)
   end
 
   # When the contact is logged in and has a default token
   def download_url(
         %__MODULE__{dataset: %DB.Dataset{} = dataset} = resource,
-        %Plug.Conn{
-          assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}
-        } = conn
+        %Plug.Conn{assigns: %{current_contact: %DB.Contact{default_tokens: [%DB.Token{} = token]}}}
       ) do
     cond do
       DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") and not real_time?(resource) ->
-        resource_url(conn, :download, resource.id, token: token.secret)
+        url(~p"/resources/#{resource.id}/download?#{[token: token.secret]}")
 
       pan_resource?(resource) ->
-        resource_url(conn, :download, resource.id, token: token.secret)
+        url(~p"/resources/#{resource.id}/download?#{[token: token.secret]}")
 
       served_by_proxy?(resource) ->
         resource.url <> "?token=#{token.secret}"
 
       true ->
-        download_url(resource, TransportWeb.Endpoint)
+        download_url(resource)
     end
   end
 
-  def download_url(%__MODULE__{dataset: %DB.Dataset{} = dataset} = resource, conn_or_endpoint) do
+  def download_url(%__MODULE__{} = resource, %Plug.Conn{}), do: download_url(resource)
+
+  def download_url(%__MODULE__{dataset: %DB.Dataset{} = dataset} = resource) do
     cond do
       DB.Dataset.has_custom_tag?(dataset, "authentification_experimentation") and not real_time?(resource) ->
-        resource_url(conn_or_endpoint, :download, resource.id)
+        url(~p"/resources/#{resource.id}/download")
 
       pan_resource?(resource) ->
-        resource_url(conn_or_endpoint, :download, resource.id)
+        url(~p"/resources/#{resource.id}/download")
 
       needs_stable_url?(resource) ->
         resource.latest_url
@@ -352,7 +348,7 @@ defmodule DB.Resource do
         resource.url
 
       true ->
-        resource_url(conn_or_endpoint, :download, resource.id)
+        url(~p"/resources/#{resource.id}/download")
     end
   end
 

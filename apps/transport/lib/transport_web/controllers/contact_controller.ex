@@ -10,7 +10,7 @@ defmodule TransportWeb.ContactController do
     conn
     # spammer get a little fox emoji in their flash message, useful for testing purpose
     |> put_flash(:info, "Your email has been sent, we will contact you soon 🦊")
-    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+    |> redirect(to: params["redirect_path"] || ~p"/")
   end
 
   def send_mail(
@@ -38,12 +38,12 @@ defmodule TransportWeb.ContactController do
       {:ok, _} ->
         conn
         |> put_flash(:info, gettext("Your email has been sent, we will contact you soon"))
-        |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+        |> redirect(to: params["redirect_path"] || ~p"/")
 
       {:error, _} ->
         conn
         |> put_flash(:error, gettext("There has been an error, try again later"))
-        |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+        |> redirect(to: params["redirect_path"] || ~p"/")
     end
   end
 
@@ -52,7 +52,7 @@ defmodule TransportWeb.ContactController do
 
     conn
     |> put_flash(:error, gettext("There has been an error, try again later"))
-    |> redirect(to: params["redirect_path"] || page_path(conn, :index))
+    |> redirect(to: params["redirect_path"] || ~p"/")
   end
 
   defp sanitize_inputs(map), do: Map.new(map, fn {k, v} -> {k, v |> String.trim() |> HtmlSanitizeEx.strip_tags()} end)

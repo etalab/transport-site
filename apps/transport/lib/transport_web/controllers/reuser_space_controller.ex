@@ -39,7 +39,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     conn
     |> put_flash(:info, dgettext("reuser-space", "Your token has been deleted"))
-    |> redirect(to: reuser_space_path(conn, :settings))
+    |> redirect(to: ~p"/espace_reutilisateur/settings")
   end
 
   def default_token(%Plug.Conn{assigns: %{contact: %DB.Contact{id: contact_id} = contact}} = conn, %{"id" => token_id}) do
@@ -55,7 +55,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     conn
     |> put_flash(:info, dgettext("reuser-space", "The token %{name} is now the default token", name: token.name))
-    |> redirect(to: reuser_space_path(conn, :settings))
+    |> redirect(to: ~p"/espace_reutilisateur/settings")
   end
 
   def new_token(%Plug.Conn{assigns: %{contact: %DB.Contact{} = contact}} = conn, _) do
@@ -81,7 +81,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
       conn
       |> put_flash(:info, dgettext("reuser-space", "Your token has been created"))
-      |> redirect(to: reuser_space_path(conn, :settings))
+      |> redirect(to: ~p"/espace_reutilisateur/settings")
     else
       conn
       |> assign(:organizations, contact.organizations)
@@ -153,7 +153,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     conn
     |> put_flash(:info, dgettext("reuser-space", "Your improved data has been saved."))
-    |> redirect(to: reuser_space_path(conn, :datasets_edit, dataset.id))
+    |> redirect(to: ~p"/espace_reutilisateur/datasets/#{dataset.id}")
   end
 
   def unfavorite(
@@ -178,7 +178,7 @@ defmodule TransportWeb.ReuserSpaceController do
         dataset_title: dataset.custom_title
       )
     )
-    |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
+    |> redirect(to: ~p"/espace_reutilisateur")
   end
 
   def hide_alert(
@@ -196,7 +196,7 @@ defmodule TransportWeb.ReuserSpaceController do
 
     conn
     |> put_flash(:info, dgettext("reuser-space", "Alert hidden for 7 days"))
-    |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
+    |> redirect(to: ~p"/espace_reutilisateur")
   end
 
   defp parse_optional_integer(nil), do: nil
@@ -232,7 +232,7 @@ defmodule TransportWeb.ReuserSpaceController do
       _ ->
         conn
         |> put_flash(:error, dgettext("alert", "Unable to get this dataset for the moment"))
-        |> redirect(to: reuser_space_path(conn, :espace_reutilisateur))
+        |> redirect(to: ~p"/espace_reutilisateur")
         |> halt()
     end
   end

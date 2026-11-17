@@ -8,7 +8,7 @@
   <.form
     :let={f}
     for={@form}
-    action={backoffice_breaking_news_path(@conn, :update_breaking_news)}
+    action={~p"/backoffice/breaking_news"}
     class="no-margin backoffice-form"
   >
     <.input

@@ -8,7 +8,6 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   use TransportWeb, :live_view
   use TransportWeb.InputHelpers
   import TransportWeb.InputHelpers
-  import TransportWeb.Router.Helpers, except: [static_path: 2, static_url: 2]
 
   @params [:type, :selected_tile, :selected_subtile, :url, :feed_url]
 
@@ -24,21 +23,21 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
            tiles: [
              {"public-transit",
               %{
-                icon: static_path(socket, "/images/icons/bus.svg"),
+                icon: ~p"/images/icons/bus.svg",
                 title: dgettext("validations", "Public transit"),
                 subtitle: "GTFS, GTFS-RT, NeTEx",
                 sub_tiles: ["GTFS", "GTFS-Flex", "GTFS-RT", "NeTEx"] |> Enum.map(&{&1, String.downcase(&1)})
               }},
              {"vehicles-sharing",
               %{
-                icon: static_path(socket, "/images/icons/vehicles-sharing.svg"),
+                icon: ~p"/images/icons/vehicles-sharing.svg",
                 title: dgettext("validations", "Vehicles sharing"),
                 subtitle: "GBFS, NeTEx",
                 sub_tiles: ["GBFS", "NeTEx"] |> Enum.map(&{&1, String.downcase(&1)})
               }},
              {"schemas",
               %{
-                icon: static_path(socket, "/images/icons/infos.svg"),
+                icon: ~p"/images/icons/infos.svg",
                 title: dgettext("validations", "Road mobility and bike"),
                 subtitle: dgettext("validations", "IRVE, ZFE, carpooling, bike data etc."),
                 sub_tiles:
@@ -58,11 +57,7 @@ defmodule TransportWeb.Live.OnDemandValidationSelectLive do
   end
 
   def self_path(socket) do
-    live_path(
-      socket,
-      __MODULE__,
-      socket.assigns |> Map.take(@params) |> Map.reject(fn {_, v} -> v in ["", nil] end)
-    )
+    ~p"/validation?#{socket.assigns |> Map.take(@params) |> Map.reject(fn {_, v} -> v in ["", nil] end)}"
   end
 
   def socket_data(socket, data) do

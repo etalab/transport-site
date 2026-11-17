@@ -2,7 +2,6 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
   use TransportWeb, :live_view
   import Ecto.Query
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.Router.Helpers
 
   @impl true
   def mount(params, %{"current_user" => current_user, "csp_nonce_value" => nonce} = _session, socket) do
@@ -131,7 +130,7 @@ defmodule TransportWeb.Backoffice.EmailPreviewLive do
 
   @impl true
   def handle_event("change", %{"search" => search}, %Phoenix.LiveView.Socket{} = socket) do
-    {:noreply, socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search))}
+    {:noreply, socket |> push_patch(to: ~p"/backoffice/email_preview?#{[search: search]}")}
   end
 
   @impl true

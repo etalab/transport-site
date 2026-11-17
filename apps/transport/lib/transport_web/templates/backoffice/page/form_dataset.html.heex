@@ -16,14 +16,7 @@
       <div>
         <.form
           for={%{}}
-          action={
-            backoffice_dataset_path(
-              @conn,
-              :import_from_data_gouv_fr,
-              @dataset.id,
-              Map.put(@conn.params, "stay_on_page", true)
-            )
-          }
+          action={~p"/backoffice/datasets/#{@dataset.id}/_import?#{Map.put(@conn.query_params, "stay_on_page", true)}"}
         >
           <.button>Importer</.button>
         </.form>
@@ -36,7 +29,7 @@
       </div>
 
       <div>
-        <.form for={%{}} action={backoffice_dataset_path(@conn, :delete, @dataset.id, @conn.params)}>
+        <.form for={%{}} action={~p"/backoffice/datasets/#{@dataset.id}/_delete?#{@conn.query_params}"}>
           <.button>Déréférencer</.button>
         </.form>
       </div>
@@ -89,7 +82,7 @@
       <.form
         :let={f}
         for={%{}}
-        action={backoffice_dataset_path(@conn, :resource_format_override, @dataset.id)}
+        action={~p"/backoffice/datasets/#{@dataset.id}/_resource_format_override"}
         class="backoffice-form"
       >
         <.input
@@ -130,7 +123,7 @@
                 <.form
                   :let={f}
                   for={%{}}
-                  action={backoffice_dataset_path(@conn, :resource_related_delete, @dataset.id)}
+                  action={~p"/backoffice/datasets/#{@dataset.id}/_resource_related_delete"}
                 >
                   <.input field={f[:resource_src_id]} type="hidden" value={rr.resource_src_id} />
                   <.input field={f[:resource_dst_id]} type="hidden" value={rr.resource_dst_id} />
@@ -147,7 +140,7 @@
       <.form
         :let={f}
         for={%{}}
-        action={backoffice_dataset_path(@conn, :resource_related_create, @dataset.id)}
+        action={~p"/backoffice/datasets/#{@dataset.id}/_resource_related_create"}
         class="backoffice-form"
       >
         <.input
@@ -184,7 +177,7 @@
       <.form
         :let={f}
         for={%{}}
-        action={backoffice_notification_subscription_path(@conn, :create)}
+        action={~p"/backoffice/notification_subscription"}
         class="backoffice-form"
       >
         <.input field={f[:redirect_location]} type="hidden" value="dataset" />
@@ -262,14 +255,7 @@
                   <.form
                     :let={f}
                     for={%{}}
-                    action={
-                      backoffice_notification_subscription_path(
-                        @conn,
-                        :delete_for_contact_and_dataset,
-                        contact.id,
-                        @dataset.id
-                      )
-                    }
+                    action={~p"/backoffice/notification_subscription/contact/#{contact.id}/#{@dataset.id}"}
                     method="delete"
                   >
                     <.input field={f[:redirect_location]} type="hidden" value="dataset" />
@@ -285,7 +271,7 @@
                 <.form
                   :let={f}
                   for={%{}}
-                  action={backoffice_notification_subscription_path(@conn, :delete, notification_subscription.id)}
+                  action={~p"/backoffice/notification_subscription/#{notification_subscription.id}"}
                   method="delete"
                 >
                   <.input field={f[:redirect_location]} type="hidden" value="dataset" />

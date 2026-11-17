@@ -5,7 +5,6 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   use TransportWeb, :live_view
   alias Transport.Telemetry
   import TransportWeb.Backoffice.JobsLive, only: [ensure_admin_auth_or_redirect: 3]
-  import TransportWeb.Router.Helpers
 
   # The number of past days we want to report on (as a positive integer).
   # This is a DRYed ref we are using in multiple places.
@@ -35,7 +34,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
   end
 
   defp update_data(socket) do
-    config = get_proxy_configuration(Transport.Proxy.base_url(socket), @stats_days)
+    config = get_proxy_configuration(Transport.Proxy.base_url(), @stats_days)
     {total_ram_size, total_disk_size} = total_cache_sizes(config)
 
     assign(socket,
@@ -51,8 +50,7 @@ defmodule TransportWeb.Backoffice.ProxyConfigLive do
 
   @impl true
   def handle_event("change", %{"search" => search, "type" => type, "disk" => disk}, %Phoenix.LiveView.Socket{} = socket) do
-    {:noreply,
-     socket |> push_patch(to: backoffice_live_path(socket, __MODULE__, search: search, type: type, disk: disk))}
+    {:noreply, socket |> push_patch(to: ~p"/backoffice/proxy-config?#{[search: search, type: type, disk: disk]}")}
   end
 
   @impl true

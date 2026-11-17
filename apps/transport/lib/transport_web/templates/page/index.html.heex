@@ -16,7 +16,7 @@
       </div>
       <div class="home-search">
         <div class="searchBar">
-          <%= form_for @conn, dataset_path(@conn, :index), [method: "get"], fn f -> %>
+          <%= form_for @conn, ~p"/datasets", [method: "get"], fn f -> %>
             <h4>{dgettext("page-index", "Search for data for a region, a city, a network…")}</h4>
             <div class="pt-12">
               {search_input(f, :q,
@@ -37,19 +37,19 @@
           <div class="home-other-search-methods">
             <div class="search-method">
               <.link href={~p"/validation"}>
-                <img src={static_path(@conn, "/images/icons/validate.svg")} alt="Validation" />
+                <img src={~p"/images/icons/validate.svg"} alt="Validation" />
                 {dgettext("page-index", "Validate your data")}
               </.link>
             </div>
             <div class="search-method">
               <.link href="https://doc.transport.data.gouv.fr/outils/outils-disponibles-sur-le-pan/api">
-                <img src={static_path(@conn, "/images/icons/api.png")} alt="API" />
+                <img src={~p"/images/icons/api.png"} alt="API" />
                 {dgettext("page-index", "Use our APIs")}
               </.link>
             </div>
             <div class="search-method">
               <.link href={~p"/datasets?#{[order_by: "most_recent"]}"}>
-                <img src={static_path(@conn, "/images/icons/recently-added-datasets.png")} alt="Data" />
+                <img src={~p"/images/icons/recently-added-datasets.png"} alt="Data" />
                 {dgettext("page-index", "See newly added datasets")}
               </.link>
             </div>
@@ -142,7 +142,7 @@
       </div>
       <div class="deployment-map">
         <.link href={~p"/stats"} class="text-center">
-          <img class="illustration" src={static_path(@conn, "/images/france.svg")} alt="" />
+          <img class="illustration" src={~p"/images/france.svg"} alt="" />
           <div>{dgettext("page-index", "See more statistics")}</div>
         </.link>
       </div>
@@ -159,7 +159,7 @@
           <.link class="button" href={~p"/infos_producteurs"}>{gettext("Producer information")}</.link>
         </div>
       </div>
-      <img class="illustration" src={static_path(@conn, "/images/bus.svg")} alt="" />
+      <img class="illustration" src={~p"/images/bus.svg"} alt="" />
     </div>
   </div>
 </section>
@@ -169,7 +169,7 @@
       <div class="section__description">
         <h2>{dgettext("page-index", "Who is reusing data from")} transport.data.gouv.fr ?</h2>
         <p>
-          {raw(dgettext("page-index", "reusers list description", url: reuse_path(@conn, :index)))}
+          {raw(dgettext("page-index", "reusers list description", url: ~p"/reuses"))}
           <.link href="https://doc.transport.data.gouv.fr/reutilisations-des-donnees/reutilisation-des-donnees">{dgettext("page-index", "Learn more")}</.link>.
         </p>
         <div class="row">
