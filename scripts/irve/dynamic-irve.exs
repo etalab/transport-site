@@ -309,7 +309,10 @@ defmodule Report do
     counts = Enum.frequencies_by(rows, &elem(&1.verdict, 0))
 
     [:bright, "\n#{length(rows)} ressources", :reset]
-    |> Kernel.++(for s <- [:ok, :warning, :other_schema, :error], do: [" · ", elem(@icons[s], 0), "#{counts[s] || 0} #{elem(@icons[s], 1)}", :reset])
+    |> Kernel.++(
+      for s <- [:ok, :warning, :other_schema, :error],
+          do: [" · ", elem(@icons[s], 0), "#{counts[s] || 0} #{elem(@icons[s], 1)}", :reset]
+    )
     |> Kernel.++([:faint, " · #{round(seconds)}s"])
     |> IO.ANSI.format()
     |> IO.puts()
