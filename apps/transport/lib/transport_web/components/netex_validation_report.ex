@@ -514,7 +514,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
 
   defp stats(assigns) do
     ~H"""
-    – {@results_adapter.format_severity(@stats["criticity"], @stats["count"])}
+    – <span class="stats">{@results_adapter.format_severity(@stats["criticity"], @stats["count"])}</span>
     """
   end
 
