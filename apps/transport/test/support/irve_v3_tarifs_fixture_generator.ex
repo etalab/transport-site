@@ -20,7 +20,8 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
   alias Transport.IRVE.V3.StaticFixtureGenerator
 
   # TTC prices: €/kWh for ENERGY, €/h for TIME and PARKING_TIME, € for FLAT.
-  # Values are drawn uniformly from each list: repetitions act as weights.
+  # Lists sorted in ascending order: a tariff takes all its prices at one level (see `price_at/2`),
+  # so that they rise with power and peak hours, as in real tariffs. Repetitions act as weights.
   @ac [0.30, 0.35, 0.38, 0.39, 0.40, 0.44, 0.47, 0.49]
   @dc [0.45, 0.49, 0.53, 0.55, 0.59, 0.61, 0.65]
   @off_peak [0.22, 0.23, 0.24, 0.27, 0.31]
@@ -105,6 +106,17 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
 
+  @doc """
+  Picks the price at `level`, from 0.0 (cheapest) to 1.0 (most expensive), in a list sorted in ascending order.
+  The same level taken in a cheaper list (here AC, then DC) gives a lower price:
+
+      iex> price_at([0.30, 0.40, 0.50], 0.6)
+      0.40
+      iex> price_at([0.45, 0.55, 0.65], 0.6)
+      0.55
+  """
+  def price_at(prices, level), do: Enum.at(prices, round(level * (length(prices) - 1)))
+
   defp currents([false]), do: :ac
   defp currents([true]), do: :dc
   defp currents([false, true]), do: :ac_dc
@@ -124,12 +136,14 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
       "max_price" => Enum.random([nil, nil, nil, nil, 60.0])
     }
 
+    level = :rand.uniform()
+
     @shapes[currents]
     |> Enum.random()
     |> Enum.with_index(fn {restrictions, components}, index ->
       prices =
         for {type, prices, step} <- components,
-            do: %{"type" => type, "price" => Enum.random(prices), "step_size" => step}
+            do: %{"type" => type, "price" => price_at(prices, level), "step_size" => step}
 
       Map.merge(tarif, %{"element_index" => index, "restrictions" => restrictions, "price_components" => prices})
     end)

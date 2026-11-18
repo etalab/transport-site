@@ -1,6 +1,7 @@
 defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
   use ExUnit.Case, async: true
   alias Transport.IRVE.V3.{StaticFixtureGenerator, TarifsFixtureGenerator}
+  doctest TarifsFixtureGenerator, import: true
 
   @schema Transport.CachedFiles.read_json("schema-irve-tarifs-v3.json")
   @now ~U[2026-10-01 00:00:00Z]
@@ -57,6 +58,23 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
     for %{"tarif_id" => id, "start_date_time" => start} <- rows, String.ends_with?(id, "-v2") do
       assert DateTime.after?(start, @now)
       assert by_id[String.replace_suffix(id, "-v2", "")]["end_date_time"] == start
+    end
+  end
+
+  test "energy prices rise with power bands, and are lower off-peak" do
+    static = StaticFixtureGenerator.generate(seed: 7, stations: 300, networks: 20, now: @now)
+    by_tarif = TarifsFixtureGenerator.generate(static, seed: 7, now: @now) |> Enum.group_by(& &1["tarif_id"])
+    energy = fn row -> for %{"type" => "ENERGY", "price" => price} <- row["price_components"], do: price end
+
+    banded = for {_id, rows} <- by_tarif, Enum.any?(rows, &(&1["restrictions"]["min_power"] != nil)), do: rows
+    timed = for {_id, rows} <- by_tarif, Enum.any?(rows, &(&1["restrictions"]["start_time"] != nil)), do: rows
+    assert banded != [] and timed != []
+
+    for rows <- banded, do: assert(Enum.flat_map(rows, energy) == Enum.sort(Enum.flat_map(rows, energy)))
+
+    for rows <- timed do
+      {[off_peak, peak, off_peak], _fallback} = rows |> Enum.flat_map(energy) |> Enum.split(3)
+      assert off_peak < peak
     end
   end
 
