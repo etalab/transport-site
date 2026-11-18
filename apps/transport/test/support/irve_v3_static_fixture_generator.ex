@@ -15,6 +15,9 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   - addresses are town halls sampled from the Annuaire de l'administration (DILA, Licence Ouverte), so that
     address, postal code, INSEE code and coordinates are consistent without pointing at private homes;
     station coordinates are offset from the address point, which locates the street access;
+  - `tarif_ids` mimic QualiCharge OCPI tariffs, the only real tariff data available so far: a network points
+    either to one tariff for all its points, one per current (AC, DC), or one per station; all the points
+    of a tariff list the same ids;
   - names, SIREN, AFIREV codes, phones and emails are fictitious;
   - code size kept to a reasonable minimum: variety comes from data, not branches.
   """
@@ -175,7 +178,8 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
       "nom_enseigne" => hd(String.split(operateur)) <> " Recharge",
       "emsp" => Enum.random([nil, emsp_pool |> Enum.take_random(3) |> Enum.sort()]),
       "local_ids" => Enum.random([true, false]),
-      "raccordement" => Enum.random(["Direct", "Indirect", nil])
+      "raccordement" => Enum.random(["Direct", "Indirect", nil]),
+      "tarif_scope" => Enum.random([:network, :current, :station])
     }
   end
 
@@ -230,7 +234,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
     station =
       network
-      |> Map.drop(["trigram", "local_ids"])
+      |> Map.drop(["trigram", "local_ids", "tarif_scope"])
       |> Map.merge(%{
         "id_station_itinerance" => "FR#{network["trigram"]}P#{suffix}",
         "id_station_local" => local_id(network, "ST-" <> suffix),
@@ -281,8 +285,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
         "plug_and_charge" => pick.(:plug_and_charge),
         "recharge_intelligente" => pick.(:recharge_intelligente),
         "recharge_intelligente_autre" => nil,
-        "tarif_ids" =>
-          if(station["gratuit"] != true, do: tarif_ids(network["trigram"], connectors["courant_dc"], pdc.power)),
+        "tarif_ids" => if(station["gratuit"] != true, do: tarif_ids(network, suffix, connectors["courant_dc"])),
         "reservation" => pick.(:reservation),
         "accessibilite_pmr" => pdc.accessibilite,
         "date_mise_en_service" => mise_en_service,
@@ -346,11 +349,18 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
       else: Enum.count(accessibilities, &(&1 in ["Accessible mais non réservé PMR", "Réservé PMR"]))
   end
 
-  # An upcoming tariff can be announced alongside the current one.
-  defp tarif_ids(trigram, courant_dc, power) do
-    base = "FR#{trigram}T#{if courant_dc, do: "DC", else: "AC"}#{round(power)}"
-    Enum.random([[base], [base], [base], [base, base <> "-v2"]])
+  # Mimics QualiCharge OCPI tariffs, the only real tariff data available so far: a tariff covers a whole network,
+  # the AC or DC points of a network, or one station.
+  defp tarif_ids(%{"trigram" => trigram, "tarif_scope" => scope}, station_suffix, courant_dc) do
+    base = "FR#{trigram}T" <> tarif_key(scope, station_suffix, courant_dc)
+    # An upcoming tariff can be announced alongside the current one. Derived from the id rather than drawn,
+    # so that all the points of a tariff announce it.
+    if :erlang.phash2(base, 4) == 0, do: [base, base <> "-v2"], else: [base]
   end
+
+  defp tarif_key(:network, _station_suffix, _courant_dc), do: "RESEAU"
+  defp tarif_key(:current, _station_suffix, courant_dc), do: if(courant_dc, do: "DC", else: "AC")
+  defp tarif_key(:station, station_suffix, _courant_dc), do: station_suffix
 
   # Records are updated recently, and never before `since`.
   defp random_datetime(%Date{} = since, now) do

@@ -11,8 +11,10 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     one row per tariff element (`element_index` from 0), tariff-level fields repeated on every row;
   - shapes and prices follow real OCPI ad hoc tariffs sampled from QualiCharge, translated to v3
     (TTC prices, `HH:MM` times, no `CONGESTION_TIME`);
-  - a point may also list `<base id>-v2`, a tariff starting on the first day of next month, when its base
-    tariff ends, with no end date (our convention, not a schema rule).
+  - a tariff's shape depends on the currents of the points referencing it (AC, DC or both); power bands
+    only appear in tariffs covering both, where they tell AC and DC points apart;
+  - the points of a tariff may also list `<base id>-v2`, a tariff starting on the first day of next month,
+    when its base tariff ends, with no end date (our convention, not a schema rule).
   """
 
   alias Transport.IRVE.V3.StaticFixtureGenerator
@@ -30,8 +32,9 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
 
   # Elements as `{restrictions, [{component type, prices, step_size}]}`. As in OCPI, each component
   # type is taken from the first element carrying it whose restrictions match.
+  # Keyed by the currents of the points referencing the tariff.
   @shapes %{
-    false => [
+    ac: [
       [{%{}, [{"ENERGY", @ac, 1}]}],
       [{%{}, [{"ENERGY", @ac, 1}]}],
       # Billed per started kWh.
@@ -42,10 +45,9 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
       [
         {%{"min_kwh" => 0.1}, [{"PARKING_TIME", [7.2, 12.0, 18.0], 60}]},
         {%{}, [{"TIME", [0.0], 60}, {"ENERGY", @ac, 100}, {"PARKING_TIME", [0.0], 60}]}
-      ],
-      [{%{"max_power" => 49.0}, [{"ENERGY", @ac, 1}]}, {%{"min_power" => 50.0}, [{"ENERGY", @dc, 1}]}]
+      ]
     ],
-    true => [
+    dc: [
       [{%{}, [{"ENERGY", @dc, 1}]}],
       [{%{}, [{"ENERGY", @dc, 1}]}],
       [{%{}, [{"ENERGY", @dc, 1000}]}, @overstay],
@@ -55,7 +57,12 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
         {%{"start_time" => "09:00", "end_time" => "20:00", "day_of_week" => @week}, [{"ENERGY", @dc, 1}]},
         {%{"start_time" => "20:00", "end_time" => "00:00", "day_of_week" => @week}, [{"ENERGY", @off_peak, 1}]},
         {%{}, [{"ENERGY", @dc, 1}]}
-      ],
+      ]
+    ],
+    # Power bands are what tells AC and DC points apart.
+    ac_dc: [
+      [{%{}, [{"ENERGY", @dc, 1}]}],
+      [{%{"max_power" => 49.0}, [{"ENERGY", @ac, 1}]}, {%{"min_power" => 50.0}, [{"ENERGY", @dc, 1}]}],
       [
         {%{"max_power" => 44.0}, [{"ENERGY", @ac, 1}]},
         {%{"min_power" => 45.0, "max_power" => 149.0}, [{"ENERGY", @dc, 1}]},
@@ -72,9 +79,12 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
   """
   def generate(static_rows, opts \\ []) do
     opts = Keyword.validate!(opts, seed: 1, now: ~U[2026-10-01 00:00:00Z])
-    # A tariff is shaped after the current (AC/DC) of the first point referencing it.
+
     tarifs =
-      for(row <- static_rows, id <- row["tarif_ids"] || [], do: {id, row["courant_dc"]}) |> Enum.uniq_by(&elem(&1, 0))
+      for(row <- static_rows, id <- row["tarif_ids"] || [], do: {id, row["courant_dc"]})
+      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+      |> Enum.map(fn {id, courants_dc} -> {id, currents(courants_dc |> Enum.uniq() |> Enum.sort())} end)
+      |> Enum.sort()
 
     ids = MapSet.new(tarifs, &elem(&1, 0))
     switch = DateTime.new!(opts[:now] |> DateTime.to_date() |> Date.end_of_month() |> Date.add(1), ~T[00:00:00])
@@ -82,7 +92,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     # A dedicated process keeps the seeded `:rand` state away from the caller's.
     Task.async(fn ->
       :rand.seed(:exsss, opts[:seed])
-      Enum.flat_map(tarifs, fn {id, courant_dc} -> build_tarif(id, courant_dc, ids, switch, opts[:now]) end)
+      Enum.flat_map(tarifs, fn {id, currents} -> build_tarif(id, currents, ids, switch, opts[:now]) end)
     end)
     |> Task.await(:infinity)
   end
@@ -95,7 +105,11 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     |> Enum.map(&Map.fetch!(&1, "name"))
   end
 
-  defp build_tarif(id, courant_dc, ids, switch, now) do
+  defp currents([false]), do: :ac
+  defp currents([true]), do: :dc
+  defp currents([false, true]), do: :ac_dc
+
+  defp build_tarif(id, currents, ids, switch, now) do
     started = DateTime.new!(Date.add(DateTime.to_date(now), -Enum.random(30..730)), ~T[00:00:00])
 
     tarif = %{
@@ -110,7 +124,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
       "max_price" => Enum.random([nil, nil, nil, nil, 60.0])
     }
 
-    @shapes[courant_dc]
+    @shapes[currents]
     |> Enum.random()
     |> Enum.with_index(fn {restrictions, components}, index ->
       prices =
