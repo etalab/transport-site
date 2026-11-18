@@ -22,6 +22,8 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   - code size kept to a reasonable minimum: variety comes from data, not branches.
   """
 
+  alias Transport.IRVE.V3.FixtureHelpers
+
   @address_sample Path.join(__DIR__, "../fixture/irve/mairie_addresses_sample.csv")
   @external_resource @address_sample
 
@@ -117,9 +119,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   def generate(opts \\ []) do
     opts = Keyword.validate!(opts, seed: 1, stations: 10, networks: 1, now: ~U[2026-10-01 00:00:00Z])
 
-    # A dedicated process keeps the seeded `:rand` state away from the caller's.
-    Task.async(fn ->
-      :rand.seed(:exsss, opts[:seed])
+    FixtureHelpers.seeded(opts[:seed], fn ->
       emsp_pool = for _ <- 1..8, do: "FR" <> random_string(@alphanum, 3)
       trigrams = Stream.repeatedly(fn -> random_string(@alphanum, 3) end) |> Stream.uniq() |> Enum.take(opts[:networks])
       networks = Enum.map(trigrams, &build_network(&1, emsp_pool))
@@ -138,29 +138,11 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
       Enum.concat(stations)
     end)
-    |> Task.await(:infinity)
   end
 
-  @doc """
-  Serializes rows to CSV, columns in schema order, lists and objects as JSON.
-  """
-  def to_csv(rows, fields \\ field_names()) do
-    lines = Enum.map(rows, fn row -> Enum.map(fields, &format_value(Map.fetch!(row, &1))) end)
-    [fields | lines] |> NimbleCSV.RFC4180.dump_to_iodata() |> IO.iodata_to_binary()
-  end
+  def to_csv(rows), do: FixtureHelpers.to_csv(rows, field_names())
 
-  def field_names do
-    Transport.CachedFiles.read_json("schema-irve-statique-v3.json")
-    |> Map.fetch!("fields")
-    |> Enum.map(&Map.fetch!(&1, "name"))
-  end
-
-  defp format_value(nil), do: ""
-  defp format_value(value) when is_float(value), do: :erlang.float_to_binary(value, [:short])
-  defp format_value(%Date{} = value), do: Date.to_iso8601(value)
-  defp format_value(%DateTime{} = value), do: DateTime.to_iso8601(value)
-  defp format_value(value) when is_list(value) or is_map(value), do: Jason.encode!(value)
-  defp format_value(value), do: to_string(value)
+  def field_names, do: FixtureHelpers.field_names("schema-irve-statique-v3.json")
 
   defp build_network(trigram, emsp_pool) do
     amenageur = company_name()

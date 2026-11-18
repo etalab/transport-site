@@ -21,7 +21,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     (our convention, not a schema rule).
   """
 
-  alias Transport.IRVE.V3.StaticFixtureGenerator
+  alias Transport.IRVE.V3.FixtureHelpers
 
   # TTC prices: €/kWh for ENERGY, €/h for TIME and PARKING_TIME, € for FLAT.
   # Lists sorted in ascending order: a tariff takes all its prices at one level (see `price_at/2`),
@@ -96,21 +96,14 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     ids = MapSet.new(tarifs, &elem(&1, 0))
     switch = DateTime.new!(opts[:now] |> DateTime.to_date() |> Date.end_of_month() |> Date.add(1), ~T[00:00:00])
 
-    # A dedicated process keeps the seeded `:rand` state away from the caller's.
-    Task.async(fn ->
-      :rand.seed(:exsss, opts[:seed])
+    FixtureHelpers.seeded(opts[:seed], fn ->
       Enum.flat_map(tarifs, fn {id, currents} -> build_tarif(id, currents, ids, switch, opts[:now]) end)
     end)
-    |> Task.await(:infinity)
   end
 
-  def to_csv(rows), do: StaticFixtureGenerator.to_csv(rows, field_names())
+  def to_csv(rows), do: FixtureHelpers.to_csv(rows, field_names())
 
-  def field_names do
-    Transport.CachedFiles.read_json("schema-irve-tarifs-v3.json")
-    |> Map.fetch!("fields")
-    |> Enum.map(&Map.fetch!(&1, "name"))
-  end
+  def field_names, do: FixtureHelpers.field_names("schema-irve-tarifs-v3.json")
 
   @doc """
   Picks the price at `level`, from 0.0 (cheapest) to 1.0 (most expensive), in a list sorted in ascending order.

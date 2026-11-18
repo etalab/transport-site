@@ -5,7 +5,7 @@
 # mix run --no-start scripts/irve/v3/generate-dynamic.exs --seed 42 --stations 300 --networks 3 --now 2026-11-18 > irve-dynamique.csv
 
 # The generators are test support, compiled only in the test env.
-for file <- ~w(irve_v3_static_fixture_generator.ex irve_v3_dynamic_fixture_generator.ex),
+for file <- ~w(irve_v3_fixture_helpers.ex irve_v3_static_fixture_generator.ex irve_v3_dynamic_fixture_generator.ex),
     do: Code.require_file("test/support/#{file}", Mix.Project.apps_paths()[:transport])
 
 alias Transport.IRVE.V3.{DynamicFixtureGenerator, StaticFixtureGenerator}

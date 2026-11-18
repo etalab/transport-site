@@ -10,7 +10,7 @@ defmodule Transport.IRVE.V3.DynamicFixtureGenerator do
   - a connector state is filled only for the connector types declared on the static row, left empty otherwise.
   """
 
-  alias Transport.IRVE.V3.StaticFixtureGenerator
+  alias Transport.IRVE.V3.FixtureHelpers
 
   # Values are drawn uniformly from each list: repetitions act as weights.
   @etat_pdc List.duplicate("en_service", 16) ++ ["hors_service", "hors_service", "inconnu"]
@@ -27,21 +27,14 @@ defmodule Transport.IRVE.V3.DynamicFixtureGenerator do
     opts = Keyword.validate!(opts, seed: 1, now: ~U[2026-10-01 00:00:00Z])
     connector_fields = for "etat_" <> prise <- field_names(), do: {"etat_" <> prise, prise}
 
-    # A dedicated process keeps the seeded `:rand` state away from the caller's.
-    Task.async(fn ->
-      :rand.seed(:exsss, opts[:seed])
+    FixtureHelpers.seeded(opts[:seed], fn ->
       Enum.map(static_rows, &build_row(&1, connector_fields, opts[:now]))
     end)
-    |> Task.await(:infinity)
   end
 
-  def to_csv(rows), do: StaticFixtureGenerator.to_csv(rows, field_names())
+  def to_csv(rows), do: FixtureHelpers.to_csv(rows, field_names())
 
-  def field_names do
-    Transport.CachedFiles.read_json("schema-irve-dynamique-v3.json")
-    |> Map.fetch!("fields")
-    |> Enum.map(&Map.fetch!(&1, "name"))
-  end
+  def field_names, do: FixtureHelpers.field_names("schema-irve-dynamique-v3.json")
 
   defp build_row(static_row, connector_fields, now) do
     etat_pdc = Enum.random(@etat_pdc)

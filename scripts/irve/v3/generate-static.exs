@@ -3,8 +3,10 @@
 #
 # mix run --no-start scripts/irve/v3/generate-static.exs --seed 42 --stations 300 --networks 3 --now 2026-11-18 > irve.csv
 
-# The generator is test support, compiled only in the test env.
-Code.require_file("test/support/irve_v3_static_fixture_generator.ex", Mix.Project.apps_paths()[:transport])
+# The generators are test support, compiled only in the test env.
+for file <- ~w(irve_v3_fixture_helpers.ex irve_v3_static_fixture_generator.ex),
+    do: Code.require_file("test/support/#{file}", Mix.Project.apps_paths()[:transport])
+
 alias Transport.IRVE.V3.StaticFixtureGenerator
 
 {opts, _args} =
