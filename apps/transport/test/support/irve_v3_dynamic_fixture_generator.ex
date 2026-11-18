@@ -2,6 +2,8 @@ defmodule Transport.IRVE.V3.DynamicFixtureGenerator do
   @moduledoc """
   Seeded generator of IRVE dynamic v3 rows, matching rows from `Transport.IRVE.V3.StaticFixtureGenerator`.
 
+  Data model (3 files, keys, diagram): https://github.com/etalab/schema-irve/blob/v3.0.0-alpha.1/docs/note-conception-irve-v3.md#2-modèle-de-données
+
   MVP, largely AI-generated, same spirit and constraints as the static generator. In addition:
 
   - one row per static point of charge, `id_pdc_itinerance` being a foreign key to the static file;

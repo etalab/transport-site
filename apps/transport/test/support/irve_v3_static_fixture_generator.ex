@@ -2,6 +2,8 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   @moduledoc """
   Seeded generator of realistic IRVE static v3 rows, conforming to the vendored schema.
 
+  Data model (3 files, keys, diagram): https://github.com/etalab/schema-irve/blob/v3.0.0-alpha.1/docs/note-conception-irve-v3.md#2-modèle-de-données
+
   MVP, largely AI-generated, written to bootstrap the v3 validator and feedback on the alpha schema.
   Expect it to be reworked heavily as needs show up; the profiles and values are a starting point.
   The design constraints below were set deliberately and should survive rewrites:
