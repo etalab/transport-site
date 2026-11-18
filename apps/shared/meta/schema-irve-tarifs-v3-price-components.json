@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "Adapté du travail de Philippe Thomy (loco-labs) et de la spécification OCPI 2.2/2.3",
+    "title": "OCPI Tariff Price Components",
+    "description": "Liste des composants de prix d'un élément tarifaire. Structure calquée sur l'objet PriceComponent de la spécification OCPI 2.2/2.3 (https://github.com/ocpi/ocpi/blob/v2.3.0/mod_tariffs.asciidoc). Les prix sont exprimés TTC, à la différence d'OCPI qui les définit hors taxes.",
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "type": "object",
+        "required": [
+            "type",
+            "price"
+        ],
+        "properties": {
+            "type": {
+                "enum": [
+                    "ENERGY",
+                    "FLAT",
+                    "PARKING_TIME",
+                    "TIME"
+                ],
+                "description": "Type de composant de prix (OCPI TariffDimensionType) : ENERGY (énergie consommée, prix au kWh), TIME (durée pendant laquelle le véhicule charge, prix à l'heure), PARKING_TIME (durée pendant laquelle le véhicule est branché sans charger, prix à l'heure), FLAT (forfait)"
+            },
+            "price": {
+                "type": "number",
+                "description": "Prix unitaire dans l'unité du type de composant, TTC obligatoirement, dans la devise du tarif"
+            },
+            "step_size": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Granularité de facturation (Wh pour ENERGY, secondes pour TIME/PARKING_TIME). Optionnel."
+            }
+        },
+        "additionalProperties": false
+    }
+}
