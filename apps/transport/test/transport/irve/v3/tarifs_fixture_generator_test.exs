@@ -51,13 +51,26 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
     end
   end
 
-  test "an announced tariff starts in the future, when its base tariff ends" do
-    rows = generate()
-    by_id = Map.new(rows, &{&1["tarif_id"], &1})
+  test "a successor either started after its base tariff, left open, or is announced for when it ends" do
+    static = StaticFixtureGenerator.generate(seed: 7, stations: 100, networks: 10, now: @now)
+    by_id = TarifsFixtureGenerator.generate(static, seed: 7, now: @now) |> Map.new(&{&1["tarif_id"], &1})
 
-    for %{"tarif_id" => id, "start_date_time" => start} <- rows, String.ends_with?(id, "-v2") do
-      assert DateTime.after?(start, @now)
-      assert by_id[String.replace_suffix(id, "-v2", "")]["end_date_time"] == start
+    successors =
+      for {id, successor} <- by_id,
+          String.ends_with?(id, "-v2"),
+          do: {by_id[String.replace_suffix(id, "-v2", "")], successor}
+
+    {announced, started} =
+      Enum.split_with(successors, fn {_base, v2} -> DateTime.after?(v2["start_date_time"], @now) end)
+
+    assert announced != [] and started != []
+
+    for {base, v2} <- announced, do: assert(base["end_date_time"] == v2["start_date_time"])
+
+    for {base, v2} <- started do
+      assert is_nil(base["end_date_time"])
+      assert v2["start_date_time"] == v2["horodatage_maj_tarif"]
+      assert DateTime.after?(v2["start_date_time"], base["horodatage_maj_tarif"])
     end
   end
 

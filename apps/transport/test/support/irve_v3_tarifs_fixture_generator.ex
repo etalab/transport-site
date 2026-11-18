@@ -15,8 +15,10 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     only appear in tariffs covering both, where they tell AC and DC points apart;
   - some networks set a `min_price` on all their tariffs, mostly 0.50 €, as BMP does; `max_price` is never
     set, as in real data;
-  - the points of a tariff may also list `<base id>-v2`, a tariff starting on the first day of next month,
-    when its base tariff ends, with no end date (our convention, not a schema rule).
+  - the points of a tariff may also list a successor, `<base id>-v2`. As in real data, most successors started
+    in the past, on their update date, and their base tariff has no end date. The others (about a fifth of all
+    tariffs) are announced: they start on the first day of next month, when their base tariff ends
+    (our convention, not a schema rule).
   """
 
   alias Transport.IRVE.V3.StaticFixtureGenerator
@@ -123,15 +125,34 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
   defp currents([true]), do: :dc
   defp currents([false, true]), do: :ac_dc
 
+  # As in real data, a successor starts in the past, on its update date, without closing its base tariff.
+  # Announced successors start on the first day of next month instead, when their base tariff ends.
+  defp dates(id, ids, switch, now) do
+    old = days_ago(now, 60..730)
+    recent = days_ago(now, 1..59)
+
+    cond do
+      String.ends_with?(id, "-v2") and announced?(id) -> {recent, switch, nil}
+      String.ends_with?(id, "-v2") -> {recent, recent, nil}
+      (id <> "-v2") in ids and announced?(id <> "-v2") -> {old, Enum.random([nil, old]), switch}
+      true -> {old, Enum.random([nil, old]), nil}
+    end
+  end
+
+  # With half of the base tariffs having a successor, about a fifth of all tariffs are announced ones.
+  defp announced?(successor_id), do: :erlang.phash2(successor_id, 5) < 3
+
+  defp days_ago(now, range), do: DateTime.add(now, -Enum.random(range) * 86_400, :second)
+
   defp build_tarif(id, currents, ids, switch, now) do
-    started = DateTime.new!(Date.add(DateTime.to_date(now), -Enum.random(30..730)), ~T[00:00:00])
+    {updated, start, end_date} = dates(id, ids, switch, now)
 
     tarif = %{
       "tarif_id" => id,
       "devise" => "EUR",
-      "horodatage_maj_tarif" => DateTime.add(now, -Enum.random(0..(400 * 24 * 3600)), :second),
-      "start_date_time" => if(String.ends_with?(id, "-v2"), do: switch, else: Enum.random([nil, started])),
-      "end_date_time" => if((id <> "-v2") in ids, do: switch),
+      "horodatage_maj_tarif" => updated,
+      "start_date_time" => start,
+      "end_date_time" => end_date,
       "type" => "AD_HOC_PAYMENT",
       "tax_included" => "YES",
       # Decided per network (trigram after "FR"), so that all its tariffs agree.

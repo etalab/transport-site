@@ -353,9 +353,9 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   # the AC or DC points of a network, or one station.
   defp tarif_ids(%{"trigram" => trigram, "tarif_scope" => scope}, station_suffix, courant_dc) do
     base = "FR#{trigram}T" <> tarif_key(scope, station_suffix, courant_dc)
-    # An upcoming tariff can be announced alongside the current one. Derived from the id rather than drawn,
-    # so that all the points of a tariff announce it.
-    if :erlang.phash2(base, 4) == 0, do: [base, base <> "-v2"], else: [base]
+    # Half of the tariffs have a successor, listed alongside. Derived from the id rather than drawn,
+    # so that all the points of a tariff list it.
+    if :erlang.phash2(base, 2) == 0, do: [base, base <> "-v2"], else: [base]
   end
 
   defp tarif_key(:network, _station_suffix, _courant_dc), do: "RESEAU"
