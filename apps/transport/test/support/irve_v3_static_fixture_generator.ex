@@ -349,7 +349,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   # An upcoming tariff can be announced alongside the current one.
   defp tarif_ids(trigram, courant_dc, power) do
     base = "FR#{trigram}T#{if courant_dc, do: "DC", else: "AC"}#{round(power)}"
-    Enum.random([[base], [base], [base], [base, base <> "V2"]])
+    Enum.random([[base], [base], [base], [base, base <> "-v2"]])
   end
 
   # Records are updated recently, and never before `since`.
