@@ -16,7 +16,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
     address, postal code, INSEE code and coordinates are consistent without pointing at private homes;
     station coordinates are offset from the address point, which locates the street access;
   - `tarif_ids` mimic QualiCharge OCPI tariffs, the only real tariff data available so far: a network points
-    either to one tariff for all its points, one per current (AC, DC), or one per station; all the points
+    either to one tariff for all its points, one per current (AC, DC), or one per DC station; all the points
     of a tariff list the same ids;
   - names, SIREN, AFIREV codes, phones and emails are fictitious;
   - code size kept to a reasonable minimum: variety comes from data, not branches.
@@ -350,7 +350,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   end
 
   # Mimics QualiCharge OCPI tariffs, the only real tariff data available so far: a tariff covers a whole network,
-  # the AC or DC points of a network, or one station.
+  # the AC or DC points of a network, or the DC points of one station.
   defp tarif_ids(%{"trigram" => trigram, "tarif_scope" => scope}, station_suffix, courant_dc) do
     base = "FR#{trigram}T" <> tarif_key(scope, station_suffix, courant_dc)
     # Half of the tariffs have a successor, listed alongside. Derived from the id rather than drawn,
@@ -359,8 +359,10 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   end
 
   defp tarif_key(:network, _station_suffix, _courant_dc), do: "RESEAU"
-  defp tarif_key(:current, _station_suffix, courant_dc), do: if(courant_dc, do: "DC", else: "AC")
-  defp tarif_key(:station, station_suffix, _courant_dc), do: station_suffix
+  # Per-station tariffs are DC only (Tesla); the AC points of such a network share one tariff.
+  defp tarif_key(:station, station_suffix, true = _courant_dc), do: station_suffix
+  defp tarif_key(_scope, _station_suffix, true = _courant_dc), do: "DC"
+  defp tarif_key(_scope, _station_suffix, false = _courant_dc), do: "AC"
 
   # Records are updated recently, and never before `since`.
   defp random_datetime(%Date{} = since, now) do
