@@ -137,7 +137,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   end
 
   @doc """
-  Serializes rows to CSV, columns in schema order, lists as JSON.
+  Serializes rows to CSV, columns in schema order, lists and objects as JSON.
   """
   def to_csv(rows, fields \\ field_names()) do
     lines = Enum.map(rows, fn row -> Enum.map(fields, &format_value(Map.fetch!(row, &1))) end)
@@ -152,9 +152,9 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
   defp format_value(nil), do: ""
   defp format_value(value) when is_float(value), do: :erlang.float_to_binary(value, [:short])
-  defp format_value(value) when is_list(value), do: Jason.encode!(value)
   defp format_value(%Date{} = value), do: Date.to_iso8601(value)
   defp format_value(%DateTime{} = value), do: DateTime.to_iso8601(value)
+  defp format_value(value) when is_list(value) or is_map(value), do: Jason.encode!(value)
   defp format_value(value), do: to_string(value)
 
   defp build_network(trigram, emsp_pool) do
