@@ -13,6 +13,8 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     (TTC prices, `HH:MM` times, no `CONGESTION_TIME`);
   - a tariff's shape depends on the currents of the points referencing it (AC, DC or both); power bands
     only appear in tariffs covering both, where they tell AC and DC points apart;
+  - some networks set a `min_price` on all their tariffs, mostly 0.50 €, as BMP does; `max_price` is never
+    set, as in real data;
   - the points of a tariff may also list `<base id>-v2`, a tariff starting on the first day of next month,
     when its base tariff ends, with no end date (our convention, not a schema rule).
   """
@@ -132,8 +134,9 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
       "end_date_time" => if((id <> "-v2") in ids, do: switch),
       "type" => "AD_HOC_PAYMENT",
       "tax_included" => "YES",
-      "min_price" => Enum.random([nil, nil, nil, 0.5, 1.0]),
-      "max_price" => Enum.random([nil, nil, nil, nil, 60.0])
+      # Decided per network (trigram after "FR"), so that all its tariffs agree.
+      "min_price" => if(:erlang.phash2(String.slice(id, 2, 3), 3) == 0, do: Enum.random([0.5, 0.5, 0.5, 0.5, 1.0])),
+      "max_price" => nil
     }
 
     level = :rand.uniform()

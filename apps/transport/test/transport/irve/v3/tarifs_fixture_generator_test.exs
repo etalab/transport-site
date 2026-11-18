@@ -78,6 +78,16 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
     end
   end
 
+  test "a network sets a minimum price on all its tariffs or on none" do
+    static = StaticFixtureGenerator.generate(seed: 7, stations: 100, networks: 10, now: @now)
+    rows = TarifsFixtureGenerator.generate(static, seed: 7, now: @now)
+    flags = rows |> Enum.group_by(&String.slice(&1["tarif_id"], 2, 3), &(&1["min_price"] != nil)) |> Map.values()
+
+    assert Enum.all?(flags, &match?([_], Enum.uniq(&1)))
+    assert flags |> Enum.map(&hd/1) |> Enum.uniq() |> Enum.sort() == [false, true]
+    assert Enum.all?(rows, &is_nil(&1["max_price"]))
+  end
+
   test "restrictions and price components conform to their JSON schemas" do
     restrictions = json_schema("schema-irve-tarifs-v3-restrictions.json")
     price_components = json_schema("schema-irve-tarifs-v3-price-components.json")
