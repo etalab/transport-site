@@ -6,7 +6,8 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
   @schema Transport.CachedFiles.read_json("schema-irve-tarifs-v3.json")
   @now ~U[2026-10-01 00:00:00Z]
 
-  defp static_rows, do: StaticFixtureGenerator.generate(seed: 7, stations: 50, networks: 3, now: @now)
+  # Enough networks for every tariff scope and shape to show up.
+  defp static_rows, do: StaticFixtureGenerator.generate(seed: 7, stations: 300, networks: 20, now: @now)
 
   defp generate(opts \\ []),
     do: TarifsFixtureGenerator.generate(static_rows(), Keyword.merge([seed: 7, now: @now], opts))
@@ -52,8 +53,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
   end
 
   test "a successor either started after its base tariff, left open, or is announced for when it ends" do
-    static = StaticFixtureGenerator.generate(seed: 7, stations: 100, networks: 10, now: @now)
-    by_id = TarifsFixtureGenerator.generate(static, seed: 7, now: @now) |> Map.new(&{&1["tarif_id"], &1})
+    by_id = generate() |> Map.new(&{&1["tarif_id"], &1})
 
     successors =
       for {id, successor} <- by_id,
@@ -75,8 +75,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
   end
 
   test "energy prices rise with power bands, and are lower off-peak" do
-    static = StaticFixtureGenerator.generate(seed: 7, stations: 300, networks: 20, now: @now)
-    by_tarif = TarifsFixtureGenerator.generate(static, seed: 7, now: @now) |> Enum.group_by(& &1["tarif_id"])
+    by_tarif = generate() |> Enum.group_by(& &1["tarif_id"])
     energy = fn row -> for %{"type" => "ENERGY", "price" => price} <- row["price_components"], do: price end
 
     banded = for {_id, rows} <- by_tarif, Enum.any?(rows, &(&1["restrictions"]["min_power"] != nil)), do: rows
@@ -92,8 +91,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGeneratorTest do
   end
 
   test "a network sets a minimum price on all its tariffs or on none" do
-    static = StaticFixtureGenerator.generate(seed: 7, stations: 100, networks: 10, now: @now)
-    rows = TarifsFixtureGenerator.generate(static, seed: 7, now: @now)
+    rows = generate()
     flags = rows |> Enum.group_by(&String.slice(&1["tarif_id"], 2, 3), &(&1["min_price"] != nil)) |> Map.values()
 
     assert Enum.all?(flags, &match?([_], Enum.uniq(&1)))
