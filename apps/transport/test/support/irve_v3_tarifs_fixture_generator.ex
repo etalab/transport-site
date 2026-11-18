@@ -29,6 +29,8 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
   @ac [0.30, 0.35, 0.38, 0.39, 0.40, 0.44, 0.47, 0.49]
   @dc [0.45, 0.49, 0.53, 0.55, 0.59, 0.61, 0.65]
   @off_peak [0.22, 0.23, 0.24, 0.27, 0.31]
+  # One price for both AC and DC points (PD1).
+  @ac_dc [0.39, 0.41, 0.47, 0.49, 0.49, 0.50]
   @week ~w(MONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY)
 
   # Overstay fee: while the session lasts between 1 h and 5 h 10, 24 €/h on charging time (TIME)
@@ -66,7 +68,7 @@ defmodule Transport.IRVE.V3.TarifsFixtureGenerator do
     ],
     # Power bands are what tells AC and DC points apart.
     ac_dc: [
-      [{%{}, [{"ENERGY", @dc, 1}]}],
+      [{%{}, [{"ENERGY", @ac_dc, 1}]}],
       [{%{"max_power" => 49.0}, [{"ENERGY", @ac, 1}]}, {%{"min_power" => 50.0}, [{"ENERGY", @dc, 1}]}],
       [
         {%{"max_power" => 44.0}, [{"ENERGY", @ac, 1}]},
