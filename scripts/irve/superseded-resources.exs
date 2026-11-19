@@ -1,8 +1,8 @@
 # mix run --no-start scripts/irve/superseded-resources.exs [--min-coverage 0.1] [--details] [--csv path] [source]
 #
-# Detects "sliding resources": a producer publishes a new resource instead of updating the existing one, so the old
-# resource stays in the dataset and its PDC stay in the consolidation. This goes against our publication guidelines,
-# see https://doc.transport.data.gouv.fr/administration-des-donnees/guide-de-publication/mettre-a-jour-des-donnees
+# Detects "sliding IRVE static resources", where a producer publishes a new resource instead of updating the existing
+# one, so the old resource stays in the dataset and its PDC stay in the consolidation. This goes against our publication
+# guidelines, see https://doc.transport.data.gouv.fr/administration-des-donnees/guide-de-publication/mettre-a-jour-des-donnees
 # ("Mettre à jour ou publier une nouvelle ressource ?"), and is one of the possible causes listed in
 # https://github.com/etalab/transport-site/issues/5702.
 # A resource is a candidate when its `id_pdc_itinerance` are also found in a more recent (`datagouv_last_modified`)
