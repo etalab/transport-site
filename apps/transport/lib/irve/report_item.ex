@@ -53,13 +53,15 @@ defmodule Transport.IRVE.ReportItem do
   end
 
   # A resource still in the database but no longer listed on data.gouv.fr: no download/processing
-  # happened this run, so `consolidation_status` and the download-related fields stay nil.
+  # happened this run, so the download-related fields stay nil. `consolidation_status` tells whether
+  # its PDCs are still in the deduplicated consolidation (`grace_period`) or not (`soft_deleted`).
   def from_orphan_file(%{
         datagouv_dataset_id: dataset_id,
         datagouv_resource_id: resource_id,
         dataset_title: dataset_title,
         datagouv_organization_or_owner: datagouv_organization_or_owner,
         datagouv_last_modified: datagouv_last_modified,
+        soft_deleted_at: soft_deleted_at,
         pdc_count: pdc_count
       }) do
     %__MODULE__{
@@ -70,7 +72,7 @@ defmodule Transport.IRVE.ReportItem do
       datagouv_organization_or_owner: datagouv_organization_or_owner,
       datagouv_last_modified: datagouv_last_modified,
       resource_status: :in_db_deleted_from_datagouv,
-      consolidation_status: nil,
+      consolidation_status: if(soft_deleted_at, do: :soft_deleted, else: :grace_period),
       estimated_pdc_count: pdc_count,
       error_message: nil,
       error_type: nil,
@@ -86,7 +88,7 @@ defmodule Transport.IRVE.ReportItem do
     |> Map.update!(:datagouv_last_modified, &stringify/1)
   end
 
-  # `nil` (empty CSV cell) for orphan rows; keeps mixed atom/DateTime/string columns uniform.
+  # `nil` stays an empty CSV cell; keeps mixed atom/DateTime/string columns uniform.
   defp stringify(nil), do: nil
   defp stringify(value), do: to_string(value)
 

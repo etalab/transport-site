@@ -38,6 +38,8 @@ defmodule Transport.IRVE.Deduplicator do
   - Remove undecided duplicates: if after all these rules, there are still duplicates that we cannot decide on,
     we flag them to be removed.
 
+  Rows of soft-deleted files (resources no longer on data.gouv.fr) take no part in these rules: they are all removed.
+
   Values of the additional column:
   - unique
   - removed_because_non_concerne
@@ -50,12 +52,16 @@ defmodule Transport.IRVE.Deduplicator do
   - kept_because_exact_duplicate_in_same_file
   - removed_because_exact_duplicate_in_same_file
   - removed_because_no_rule_applies
+  - removed_because_soft_deleted
   """
   def add_duplicates_column(%Explorer.DataFrame{} = df) do
     # Rules aggregate over groups, but their status conditions run ungrouped: they are row-wise,
     # and Polars ≥ 0.52 can't evaluate a condition with literal branches over groups.
     # https://github.com/etalab/transport-site/issues/5579
+    # Soft-deleted rows are left out first: they would weigh in the aggregates (e.g. a newer `date_maj`
+    # would get a live duplicate removed).
     df
+    |> filter_out_soft_deleted()
     |> Explorer.DataFrame.group_by("id_pdc_itinerance")
     |> remove_non_concerne_rule()
     |> unique_rule()
@@ -64,6 +70,7 @@ defmodule Transport.IRVE.Deduplicator do
     |> datagouv_last_modified_rule()
     |> exact_duplicate_in_same_file_rule()
     |> remove_undecided_duplicates_rule()
+    |> concat_back_soft_deleted(df)
   end
 
   def discard_duplicates(df) do
@@ -77,6 +84,22 @@ defmodule Transport.IRVE.Deduplicator do
         "kept_because_in_prioritary_dataset"
       ]
     )
+    # Remove this column, always null, from the deduplicated dataframe.
+    |> Explorer.DataFrame.discard("soft_deleted_at")
+  end
+
+  defp filter_out_soft_deleted(df), do: df |> Explorer.DataFrame.filter(is_nil(soft_deleted_at))
+
+  defp filter_in_soft_deleted(df), do: df |> Explorer.DataFrame.filter(is_not_nil(soft_deleted_at))
+
+  defp concat_back_soft_deleted(deduplicated_df, df) do
+    Explorer.DataFrame.concat_rows([deduplicated_df, soft_deleted_df_with_status(df)])
+  end
+
+  defp soft_deleted_df_with_status(df) do
+    df
+    |> filter_in_soft_deleted()
+    |> Explorer.DataFrame.mutate(deduplication_status: "removed_because_soft_deleted")
   end
 
   defp remove_non_concerne_rule(df) do

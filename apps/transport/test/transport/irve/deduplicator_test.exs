@@ -142,6 +142,40 @@ defmodule Transport.IRVE.DeduplicatorTest do
            ]
   end
 
+  test "soft-deleted rows take no part in the rules" do
+    df =
+      [
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE1",
+          "datagouv_dataset_id" => "live-dataset",
+          "datagouv_resource_id" => "live-resource",
+          "date_maj" => ~D[2026-01-01],
+          "datagouv_last_modified" => DateTime.new!(~D[2026-01-01], ~T[10:00:00.000], "Etc/UTC")
+        },
+        %{
+          "id_pdc_itinerance" => "FRS31DUPLICATE1",
+          "datagouv_dataset_id" => "soft-deleted-dataset",
+          "datagouv_resource_id" => "soft-deleted-resource",
+          "date_maj" => ~D[2026-02-01],
+          "datagouv_last_modified" => DateTime.new!(~D[2026-02-01], ~T[10:00:00.000], "Etc/UTC"),
+          "soft_deleted_at" => DateTime.new!(~D[2026-11-08], ~T[04:45:00.000], "Etc/UTC")
+        }
+      ]
+      |> add_dummy_missing_columns()
+      |> Explorer.DataFrame.new()
+
+    assert df
+           |> Transport.IRVE.Deduplicator.add_duplicates_column()
+           |> Explorer.DataFrame.select(["datagouv_resource_id", "deduplication_status"])
+           |> Explorer.DataFrame.to_rows() == [
+             %{"datagouv_resource_id" => "live-resource", "deduplication_status" => "unique"},
+             %{
+               "datagouv_resource_id" => "soft-deleted-resource",
+               "deduplication_status" => "removed_because_soft_deleted"
+             }
+           ]
+  end
+
   defp create_test_dataframe do
     # First resource - 3 entries, one unique PDC
 

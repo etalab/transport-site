@@ -7,6 +7,10 @@ defmodule Transport.IRVE.Consolidation do
   - and if valid writes the PDCs and file to the database.
   If there is a previous version of the same resource already in the database,
   its PDCs are replaced by the newly imported ones.
+  This means, that any update of the file is reflected, like adding, removing or modifying PDCs.
+
+  A file whose resource is no longer listed on data.gouv.fr is marked as soft deleted (soft_deleted_at)
+  and its PDCs are no longer returned in the consolidated dedup file.
 
   The module then reports on the outcome of each resource processing in a CSV file
   (defaulting to upload it to S3, but can also be saved on local disk for dev/testing).
@@ -25,15 +29,20 @@ defmodule Transport.IRVE.Consolidation do
   @s3_upload_timeout :timer.minutes(1)
   @s3_upload_max_concurrency 2
 
+  @unlisted_grace_period_days 7
+
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
+    unlisted_grace_period_days = Keyword.get(opts, :unlisted_grace_period_days, @unlisted_grace_period_days)
 
     datagouv_resources = resource_list()
     datagouv_resource_ids = MapSet.new(datagouv_resources, & &1.resource_id)
     # Snapshot before processing mutates the DB, so `resource_status` reflects the pre-run state.
     db_ids_and_checksums = DB.IRVEValidFile.existing_datagouv_resource_ids_and_checksums()
     db_resource_ids = MapSet.new(db_ids_and_checksums, fn {resource_id, _checksum} -> resource_id end)
+
+    track_unlisted_files(db_resource_ids, datagouv_resource_ids, unlisted_grace_period_days)
 
     processed_rows =
       datagouv_resources
@@ -94,8 +103,26 @@ defmodule Transport.IRVE.Consolidation do
     |> Enum.sort_by(fn r -> [r.dataset_id, r.resource_id] end)
   end
 
+  def track_unlisted_files(db_resource_ids, datagouv_resource_ids, grace_period_days) do
+    today = Date.utc_today()
+
+    {listed_again, _} = datagouv_resource_ids |> MapSet.to_list() |> DB.IRVEValidFile.mark_listed()
+
+    {unlisted, _} =
+      db_resource_ids
+      |> MapSet.difference(datagouv_resource_ids)
+      |> MapSet.to_list()
+      |> DB.IRVEValidFile.mark_unlisted(today)
+
+    {soft_deleted, _} = today |> Date.add(-grace_period_days) |> DB.IRVEValidFile.soft_delete_unlisted()
+
+    Logger.info(
+      "IRVE consolidation: #{listed_again} files listed again, #{unlisted} newly unlisted, #{soft_deleted} soft-deleted"
+    )
+  end
+
   # Resources still in the DB but no longer listed on data.gouv.fr, appended as a block after the
-  # processed rows (which are not processed this run, so they carry no consolidation outcome).
+  # processed rows (not processed this run: their consolidation status is `grace_period` or `soft_deleted`).
   def orphan_report_rows(db_resource_ids, datagouv_resource_ids) do
     db_resource_ids
     |> MapSet.difference(datagouv_resource_ids)
