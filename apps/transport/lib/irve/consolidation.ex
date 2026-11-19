@@ -34,7 +34,7 @@ defmodule Transport.IRVE.Consolidation do
   def process(opts \\ []) do
     destination = Keyword.get(opts, :destination, :send_to_s3)
     debug = Keyword.get(opts, :debug, false)
-    unlisted_grace_period_days = Keyword.get(opts, :unlisted_grace_period_days, @unlisted_grace_period_days)
+    unlisted_grace_period_days = opts[:unlisted_grace_period_days] || @unlisted_grace_period_days
 
     datagouv_resources = resource_list()
     datagouv_resource_ids = MapSet.new(datagouv_resources, & &1.resource_id)
