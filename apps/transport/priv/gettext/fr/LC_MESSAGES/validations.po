@@ -319,10 +319,6 @@ msgid "Elapsed time: %{duration}."
 msgstr "Temps passé : %{duration}."
 
 #, elixir-autogen, elixir-format
-msgid "NeTEx validation is in beta."
-msgstr "La validation NeTEx est en beta."
-
-#, elixir-autogen, elixir-format
 msgid "less than 1 second"
 msgstr "moins d’une seconde"
 
