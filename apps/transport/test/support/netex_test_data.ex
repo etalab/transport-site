@@ -152,4 +152,59 @@ defmodule NeTExTestData do
       validation_timestamp: ~U[2022-10-28 14:12:29.041243Z]
     ]
   end
+
+  # Builds a %NeTExValidationDetails{} struct for component rendering tests.
+  # All fields use sensible defaults — pass keyword overrides to change specific values.
+  def netex_validation_details(opts \\ []) do
+    defaults = %TransportWeb.NeTExValidationDetails{
+      metadata: %{"xsd_version" => "1.0"},
+      adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
+      download_url: "/report/42",
+      has_errors?: false,
+      max_severity: %{"max_level" => "NoError", "worst_occurrences" => 0},
+      retention_days: 30
+    }
+
+    Map.new(Keyword.merge(Map.to_list(defaults), opts))
+  end
+
+  # Builds a %NeTExValidationDetails{} for v0.1.0 with no errors (the problematic case).
+  def netex_validation_details_v0_1_0_clean do
+    %TransportWeb.NeTExValidationDetails{
+      metadata: %{"xsd_version" => "1.0"},
+      adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_1_0,
+      download_url: nil,
+      has_errors?: false,
+      max_severity: %{"max_level" => "NoError", "worst_occurrences" => 0},
+      retention_days: 30,
+      summary: [],
+      stats: %{},
+      issues_page: %Scrivener.Page{entries: []}
+    }
+  end
+
+  # Builds a %NeTExValidationDetails{} with actual errors (for testing error rendering).
+  def netex_validation_details_with_errors do
+    %TransportWeb.NeTExValidationDetails{
+      metadata: %{"xsd_version" => "1.0"},
+      adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_0,
+      download_url: "/report/42",
+      has_errors?: true,
+      max_severity: %{"max_level" => "error", "worst_occurrences" => 3},
+      retention_days: 30,
+      summary: [
+        %{"category" => "xsd-schema", "stats" => %{"criticity" => "error", "count" => 2}},
+        %{"category" => "base-rules", "stats" => %{"criticity" => "warning", "count" => 1}}
+      ],
+      xsd_errors: [
+        %{"counts" => 2, "message" => "XSD error message"},
+        %{"counts" => 1, "message" => "Another XSD error"}
+      ],
+      issues_page: %Scrivener.Page{
+        entries: [
+          %{"criticity" => "error", "message" => "Test error", "resource" => %{"filename" => "test.xml", "line" => 42}}
+        ]
+      }
+    }
+  end
 end
