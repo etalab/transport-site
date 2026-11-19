@@ -43,6 +43,12 @@ defmodule Transport.IRVE.V3.StaticFixtureGeneratorTest do
     end
   end
 
+  test "all the points of a tariff list the same tariffs" do
+    for {_id, [first | _] = rows} <- generate() |> Enum.filter(& &1["tarif_ids"]) |> Enum.group_by(&hd(&1["tarif_ids"])) do
+      assert Enum.all?(rows, &(&1["tarif_ids"] == first["tarif_ids"]))
+    end
+  end
+
   test "points are consistent with their connectors and their station" do
     rows = generate()
     prises = ~w(prise_type_ef prise_type_2 prise_type_combo_ccs prise_type_chademo prise_type_mcs)

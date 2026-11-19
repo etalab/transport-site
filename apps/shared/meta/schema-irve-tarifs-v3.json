@@ -1,0 +1,213 @@
+{
+    "$schema": "https://specs.frictionlessdata.io/schemas/table-schema.json",
+    "name": "schema-irve-tarifs",
+    "title": "IRVE tarifs",
+    "description": "Spécification du fichier d'échange relatif aux tarifs de recharge pour véhicules électriques. Chaque ligne correspond à un élément tarifaire (au sens OCPI). Un tarif peut comporter plusieurs lignes si plusieurs éléments s'appliquent (ex : tranches horaires, paliers de durée). Le lien avec les points de recharge se fait via le champ tarif_ids du fichier statique.",
+    "countryCode": "FR",
+    "homepage": "https://github.com/etalab/schema-irve",
+    "path": "https://raw.githubusercontent.com/etalab/schema-irve/v3.0.0-alpha.1/tarifs/schema-tarifs.json",
+    "created": "2026-05-01",
+    "lastModified": "2026-10-04",
+    "version": "v3.0.0-alpha.1",
+    "contributors": [
+        {
+            "title": "Thibaut Barrère",
+            "email": "thibaut.barrere@transport.data.gouv.fr",
+            "organisation": "transport.data.gouv.fr",
+            "role": "author"
+        },
+        {
+            "title": "Philippe Thomy",
+            "organisation": "loco-labs",
+            "role": "contributor"
+        }
+    ],
+    "fields": [
+        {
+            "x-comment": "ATTENTION : la colonne tarif_ids du fichier statique est techniquement une liste de clés étrangères vers tarif_id, mais Table Schema ne permet pas actuellement de l'exprimer (colonne de type liste). L'existence des tarif_id référencés sera vérifiée par le contrôle personnalisé foreign-key-array du schéma statique, dans le validateur du PAN.",
+            "name": "tarif_id",
+            "x-entity": "tarif",
+            "description": "Identifiant du tarif. Cet identifiant débute par FR suivi du trigramme AFIREV de l'opérateur qui gère la tarification (CPO) et de T, suivis d'un suffixe libre choisi par le producteur (ex : identifiant OCPI interne). Ce trigramme peut différer de ceux portés par les id_pdc_itinerance des points de charge auxquels le tarif s'applique. Le préfixe garantit l'unicité globale lors de la consolidation nationale et n'a aucun rôle de portée : l'applicabilité d'un tarif aux points de charge est définie par la colonne tarif_ids du fichier statique. L'unicité du suffixe est de la responsabilité du producteur au sein de son préfixe. Plusieurs lignes peuvent partager le même tarif_id (une par élément tarifaire), à condition que leur element_index diffère : le couple (tarif_id, element_index) est unique.",
+            "example": "FRABCT001",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "pattern": "^FR[A-Z0-9]{3}T\\S+$"
+            }
+        },
+        {
+            "name": "element_index",
+            "x-entity": "tarif_element",
+            "description": "Index de l'élément tarifaire au sein du tarif (0-based). Permet de conserver l'ordre d'application des éléments : comme en OCPI, la sélection se fait par type de composant de prix et non par élément entier. Un élément ENERGY et un élément TIME peuvent s'appliquer en même temps, chacun étant le premier de son type dont les restrictions sont satisfaites. Le couple (tarif_id, element_index) doit être unique.",
+            "example": "0",
+            "type": "integer",
+            "constraints": {
+                "required": true,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "devise",
+            "x-entity": "tarif",
+            "description": "Code ISO 4217 de la devise utilisée pour les prix. Seul EUR est supporté, mentionné à des fins de clarté.",
+            "example": "EUR",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": ["EUR"]
+            }
+        },
+        {
+            "name": "horodatage_maj_tarif",
+            "x-entity": "tarif",
+            "description": "Date et heure de dernière mise à jour du tarif, au format ISO 8601 UTC. Correspond au champ last_updated de l'objet Tariff de la spécification OCPI, avec un format restreint à une forme canonique : suffixe Z obligatoire, pas de fractions de seconde (un DateTime OCPI doit donc être normalisé en conséquence).",
+            "example": "2024-12-17T13:13:31Z",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%SZ",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "start_date_time",
+            "x-entity": "tarif",
+            "description": "Date et heure (UTC) à partir de laquelle le tarif s'applique (incluse). Absente, le tarif s'applique depuis toujours.",
+            "example": "2024-12-01T00:00:00Z",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%SZ",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "end_date_time",
+            "x-entity": "tarif",
+            "description": "Date et heure (UTC) à partir de laquelle le tarif ne s'applique plus (exclue). Absente, le tarif s'applique jusqu'à nouvel ordre.",
+            "example": "2025-12-01T00:00:00Z",
+            "type": "datetime",
+            "format": "%Y-%m-%dT%H:%M:%SZ",
+            "constraints": {
+                "required": false
+            }
+        },
+        {
+            "name": "type",
+            "x-entity": "tarif",
+            "description": "Type de tarif au sens OCPI. Seul AD_HOC_PAYMENT est accepté : ce fichier ne déclare que les prix de la recharge ad hoc (sans contrat préalable). Les autres types de tarif OCPI — REGULAR, PROFILE_CHEAP, PROFILE_FAST et PROFILE_GREEN — sont interdits pour le moment : le prix payé par un client sous contrat ou abonnement est fixé par son fournisseur de service de mobilité et ne relève pas de cette publication. Colonne conservée pour sa valeur déclarative.",
+            "example": "AD_HOC_PAYMENT",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": ["AD_HOC_PAYMENT"]
+            }
+        },
+        {
+            "name": "tax_included",
+            "x-entity": "tarif",
+            "description": "Indique si les prix incluent les taxes (TTC). Seul YES est accepté : tous les prix doivent être exprimés TTC.",
+            "example": "YES",
+            "type": "string",
+            "constraints": {
+                "required": true,
+                "enum": ["YES"]
+            }
+        },
+        {
+            "name": "min_price",
+            "x-entity": "tarif",
+            "description": "Prix minimum TTC facturé pour une session de recharge.",
+            "example": "0.50",
+            "type": "number",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "max_price",
+            "x-entity": "tarif",
+            "description": "Prix maximum TTC facturé pour une session de recharge.",
+            "example": "60.00",
+            "type": "number",
+            "constraints": {
+                "required": false,
+                "minimum": 0
+            }
+        },
+        {
+            "name": "restrictions",
+            "x-entity": "tarif_element",
+            "description": "Objet JSON décrivant les conditions d'application de cet élément tarifaire (au sens OCPI). Objet vide {} si aucune restriction. Voir le JSON Schema associé.",
+            "example": "{\"start_time\":\"06:00\",\"end_time\":\"00:00\",\"min_duration\":0,\"max_duration\":7200}",
+            "type": "object",
+            "x-json-schema": "restrictions.schema.json",
+            "constraints": {
+                "required": true
+            }
+        },
+        {
+            "name": "price_components",
+            "x-entity": "tarif_element",
+            "description": "Liste JSON des composants de prix de cet élément tarifaire (au sens OCPI). Voir le JSON Schema associé.",
+            "example": "[{\"type\":\"ENERGY\",\"price\":0.33334,\"step_size\":1000}]",
+            "type": "array",
+            "x-json-schema": "price-components.schema.json",
+            "constraints": {
+                "required": true
+            }
+        }
+    ],
+    "x-afir": "F3",
+    "primaryKey": ["tarif_id", "element_index"],
+    "x-todo-custom-checks": "Contrôles en cours d'affinage : les custom_checks ne sont pas encore alignés sur les champs v3 et ne doivent pas être pris au pied de la lettre. Liste, paramètres et sémantique seront revus en alpha candidate 2.",
+    "custom_checks": [
+        {
+            "name": "valid-afirev-trigram",
+            "params": {
+                "column": "tarif_id"
+            }
+        },
+        {
+            "name": "json-schema-validation",
+            "params": {
+                "column": "restrictions"
+            }
+        },
+        {
+            "name": "json-schema-validation",
+            "params": {
+                "column": "price_components"
+            }
+        },
+        {
+            "name": "coherence-element-index",
+            "params": {
+                "columns": ["tarif_id", "element_index"]
+            }
+        },
+        {
+            "name": "coherence-tarif-denormalise",
+            "params": {
+                "group_by": "tarif_id",
+                "columns": ["devise", "horodatage_maj_tarif", "start_date_time", "end_date_time", "type", "tax_included", "min_price", "max_price"]
+            }
+        },
+        {
+            "name": "coherence-min-max-price",
+            "params": {
+                "min_column": "min_price",
+                "max_column": "max_price"
+            }
+        },
+        {
+            "name": "coherence-start-end-date-time",
+            "params": {
+                "start_column": "start_date_time",
+                "end_column": "end_date_time"
+            }
+        }
+    ],
+    "missingValues": [
+        ""
+    ]
+}

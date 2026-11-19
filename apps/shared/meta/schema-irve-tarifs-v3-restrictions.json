@@ -1,0 +1,84 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$comment": "Adapté du travail de Philippe Thomy (loco-labs) et de la spécification OCPI 2.2/2.3",
+    "title": "OCPI Tariff Element Restrictions",
+    "description": "Conditions d'application d'un élément tarifaire. Structure calquée sur l'objet TariffRestrictions de la spécification OCPI 2.2/2.3 (https://github.com/ocpi/ocpi/blob/v2.3.0/mod_tariffs.asciidoc). Les heures, dates et jours s'entendent en heure locale de la station.",
+    "type": "object",
+    "properties": {
+        "start_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):([0-5]\\d)$",
+            "description": "Heure de début d'application (HH:MM)"
+        },
+        "end_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):([0-5]\\d)$",
+            "description": "Heure de fin d'application (HH:MM)"
+        },
+        "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date à partir de laquelle cet élément tarifaire s'applique (YYYY-MM-DD, incluse)"
+        },
+        "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date à partir de laquelle cet élément tarifaire ne s'applique plus (YYYY-MM-DD, exclue)"
+        },
+        "min_kwh": {
+            "type": "number",
+            "description": "Énergie minimale consommée (kWh)"
+        },
+        "max_kwh": {
+            "type": "number",
+            "description": "Énergie maximale consommée (kWh)"
+        },
+        "min_current": {
+            "type": "number",
+            "description": "Courant minimal (A)"
+        },
+        "max_current": {
+            "type": "number",
+            "description": "Courant maximal (A)"
+        },
+        "min_power": {
+            "type": "number",
+            "description": "Puissance minimale (kW)"
+        },
+        "max_power": {
+            "type": "number",
+            "description": "Puissance maximale (kW)"
+        },
+        "min_duration": {
+            "type": "integer",
+            "description": "Durée minimale de la session (secondes)"
+        },
+        "max_duration": {
+            "type": "integer",
+            "description": "Durée maximale de la session (secondes)"
+        },
+        "day_of_week": {
+            "type": "array",
+            "items": {
+                "enum": [
+                    "MONDAY",
+                    "TUESDAY",
+                    "WEDNESDAY",
+                    "THURSDAY",
+                    "FRIDAY",
+                    "SATURDAY",
+                    "SUNDAY"
+                ]
+            },
+            "description": "Jours de la semaine applicables"
+        },
+        "reservation": {
+            "enum": [
+                "RESERVATION",
+                "RESERVATION_EXPIRES"
+            ],
+            "description": "Type de réservation applicable"
+        }
+    },
+    "additionalProperties": false
+}

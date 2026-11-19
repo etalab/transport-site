@@ -2,6 +2,8 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   @moduledoc """
   Seeded generator of realistic IRVE static v3 rows, conforming to the vendored schema.
 
+  Data model (3 files, keys, diagram): https://github.com/etalab/schema-irve/blob/v3.0.0-alpha.1/docs/note-conception-irve-v3.md#2-modèle-de-données
+
   MVP, largely AI-generated, written to bootstrap the v3 validator and feedback on the alpha schema.
   Expect it to be reworked heavily as needs show up; the profiles and values are a starting point.
   The design constraints below were set deliberately and should survive rewrites:
@@ -13,9 +15,14 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   - addresses are town halls sampled from the Annuaire de l'administration (DILA, Licence Ouverte), so that
     address, postal code, INSEE code and coordinates are consistent without pointing at private homes;
     station coordinates are offset from the address point, which locates the street access;
+  - `tarif_ids` mimic QualiCharge OCPI tariffs, the only real tariff data available so far: a network points
+    either to one tariff for all its points, one per current (AC, DC), or one per DC station; all the points
+    of a tariff list the same ids;
   - names, SIREN, AFIREV codes, phones and emails are fictitious;
   - code size kept to a reasonable minimum: variety comes from data, not branches.
   """
+
+  alias Transport.IRVE.V3.FixtureHelpers
 
   @address_sample Path.join(__DIR__, "../fixture/irve/mairie_addresses_sample.csv")
   @external_resource @address_sample
@@ -112,9 +119,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
   def generate(opts \\ []) do
     opts = Keyword.validate!(opts, seed: 1, stations: 10, networks: 1, now: ~U[2026-10-01 00:00:00Z])
 
-    # A dedicated process keeps the seeded `:rand` state away from the caller's.
-    Task.async(fn ->
-      :rand.seed(:exsss, opts[:seed])
+    FixtureHelpers.seeded(opts[:seed], fn ->
       emsp_pool = for _ <- 1..8, do: "FR" <> random_string(@alphanum, 3)
       trigrams = Stream.repeatedly(fn -> random_string(@alphanum, 3) end) |> Stream.uniq() |> Enum.take(opts[:networks])
       networks = Enum.map(trigrams, &build_network(&1, emsp_pool))
@@ -133,29 +138,11 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
       Enum.concat(stations)
     end)
-    |> Task.await(:infinity)
   end
 
-  @doc """
-  Serializes rows to CSV, columns in schema order, lists as JSON.
-  """
-  def to_csv(rows, fields \\ field_names()) do
-    lines = Enum.map(rows, fn row -> Enum.map(fields, &format_value(Map.fetch!(row, &1))) end)
-    [fields | lines] |> NimbleCSV.RFC4180.dump_to_iodata() |> IO.iodata_to_binary()
-  end
+  def to_csv(rows), do: FixtureHelpers.to_csv(rows, field_names())
 
-  def field_names do
-    Transport.CachedFiles.read_json("schema-irve-statique-v3.json")
-    |> Map.fetch!("fields")
-    |> Enum.map(&Map.fetch!(&1, "name"))
-  end
-
-  defp format_value(nil), do: ""
-  defp format_value(value) when is_float(value), do: :erlang.float_to_binary(value, [:short])
-  defp format_value(value) when is_list(value), do: Jason.encode!(value)
-  defp format_value(%Date{} = value), do: Date.to_iso8601(value)
-  defp format_value(%DateTime{} = value), do: DateTime.to_iso8601(value)
-  defp format_value(value), do: to_string(value)
+  def field_names, do: FixtureHelpers.field_names("schema-irve-statique-v3.json")
 
   defp build_network(trigram, emsp_pool) do
     amenageur = company_name()
@@ -173,7 +160,8 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
       "nom_enseigne" => hd(String.split(operateur)) <> " Recharge",
       "emsp" => Enum.random([nil, emsp_pool |> Enum.take_random(3) |> Enum.sort()]),
       "local_ids" => Enum.random([true, false]),
-      "raccordement" => Enum.random(["Direct", "Indirect", nil])
+      "raccordement" => Enum.random(["Direct", "Indirect", nil]),
+      "tarif_scope" => Enum.random([:network, :current, :station])
     }
   end
 
@@ -228,7 +216,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
 
     station =
       network
-      |> Map.drop(["trigram", "local_ids"])
+      |> Map.drop(["trigram", "local_ids", "tarif_scope"])
       |> Map.merge(%{
         "id_station_itinerance" => "FR#{network["trigram"]}P#{suffix}",
         "id_station_local" => local_id(network, "ST-" <> suffix),
@@ -279,8 +267,7 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
         "plug_and_charge" => pick.(:plug_and_charge),
         "recharge_intelligente" => pick.(:recharge_intelligente),
         "recharge_intelligente_autre" => nil,
-        "tarif_ids" =>
-          if(station["gratuit"] != true, do: tarif_ids(network["trigram"], connectors["courant_dc"], pdc.power)),
+        "tarif_ids" => if(station["gratuit"] != true, do: tarif_ids(network, suffix, connectors["courant_dc"])),
         "reservation" => pick.(:reservation),
         "accessibilite_pmr" => pdc.accessibilite,
         "date_mise_en_service" => mise_en_service,
@@ -344,11 +331,20 @@ defmodule Transport.IRVE.V3.StaticFixtureGenerator do
       else: Enum.count(accessibilities, &(&1 in ["Accessible mais non réservé PMR", "Réservé PMR"]))
   end
 
-  # An upcoming tariff can be announced alongside the current one.
-  defp tarif_ids(trigram, courant_dc, power) do
-    base = "FR#{trigram}T#{if courant_dc, do: "DC", else: "AC"}#{round(power)}"
-    Enum.random([[base], [base], [base], [base, base <> "V2"]])
+  # Mimics QualiCharge OCPI tariffs, the only real tariff data available so far: a tariff covers a whole network,
+  # the AC or DC points of a network, or the DC points of one station.
+  defp tarif_ids(%{"trigram" => trigram, "tarif_scope" => scope}, station_suffix, courant_dc) do
+    base = "FR#{trigram}T" <> tarif_key(scope, station_suffix, courant_dc)
+    # Half of the tariffs have a successor, listed alongside. Derived from the id rather than drawn,
+    # so that all the points of a tariff list it.
+    if :erlang.phash2(base, 2) == 0, do: [base, base <> "-v2"], else: [base]
   end
+
+  defp tarif_key(:network, _station_suffix, _courant_dc), do: "RESEAU"
+  # Per-station tariffs are DC only (Tesla); the AC points of such a network share one tariff.
+  defp tarif_key(:station, station_suffix, true = _courant_dc), do: station_suffix
+  defp tarif_key(_scope, _station_suffix, true = _courant_dc), do: "DC"
+  defp tarif_key(_scope, _station_suffix, false = _courant_dc), do: "AC"
 
   # Records are updated recently, and never before `since`.
   defp random_datetime(%Date{} = since, now) do
