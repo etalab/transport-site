@@ -235,7 +235,7 @@ To locally test emails in a dev environment, a Swoosh preview inbox available in
 
 ## Learn more and debug
 
-See the [learning track document](learning_track.md).
+See the [learning track document](docs/learning_track.md).
 
 # Docker installation <a name="docker_install"></a>
 
