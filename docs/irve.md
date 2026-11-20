@@ -67,7 +67,7 @@ Why wait: resources do come back (a dataset republished, a schema declared again
 
 ## Running it
 
-- **Locally**: `WORKER=0 mix run scripts/irve/process-consolidation.exs --destination local_disk --debug --limit 5`. `WORKER=0` keeps Oban from working through the jobs pending in the development database. `local_disk` writes the three files at the repository root, replacing the previous ones; without it they go to the `aggregates-dev` bucket.
+- **Locally**: `mix run scripts/irve/process-consolidation.exs --destination local_disk --debug --limit 5`. In development, `mix run` sets `WORKER=0` itself (alias in `mix.exs`), so Oban doesn't work through the jobs pending in the database during the run. `local_disk` writes the three files at the repository root, replacing the previous ones; without it they go to the `aggregates-dev` bucket.
 - **In production**, only through the job. The script would publish to the production bucket, and its `--erase-existing-data all` empties the IRVE tables.
 
 ## Gotchas
