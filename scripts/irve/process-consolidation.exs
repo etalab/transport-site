@@ -4,6 +4,8 @@
 # --erase-existing-data: values "all", "partial", or "none" (default: "none")
 # --debug : if present, will print a summary of the report at the end and log each processed item
 # --limit : only process the first N resources
+# --unlisted-grace-period-days : days before the PDCs of resources no longer on data.gouv.fr leave the
+#   deduplicated file (default: 7; 0 soft-deletes them right away)
 # Advised dev use:
 # mix run scripts/irve/process-consolidation.exs --destination local_disk --erase-existing-data all --debug
 
@@ -16,7 +18,8 @@ import Ecto.Query
       debug: :boolean,
       destination: :string,
       erase_existing_data: :string,
-      limit: :integer
+      limit: :integer,
+      unlisted_grace_period_days: :integer
     ]
   )
 
@@ -26,7 +29,8 @@ opts =
     destination: "send_to_s3",
     erase_existing_data: "none",
     limit: nil,
-    debug: false
+    debug: false,
+    unlisted_grace_period_days: nil
   )
 
 erase_existing_data = opts[:erase_existing_data]
@@ -74,7 +78,13 @@ case erase_existing_data do
     IO.puts("Keeping existing data...")
 end
 
-{:ok, report_df} = Transport.IRVE.Consolidation.process(destination: destination, debug: debug, limit: limit)
+{:ok, report_df} =
+  Transport.IRVE.Consolidation.process(
+    destination: destination,
+    debug: debug,
+    limit: limit,
+    unlisted_grace_period_days: opts[:unlisted_grace_period_days]
+  )
 
 if debug do
   report_df["consolidation_status"]

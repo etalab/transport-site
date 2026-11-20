@@ -72,7 +72,9 @@ defmodule Transport.IRVE.DatabaseExporter do
         datagouv_dataset_id: :string,
         datagouv_resource_id: :string,
         dataset_title: :string,
-        datagouv_organization_or_owner: :string
+        datagouv_organization_or_owner: :string,
+        # Nil in most chunks, which would otherwise be typed `:null` and rejected by `concat_rows/1`
+        soft_deleted_at: {:datetime, :microsecond, "Etc/UTC"}
       ]
   end
 
@@ -114,7 +116,8 @@ defmodule Transport.IRVE.DatabaseExporter do
       "datagouv_resource_id",
       "dataset_title",
       "datagouv_organization_or_owner",
-      "datagouv_last_modified"
+      "datagouv_last_modified",
+      "soft_deleted_at"
     ]
   end
 

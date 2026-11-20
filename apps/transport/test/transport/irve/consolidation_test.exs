@@ -27,7 +27,8 @@ defmodule Transport.IRVE.ConsolidationTest do
       assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 0
 
       # Pre-existing DB state to exercise the data.gouv.fr/DB presence delta:
-      # - an orphan resource, no longer listed on data.gouv.fr (reported, still exported)
+      # - an orphan resource, no longer listed on data.gouv.fr since this run (reported, still exported)
+      # - an orphan resource soft-deleted by an earlier run (reported, only in the file with duplicates)
       # - an older version of `the-resource-id`, still listed (so it gets re-imported below)
       orphan_file =
         insert(:irve_valid_file,
@@ -39,6 +40,18 @@ defmodule Transport.IRVE.ConsolidationTest do
 
       # distinct id_pdc_itinerance from the-resource-id's PDC, so it stays a separate PDC in the export
       insert(:irve_valid_pdc, irve_valid_file: orphan_file, id_pdc_itinerance: "FRPAN99E87654321")
+
+      soft_deleted_file =
+        insert(:irve_valid_file,
+          datagouv_dataset_id: "soft-deleted-dataset-id",
+          datagouv_resource_id: "soft-deleted-resource-id",
+          dataset_title: "soft-deleted-dataset-title",
+          datagouv_organization_or_owner: "soft-deleted-org",
+          unlisted_since: ~D[2026-11-01],
+          soft_deleted_at: ~U[2026-11-08 04:45:00Z]
+        )
+
+      insert(:irve_valid_pdc, irve_valid_file: soft_deleted_file, id_pdc_itinerance: "FRPAN99E11111111")
 
       insert(:irve_valid_file,
         datagouv_dataset_id: "the-dataset-id",
@@ -100,19 +113,33 @@ defmodule Transport.IRVE.ConsolidationTest do
             "datagouv_last_modified" => "2024-02-29T07:43:59.660000+00:00",
             "error_message" => nil
           },
-          # Orphan row: still in the DB but no longer on data.gouv.fr, so it was not processed
-          # this run (empty consolidation_status). Appended after the processed rows.
+          # Orphan rows: still in the DB but no longer on data.gouv.fr, so not processed this run.
+          # Appended after the processed rows.
           %{
             "dataset_id" => "deleted-dataset-id",
             "resource_id" => "deleted-resource-id",
             "resource_status" => "in_db_deleted_from_datagouv",
-            "consolidation_status" => nil,
+            "consolidation_status" => "grace_period",
             "error_type" => nil,
             "estimated_pdc_count" => "1",
             "file_extension" => nil,
             "url" => nil,
             "dataset_title" => "deleted-dataset-title",
             "datagouv_organization_or_owner" => "deleted-org",
+            "datagouv_last_modified" => nil,
+            "error_message" => nil
+          },
+          %{
+            "dataset_id" => "soft-deleted-dataset-id",
+            "resource_id" => "soft-deleted-resource-id",
+            "resource_status" => "in_db_deleted_from_datagouv",
+            "consolidation_status" => "soft_deleted",
+            "error_type" => nil,
+            "estimated_pdc_count" => "1",
+            "file_extension" => nil,
+            "url" => nil,
+            "dataset_title" => "soft-deleted-dataset-title",
+            "datagouv_organization_or_owner" => "soft-deleted-org",
             "datagouv_last_modified" => nil,
             "error_message" => nil
           }
@@ -161,73 +188,96 @@ defmodule Transport.IRVE.ConsolidationTest do
         "consolidation_transport_irve_statique_rapport.csv.sha256sum"
       )
 
+      # The orphan file's PDC is still exported even though the resource is gone from data.gouv.fr.
+      # It comes first (inserted before the import below) and mirrors the `irve_valid_pdc` factory:
+      # optional fields it does not set are empty, and it carries its own `id_pdc_itinerance`.
+      orphan_row =
+        DB.Factory.IRVE.generate_row()
+        |> Map.merge(%{
+          "nom_amenageur" => nil,
+          "siren_amenageur" => nil,
+          "contact_amenageur" => nil,
+          "nom_operateur" => nil,
+          "telephone_operateur" => nil,
+          "id_station_local" => nil,
+          "code_insee_commune" => nil,
+          "id_pdc_local" => nil,
+          "gratuit" => nil,
+          "paiement_cb" => nil,
+          "paiement_autre" => nil,
+          "tarification" => nil,
+          "raccordement" => nil,
+          "num_pdl" => nil,
+          "date_mise_en_service" => nil,
+          "observations" => nil,
+          "cable_t2_attache" => nil,
+          "id_pdc_itinerance" => "FRPAN99E87654321",
+          "puissance_nominale" => "22.0",
+          "coordonneesXY" => "[-0.79914, 45.91914]",
+          "consolidated_longitude" => "-0.79914",
+          "consolidated_latitude" => "45.91914",
+          "consolidated_is_lon_lat_correct" => true,
+          "datagouv_dataset_id" => "deleted-dataset-id",
+          "datagouv_resource_id" => "deleted-resource-id",
+          "dataset_title" => "deleted-dataset-title",
+          "datagouv_organization_or_owner" => "deleted-org",
+          "datagouv_last_modified" => nil,
+          "soft_deleted_at" => nil,
+          "deduplication_status" => "unique"
+        })
+
+      imported_row =
+        DB.Factory.IRVE.generate_row()
+        |> Map.put("puissance_nominale", "22.0")
+        |> Map.put("consolidated_longitude", "-0.79914")
+        |> Map.put("consolidated_latitude", "45.91914")
+        |> Map.put("coordonneesXY", "[-0.79914, 45.91914]")
+        |> Map.put("cable_t2_attache", nil)
+        |> Map.put("datagouv_dataset_id", "the-dataset-id")
+        |> Map.put("datagouv_resource_id", "the-resource-id")
+        |> Map.put("dataset_title", "the-dataset-title")
+        |> Map.put("datagouv_organization_or_owner", "the-org")
+        |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
+        |> Map.put("soft_deleted_at", nil)
+        |> Map.put("deduplication_status", "unique")
+        |> Map.put("consolidated_is_lon_lat_correct", true)
+
+      # Last, after the rows that went through the deduplication rules
+      soft_deleted_row =
+        Map.merge(orphan_row, %{
+          "id_pdc_itinerance" => "FRPAN99E11111111",
+          "datagouv_dataset_id" => "soft-deleted-dataset-id",
+          "datagouv_resource_id" => "soft-deleted-resource-id",
+          "dataset_title" => "soft-deleted-dataset-title",
+          "datagouv_organization_or_owner" => "soft-deleted-org",
+          "soft_deleted_at" => "2026-11-08T04:45:00.000000+0000",
+          "deduplication_status" => "removed_because_soft_deleted"
+        })
+
+      # Use the same column order as in the actual implementation
+      columns =
+        Transport.IRVE.StaticIRVESchema.field_names_list()
+        |> Enum.concat([
+          "consolidated_longitude",
+          "consolidated_latitude",
+          "consolidated_is_lon_lat_correct",
+          "datagouv_dataset_id",
+          "datagouv_resource_id",
+          "dataset_title",
+          "datagouv_organization_or_owner",
+          "datagouv_last_modified"
+        ])
+
       consolidation_content =
-        [
-          # The orphan file's PDC is still exported even though the resource is gone from data.gouv.fr.
-          # It comes first (inserted before the import below) and mirrors the `irve_valid_pdc` factory:
-          # optional fields it does not set are empty, and it carries its own `id_pdc_itinerance`.
-          DB.Factory.IRVE.generate_row()
-          |> Map.merge(%{
-            "nom_amenageur" => nil,
-            "siren_amenageur" => nil,
-            "contact_amenageur" => nil,
-            "nom_operateur" => nil,
-            "telephone_operateur" => nil,
-            "id_station_local" => nil,
-            "code_insee_commune" => nil,
-            "id_pdc_local" => nil,
-            "gratuit" => nil,
-            "paiement_cb" => nil,
-            "paiement_autre" => nil,
-            "tarification" => nil,
-            "raccordement" => nil,
-            "num_pdl" => nil,
-            "date_mise_en_service" => nil,
-            "observations" => nil,
-            "cable_t2_attache" => nil,
-            "id_pdc_itinerance" => "FRPAN99E87654321",
-            "puissance_nominale" => "22.0",
-            "coordonneesXY" => "[-0.79914, 45.91914]",
-            "consolidated_longitude" => "-0.79914",
-            "consolidated_latitude" => "45.91914",
-            "consolidated_is_lon_lat_correct" => true,
-            "datagouv_dataset_id" => "deleted-dataset-id",
-            "datagouv_resource_id" => "deleted-resource-id",
-            "dataset_title" => "deleted-dataset-title",
-            "datagouv_organization_or_owner" => "deleted-org",
-            "datagouv_last_modified" => nil,
-            "deduplication_status" => "unique"
-          }),
-          DB.Factory.IRVE.generate_row()
-          |> Map.put("puissance_nominale", "22.0")
-          |> Map.put("consolidated_longitude", "-0.79914")
-          |> Map.put("consolidated_latitude", "45.91914")
-          |> Map.put("coordonneesXY", "[-0.79914, 45.91914]")
-          |> Map.put("cable_t2_attache", nil)
-          |> Map.put("datagouv_dataset_id", "the-dataset-id")
-          |> Map.put("datagouv_resource_id", "the-resource-id")
-          |> Map.put("dataset_title", "the-dataset-title")
-          |> Map.put("datagouv_organization_or_owner", "the-org")
-          |> Map.put("datagouv_last_modified", "2024-02-29T07:43:59.000000+0000")
-          |> Map.put("deduplication_status", "unique")
-          |> Map.put("consolidated_is_lon_lat_correct", true)
-        ]
+        [orphan_row, imported_row, soft_deleted_row]
         |> Explorer.DataFrame.new()
-        # Use the same column order as in the actual implementation
-        |> Explorer.DataFrame.select(
-          Transport.IRVE.StaticIRVESchema.field_names_list()
-          |> Enum.concat([
-            "consolidated_longitude",
-            "consolidated_latitude",
-            "consolidated_is_lon_lat_correct",
-            "datagouv_dataset_id",
-            "datagouv_resource_id",
-            "dataset_title",
-            "datagouv_organization_or_owner",
-            "datagouv_last_modified",
-            "deduplication_status"
-          ])
-        )
+        |> Explorer.DataFrame.select(columns ++ ["soft_deleted_at", "deduplication_status"])
+        |> Explorer.DataFrame.dump_csv!()
+
+      deduplicated_content =
+        [orphan_row, imported_row]
+        |> Explorer.DataFrame.new()
+        |> Explorer.DataFrame.select(columns ++ ["deduplication_status"])
         |> Explorer.DataFrame.dump_csv!()
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
@@ -256,19 +306,19 @@ defmodule Transport.IRVE.ConsolidationTest do
         "consolidation_transport_avec_doublons_irve_statique.csv.sha256sum"
       )
 
-      # Dedup file is the same here as both PDCs are unique (distinct id_pdc_itinerance).
+      # Without the soft-deleted PDC nor the `soft_deleted_at` column; the other PDCs are unique.
       Transport.Test.S3TestUtils.s3_mock_stream_file(
         start_path: "consolidation_transport_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: consolidation_content
+        file_content: deduplicated_content
       )
 
       Transport.Test.S3TestUtils.s3_mock_stream_file(
         start_path: "consolidation_transport_irve_statique_#{date}",
         bucket: bucket_name,
         acl: :private,
-        file_content: sha256_of(consolidation_content)
+        file_content: sha256_of(deduplicated_content)
       )
 
       Transport.Test.S3TestUtils.s3_mocks_remote_copy_file(
@@ -286,15 +336,19 @@ defmodule Transport.IRVE.ConsolidationTest do
       # Run the consolidation process
       {:ok, %Explorer.DataFrame{}} = Transport.IRVE.Consolidation.process()
 
-      # The orphan file is untouched; `the-resource-id`'s old version was replaced by the new import.
+      # Orphan files are kept and tracked; `the-resource-id`'s old version was replaced by the new import.
       import_files =
         DB.IRVEValidFile
         |> order_by([f], asc: f.datagouv_dataset_id)
         |> DB.Repo.all()
 
-      assert Enum.map(import_files, & &1.datagouv_resource_id) == ["deleted-resource-id", "the-resource-id"]
+      assert Enum.map(import_files, &{&1.datagouv_resource_id, &1.unlisted_since, &1.soft_deleted_at}) == [
+               {"deleted-resource-id", Date.utc_today(), nil},
+               {"soft-deleted-resource-id", ~D[2026-11-01], ~U[2026-11-08 04:45:00Z]},
+               {"the-resource-id", nil, nil}
+             ]
 
-      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 2
+      assert DB.Repo.aggregate(DB.IRVEValidPDC, :count, :id) == 3
 
       # There should be no leftover temporary files
       refute File.exists?(System.tmp_dir!() |> Path.join("irve-resource-the-resource-id.dat"))
@@ -396,6 +450,51 @@ defmodule Transport.IRVE.ConsolidationTest do
 
       assert [%Sentry.Event{original_exception: %Req.TransportError{}}] = Sentry.Test.pop_sentry_reports()
     end
+  end
+
+  describe "track_unlisted_files/3" do
+    test "soft-deletes after the grace period, restores when listed again" do
+      today = Date.utc_today()
+      six_days_ago = Date.add(today, -6)
+      insert(:irve_valid_file, datagouv_resource_id: "listed")
+      insert(:irve_valid_file, datagouv_resource_id: "newly-unlisted")
+      insert(:irve_valid_file, datagouv_resource_id: "in-grace-period", unlisted_since: six_days_ago)
+      insert(:irve_valid_file, datagouv_resource_id: "grace-period-over", unlisted_since: Date.add(today, -7))
+
+      insert(:irve_valid_file,
+        datagouv_resource_id: "back",
+        unlisted_since: ~D[2026-11-01],
+        soft_deleted_at: ~U[2026-11-08 04:45:00Z]
+      )
+
+      Transport.IRVE.Consolidation.track_unlisted_files(
+        MapSet.new(["listed", "newly-unlisted", "in-grace-period", "grace-period-over", "back"]),
+        MapSet.new(["listed", "back"]),
+        7
+      )
+
+      assert %{
+               "listed" => {nil, nil},
+               "newly-unlisted" => {^today, nil},
+               "in-grace-period" => {^six_days_ago, nil},
+               "grace-period-over" => {_, %DateTime{}},
+               "back" => {nil, nil}
+             } = unlisted_tracking()
+    end
+
+    test "grace period of 0 soft-deletes on the first run" do
+      insert(:irve_valid_file, datagouv_resource_id: "unlisted")
+
+      Transport.IRVE.Consolidation.track_unlisted_files(MapSet.new(["unlisted"]), MapSet.new(), 0)
+
+      assert %{"unlisted" => {_, %DateTime{}}} = unlisted_tracking()
+    end
+  end
+
+  defp unlisted_tracking do
+    DB.IRVEValidFile
+    |> DB.Repo.all()
+    |> Map.new(&{&1.datagouv_resource_id, {&1.unlisted_since, &1.soft_deleted_at}})
   end
 
   defp mock_datagouv_resources do
