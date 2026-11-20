@@ -17,6 +17,12 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Restore a production database - see readme
 * Do not attempt to install the "validator" yet, nor to access the admin backoffice
 
+### Fix a PostgreSQL collation version mismatch
+
+* After an OS upgrade (a new glibc), PostgreSQL may warn that a database's collation version doesn't match
+* For each database listed: `REINDEX DATABASE <name>;` then `ALTER DATABASE <name> REFRESH COLLATION VERSION;`
+* `template1` has no data and only needs the second command
+
 ### Run the test suite locally
 
 * Make sure to run ChromeDriver in a way or another
@@ -107,6 +113,11 @@ This guide tracks useful steps to learn how to maintain and modify this system.
 * Check out this [diagram](https://www.researchgate.net/figure/Modele-de-donnees-GTFS_fig7_268333353)
 * Read the GTFS guide
 * Read the GTFS-realtime guide
+
+### Update the GTFS-RT protobuf files (the Monday test failure)
+
+* A test compares our `gtfs-realtime.proto` with Google's, and only runs in CI on Mondays: after any upstream change, it fails on Monday PRs whatever they change
+* Follow [the protobuf readme](../apps/transport/lib/transport/protobuf/readme.md) to regenerate the files, in a PR of its own
 
 ### Explore the GTFS validator locally
 
