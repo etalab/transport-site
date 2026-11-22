@@ -29,6 +29,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
                "code" => "xsd-123",
                "message" => "Resource 23504000009 hasn't expected class but Netex::OperatingPeriod",
                "criticity" => "error",
+               "category" => nil,
                "resource.class" => nil,
                "resource.column" => nil,
                "resource.filename" => "stops.xml",
@@ -39,6 +40,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
                "code" => "valid-day-bits",
                "message" => "Mandatory attribute valid_day_bits not found",
                "criticity" => "error",
+               "category" => nil,
                "resource.class" => nil,
                "resource.column" => nil,
                "resource.filename" => nil,
@@ -315,6 +317,76 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.CommonsTest do
       errors
       |> Enum.sort_by(&Commons.severity_level(&1["criticity"]))
       |> Enum.map(& &1["code"])
+    end
+  end
+
+  describe "summary_by_category/2" do
+    test "computes worst severity per category from a DataFrame" do
+      errors = [
+        %{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"},
+        %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}
+      ]
+
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+      categories = ["xsd-schema", "base-rules"]
+
+      summary = Commons.summary_by_category(df, categories)
+
+      assert [%{"category" => "xsd-schema", "stats" => stats_xsd}, %{"category" => "base-rules", "stats" => stats_base}] =
+               summary
+
+      assert stats_xsd == %{"count" => 1, "criticity" => "error"}
+      assert stats_base == %{"count" => 1, "criticity" => "warning"}
+    end
+
+    test "returns empty categories with NoError when no data" do
+      df = Commons.to_dataframe([], fn _ -> %{} end)
+      categories = ["xsd-schema", "base-rules"]
+
+      summary = Commons.summary_by_category(df, categories)
+
+      assert [
+               %{"category" => "xsd-schema", "stats" => %{"count" => 0, "criticity" => "NoError"}},
+               %{"category" => "base-rules", "stats" => %{"count" => 0, "criticity" => "NoError"}}
+             ] = summary
+    end
+
+    test "counts only the worst severity per category" do
+      errors = [
+        %{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"},
+        %{"code" => "xsd-2", "criticity" => "warning", "category" => "xsd-schema"},
+        %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}
+      ]
+
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+      categories = ["xsd-schema", "base-rules"]
+
+      summary = Commons.summary_by_category(df, categories)
+
+      assert [
+               %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
+               %{"category" => "base-rules", "stats" => %{"count" => 1, "criticity" => "warning"}}
+             ] = summary
+    end
+  end
+
+  describe "count_by_category_and_severity/1" do
+    test "computes per-category, per-severity counts from a DataFrame" do
+      errors = [
+        %{"code" => "xsd-1", "criticity" => "error", "category" => "xsd-schema"},
+        %{"code" => "rule-1", "criticity" => "warning", "category" => "base-rules"}
+      ]
+
+      df = Commons.to_dataframe(errors, fn _ -> %{} end)
+
+      result = Commons.count_by_category_and_severity(df)
+
+      assert result == %{"xsd-schema" => %{"error" => 1}, "base-rules" => %{"warning" => 1}}
+    end
+
+    test "returns empty map when no category column" do
+      df = Commons.to_dataframe([], fn _ -> %{} end)
+      assert Commons.count_by_category_and_severity(df) == %{}
     end
   end
 end

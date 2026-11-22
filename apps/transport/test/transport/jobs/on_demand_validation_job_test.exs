@@ -544,12 +544,7 @@ defmodule Transport.Test.Transport.Jobs.OnDemandValidationJobTest do
                binary_result: binary_result,
                digest: %{
                  "max_severity" => %{"max_level" => "error", "worst_occurrences" => 3},
-                 "stats" => %{"error" => 3, "warning" => 1},
-                 "summary" => [
-                   %{"category" => "xsd-schema", "stats" => %{"count" => 1, "criticity" => "error"}},
-                   %{"category" => "base-rules", "stats" => %{"count" => 3, "criticity" => "error"}},
-                   %{"category" => "french-profile", "stats" => %{"count" => 0, "criticity" => "NoError"}}
-                 ]
+                 "stats" => %{"error" => 3, "warning" => 1}
                },
                max_error: "error",
                oban_args: %{"state" => "completed", "type" => "netex"},
