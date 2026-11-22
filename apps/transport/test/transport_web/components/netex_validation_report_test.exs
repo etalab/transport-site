@@ -359,8 +359,9 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
       }
 
       report =
-        netex_validation_details_with_errors(%{"issues_category" => "base-rules", "page" => 2})
-        |> Map.put(:issues_page, multi_page)
+        netex_validation_details_with_errors(%{"issues_category" => "base-rules", "page" => 2},
+          issues_page: multi_page
+        )
 
       html = render_report(report, %{"issues_category" => "base-rules", "page" => 2})
 
@@ -399,13 +400,14 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
 
     test "french-profile renders last when using v0.2.1 adapter" do
       report =
-        netex_validation_details_with_errors(%{})
-        |> Map.put(:adapter, Transport.Validators.NeTEx.ResultsAdapters.V0_2_1)
-        |> Map.put(:summary, [
-          %{"category" => "xsd-schema", "stats" => %{"criticity" => "error", "count" => 1}},
-          %{"category" => "base-rules", "stats" => %{"criticity" => "warning", "count" => 1}},
-          %{"category" => "french-profile", "stats" => %{"criticity" => "information", "count" => 0}}
-        ])
+        netex_validation_details_with_errors(%{},
+          adapter: Transport.Validators.NeTEx.ResultsAdapters.V0_2_1,
+          summary: [
+            %{"category" => "xsd-schema", "stats" => %{"criticity" => "error", "count" => 1}},
+            %{"category" => "base-rules", "stats" => %{"criticity" => "warning", "count" => 1}},
+            %{"category" => "french-profile", "stats" => %{"criticity" => "information", "count" => 0}}
+          ]
+        )
 
       html = render_report(report, %{})
 
@@ -422,16 +424,13 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
   describe "XSD distinct rows" do
     test "each unique XSD message renders as a separate row" do
       report =
-        netex_validation_details(
-          has_errors?: true,
-          max_severity: %{"max_level" => "error", "worst_occurrences" => 3},
+        netex_validation_details_for_xsd(
           summary: [%{"category" => "xsd-schema", "stats" => %{"criticity" => "error", "count" => 4}}],
           xsd_errors: [
             %{"counts" => 2, "message" => "Duplicate message A"},
             %{"counts" => 1, "message" => "Unique message B"},
             %{"counts" => 1, "message" => "Another unique C"}
-          ],
-          issues_page: %Scrivener.Page{entries: []}
+          ]
         )
 
       html = render_report(report, %{"issues_category" => "xsd-schema"})
@@ -445,15 +444,12 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
 
     test "duplicate XSD messages produce distinct rows (one per summary entry)" do
       report =
-        netex_validation_details(
-          has_errors?: true,
-          max_severity: %{"max_level" => "error", "worst_occurrences" => 3},
+        netex_validation_details_for_xsd(
           summary: [%{"category" => "xsd-schema", "stats" => %{"criticity" => "error", "count" => 5}}],
           xsd_errors: [
             %{"counts" => 2, "message" => "Same error message"},
             %{"counts" => 3, "message" => "Same error message"}
-          ],
-          issues_page: %Scrivener.Page{entries: []}
+          ]
         )
 
       html = render_report(report, %{"issues_category" => "xsd-schema"})
@@ -514,8 +510,9 @@ defmodule TransportWeb.NeTExValidationReportComponentTest do
 
   # Render report with default heading_level: 4, returns {html, conn, report}
   defp render_report(report, params \\ %{}, opts \\ []) do
-    conn = netex_conn(params)
-    render_netex_validation_report(conn, report, [heading_level: 4] ++ opts)
+    params
+    |> netex_conn()
+    |> render_netex_validation_report(report, [heading_level: 4] ++ opts)
   end
 
   # --- DOM finders ---
