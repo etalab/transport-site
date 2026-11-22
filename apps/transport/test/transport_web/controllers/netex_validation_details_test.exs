@@ -1,15 +1,13 @@
 defmodule TransportWeb.NeTExValidationDetailsTest do
   use ExUnit.Case, async: true
 
-  import NeTExTestData
   alias Transport.Validators.NeTEx.ResultsAdapter
   alias TransportWeb.NeTExValidationDetails
 
   describe "build/3" do
     test "populates has_errors? as true when summary has entries" do
       version = "0.2.0"
-      result = category_stats_result(version)
-      errors = result |> Map.values() |> List.flatten()
+      errors = NeTExTestData.errors()
       adapter = ResultsAdapter.resolve(version)
       df = adapter.to_dataframe(errors)
 
@@ -51,8 +49,7 @@ defmodule TransportWeb.NeTExValidationDetailsTest do
 
     test "populates retention_days from CleanOnDemandValidationJob" do
       version = "0.2.0"
-      result = category_stats_result(version)
-      errors = result |> Map.values() |> List.flatten()
+      errors = NeTExTestData.errors()
       adapter = ResultsAdapter.resolve(version)
       df = adapter.to_dataframe(errors)
 
@@ -73,8 +70,7 @@ defmodule TransportWeb.NeTExValidationDetailsTest do
 
     test "download_url defaults to nil" do
       version = "0.2.0"
-      result = category_stats_result(version)
-      errors = result |> Map.values() |> List.flatten()
+      errors = NeTExTestData.errors()
       adapter = ResultsAdapter.resolve(version)
       df = adapter.to_dataframe(errors)
 

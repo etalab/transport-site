@@ -528,7 +528,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "show NeTEx number of errors", %{conn: conn} do
     for version <- NeTExTestData.all_versions() do
-      dataset = setup_netex_with_validation_result(NeTExTestData.category_stats_result(version), version)
+      dataset = setup_netex_with_validation_result(NeTExTestData.errors(), version)
 
       content = get_resource_details(conn, dataset.slug)
 
@@ -542,7 +542,7 @@ defmodule TransportWeb.DatasetControllerTest do
 
   test "show NeTEx number of warnings if no error", %{conn: conn} do
     for version <- NeTExTestData.all_versions() do
-      dataset = setup_netex_with_validation_result(NeTExTestData.warnings_only(version), version)
+      dataset = setup_netex_with_validation_result(NeTExTestData.warnings(), version)
 
       content = get_resource_details(conn, dataset.slug)
 
@@ -1493,7 +1493,7 @@ defmodule TransportWeb.DatasetControllerTest do
     |> Floki.text()
   end
 
-  defp setup_netex_with_validation_result(validator_result, version) do
+  defp setup_netex_with_validation_result(errors, version) do
     dataset = insert(:dataset)
 
     resource = insert(:resource, title: "NeTEx.zip", dataset: dataset, format: "NeTEx", url: "url")
@@ -1503,9 +1503,7 @@ defmodule TransportWeb.DatasetControllerTest do
     results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
 
     digest =
-      validator_result
-      |> Map.values()
-      |> List.flatten()
+      errors
       |> results_adapter.to_dataframe()
       |> results_adapter.digest()
 
@@ -1513,7 +1511,6 @@ defmodule TransportWeb.DatasetControllerTest do
       resource_history: resource_history,
       validator: Transport.Validators.NeTEx.Validator.validator_name(),
       validator_version: version,
-      result: validator_result,
       digest: digest,
       metadata: %DB.ResourceMetadata{
         metadata: %{"elapsed_seconds" => 42, "start_date" => "2025-12-01", "end_date" => "2025-12-31"},
