@@ -188,6 +188,75 @@ defmodule Transport.Test.Transport.Jobs.DatasetQualityScoreTest do
                raw_measure: ^metadata
              } = resource_freshness(resource)
     end
+
+    test "up to date NeTEx resource" do
+      %{resource: resource = %{id: resource_id}, resource_metadata: %{id: metadata_id, inserted_at: inserted_at}} =
+        insert_up_to_date_netex_resource_and_friends()
+
+      assert %{
+               format: "NeTEx",
+               freshness: 1.0,
+               raw_measure: %{end_date: _, start_date: _},
+               resource_id: ^resource_id,
+               metadata_id: ^metadata_id,
+               metadata_inserted_at: ^inserted_at
+             } = resource_freshness(resource)
+    end
+
+    test "outdated NeTEx resource" do
+      %{resource: resource} = insert_outdated_netex_resource_and_friends()
+
+      assert %{
+               format: "NeTEx",
+               freshness: +0.0,
+               raw_measure: %{end_date: _, start_date: _},
+               resource_id: _
+             } = resource_freshness(resource)
+    end
+
+    test "future NeTEx resource" do
+      %{resource: resource} =
+        insert_resource_and_friends_with_dates(
+          Date.utc_today() |> Date.add(365),
+          Date.utc_today() |> Date.add(730),
+          format: "NeTEx",
+          validator: Transport.Validators.NeTEx.Validator
+        )
+
+      assert %{
+               format: "NeTEx",
+               freshness: nil,
+               raw_measure: %{end_date: _, start_date: _},
+               resource_id: _
+             } = resource_freshness(resource)
+    end
+
+    test "NeTEx resource without metadata" do
+      resource = insert(:resource, format: "NeTEx")
+
+      assert %{format: "NeTEx", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
+    end
+
+    test "NeTEx with empty metadata" do
+      resource = insert(:resource, format: "NeTEx")
+      resource_history = insert(:resource_history, resource_id: resource.id)
+
+      validation =
+        insert(:multi_validation,
+          validator: Transport.Validators.NeTEx.Validator.validator_name(),
+          resource_history_id: resource_history.id,
+          max_error: "NoError"
+        )
+
+      insert(:resource_metadata,
+        multi_validation_id: validation.id,
+        metadata: %{"start_date" => nil, "end_date" => nil},
+        modes: [],
+        features: []
+      )
+
+      assert %{format: "NeTEx", freshness: nil, raw_measure: nil, resource_id: _} = resource_freshness(resource)
+    end
   end
 
   describe "resource_availability" do

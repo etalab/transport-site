@@ -423,35 +423,13 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
   def resource_freshness(%DB.Resource{format: "GTFS" = format, id: resource_id}) do
     (DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.GTFSTransport) ||
        DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.MobilityDataGTFSValidator))
-    |> case do
-      %DB.MultiValidation{
-        metadata: %{
-          metadata: %{"start_date" => start_date, "end_date" => end_date},
-          id: metadata_id,
-          inserted_at: inserted_at
-        }
-      }
-      when not is_nil(start_date) and not is_nil(end_date) ->
-        start_date = Date.from_iso8601!(start_date)
-        end_date = Date.from_iso8601!(end_date)
+    |> gtfs_like_resource_freshness()
+    |> Map.merge(%{resource_id: resource_id, format: format})
+  end
 
-        freshness = gtfs_freshness(start_date, end_date)
-
-        %{
-          freshness: freshness,
-          raw_measure: %{start_date: start_date, end_date: end_date},
-          metadata_id: metadata_id,
-          metadata_inserted_at: inserted_at
-        }
-
-      _ ->
-        %{
-          freshness: nil,
-          raw_measure: nil,
-          metadata_id: nil,
-          metadata_inserted_at: nil
-        }
-    end
+  def resource_freshness(%DB.Resource{format: "NeTEx" = format, id: resource_id}) do
+    DB.MultiValidation.resource_latest_validation(resource_id, Transport.Validators.NeTEx.Validator)
+    |> gtfs_like_resource_freshness()
     |> Map.merge(%{resource_id: resource_id, format: format})
   end
 
@@ -510,6 +488,38 @@ defmodule Transport.Jobs.DatasetFreshnessScore do
       metadata_id: nil,
       metadata_inserted_at: nil
     }
+
+  defp gtfs_like_resource_freshness(validation) do
+    case validation do
+      %DB.MultiValidation{
+        metadata: %{
+          metadata: %{"start_date" => start_date, "end_date" => end_date},
+          id: metadata_id,
+          inserted_at: inserted_at
+        }
+      }
+      when not is_nil(start_date) and not is_nil(end_date) ->
+        start_date = Date.from_iso8601!(start_date)
+        end_date = Date.from_iso8601!(end_date)
+
+        freshness = gtfs_freshness(start_date, end_date)
+
+        %{
+          freshness: freshness,
+          raw_measure: %{start_date: start_date, end_date: end_date},
+          metadata_id: metadata_id,
+          metadata_inserted_at: inserted_at
+        }
+
+      _ ->
+        %{
+          freshness: nil,
+          raw_measure: nil,
+          metadata_id: nil,
+          metadata_inserted_at: nil
+        }
+    end
+  end
 
   @doc """
   The freshness of a GTFS resource, base on its validity dates
