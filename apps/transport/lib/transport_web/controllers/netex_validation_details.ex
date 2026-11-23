@@ -22,7 +22,8 @@ defmodule TransportWeb.NeTExValidationDetails do
           validator_version: String.t() | nil,
           download_url: String.t() | nil,
           has_errors?: boolean(),
-          retention_days: non_neg_integer() | nil
+          retention_days: non_neg_integer() | nil,
+          category_severity_counts: map()
         }
 
   defstruct adapter: nil,
@@ -43,7 +44,8 @@ defmodule TransportWeb.NeTExValidationDetails do
             validator_version: nil,
             download_url: nil,
             has_errors?: false,
-            retention_days: nil
+            retention_days: nil,
+            category_severity_counts: %{}
 
   @doc """
   Builds a complete NeTExValidationDetails from a validation record.
@@ -73,7 +75,7 @@ defmodule TransportWeb.NeTExValidationDetails do
 
     %__MODULE__{
       adapter: adapter,
-      summary: digest["summary"],
+      summary: adapter.summary_by_category(df),
       stats: digest["stats"],
       metadata: metadata.metadata,
       modes: metadata.modes,
@@ -84,7 +86,8 @@ defmodule TransportWeb.NeTExValidationDetails do
       validator_version: version,
       download_url: nil,
       has_errors?: digest["max_severity"] && digest["max_severity"]["max_level"] != "NoError",
-      retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days()
+      retention_days: Transport.Jobs.CleanOnDemandValidationJob.retention_days(),
+      category_severity_counts: adapter.count_by_category_and_severity(df)
     }
   end
 

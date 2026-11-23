@@ -16,7 +16,7 @@ defmodule NeTExTestData do
   end
 
   # Errors in both XSD and base-rules categories with mixed severities.
-  # Used by category stats tests — summary_from_binary should report the worst
+  # Used by category stats tests — summary_by_category should report the worst
   # severity per category.
   def errors do
     [
@@ -56,6 +56,30 @@ defmodule NeTExTestData do
   end
 
   # --- Variant builders (each delegates to netex_validation_details/1) ---
+
+  @doc "Report tailored for severity-pills testing"
+  def netex_validation_details_for_pills(errors, selected_category \\ "base-rules") do
+    adapter = Transport.Validators.NeTEx.ResultsAdapters.V0_2_0
+
+    df = adapter.to_dataframe(errors)
+    category_severity_counts = adapter.count_by_category_and_severity(df)
+    summary = adapter.summary_by_category(df)
+
+    netex_validation_details(
+      adapter: adapter,
+      filter: %{"issues_category" => selected_category},
+      category_severity_counts: category_severity_counts,
+      summary: summary,
+      has_errors?: true,
+      issues_page: %Scrivener.Page{
+        entries: [
+          %{"criticity" => "warning", "message" => "Test issue", "resource" => %{"filename" => "x.xml", "line" => 1}}
+        ],
+        page_number: 1,
+        total_pages: 1
+      }
+    )
+  end
 
   @doc "Report for XSD-specific rendering tests — xsd-schema category, empty issue page"
   def netex_validation_details_for_xsd(opts \\ []) do

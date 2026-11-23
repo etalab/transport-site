@@ -50,6 +50,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       validation_summary={@report.summary}
       pagination={netex_pagination_links(@conn, @report.issues_page, @report.filter["issues_category"] || "xsd-schema")}
       xsd_version={@report.metadata["xsd_version"]}
+      category_severity_counts={@report.category_severity_counts}
     />
 
     <.netex_validation_report_content_flat
@@ -192,6 +193,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   attr(:xsd_errors, :list, required: true)
   attr(:pagination, :any, required: true)
   attr(:xsd_version, :string, default: nil)
+  attr(:category_severity_counts, :map, default: %{})
 
   defp netex_validation_report_content_categorized(assigns) do
     ~H"""
@@ -219,6 +221,7 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       pagination={@pagination}
       results_adapter={@results_adapter}
       xsd_version={@xsd_version}
+      severity_counts={Map.get(@category_severity_counts, @current_category, %{})}
     />
     """
   end
@@ -265,7 +268,11 @@ defmodule TransportWeb.NeTExValidationReportComponent do
           <.netex_xsd_issues issues={@errors} />
         <% else %>
           <.non_translated_messages />
-          <.netex_generic_issues issues={@errors} />
+          <.netex_generic_issues
+            issues={@errors}
+            severity_counts={@severity_counts}
+            results_adapter={@results_adapter}
+          />
           {@pagination}
         <% end %>
       </div>
@@ -474,8 +481,24 @@ defmodule TransportWeb.NeTExValidationReportComponent do
   # Issues table
   attr(:issues, :list, required: true)
 
+  attr(:severity_counts, :map,
+    default: %{},
+    doc: "Map of severity counts for the current category (e.g. %{\"error\" => 3})"
+  )
+
+  attr(:results_adapter, :any, default: nil, doc: "Results adapter module for formatting severities")
+
   defp netex_generic_issues(assigns) do
     ~H"""
+    <% filtered_severities =
+      assigns[:severity_counts]
+      |> Enum.filter(fn {_k, v} -> is_integer(v) and v > 0 end)
+      |> Enum.sort_by(fn {k, _v} -> assigns[:results_adapter].severity_level(k) end) %>
+    <.severity_pills
+      :if={Enum.any?(filtered_severities)}
+      results_adapter={@results_adapter}
+      severities={filtered_severities}
+    />
     <table class="table netex_generic_issue">
       <colgroup>
         <col class="message" />
@@ -502,6 +525,50 @@ defmodule TransportWeb.NeTExValidationReportComponent do
       </tr>
     </table>
     """
+  end
+
+  attr(:severities, :list, required: true)
+
+  attr(:results_adapter, :any, default: nil, doc: "Results adapter module for formatting severities")
+
+  defp severity_pills(assigns) do
+    ~H"""
+    <div class="severity-pills">
+      <%= for {severity, count} <- @severities do %>
+        <% variant = severity_variant(severity) %>
+        <.severity_pill variant={variant}>
+          <:icon>
+            <.validity_icon variant={variant} />
+          </:icon>
+          <:label>
+            {@results_adapter.format_severity(severity, count)}
+          </:label>
+        </.severity_pill>
+      <% end %>
+    </div>
+    """
+  end
+
+  attr(:variant, :atom, default: :valid)
+  slot(:icon)
+  slot(:label, required: true)
+
+  defp severity_pill(assigns) do
+    ~H"""
+    <div class={severity_pill_classnames(@variant)}>
+      <span>{render_slot(@icon)}</span>
+      <span>{render_slot(@label)}</span>
+    </div>
+    """
+  end
+
+  defp severity_pill_classnames(variant) do
+    case variant do
+      :error -> ["severity-pill severity-pill__error"]
+      :warning -> ["severity-pill severity-pill__warning"]
+      :information -> ["severity-pill severity-pill__information"]
+      _ -> ["severity-pill severity-pill__valid"]
+    end
   end
 
   defp unknown_location?(issue) do

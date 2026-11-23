@@ -4,6 +4,7 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_1
   alias Transport.Validators.NeTEx.ResultsAdapters.V0_2_2
   import TransportWeb.PaginationHelpers, only: [make_pagination_config: 1]
+  import Transport.Test.Validators.NeTEx.SummaryByCategoryHelpers
 
   @xsd %{
     "code" => "xsd-123",
@@ -73,6 +74,18 @@ defmodule Transport.Validators.NeTEx.ResultsAdapters.V0_2_1Test do
 
       assert {%{"issues_category" => "base-rules"}, {0, repeated(@rule, 0)}} ==
                module.get_issues(binary_result, %{"issues_category" => "base-rules"}, pagination_config)
+    end
+  end
+
+  describe "summary_by_category/1" do
+    test "returns category-based summary with correct counts for V0_2_1 and V0_2_2" do
+      for module <- [V0_2_1, V0_2_2] do
+        assert_summary_by_category(module, [
+          {"xsd-schema", %{"count" => 1, "criticity" => "error"}},
+          {"base-rules", %{"count" => 1, "criticity" => "warning"}},
+          {"french-profile", %{"count" => 0, "criticity" => "NoError"}}
+        ])
+      end
     end
   end
 
