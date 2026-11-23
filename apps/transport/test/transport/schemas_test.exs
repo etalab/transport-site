@@ -72,4 +72,37 @@ defmodule Transport.SchemasTest do
       end
     end
   end
+
+  @tag :ci_only_on_mondays
+  test "the catalog is up to date with schema.data.gouv.fr" do
+    upstream =
+      "#{@base_url}/schemas.json"
+      |> get_json!()
+      |> Map.fetch!("schemas")
+      |> Enum.filter(&("transport.data.gouv.fr" in &1["labels"] and &1["schema_type"] != "datapackage"))
+      |> Map.new(fn schema ->
+        versions = Enum.map(schema["versions"], &Map.take(&1, ["version_name", "schema_url"]))
+        {schema["name"], schema |> Map.take(["title", "schema_type"]) |> Map.put("versions", versions)}
+      end)
+
+    for name <- Enum.uniq(Map.keys(upstream) ++ Map.keys(transport_schemas())) do
+      assert upstream[name] == transport_schemas()[name], """
+      #{name} changed on schema.data.gouv.fr, update priv/transport_schemas.yml.
+      For a new JSON Schema version, also vendor its file in priv/vendored_schemas.
+      Upstream: #{inspect(upstream[name], pretty: true)}
+      """
+    end
+  end
+
+  @tag :ci_only_on_mondays
+  test "vendored schemas are up to date" do
+    dir = Application.app_dir(:transport, "priv/vendored_schemas")
+
+    for path <- Path.wildcard("#{dir}/**/*.json") do
+      url = "https://" <> Path.relative_to(path, dir)
+      assert get_json!(url) == Transport.Validators.JSONSchema.read_vendored_schema!(url), "#{url} changed upstream"
+    end
+  end
+
+  defp get_json!(url), do: url |> Req.get!(decode_body: false) |> Map.fetch!(:body) |> Jason.decode!()
 end
