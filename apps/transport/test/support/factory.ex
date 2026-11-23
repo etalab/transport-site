@@ -217,11 +217,14 @@ defmodule DB.Factory do
   @doc """
   Useful function to insert in one call everything needed for resource related tests.
   A dataset, a resource, a resource history, a multi_validation, some metadata
-  For the moment, it inserts GTFS resources, but could be extended to insert any resource type and validation.
+  with validity dates (start_date / end_date).
+
+  Supports GTFS and NeTEx out of the box. Use `:format` and `:validator` options
+  to customize.
 
   Usage:
   insert_resource_and_friends(~D[2022-07-12], [])
-  => insert an active dataset, a resource, a resource history, a validation, a metadata.
+  => insert an active dataset, a resource (GTFS), a resource history, a validation, a metadata.
   Metadata contains the end date provided.
 
   insert_resource_and_friends(~D[2022-07-12], [is_active: false])
@@ -230,8 +233,8 @@ defmodule DB.Factory do
   insert_resource_and_friends(~D[2022-07-12], [resource_available: false])
   => resource is inserted with is_available = false
 
-  insert_resource_and_friends(~D[2022-07-12], [resource_history_payload: %{"url" => "xxx"}])
-  => specify resource_history payload
+  insert_resource_and_friends(~D[2022-07-12], [format: "NeTEx", validator: Transport.Validators.NeTEx.Validator])
+  => same as above, but for NeTEx format
 
   insert_resource_and_friends(~D[2022-07-12], [dataset: dataset_1])
   => provide an already existing dataset. Useful when inserting a second resource linked to a dataset.
@@ -241,6 +244,10 @@ defmodule DB.Factory do
   def insert_resource_and_friends(end_date, opts \\ []) do
     def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
     opts = Keyword.merge(def_opts, opts)
+
+    format = Keyword.get(opts, :format, "GTFS")
+    validator = Keyword.get(opts, :validator, Transport.Validators.GTFSTransport)
+    max_error = Keyword.get(opts, :max_error, "NoError")
 
     dataset_opts =
       [
@@ -262,7 +269,7 @@ defmodule DB.Factory do
           dataset_id: dataset.id,
           is_available: Keyword.get(opts, :resource_available),
           is_community_resource: Keyword.get(opts, :is_community_resource, false),
-          format: "GTFS",
+          format: format,
           datagouv_id: Ecto.UUID.generate()
         )
       )
@@ -272,11 +279,11 @@ defmodule DB.Factory do
 
     multi_validation =
       insert(:multi_validation,
-        validator: Transport.Validators.GTFSTransport.validator_name(),
+        validator: validator.validator_name(),
         resource_history_id: resource_history.id,
-        max_error: Keyword.get(opts, :max_error, "NoError"),
+        max_error: max_error,
         digest: %{
-          "max_severity" => %{"max_level" => Keyword.get(opts, :max_error, "NoError"), "worst_occurrences" => 0}
+          "max_severity" => %{"max_level" => max_error, "worst_occurrences" => 0}
         }
       )
 
@@ -303,6 +310,86 @@ defmodule DB.Factory do
 
   def insert_outdated_resource_and_friends(opts \\ []) do
     insert_resource_and_friends(Date.utc_today() |> Date.add(-5), opts)
+  end
+
+  # NeTEx-specific helpers — mirrors GTFS helpers but uses NeTEx validator and format
+  def insert_up_to_date_netex_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(
+      Date.utc_today() |> Date.add(30),
+      [format: "NeTEx", validator: Transport.Validators.NeTEx.Validator] ++ opts
+    )
+  end
+
+  def insert_outdated_netex_resource_and_friends(opts \\ []) do
+    insert_resource_and_friends(
+      Date.utc_today() |> Date.add(-5),
+      [format: "NeTEx", validator: Transport.Validators.NeTEx.Validator] ++ opts
+    )
+  end
+
+  # Generic helper for any format/validator with a custom validity date range.
+  # Useful when you need specific dates (e.g., future GTFS, edge cases).
+  def insert_resource_and_friends_with_dates(start_date, end_date, opts \\ []) do
+    def_opts = [resource_available: true, is_active: true, resource_history_payload: %{}]
+    opts = Keyword.merge(def_opts, opts)
+
+    format = Keyword.get(opts, :format, "GTFS")
+    validator = Keyword.get(opts, :validator, Transport.Validators.GTFSTransport)
+    max_error = Keyword.get(opts, :max_error, "NoError")
+
+    dataset_opts =
+      [
+        is_active: Keyword.get(opts, :is_active),
+        has_realtime: Keyword.get(opts, :has_realtime),
+        type: Keyword.get(opts, :type),
+        custom_title: Keyword.get(opts, :custom_title)
+      ]
+      |> Enum.reject(fn {_, v} -> is_nil(v) end)
+
+    dataset = Keyword.get(opts, :dataset, insert(:dataset, dataset_opts))
+
+    %{id: resource_id} =
+      resource =
+      Keyword.get(
+        opts,
+        :resource,
+        insert(:resource,
+          dataset_id: dataset.id,
+          is_available: Keyword.get(opts, :resource_available),
+          is_community_resource: Keyword.get(opts, :is_community_resource, false),
+          format: format,
+          datagouv_id: Ecto.UUID.generate()
+        )
+      )
+
+    resource_history =
+      insert(:resource_history, resource_id: resource_id, payload: Keyword.get(opts, :resource_history_payload))
+
+    multi_validation =
+      insert(:multi_validation,
+        validator: validator.validator_name(),
+        resource_history_id: resource_history.id,
+        max_error: max_error,
+        digest: %{
+          "max_severity" => %{"max_level" => max_error, "worst_occurrences" => 0}
+        }
+      )
+
+    resource_metadata =
+      insert(:resource_metadata,
+        multi_validation_id: multi_validation.id,
+        metadata: %{"start_date" => Date.to_iso8601(start_date), "end_date" => Date.to_iso8601(end_date)},
+        modes: Keyword.get(opts, :modes),
+        features: Keyword.get(opts, :features)
+      )
+
+    %{
+      dataset: dataset,
+      resource: resource,
+      resource_history: resource_history,
+      multi_validation: multi_validation,
+      resource_metadata: resource_metadata
+    }
   end
 
   def insert_notification(%{dataset: %DB.Dataset{id: dataset_id, datagouv_id: datagouv_id}} = args) do
