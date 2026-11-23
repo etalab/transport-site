@@ -25,7 +25,6 @@ defmodule Transport.Validators.JSONSchemaTest do
 
   describe "load_jsonschema_for_schema" do
     test "schema-zfe" do
-      setup_schemas_response()
       setup_zfe_schema()
       schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe")
 
@@ -40,8 +39,6 @@ defmodule Transport.Validators.JSONSchemaTest do
     end
 
     test "non existing schema" do
-      setup_schemas_response()
-
       assert_raise RuntimeError, fn ->
         load_jsonschema_for_schema("etalab/foo")
       end
@@ -49,7 +46,6 @@ defmodule Transport.Validators.JSONSchemaTest do
 
     test "with a specific version" do
       schema_version = "0.7.1"
-      setup_schemas_response()
       setup_zfe_schema(schema_version)
       schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe", schema_version)
 
@@ -193,7 +189,7 @@ defmodule Transport.Validators.JSONSchemaTest do
     }
   end
 
-  defp setup_zfe_schema(version \\ "0.7.2") do
+  defp setup_zfe_schema(version \\ "0.8.2") do
     url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/#{version}/schema.json"
 
     Transport.Req.Mock
@@ -209,15 +205,6 @@ defmodule Transport.Validators.JSONSchemaTest do
       """
 
       %Req.Response{body: body, status: 200}
-    end)
-  end
-
-  defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.json"
-
-    Transport.Req.Mock
-    |> expect(:get!, fn ^url, _options ->
-      %Req.Response{body: File.read!("#{__DIR__}/../../fixture/schemas/schemas.json"), status: 200}
     end)
   end
 

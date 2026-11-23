@@ -51,7 +51,8 @@ defmodule Transport.Validators.JSONSchema do
     ensure_schema_is_jsonschema!(schema_name)
 
     comp_fn = fn ->
-      %Req.Response{status: 200, body: body} = http_get!(schema_url(schema_name, schema_version))
+      %Req.Response{status: 200, body: body} =
+        Transport.Req.impl().get!(schema_url(schema_name, schema_version), decode_body: false)
 
       body |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
     end

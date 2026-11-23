@@ -7,31 +7,30 @@ defmodule Transport.SchemasTest do
 
   @base_url "https://schema.data.gouv.fr"
 
-  setup {Transport.Test.CacheHelpers, :use_real_cache}
-
   setup do
-    setup_schemas_response()
-    Cachex.clear(Transport.Application.cache_name())
-    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
     :ok
   end
 
   test "transport_schemas" do
-    assert ["etalab/schema-amenagements-cyclables", "etalab/schema-lieux-covoiturage", "etalab/schema-zfe"] ==
-             Map.keys(transport_schemas())
-
-    assert_cache_key_has_ttl("transport_schemas")
+    assert %{
+             "title" => "Zone à Faibles Emissions",
+             "schema_type" => "jsonschema",
+             "versions" => [
+               %{"version_name" => "0.6.1", "schema_url" => "#{@base_url}/schemas/etalab/schema-zfe/0.6.1/schema.json"}
+               | _
+             ]
+           } = Map.fetch!(transport_schemas(), "etalab/schema-zfe")
   end
 
   test "schemas_by_type" do
     assert ["etalab/schema-amenagements-cyclables", "etalab/schema-zfe"] == Map.keys(schemas_by_type("jsonschema"))
-    assert ["etalab/schema-lieux-covoiturage"] == Map.keys(schemas_by_type("tableschema"))
+    assert "etalab/schema-lieux-covoiturage" in Map.keys(schemas_by_type("tableschema"))
   end
 
   describe "schema_url" do
     test "simple case" do
-      assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
+      assert "#{@base_url}/schemas/etalab/schema-zfe/0.8.2/schema.json" ==
                schema_url("etalab/schema-zfe", "latest")
 
       assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
@@ -39,7 +38,7 @@ defmodule Transport.SchemasTest do
     end
 
     test "with a custom schema filename" do
-      assert "#{@base_url}/schemas/etalab/schema-amenagements-cyclables/0.3.3/schema_amenagements_cyclables.json" ==
+      assert "#{@base_url}/schemas/etalab/schema-amenagements-cyclables/0.3.5/schema_amenagements_cyclables.json" ==
                schema_url("etalab/schema-amenagements-cyclables", "latest")
     end
 
@@ -72,21 +71,5 @@ defmodule Transport.SchemasTest do
         documentation_url("etalab/schema-zfe", "foo")
       end
     end
-  end
-
-  defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.json"
-
-    Transport.Req.Mock
-    |> expect(:get!, fn ^url, options ->
-      assert [decode_body: false, retry: false, connect_options: [timeout: 5_000], receive_timeout: 10_000] == options
-      %Req.Response{body: File.read!("#{__DIR__}/../fixture/schemas/schemas.json"), status: 200}
-    end)
-  end
-
-  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
-    assert_in_delta Cachex.ttl!(Transport.Application.cache_name(), cache_key),
-                    :timer.seconds(expected_ttl),
-                    :timer.seconds(1)
   end
 end

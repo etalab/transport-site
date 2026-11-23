@@ -1,0 +1,69 @@
+# Schemas from https://schema.data.gouv.fr with the "transport.data.gouv.fr" label, datapackages excepted.
+# Versions go from oldest to latest. A version's schema file is at
+# https://schema.data.gouv.fr/schemas/<name>/<version>/<schema_file>
+
+etalab/schema-amenagements-cyclables:
+  title: Aménagements cyclables
+  schema_type: jsonschema
+  schema_file: schema_amenagements_cyclables.json
+  versions: ["0.1.0", "0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.3.0", "0.3.1", "0.3.2", "0.3.3", "0.3.4", "0.3.5"]
+
+etalab/schema-comptage-mobilites-channel:
+  title: Comptage des mobilités (Channel)
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.2.3", "0.2.4", "0.2.5"]
+
+etalab/schema-comptage-mobilites-measure:
+  title: Comptage des mobilités (Measure)
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.2.3", "0.2.4", "0.2.5"]
+
+etalab/schema-comptage-mobilites-site:
+  title: Comptage des mobilités (Site)
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.2.3", "0.2.4", "0.2.5"]
+
+etalab/schema-irve-dynamique:
+  title: IRVE dynamique
+  schema_type: tableschema
+  schema_file: schema-dynamique.json
+  versions: ["2.2.0", "2.2.1", "2.3.0", "2.3.1"]
+
+etalab/schema-irve-statique:
+  title: IRVE statique
+  schema_type: tableschema
+  schema_file: schema-statique.json
+  versions: ["2.2.0", "2.2.1", "2.3.0", "2.3.1"]
+
+etalab/schema-lieux-covoiturage:
+  title: Lieux de covoiturage
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.2.4", "0.2.5", "0.2.6", "0.2.7", "0.2.8", "0.3.0", "0.3.1"]
+
+etalab/schema-passage-a-niveau:
+  title: Schéma pour les passages à niveau
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.1.0"]
+
+etalab/schema-stationnement:
+  title: Lieux de stationnement
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.1.4", "0.1.5"]
+
+etalab/schema-stationnement-cyclable:
+  title: Stationnement cyclable
+  schema_type: tableschema
+  schema_file: schema.json
+  versions: ["0.2.0", "0.2.1", "1.0.0", "1.1.0", "1.1.1"]
+
+etalab/schema-zfe:
+  title: Zone à Faibles Emissions
+  schema_type: jsonschema
+  schema_file: schema.json
+  versions: ["0.6.1", "0.7.0", "0.7.1", "0.7.2", "0.8.1", "0.8.2"]

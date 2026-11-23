@@ -47,12 +47,26 @@ end
 
 defmodule Transport.Schemas do
   @moduledoc """
-  Load transport schemas listed on https://schema.data.gouv.fr
+  Transport schemas from https://schema.data.gouv.fr, listed in `priv/transport_schemas.yml`
   """
   alias Transport.Schemas.Wrapper
   @behaviour Transport.Schemas.Wrapper
 
-  @schemas_catalog_url "https://schema.data.gouv.fr/schemas.json"
+  @catalog_path Path.join(__DIR__, "../../priv/transport_schemas.yml")
+  @external_resource @catalog_path
+  @transport_schemas @catalog_path
+                     |> YamlElixir.read_from_file!()
+                     |> Map.new(fn {name, %{"schema_file" => schema_file, "versions" => versions} = schema} ->
+                       versions =
+                         Enum.map(versions, fn version ->
+                           %{
+                             "version_name" => version,
+                             "schema_url" => "https://schema.data.gouv.fr/schemas/#{name}/#{version}/#{schema_file}"
+                           }
+                         end)
+
+                       {name, schema |> Map.take(["title", "schema_type"]) |> Map.put("versions", versions)}
+                     end)
 
   def schema_url(schema_name, schema_version) do
     schema = Map.fetch!(Wrapper.transport_schemas(), schema_name)
@@ -92,32 +106,5 @@ defmodule Transport.Schemas do
   end
 
   @impl true
-  def transport_schemas do
-    comp_fn = fn ->
-      %Req.Response{status: 200, body: body} = http_get!(@schemas_catalog_url)
-
-      body
-      |> Jason.decode!()
-      |> Map.fetch!("schemas")
-      |> Enum.filter(
-        &(Enum.member?(&1["labels"], "transport.data.gouv.fr") and Map.fetch!(&1, "schema_type") != "datapackage")
-      )
-      |> Enum.into(%{}, fn schema -> {Map.fetch!(schema, "name"), schema} end)
-    end
-
-    Transport.Cache.fetch("transport_schemas", comp_fn, :timer.seconds(300))
-  end
-
-  @doc """
-  The catalog is fetched while rendering pages: no retries and short timeouts, so that an unresponsive
-  schema.data.gouv.fr gives an error page instead of a request killed silently by Cowboy after 60 s.
-  """
-  def http_get!(url) do
-    Transport.Req.impl().get!(url,
-      decode_body: false,
-      retry: false,
-      connect_options: [timeout: :timer.seconds(5)],
-      receive_timeout: :timer.seconds(10)
-    )
-  end
+  def transport_schemas, do: @transport_schemas
 end
