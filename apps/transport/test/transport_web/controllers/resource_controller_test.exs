@@ -731,15 +731,8 @@ defmodule TransportWeb.ResourceControllerTest do
             payload: %{"permanent_url" => permanent_url = "https://example.com/#{Ecto.UUID.generate()}"}
           })
 
-        result =
-          case version do
-            "0.1.0" -> %{"xsd-1871" => issues}
-            _ -> %{"xsd-schema" => issues}
-          end
-
         results_adapter = Transport.Validators.NeTEx.ResultsAdapter.resolve(version)
-        errors = result |> Map.values() |> List.flatten()
-        df = results_adapter.to_dataframe(errors)
+        df = results_adapter.to_dataframe(issues)
 
         networks = ["Réseau urbain", "Réseau inter-urbain"]
         modes = ["bus", "ferry"]
@@ -749,7 +742,7 @@ defmodule TransportWeb.ResourceControllerTest do
           validator: Transport.Validators.NeTEx.Validator.validator_name(),
           validator_version: version,
           digest: results_adapter.digest(df),
-          binary_result: results_adapter.to_binary_result(errors),
+          binary_result: results_adapter.to_binary_result(issues),
           max_error: "error",
           metadata: %DB.ResourceMetadata{
             metadata: %{
