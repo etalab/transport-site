@@ -14,28 +14,22 @@ defmodule Transport.Validators.JSONSchemaTest do
 
   setup :verify_on_exit!
 
-  setup {Transport.Test.CacheHelpers, :use_real_cache}
-
   setup do
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
-    Cachex.clear(Transport.Application.cache_name())
-    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     :ok
   end
 
   describe "load_jsonschema_for_schema" do
-    test "schema-zfe" do
-      setup_zfe_schema()
-      schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe")
+    test "latest versions are vendored" do
+      for schema_name <- Map.keys(Transport.Schemas.schemas_by_type("jsonschema")) do
+        assert %ExJsonSchema.Schema.Root{} = load_jsonschema_for_schema(schema_name)
+      end
+    end
 
+    test "schema-zfe, with its GeoJSON reference" do
       assert %ExJsonSchema.Schema.Root{
-               schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
-               version: 7
-             } = schema
-
-      assert_cache_key_has_ttl("jsonschema_#{schema_name}_latest")
-
-      assert ExJsonSchema.Validator.valid?(schema, %{"name" => "foo"})
+               refs: %{"https://geojson.org/schema/FeatureCollection.json" => %{"title" => "GeoJSON FeatureCollection"}}
+             } = load_jsonschema_for_schema("etalab/schema-zfe")
     end
 
     test "non existing schema" do
@@ -44,17 +38,12 @@ defmodule Transport.Validators.JSONSchemaTest do
       end
     end
 
-    test "with a specific version" do
-      schema_version = "0.7.1"
-      setup_zfe_schema(schema_version)
-      schema = load_jsonschema_for_schema(schema_name = "etalab/schema-zfe", schema_version)
-
-      assert %ExJsonSchema.Schema.Root{
-               schema: %{"properties" => %{"name" => %{"type" => "string"}}, "required" => ["name"], "type" => "object"},
-               version: 7
-             } = schema
-
-      assert_cache_key_has_ttl("jsonschema_#{schema_name}_#{schema_version}")
+    test "with a version that isn't vendored" do
+      assert_raise File.Error,
+                   ~r(priv/vendored_schemas/schema.data.gouv.fr/schemas/etalab/schema-zfe/0.7.1/schema.json),
+                   fn ->
+                     load_jsonschema_for_schema("etalab/schema-zfe", "0.7.1")
+                   end
     end
   end
 
@@ -189,25 +178,6 @@ defmodule Transport.Validators.JSONSchemaTest do
     }
   end
 
-  defp setup_zfe_schema(version \\ "0.8.2") do
-    url = "https://schema.data.gouv.fr/schemas/etalab/schema-zfe/#{version}/schema.json"
-
-    Transport.Req.Mock
-    |> expect(:get!, fn ^url, _options ->
-      body = """
-      {
-         "type": "object",
-         "properties": {
-            "name": {"type": "string"}
-         },
-         "required":["name"]
-      }
-      """
-
-      %Req.Response{body: body, status: 200}
-    end)
-  end
-
   test "test data is up to date" do
     # This piece of code or regex may need to be updated if we upgrade
     # the version of this dependency
@@ -271,10 +241,4 @@ defmodule Transport.Validators.JSONSchemaTest do
       }
     end)
   end
-
-  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
-    assert_in_delta Cachex.ttl!(cache_name(), cache_key), :timer.seconds(expected_ttl), :timer.seconds(1)
-  end
-
-  defp cache_name, do: Transport.Application.cache_name()
 end

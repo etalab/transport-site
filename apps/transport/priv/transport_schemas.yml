@@ -1,6 +1,7 @@
 # Schemas from https://schema.data.gouv.fr with the "transport.data.gouv.fr" label, datapackages excepted.
 # Versions go from oldest to latest. A version's schema file is at
 # https://schema.data.gouv.fr/schemas/<name>/<version>/<schema_file>
+# For JSON Schemas, that file is also vendored for the latest version, see `priv/vendored_schemas`.
 
 etalab/schema-amenagements-cyclables:
   title: Aménagements cyclables
