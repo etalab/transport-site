@@ -225,7 +225,8 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
     DB.MultiValidation.base_query()
     |> where(
       [multi_validation: mv],
-      mv.max_error in ["Error", "Fatal", "ERROR"] or fragment("?->>'has_errors' = 'true'", mv.result)
+      # NeTEx uses lowercase "error", GTFS uses "Error"/"Fatal", MobilityData uses "ERROR"
+      mv.max_error in ["Error", "Fatal", "ERROR", "error"] or fragment("?->>'has_errors' = 'true'", mv.result)
     )
     |> where(
       [multi_validation: mv],
@@ -288,6 +289,7 @@ defmodule Transport.Jobs.MultiValidationWithErrorNotificationJob do
       Transport.Validators.TableSchema => {7, :day},
       Transport.Validators.JSONSchema => {7, :day},
       Transport.Validators.MobilityDataGTFSValidator => {7, :day},
+      Transport.Validators.NeTEx.Validator => {7, :day},
       Transport.Validators.GBFSValidator => {30, :day},
       Transport.Validators.GTFSRT => {30, :day}
     }
