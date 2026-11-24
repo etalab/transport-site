@@ -87,8 +87,7 @@ defmodule Transport.SchemasTest do
 
     for name <- Enum.uniq(Map.keys(upstream) ++ Map.keys(transport_schemas())) do
       assert upstream[name] == transport_schemas()[name], """
-      #{name} changed on schema.data.gouv.fr, update priv/transport_schemas.yml.
-      For a new JSON Schema version, also vendor its file in priv/vendored_schemas.
+      #{name} changed on schema.data.gouv.fr, run `mix run --no-start scripts/update_transport_schemas.exs`.
       Upstream: #{inspect(upstream[name], pretty: true)}
       """
     end
@@ -100,7 +99,9 @@ defmodule Transport.SchemasTest do
 
     for path <- Path.wildcard("#{dir}/**/*.json") do
       url = "https://" <> Path.relative_to(path, dir)
-      assert get_json!(url) == Transport.Validators.JSONSchema.read_vendored_schema!(url), "#{url} changed upstream"
+
+      assert get_json!(url) == Transport.Validators.JSONSchema.read_vendored_schema!(url),
+             "#{url} changed upstream, run `mix run --no-start scripts/update_transport_schemas.exs`"
     end
   end
 
