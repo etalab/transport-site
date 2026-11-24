@@ -94,7 +94,8 @@ defmodule Transport.ValidatorsSelection.Impl do
       Transport.Validators.GTFSTransport,
       Transport.Validators.TableSchema,
       Transport.Validators.JSONSchema,
-      Transport.Validators.MobilityDataGTFSValidator
+      Transport.Validators.MobilityDataGTFSValidator,
+      Transport.Validators.NeTEx.Validator
     ]
 
   def validators_for_feature(:multi_validation_with_error_realtime_validators),

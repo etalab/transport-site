@@ -128,6 +128,39 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
       relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
       assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
     end
+
+    test "finds NeTEx validator with error" do
+      %DB.Dataset{id: dataset_id} = dataset = insert(:dataset)
+      netex = insert(:resource, format: "NeTEx", dataset: dataset)
+
+      %DB.MultiValidation{id: mv_id} =
+        insert(:multi_validation, %{
+          resource_history: insert(:resource_history, resource: netex),
+          validator: Transport.Validators.NeTEx.Validator.validator_name(),
+          max_error: "error",
+          inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+        })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [{%DB.Dataset{id: ^dataset_id}, [%DB.MultiValidation{id: ^mv_id}]}] = relevant_validations
+    end
+
+    test "ignores NeTEx validator with warning only" do
+      dataset = insert(:dataset)
+      netex = insert(:resource, format: "NeTEx", dataset: dataset)
+
+      insert(:multi_validation, %{
+        resource_history: insert(:resource_history, resource: netex),
+        validator: Transport.Validators.NeTEx.Validator.validator_name(),
+        max_error: "warning",
+        inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+      })
+
+      dt_limit = DateTime.utc_now() |> DateTime.add(-30, :minute)
+      relevant_validations = MultiValidationWithErrorNotificationJob.relevant_validations(dt_limit)
+      assert [] == relevant_validations
+    end
   end
 
   test "perform for multiple static data cases" do
@@ -352,6 +385,93 @@ defmodule Transport.Test.Transport.Jobs.MultiValidationWithErrorNotificationJobT
            ] = all_enqueued()
 
     assert_in_delta scheduled_at |> DateTime.to_unix(),
+                    DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.to_unix(),
+                    50
+  end
+
+  test "perform for NeTEx error dataset" do
+    %{id: dataset_id} =
+      dataset = insert(:dataset, slug: Ecto.UUID.generate(), is_active: true, custom_title: "Mon JDD NeTEx")
+
+    netex_resource = insert(:resource, dataset: dataset, format: "NeTEx", title: "Horaire NeTEx")
+
+    insert(:multi_validation, %{
+      resource_history: insert(:resource_history, resource: netex_resource),
+      validator: netex_validator_name = Transport.Validators.NeTEx.Validator.validator_name(),
+      max_error: "error",
+      inserted_at: DateTime.utc_now() |> DateTime.add(-15, :minute)
+    })
+
+    %DB.Contact{id: producer_contact_id} = producer_contact = insert_contact(%{email: "producer@example.com"})
+    %DB.Contact{id: reuser_contact_id} = reuser_contact = insert_contact(%{email: "reuser@example.com"})
+
+    %DB.NotificationSubscription{id: producer_subscription_id} =
+      insert(:notification_subscription, %{
+        reason: :dataset_with_error,
+        source: :admin,
+        role: :producer,
+        contact_id: producer_contact_id,
+        dataset_id: dataset_id
+      })
+
+    insert(:notification_subscription, %{
+      reason: :dataset_with_error,
+      source: :user,
+      role: :reuser,
+      contact_id: reuser_contact_id,
+      dataset_id: dataset_id
+    })
+
+    assert :ok == perform_job(MultiValidationWithErrorNotificationJob, %{})
+
+    # Producer gets notified
+    assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
+      assert to == [{DB.Contact.display_name(producer_contact), producer_contact.email}]
+      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
+      assert html =~ ~s(<a href="http://127.0.0.1:5100/datasets/#{dataset.slug}">#{dataset.custom_title}</a>)
+      assert html =~ ~s(<a href="http://127.0.0.1:5100/resources/#{netex_resource.id}">#{netex_resource.title}</a>)
+    end)
+
+    # Reuser gets notified (first attempt only)
+    assert_email_sent(fn %Swoosh.Email{to: to, subject: subject, html_body: html} ->
+      assert to == [{DB.Contact.display_name(reuser_contact), "reuser@example.com"}]
+      assert subject == "Erreurs détectées dans le jeu de données #{dataset.custom_title}"
+      assert html =~ "Nous avons déjà informé le producteur de ces données."
+    end)
+
+    # Checks no other emails have been sent
+    assert_no_email_sent()
+
+    # Logs have been saved
+    recent_dt = DateTime.utc_now() |> DateTime.add(-1, :second)
+
+    assert %DB.Notification{
+             role: :producer,
+             payload: %{
+               "resource_formats" => ["NeTEx"],
+               "resource_ids" => [_],
+               "validator_name" => ^netex_validator_name,
+               "job_id" => _,
+               "attempt" => 1
+             },
+             notification_subscription_id: ^producer_subscription_id
+           } =
+             DB.Notification.base_query()
+             |> where([notification: n], n.dataset_id == ^dataset_id and n.inserted_at >= ^recent_dt)
+             |> where([notification: n], n.role == :producer)
+             |> DB.Repo.one!()
+
+    # Job is re-enqueued for 7 days later (static data delay)
+    assert [
+             %Oban.Job{
+               worker: "Transport.Jobs.MultiValidationWithErrorNotificationJob",
+               args: %{"dataset_id" => ^dataset_id, "attempt" => 2},
+               state: "scheduled",
+               scheduled_at: enqueued_scheduled_at
+             }
+           ] = all_enqueued()
+
+    assert_in_delta enqueued_scheduled_at |> DateTime.to_unix(),
                     DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.to_unix(),
                     50
   end
