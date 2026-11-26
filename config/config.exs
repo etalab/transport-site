@@ -133,9 +133,7 @@ config :transport,
   datasets_impl: Datagouvfr.Client.Datasets.External,
   resources_impl: Datagouvfr.Client.Resources.External
 
-config :ex_json_schema,
-       :remote_schema_resolver,
-       fn url -> HTTPoison.get!(url).body |> Jason.decode!() end
+config :ex_json_schema, :remote_schema_resolver, {Transport.Validators.JSONSchema, :read_vendored_schema!}
 
 config :ex_aws,
   access_key_id: System.get_env("CELLAR_ACCESS_KEY_ID"),

@@ -11,12 +11,8 @@ defmodule Transport.Validators.TableSchemaTest do
 
   doctest Transport.Validators.TableSchema, import: true
 
-  setup {Transport.Test.CacheHelpers, :use_real_cache}
-
   setup do
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
-    Cachex.clear(Transport.Application.cache_name())
-    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     Ecto.Adapters.SQL.Sandbox.checkout(DB.Repo)
   end
 
@@ -104,7 +100,6 @@ defmodule Transport.Validators.TableSchemaTest do
 
   describe "validator_api_url" do
     test "with a specific schema version" do
-      setup_schemas_response()
       schema_version = "0.2.2"
       query = URI.encode_query(%{schema: schema_url(@schema_name, schema_version), url: @url, header_case: "false"})
       expected_url = "https://api.validata.etalab.studio/validate?#{query}"
@@ -113,7 +108,6 @@ defmodule Transport.Validators.TableSchemaTest do
     end
 
     test "with latest version" do
-      setup_schemas_response()
       query = URI.encode_query(%{schema: schema_url(@schema_name, "latest"), url: @url, header_case: "false"})
       expected_url = "https://api.validata.etalab.studio/validate?#{query}"
 
@@ -126,13 +120,11 @@ defmodule Transport.Validators.TableSchemaTest do
       schema_name = "foo"
 
       assert_raise RuntimeError, "#{schema_name} is not a tableschema", fn ->
-        setup_schemas_response()
         validate(schema_name, @url)
       end
     end
 
     test "invalid object" do
-      setup_schemas_response()
       "validata_with_errors.json" |> setup_validata_response()
 
       assert %{
@@ -169,7 +161,6 @@ defmodule Transport.Validators.TableSchemaTest do
     end
 
     test "valid object" do
-      setup_schemas_response()
       "validata_with_no_errors.json" |> setup_validata_response()
 
       assert %{
@@ -182,20 +173,17 @@ defmodule Transport.Validators.TableSchemaTest do
     end
 
     test "with a server error" do
-      setup_schemas_response()
       validata_response_with_body("error", 500)
       assert nil == validate(@schema_name, @url)
     end
 
     test "with a file error" do
-      setup_schemas_response()
       "validata_with_file_error.json" |> setup_validata_response()
 
       assert nil == validate(@schema_name, @url)
     end
 
     test "with a custom check error" do
-      setup_schemas_response()
       "validata_with_opening_hours_error.json" |> setup_validata_response()
 
       assert %{
@@ -210,7 +198,6 @@ defmodule Transport.Validators.TableSchemaTest do
     end
 
     test "when the custom check is unknown and stats.errors is wrong" do
-      setup_schemas_response()
       "validata_unknown_custom_check_error.json" |> setup_validata_response()
 
       assert %{
@@ -225,7 +212,6 @@ defmodule Transport.Validators.TableSchemaTest do
     end
 
     test "when the remote file does not exist" do
-      setup_schemas_response()
       "validata_source_error.json" |> setup_validata_response()
       assert :source_error == validate(@schema_name, @url)
     end
@@ -233,8 +219,6 @@ defmodule Transport.Validators.TableSchemaTest do
 
   describe "validata_web_url" do
     test "it works" do
-      setup_schemas_response()
-
       assert "https://validata.fr/table-schema?schema_name=schema-datagouvfr.etalab%2Fschema-lieux-covoiturage" ==
                validata_web_url(@schema_name)
     end
@@ -243,7 +227,6 @@ defmodule Transport.Validators.TableSchemaTest do
       schema_name = "foo"
 
       assert_raise RuntimeError, "#{schema_name} is not a tableschema", fn ->
-        setup_schemas_response()
         validata_web_url(schema_name)
       end
     end
@@ -260,15 +243,6 @@ defmodule Transport.Validators.TableSchemaTest do
     Transport.HTTPoison.Mock
     |> expect(:get, fn ^url, [] = _headers, [recv_timeout: 180_000] = _options ->
       {:ok, %HTTPoison.Response{body: body, status_code: status_code}}
-    end)
-  end
-
-  defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.json"
-
-    Transport.Req.Mock
-    |> expect(:get!, fn ^url, _options ->
-      %Req.Response{body: File.read!("#{__DIR__}/../../fixture/schemas/schemas.json"), status: 200}
     end)
   end
 end

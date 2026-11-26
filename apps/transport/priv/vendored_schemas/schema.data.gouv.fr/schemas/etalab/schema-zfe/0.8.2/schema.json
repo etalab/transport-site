@@ -1,0 +1,208 @@
+{
+  "allOf": [
+    {
+      "$ref": "https://geojson.org/schema/FeatureCollection.json"
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "features": {
+      "type": "array",
+      "items": {
+        "title": "GeoJSON Feature",
+        "type": "object",
+        "required": [
+          "properties"
+        ],
+        "properties": {
+          "properties": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Identifiant unique de l'aire réglementée. Pour construire l'identifiant on utilise cette formule : 'Code SIREN de l'entité administrative englobant la zone' - ZFE - XXX. Identifiant unique cleabs du tronçon routier issu de la couche TRONCON_DE_ROUTE de la BD Topo produite par l'IGN",
+                "examples": [
+                  "200046977-ZFE-001",
+                  "TRONROUT0000002003832789"
+                ]
+              },
+              "date_debut": {
+                "type": "string",
+                "format": "date",
+                "description": "Date d'entrée en vigueur de la réglementation",
+                "examples": [
+                  "2019-07-01"
+                ]
+              },
+              "date_fin": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "Date de fin de la réglementation",
+                "examples": [
+                  "2023-07-01"
+                ]
+              },
+              "vp_critair": {
+                "type": ["string", "null"],
+                "description": "Véhicules particuliers : Vignette CRITAIR à partir de laquelle la circulation n'est pas autorisée. Par exemple V4 signifie que les véhicules CRITAIR 4, CRITAIR 5 et sans vignettes ne sont pas autorisés à circuler. L'ordre des vignettes est le suivant : EL, V1, V2, V3, V4, V5, NC. EL correspond aux véhicules électriques et NC aux véhicules sans vignette.",
+                "examples": [
+                  "V4"
+                ],
+               "enum": [
+                  "V5",
+                  "V4",
+                  "V3",
+                  "V2",
+                  "V1",
+                  "EL",
+                  "NC",
+                  null
+                ]
+              },
+              "vp_horaires": {
+                "type": ["string", "null"],
+                "description": "Véhicules particuliers : jours et horaires de restriction au format 'opening hours' d'OpenStreetMap : https://wiki.openstreetmap.org/wiki/Key:opening_hours",
+                "examples": [
+                  "Mo-Fr 08:00-20:00; PH off",
+                  "24/7"
+                ]
+              },
+              "vul_critair": {
+                "type": ["string", "null"],
+                "description": "Véhicules utilitaires légers : Vignette CRITAIR à partir de laquelle la circulation n'est pas autorisée. Par exemple V4 signifie que les véhicules CRITAIR 4, CRITAIR 5 et sans vignettes ne sont pas autorisés à circuler. L'ordre des vignettes est le suivant : EL, V1, V2, V3, V4, V5, NC. EL correspond aux véhicules électriques et NC aux véhicules sans vignette.",
+                "examples": [
+                  "V4"
+                ],
+               "enum": [
+                  "V5",
+                  "V4",
+                  "V3",
+                  "V2",
+                  "V1",
+                  "EL",
+                  "NC",
+                  null
+                ]
+              },
+              "vul_horaires": {
+                "type": ["string", "null"],
+                "description": "Véhicules utilitaires légers : jours et horaires de restriction au format 'opening hours' d'OpenStreetMap : https://wiki.openstreetmap.org/wiki/Key:opening_hours",
+                "examples": [
+                  "Mo-Fr 08:00-20:00; PH off",
+                  "24/7"
+                ]
+              },
+              "pl_critair": {
+                "type": ["string", "null"],
+                "description": "Poids lourds (>3,5t): Vignette CRITAIR à partir de laquelle la circulation n'est pas autorisée. Par exemple V4 signifie que les véhicules CRITAIR 4, CRITAIR 5 et sans vignettes ne sont pas autorisés à circuler. L'ordre des vignettes est le suivant : EL, V1, V2, V3, V4, V5, NC. EL correspond aux véhicules électriques et NC aux véhicules sans vignette.",
+                "examples": [
+                  "V4"
+                ],
+               "enum": [
+                  "V5",
+                  "V4",
+                  "V3",
+                  "V2",
+                  "V1",
+                  "EL",
+                  "NC",
+                  null
+                ]
+              },
+              "pl_horaires": {
+                "type": ["string", "null"],
+                "description": "Poids lourds (>3,5t): jours et horaires de restriction au format 'opening hours' d'OpenStreetMap : https://wiki.openstreetmap.org/wiki/Key:opening_hours",
+                "examples": [
+                  "Mo-Fr 08:00-20:00; PH off",
+                  "24/7"
+                ]
+              },
+              "autobus_autocars_critair": {
+                "type": ["string", "null"],
+                "description": "Autobus et autocars : Vignette CRITAIR à partir de laquelle la circulation n'est pas autorisée. Par exemple V4 signifie que les véhicules CRITAIR 4, CRITAIR 5 et sans vignettes ne sont pas autorisés à circuler. L'ordre des vignettes est le suivant : EL, V1, V2, V3, V4, V5, NC. EL correspond aux véhicules électriques et NC aux véhicules sans vignette.",
+                "examples": [
+                  "V4"
+                ],
+               "enum": [
+                  "V5",
+                  "V4",
+                  "V3",
+                  "V2",
+                  "V1",
+                  "EL",
+                  "NC",
+                  null
+                ]
+              },
+              "autobus_autocars_horaires": {
+                "type": ["string", "null"],
+                "description": "Autobus et autocars : jours et horaires de restriction au format 'opening hours' d'OpenStreetMap : https://wiki.openstreetmap.org/wiki/Key:opening_hours",
+                "examples": [
+                  "Mo-Fr 08:00-20:00; PH off",
+                  "24/7"
+                ]
+              },
+              "deux_rm_critair": {
+                "type": ["string", "null"],
+                "description": "Deux roues, tricycles et quadricycles à moteur : Vignette CRITAIR à partir de laquelle la circulation n'est pas autorisée. Par exemple V4 signifie que les véhicules CRITAIR 4, CRITAIR 5 et sans vignettes ne sont pas autorisés à circuler. L'ordre des vignettes est le suivant : EL, V1, V2, V3, V4, V5, NC. EL correspond aux véhicules électriques et NC aux véhicules sans vignette.",
+                "examples": [
+                  "V4"
+                ],
+               "enum": [
+                  "V5",
+                  "V4",
+                  "V3",
+                  "V2",
+                  "V1",
+                  "EL",
+                  "NC",
+                  null
+                ]
+              },
+              "deux_rm_horaires": {
+                "type": ["string", "null"],
+                "description": "Deux roues, tricycles et quadricycles à moteur : jours et horaires de restriction au format 'opening hours' d'OpenStreetMap : https://wiki.openstreetmap.org/wiki/Key:opening_hours",
+                "examples": [
+                  "Mo-Fr 08:00-20:00; PH off",
+                  "24/7"
+                ]
+              },
+              "url_arrete": {
+                "type": "string",
+                "format": "uri",
+                "description": "Lien de l'arrêté administratif précisant la réglementation sur la zone ou sur le tronçon de route.",
+                "examples": [
+                  "https://cdn.paris.fr/paris/2021/05/28/23fb2b69cfa451a4e517f1bc6e3001b7.pdf"
+                ]
+              },
+              "url_site_information": {
+                "type": "string",
+                "format": "uri",
+                "description": "Page web décrivant le dispositif et précisant la réglementation sur la zone ou sur le tronçon de route.",
+                "examples": [
+                  "https://www.metropolegrandparis.fr/fr/ZFE"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "date_debut"
+            ],
+            "dependencies": {
+              "vp_critair": ["vp_horaires"],
+              "vul_critair": ["vul_horaires"],
+              "pl_critair": ["pl_horaires"],
+              "autobus_autocars_critair": ["autobus_autocars_horaires"],
+              "deux_rm_critair": ["deux_rm_horaires"],
+              "vp_horaires": ["vp_critair"],
+              "vul_horaires": ["vul_critair"],
+              "pl_horaires": ["pl_critair"],
+              "autobus_autocars_horaires": ["autobus_autocars_critair"],
+              "deux_rm_horaires": ["deux_rm_critair"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

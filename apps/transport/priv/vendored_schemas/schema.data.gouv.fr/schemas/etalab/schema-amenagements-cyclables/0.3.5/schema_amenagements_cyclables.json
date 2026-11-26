@@ -1,0 +1,416 @@
+{
+    "allOf": [
+        {
+            "$ref": "https://geojson.org/schema/FeatureCollection.json",
+            "name": "schema-amenagements-cyclables",
+            "title": "Aménagement cyclable",
+            "description": "Spécification du fichier d'échange relatif aux données concernant la localisation géographique et les caractéristiques des aménagements cyclables",
+            "countryCode": "FR",
+            "homepage": "https://github.com/etalab/amenagements-cyclables",
+            "path": "https://schema.data.gouv.fr/schemas/etalab/schema-amenagements-cyclables/0.3.4/schema_amenagements_cyclables.json",
+            "resources": [
+                {
+                    "title": "Exemple de fichier Aménagement cyclable",
+                    "path": "https://github.com/etalab/amenagements-cyclables/raw/v0.3.4/exemple-valide.json"
+                },
+                {
+                    "title": "Template SHP",
+                    "path": "https://github.com/etalab/amenagements-cyclables/blob/master/tools/AC_TEMPLATE_SHP_QGIS.zip"
+                },
+                {
+                    "title": "Template SQL",
+                    "path": "https://github.com/etalab/amenagements-cyclables/blob/master/tools/AC_SQL_POSTGIS.zip"
+                }
+            ],
+            "created": "2020-12-10",
+            "lastModified": "2024-10-04",
+            "version": "0.3.5",
+            "contributors": [
+                {
+                    "title": "Stéphane Pignal",
+                    "email": "contact@transport.data.gouv.fr",
+                    "organisation": "Transport.data.gouv.fr",
+                    "role": "contributor"
+                },
+                {
+                    "title": "Miryad Ali",
+                    "email": "contact@transport.beta.gouv.fr",
+                    "organisation": "Transport.data.gouv.fr",
+                    "role": "author"
+                },
+                {
+                    "title": "Fabien Commeaux",
+                    "email": "fabien.commeaux@velo-territoires.org",
+                    "organisation": "Vélo & territoires",
+                    "role": "author"
+                },
+                {
+                    "title": "Thomas Montagne",
+                    "email": "thomas.montagne@velo-territoires.org",
+                    "organisation": "Vélo & territoires",
+                    "role": "author"
+                },
+                {
+                    "title": "Simon Réau",
+                    "email": "simon.reau@geovelo.fr ",
+                    "organisation": "Géovélo",
+                    "role": "contributor"
+                },
+                {
+                    "title": "Antoine Desbordes",
+                    "email": "contact@transport.beta.gouv.fr",
+                    "organisation": "Transport.data.gouv.fr",
+                    "role": "contributor"
+                },
+                {
+                    "title": "Antoine Augusti",
+                    "email": "contact@transport.beta.gouv.fr",
+                    "organisation": "Transport.data.gouv.fr",
+                    "role": "contributor"
+                }
+            ]
+        }
+    ],
+    "type": "object",
+    "properties": {
+        "features": {
+            "type": "array",
+            "items": {
+                "title": "GeoJSON Feature",
+                "type": "object",
+                "required": [
+                    "properties"
+                ],
+                "properties": {
+                    "properties": {
+                        "type": "object",
+                        "properties": {
+                            "id_local": {
+                                "type": "string",
+                                "description": "Identifiant unique pérenne défini par la collectivité",
+                                "examples": [
+                                    "751AC001"
+                                ]
+                            },
+                            "reseau_loc": {
+                                "type": "string",
+                                "description": "Type de réseau structurant local auquel l'aménagement appartient",
+                                "examples": [
+                                    "Structurant"
+                                ],
+                                "enum": [
+                                    "REV",
+                                    "Structurant",
+                                    "Autre"
+                                ]
+                            },
+                            "nom_loc": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "description": "Nom et numéro des itinéraires locaux",
+                                    "examples": [
+                                        "V1"
+                                    ]
+                                }
+                            },
+                            "id_osm": {
+                                "type": "string",
+                                "description": "Identifiant de l'aménagement sur OSM",
+                                "examples": [
+                                    "7746952719"
+                                ]
+                            },
+                            "num_iti": {
+                                "type": "string",
+                                "description": "Numéro des itinéraires, des EuroVelo au schéma départementaux, auxquels le segment appartient. Séparé par « : »",
+                                "examples": [
+                                    "0001:0006:0045:"
+                                ]
+                            },
+                            "code_com_d": {
+                                "type": "string",
+                                "description": "Code INSEE de la commune (5 caractères alphanumériques) sur la voie de droite",
+                                "examples": [
+                                    "75114"
+                                ],
+                                "pattern": "^([013-9]\\d|2[AB1-9])\\d{3}"
+                            },
+                            "ame_d": {
+                                "type": "string",
+                                "description": "Type d'aménagement présent sur la voie de droite",
+                                "examples": [
+                                    "BANDE CYCLABLE"
+                                ],
+                                "enum": [
+                                    "PISTE CYCLABLE",
+                                    "BANDE CYCLABLE",
+                                    "DOUBLE SENS CYCLABLE PISTE",
+                                    "DOUBLE SENS CYCLABLE BANDE",
+                                    "DOUBLE SENS CYCLABLE NON MATERIALISE",
+                                    "VOIE VERTE",
+                                    "VELO RUE",
+                                    "COULOIR BUS+VELO",
+                                    "RAMPE",
+                                    "GOULOTTE",
+                                    "AMENAGEMENT MIXTE PIETON VELO HORS VOIE VERTE",
+                                    "CHAUSSEE A VOIE CENTRALE BANALISEE",
+                                    "ACCOTEMENT REVETU HORS CVCB",
+                                    "AUCUN",
+                                    "AUTRE"
+                                ]
+                            },
+                            "regime_d": {
+                                "type": "string",
+                                "description": "Régime présent sur la voie de droite",
+                                "examples": [
+                                    "AIRE PIETONNE"
+                                ],
+                                "enum": [
+                                    "ZONE 30",
+                                    "AIRE PIETONNE",
+                                    "ZONE DE RENCONTRE",
+                                    "EN AGGLOMERATION",
+                                    "HORS AGGLOMERATION",
+                                    "AUTRE"
+                                ]
+                            },
+                            "sens_d": {
+                                "type": "string",
+                                "description": "Sens de circulation pour les cyclistes sur la voie de droite",
+                                "examples": [
+                                    "UNIDIRECTIONNEL"
+                                ],
+                                "enum": [
+                                    "UNIDIRECTIONNEL",
+                                    "BIDIRECTIONNEL"
+                                ]
+                            },
+                            "largeur_d": {
+                                "type": "number",
+                                "description": "Largeur hors marquage minimale utile de la voie de droite réservée au cycliste, en mètre. La largeur du marquage est exclue",
+                                "examples": [
+                                    3
+                                ]
+                            },
+                            "local_d": {
+                                "type": "string",
+                                "description": "Emplacement de l'aménagement sur la voie de droite",
+                                "examples": [
+                                    "TROTTOIR"
+                                ],
+                                "enum": [
+                                    "TROTTOIR",
+                                    "INTERMEDIAIRE",
+                                    "CHAUSSEE"
+                                ]
+                            },
+                            "statut_d": {
+                                "type": "string",
+                                "description": "Niveau de réalisation de l'infrastructure sur la voie de droite",
+                                "examples": [
+                                    "PROVISOIRE"
+                                ],
+                                "enum": [
+                                    "EN TRAVAUX",
+                                    "EN SERVICE",
+                                    "PROVISOIRE"
+                                ]
+                            },
+                            "revet_d": {
+                                "type": "string",
+                                "description": "Type de revêtement de l'aménagement sur la voie de droite",
+                                "examples": [
+                                    "LISSE"
+                                ],
+                                "enum": [
+                                    "LISSE",
+                                    "RUGUEUX",
+                                    "MEUBLE"
+                                ]
+                            },
+                            "code_com_g": {
+                                "type": "string",
+                                "description": "Code INSEE de la commune (5 caractères alphanumériques) sur la voie de gauche",
+                                "examples": [
+                                    "75115"
+                                ],
+                                "pattern": "^([013-9]\\d|2[AB1-9])\\d{3}"
+                            },
+                            "ame_g": {
+                                "type": "string",
+                                "description": "Type d'aménagement présent sur la voie de gauche",
+                                "examples": [
+                                    "BANDE CYCLABLE"
+                                ],
+                                "enum": [
+                                    "PISTE CYCLABLE",
+                                    "BANDE CYCLABLE",
+                                    "DOUBLE SENS CYCLABLE PISTE",
+                                    "DOUBLE SENS CYCLABLE BANDE",
+                                    "DOUBLE SENS CYCLABLE NON MATERIALISE",
+                                    "VOIE VERTE",
+                                    "VELO RUE",
+                                    "COULOIR BUS+VELO",
+                                    "RAMPE",
+                                    "GOULOTTE",
+                                    "AMENAGEMENT MIXTE PIETON VELO HORS VOIE VERTE",
+                                    "CHAUSSEE A VOIE CENTRALE BANALISEE",
+                                    "ACCOTEMENT REVETU HORS CVCB",
+                                    "AUCUN",
+                                    "AUTRE"
+                                ]
+                            },
+                            "regime_g": {
+                                "type": "string",
+                                "description": "Régime présent sur la voie de gauche",
+                                "examples": [
+                                    "AIRE PIETONNE"
+                                ],
+                                "enum": [
+                                    "ZONE 30",
+                                    "AIRE PIETONNE",
+                                    "ZONE DE RENCONTRE",
+                                    "EN AGGLOMERATION",
+                                    "HORS AGGLOMERATION",
+                                    "AUTRE"
+                                ]
+                            },
+                            "sens_g": {
+                                "type": "string",
+                                "description": "Sens de circulation pour les cyclistes sur la voie de gauche",
+                                "examples": [
+                                    "UNIDIRECTIONNEL"
+                                ],
+                                "enum": [
+                                    "UNIDIRECTIONNEL",
+                                    "BIDIRECTIONNEL"
+                                ]
+                            },
+                            "largeur_g": {
+                                "type": "number",
+                                "description": "Largeur hors marquage minimale utile de la voie de gauche réservée au cycliste, en mètre. La largeur du marquage est exclue",
+                                "examples": [
+                                    4.1
+                                ]
+                            },
+                            "local_g": {
+                                "type": "string",
+                                "description": "Emplacement de l'aménagement sur la voie de gauche",
+                                "examples": [
+                                    "TROTTOIR"
+                                ],
+                                "enum": [
+                                    "TROTTOIR",
+                                    "INTERMEDIAIRE",
+                                    "CHAUSSEE"
+                                ]
+                            },
+                            "statut_g": {
+                                "type": "string",
+                                "description": "Niveau de réalisation de l'infrastructure sur la voie de gauche",
+                                "examples": [
+                                    "PROVISOIRE"
+                                ],
+                                "enum": [
+                                    "EN TRAVAUX",
+                                    "EN SERVICE",
+                                    "PROVISOIRE"
+                                ]
+                            },
+                            "revet_g": {
+                                "type": "string",
+                                "description": "Type de revêtement de l'aménagement sur la voie de gauche",
+                                "examples": [
+                                    "LISSE"
+                                ],
+                                "enum": [
+                                    "LISSE",
+                                    "RUGUEUX",
+                                    "MEUBLE"
+                                ]
+                            },
+                            "access_ame": {
+                                "type": "string",
+                                "description": "Accessibilité des aménagements par type de véhicule à deux roues non motorisé",
+                                "examples": [
+                                    "VTT"
+                                ],
+                                "enum": [
+                                    "ROLLER",
+                                    "VELO DE ROUTE",
+                                    "VTC",
+                                    "VTT"
+                                ]
+                            },
+                            "date_maj": {
+                                "type": "string",
+                                "format": "date",
+                                "description": "Date de dernière mise à jour des données du segment. Notation ISO 8601, format AAAA-MM-JJ",
+                                "examples": [
+                                    "2020-08-15"
+                                ]
+                            },
+                            "trafic_vit": {
+                                "type": "integer",
+                                "description": "Vitesse maximale autorisée pour le trafic adjacent à l'aménagement, en km/h. La vitesse 5 km/h correspond à une vitesse à l'allure du pas",
+                                "examples": [
+                                    "80"
+                                ]
+                            },
+                            "lumiere": {
+                                "type": "boolean",
+                                "description": "Aménagement éclairé",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "d_service": {
+                                "type": "number",
+                                "description": "Date de mise en oeuvre de l'aménagement (AAAA)",
+                                "examples": [
+                                    2015
+                                ]
+                            },
+                            "comm": {
+                                "type": "string",
+                                "description": "Remarques éventuelles au sujet de l'aménagement",
+                                "examples": [
+                                    "forte pente sur 10 mètres"
+                                ]
+                            },
+                            "source": {
+                                "type": "string",
+                                "description": "Entité ayant fourni les données",
+                                "examples": [
+                                    "Ville de Paris"
+                                ]
+                            },
+                            "project_c": {
+                                "type": "string",
+                                "description": "Projection cartographique de la donnée source",
+                                "examples": [
+                                    "Peters"
+                                ]
+                            },
+                            "ref_geo": {
+                                "type": "string",
+                                "description": "Référentiel géographique utilisé ",
+                                "examples": [
+                                    "Bdortho"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "id_local",
+                            "code_com_d",
+                            "code_com_g",
+                            "ame_d",
+                            "ame_g"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

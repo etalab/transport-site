@@ -49,14 +49,21 @@ defmodule Transport.Validators.JSONSchema do
   @impl true
   def load_jsonschema_for_schema(schema_name, schema_version \\ "latest") do
     ensure_schema_is_jsonschema!(schema_name)
+    schema_name |> schema_url(schema_version) |> read_vendored_schema!() |> ExJsonSchema.Schema.resolve()
+  end
 
-    comp_fn = fn ->
-      %Req.Response{status: 200, body: body} = http_get!(schema_url(schema_name, schema_version))
+  @doc """
+  Reads the copy of a remote schema stored at `priv/vendored_schemas/<host>/<path>`, so that validation needs no
+  network. Only the latest version of each JSON Schema is vendored, with the schemas it references.
+  Also used by ExJsonSchema to resolve remote `$ref`s.
+  """
+  def read_vendored_schema!(url) do
+    %URI{scheme: "https", host: host, path: path} = URI.parse(url)
 
-      body |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
-    end
-
-    Transport.Cache.fetch("jsonschema_#{schema_name}_#{schema_version}", comp_fn, :timer.seconds(300))
+    :transport
+    |> Application.app_dir(Path.join(["priv/vendored_schemas", host, path]))
+    |> File.read!()
+    |> Jason.decode!()
   end
 
   def ensure_schema_is_jsonschema!(schema_name) do

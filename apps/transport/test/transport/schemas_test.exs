@@ -7,31 +7,30 @@ defmodule Transport.SchemasTest do
 
   @base_url "https://schema.data.gouv.fr"
 
-  setup {Transport.Test.CacheHelpers, :use_real_cache}
-
   setup do
-    setup_schemas_response()
-    Cachex.clear(Transport.Application.cache_name())
-    on_exit(fn -> Cachex.clear(Transport.Application.cache_name()) end)
     Mox.stub_with(Transport.Schemas.Mock, Transport.Schemas)
     :ok
   end
 
   test "transport_schemas" do
-    assert ["etalab/schema-amenagements-cyclables", "etalab/schema-lieux-covoiturage", "etalab/schema-zfe"] ==
-             Map.keys(transport_schemas())
-
-    assert_cache_key_has_ttl("transport_schemas")
+    assert %{
+             "title" => "Zone à Faibles Emissions",
+             "schema_type" => "jsonschema",
+             "versions" => [
+               %{"version_name" => "0.6.1", "schema_url" => "#{@base_url}/schemas/etalab/schema-zfe/0.6.1/schema.json"}
+               | _
+             ]
+           } = Map.fetch!(transport_schemas(), "etalab/schema-zfe")
   end
 
   test "schemas_by_type" do
     assert ["etalab/schema-amenagements-cyclables", "etalab/schema-zfe"] == Map.keys(schemas_by_type("jsonschema"))
-    assert ["etalab/schema-lieux-covoiturage"] == Map.keys(schemas_by_type("tableschema"))
+    assert "etalab/schema-lieux-covoiturage" in Map.keys(schemas_by_type("tableschema"))
   end
 
   describe "schema_url" do
     test "simple case" do
-      assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
+      assert "#{@base_url}/schemas/etalab/schema-zfe/0.8.2/schema.json" ==
                schema_url("etalab/schema-zfe", "latest")
 
       assert "#{@base_url}/schemas/etalab/schema-zfe/0.7.2/schema.json" ==
@@ -39,7 +38,7 @@ defmodule Transport.SchemasTest do
     end
 
     test "with a custom schema filename" do
-      assert "#{@base_url}/schemas/etalab/schema-amenagements-cyclables/0.3.3/schema_amenagements_cyclables.json" ==
+      assert "#{@base_url}/schemas/etalab/schema-amenagements-cyclables/0.3.5/schema_amenagements_cyclables.json" ==
                schema_url("etalab/schema-amenagements-cyclables", "latest")
     end
 
@@ -74,19 +73,37 @@ defmodule Transport.SchemasTest do
     end
   end
 
-  defp setup_schemas_response do
-    url = "https://schema.data.gouv.fr/schemas.json"
+  @tag :ci_only_on_mondays
+  test "the catalog is up to date with schema.data.gouv.fr" do
+    upstream =
+      "#{@base_url}/schemas.json"
+      |> get_json!()
+      |> Map.fetch!("schemas")
+      |> Enum.filter(&("transport.data.gouv.fr" in &1["labels"] and &1["schema_type"] != "datapackage"))
+      |> Map.new(fn schema ->
+        versions = Enum.map(schema["versions"], &Map.take(&1, ["version_name", "schema_url"]))
+        {schema["name"], schema |> Map.take(["title", "schema_type"]) |> Map.put("versions", versions)}
+      end)
 
-    Transport.Req.Mock
-    |> expect(:get!, fn ^url, options ->
-      assert [decode_body: false, retry: false, connect_options: [timeout: 5_000], receive_timeout: 10_000] == options
-      %Req.Response{body: File.read!("#{__DIR__}/../fixture/schemas/schemas.json"), status: 200}
-    end)
+    for name <- Enum.uniq(Map.keys(upstream) ++ Map.keys(transport_schemas())) do
+      assert upstream[name] == transport_schemas()[name], """
+      #{name} changed on schema.data.gouv.fr, run `mix run --no-start scripts/update_transport_schemas.exs`.
+      Upstream: #{inspect(upstream[name], pretty: true)}
+      """
+    end
   end
 
-  def assert_cache_key_has_ttl(cache_key, expected_ttl \\ 300) do
-    assert_in_delta Cachex.ttl!(Transport.Application.cache_name(), cache_key),
-                    :timer.seconds(expected_ttl),
-                    :timer.seconds(1)
+  @tag :ci_only_on_mondays
+  test "vendored schemas are up to date" do
+    dir = Application.app_dir(:transport, "priv/vendored_schemas")
+
+    for path <- Path.wildcard("#{dir}/**/*.json") do
+      url = "https://" <> Path.relative_to(path, dir)
+
+      assert get_json!(url) == Transport.Validators.JSONSchema.read_vendored_schema!(url),
+             "#{url} changed upstream, run `mix run --no-start scripts/update_transport_schemas.exs`"
+    end
   end
+
+  defp get_json!(url), do: url |> Req.get!(decode_body: false) |> Map.fetch!(:body) |> Jason.decode!()
 end
