@@ -27,7 +27,7 @@ defmodule Transport.IRVE.V3.Validator do
 
     case Reader.read(body, Enum.map(schema["fields"], & &1["name"])) do
       {:ok, df} ->
-        checks = df |> FieldChecks.run(FieldChecks.compile(schema)) |> Explorer.DataFrame.new()
+        checks = df |> FieldChecks.run(schema) |> Explorer.DataFrame.new()
         Map.merge(file, %{n_rows: Explorer.DataFrame.n_rows(df), file_errors: [], checks: checks})
 
       {:error, file_errors} ->
